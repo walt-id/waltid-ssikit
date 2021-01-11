@@ -9,7 +9,14 @@ import java.security.PublicKey
 import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
 
-object KeyStore {
+
+
+interface  KeyStore {
+    fun saveKeyPair(keys: Keys)
+    fun loadKeyPair(keyId: String): Keys?
+}
+
+object FileSystemKeyStore : KeyStore {
 
     private const val KEY_DIR_PATH = "keys"
 
@@ -19,14 +26,14 @@ object KeyStore {
         File(KEY_DIR_PATH).mkdirs()
     }
 
-    fun saveKeyPair(keys: Keys) {
+    override fun saveKeyPair(keys: Keys) {
         keys.pair?.let { saveEncPublicKey(keys.keyId, it.public) }
         keys.pair?.let { saveEncPrivateKey(keys.keyId, it.private) }
         keys.publicKey?.let { saveRawPublicKey(keys.keyId, it) }
         keys.privateKey?.let { saveRawPrivateKey(keys.keyId, it) }
     }
 
-    fun loadKeyPair(keyId: String): Keys? {
+    override fun loadKeyPair(keyId: String): Keys? {
         if (keyFileExists(keyId, "enc-pubkey") && keyFileExists(keyId, "enc-privkey")) {
             return Keys(keyId, KeyPair(loadEncPublicKey(keyId), loadEncPrivateKey(keyId)))
         }

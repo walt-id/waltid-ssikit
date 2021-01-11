@@ -11,7 +11,8 @@ import kotlin.collections.ArrayList
 
 object KeyManagementService {
 
-    private val ks = KeyStore
+    // TODO: keystore implementation should be configurable
+    private val ks = FileSystemKeyStore
 
     private fun generateKeyId(): String = "LetsTrust-Key-${UUID.randomUUID().toString().replace("-", "")}"
 
@@ -59,8 +60,8 @@ object KeyManagementService {
     }
 
     // TODO: Persist alias-map
-    fun addAlias(keyId: String, identifier: String) {
-        aliasMap.put(identifier, keyId)
+    fun addAlias(keyId: String, alias: String) {
+        aliasMap.put(alias, keyId)
     }
 
     fun getKeyId(alias: String): String? {
