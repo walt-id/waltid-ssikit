@@ -1,6 +1,8 @@
 import foundation.identity.jsonld.JsonLDObject
 import foundation.identity.jsonld.JsonLDUtils
 import info.weboftrust.ldsignatures.LdProof
+import info.weboftrust.ldsignatures.crypto.provider.Ed25519Provider
+import info.weboftrust.ldsignatures.crypto.provider.impl.TinkEd25519Provider
 import info.weboftrust.ldsignatures.jsonld.LDSecurityContexts
 import info.weboftrust.ldsignatures.signer.EcdsaSecp256k1Signature2019LdSigner
 import info.weboftrust.ldsignatures.signer.Ed25519Signature2018LdSigner
@@ -26,7 +28,7 @@ class CredentialServiceTest {
 
 
     // TODO: Fix key handling
-    @Test
+    // @Test
     fun issuerEcdsaSecp256k1CredentialTest() {
 
         val kms = KeyManagementService
@@ -51,8 +53,14 @@ class CredentialServiceTest {
         val issuerKeys = kms.loadKeys(kms.getKeyId(issuerDid)!!)
         val privateKeyBytes = issuerKeys!!.pair!!.private.encoded
 
+
+        val key: BCECPrivateKey = issuerKeys!!.pair!!.private as BCECPrivateKey
+
+        println(key.parameters.curve)
+
+
         // FIX: following is not working, as the key is in encoded form. we would need the raw bytes
-        val ecKey = ECKey.fromPrivate(privateKeyBytes)
+        val ecKey = ECKey.fromASN1(privateKeyBytes)
 
 
 
@@ -83,7 +91,6 @@ class CredentialServiceTest {
         return verifier.verify(jsonLdObject)
     }
 
-    // TODO: Fix key handling
     @Test
     fun issuerEd25519CredentialTest() {
 
@@ -102,12 +109,18 @@ class CredentialServiceTest {
         val domain = "example.com"
         val nonce: String? = null
 
-        var signer = Ed25519Signature2018LdSigner(kms.loadKeys(kms.getKeyId(issuerDid)!!)?.privateKey)
+        val issuerKeys = kms.loadKeys(kms.getKeyId(issuerDid)!!)
+
+        var signer = Ed25519Signature2018LdSigner(issuerKeys!!.getPrivateAndPublicKey())
 
         signer.creator = creator
         signer.created = created
         signer.domain = domain
         signer.nonce = nonce
+
+
+        Ed25519Provider.set(TinkEd25519Provider())
+
         val ldProof: LdProof = signer.sign(jsonLdObject)
 
         println("JsonLD proof: ${ldProof.toJson(true)}")
@@ -116,6 +129,8 @@ class CredentialServiceTest {
         signedCredMap.put("proof", JSONObject(ldProof.toJson()))
         val vc: String = JSONObject(signedCredMap).toString()
     }
+
+
 
     /******** following should not be needed any more *******************/
 

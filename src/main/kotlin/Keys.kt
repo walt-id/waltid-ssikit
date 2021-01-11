@@ -1,3 +1,4 @@
+import com.google.crypto.tink.subtle.Ed25519Sign
 import java.security.KeyPair
 
 class Keys (val keyId: String){
@@ -11,5 +12,14 @@ class Keys (val keyId: String){
     constructor(keyId: String, privateKey: ByteArray, publicKey: ByteArray) : this(keyId) {
         this.privateKey = privateKey
         this.publicKey = publicKey
+    }
+
+    // A hack to get ld-signatures to work
+    fun getPrivateAndPublicKey(): ByteArray? {
+
+        val privAndPubKey = ByteArray(64)
+        System.arraycopy(this.privateKey, 0, privAndPubKey, 0, 32)
+        System.arraycopy(this.publicKey, 0, privAndPubKey, 32, 32)
+        return privAndPubKey
     }
 }
