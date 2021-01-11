@@ -80,6 +80,7 @@
             <groupId>info.weboftrust</groupId>
             <artifactId>ld-signatures-java</artifactId>
             <version>0.3-SNAPSHOT</version>
+<!--    needs to be installed manually    <version>0.4-SNAPSHOT</version>-->
         </dependency>
 
         <dependency>
