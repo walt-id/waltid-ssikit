@@ -2,8 +2,11 @@ import com.google.crypto.tink.config.TinkConfig
 import com.google.crypto.tink.subtle.Ed25519Sign
 import org.bitcoinj.core.Base58
 import org.bouncycastle.jce.ECNamedCurveTable
+import org.bouncycastle.jce.provider.BouncyCastleProvider
+import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.SecureRandom
+import java.security.Security
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -18,10 +21,10 @@ object KeyManagementService {
 
     private val aliasMap = HashMap<String, String>()
 
+
     fun getSupportedCurveNames(): List<String> {
         var ecNames = ArrayList<String>()
         for (name in ECNamedCurveTable.getNames()) {
-            println(name.toString())
             ecNames.add(name.toString())
         }
         return ecNames;
@@ -41,6 +44,14 @@ object KeyManagementService {
 
         var keyPair = Ed25519Sign.KeyPair.newKeyPair()
         val keys = Keys(generateKeyId(), keyPair.privateKey, keyPair.publicKey)
+        ks.saveKeyPair(keys)
+        return keys.keyId
+    }
+
+    fun generateRsaKeyPair(): String {
+        val generator = KeyPairGenerator.getInstance("RSA")
+        generator.initialize(1024)
+        val keys = Keys(generateKeyId(), generator.generateKeyPair())
         ks.saveKeyPair(keys)
         return keys.keyId
     }

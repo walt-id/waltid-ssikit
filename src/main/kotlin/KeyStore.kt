@@ -20,10 +20,14 @@ object FileSystemKeyStore : KeyStore {
 
     private const val KEY_DIR_PATH = "keys"
 
-    private val keyFactory = KeyFactory.getInstance("ECDSA", "BC")
+    private var keyFactory = KeyFactory.getInstance("ECDSA", "BC")
 
     init {
         File(KEY_DIR_PATH).mkdirs()
+    }
+
+    public fun updateProvider(keyFactory: KeyFactory) {
+        this.keyFactory = keyFactory
     }
 
     override fun saveKeyPair(keys: Keys) {
