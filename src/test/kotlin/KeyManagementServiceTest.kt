@@ -1,3 +1,5 @@
+import org.apache.commons.codec.binary.Hex
+import org.bitcoinj.core.Base58
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.junit.Before
 import org.junit.Test
@@ -55,7 +57,7 @@ class KeyManagementServiceTest {
         assertNotNull(keysLoaded?.publicKey)
         var pubKey = keysLoaded?.publicKey
         assertEquals(32, pubKey?.size)
-        assertTrue(kms.getBase58PublicKey(keyId).length > 32)
+        assertTrue(kms.getMultiBase58PublicKey(keyId).length > 32)
         kms.deleteKeys(keyId)
     }
 

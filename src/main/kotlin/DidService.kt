@@ -6,7 +6,7 @@ object DidService {
 
     fun registerDid(): String {
         val keyId = kms.generateEd25519KeyPair()
-        var identifier = "did:key:" + kms.getBase58PublicKey(keyId)
+        var identifier = "did:key:" + kms.getMultiBase58PublicKey(keyId)
 
         kms.addAlias(keyId, identifier)
 

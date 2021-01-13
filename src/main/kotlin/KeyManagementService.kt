@@ -1,5 +1,6 @@
 import com.google.crypto.tink.config.TinkConfig
 import com.google.crypto.tink.subtle.Ed25519Sign
+import io.ipfs.multibase.Multibase
 import org.bitcoinj.core.Base58
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.jce.provider.BouncyCastleProvider
@@ -64,9 +65,9 @@ object KeyManagementService {
         ks.deleteKeyPair(keyId)
     }
 
-    fun getBase58PublicKey(keyId: String) : String{
+    fun getMultiBase58PublicKey(keyId: String) : String{
         return ks.loadKeyPair(keyId).let {
-            Base58.encode(it!!.publicKey)
+            Multibase.encode(Multibase.Base.Base58BTC, it!!.publicKey)
         }
     }
 
