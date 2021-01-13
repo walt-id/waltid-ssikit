@@ -1,16 +1,12 @@
 import com.google.crypto.tink.config.TinkConfig
 import com.google.crypto.tink.subtle.Ed25519Sign
 import io.ipfs.multibase.Multibase
-import org.bitcoinj.core.Base58
+import org.bitcoinj.core.ECKey
 import org.bouncycastle.jce.ECNamedCurveTable
-import org.bouncycastle.jce.provider.BouncyCastleProvider
-import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.SecureRandom
-import java.security.Security
 import java.util.*
 import kotlin.collections.ArrayList
-
 
 
 object KeyManagementService {
@@ -49,6 +45,13 @@ object KeyManagementService {
         return keys.keyId
     }
 
+    fun generateSecp256k1KeyPair(): String {
+        var key = ECKey(SecureRandom())
+        val keys = Keys(generateKeyId(), key.privKeyBytes, key.pubKey)
+        ks.saveKeyPair(keys)
+        return keys.keyId
+    }
+
     fun generateRsaKeyPair(): String {
         val generator = KeyPairGenerator.getInstance("RSA")
         generator.initialize(1024)
@@ -65,7 +68,7 @@ object KeyManagementService {
         ks.deleteKeyPair(keyId)
     }
 
-    fun getMultiBase58PublicKey(keyId: String) : String{
+    fun getMultiBase58PublicKey(keyId: String): String {
         return ks.loadKeyPair(keyId).let {
             Multibase.encode(Multibase.Base.Base58BTC, it!!.publicKey)
         }
