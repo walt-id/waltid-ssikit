@@ -1,4 +1,5 @@
 import com.google.crypto.tink.subtle.Ed25519Sign
+import org.apache.commons.codec.binary.Hex
 import java.security.KeyPair
 
 class Keys (val keyId: String){
@@ -8,6 +9,8 @@ class Keys (val keyId: String){
 
     constructor(keyId: String, pair: KeyPair) : this(keyId) {
         this.pair = pair
+        println(pair.private.toString())
+        println(pair.public.toString())
     }
     constructor(keyId: String, privateKey: ByteArray, publicKey: ByteArray) : this(keyId) {
         this.privateKey = privateKey
@@ -20,6 +23,13 @@ class Keys (val keyId: String){
         val privAndPubKey = ByteArray(64)
         System.arraycopy(this.privateKey, 0, privAndPubKey, 0, 32)
         System.arraycopy(this.publicKey, 0, privAndPubKey, 32, 32)
+
+        print("privateKey: ")
+        println(Hex.encodeHex(privateKey))
+        print("publicKey: ")
+        println(Hex.encodeHex(publicKey))
+        print("getPrivateAndPublicKey: ")
+        println(Hex.encodeHex(privAndPubKey))
         return privAndPubKey
     }
 }

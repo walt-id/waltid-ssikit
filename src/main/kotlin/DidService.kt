@@ -15,6 +15,8 @@ object DidService {
 
         // TODO register did -> store to disk
 
+        print(identifier)
+
         return identifier
     }
 

@@ -10,8 +10,7 @@ import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
 
 
-
-interface  KeyStore {
+interface KeyStore {
     fun saveKeyPair(keys: Keys)
     fun loadKeyPair(keyId: String): Keys?
 }
@@ -43,7 +42,7 @@ object FileSystemKeyStore : KeyStore {
         }
 
         if (keyFileExists(keyId, "raw-pubkey") && keyFileExists(keyId, "raw-privkey")) {
-            return Keys(keyId, loadRawPublicKey(keyId), loadRawPrivateKey(keyId))
+            return Keys(keyId, loadRawPrivateKey(keyId), loadRawPublicKey(keyId))
         }
         return null;
     }
