@@ -19,6 +19,7 @@ import java.net.URI
 import java.security.Security
 import java.util.*
 import kotlin.test.*
+import CredentialService.SignatureType.*
 
 class CredentialServiceTest {
 
@@ -30,35 +31,55 @@ class CredentialServiceTest {
     }
 
     @Test
-    fun issueEd25519CredentialTest() {
-        val ds = DidService
-        val cs = CredentialService
+    fun signEd25519Signature2018Test() {
 
-        val issuerDid = ds.registerDid()
+        val issuerDid = DidService.registerDid()
         val domain = "example.com"
         val nonce: String? = null
         val credMap: Map<String, String> = mapOf("one" to "two")
         val cred = JSONObject(credMap).toString()
 
-        val vc = cs.signEd25519Signature2018(issuerDid, domain, nonce, cred)
+        val vc = CredentialService.sign(issuerDid, domain, nonce, cred, Ed25519Signature2018)
         assertNotNull(vc)
         println("Credential generated: ${vc}")
 
-        var vcVerified = cs.verifyEd25519Signature2018(issuerDid,vc)
+        var vcVerified = CredentialService.verify(issuerDid,vc, Ed25519Signature2018)
         assertTrue(vcVerified)
-
     }
+
+    @Test
+    fun signEcdsaSecp256k1Signature2019Test() {
+
+        val keyId = KeyManagementService.generateSecp256k1KeyPair()
+        val issuerDid = DidService.registerDid()
+        val domain = "example.com"
+        val nonce: String? = null
+        val credMap: Map<String, String> = mapOf("one" to "two")
+        val cred = JSONObject(credMap).toString()
+
+        val vc = CredentialService.sign(keyId, domain, nonce, cred, EcdsaSecp256k1Signature2019)
+        assertNotNull(vc)
+        println("Credential generated: ${vc}")
+
+        var vcVerified = CredentialService.verify(keyId, vc, EcdsaSecp256k1Signature2019)
+        assertTrue(vcVerified)
+    }
+
+
+
+
+    /******** following is test-code and should not be needed any more *******************/
+
 
     @Test
     fun issuerEcdsaSecp256k1CredentialTest() {
 
         val kms = KeyManagementService
-        val ds = DidService
 
-        // val keyId = kms.generateEcKeyPair("P-256")
+        // val keyId = kms.generateEcKeyPair("P-256") // no way to populate ld-signatures with this key
         val keyId = kms.generateSecp256k1KeyPair()
 
-        val issuerDid = ds.registerDid(keyId)
+        val issuerDid = DidService.registerDid(keyId)
 
         val cred: Map<String, String> = mapOf("one" to "two")
 
@@ -71,7 +92,7 @@ class CredentialServiceTest {
         val domain = "example.com"
         val nonce: String? = null
 
-        val issuerKeys = kms.loadKeys(kms.getKeyId(issuerDid)!!)
+        val issuerKeys = kms.loadKeys(issuerDid)
 
         val ecKey = ECKey.fromPrivate(issuerKeys!!.privateKey)
 
@@ -127,7 +148,7 @@ class CredentialServiceTest {
         val domain = "example.com"
         val nonce: String? = null
 
-        val issuerKeys = kms.loadKeys(kms.getKeyId(issuerDid)!!)
+        val issuerKeys = kms.loadKeys(issuerDid)
 
         var signer = Ed25519Signature2018LdSigner(issuerKeys!!.getPrivateAndPublicKey())
         // following is working in version 0.4
@@ -155,8 +176,6 @@ class CredentialServiceTest {
         var vcVerified = verifier.verify(jsonLdObject, ldProof)
         assertTrue(vcVerified)
     }
-
-    /******** following should not be needed any more *******************/
 
     private val testSecp256k1PrivateKeyString = "2ff4e6b73bc4c4c185c68b2c378f6b233978a88d3c8ed03df536f707f084e24e"
     private val testSecp256k1PublicKeyString = "0343f9455cd248e24c262b1341bbe37cea360e1c5ce526e5d1a71373ba6e557018"

@@ -16,9 +16,6 @@ object KeyManagementService {
 
     private fun generateKeyId(): String = "LetsTrust-Key-${UUID.randomUUID().toString().replace("-", "")}"
 
-    private val aliasMap = HashMap<String, String>()
-
-
     fun getSupportedCurveNames(): List<String> {
         var ecNames = ArrayList<String>()
         for (name in ECNamedCurveTable.getNames()) {
@@ -61,11 +58,11 @@ object KeyManagementService {
     }
 
     fun loadKeys(keyId: String): Keys? {
-        return ks.loadKeyPair(keyId)
+        return ks.loadKeyPair(ks.getKeyId(keyId)!!)
     }
 
     fun deleteKeys(keyId: String) {
-        ks.deleteKeyPair(keyId)
+        ks.deleteKeyPair(ks.getKeyId(keyId)!!)
     }
 
     fun getMultiBase58PublicKey(keyId: String): String {
@@ -74,12 +71,8 @@ object KeyManagementService {
         }
     }
 
-    // TODO: Persist alias-map
-    fun addAlias(keyId: String, alias: String) {
-        aliasMap.put(alias, keyId)
+    fun addAlias(keyId: String, identifier: String) {
+        ks.addAlias(keyId, identifier)
     }
 
-    fun getKeyId(alias: String): String? {
-        return aliasMap.get(alias)
-    }
 }

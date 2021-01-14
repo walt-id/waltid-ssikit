@@ -25,6 +25,7 @@ class DidServiceTest {
         val decoded = Multibase.decode(encoded)
         assertEquals(input, String(decoded))
     }
+
     @Test
     fun registerDidTest() {
 

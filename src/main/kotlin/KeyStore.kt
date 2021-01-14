@@ -8,6 +8,7 @@ import java.security.PrivateKey
 import java.security.PublicKey
 import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
+import java.util.HashMap
 
 
 interface KeyStore {
@@ -21,6 +22,8 @@ object FileSystemKeyStore : KeyStore {
 
     private var keyFactory = KeyFactory.getInstance("ECDSA", "BC")
 
+    private val aliasMap = HashMap<String, String>()
+
     init {
         File(KEY_DIR_PATH).mkdirs()
     }
@@ -30,6 +33,7 @@ object FileSystemKeyStore : KeyStore {
     }
 
     override fun saveKeyPair(keys: Keys) {
+        this.addAlias(keys.keyId, keys.keyId)
         keys.pair?.let { saveEncPublicKey(keys.keyId, it.public) }
         keys.pair?.let { saveEncPrivateKey(keys.keyId, it.private) }
         keys.publicKey?.let { saveRawPublicKey(keys.keyId, it) }
@@ -96,5 +100,13 @@ object FileSystemKeyStore : KeyStore {
         deleteKeyFile(keyId, "enc-privkey")
         deleteKeyFile(keyId, "raw-pubkey")
         deleteKeyFile(keyId, "raw-privkey")
+    }
+
+    fun addAlias(keyId: String, alias: String) {
+        aliasMap.put(alias, keyId)
+    }
+
+    fun getKeyId(alias: String): String? {
+        return aliasMap.get(alias)
     }
 }
