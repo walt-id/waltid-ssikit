@@ -56,6 +56,7 @@ object CredentialService {
                     issuerKeys!!.privateKey
                 )
             )
+            else -> throw Exception("Signature type ${signatureType} not supported")
         }
         // var signer = Ed25519Signature2018LdSigner(issuerKeys!!.getPrivateAndPublicKey())
         // following is working in version 0.4

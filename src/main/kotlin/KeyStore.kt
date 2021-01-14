@@ -22,8 +22,6 @@ object FileSystemKeyStore : KeyStore {
 
     private var keyFactory = KeyFactory.getInstance("ECDSA", "BC")
 
-    private val aliasMap = HashMap<String, String>()
-
     init {
         File(KEY_DIR_PATH).mkdirs()
     }
@@ -103,10 +101,10 @@ object FileSystemKeyStore : KeyStore {
     }
 
     fun addAlias(keyId: String, alias: String) {
-        aliasMap.put(alias, keyId)
+        File("$KEY_DIR_PATH/Alias-$alias").writeText(keyId)
     }
 
     fun getKeyId(alias: String): String? {
-        return aliasMap.get(alias)
+        return File("$KEY_DIR_PATH/Alias-$alias").readText()
     }
 }
