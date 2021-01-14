@@ -8,36 +8,29 @@ import info.weboftrust.ldsignatures.signer.EcdsaSecp256k1Signature2019LdSigner
 import info.weboftrust.ldsignatures.signer.Ed25519Signature2018LdSigner
 import info.weboftrust.ldsignatures.verifier.EcdsaSecp256k1Signature2019LdVerifier
 import info.weboftrust.ldsignatures.verifier.Ed25519Signature2018LdVerifier
-import junit.framework.Assert.assertTrue
 import org.apache.commons.codec.binary.Hex
 import org.bitcoinj.core.ECKey
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.json.JSONObject
 import org.junit.Before
 import org.junit.Test
+import java.io.File
 import java.net.URI
 import java.security.Security
 import java.util.*
-import kotlin.test.assertNotNull
+import kotlin.test.*
 
 class CredentialServiceTest {
 
+    protected val RESOURCES_PATH: String = "src/test/resources"
 
     @Before
     fun setup() {
         Security.addProvider(BouncyCastleProvider())
     }
 
-    fun verifyEcdsaSecp256k1Credential(vc: String): Boolean {
-        val jsonLdObject = JsonLDObject.fromJson(vc)
-        // TODO Load from KMS
-        val verifier = EcdsaSecp256k1Signature2019LdVerifier(loadPublicKey("dummyIssuer"))
-        return verifier.verify(jsonLdObject)
-    }
-
     @Test
     fun issueEd25519CredentialTest() {
-        val kms = KeyManagementService
         val ds = DidService
         val cs = CredentialService
 
@@ -47,16 +40,13 @@ class CredentialServiceTest {
         val credMap: Map<String, String> = mapOf("one" to "two")
         val cred = JSONObject(credMap).toString()
 
-        val proof = cs.signEd25519Signature2018(issuerDid, domain, nonce, cred)
-        assertNotNull(proof)
-
-        val vc = cs.addProof(credMap, proof)
+        val vc = cs.signEd25519Signature2018(issuerDid, domain, nonce, cred)
         assertNotNull(vc)
-
         println("Credential generated: ${vc}")
 
-        val ret = cs.verifyEd25519Signature2018(issuerDid, vc)
-        assertTrue(ret)
+        var vcVerified = cs.verifyEd25519Signature2018(issuerDid,vc)
+        assertTrue(vcVerified)
+
     }
 
     @Test
@@ -107,6 +97,16 @@ class CredentialServiceTest {
         val verified = verifier.verify(jsonLdObject)
         assert(verified)
 
+    }
+
+    @Test
+    fun issuerWorkHistoryCredential() {
+
+        val filePath = "$RESOURCES_PATH/credential-offers/WorkHistory.json"
+
+        val credOffer = File(filePath).readText(Charsets.UTF_8)
+
+        print(credOffer)
     }
 
     @Test

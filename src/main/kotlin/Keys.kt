@@ -9,12 +9,16 @@ class Keys (val keyId: String){
 
     constructor(keyId: String, pair: KeyPair) : this(keyId) {
         this.pair = pair
-        println(pair.private.toString())
-        println(pair.public.toString())
     }
     constructor(keyId: String, privateKey: ByteArray, publicKey: ByteArray) : this(keyId) {
         this.privateKey = privateKey
         this.publicKey = publicKey
+
+        println("privateKey: ")
+        println(Hex.encodeHex(privateKey))
+        print("publicKey: ")
+        println(Hex.encodeHex(publicKey))
+
     }
 
     // A hack to get ld-signatures to work
@@ -24,12 +28,6 @@ class Keys (val keyId: String){
         System.arraycopy(this.privateKey, 0, privAndPubKey, 0, 32)
         System.arraycopy(this.publicKey, 0, privAndPubKey, 32, 32)
 
-        print("privateKey: ")
-        println(Hex.encodeHex(privateKey))
-        print("publicKey: ")
-        println(Hex.encodeHex(publicKey))
-        print("getPrivateAndPublicKey: ")
-        println(Hex.encodeHex(privAndPubKey))
         return privAndPubKey
     }
 }

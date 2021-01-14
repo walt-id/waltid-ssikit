@@ -19,7 +19,7 @@ object CredentialService {
         Ed25519Provider.set(TinkEd25519Provider())
     }
 
-    fun signEd25519Signature2018(issuerDid: String, domain: String, nonce: String?, jsonCred: String): LdProof {
+    fun signEd25519Signature2018(issuerDid: String, domain: String, nonce: String?, jsonCred: String): String {
 
         val jsonLdObject: JsonLDObject = JsonLDObject.fromJson(jsonCred)
         val confLoader = LDSecurityContexts.DOCUMENT_LOADER as ConfigurableDocumentLoader
@@ -42,7 +42,10 @@ object CredentialService {
         signer.created = created
         signer.domain = domain
         signer.nonce = nonce
-        return signer.sign(jsonLdObject)
+        val proof =  signer.sign(jsonLdObject)
+        // println("proof")
+        // println(proof)
+        return jsonLdObject.toJson()
     }
 
     fun addProof(credMap: Map<String, String>, ldProof: LdProof): String {
