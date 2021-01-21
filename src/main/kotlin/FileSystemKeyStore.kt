@@ -39,19 +39,22 @@ object FileSystemKeyStore : KeyStore {
 
         // KeyFactory.getInstance("RSA", "BC")
         // KeyFactory.getInstance("ECDSA", "BC")
-        val keyFactory = KeyFactory.getInstance(algorithm, provider)
 
-        if (keyFileExists(keyId, "enc-pubkey") && keyFileExists(keyId, "enc-privkey")) {
-            return Keys(
-                keyId,
-                KeyPair(loadEncPublicKey(keyId, keyFactory), loadEncPrivateKey(keyId, keyFactory)),
-                algorithm,
-                provider
-            )
-        }
+        if (provider == "BC") {
+            val keyFactory = KeyFactory.getInstance(algorithm, provider)
 
-        if (keyFileExists(keyId, "raw-pubkey") && keyFileExists(keyId, "raw-privkey")) {
-            return Keys(keyId, loadRawPrivateKey(keyId), loadRawPublicKey(keyId), algorithm, provider)
+            if (keyFileExists(keyId, "enc-pubkey") && keyFileExists(keyId, "enc-privkey")) {
+                return Keys(
+                    keyId,
+                    KeyPair(loadEncPublicKey(keyId, keyFactory), loadEncPrivateKey(keyId, keyFactory)),
+                    algorithm,
+                    provider
+                )
+            }
+        } else {
+            if (keyFileExists(keyId, "raw-pubkey") && keyFileExists(keyId, "raw-privkey")) {
+                return Keys(keyId, loadRawPrivateKey(keyId), loadRawPublicKey(keyId), algorithm, provider)
+            }
         }
         return null;
     }

@@ -13,7 +13,7 @@ class SqlKeyStoreTest : KeyStoreTest() {
     }
 
     @Test
-    fun saveLoadDummyByteKeysTest() {
+    fun saveLoadByteKeysSqlApiTest() {
         var keys = Keys(UUID.randomUUID().toString(), "priv".toByteArray(), "pub".toByteArray(), "dummy", "dummy")
         SqlKeyStore.saveKeyPair(keys)
         var keysLoaded = SqlKeyStore.loadKeyPair(keys.keyId)
@@ -25,26 +25,14 @@ class SqlKeyStoreTest : KeyStoreTest() {
 
 
     @Test
-    override fun addAliasTest() {
+    fun addAliasSqlApiTest() {
         var keyId = kms.generateEd25519KeyPair()
         SqlKeyStore.addAlias(keyId, "test-alias")
         var k1 = SqlKeyStore.getKeyId("test-alias")
         assertNotNull(k1)
+        assertEquals(keyId, k1)
+        var k2 = SqlKeyStore.getKeyId(keyId)
+        assertNotNull(k2)
+        assertEquals(k1, k2)
     }
-
-    @Test
-    override fun saveLoadByteKeysTest() {
-
-        var keyId = kms.generateEd25519KeyPair()
-        var keys = kms.loadKeys(keyId)
-        assertNotNull(keys)
-        assertEquals(32, keys.privateKey?.size)
-
-        keyId = kms.generateSecp256k1KeyPair()
-        keys = kms.loadKeys(keyId)!!
-        assertNotNull(keys)
-        assertEquals(32, keys.privateKey?.size)
-
-    }
-
 }

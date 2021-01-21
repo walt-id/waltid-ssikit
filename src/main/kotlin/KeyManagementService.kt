@@ -49,20 +49,20 @@ object KeyManagementService {
         TinkConfig.register();
 
         var keyPair = Ed25519Sign.KeyPair.newKeyPair()
-        val keys = Keys(generateKeyId(), keyPair.privateKey, keyPair.publicKey, "ECDSA", "BC")
+        val keys = Keys(generateKeyId(), keyPair.privateKey, keyPair.publicKey, "Ed25519", "Tink")
         ks.saveKeyPair(keys)
         return keys.keyId
     }
 
     fun generateSecp256k1KeyPair(): String {
         var key = ECKey(SecureRandom())
-        val keys = Keys(generateKeyId(), key.privKeyBytes, key.pubKey, "ECDSA", "BC")
+        val keys = Keys(generateKeyId(), key.privKeyBytes, key.pubKey, "Secp256k1", "bitcoinj")
         ks.saveKeyPair(keys)
         return keys.keyId
     }
 
     fun generateRsaKeyPair(): String {
-        val generator = KeyPairGenerator.getInstance("RSA")
+        val generator = KeyPairGenerator.getInstance("RSA", "BC")
         generator.initialize(1024)
 
         val keys = Keys(generateKeyId(), generator.generateKeyPair(), "RSA", "BC")

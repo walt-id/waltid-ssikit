@@ -32,7 +32,7 @@ object SqlDbManager {
                     "create table if not exists lt_key_alias(" +
                             "id integer primary key autoincrement, " +
                             "key_id integer, " +
-                            "alias string)"
+                            "alias string unique)"
                 )
             }
 

@@ -3,15 +3,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.junit.Before
 import org.junit.Test
 import java.security.Security
-import java.sql.Connection
-import java.sql.DriverManager
-import java.sql.SQLException
-import java.sql.Statement
 import kotlin.test.assertEquals
-import java.sql.ResultSet
-
-import java.sql.PreparedStatement
-import java.util.ArrayList
 
 
 class SQLiteTest {
