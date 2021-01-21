@@ -36,6 +36,7 @@ class CredentialServiceTest {
 
         var vcVerified = CredentialService.verify(issuerDid, vc, Ed25519Signature2018)
         assertTrue(vcVerified)
+        KeyManagementService.deleteKeys(issuerDid)
     }
 
     @Test
@@ -54,6 +55,7 @@ class CredentialServiceTest {
 
         var vcVerified = CredentialService.verify(keyId, vc, EcdsaSecp256k1Signature2019)
         assertTrue(vcVerified)
+        KeyManagementService.deleteKeys(keyId)
     }
 
     @Test
@@ -88,6 +90,7 @@ class CredentialServiceTest {
 
         var vcVerified = CredentialService.verify(keyId, vc, EcdsaSecp256k1Signature2019)
         assertTrue(vcVerified)
+        KeyManagementService.deleteKeys(keyId)
     }
 
 }

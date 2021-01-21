@@ -3,18 +3,28 @@ import com.google.crypto.tink.subtle.Ed25519Sign
 import io.ipfs.multibase.Multibase
 import org.bitcoinj.core.ECKey
 import org.bouncycastle.jce.ECNamedCurveTable
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.KeyPairGenerator
 import java.security.SecureRandom
+import java.security.Security
 import java.util.*
 import kotlin.collections.ArrayList
 
 
 object KeyManagementService {
 
+    init {
+        Security.addProvider(BouncyCastleProvider())
+    }
+
     // TODO: keystore implementation should be configurable
-    private val ks = FileSystemKeyStore
+    private var ks = FileSystemKeyStore as KeyStore // SqlKeyStore as KeyStore
 
     private fun generateKeyId(): String = "LetsTrust-Key-${UUID.randomUUID().toString().replace("-", "")}"
+
+    fun setKeyStore(ks: KeyStore) {
+        this.ks = ks
+    }
 
     fun getSupportedCurveNames(): List<String> {
         var ecNames = ArrayList<String>()
@@ -58,7 +68,8 @@ object KeyManagementService {
     }
 
     fun loadKeys(keyId: String): Keys? {
-        return ks.loadKeyPair(ks.getKeyId(keyId)!!)
+        return ks.getKeyId(keyId)?.let{it -> ks.loadKeyPair(it) }
+        return null
     }
 
     fun deleteKeys(keyId: String) {

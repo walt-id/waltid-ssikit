@@ -14,10 +14,10 @@ class Keys (val keyId: String){
         this.privateKey = privateKey
         this.publicKey = publicKey
 
-        println("privateKey: ")
-        println(Hex.encodeHex(privateKey))
-        print("publicKey: ")
-        println(Hex.encodeHex(publicKey))
+//        println("privateKey: ")
+//        println(Hex.encodeHex(privateKey))
+//        print("publicKey: ")
+//        println(Hex.encodeHex(publicKey))
 
     }
 
