@@ -39,7 +39,7 @@ object FileSystemKeyStore : KeyStore {
         }
 
         if (keyFileExists(keyId, "raw-pubkey") && keyFileExists(keyId, "raw-privkey")) {
-            return Keys(keyId, loadRawPrivateKey(keyId), loadRawPublicKey(keyId))
+            return Keys(keyId, loadRawPrivateKey(keyId), loadRawPublicKey(keyId), "todo", "todo")
         }
         return null;
     }
@@ -81,6 +81,7 @@ object FileSystemKeyStore : KeyStore {
     }
 
     private fun loadEncPrivateKey(keyId: String): PrivateKey {
+        //TODO load key-medadata and set provider
         return keyFactory.generatePrivate(
             PKCS8EncodedKeySpec(
                 loadKeyFile(keyId, "enc-privkey")

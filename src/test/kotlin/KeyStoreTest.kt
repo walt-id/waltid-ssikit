@@ -27,7 +27,6 @@ open class KeyStoreTest {
         assertNotNull(keys)
         assertEquals(32, keys.privateKey?.size)
 
-        //TODO algo-info should come from the keys metadata
         FileSystemKeyStore.updateProvider(KeyFactory.getInstance("ECDSA", "BC"))
         keyId = kms.generateEcKeyPair("secp256k1")
         keys = kms.loadKeys(keyId)!!
@@ -45,14 +44,14 @@ open class KeyStoreTest {
     @Test
     open fun saveLoadStandardKeysTest() {
         //TODO algo-info should come from the keys metadata
-        FileSystemKeyStore.updateProvider(KeyFactory.getInstance("ECDSA", "BC"))
+        // FileSystemKeyStore.updateProvider(KeyFactory.getInstance("ECDSA", "BC"))
         var keyId = kms.generateEcKeyPair("secp256k1")
         var keys = kms.loadKeys(keyId)!!
         assertNotNull(keys)
         assertEquals("ECDSA", keys.pair!!.private.algorithm)
 
         //TODO algo-info should come from the keys metadata
-        FileSystemKeyStore.updateProvider(KeyFactory.getInstance("RSA", "BC"))
+        //FileSystemKeyStore.updateProvider(KeyFactory.getInstance("RSA", "BC"))
         keyId = kms.generateRsaKeyPair()
         keys = kms.loadKeys(keyId)!!
         assertNotNull(keys.pair)

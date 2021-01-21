@@ -1,18 +1,23 @@
-import com.google.crypto.tink.subtle.Ed25519Sign
-import org.apache.commons.codec.binary.Hex
 import java.security.KeyPair
 
-class Keys (val keyId: String){
+class Keys(val keyId: String) {
     var pair: KeyPair? = null
     var privateKey: ByteArray? = null
     var publicKey: ByteArray? = null
+    var algorithm: String? = null
+    var provider: String? = null
 
     constructor(keyId: String, pair: KeyPair) : this(keyId) {
         this.pair = pair
     }
-    constructor(keyId: String, privateKey: ByteArray, publicKey: ByteArray) : this(keyId) {
+
+    constructor(keyId: String, privateKey: ByteArray, publicKey: ByteArray, algorithm: String?, provider: String?) : this(
+        keyId
+    ) {
         this.privateKey = privateKey
         this.publicKey = publicKey
+        this.algorithm = algorithm
+        this.provider = provider
 
 //        println("privateKey: ")
 //        println(Hex.encodeHex(privateKey))

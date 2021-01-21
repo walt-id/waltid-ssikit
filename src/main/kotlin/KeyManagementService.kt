@@ -35,6 +35,7 @@ object KeyManagementService {
     }
 
     fun generateEcKeyPair(ecCurveName: String): String {
+
         val generator = KeyPairGenerator.getInstance("ECDSA", "BC")
         generator.initialize(ECNamedCurveTable.getParameterSpec(ecCurveName), SecureRandom())
 
@@ -47,14 +48,14 @@ object KeyManagementService {
         TinkConfig.register();
 
         var keyPair = Ed25519Sign.KeyPair.newKeyPair()
-        val keys = Keys(generateKeyId(), keyPair.privateKey, keyPair.publicKey)
+        val keys = Keys(generateKeyId(), keyPair.privateKey, keyPair.publicKey, "ECDSA", "BC")
         ks.saveKeyPair(keys)
         return keys.keyId
     }
 
     fun generateSecp256k1KeyPair(): String {
         var key = ECKey(SecureRandom())
-        val keys = Keys(generateKeyId(), key.privKeyBytes, key.pubKey)
+        val keys = Keys(generateKeyId(), key.privKeyBytes, key.pubKey, "ECDSA", "BC")
         ks.saveKeyPair(keys)
         return keys.keyId
     }
@@ -68,7 +69,7 @@ object KeyManagementService {
     }
 
     fun loadKeys(keyId: String): Keys? {
-        return ks.getKeyId(keyId)?.let{it -> ks.loadKeyPair(it) }
+        return ks.getKeyId(keyId)?.let { it -> ks.loadKeyPair(it) }
         return null
     }
 

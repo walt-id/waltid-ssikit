@@ -77,7 +77,6 @@ object SqlKeyStore : KeyStore {
     }
 
     override fun loadKeyPair(keyId: String): Keys? {
-
         db.getConnection().use { con ->
             con.prepareStatement("select * from lt_key where name = ?").use { stmt ->
                 stmt.setString(1, keyId)
@@ -85,7 +84,9 @@ object SqlKeyStore : KeyStore {
                     if (rs.next()) {
                         var pub = Base64.from(rs.getString("pub")).decode()
                         var priv = Base64.from(rs.getString("priv")).decode()
-                        return Keys(keyId, priv, pub)
+                        var algorithm = rs.getString("algorithm")
+                        var provider = rs.getString("provider")
+                        return Keys(keyId, priv, pub, algorithm, provider)
                     }
                 }
             }

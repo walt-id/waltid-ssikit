@@ -14,7 +14,7 @@ class SqlKeyStoreTest : KeyStoreTest() {
 
     @Test
     fun saveLoadDummyByteKeysTest() {
-        var keys = Keys(UUID.randomUUID().toString(), "priv".toByteArray(), "pub".toByteArray())
+        var keys = Keys(UUID.randomUUID().toString(), "priv".toByteArray(), "pub".toByteArray(), "dummy", "dummy")
         SqlKeyStore.saveKeyPair(keys)
         var keysLoaded = SqlKeyStore.loadKeyPair(keys.keyId)
         assertNotNull(keysLoaded)
