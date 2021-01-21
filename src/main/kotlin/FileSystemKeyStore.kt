@@ -13,33 +13,45 @@ object FileSystemKeyStore : KeyStore {
 
     private const val KEY_DIR_PATH = "keys"
 
-    // for RSA KeyFactory.getInstance("RSA", "BC")
-    private var keyFactory = KeyFactory.getInstance("ECDSA", "BC")
-
     init {
         File(KEY_DIR_PATH).mkdirs()
     }
 
-    //TODO alog-info should come from the keys metadata
-    fun updateProvider(keyFactory: KeyFactory) {
-        this.keyFactory = keyFactory
-    }
-
     override fun saveKeyPair(keys: Keys) {
         this.addAlias(keys.keyId, keys.keyId)
+        this.storeKeyMetaData(keys)
         keys.pair?.let { saveEncPublicKey(keys.keyId, it.public) }
         keys.pair?.let { saveEncPrivateKey(keys.keyId, it.private) }
         keys.publicKey?.let { saveRawPublicKey(keys.keyId, it) }
         keys.privateKey?.let { saveRawPrivateKey(keys.keyId, it) }
     }
 
+    private fun storeKeyMetaData(keys: Keys) {
+        if (keys.algorithm != null && keys.provider != null) {
+            saveKeyFile(keys.keyId, "meta", (keys.algorithm + ";" + keys.provider).toByteArray())
+        }
+    }
+
     override fun loadKeyPair(keyId: String): Keys? {
+        val metaData = String(this.loadKeyFile(keyId, "meta"))
+        val algorithm = metaData.substringBefore(delimiter = ";")
+        val provider = metaData.substringAfter(delimiter = ";")
+
+        // KeyFactory.getInstance("RSA", "BC")
+        // KeyFactory.getInstance("ECDSA", "BC")
+        val keyFactory = KeyFactory.getInstance(algorithm, provider)
+
         if (keyFileExists(keyId, "enc-pubkey") && keyFileExists(keyId, "enc-privkey")) {
-            return Keys(keyId, KeyPair(loadEncPublicKey(keyId), loadEncPrivateKey(keyId)))
+            return Keys(
+                keyId,
+                KeyPair(loadEncPublicKey(keyId, keyFactory), loadEncPrivateKey(keyId, keyFactory)),
+                algorithm,
+                provider
+            )
         }
 
         if (keyFileExists(keyId, "raw-pubkey") && keyFileExists(keyId, "raw-privkey")) {
-            return Keys(keyId, loadRawPrivateKey(keyId), loadRawPublicKey(keyId), "todo", "todo")
+            return Keys(keyId, loadRawPrivateKey(keyId), loadRawPublicKey(keyId), algorithm, provider)
         }
         return null;
     }
@@ -72,7 +84,7 @@ object FileSystemKeyStore : KeyStore {
 
     private fun loadRawPrivateKey(keyId: String): ByteArray = loadKeyFile(keyId, "raw-privkey");
 
-    private fun loadEncPublicKey(keyId: String): PublicKey {
+    private fun loadEncPublicKey(keyId: String, keyFactory: KeyFactory): PublicKey {
         return keyFactory.generatePublic(
             X509EncodedKeySpec(
                 loadKeyFile(keyId, "enc-pubkey")
@@ -80,8 +92,7 @@ object FileSystemKeyStore : KeyStore {
         )
     }
 
-    private fun loadEncPrivateKey(keyId: String): PrivateKey {
-        //TODO load key-medadata and set provider
+    private fun loadEncPrivateKey(keyId: String, keyFactory: KeyFactory): PrivateKey {
         return keyFactory.generatePrivate(
             PKCS8EncodedKeySpec(
                 loadKeyFile(keyId, "enc-privkey")

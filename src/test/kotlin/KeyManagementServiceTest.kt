@@ -65,7 +65,6 @@ class KeyManagementServiceTest {
     fun generateRsaKeyPairTest() {
         val kms = KeyManagementService
         val ks = FileSystemKeyStore
-        ks.updateProvider(KeyFactory.getInstance("RSA", "BC"))
         val keyId = kms.generateRsaKeyPair()
         val keysLoaded = kms.loadKeys(keyId)
         assertEquals(keyId, keysLoaded?.keyId)

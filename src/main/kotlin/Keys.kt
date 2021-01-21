@@ -7,8 +7,10 @@ class Keys(val keyId: String) {
     var algorithm: String? = null
     var provider: String? = null
 
-    constructor(keyId: String, pair: KeyPair) : this(keyId) {
+    constructor(keyId: String, pair: KeyPair, algorithm: String?, provider: String?) : this(keyId) {
         this.pair = pair
+        this.algorithm = algorithm
+        this.provider = provider
     }
 
     constructor(keyId: String, privateKey: ByteArray, publicKey: ByteArray, algorithm: String?, provider: String?) : this(

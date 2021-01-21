@@ -4,6 +4,7 @@ import io.ipfs.multibase.Multibase
 import org.bitcoinj.core.ECKey
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.jce.provider.BouncyCastleProvider
+import java.security.KeyFactory
 import java.security.KeyPairGenerator
 import java.security.SecureRandom
 import java.security.Security
@@ -39,7 +40,7 @@ object KeyManagementService {
         val generator = KeyPairGenerator.getInstance("ECDSA", "BC")
         generator.initialize(ECNamedCurveTable.getParameterSpec(ecCurveName), SecureRandom())
 
-        val keys = Keys(generateKeyId(), generator.generateKeyPair())
+        val keys = Keys(generateKeyId(), generator.generateKeyPair(), "ECDSA", "BC")
         ks.saveKeyPair(keys)
         return keys.keyId
     }
@@ -63,7 +64,8 @@ object KeyManagementService {
     fun generateRsaKeyPair(): String {
         val generator = KeyPairGenerator.getInstance("RSA")
         generator.initialize(1024)
-        val keys = Keys(generateKeyId(), generator.generateKeyPair())
+
+        val keys = Keys(generateKeyId(), generator.generateKeyPair(), "RSA", "BC")
         ks.saveKeyPair(keys)
         return keys.keyId
     }
