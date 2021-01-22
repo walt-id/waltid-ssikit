@@ -1,18 +1,41 @@
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.Statement
+import java.sql.SQLException
+
+
+
 
 object SqlDbManager {
 
     val JDBC_URL = "jdbc:sqlite:test3.db"
 
+    private val config: HikariConfig = HikariConfig()
+    private var ds: HikariDataSource? = null
+
     init {
+        config.setJdbcUrl("jdbc:sqlite:test3.db") //jdbc:sqlite::memory:
+        config.maximumPoolSize = 15
+//        config.setUsername("user")
+//        config.setPassword("password")
+//        config.addDataSourceProperty("cachePrepStmts", "true")
+//        config.addDataSourceProperty("prepStmtCacheSize", "250")
+//        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048")
+        ds = HikariDataSource(config)
+
         createDatabase()
     }
 
+    fun getConnection(): Connection {
+        return ds!!.connection!!
+    }
+
+
     fun createDatabase() {
         this.getConnection().use { con ->
-            con.createStatement().use { stmt ->
+            con!!.createStatement().use { stmt ->
 
                 // Create lt_key
                 stmt.executeUpdate("drop table if exists lt_key")

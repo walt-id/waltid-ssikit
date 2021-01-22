@@ -21,8 +21,9 @@ class SQLiteTest {
         val db = SqlDbManager
         var pubKeyStr = Base64.encode(keys!!.publicKey).toString()
 
+
         db.getConnection().use { con ->
-            con.createStatement().use { stmt ->
+            con!!.createStatement().use { stmt ->
                 stmt.executeUpdate("drop table if exists lt_keystore")
                 stmt.executeUpdate(
                     "create table if not exists lt_keystore(" +

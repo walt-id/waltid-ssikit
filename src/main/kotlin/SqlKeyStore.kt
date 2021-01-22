@@ -25,7 +25,6 @@ object SqlKeyStore : KeyStore {
                         }
                     }
                 }
-
         }
         return null
     }
