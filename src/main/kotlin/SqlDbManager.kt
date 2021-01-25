@@ -10,14 +10,15 @@ import java.sql.SQLException
 
 object SqlDbManager {
 
-    val JDBC_URL = "jdbc:sqlite:test3.db"
+    val JDBC_URL = "jdbc:sqlite:letstrust.db" //jdbc:sqlite::memory:
 
     private val config: HikariConfig = HikariConfig()
     private var ds: HikariDataSource? = null
 
     init {
-        config.setJdbcUrl("jdbc:sqlite:test3.db") //jdbc:sqlite::memory:
+        config.setJdbcUrl(JDBC_URL)
         config.maximumPoolSize = 15
+        config.isAutoCommit = false
 //        config.setUsername("user")
 //        config.setPassword("password")
 //        config.addDataSourceProperty("cachePrepStmts", "true")
@@ -27,11 +28,6 @@ object SqlDbManager {
 
         createDatabase()
     }
-
-    fun getConnection(): Connection {
-        return ds!!.connection!!
-    }
-
 
     fun createDatabase() {
         this.getConnection().use { con ->
@@ -61,6 +57,10 @@ object SqlDbManager {
 
         }
     }
+
+//    fun getConnection(autoCommit: Boolean = true): Connection {
+//        return ds!!.connection!!
+//    }
 
     fun getConnection(autoCommit: Boolean = true): Connection {
         var connection = DriverManager.getConnection(JDBC_URL)
