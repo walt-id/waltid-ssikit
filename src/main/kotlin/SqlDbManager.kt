@@ -4,18 +4,21 @@ import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.Statement
 import java.sql.SQLException
-
-
+import java.util.logging.Level.ALL
+import java.util.logging.Logger
 
 
 object SqlDbManager {
 
-    val JDBC_URL = "jdbc:sqlite:letstrust.db" //jdbc:sqlite::memory:
+    // TODO Should be configurable
+    val JDBC_URL = "jdbc:sqlite:letstrust.db"
+    //val JDBC_URL = "jdbc:sqlite::memory:"
 
     private val config: HikariConfig = HikariConfig()
     private var ds: HikariDataSource? = null
 
     init {
+        println("SqlDbManager::init() ----------------------------------------------------------------------")
         config.setJdbcUrl(JDBC_URL)
         config.maximumPoolSize = 15
         config.isAutoCommit = false
@@ -24,6 +27,8 @@ object SqlDbManager {
 //        config.addDataSourceProperty("cachePrepStmts", "true")
 //        config.addDataSourceProperty("prepStmtCacheSize", "250")
 //        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048")
+        Logger.getLogger("").level = ALL
+
         ds = HikariDataSource(config)
 
         createDatabase()
@@ -31,7 +36,7 @@ object SqlDbManager {
 
     fun createDatabase() {
         this.getConnection().use { con ->
-            con!!.createStatement().use { stmt ->
+            con.createStatement().use { stmt ->
 
                 // Create lt_key
                 stmt.executeUpdate("drop table if exists lt_key")
@@ -54,7 +59,7 @@ object SqlDbManager {
                             "alias string unique)"
                 )
             }
-
+            con.commit()
         }
     }
 
@@ -62,10 +67,9 @@ object SqlDbManager {
 //        return ds!!.connection!!
 //    }
 
-    fun getConnection(autoCommit: Boolean = true): Connection {
-        var connection = DriverManager.getConnection(JDBC_URL)
-        connection.autoCommit = autoCommit
-        return connection
+    fun getConnection(): Connection {
+        // var connection = DriverManager.getConnection(JDBC_URL)
+        return ds!!.connection!!
     }
 
     fun getLastRowId(statement: Statement): Int {

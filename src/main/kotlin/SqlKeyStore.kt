@@ -41,6 +41,7 @@ object SqlKeyStore : KeyStore {
                                 stmt.setInt(1, key_id)
                                 stmt.setString(2, identifier)
                                 stmt.executeUpdate()
+                                con.commit()
                             }
                         }
                     }
@@ -52,7 +53,7 @@ object SqlKeyStore : KeyStore {
 
     override fun saveKeyPair(keys: Keys) {
 
-        db.getConnection(false).use { con ->
+        db.getConnection().use { con ->
             con.prepareStatement("insert into lt_key (name, priv, pub, algorithm, provider) values (?, ?, ?, ?, ?)", RETURN_GENERATED_KEYS)
                 .use { stmt ->
                     stmt.setString(1, keys!!.keyId)
@@ -79,6 +80,7 @@ object SqlKeyStore : KeyStore {
                                     println("key ${keys.keyId} saved successfully")
                                 } else {
                                     println("key ${keys.keyId} not saved successfully")
+                                    con.rollback()
                                 }
                             }
                         }
@@ -123,6 +125,7 @@ object SqlKeyStore : KeyStore {
                 .use { stmt ->
                     stmt.setString(1, keyId)
                     stmt.executeUpdate()
+                    con.commit()
                 }
             // TODO clean up key_alias
         }

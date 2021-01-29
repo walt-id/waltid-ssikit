@@ -1,5 +1,10 @@
-// Tests cases for FileKeyStore, which is the default KeyStore implementation
+import org.junit.Before
+import org.junit.Test
+
 open class FileSystemKeyStoreTest : KeyStoreTest() {
 
-
+    @Before
+    fun setUp() {
+        kms.setKeyStore(FileSystemKeyStore)
+    }
 }

@@ -23,12 +23,12 @@ class SqlKeyStoreTest : KeyStoreTest() {
         assertEquals("pub", String(keysLoaded.publicKey!!))
     }
 
-
     @Test
     fun addAliasSqlApiTest() {
         var keyId = kms.generateEd25519KeyPair()
-        SqlKeyStore.addAlias(keyId, "test-alias")
-        var k1 = SqlKeyStore.getKeyId("test-alias")
+        var alias = UUID.randomUUID().toString()
+        SqlKeyStore.addAlias(keyId, alias)
+        var k1 = SqlKeyStore.getKeyId(alias)
         assertNotNull(k1)
         assertEquals(keyId, k1)
         var k2 = SqlKeyStore.getKeyId(keyId)

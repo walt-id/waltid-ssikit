@@ -19,7 +19,7 @@ object KeyManagementService {
     }
 
     // TODO: keystore implementation should be configurable
-    private var ks = FileSystemKeyStore as KeyStore // SqlKeyStore as KeyStore
+    private var ks = SqlKeyStore as KeyStore
 
     private fun generateKeyId(): String = "LetsTrust-Key-${UUID.randomUUID().toString().replace("-", "")}"
 
