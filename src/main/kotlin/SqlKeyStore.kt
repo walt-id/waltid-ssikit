@@ -58,11 +58,13 @@ object SqlKeyStore : KeyStore {
                 .use { stmt ->
                     stmt.setString(1, keys!!.keyId)
 
-                    keys.pair?.let { stmt.setString(2, Base64.encode(X509EncodedKeySpec(it.private.encoded).encoded).toString()) }
-                    keys.pair?.let { stmt.setString(3, Base64.encode(X509EncodedKeySpec(it.public.encoded).encoded).toString()) }
-
-                    keys.privateKey?.let { stmt.setString(2, Base64.encode(it).toString()) }
-                    keys.publicKey?.let { stmt.setString(3, Base64.encode(keys!!.publicKey).toString()) }
+                    if (keys.isByteKey()) {
+                        keys.pair?.let { stmt.setString(2, Base64.encode(it.private.encoded).toString()) }
+                        keys.pair?.let { stmt.setString(3, Base64.encode(it.public.encoded).toString()) }
+                    } else {
+                        keys.pair?.let { stmt.setString(2, Base64.encode(X509EncodedKeySpec(it.private.encoded).encoded).toString()) }
+                        keys.pair?.let { stmt.setString(3, Base64.encode(X509EncodedKeySpec(it.public.encoded).encoded).toString()) }
+                    }
 
                     keys.algorithm?.let { stmt.setString(4, it) }
                     keys.provider?.let { stmt.setString(5, it) }
@@ -104,13 +106,14 @@ object SqlKeyStore : KeyStore {
                             var pub = kf.generatePublic(X509EncodedKeySpec(Base64.from(rs.getString("pub")).decode()))
                             var priv = kf.generatePrivate(PKCS8EncodedKeySpec(Base64.from(rs.getString("priv")).decode()))
 
-                            return Keys(keyId, KeyPair(pub, priv), algorithm, provider)
+                            return Keys(keyId, KeyPair(pub, priv), provider)
 
                         } else {
                             var pub = Base64.from(rs.getString("pub")).decode()
                             var priv = Base64.from(rs.getString("priv")).decode()
 
-                            return Keys(keyId, priv, pub, algorithm, provider)
+                            var keyPair = KeyPair(BytePublicKey(pub, algorithm), BytePrivateKey(priv, algorithm))
+                            return Keys(keyId,keyPair, provider)
                         }
                     }
                 }

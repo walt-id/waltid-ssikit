@@ -15,16 +15,20 @@ open class KeyStoreTest {
     }
 
     @Test
-    open fun saveLoadByteKeysTest() {
-        var keyId = kms.generateEd25519KeyPair()
-        var keys = kms.loadKeys(keyId)!!
+    open fun saveLoadEd25519KeysTest() {
+        val keyId = kms.generateKeyPair("Ed25519")
+        val keys = kms.loadKeys(keyId)!!
         assertNotNull(keys)
-        assertEquals(32, keys.privateKey?.size)
+        assertEquals(32, keys.pair.private.encoded.size)
+    }
 
-        keyId = kms.generateSecp256k1KeyPair()
-        keys = kms.loadKeys(keyId)!!
+    @Test
+    open fun saveLoadSecp256k1KeysTest() {
+        val keyId = kms.generateKeyPair("Secp256k1")
+        val keys = kms.loadKeys(keyId)!!
         assertNotNull(keys)
-        assertEquals(32, keys.privateKey?.size)
+        assertEquals(33, keys.pair.public.encoded.size)
+        assertEquals(32, keys.pair.private.encoded.size)
     }
 
     @Test
@@ -35,7 +39,7 @@ open class KeyStoreTest {
         assertNotNull(keys)
         assertEquals("ECDSA", keys.pair?.private?.algorithm)
 
-        keyId = kms.generateRsaKeyPair()
+        keyId = kms.generateKeyPair("RSA")
         keys = kms.loadKeys(keyId)!!
         assertNotNull(keys.pair)
         assertEquals("RSA", keys.pair?.private?.algorithm)
@@ -43,7 +47,7 @@ open class KeyStoreTest {
 
     @Test
     open fun deleteKeysTest() {
-        var keyId = kms.generateEd25519KeyPair()
+        var keyId = kms.generateKeyPair("Ed25519")
         var keys = kms.loadKeys(keyId)
         assertNotNull(keys)
 
@@ -54,14 +58,14 @@ open class KeyStoreTest {
 
     @Test
     open fun addAliasTest() {
-        var keyId = kms.generateEd25519KeyPair()
+        var keyId = kms.generateKeyPair("Ed25519")
         var testAlias = UUID.randomUUID().toString()
         kms.addAlias(keyId, testAlias)
         var k1 = kms.loadKeys(testAlias)
         assertNotNull(k1)
         var k2 = kms.loadKeys(keyId)
         assertNotNull(k2)
-        println(k1.privateKey.contentToString())
-        assertEquals(k2.privateKey.contentToString(), k1.privateKey.contentToString())
+        println(k1.pair.private.encoded.contentToString())
+        assertEquals(k2.pair.private.encoded.contentToString(), k1.pair.private.encoded.contentToString())
     }
 }
