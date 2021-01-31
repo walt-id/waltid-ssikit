@@ -1,5 +1,6 @@
 import org.junit.Test
 import java.security.KeyFactory
+import java.security.KeyPair
 import java.util.*
 import kotlin.test.BeforeTest
 import kotlin.test.assertEquals
@@ -14,18 +15,22 @@ class SqlKeyStoreTest : KeyStoreTest() {
 
     @Test
     fun saveLoadByteKeysSqlApiTest() {
-        var keys = Keys(UUID.randomUUID().toString(), "priv".toByteArray(), "pub".toByteArray(), "dummy", "dummy")
+        var priv = BytePrivateKey("priv".toByteArray(), "alg")
+        var pub = BytePublicKey("pub".toByteArray(), "alg")
+        var keys = Keys(UUID.randomUUID().toString(), KeyPair(pub,  priv), "dummy")
         SqlKeyStore.saveKeyPair(keys)
         var keysLoaded = SqlKeyStore.loadKeyPair(keys.keyId)
         assertNotNull(keysLoaded)
         assertEquals(keys.keyId, keysLoaded.keyId)
-        assertEquals("priv", String(keysLoaded.privateKey!!))
-        assertEquals("pub", String(keysLoaded.publicKey!!))
+        assertEquals("priv", String(keysLoaded.pair.private.encoded))
+        assertEquals("pub", String(keysLoaded.pair.public.encoded))
+        assertEquals("alg", keysLoaded.algorithm)
+        assertEquals("byte", keysLoaded.pair.private.format)
     }
 
     @Test
     fun addAliasSqlApiTest() {
-        var keyId = kms.generateEd25519KeyPair()
+        var keyId = kms.generateKeyPair("Ed25519")
         var alias = UUID.randomUUID().toString()
         SqlKeyStore.addAlias(keyId, alias)
         var k1 = SqlKeyStore.getKeyId(alias)

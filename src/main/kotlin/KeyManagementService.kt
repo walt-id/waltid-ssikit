@@ -4,7 +4,7 @@ import io.ipfs.multibase.Multibase
 import org.bitcoinj.core.ECKey
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.jce.provider.BouncyCastleProvider
-import java.security.KeyFactory
+import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.SecureRandom
 import java.security.Security
@@ -40,35 +40,65 @@ object KeyManagementService {
         val generator = KeyPairGenerator.getInstance("ECDSA", "BC")
         generator.initialize(ECNamedCurveTable.getParameterSpec(ecCurveName), SecureRandom())
 
-        val keys = Keys(generateKeyId(), generator.generateKeyPair(), "ECDSA", "BC")
+        val keys = Keys(generateKeyId(), generator.generateKeyPair(), "BC")
         ks.saveKeyPair(keys)
         return keys.keyId
     }
 
-    fun generateEd25519KeyPair(): String {
-        TinkConfig.register();
+    fun generateKeyPair(algorithm: String): String {
 
-        var keyPair = Ed25519Sign.KeyPair.newKeyPair()
-        val keys = Keys(generateKeyId(), keyPair.privateKey, keyPair.publicKey, "Ed25519", "Tink")
+        var keys = when (algorithm) {
+            "Ed25519" -> {
+                TinkConfig.register();
+                var keyPair = Ed25519Sign.KeyPair.newKeyPair()
+                var publicKey = BytePublicKey(keyPair.publicKey, "Ed25519")
+                var privateKey = BytePrivateKey(keyPair.privateKey, "Ed25519")
+                Keys(generateKeyId(), KeyPair(publicKey, privateKey), "Tink")
+            }
+            "Secp256k1" -> {
+                var key = ECKey(SecureRandom())
+                var publicKey = BytePublicKey(key.pubKey, "Secp256k1")
+                var privateKey = BytePrivateKey(key.privKeyBytes, "Secp256k1")
+                Keys(generateKeyId(), KeyPair(publicKey, privateKey), "bitcoinj")
+            }
+            else -> {
+                val generator = KeyPairGenerator.getInstance("RSA", "BC")
+                generator.initialize(1024)
+                Keys(generateKeyId(), generator.generateKeyPair(), "BC")
+            }
+        }
         ks.saveKeyPair(keys)
         return keys.keyId
     }
 
-    fun generateSecp256k1KeyPair(): String {
-        var key = ECKey(SecureRandom())
-        val keys = Keys(generateKeyId(), key.privKeyBytes, key.pubKey, "Secp256k1", "bitcoinj")
-        ks.saveKeyPair(keys)
-        return keys.keyId
-    }
 
-    fun generateRsaKeyPair(): String {
-        val generator = KeyPairGenerator.getInstance("RSA", "BC")
-        generator.initialize(1024)
-
-        val keys = Keys(generateKeyId(), generator.generateKeyPair(), "RSA", "BC")
-        ks.saveKeyPair(keys)
-        return keys.keyId
-    }
+//    fun generateEd25519KeyPair(): String {
+//        TinkConfig.register();
+//
+//        var keyPair = Ed25519Sign.KeyPair.newKeyPair()
+//        var publicKey = BytePublicKey(keyPair.publicKey, "Ed25519")
+//        var privateKey = BytePrivateKey(keyPair.privateKey, "Ed25519")
+//        val keys = Keys(generateKeyId(), KeyPair(publicKey, privateKey), "Tink")
+//        ks.saveKeyPair(keys)
+//        return keys.keyId
+//    }
+//
+//    fun generateSecp256k1KeyPair(): String {
+//        var key = ECKey(SecureRandom())
+//        var publicKey = BytePublicKey(key.pubKey, "Secp256k1")
+//        var privateKey = BytePrivateKey(key.privKeyBytes, "Secp256k1")
+//        val keys = Keys(generateKeyId(), KeyPair(publicKey, privateKey), "bitcoinj")
+//        ks.saveKeyPair(keys)
+//        return keys.keyId
+//    }
+//
+//    fun generateRsaKeyPair(): String {
+//        val generator = KeyPairGenerator.getInstance("RSA", "BC")
+//        generator.initialize(1024)
+//        val keys = Keys(generateKeyId(), generator.generateKeyPair(), "BC")
+//        ks.saveKeyPair(keys)
+//        return keys.keyId
+//    }
 
     fun loadKeys(keyId: String): Keys? {
         return ks.getKeyId(keyId)?.let { it -> ks.loadKeyPair(it) }
@@ -81,7 +111,7 @@ object KeyManagementService {
 
     fun getMultiBase58PublicKey(keyId: String): String {
         return ks.loadKeyPair(keyId).let {
-            Multibase.encode(Multibase.Base.Base58BTC, it!!.publicKey)
+            Multibase.encode(Multibase.Base.Base58BTC, (it!!.pair!!.public as BytePublicKey).publicKey)
         }
     }
 

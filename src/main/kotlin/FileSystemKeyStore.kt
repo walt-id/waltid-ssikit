@@ -20,10 +20,14 @@ object FileSystemKeyStore : KeyStore {
     override fun saveKeyPair(keys: Keys) {
         this.addAlias(keys.keyId, keys.keyId)
         this.storeKeyMetaData(keys)
-        keys.pair?.let { saveEncPublicKey(keys.keyId, it.public) }
-        keys.pair?.let { saveEncPrivateKey(keys.keyId, it.private) }
-        keys.publicKey?.let { saveRawPublicKey(keys.keyId, it) }
-        keys.privateKey?.let { saveRawPrivateKey(keys.keyId, it) }
+
+        if (keys.isByteKey()) {
+            saveRawPublicKey(keys.keyId, keys.pair.public)
+            saveRawPrivateKey(keys.keyId, keys.pair.private)
+        } else {
+            saveEncPublicKey(keys.keyId, keys.pair.public)
+            saveEncPrivateKey(keys.keyId, keys.pair.private)
+        }
     }
 
     private fun storeKeyMetaData(keys: Keys) {
@@ -47,13 +51,13 @@ object FileSystemKeyStore : KeyStore {
                 return Keys(
                     keyId,
                     KeyPair(loadEncPublicKey(keyId, keyFactory), loadEncPrivateKey(keyId, keyFactory)),
-                    algorithm,
                     provider
                 )
             }
         } else {
             if (keyFileExists(keyId, "raw-pubkey") && keyFileExists(keyId, "raw-privkey")) {
-                return Keys(keyId, loadRawPrivateKey(keyId), loadRawPublicKey(keyId), algorithm, provider)
+                val keyPair = KeyPair(BytePublicKey(loadRawPublicKey(keyId), algorithm), BytePrivateKey(loadRawPrivateKey(keyId), algorithm))
+                return Keys(keyId, keyPair, provider)
             }
         }
         return null;
@@ -65,11 +69,11 @@ object FileSystemKeyStore : KeyStore {
     private fun saveEncPrivateKey(keyId: String, encodedPrivateKey: PrivateKey) =
         saveKeyFile(keyId, "enc-privkey", PKCS8EncodedKeySpec(encodedPrivateKey.encoded).encoded)
 
-    private fun saveRawPublicKey(keyId: String, rawPublicKey: ByteArray) =
-        saveKeyFile(keyId, "raw-pubkey", rawPublicKey)
+    private fun saveRawPublicKey(keyId: String, rawPublicKey: PublicKey) =
+        saveKeyFile(keyId, "raw-pubkey", rawPublicKey.encoded)
 
-    private fun saveRawPrivateKey(keyId: String, rawPrivateKey: ByteArray) =
-        saveKeyFile(keyId, "raw-privkey", rawPrivateKey)
+    private fun saveRawPrivateKey(keyId: String, rawPrivateKey: PrivateKey) =
+        saveKeyFile(keyId, "raw-privkey", rawPrivateKey.encoded)
 
     private fun saveKeyFile(keyId: String, suffix: String, data: ByteArray): Unit =
         FileOutputStream("$KEY_DIR_PATH/$keyId.$suffix").use { it.write(data) }

@@ -50,12 +50,12 @@ class KeyManagementServiceTest {
     @Test
     fun generateEd25519KeyPairTest() {
         val kms = KeyManagementService
-        val keyId = kms.generateEd25519KeyPair()
+        val keyId = kms.generateKeyPair("Ed25519")
         val keysLoaded = kms.loadKeys(keyId)
         assertEquals(keyId, keysLoaded?.keyId)
-        assertNotNull(keysLoaded?.privateKey)
-        assertNotNull(keysLoaded?.publicKey)
-        var pubKey = keysLoaded?.publicKey
+        assertNotNull(keysLoaded?.pair?.private?.encoded)
+        assertNotNull(keysLoaded?.pair?.public?.encoded)
+        var pubKey = keysLoaded?.pair?.public?.encoded
         assertEquals(32, pubKey?.size)
         assertTrue(kms.getMultiBase58PublicKey(keyId).length > 32)
         kms.deleteKeys(keyId)
@@ -65,7 +65,7 @@ class KeyManagementServiceTest {
     fun generateRsaKeyPairTest() {
         val kms = KeyManagementService
         val ks = FileSystemKeyStore
-        val keyId = kms.generateRsaKeyPair()
+        val keyId = kms.generateKeyPair("RSA")
         val keysLoaded = kms.loadKeys(keyId)
         assertEquals(keyId, keysLoaded?.keyId)
         assertNotNull(keysLoaded?.pair)

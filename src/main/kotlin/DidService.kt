@@ -51,7 +51,7 @@ object DidService {
 
     //
     fun registerDid(): String {
-        val keyId = kms.generateEd25519KeyPair()
+        val keyId = kms.generateKeyPair("Ed25519")
         // should be fingerprintFromPublicKey
         var identifier = "did:key:z" + kms.getMultiBase58PublicKey(keyId)
 
@@ -158,7 +158,7 @@ object DidService {
     }
 
     fun createDidKey() {
-        val keyId = kms.generateEd25519KeyPair()
+        val keyId = kms.generateKeyPair("Ed25519")
         var identifier = "did:key:" + kms.getMultiBase58PublicKey(keyId)
         kms.addAlias(keyId, identifier)
     }

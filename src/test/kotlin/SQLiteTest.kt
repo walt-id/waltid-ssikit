@@ -16,10 +16,10 @@ class SQLiteTest {
     fun createKeyStoreDb() {
 
         val kms = KeyManagementService
-        val keyId = kms.generateSecp256k1KeyPair()
-        val keys = kms.loadKeys(keyId)
+        val keyId = kms.generateKeyPair("Secp256k1")
+        val keys = kms.loadKeys(keyId)!!
         val db = SqlDbManager
-        var pubKeyStr = Base64.encode(keys!!.publicKey).toString()
+        var pubKeyStr = Base64.encode(keys.pair.private.encoded).toString()
 
 
         db.getConnection().use { con ->

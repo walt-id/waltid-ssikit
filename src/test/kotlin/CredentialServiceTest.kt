@@ -42,7 +42,7 @@ class CredentialServiceTest {
     @Test
     fun signEcdsaSecp256k1Signature2019Test() {
 
-        val keyId = KeyManagementService.generateSecp256k1KeyPair()
+        val keyId = KeyManagementService.generateKeyPair("Secp256k1")
         val issuerDid = DidService.registerDid()
         val domain = "example.com"
         val nonce: String? = null
@@ -80,7 +80,7 @@ class CredentialServiceTest {
 
         val credOffer = readCredOffer("PermanentResidentCard")
 
-        val keyId = KeyManagementService.generateSecp256k1KeyPair()
+        val keyId = KeyManagementService.generateKeyPair("Secp256k1")
         val domain = "example.com"
         val nonce: String? = null
 
