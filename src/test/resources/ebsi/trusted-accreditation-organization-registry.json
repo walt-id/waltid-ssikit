@@ -1,0 +1,37 @@
+{
+  "accreditationOrganization": {
+    "preferredName": "Brand Name",
+    "did": ["did:example:00001224", "did:example:00004678"],
+    "eidasCertificatePem": "<PEM-ENC-CERT>",
+    "serviceEndpoints": [
+      "https: //example.one.com",
+      "https: //example.two.com"
+    ],
+    "organizationInfo": {
+      "id": "BE44444j",
+      "legalName": "Example Legal Name",
+      "currentAddress": "Example Street 42, Brussels, Belgium",
+      "vatNumber": "BE09999999XX",
+      "taxReferenceNumber": "99999999999",
+      "legalEntityIdentifier": "54930084UKLVMY22DS16",
+      "domainName": "https://example.organization.com"
+    }
+  },
+  "accreditationAuthorization": [{
+    "credentialSchemaId": "exampleID1",
+    "validFrom": "01.01.2018",
+    "validUntil": "31.12.2018",
+    "evidence": "https://exampleevidenceaboutissuance.org"
+  },
+    {
+      "credentialSchemaId": "exampleID2",
+      "validFrom": "01.01.2020",
+      "validUntil": "31.12.2012"
+    },
+    {
+      "credentialSchemaId": "exampleID3",
+      "validFrom": "",
+      "validUntil": ""
+    }
+  ]
+}

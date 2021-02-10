@@ -1,0 +1,61 @@
+{
+  "issuer": {
+    "preferredName": "Brand Name",
+    "did": [
+      "did:ebsi:00003333",
+      "did:ebsi:00005555"
+    ],
+    "eidasCertificatePem": "",
+    "serviceEndpoints": [
+      "https: //example.one.com",
+      "https: //example.two.com"
+    ],
+    "organizationInfo": {
+      "id": "BE55555j",
+      "legalName": "Great Company",
+      "currentAddress": "Great Company Street 1, Brussels, Belgium",
+      "vatNumber": "BE05555555XX",
+      "domainName": "https://great.company.be"
+    }
+  },
+  "accreditationCredentials": [
+    {
+      "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        "https://essif.europa.eu/schemas/vc/2020/v1"
+      ],
+      "id": "https://essif.europa.eu/tsr/53",
+      "type": [
+        "VerifiableCredential",
+        "VerifiableAttestation"
+      ],
+      "issuer": "did:ebsi:00001234",
+      "issuanceDate": "2020-06-22T14:11:44Z",
+      "credentialSubject": {
+        "did": "did:ebsi:00001235",
+        "authorizationClaims": [
+          "claim1",
+          "claim2"
+        ]
+      },
+      "credentialStatus": {
+        "id": "https://essif.europa.eu/status/45",
+        "type": "CredentialsStatusList2020"
+      },
+      "credentialSchema": {
+        "id": "https://essif.europa.eu/tsr/education/CSR1224.json",
+        "type": "JsonSchemaValidator2018"
+      },
+      "proof": {
+        "type": "EidasSeal2019",
+        "created": "2019-06-22T14:11:44Z",
+        "proofPurpose": "assertionMethod",
+        "verificationMethod": {
+          "type": "EidasCertificate2019",
+          "CertSerial": "1088321447"
+        },
+        "proofValue": "BD21J4fdlnBvBA+y6D...fnC8Y="
+      }
+    }
+  ]
+}
