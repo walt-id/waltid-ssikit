@@ -5,13 +5,25 @@
       "did:ebsi:00003333",
       "did:ebsi:00005555"
     ],
-    "eidasCertificatePem": "",
+    "eidasCertificate": {
+      "eidasCertificateIssuerNumber" : "123456",
+      "eidasCertificateSerialNumber" : "123456",
+      "eidasCertificatePem": "<PEM-ENCODED-CERT>"
+    },
     "serviceEndpoints": [
-      "https: //example.one.com",
-      "https: //example.two.com"
+      {
+        "id": "did:example:123456789abcdefghi#openid",
+        "type": "OpenIdConnectVersion1.0Service",
+        "serviceEndpoint": "https://openid.example.com/"
+      },
+      {
+        "id": "did:example:123456789abcdefghi#agent",
+        "type": "AgentService",
+        "serviceEndpoint": "https://agent.example.com/8377464"
+      }
     ],
     "organizationInfo": {
-      "id": "BE55555j",
+      "id": "https://essif.europa.eu/tsr/53",
       "legalName": "Great Company",
       "currentAddress": "Great Company Street 1, Brussels, Belgium",
       "vatNumber": "BE05555555XX",
@@ -29,8 +41,8 @@
         "VerifiableCredential",
         "VerifiableAttestation"
       ],
-      "issuer": "did:ebsi:00001234",
-      "issuanceDate": "2020-06-22T14:11:44Z",
+      "issuer": "",
+      "issuanceDate": "2013-12-03T10:15:30Z",
       "credentialSubject": {
         "did": "did:ebsi:00001235",
         "authorizationClaims": [
@@ -48,7 +60,7 @@
       },
       "proof": {
         "type": "EidasSeal2019",
-        "created": "2019-06-22T14:11:44Z",
+        "created": "2013-12-03T10:15:30Z",
         "proofPurpose": "assertionMethod",
         "verificationMethod": {
           "type": "EidasCertificate2019",

@@ -1,11 +1,26 @@
 {
   "accreditationOrganization": {
     "preferredName": "Brand Name",
-    "did": ["did:example:00001224", "did:example:00004678"],
-    "eidasCertificatePem": "<PEM-ENC-CERT>",
+    "did": [
+      "did:example:00001224",
+      "did:example:00004678"
+    ],
+    "eidasCertificate": {
+      "eidasCertificateIssuerNumber": "123456",
+      "eidasCertificateSerialNumber": "123456",
+      "eidasCertificatePem": "<PEM-ENC-CERT>"
+    },
     "serviceEndpoints": [
-      "https: //example.one.com",
-      "https: //example.two.com"
+      {
+        "id": "did:example:123456789abcdefghi#openid",
+        "type": "OpenIdConnectVersion1.0Service",
+        "serviceEndpoint": "https://openid.example.com/"
+      },
+      {
+        "id": "did:example:123456789abcdefghi#agent",
+        "type": "AgentService",
+        "serviceEndpoint": "https://agent.example.com/8377464"
+      }
     ],
     "organizationInfo": {
       "id": "BE44444j",
@@ -17,21 +32,22 @@
       "domainName": "https://example.organization.com"
     }
   },
-  "accreditationAuthorization": [{
-    "credentialSchemaId": "exampleID1",
-    "validFrom": "01.01.2018",
-    "validUntil": "31.12.2018",
-    "evidence": "https://exampleevidenceaboutissuance.org"
-  },
+  "accreditationAuthorization": [
+    {
+      "credentialSchemaId": "exampleID1",
+      "validFrom": "2021-02-11T10:50:21Z",
+      "validUntil": "2022-02-11T10:50:21Z",
+      "evidence": "https://exampleevidenceaboutissuance.org"
+    },
     {
       "credentialSchemaId": "exampleID2",
-      "validFrom": "01.01.2020",
-      "validUntil": "31.12.2012"
+      "validFrom": "2024-02-11T10:50:21Z",
+      "validUntil": "2025-02-11T10:50:21Z"
     },
     {
       "credentialSchemaId": "exampleID3",
-      "validFrom": "",
-      "validUntil": ""
+      "validFrom": "2023-02-11T10:50:21Z",
+      "validUntil": "2026-02-11T10:50:21Z"
     }
   ]
 }
