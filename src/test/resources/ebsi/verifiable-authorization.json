@@ -1,0 +1,34 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://essif.europa.eu/schemas/vc/2020/v1"
+  ],
+  "id": "did:ebsi-eth:00000001/credentials/1872",
+  "type": [
+    "VerifiableCredential",
+    "VerifiableAuthorization"
+  ],
+  "issuer": "did:ebsi:000001234",
+  "issuanceDate": "2020-08-24T14:13:44Z",
+  "credentialSubject": {
+    "id": "did:ebsi:00000004321",
+    "naturalPerson": {
+      "did": "did:example:00001111",
+      "publicKey": "eyJhbGciOiJSUzI1NiIsImI2N",
+      "serviceEndpoints": [
+        {
+          "id": "did:example:123456789abcdefghi#openid",
+          "type": "OpenIdConnectVersion1.0Service",
+          "serviceEndpoint": "https://openid.example.com/"
+        }
+      ]
+    }
+  },
+  "proof": {
+    "type": "EcdsaSecp256k1Signature2019",
+    "created": "2020-08-24T14:13:44Z",
+    "proofPurpose": "assertionMethod",
+    "verificationMethod": "did:ebsi-eth:000001234#key-1",
+    "jws": "eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19."
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "@context": "https://www.w3.org/ns/did/v1",
+  "id": "did:example:00001111",
+  "authentication": [
+    {
+      "id": "did:example:00001111#z6MkecaLyHuYWkayBDLw5ihndj3T1m6zKTGqau3A51G7RBf3",
+      "type": "Ed25519VerificationKey2018",
+      "controller": "did:example:00001111",
+      "publicKeyBase58": "AKJP3f7BD6W4iWEQ9jwndVTCBq8ua2Utt8EEjJ6Vxsf"
+    }
+  ]
+}

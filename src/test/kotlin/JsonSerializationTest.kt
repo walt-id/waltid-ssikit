@@ -3,54 +3,21 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.descriptors.*
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.*
 import org.junit.Test
-import java.util.*
+import kotlin.test.assertEquals
 
-
-@Serializable
-data class Project(
-    val name: String,
-    @Serializable(with = NestedObjectOrStringSerializer::class)
-    val users: User
-)
-
-@Serializable
-data class User(val name: String, val details: JsonObject)
-
-
-object NestedObjectOrStringSerializer : KSerializer<User> {
-    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("User") {
-        element<String>("name")
-        element<JsonElement>("details")
-    }
-
-    override fun deserialize(decoder: Decoder): User {
-        val jsonInput = decoder as? JsonDecoder ?: error("Can be deserialized only by JSON")
-        val jsonElement = jsonInput.decodeJsonElement()
-        println(jsonElement)
-        var name = ""
-        var details: MutableMap<String, JsonElement> = LinkedHashMap<String, JsonElement>()
-        if (jsonElement is JsonObject) {
-            val json = jsonElement.jsonObject
-            name = json.getValue("name").jsonPrimitive.content
-            details = json.toMutableMap()
-            details.remove("name")
-        } else {
-            name = jsonElement.jsonPrimitive.content
-        }
-
-        return User(name, JsonObject(details))
-    }
-
-    override fun serialize(encoder: Encoder, value: User) {
-        error("Serialization is not supported")
-    }
-}
+/**
+ * HINTS
+ * https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/json.md
+ * https://stackoverflow.com/questions/58173422/how-to-iterate-a-jsonelement-with-unknown-keys-on-kotlin-using-kotlinx
+ */
 
 @Serializable(with = ColorAsStringSerializer::class)
 data class Color(val rgb: Int, val xyz: String)
@@ -73,23 +40,77 @@ class JsonSerializationTest {
 
     val format = Json { prettyPrint = true }
 
+    interface Stuff {
+        val prop: String
+    }
+
+    @Serializable
+    class StuffImpl(override val prop: String) : Stuff
+
+    object StuffSerializer : JsonContentPolymorphicSerializer<Stuff>(Stuff::class) {
+        override fun selectDeserializer(element: JsonElement) = StuffImpl.serializer()
+    }
+
+    object StuffListSerializer : KSerializer<List<Stuff>> {
+        private val builtIn: KSerializer<List<Stuff>> = ListSerializer(StuffSerializer)
+
+        override fun deserialize(decoder: Decoder): List<Stuff> {
+            return builtIn.deserialize(decoder)
+        }
+
+        override val descriptor: SerialDescriptor = builtIn.descriptor
+
+        override fun serialize(encoder: Encoder, value: List<Stuff>) {
+            builtIn.serialize(encoder, value)
+        }
+
+    }
+
+    @Serializable
+    class Foo(
+        @Serializable(with = StuffListSerializer::class)
+        val list: List<Stuff>
+    )
+
+    object ActorSerializer : JsonTransformingSerializer<Actor>(Actor.serializer()) {
+        override fun transformDeserialize(element: JsonElement): JsonElement =
+            if (element !is JsonObject) JsonObject(mapOf("name" to element)) else element
+
+        override fun transformSerialize(element: JsonElement): JsonElement =
+            if (element.jsonObject.get("age") == null) element.jsonObject.get("name")!! else element
+    }
+
+    @Serializable
+    data class Movie(
+        val title: String,
+        @Serializable(with = ActorSerializer::class)
+        val actor: Actor,
+    )
+
+    @Serializable
+    data class Actor(
+        val name: String,
+        val age: Int? = null
+    )
+
     @Test
     fun unkownStructureTest() {
+        val json1 = """{"title":"Matrix","actor":{"name":"Keanu","age":56}}"""
+        val movie1 = Json.decodeFromString<Movie>(json1)
+        println(movie1) // Movie(title=Matrix, actor=Actor(name=Keanu, age=56))
+        assertEquals(json1, Json.encodeToString(movie1))
 
-        println(
-            Json.decodeFromString<Project>(
-                """
-        {"name":"kotlinx.serialization","users":{"name":"kotlin", "age":"21"}}
-    """
-            )
-        )
-        println(
-            Json.decodeFromString<Project>(
-                """
-        {"name":"kotlinx.serialization","users":"kotlin"}
-    """
-            )
-        )
+        val json2 = """{"title":"Matrix","actor":"Keanu"}"""
+        val movie2 = Json.decodeFromString<Movie>(json2) // FAILING
+        println(movie2) // Should be Movie(title=Matrix, actor=Actor(name=Keanu, null))
+        assertEquals(json2, Json.encodeToString(movie2))
+    }
+
+    @Test
+    fun listOfInterfaceImplentationsTest() {
+        val json = """{"list":[{"prop":"3"},{"prop":"4"},{"prop":"5"}]}"""
+        val data = Foo(listOf(StuffImpl("3"), StuffImpl("4"), StuffImpl("5")))
+        assertEquals(json, Json.encodeToString(data))
     }
 
     @Test

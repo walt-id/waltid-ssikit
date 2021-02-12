@@ -7,6 +7,10 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonTransformingSerializer
+import kotlinx.serialization.json.jsonObject
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -31,3 +35,14 @@ object DateAsIso8601UtcStringSerializer : KSerializer<LocalDateTime> {
         return LocalDateTime.parse(input.decodeString(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"))
     }
 }
+
+@Serializer(forClass = VerificationMethod::class)
+object VerificationMethodSerializer : JsonTransformingSerializer<VerificationMethod>(VerificationMethod.serializer()) {
+    override fun transformDeserialize(element: JsonElement): JsonElement =
+        if (element !is JsonObject) JsonObject(mapOf("CertSerial" to element)) else element
+
+    override fun transformSerialize(element: JsonElement): JsonElement =
+        if (element.jsonObject.get("type") == null) element.jsonObject.get("CertSerial")!! else element
+}
+
+

@@ -6,8 +6,8 @@
       "did:ebsi:00005555"
     ],
     "eidasCertificate": {
-      "eidasCertificateIssuerNumber" : "123456",
-      "eidasCertificateSerialNumber" : "123456",
+      "eidasCertificateIssuerNumber": "123456",
+      "eidasCertificateSerialNumber": "123456",
       "eidasCertificatePem": "<PEM-ENCODED-CERT>"
     },
     "serviceEndpoints": [
