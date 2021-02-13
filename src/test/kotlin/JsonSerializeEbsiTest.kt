@@ -1,3 +1,4 @@
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -12,17 +13,17 @@ import java.time.format.DateTimeFormatter
 import kotlin.test.assertEquals
 
 
-class EbsiServicesTest {
+class JsonSerializeEbsiTest {
 
     val format = Json { prettyPrint = true }
 
     private fun validateVC(fileName: String) {
         val expected = File("src/test/resources/ebsi/${fileName}").readText()
-        println(expected)
+        // println(expected)
         val obj = Json.decodeFromString<VerifiableCredential>(expected)
-        println(obj)
+        // println(obj)
         val encoded = Json.encodeToString(obj)
-        println(encoded)
+        // println(encoded)
         assertEquals(expected.replace("\\s".toRegex(), ""), Json.encodeToString(obj))
     }
 
@@ -74,7 +75,7 @@ class EbsiServicesTest {
                 ),
                 "https://essif.europa.eu/tsr/53",
                 listOf<String>("VerifiableCredential", "VerifiableAttestation"),
-                "",
+                "did:ebsi:000098765",
                 LocalDateTime.now().withNano(0),
                 CredentialSubject("did:ebsi:00001235", null, listOf("claim1", "claim2")),
                 CredentialStatus("https://essif.europa.eu/status/45", "CredentialsStatusList2020"),
@@ -83,12 +84,12 @@ class EbsiServicesTest {
             )
         )
 
-        var tir = Tir(issuer, accreditationCredentials)
+        var tir = TrustedIssuerRegistry(issuer, accreditationCredentials)
 
         val string = format.encodeToString(tir)
         println(string)
 
-        val obj = Json.decodeFromString<Tir>(string)
+        val obj = Json.decodeFromString<TrustedIssuerRegistry>(string)
         println(obj)
 
         assertEquals(tir, obj)
@@ -97,7 +98,7 @@ class EbsiServicesTest {
     @Test
     fun trustedIssuerRegistryFileTest() {
         val expected = File("src/test/resources/ebsi/trusted-issuer-registry.json").readText()
-        val obj = Json.decodeFromString<Tir>(expected)
+        val obj = Json.decodeFromString<TrustedIssuerRegistry>(expected)
         println(obj)
         val string = format.encodeToString(obj)
         println(string)

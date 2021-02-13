@@ -12,8 +12,7 @@
     <name>letstrust-ssi-core</name>
 
     <properties>
-        <kotlin.version>1.4.10</kotlin.version>
-        <serialization.version>1.0.1</serialization.version>
+        <kotlin.version>1.4.30</kotlin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.code.style>official</kotlin.code.style>
         <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
@@ -133,11 +132,14 @@
             <version>3.4.5</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-serialization-json -->
         <dependency>
             <groupId>org.jetbrains.kotlinx</groupId>
             <artifactId>kotlinx-serialization-json</artifactId>
-            <version>${serialization.version}</version>
+            <version>1.0.1</version>
+            <type>pom</type>
         </dependency>
+
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-kotlin</artifactId>

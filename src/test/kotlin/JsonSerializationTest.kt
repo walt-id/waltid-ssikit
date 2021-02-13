@@ -17,6 +17,8 @@ import kotlin.test.assertEquals
  * HINTS
  * https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/json.md
  * https://stackoverflow.com/questions/58173422/how-to-iterate-a-jsonelement-with-unknown-keys-on-kotlin-using-kotlinx
+ * https://github.com/Kotlin/kotlinx.serialization/issues/296
+ *
  */
 
 @Serializable(with = ColorAsStringSerializer::class)

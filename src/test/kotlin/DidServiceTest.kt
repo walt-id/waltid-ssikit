@@ -81,7 +81,7 @@ class DidServiceTest {
     @Test
     fun jsonDynObjectTest() {
         val mapper = jacksonObjectMapper()
-        val json = readExampleDid("product")
+        val json = readExampleDid("did-example2")
         val product: Product = mapper.readValue(json, Product::class.java)
         println(product)
         val serialized = mapper.writeValueAsString(product)

@@ -1,7 +1,5 @@
 @file:UseSerializers(DateAsIso8601UtcStringSerializer::class)
-
 package model
-
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -9,13 +7,13 @@ import java.time.LocalDateTime
 
 
 @Serializable
-data class Tir(
+data class TrustedIssuerRegistry(
     val issuer: Issuer,
     val accreditationCredentials: List<VerifiableCredential>
 )
 
 @Serializable
-data class Taor(
+data class TrustedAccreditationOrganizationRegistry(
     val accreditationOrganization: EssifAuthority,
     val accreditationAuthorization: List<AccreditationAuthorization>,
     val validFrom: LocalDateTime,

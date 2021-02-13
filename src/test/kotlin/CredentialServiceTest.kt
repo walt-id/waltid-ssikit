@@ -14,7 +14,7 @@ class CredentialServiceTest {
     protected val RESOURCES_PATH: String = "src/test/resources"
 
     fun readCredOffer(fileName: String) =
-        File("$RESOURCES_PATH/credential-offers/${fileName}.json").readText(Charsets.UTF_8)
+        File("$RESOURCES_PATH/verifiable-credentials/${fileName}.json").readText(Charsets.UTF_8)
 
     @Before
     fun setup() {
