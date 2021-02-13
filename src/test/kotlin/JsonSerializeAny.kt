@@ -191,7 +191,7 @@ data class MapStringAny(val entries : Map<String, Any?> = emptyMap())
 class JsonSerializeAny() {
 
 
-    // IGNORE FOR NOW @Test()
+    @Test()
     fun serializeAnyTest() {
         val map = mapOf<String, Any?>("Fooo" to "bar",
             "One" to 1,

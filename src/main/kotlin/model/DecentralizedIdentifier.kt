@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class EbsiDid(
+data class DidEbsi(
     @SerialName("@context")  val context: String,
     val id: String,
     val authentication: List<Key>
@@ -17,3 +17,18 @@ data class Key(
     val controller: String,
     val publicKeyBase58: String
 )
+
+
+@Serializable
+data class DidKey(
+    @SerialName("@context")
+    val context: String,
+    val id: String,
+    val publicKey: List<Key>,
+    val authentication: List<String>,
+    val assertionMethod: List<String>,
+    val capabilityDelegation: List<String>,
+    val capabilityInvocation: List<String>,
+    val keyAgreement: List<Key>,
+)
+

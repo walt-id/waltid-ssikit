@@ -8,14 +8,11 @@ import java.io.File
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter
-import com.fasterxml.jackson.annotation.JsonAnySetter
 
 import java.util.LinkedHashMap
 import DidServiceTest.Product
+import com.fasterxml.jackson.annotation.*
 import java.util.Collections
-
-import com.fasterxml.jackson.annotation.JsonAnyGetter
-import com.fasterxml.jackson.annotation.JsonIgnore
 
 
 class DidServiceTest {
@@ -54,7 +51,7 @@ class DidServiceTest {
     fun didKeyTest() {
         val ds = DidService
         val didResolved = ds.resolveDidKey("did:key:z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH")
-        val exampleDid = readExampleDid("did-key-example1").replace("\n", "").replace("\r", "").replace(" ", "");
+        val exampleDid = readExampleDid("did-key-example1").replace("\\s+".toRegex(), "")
         println("------------------")
         println(exampleDid)
         assertEquals(exampleDid, didResolved)
@@ -99,44 +96,95 @@ class DidServiceTest {
         assertEquals(serialized, json)
     }
 
-    @Test
-    fun jsonTest() {
-        val mapper = jacksonObjectMapper()
 
-//        val state = Did(
+
+
+
+
+
+
+
+
+//    JAXON TEST
+//    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+//    data class Service(
+//        val id: String,
+//        val type: String,
+//        val serviceEndpoint: String
+//    )
+//
+//    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+//    data class PublicKey(
+//        val id: String,
+//        val controller: String,
+//        val type: String,
+//        val publicKeyBase58: String
+//    )
+//
+//    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+//    data class Did(
+//        @JsonProperty("@context") val context: String,
+//        val id: String,
+////    val controller: List<PublicKey>,
+//        val publicKey: List<PublicKey>? = null,
+//        val verificationMethod: List<Map<String, Any>>? = null,
+////    val authentication: List<String>?,
+////    val assertionMethod: List<String>?,
+////    val capabilityDelegation: List<String>?
+//    ) {
+//
+//        @JsonIgnore
+//        var dynFields: LinkedHashMap<String, Any> = LinkedHashMap<String, Any>()
+//
+//        @JsonAnySetter
+//        fun setField(key: String, value: Any) {
+//            dynFields[key] = value
+//        }
+//
+//        @JsonAnyGetter
+//        fun any():  LinkedHashMap<String, Any> {
+//            return dynFields
+//        }
+//    }
+//
+//    @Test
+//    fun jsonTest() {
+//        val mapper = jacksonObjectMapper()
+//
+////        val state = Did(
+////            "https://w3id.org/did/v1",
+////            "did:key:z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH",
+////            listOf(
+////                PublicKey("id1", "contr1", "type1", "key1"),
+////                PublicKey("id2", "contr2", "type2", "key2")
+////            ),
+////            null,
+////            null,
+////            null,
+////            null
+////        )
+//        val did = Did(
 //            "https://w3id.org/did/v1",
-//            "did:key:z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH",
-//            listOf(
-//                PublicKey("id1", "contr1", "type1", "key1"),
-//                PublicKey("id2", "contr2", "type2", "key2")
-//            ),
-//            null,
-//            null,
-//            null,
-//            null
+//            "did:key:z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH"
 //        )
-        val did = Did(
-            "https://w3id.org/did/v1",
-            "did:key:z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH"
-        )
-        val writer = mapper.writer(DefaultPrettyPrinter())
-        val json = writer.writeValueAsString(did)
-        println(json)
-        val out = mapper.readValue<Did>(json)
-        println(out)
-    }
-
-    @Test
-    fun parseDids() {
-        val mapper = jacksonObjectMapper()
-        var json = readExampleDid("did-test")
-        val did = mapper.readValue<Did>(json)
-        println(did)
-        println(did.context)
-        println(did.id)
-        println(did.verificationMethod)
-        println(did.publicKey?.get(0)?.id)
-        println(did.dynFields.get("controller"))
-    }
+//        val writer = mapper.writer(DefaultPrettyPrinter())
+//        val json = writer.writeValueAsString(did)
+//        println(json)
+//        val out = mapper.readValue<Did>(json)
+//        println(out)
+//    }
+//
+//    @Test
+//    fun parseDids() {
+//        val mapper = jacksonObjectMapper()
+//        var json = readExampleDid("did-test")
+//        val did = mapper.readValue<Did>(json)
+//        println(did)
+//        println(did.context)
+//        println(did.id)
+//        println(did.verificationMethod)
+//        println(did.publicKey?.get(0)?.id)
+//        println(did.dynFields.get("controller"))
+//    }
 
 }

@@ -1,49 +1,10 @@
-import com.fasterxml.jackson.annotation.*
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ipfs.multibase.Multibase
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import model.DidKey
+import model.Key
 import java.util.*
 
-
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
-data class Service(
-    val id: String,
-    val type: String,
-    val serviceEndpoint: String
-)
-
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
-data class PublicKey(
-    val id: String,
-    val controller: String,
-    val type: String,
-    val publicKeyBase58: String
-)
-
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
-data class Did(
-    @JsonProperty("@context") val context: String,
-    val id: String,
-//    val controller: List<PublicKey>,
-    val publicKey: List<PublicKey>? = null,
-    val verificationMethod: List<Map<String, Any>>? = null,
-//    val authentication: List<String>?,
-//    val assertionMethod: List<String>?,
-//    val capabilityDelegation: List<String>?
-) {
-
-    @JsonIgnore
-    var dynFields: LinkedHashMap<String, Any> = LinkedHashMap<String, Any>()
-
-    @JsonAnySetter
-    fun setField(key: String, value: Any) {
-        dynFields[key] = value
-    }
-
-    @JsonAnyGetter
-    fun any():  LinkedHashMap<String, Any> {
-        return dynFields
-    }
-}
 
 object DidService {
 
@@ -117,44 +78,52 @@ object DidService {
 //        });
 
 
-
     // https://w3c-ccg.github.io/did-method-key/
     // https://github.com/digitalbazaar/did-method-key-js#example-did-document
     fun resolveDidKey(identifier: String): String? {
         val fingerprint = identifier.substringAfter("did:key:")
         // fetch b58 key out of fingerprintFromPublicKey
-        val pubKeyBase58 =  Multibase.encode(Multibase.Base.Base64,fingerprint.toByteArray())
-        println(pubKeyBase58)
-        val mapper = jacksonObjectMapper()
-        val map = mapOf(
-            "@context" to "https://w3id.org/did/v1",
-            "id" to identifier,
-            "publicKey" to listOf(
-                mapOf(
-                    "id" to "did:key:${fingerprint}#${fingerprint}",
-                    "type" to "Ed25519VerificationKey2018",
-                    "controller" to identifier,
-                    "publicKeyBase58" to "B12NYF8RrR3h41TDCTJojY59usg3mbtbjnFs7Eud1Y6u" // fetch b58 key out of fingerprintFromPublicKey
-                )
-            ),
-            "authentication" to listOf("did:key:${fingerprint}#${fingerprint}"),
-            "assertionMethod" to listOf("did:key:${fingerprint}#${fingerprint}"),
-            "capabilityDelegation" to listOf("did:key:${fingerprint}#${fingerprint}"),
-            "capabilityInvocation" to listOf("did:key:${fingerprint}#${fingerprint}"),
-            "keyAgreement" to listOf(
-                mapOf(
-                    // TODO keyAgreement key -> controller + https://github.com/digitalbazaar/x25519-key-agreement-key-2019/blob/2bf26987623c16776085de137b7daef3e3e73b15/lib/X25519KeyPair.js#L235
-                    "id" to "did:key:${fingerprint}#zBzoR5sqFgi6q3iFia8JPNfENCpi7RNSTKF7XNXX96SBY4",
-                    "type" to "X25519KeyAgreementKey2019",
-                    "controller" to identifier,
-                    "publicKeyBase58" to "JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr"
-                )
-            ),
-        )
 
-        val didSerialized = mapper.writeValueAsString(map)
-        println(didSerialized)
-        return didSerialized
+         // FIX, not working yet
+        var pubKeyBase58 = Multibase.encode(Multibase.Base.Base64, fingerprint.toByteArray())
+        pubKeyBase58 = "B12NYF8RrR3h41TDCTJojY59usg3mbtbjnFs7Eud1Y6u"
+        var keyAgreement58 = "JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr"
+
+        val publicKeys = listOf(Key("did:key:${fingerprint}#${fingerprint}", "Ed25519VerificationKey2018", identifier, pubKeyBase58))
+        val keyAgreement = listOf(Key("did:key:${fingerprint}#zBzoR5sqFgi6q3iFia8JPNfENCpi7RNSTKF7XNXX96SBY4", "X25519KeyAgreementKey2019", identifier, keyAgreement58))
+        val keyId = "did:key:${fingerprint}#${fingerprint}"
+        val didKey = DidKey("https://w3id.org/did/v1", identifier, publicKeys, listOf(keyId), listOf(keyId), listOf(keyId), listOf(keyId), keyAgreement)
+
+//        val map = mapOf(
+//            "@context" to "https://w3id.org/did/v1",
+//            "id" to identifier,
+//            "publicKey" to listOf(
+//                mapOf(
+//                    "id" to "did:key:${fingerprint}#${fingerprint}",
+//                    "type" to "Ed25519VerificationKey2018",
+//                    "controller" to identifier,
+//                    "publicKeyBase58" to "B12NYF8RrR3h41TDCTJojY59usg3mbtbjnFs7Eud1Y6u" // fetch b58 key out of fingerprintFromPublicKey
+//                )
+//            ),
+//            "authentication" to listOf("did:key:${fingerprint}#${fingerprint}"),
+//            "assertionMethod" to listOf("did:key:${fingerprint}#${fingerprint}"),
+//            "capabilityDelegation" to listOf("did:key:${fingerprint}#${fingerprint}"),
+//            "capabilityInvocation" to listOf("did:key:${fingerprint}#${fingerprint}"),
+//            "keyAgreement" to listOf(
+//                mapOf(
+//                    // TODO keyAgreement key -> controller + https://github.com/digitalbazaar/x25519-key-agreement-key-2019/blob/2bf26987623c16776085de137b7daef3e3e73b15/lib/X25519KeyPair.js#L235
+//                    "id" to "did:key:${fingerprint}#zBzoR5sqFgi6q3iFia8JPNfENCpi7RNSTKF7XNXX96SBY4",
+//                    "type" to "X25519KeyAgreementKey2019",
+//                    "controller" to identifier,
+//                    "publicKeyBase58" to "JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr"
+//                )
+//            ),
+//        )
+//        val mapper = jacksonObjectMapper()
+//        val didSerialized = mapper.writeValueAsString(map)
+//        println(didSerialized)
+
+        return Json.encodeToString(didKey)
     }
 
     fun createDidKey() {

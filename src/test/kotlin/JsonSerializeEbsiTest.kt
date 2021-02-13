@@ -1,4 +1,3 @@
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -31,7 +30,7 @@ class JsonSerializeEbsiTest {
     fun ebsiDidTest() {
         val expected = File("src/test/resources/dids/did-ebsi.json").readText()
         println(expected)
-        val obj = Json.decodeFromString<EbsiDid>(expected)
+        val obj = Json.decodeFromString<DidEbsi>(expected)
         println(obj)
         val encoded = Json.encodeToString(obj)
         println(encoded)
