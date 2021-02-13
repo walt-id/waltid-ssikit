@@ -12,6 +12,11 @@ import com.fasterxml.jackson.core.util.DefaultPrettyPrinter
 import java.util.LinkedHashMap
 import DidServiceTest.Product
 import com.fasterxml.jackson.annotation.*
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import model.DidEbsi
+import model.DidUrl
 import java.util.Collections
 
 
@@ -25,6 +30,20 @@ class DidServiceTest {
     @Before
     fun setup() {
         Security.addProvider(BouncyCastleProvider())
+    }
+
+    @Test
+    fun parseDidUrlTest() {
+
+        val did = DidEbsi("context")
+        val didUrl = DidUrl("method", "identifier", "key1")
+        did.setDidUrl(didUrl)
+
+        assertEquals("did:method:identifier#key1", did.id)
+
+        val obj = did.getDidUrl()
+println(obj)
+        assertEquals(didUrl, obj)
     }
 
     @Test
@@ -70,7 +89,7 @@ class DidServiceTest {
         }
 
         @JsonAnyGetter
-        fun any():  LinkedHashMap<String, Any> {
+        fun any(): LinkedHashMap<String, Any> {
             return dynFields
         }
     }
@@ -95,14 +114,6 @@ class DidServiceTest {
         val json = """{"1":"one","2":"two"}"""
         assertEquals(serialized, json)
     }
-
-
-
-
-
-
-
-
 
 
 //    JAXON TEST

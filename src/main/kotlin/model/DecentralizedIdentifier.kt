@@ -3,12 +3,44 @@ package model
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+// scheme did:, a method identifier, and a unique, method-specific identifier
+// specified by the DID method. DIDs are resolvable to DID documents. A DID URL
+// extends the syntax of a basic DID to incorporate other standard URI components
+// such as path, query, and fragment in order to locate a particular resource
+data class DidUrl(
+    val method: String,
+    val identifier: String,
+    val fragment: String? = null,
+    // TODO: query-params are not supported yet
+    val query: List<String>? = null
+)
+
 @Serializable
 data class DidEbsi(
-    @SerialName("@context")  val context: String,
-    val id: String,
-    val authentication: List<Key>
-)
+    @SerialName("@context")
+    val context: String,
+    var id: String? = null,
+    val authentication: List<Key>? = null
+) {
+    fun getDidUrl(): DidUrl {
+        try {
+            val didPattern = "^did:([a-z]+):(.+)".toRegex()
+            val matchResult = didPattern.find(id!!)!!
+
+            var path = matchResult.groups[2]!!.value
+            var fragmentStr = path.substringAfter('#')
+            var identifierStr = path.substringBefore('#')
+            return DidUrl(matchResult.groups[1]!!.value, identifierStr, fragmentStr)
+        } catch (e: Exception) {
+            throw RuntimeException("Could not parse DID URL: " + id)
+        }
+    }
+
+    fun setDidUrl(didUrl: DidUrl) {
+        id = "did:${didUrl.method}:${didUrl.identifier}"
+        id += if (didUrl.fragment != null) "#${didUrl.fragment}" else ""
+    }
+}
 
 @Serializable
 data class Key(
