@@ -1,7 +1,6 @@
 import io.ipfs.multibase.Multibase
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import model.DidKey
+import model.DidUrl
 import model.Key
 import java.util.*
 
@@ -9,6 +8,22 @@ import java.util.*
 object DidService {
 
     var kms = KeyManagementService
+
+
+    fun fromString(did: String): DidUrl {
+        val didPattern = "^did:([a-z]+):(.+)".toRegex()
+        val matchResult = didPattern.find(did!!)!!
+        var path = matchResult.groups[2]!!.value
+        var fragmentStr = path.substringAfter('#')
+        var identifierStr = path.substringBefore('#')
+        return DidUrl(matchResult.groups[1]!!.value, identifierStr, fragmentStr)
+    }
+
+    fun toString(didUrl: DidUrl): String {
+        var did = "did:${didUrl.method}:${didUrl.identifier}"
+        did += if (didUrl.fragment != null) "#${didUrl.fragment}" else ""
+        return did
+    }
 
     //
     fun registerDid(): String {
@@ -38,6 +53,16 @@ object DidService {
         kms.addAlias(keyId, identifier)
 
         return identifier
+    }
+
+    fun resolveDid(id: String): DidKey? {
+        val didUrl = fromString(id)
+
+        if ("key" == didUrl.method) {
+            return resolveDidKey(didUrl)
+        }
+
+        return null
     }
 
 
@@ -80,19 +105,19 @@ object DidService {
 
     // https://w3c-ccg.github.io/did-method-key/
     // https://github.com/digitalbazaar/did-method-key-js#example-did-document
-    fun resolveDidKey(identifier: String): String? {
-        val fingerprint = identifier.substringAfter("did:key:")
+    fun resolveDidKey(didUrl: DidUrl): DidKey? {
+        val fingerprint = didUrl.identifier
         // fetch b58 key out of fingerprintFromPublicKey
 
-         // FIX, not working yet
+        // FIX, not working yet
         var pubKeyBase58 = Multibase.encode(Multibase.Base.Base64, fingerprint.toByteArray())
         pubKeyBase58 = "B12NYF8RrR3h41TDCTJojY59usg3mbtbjnFs7Eud1Y6u"
         var keyAgreement58 = "JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr"
 
-        val publicKeys = listOf(Key("did:key:${fingerprint}#${fingerprint}", "Ed25519VerificationKey2018", identifier, pubKeyBase58))
-        val keyAgreement = listOf(Key("did:key:${fingerprint}#zBzoR5sqFgi6q3iFia8JPNfENCpi7RNSTKF7XNXX96SBY4", "X25519KeyAgreementKey2019", identifier, keyAgreement58))
+        val publicKeys = listOf(Key("did:key:${fingerprint}#${fingerprint}", "Ed25519VerificationKey2018", didUrl.identifier, pubKeyBase58))
+        val keyAgreement = listOf(Key("did:key:${fingerprint}#zBzoR5sqFgi6q3iFia8JPNfENCpi7RNSTKF7XNXX96SBY4", "X25519KeyAgreementKey2019", didUrl.identifier, keyAgreement58))
         val keyId = "did:key:${fingerprint}#${fingerprint}"
-        val didKey = DidKey("https://w3id.org/did/v1", identifier, publicKeys, listOf(keyId), listOf(keyId), listOf(keyId), listOf(keyId), keyAgreement)
+        val didKey = DidKey("https://w3id.org/did/v1", didUrl.identifier, publicKeys, listOf(keyId), listOf(keyId), listOf(keyId), listOf(keyId), keyAgreement)
 
 //        val map = mapOf(
 //            "@context" to "https://w3id.org/did/v1",
@@ -123,7 +148,7 @@ object DidService {
 //        val didSerialized = mapper.writeValueAsString(map)
 //        println(didSerialized)
 
-        return Json.encodeToString(didKey)
+        return didKey
     }
 
     fun createDidKey() {

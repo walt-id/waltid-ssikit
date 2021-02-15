@@ -21,26 +21,7 @@ data class DidEbsi(
     val context: String,
     var id: String? = null,
     val authentication: List<Key>? = null
-) {
-    fun getDidUrl(): DidUrl {
-        try {
-            val didPattern = "^did:([a-z]+):(.+)".toRegex()
-            val matchResult = didPattern.find(id!!)!!
-
-            var path = matchResult.groups[2]!!.value
-            var fragmentStr = path.substringAfter('#')
-            var identifierStr = path.substringBefore('#')
-            return DidUrl(matchResult.groups[1]!!.value, identifierStr, fragmentStr)
-        } catch (e: Exception) {
-            throw RuntimeException("Could not parse DID URL: " + id)
-        }
-    }
-
-    fun setDidUrl(didUrl: DidUrl) {
-        id = "did:${didUrl.method}:${didUrl.identifier}"
-        id += if (didUrl.fragment != null) "#${didUrl.fragment}" else ""
-    }
-}
+)
 
 @Serializable
 data class Key(

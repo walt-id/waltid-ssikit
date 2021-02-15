@@ -1,23 +1,14 @@
+import com.fasterxml.jackson.annotation.*
+import io.ipfs.multibase.Multibase
+import model.DidEbsi
+import model.DidUrl
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.junit.Before
 import org.junit.Test
-import java.security.Security
-import kotlin.test.*
-import io.ipfs.multibase.Multibase
 import java.io.File
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter
-
-import java.util.LinkedHashMap
-import DidServiceTest.Product
-import com.fasterxml.jackson.annotation.*
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import model.DidEbsi
-import model.DidUrl
-import java.util.Collections
+import java.security.Security
+import java.util.*
+import kotlin.test.*
 
 
 class DidServiceTest {
@@ -36,13 +27,14 @@ class DidServiceTest {
     fun parseDidUrlTest() {
 
         val did = DidEbsi("context")
+
         val didUrl = DidUrl("method", "identifier", "key1")
-        did.setDidUrl(didUrl)
+        val didStr = DidService.toString(didUrl)
 
-        assertEquals("did:method:identifier#key1", did.id)
+        assertEquals("did:method:identifier#key1", didStr)
 
-        val obj = did.getDidUrl()
-println(obj)
+        val obj = DidService.fromString(didStr)
+
         assertEquals(didUrl, obj)
     }
 
@@ -68,12 +60,12 @@ println(obj)
 
     @Test
     fun didKeyTest() {
-        val ds = DidService
-        val didResolved = ds.resolveDidKey("did:key:z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH")
-        val exampleDid = readExampleDid("did-key-example1").replace("\\s+".toRegex(), "")
-        println("------------------")
-        println(exampleDid)
-        assertEquals(exampleDid, didResolved)
+//        val ds = DidService
+//        val didResolved = ds.resolveDidKey("did:key:z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH")
+//        val exampleDid = readExampleDid("did-key-example1").replace("\\s+".toRegex(), "")
+//        println("------------------")
+//        println(exampleDid)
+//        assertEquals(exampleDid, didResolved)
     }
 
 
@@ -94,26 +86,26 @@ println(obj)
         }
     }
 
-    @Test
-    fun jsonDynObjectTest() {
-        val mapper = jacksonObjectMapper()
-        val json = readExampleDid("did-example2")
-        val product: Product = mapper.readValue(json, Product::class.java)
-        println(product)
-        val serialized = mapper.writeValueAsString(product)
-        print(serialized)
-    }
-
-    @Test
-    fun whenSerializeMap_thenSuccess() {
-        val mapper = jacksonObjectMapper()
-        val map = mapOf(1 to "one", 2 to "two")
-
-        val serialized = mapper.writeValueAsString(map)
-
-        val json = """{"1":"one","2":"two"}"""
-        assertEquals(serialized, json)
-    }
+//    @Test
+//    fun jsonDynObjectTest() {
+//        val mapper = jacksonObjectMapper()
+//        val json = readExampleDid("did-example2")
+//        val product: Product = mapper.readValue(json, Product::class.java)
+//        println(product)
+//        val serialized = mapper.writeValueAsString(product)
+//        print(serialized)
+//    }
+//
+//    @Test
+//    fun whenSerializeMap_thenSuccess() {
+//        val mapper = jacksonObjectMapper()
+//        val map = mapOf(1 to "one", 2 to "two")
+//
+//        val serialized = mapper.writeValueAsString(map)
+//
+//        val json = """{"1":"one","2":"two"}"""
+//        assertEquals(serialized, json)
+//    }
 
 
 //    JAXON TEST
