@@ -1,7 +1,5 @@
 import io.ipfs.multibase.Multibase
-import model.DidKey
-import model.DidUrl
-import model.Key
+import model.*
 import java.util.*
 
 
@@ -10,22 +8,35 @@ object DidService {
     var kms = KeyManagementService
 
 
-    fun fromString(did: String): DidUrl {
-        val didPattern = "^did:([a-z]+):(.+)".toRegex()
-        val matchResult = didPattern.find(did!!)!!
-        var path = matchResult.groups[2]!!.value
-        var fragmentStr = path.substringAfter('#')
-        var identifierStr = path.substringBefore('#')
-        return DidUrl(matchResult.groups[1]!!.value, identifierStr, fragmentStr)
+    fun createDidWeb(): DidWeb {
+
+        val domain = "letstrust.org"
+        val path = ":user:phil"
+        val keyId = kms.generateKeyPair("Ed25519")
+        val didUrl = DidUrl("web", "" + domain + path, keyId)
+        val onwerDid = didUrl.did
+        val keyDid = didUrl.url
+
+        kms.addAlias(keyId, keyDid)
+        val publicKeyBase58 = kms.getBase58PublicKey(keyDid)
+
+        val keyRef = listOf(keyDid)
+
+        val pubKey = DidWeb.PublicKey(keyDid, "Ed25519VerificationKey2018", onwerDid, publicKeyBase58)
+
+        // TODO generate key-agreement key
+//        val keyAgreement = DidWeb.KeyAgreement(
+//            "did:web:did.actor:alice#zC8GybikEfyNaausDA4mkT4egP7SNLx2T1d1kujLQbcP6h",
+//            "X25519KeyAgreementKey2019",
+//            "Ed25519VerificationKey2018",
+//            "CaSHXEvLKS6SfN9aBfkVGBpp15jSnaHazqHgLHp8KZ3Y"
+//        )
+
+        return DidWeb("https://w3id.org/did/v0.11", onwerDid, listOf(pubKey), null, keyRef, keyRef, keyRef, keyRef)
+
     }
 
-    fun toString(didUrl: DidUrl): String {
-        var did = "did:${didUrl.method}:${didUrl.identifier}"
-        did += if (didUrl.fragment != null) "#${didUrl.fragment}" else ""
-        return did
-    }
 
-    //
     fun registerDid(): String {
         val keyId = kms.generateKeyPair("Ed25519")
         // should be fingerprintFromPublicKey
@@ -56,7 +67,8 @@ object DidService {
     }
 
     fun resolveDid(id: String): DidKey? {
-        val didUrl = fromString(id)
+
+        val didUrl: DidUrl = id.fromString()
 
         if ("key" == didUrl.method) {
             return resolveDidKey(didUrl)
@@ -157,29 +169,5 @@ object DidService {
         kms.addAlias(keyId, identifier)
     }
 
-    fun createDidWeb(): Map<String, Any> {
-//        async createIdentifier(
-//                { kms, alias }: { kms?: string; alias?: string },
-//        context: IContext,
-//        ): Promise<Omit<IIdentifier, 'provider'>> {
-//            const key = await context.agent.keyManagerCreate({ kms: kms || this.defaultKms, type: 'Secp256k1' })
-//
-//            const identifier: Omit<IIdentifier, 'provider'> = {
-//            did: 'did:web:' + alias,
-//            controllerKeyId: key.kid,
-//            keys: [key],
-//            services: [],
-//        }
-//            debug('Created', identifier.did)
-//            return identifier
-//        }
 
-        return mapOf(
-            "active" to true,
-            "scope" to "read write email",
-            "client_id" to "SlAV32hkKG",
-            "username" to "phil",
-            "exp" to 1437275311,
-        )
-    }
 }

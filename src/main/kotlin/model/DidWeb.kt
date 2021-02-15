@@ -2,6 +2,7 @@ package model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 
 @Serializable
 data class DidWeb(
@@ -9,7 +10,7 @@ data class DidWeb(
     val context: String?, // https://w3id.org/did/v0.11
     val id: String?, // did:web:did.actor:alice
     val publicKey: List<PublicKey?>?,
-    val keyAgreement: List<KeyAgreement?>?,
+    val keyAgreement: List<KeyAgreement?>? = null,
     val authentication: List<String?>?,
     val assertionMethod: List<String?>?,
     val capabilityDelegation: List<String?>?,

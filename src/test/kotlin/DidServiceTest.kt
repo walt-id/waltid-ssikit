@@ -1,7 +1,11 @@
 import com.fasterxml.jackson.annotation.*
+import io.ipfs.multibase.Base58
 import io.ipfs.multibase.Multibase
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import model.DidEbsi
 import model.DidUrl
+import model.fromString
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.junit.Before
 import org.junit.Test
@@ -29,24 +33,34 @@ class DidServiceTest {
         val did = DidEbsi("context")
 
         val didUrl = DidUrl("method", "identifier", "key1")
-        val didStr = DidService.toString(didUrl)
 
-        assertEquals("did:method:identifier#key1", didStr)
+        assertEquals("did:method:identifier#key1", didUrl.url)
 
-        val obj = DidService.fromString(didStr)
+        val obj: DidUrl = didUrl.url.fromString()
 
         assertEquals(didUrl, obj)
     }
 
+
     @Test
-    fun multibaseEncodingTest() {
-        val input = "Hello World!"
-        val data = input.toByteArray()
-        val encoded = Multibase.encode(Multibase.Base.Base58BTC, data)
-        assertEquals("z2NEpo7TZRRrLZSi2U", encoded)
-        val decoded = Multibase.decode(encoded)
-        assertEquals(input, String(decoded))
+    fun creDidWebTest() {
+        val format = Json { prettyPrint = true }
+        val didWeb = DidService.createDidWeb()
+        val encoded = format.encodeToString(didWeb)
+        println("\n\n${didWeb.id}\n" + encoded)
     }
+
+
+
+
+
+
+
+
+
+
+
+
 
     @Test
     fun registerDidTest() {

@@ -1,4 +1,3 @@
-import com.nimbusds.jose.util.Base64
 import java.security.KeyPair
 import java.security.PrivateKey
 import java.security.PublicKey
@@ -39,8 +38,8 @@ data class Keys(val keyId: String, val pair: KeyPair, val provider: String) {
     fun getPrivateAndPublicKey(): ByteArray? {
 
         val privAndPubKey = ByteArray(64)
-        System.arraycopy((this.pair!!.private as BytePrivateKey).privateKey, 0, privAndPubKey, 0, 32)
-        System.arraycopy((this.pair!!.public as BytePublicKey).publicKey, 0, privAndPubKey, 32, 32)
+        System.arraycopy(getPrivKey(), 0, privAndPubKey, 0, 32)
+        System.arraycopy(getPubKey(), 0, privAndPubKey, 32, 32)
 
         return privAndPubKey
     }
@@ -48,4 +47,8 @@ data class Keys(val keyId: String, val pair: KeyPair, val provider: String) {
     fun isByteKey(): Boolean {
         return this.pair.private is BytePrivateKey
     }
+
+    fun getPubKey(): ByteArray = (this.pair!!.public as BytePublicKey).publicKey
+    fun getPrivKey(): ByteArray = (this.pair!!.private as BytePrivateKey).privateKey
+
 }
