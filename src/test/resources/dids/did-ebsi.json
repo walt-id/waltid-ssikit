@@ -1,12 +1,27 @@
 {
-  "@context": "https://www.w3.org/ns/did/v1",
-  "id": "did:example:00001111",
-  "authentication": [
+  "@context": "https://w3.org/ns/did/v1",
+  "id": "did:ebsi:00001111",
+  "verificationMethod": [
     {
-      "id": "did:example:00001111#z6MkecaLyHuYWkayBDLw5ihndj3T1m6zKTGqau3A51G7RBf3",
+      "id": "did:ebsi:00001111#key-1",
       "type": "Ed25519VerificationKey2018",
-      "controller": "did:example:00001111",
-      "publicKeyBase58": "AKJP3f7BD6W4iWEQ9jwndVTCBq8ua2Utt8EEjJ6Vxsf"
+      "controller": "did:ebsi:00001111",
+      "publicKeyBase58": "5F5Q1qJbbvcyhnStAmkjF5rUBKe1XnHJHt2Tj49tTDpW"
+    },
+    {
+      "id": "did:ebsi:00001111#key-2",
+      "type": "X25519KeyAgreementKey2019",
+      "controller": "did:ebsi:00001111",
+      "publicKeyBase58": "GnxxE5rAFYoRS6af7XArmzh7gNS68XTAKjhNDRsfhrFJ"
     }
+  ],
+  "authentication": [
+    "did:ebsi:00001111#key-1"
+  ],
+  "assertionMethod": [
+    "did:ebsi:00001111#key-1"
+  ],
+  "keyAgreement": [
+    "did:ebsi:00001111#key-2"
   ]
 }

@@ -19,6 +19,7 @@ import kotlin.test.assertEquals
  * https://stackoverflow.com/questions/58173422/how-to-iterate-a-jsonelement-with-unknown-keys-on-kotlin-using-kotlinx
  * https://github.com/Kotlin/kotlinx.serialization/issues/296
  *
+ * TODO: check out https://github.com/filip26/titanium-json-ld
  */
 
 @Serializable(with = ColorAsStringSerializer::class)

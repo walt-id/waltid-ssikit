@@ -1,6 +1,6 @@
-import com.fasterxml.jackson.annotation.*
-import io.ipfs.multibase.Base58
-import io.ipfs.multibase.Multibase
+import com.fasterxml.jackson.annotation.JsonAnyGetter
+import com.fasterxml.jackson.annotation.JsonAnySetter
+import com.fasterxml.jackson.annotation.JsonIgnore
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import model.DidEbsi
@@ -12,7 +12,9 @@ import org.junit.Test
 import java.io.File
 import java.security.Security
 import java.util.*
-import kotlin.test.*
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 
 class DidServiceTest {
@@ -51,17 +53,6 @@ class DidServiceTest {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
     @Test
     fun registerDidTest() {
         val ds = DidService
@@ -71,6 +62,7 @@ class DidServiceTest {
         assertEquals("did:key", identifier.substring(0, 7))
         print(identifier)
     }
+
 
     @Test
     fun didKeyTest() {
