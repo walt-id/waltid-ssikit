@@ -27,7 +27,7 @@ class JsonSerializeVerifiableCredentialTest {
     fun vcConstructTest() {
 
         val proof =
-            Proof("EidasSeal2019", LocalDateTime.now().withNano(0), "assertionMethod", VerificationMethod("EidasCertificate2019", "1088321447"), "BD21J4fdlnBvBA+y6D...fnC8Y=")
+            Proof("EidasSeal2019", LocalDateTime.now().withNano(0), "assertionMethod", VerificationMethodCert("EidasCertificate2019", "1088321447"), "BD21J4fdlnBvBA+y6D...fnC8Y=")
         var vc = VerifiableCredential(
             listOf(
                 "https://www.w3.org/2018/credentials/v1",

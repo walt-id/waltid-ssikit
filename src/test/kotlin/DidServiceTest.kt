@@ -3,7 +3,7 @@ import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonIgnore
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import model.DidEbsi
+import model.Did
 import model.DidUrl
 import model.fromString
 import org.bouncycastle.jce.provider.BouncyCastleProvider
@@ -29,10 +29,23 @@ class DidServiceTest {
         Security.addProvider(BouncyCastleProvider())
     }
 
+
+    @Test
+    fun didKeyTest() {
+
+        val ds = DidService
+        val didKey = ds.resolveDid("did:key:z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH")
+        val encoded = Json { prettyPrint = true }.encodeToString(didKey)
+        println(encoded)
+    }
+
+
+
+
     @Test
     fun parseDidUrlTest() {
 
-        val did = DidEbsi("context")
+        val did = Did("context")
 
         val didUrl = DidUrl("method", "identifier", "key1")
 
@@ -62,18 +75,6 @@ class DidServiceTest {
         assertEquals("did:key", identifier.substring(0, 7))
         print(identifier)
     }
-
-
-    @Test
-    fun didKeyTest() {
-//        val ds = DidService
-//        val didResolved = ds.resolveDidKey("did:key:z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH")
-//        val exampleDid = readExampleDid("did-key-example1").replace("\\s+".toRegex(), "")
-//        println("------------------")
-//        println(exampleDid)
-//        assertEquals(exampleDid, didResolved)
-    }
-
 
     // https://stackoverflow.com/questions/57178093/how-to-deserialize-json-with-dynamic-object
     // https://stackoverflow.com/questions/12134231/jackson-dynamic-property-names

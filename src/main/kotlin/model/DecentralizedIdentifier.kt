@@ -3,33 +3,33 @@ package model
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+val DID_CONTEXT_URL: String = "https://w3id.org/did/v1"
+
 @Serializable
-data class DidEbsi(
+data class Did(
     @SerialName("@context")
     val context: String,
     var id: String? = null,
-    val authentication: List<Key>? = null
+    val verificationMethod: List<VerificationMethod>? = null,
+    val authentication: List<String>? = null,
+    val assertionMethod: List<String>? = null,
+    val capabilityDelegation: List<String>? = null,
+    val capabilityInvocation: List<String>? = null,
+    val keyAgreement: List<String>? = null,
+    val serviceEndpoint: List<VerificationMethod>? = null,
 )
 
 @Serializable
-data class Key(
+data class VerificationMethod(
     val id: String,
     val type: String,
     val controller: String,
     val publicKeyBase58: String
 )
 
-
 @Serializable
-data class DidKey(
-    @SerialName("@context")
-    val context: String,
+data class Service(
     val id: String,
-    val publicKey: List<Key>,
-    val authentication: List<String>,
-    val assertionMethod: List<String>,
-    val capabilityDelegation: List<String>,
-    val capabilityInvocation: List<String>,
-    val keyAgreement: List<Key>,
+    val type: String,
+    val serviceEndpoint: String
 )
-

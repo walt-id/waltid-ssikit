@@ -98,14 +98,14 @@ data class Proof(
     val type: String,
     val created: LocalDateTime,
     val proofPurpose: String,
-    @Serializable(with = VerificationMethodSerializer::class)
-    val verificationMethod: VerificationMethod,
+    @Serializable(with = VerificationMethodCertSerializer::class)
+    val verificationMethod: VerificationMethodCert,
     val proofValue: String? = null,
     val jws: String? = null
 )
 
 @Serializable
-data class VerificationMethod(
+data class VerificationMethodCert (
     val type: String? = null,
     val CertSerial: String? = null
 )
