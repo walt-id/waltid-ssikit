@@ -15,7 +15,7 @@
         <kotlin.version>1.4.30</kotlin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.code.style>official</kotlin.code.style>
-        <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
+        <kotlin.compiler.jvmTarget>13</kotlin.compiler.jvmTarget>
     </properties>
 
     <repositories>
@@ -45,27 +45,6 @@
         <testSourceDirectory>src/test/kotlin</testSourceDirectory>
         <plugins>
             <plugin>
-                <groupId>org.jetbrains.kotlin</groupId>
-                <artifactId>kotlin-maven-plugin</artifactId>
-                <version>1.4.10</version>
-                <executions>
-                    <execution>
-                        <id>compile</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>compile</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>test-compile</id>
-                        <phase>test-compile</phase>
-                        <goals>
-                            <goal>test-compile</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>2.22.2</version>
             </plugin>
@@ -85,6 +64,13 @@
                             <goal>compile</goal>
                         </goals>
                     </execution>
+<!--                    <execution>-->
+<!--                        <id>test-compile</id>-->
+<!--                        <phase>test-compile</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>test-compile</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
                 </executions>
                 <configuration>
                     <compilerPlugins>
@@ -99,6 +85,36 @@
                     </dependency>
                 </dependencies>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <configuration>
+                    <mainClass>org.letstrust.MainKt</mainClass>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.6</version>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <goals> <goal>single</goal> </goals>
+                        <configuration>
+                            <archive>
+                                <manifest>
+                                    <mainClass>org.letstrust.MainKt</mainClass>
+                                </manifest>
+                            </archive>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
@@ -107,21 +123,24 @@
             <groupId>info.weboftrust</groupId>
             <artifactId>ld-signatures-java</artifactId>
             <version>0.3-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>bcprov-jdk15to18</artifactId>
+                    <groupId>org.bouncycastle</groupId>
+                </exclusion>
+            </exclusions>
             <!--    needs to be installed manually    <version>0.4-SNAPSHOT</version>-->
         </dependency>
-
+        <dependency>
+            <groupId>com.github.ajalt.clikt</groupId>
+            <artifactId>clikt-jvm</artifactId>
+            <version>3.1.0</version>
+        </dependency>
         <dependency>
             <groupId>com.google.crypto.tink</groupId>
             <artifactId>tink</artifactId>
             <version>1.5.0</version>
         </dependency>
-        <!--  As of v1.0.4, libsodium-jna is in the maven central. -->
-        <!--        <dependency>-->
-        <!--            <groupId>com.muquit.libsodiumjna</groupId>-->
-        <!--            <artifactId>libsodium-jna</artifactId>-->
-        <!--            <version>1.0.4</version>-->
-        <!--        </dependency>-->
-
         <dependency>
             <groupId>com.goterl.lazycode</groupId>
             <artifactId>lazysodium-java</artifactId>

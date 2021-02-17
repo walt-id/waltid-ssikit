@@ -4,8 +4,8 @@ import com.google.crypto.tink.config.TinkConfig
 import com.google.crypto.tink.subtle.Ed25519Sign
 import io.ipfs.multibase.Multibase
 import org.bitcoinj.core.ECKey
-import org.bouncycastle.jce.ECNamedCurveTable
-import org.bouncycastle.jce.provider.BouncyCastleProvider
+//import org.bouncycastle.jce.ECNamedCurveTable
+//import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.SecureRandom
@@ -17,7 +17,7 @@ import kotlin.collections.ArrayList
 object KeyManagementService {
 
     init {
-        Security.addProvider(BouncyCastleProvider())
+       // Security.addProvider(BouncyCastleProvider())
     }
 
     // TODO: keystore implementation should be configurable
@@ -29,23 +29,22 @@ object KeyManagementService {
         KeyManagementService.ks = ks
     }
 
-    fun getSupportedCurveNames(): List<String> {
-        var ecNames = ArrayList<String>()
-        for (name in ECNamedCurveTable.getNames()) {
-            ecNames.add(name.toString())
-        }
-        return ecNames;
-    }
-
-    fun generateEcKeyPair(ecCurveName: String): String {
-
-        val generator = KeyPairGenerator.getInstance("ECDSA", "BC")
-        generator.initialize(ECNamedCurveTable.getParameterSpec(ecCurveName), SecureRandom())
-
-        val keys = Keys(generateKeyId(), generator.generateKeyPair(), "BC")
-        ks.saveKeyPair(keys)
-        return keys.keyId
-    }
+//    fun getSupportedCurveNames(): List<String> {
+//        var ecNames = ArrayList<String>()
+//        for (name in ECNamedCurveTable.getNames()) {
+//            ecNames.add(name.toString())
+//        }
+//        return ecNames;
+//    }
+//
+//    fun generateEcKeyPair(ecCurveName: String): String {
+//        val generator = KeyPairGenerator.getInstance("ECDSA", "BC")
+//        generator.initialize(ECNamedCurveTable.getParameterSpec(ecCurveName), SecureRandom())
+//
+//        val keys = Keys(generateKeyId(), generator.generateKeyPair(), "BC")
+//        ks.saveKeyPair(keys)
+//        return keys.keyId
+//    }
 
     fun generateKeyPair(algorithm: String): String {
 
