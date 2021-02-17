@@ -24,7 +24,7 @@ class CredentialServiceTest {
     @Test
     fun signEd25519Signature2018Test() {
 
-        val issuerDid = DidService.registerDid()
+        val issuerDid = DidService.registerDidKey()
         val domain = "example.com"
         val nonce: String? = null
         val credMap: Map<String, String> = mapOf("one" to "two")
@@ -43,7 +43,7 @@ class CredentialServiceTest {
     fun signEcdsaSecp256k1Signature2019Test() {
 
         val keyId = KeyManagementService.generateKeyPair("Secp256k1")
-        val issuerDid = DidService.registerDid()
+        val issuerDid = DidService.registerDidKey()
         val domain = "example.com"
         val nonce: String? = null
         val credMap: Map<String, String> = mapOf("one" to "two")
@@ -63,7 +63,7 @@ class CredentialServiceTest {
 
         val credOffer = readCredOffer("WorkHistory")
 
-        val issuerDid = DidService.registerDid()
+        val issuerDid = DidService.registerDidKey()
         val domain = "example.com"
         val nonce: String? = null
 

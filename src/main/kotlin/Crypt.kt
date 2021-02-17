@@ -16,7 +16,7 @@ fun ByteArray.toHexString() = this.joinToString("") { String.format("%02X", (it.
 
 fun String.byteArrayFromHexString() = this.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
 
-fun ed25519PublicKeyFromMultibase58Btc(mbase58: String): ByteArray {
+fun convertEd25519PublicKeyFromMultibase58Btc(mbase58: String): ByteArray {
 
     if (mbase58[0] != 'z') throw RuntimeException("Invalid multibase encoding of ED25519 key")
 
@@ -28,11 +28,38 @@ fun ed25519PublicKeyFromMultibase58Btc(mbase58: String): ByteArray {
     return buffer.copyOfRange(2, buffer.size)
 }
 
-fun x25519PublicKeyToMultiBase58Btc(x25519PublicKey: ByteArray): String {
+fun convertX25519PublicKeyFromMultibase58Btc(mbase58: String): ByteArray {
+
+    if (mbase58[0] != 'z') throw RuntimeException("Invalid multibase encoding of ED25519 key")
+
+    val buffer = mbase58.substring(1).decodeBase58()
+    println(buffer.toHexString())
+   if (!(0xec.toByte() == buffer[0] && 0x01.toByte() == buffer[1])) throw RuntimeException("Invalid cryptonym encoding of Curve25519 key")
+
+    return buffer.copyOfRange(2, buffer.size)
+}
+
+fun convertEd25519PublicKeyToMultiBase58Btc(edPublicKey: ByteArray): String {
+    println(edPublicKey.toHexString())
+    val edPublicKeyCryptonym = ByteArray(edPublicKey.size + 2)
+    println(edPublicKeyCryptonym.toHexString())
+    edPublicKeyCryptonym[0] = 0xed.toByte() // Ed25519 public key
+    edPublicKeyCryptonym[1] = 0x01.toByte()
+    println(edPublicKeyCryptonym.toHexString())
+    edPublicKey.copyInto(edPublicKeyCryptonym, 2)
+    println(edPublicKeyCryptonym.toHexString())
+    return edPublicKeyCryptonym.encodeMultiBase58Btc()
+}
+
+fun convertX25519PublicKeyToMultiBase58Btc(x25519PublicKey: ByteArray): String {
+    println(x25519PublicKey.toHexString())
     val dhPublicKeyCryptonym = ByteArray(x25519PublicKey.size + 2)
+    println(dhPublicKeyCryptonym.toHexString())
     dhPublicKeyCryptonym[0] = 0xec.toByte() // Curve25519 public key
     dhPublicKeyCryptonym[1] = 0x01.toByte()
+    println(dhPublicKeyCryptonym.toHexString())
     x25519PublicKey.copyInto(dhPublicKeyCryptonym, 2)
+    println(dhPublicKeyCryptonym.toHexString())
     return dhPublicKeyCryptonym.encodeMultiBase58Btc()
 }
 

@@ -20,7 +20,7 @@ object DidService {
 
     fun resolveDidKey(didUrl: DidUrl): Did? {
 
-        val pubKey = ed25519PublicKeyFromMultibase58Btc(didUrl.identifier)
+        val pubKey = convertEd25519PublicKeyFromMultibase58Btc(didUrl.identifier)
 
         val pubKey58 = pubKey.encodeBase58()
 
@@ -28,7 +28,7 @@ object DidService {
 
         val dhKey58 = dhKey.encodeBase58()
 
-        val dhKeyMb = x25519PublicKeyToMultiBase58Btc(dhKey)
+        val dhKeyMb = convertX25519PublicKeyToMultiBase58Btc(dhKey)
 
         val keyId = didUrl.identifier + "#" + didUrl.identifier
         val dhKeyId = didUrl.identifier + "#" + dhKeyMb
@@ -76,21 +76,18 @@ object DidService {
     }
 
 
-    fun registerDid(): String {
+    fun registerDidKey(): String {
         val keyId = kms.generateKeyPair("Ed25519")
-        // should be fingerprintFromPublicKey
-        var identifier = "did:key:z" + kms.getMultiBase58PublicKey(keyId)
 
-        kms.addAlias(keyId, identifier)
+        val keys = kms.loadKeys(keyId)!!
 
-        // TODO compute json did-key body
-        var didBody = "{}"
+        val identifier = convertEd25519PublicKeyToMultiBase58Btc(keys.getPubKey())
 
-        // TODO register did -> store to disk
+        var did = "did:key:" + identifier
 
-        print("DID: " + identifier)
+        kms.addAlias(keyId, did)
 
-        return identifier
+        return did
     }
 
     fun registerDid(keyId: String): String {

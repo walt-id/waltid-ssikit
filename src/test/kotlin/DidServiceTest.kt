@@ -29,18 +29,23 @@ class DidServiceTest {
         Security.addProvider(BouncyCastleProvider())
     }
 
+    @Test
+    fun registerDidTest() {
+        val ds = DidService
+        val did = ds.registerDidKey()
+        assertNotNull(did)
+        assertTrue(32 < did.length)
+        assertEquals("did:key:", did.substring(0, 8))
+        print(did)
+    }
 
     @Test
-    fun didKeyTest() {
-
+    fun resolveDidKeyTest() {
         val ds = DidService
         val didKey = ds.resolveDid("did:key:z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH")
         val encoded = Json { prettyPrint = true }.encodeToString(didKey)
         println(encoded)
     }
-
-
-
 
     @Test
     fun parseDidUrlTest() {
@@ -56,7 +61,6 @@ class DidServiceTest {
         assertEquals(didUrl, obj)
     }
 
-
     @Test
     fun creDidWebTest() {
         val format = Json { prettyPrint = true }
@@ -66,15 +70,6 @@ class DidServiceTest {
     }
 
 
-    @Test
-    fun registerDidTest() {
-        val ds = DidService
-        val identifier = ds.registerDid()
-        assertNotNull(identifier)
-        assertTrue(32 < identifier.length)
-        assertEquals("did:key", identifier.substring(0, 7))
-        print(identifier)
-    }
 
     // https://stackoverflow.com/questions/57178093/how-to-deserialize-json-with-dynamic-object
     // https://stackoverflow.com/questions/12134231/jackson-dynamic-property-names
