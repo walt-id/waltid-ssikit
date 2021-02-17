@@ -1,4 +1,4 @@
-package model
+package org.letstrust.model
 
 
 // scheme did:, a method identifier, and a unique, method-specific identifier

@@ -1,3 +1,5 @@
+package org.letstrust
+
 interface KeyStore {
     fun getKeyId(keyId: String): String?
     fun saveKeyPair(keys: Keys)

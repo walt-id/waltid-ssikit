@@ -1,8 +1,8 @@
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import model.*
 import org.junit.Test
+import org.letstrust.model.*
 import java.io.File
 import java.time.Instant
 import java.time.LocalDateTime

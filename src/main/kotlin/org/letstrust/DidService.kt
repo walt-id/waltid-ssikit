@@ -1,11 +1,12 @@
-import model.*
+package org.letstrust
 
+import org.letstrust.model.*
 
 object DidService {
 
     var kms = KeyManagementService
 
-    fun resolveDid(did: String): Did? = this.resolveDid(did.fromString())
+    fun resolveDid(did: String): Did? = resolveDid(did.fromString())
 
     fun resolveDid(didUrl: DidUrl): Did? {
         return when (didUrl.method) {
@@ -21,19 +22,19 @@ object DidService {
     }
 
     private fun resolveDidWeb(didUrl: DidUrl): Did {
-        val keys = kms.loadKeys(didUrl.did)!!
+        val keys = KeyManagementService.loadKeys(didUrl.did)!!
         return ed25519Did(didUrl, keys.getPubKey())
     }
 
     fun createDidKey(): String {
-        val keyId = kms.generateKeyPair("Ed25519")
-        val keys = kms.loadKeys(keyId)!!
+        val keyId = KeyManagementService.generateKeyPair("Ed25519")
+        val keys = KeyManagementService.loadKeys(keyId)!!
 
         val identifier = convertEd25519PublicKeyToMultiBase58Btc(keys.getPubKey())
 
         var did = "did:key:" + identifier
 
-        kms.addAlias(keyId, did)
+        KeyManagementService.addAlias(keyId, did)
 
         return did
     }
@@ -41,10 +42,10 @@ object DidService {
     fun createDidWeb(): String {
         val domain = "letstrust.org"
         val path = ":user:phil"
-        val keyId = kms.generateKeyPair("Ed25519")
+        val keyId = KeyManagementService.generateKeyPair("Ed25519")
         val didUrl = DidUrl("web", "" + domain + path, keyId)
 
-        kms.addAlias(keyId, didUrl.did)
+        KeyManagementService.addAlias(keyId, didUrl.did)
 
         return didUrl.did
     }

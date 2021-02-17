@@ -1,3 +1,5 @@
+package org.letstrust
+
 import foundation.identity.jsonld.ConfigurableDocumentLoader
 import foundation.identity.jsonld.JsonLDObject
 import foundation.identity.jsonld.JsonLDUtils
@@ -47,7 +49,7 @@ object CredentialService {
         // TODO set current date
         val created = JsonLDUtils.DATE_FORMAT.parse("2017-10-24T05:33:31Z")
 
-        val issuerKeys = kms.loadKeys(issuerDid)
+        val issuerKeys = KeyManagementService.loadKeys(issuerDid)
 
         var signer = when (signatureType) {
             SignatureType.Ed25519Signature2018 -> Ed25519Signature2018LdSigner(issuerKeys!!.getPrivateAndPublicKey())
@@ -80,7 +82,7 @@ object CredentialService {
 
     fun verify(issuerDid: String, vc: String, signatureType: SignatureType): Boolean {
         val jsonLdObject = JsonLDObject.fromJson(vc)
-        val issuerKeys = kms.loadKeys(issuerDid)
+        val issuerKeys = KeyManagementService.loadKeys(issuerDid)
 
         var verifier = when (signatureType) {
             SignatureType.Ed25519Signature2018 -> Ed25519Signature2018LdVerifier(issuerKeys!!.pair.public.encoded)

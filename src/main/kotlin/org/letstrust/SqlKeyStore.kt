@@ -1,3 +1,5 @@
+package org.letstrust
+
 import com.nimbusds.jose.util.Base64
 import java.security.KeyFactory
 import java.security.KeyPair
@@ -11,11 +13,11 @@ object SqlKeyStore : KeyStore {
     private val db = SqlDbManager
 
     init {
-        db.createDatabase()
+        SqlDbManager.createDatabase()
     }
 
     override fun getKeyId(keyId: String): String? {
-        db.getConnection().use { con ->
+        SqlDbManager.getConnection().use { con ->
             con.prepareStatement("select k.name from lt_key k, lt_key_alias a where k.id = a.key_id and a.alias = ?")
                 .use { stmt ->
                     stmt.setString(1, keyId)
@@ -30,7 +32,7 @@ object SqlKeyStore : KeyStore {
     }
 
     override fun addAlias(keyId: String, identifier: String) {
-        db.getConnection().use { con ->
+        SqlDbManager.getConnection().use { con ->
             con.prepareStatement("select k.id from lt_key k where k.name = ?").use { stmt ->
                 stmt.setString(1, keyId)
                 stmt.executeQuery().use { rs ->
@@ -53,7 +55,7 @@ object SqlKeyStore : KeyStore {
 
     override fun saveKeyPair(keys: Keys) {
 
-        db.getConnection().use { con ->
+        SqlDbManager.getConnection().use { con ->
             con.prepareStatement("insert into lt_key (name, priv, pub, algorithm, provider) values (?, ?, ?, ?, ?)", RETURN_GENERATED_KEYS)
                 .use { stmt ->
                     stmt.setString(1, keys!!.keyId)
@@ -92,7 +94,7 @@ object SqlKeyStore : KeyStore {
     }
 
     override fun loadKeyPair(keyId: String): Keys? {
-        db.getConnection().use { con ->
+        SqlDbManager.getConnection().use { con ->
             con.prepareStatement("select * from lt_key where name = ?").use { stmt ->
                 stmt.setString(1, keyId)
                 stmt.executeQuery().use { rs ->
@@ -123,7 +125,7 @@ object SqlKeyStore : KeyStore {
     }
 
     override fun deleteKeyPair(keyId: String) {
-        db.getConnection().use { con ->
+        SqlDbManager.getConnection().use { con ->
             con.prepareStatement("delete from lt_key where name = ?")
                 .use { stmt ->
                     stmt.setString(1, keyId)

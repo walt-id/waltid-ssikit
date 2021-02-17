@@ -1,6 +1,7 @@
+package org.letstrust
+
 import com.google.crypto.tink.config.TinkConfig
 import com.google.crypto.tink.subtle.Ed25519Sign
-import io.ipfs.multibase.Base58
 import io.ipfs.multibase.Multibase
 import org.bitcoinj.core.ECKey
 import org.bouncycastle.jce.ECNamedCurveTable
@@ -25,7 +26,7 @@ object KeyManagementService {
     private fun generateKeyId(): String = "LetsTrust-Key-${UUID.randomUUID().toString().replace("-", "")}"
 
     fun setKeyStore(ks: KeyStore) {
-        this.ks = ks
+        KeyManagementService.ks = ks
     }
 
     fun getSupportedCurveNames(): List<String> {
@@ -77,18 +78,18 @@ object KeyManagementService {
 //        TinkConfig.register();
 //
 //        var keyPair = Ed25519Sign.KeyPair.newKeyPair()
-//        var publicKey = BytePublicKey(keyPair.publicKey, "Ed25519")
-//        var privateKey = BytePrivateKey(keyPair.privateKey, "Ed25519")
-//        val keys = Keys(generateKeyId(), KeyPair(publicKey, privateKey), "Tink")
+//        var publicKey = org.letstrust.BytePublicKey(keyPair.publicKey, "Ed25519")
+//        var privateKey = org.letstrust.BytePrivateKey(keyPair.privateKey, "Ed25519")
+//        val keys = org.letstrust.Keys(generateKeyId(), KeyPair(publicKey, privateKey), "Tink")
 //        ks.saveKeyPair(keys)
 //        return keys.keyId
 //    }
 //
 //    fun generateSecp256k1KeyPair(): String {
 //        var key = ECKey(SecureRandom())
-//        var publicKey = BytePublicKey(key.pubKey, "Secp256k1")
-//        var privateKey = BytePrivateKey(key.privKeyBytes, "Secp256k1")
-//        val keys = Keys(generateKeyId(), KeyPair(publicKey, privateKey), "bitcoinj")
+//        var publicKey = org.letstrust.BytePublicKey(key.pubKey, "Secp256k1")
+//        var privateKey = org.letstrust.BytePrivateKey(key.privKeyBytes, "Secp256k1")
+//        val keys = org.letstrust.Keys(generateKeyId(), KeyPair(publicKey, privateKey), "bitcoinj")
 //        ks.saveKeyPair(keys)
 //        return keys.keyId
 //    }
@@ -96,7 +97,7 @@ object KeyManagementService {
 //    fun generateRsaKeyPair(): String {
 //        val generator = KeyPairGenerator.getInstance("RSA", "BC")
 //        generator.initialize(1024)
-//        val keys = Keys(generateKeyId(), generator.generateKeyPair(), "BC")
+//        val keys = org.letstrust.Keys(generateKeyId(), generator.generateKeyPair(), "BC")
 //        ks.saveKeyPair(keys)
 //        return keys.keyId
 //    }

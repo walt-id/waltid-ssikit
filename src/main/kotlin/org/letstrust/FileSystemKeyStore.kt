@@ -1,3 +1,5 @@
+package org.letstrust
+
 import org.apache.commons.io.IOUtils
 import java.io.File
 import java.io.FileInputStream
@@ -18,8 +20,8 @@ object FileSystemKeyStore : KeyStore {
     }
 
     override fun saveKeyPair(keys: Keys) {
-        this.addAlias(keys.keyId, keys.keyId)
-        this.storeKeyMetaData(keys)
+        addAlias(keys.keyId, keys.keyId)
+        storeKeyMetaData(keys)
 
         if (keys.isByteKey()) {
             saveRawPublicKey(keys.keyId, keys.pair.public)
@@ -37,7 +39,7 @@ object FileSystemKeyStore : KeyStore {
     }
 
     override fun loadKeyPair(keyId: String): Keys? {
-        val metaData = String(this.loadKeyFile(keyId, "meta"))
+        val metaData = String(loadKeyFile(keyId, "meta"))
         val algorithm = metaData.substringBefore(delimiter = ";")
         val provider = metaData.substringAfter(delimiter = ";")
 

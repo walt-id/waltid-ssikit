@@ -1,5 +1,6 @@
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.junit.Test
+import org.letstrust.KeyManagementService
 import java.security.Security
 import java.util.*
 import kotlin.test.assertEquals

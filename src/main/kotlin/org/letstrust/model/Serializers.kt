@@ -1,4 +1,4 @@
-package model
+package org.letstrust.model
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializer

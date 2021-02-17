@@ -1,5 +1,8 @@
 import org.junit.Test
-import java.security.KeyFactory
+import org.letstrust.BytePrivateKey
+import org.letstrust.BytePublicKey
+import org.letstrust.Keys
+import org.letstrust.SqlKeyStore
 import java.security.KeyPair
 import java.util.*
 import kotlin.test.BeforeTest

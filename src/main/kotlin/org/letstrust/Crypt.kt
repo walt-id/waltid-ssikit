@@ -1,3 +1,5 @@
+package org.letstrust
+
 import com.goterl.lazycode.lazysodium.LazySodiumJava
 import com.goterl.lazycode.lazysodium.SodiumJava
 import io.ipfs.multibase.Base58
@@ -34,32 +36,24 @@ fun convertX25519PublicKeyFromMultibase58Btc(mbase58: String): ByteArray {
 
     val buffer = mbase58.substring(1).decodeBase58()
     println(buffer.toHexString())
-   if (!(0xec.toByte() == buffer[0] && 0x01.toByte() == buffer[1])) throw RuntimeException("Invalid cryptonym encoding of Curve25519 key")
+    if (!(0xec.toByte() == buffer[0] && 0x01.toByte() == buffer[1])) throw RuntimeException("Invalid cryptonym encoding of Curve25519 key")
 
     return buffer.copyOfRange(2, buffer.size)
 }
 
 fun convertEd25519PublicKeyToMultiBase58Btc(edPublicKey: ByteArray): String {
-    println(edPublicKey.toHexString())
     val edPublicKeyCryptonym = ByteArray(edPublicKey.size + 2)
-    println(edPublicKeyCryptonym.toHexString())
     edPublicKeyCryptonym[0] = 0xed.toByte() // Ed25519 public key
     edPublicKeyCryptonym[1] = 0x01.toByte()
-    println(edPublicKeyCryptonym.toHexString())
     edPublicKey.copyInto(edPublicKeyCryptonym, 2)
-    println(edPublicKeyCryptonym.toHexString())
     return edPublicKeyCryptonym.encodeMultiBase58Btc()
 }
 
 fun convertX25519PublicKeyToMultiBase58Btc(x25519PublicKey: ByteArray): String {
-    println(x25519PublicKey.toHexString())
     val dhPublicKeyCryptonym = ByteArray(x25519PublicKey.size + 2)
-    println(dhPublicKeyCryptonym.toHexString())
     dhPublicKeyCryptonym[0] = 0xec.toByte() // Curve25519 public key
     dhPublicKeyCryptonym[1] = 0x01.toByte()
-    println(dhPublicKeyCryptonym.toHexString())
     x25519PublicKey.copyInto(dhPublicKeyCryptonym, 2)
-    println(dhPublicKeyCryptonym.toHexString())
     return dhPublicKeyCryptonym.encodeMultiBase58Btc()
 }
 

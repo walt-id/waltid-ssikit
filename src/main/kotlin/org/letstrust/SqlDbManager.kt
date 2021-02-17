@@ -1,9 +1,9 @@
+package org.letstrust
+
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import java.sql.Connection
-import java.sql.DriverManager
 import java.sql.Statement
-import java.sql.SQLException
 import java.util.logging.Level.ALL
 import java.util.logging.Logger
 
@@ -18,7 +18,7 @@ object SqlDbManager {
     private var ds: HikariDataSource? = null
 
     init {
-        println("SqlDbManager::init() ----------------------------------------------------------------------")
+        println("org.letstrust.SqlDbManager::init() ----------------------------------------------------------------------")
         config.setJdbcUrl(JDBC_URL)
         config.maximumPoolSize = 15
         config.isAutoCommit = false
@@ -35,7 +35,7 @@ object SqlDbManager {
     }
 
     fun createDatabase() {
-        this.getConnection().use { con ->
+        getConnection().use { con ->
             con.createStatement().use { stmt ->
 
                 // Create lt_key

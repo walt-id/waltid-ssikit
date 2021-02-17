@@ -1,5 +1,5 @@
 import org.junit.Before
-import org.junit.Test
+import org.letstrust.FileSystemKeyStore
 
 open class FileSystemKeyStoreTest : KeyStoreTest() {
 

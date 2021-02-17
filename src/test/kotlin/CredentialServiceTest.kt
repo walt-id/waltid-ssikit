@@ -1,9 +1,12 @@
-import CredentialService.SignatureType.EcdsaSecp256k1Signature2019
-import CredentialService.SignatureType.Ed25519Signature2018
+import org.letstrust.CredentialService.SignatureType.EcdsaSecp256k1Signature2019
+import org.letstrust.CredentialService.SignatureType.Ed25519Signature2018
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.json.JSONObject
 import org.junit.Before
 import org.junit.Test
+import org.letstrust.CredentialService
+import org.letstrust.DidService
+import org.letstrust.KeyManagementService
 import java.io.File
 import java.security.Security
 import kotlin.test.assertNotNull

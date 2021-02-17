@@ -2,6 +2,8 @@ import com.nimbusds.jose.util.Base64
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.junit.Before
 import org.junit.Test
+import org.letstrust.KeyManagementService
+import org.letstrust.SqlDbManager
 import java.security.Security
 import kotlin.test.assertEquals
 
