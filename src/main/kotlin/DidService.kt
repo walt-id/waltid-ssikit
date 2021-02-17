@@ -1,84 +1,32 @@
 import model.*
-import java.util.*
 
 
 object DidService {
 
     var kms = KeyManagementService
 
+    fun resolveDid(did: String): Did? = this.resolveDid(did.fromString())
 
-    fun resolveDid(id: String): Did? {
-
-        val didUrl: DidUrl = id.fromString()
-
-        if ("key" == didUrl.method) {
-            return resolveDidKey(didUrl)
+    fun resolveDid(didUrl: DidUrl): Did? {
+        return when (didUrl.method) {
+            "key" -> resolveDidKey(didUrl)
+            "web" -> resolveDidWeb(didUrl)
+            else -> TODO("did:${didUrl.method} implemented yet")
         }
-
-        return null
     }
 
-    fun resolveDidKey(didUrl: DidUrl): Did? {
-
+    private fun resolveDidKey(didUrl: DidUrl): Did? {
         val pubKey = convertEd25519PublicKeyFromMultibase58Btc(didUrl.identifier)
-
-        val pubKey58 = pubKey.encodeBase58()
-
-        val dhKey = convertPublicKeyEd25519ToCurve25519(pubKey)
-
-        val dhKey58 = dhKey.encodeBase58()
-
-        val dhKeyMb = convertX25519PublicKeyToMultiBase58Btc(dhKey)
-
-        val keyId = didUrl.identifier + "#" + didUrl.identifier
-        val dhKeyId = didUrl.identifier + "#" + dhKeyMb
-
-        val verificationMethods = listOf(
-            VerificationMethod(keyId, "Ed25519VerificationKey2018", didUrl.did, pubKey58),
-            VerificationMethod(dhKeyId, "X25519KeyAgreementKey2019", didUrl.did, dhKey58)
-        )
-
-        val keyRef = listOf(keyId)
-
-        return Did(DID_CONTEXT_URL, didUrl.did, verificationMethods, keyRef, keyRef, keyRef, keyRef, listOf(dhKeyId), null)
+        return ed25519Did(didUrl, pubKey)
     }
 
-
-    //TODO cleanup:
-
-
-    fun createDidWeb(): DidWeb {
-
-        val domain = "letstrust.org"
-        val path = ":user:phil"
-        val keyId = kms.generateKeyPair("Ed25519")
-        val didUrl = DidUrl("web", "" + domain + path, keyId)
-        val onwerDid = didUrl.did
-        val keyDid = didUrl.url
-
-        kms.addAlias(keyId, keyDid)
-        val publicKeyBase58 = kms.getBase58PublicKey(keyDid)
-
-        val keyRef = listOf(keyDid)
-
-        val pubKey = DidWeb.PublicKey(keyDid, "Ed25519VerificationKey2018", onwerDid, publicKeyBase58)
-
-        // TODO generate key-agreement key
-//        val keyAgreement = DidWeb.KeyAgreement(
-//            "did:web:did.actor:alice#zC8GybikEfyNaausDA4mkT4egP7SNLx2T1d1kujLQbcP6h",
-//            "X25519KeyAgreementKey2019",
-//            "Ed25519VerificationKey2018",
-//            "CaSHXEvLKS6SfN9aBfkVGBpp15jSnaHazqHgLHp8KZ3Y"
-//        )
-
-        return DidWeb("https://w3id.org/did/v0.11", onwerDid, listOf(pubKey), null, keyRef, keyRef, keyRef, keyRef)
-
+    private fun resolveDidWeb(didUrl: DidUrl): Did {
+        val keys = kms.loadKeys(didUrl.did)!!
+        return ed25519Did(didUrl, keys.getPubKey())
     }
 
-
-    fun registerDidKey(): String {
+    fun createDidKey(): String {
         val keyId = kms.generateKeyPair("Ed25519")
-
         val keys = kms.loadKeys(keyId)!!
 
         val identifier = convertEd25519PublicKeyToMultiBase58Btc(keys.getPubKey())
@@ -90,24 +38,34 @@ object DidService {
         return did
     }
 
-    fun registerDid(keyId: String): String {
-
-        // TODO register DID
-        var identifier = "did:dummy:" + UUID.randomUUID().toString().replace("-", "")
-
-        // TODO compute json did-key body
-        var didBody = "{}"
-        kms.addAlias(keyId, identifier)
-
-        return identifier
-    }
-
-
-    fun createDidKey() {
+    fun createDidWeb(): String {
+        val domain = "letstrust.org"
+        val path = ":user:phil"
         val keyId = kms.generateKeyPair("Ed25519")
-        var identifier = "did:key:" + kms.getMultiBase58PublicKey(keyId)
-        kms.addAlias(keyId, identifier)
+        val didUrl = DidUrl("web", "" + domain + path, keyId)
+
+        kms.addAlias(keyId, didUrl.did)
+
+        return didUrl.did
     }
 
+    private fun ed25519Did(didUrl: DidUrl, pubKey: ByteArray): Did {
+
+        val dhKey = convertPublicKeyEd25519ToCurve25519(pubKey)
+
+        val dhKeyMb = convertX25519PublicKeyToMultiBase58Btc(dhKey)
+
+        val pubKeyId = didUrl.identifier + "#" + didUrl.identifier
+        val dhKeyId = didUrl.identifier + "#" + dhKeyMb
+
+        val verificationMethods = listOf(
+            VerificationMethod(pubKeyId, "Ed25519VerificationKey2018", didUrl.did, pubKey.encodeBase58()),
+            VerificationMethod(dhKeyId, "X25519KeyAgreementKey2019", didUrl.did, dhKey.encodeBase58())
+        )
+
+        val keyRef = listOf(pubKeyId)
+
+        return Did(DID_CONTEXT_URL, didUrl.did, verificationMethods, keyRef, keyRef, keyRef, keyRef, listOf(dhKeyId), null)
+    }
 
 }

@@ -30,24 +30,6 @@ class DidServiceTest {
     }
 
     @Test
-    fun registerDidTest() {
-        val ds = DidService
-        val did = ds.registerDidKey()
-        assertNotNull(did)
-        assertTrue(32 < did.length)
-        assertEquals("did:key:", did.substring(0, 8))
-        print(did)
-    }
-
-    @Test
-    fun resolveDidKeyTest() {
-        val ds = DidService
-        val didKey = ds.resolveDid("did:key:z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH")
-        val encoded = Json { prettyPrint = true }.encodeToString(didKey)
-        println(encoded)
-    }
-
-    @Test
     fun parseDidUrlTest() {
 
         val did = Did("context")
@@ -62,31 +44,50 @@ class DidServiceTest {
     }
 
     @Test
-    fun creDidWebTest() {
-        val format = Json { prettyPrint = true }
-        val didWeb = DidService.createDidWeb()
-        val encoded = format.encodeToString(didWeb)
-        println("\n\n${didWeb.id}\n" + encoded)
+    fun createResolveDidKeyTest() {
+        val ds = DidService
+        val did = ds.createDidKey()
+        assertNotNull(did)
+        assertTrue(32 < did.length)
+        assertEquals("did:key:", did.substring(0, 8))
+        print(did)
+        val didKey = ds.resolveDid("did:key:z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH")
+        val encoded = Json { prettyPrint = true }.encodeToString(didKey)
+        println(encoded)
+    }
+
+    @Test
+    fun createResolveDidWebTest() {
+        val ds = DidService
+        val did = ds.createDidWeb()
+        assertNotNull(did)
+        assertTrue(30 < did.length)
+        assertEquals("did:web:", did.substring(0, 8))
+        print(did)
+
+        val didWeb = ds.resolveDid(did)
+        val encoded = Json { prettyPrint = true }.encodeToString(didWeb)
+        println(encoded)
     }
 
 
 
-    // https://stackoverflow.com/questions/57178093/how-to-deserialize-json-with-dynamic-object
-    // https://stackoverflow.com/questions/12134231/jackson-dynamic-property-names
-    internal class Product() {
-        @JsonIgnore
-        var dynFields: LinkedHashMap<String, Any> = LinkedHashMap<String, Any>()
-
-        @JsonAnySetter
-        fun setDetail(key: String, value: Any) {
-            dynFields[key] = value
-        }
-
-        @JsonAnyGetter
-        fun any(): LinkedHashMap<String, Any> {
-            return dynFields
-        }
-    }
+//    // https://stackoverflow.com/questions/57178093/how-to-deserialize-json-with-dynamic-object
+//    // https://stackoverflow.com/questions/12134231/jackson-dynamic-property-names
+//    internal class Product() {
+//        @JsonIgnore
+//        var dynFields: LinkedHashMap<String, Any> = LinkedHashMap<String, Any>()
+//
+//        @JsonAnySetter
+//        fun setDetail(key: String, value: Any) {
+//            dynFields[key] = value
+//        }
+//
+//        @JsonAnyGetter
+//        fun any(): LinkedHashMap<String, Any> {
+//            return dynFields
+//        }
+//    }
 
 //    @Test
 //    fun jsonDynObjectTest() {
