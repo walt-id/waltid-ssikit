@@ -3,9 +3,12 @@ package org.letstrust
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.options.*
+import mu.KotlinLogging
 import org.letstrust.cli.*
 
 data class CliConfig(var dataDir: String, val properties: MutableMap<String, String>, var verbose: Boolean)
+
+private val logger = KotlinLogging.logger {}
 
 class letstrust : CliktCommand(
     help = """LetsTrust CLI
@@ -35,6 +38,12 @@ class letstrust : CliktCommand(
         .flag()
 
     override fun run() {
+
+        logger.trace { "trace" }
+        logger.debug { "debug" }
+        logger.info { "info" }
+        logger.error { "error" }
+
         val config = CliConfig(dataDir, HashMap(), verbose)
         for ((k, v) in this.config) {
             config.properties[k] = v
