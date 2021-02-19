@@ -7,7 +7,7 @@
 
 ## Build
 
-    docker build -f docker/Dockerfile . -t letstrust
+    docker build -f docker/Dockerfile . -t letstrust/test
 
 ## Run
 
