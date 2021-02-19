@@ -4,7 +4,10 @@
     "https://www.w3.org/2018/credentials/examples/v1"
   ],
   "id": "http://example.gov/credentials/3732",
-  "type": ["VerifiableCredential", "UniversityDegreeCredential"],
+  "type": [
+    "VerifiableCredential",
+    "UniversityDegreeCredential"
+  ],
   "issuer": {
     "id": "did:web:vc.transmute.world"
   },
@@ -16,6 +19,9 @@
       "type": "BachelorDegree",
       "name": "Bachelor of Science and Arts"
     },
-    "skills": ["Java", "C++"]
+    "skills": [
+      "Java",
+      "C++"
+    ]
   }
 }

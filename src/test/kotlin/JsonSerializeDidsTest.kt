@@ -41,7 +41,16 @@ class JsonSerializeDidsTest {
             "CaSHXEvLKS6SfN9aBfkVGBpp15jSnaHazqHgLHp8KZ3Y"
         )
 
-        val didWeb = DidWeb("https://w3id.org/did/v0.11", "did:web:did.actor:alice", listOf(pubKey), listOf(keyAgreement), keyRef, keyRef, keyRef, keyRef)
+        val didWeb = DidWeb(
+            "https://w3id.org/did/v0.11",
+            "did:web:did.actor:alice",
+            listOf(pubKey),
+            listOf(keyAgreement),
+            keyRef,
+            keyRef,
+            keyRef,
+            keyRef
+        )
 
         val encoded = format.encodeToString(didWeb)
         // println(encoded)

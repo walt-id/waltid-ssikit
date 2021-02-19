@@ -74,7 +74,17 @@ object DidService {
 
         val keyRef = listOf(pubKeyId)
 
-        return Did(DID_CONTEXT_URL, didUrl.did, verificationMethods, keyRef, keyRef, keyRef, keyRef, listOf(dhKeyId), null)
+        return Did(
+            DID_CONTEXT_URL,
+            didUrl.did,
+            verificationMethods,
+            keyRef,
+            keyRef,
+            keyRef,
+            keyRef,
+            listOf(dhKeyId),
+            null
+        )
     }
 
 }

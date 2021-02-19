@@ -4,7 +4,10 @@
     "https://w3c-ccg.github.io/vc-examples/cmtr/examples/v0.2/cmtr-v0.2.jsonld"
   ],
   "id": "http://example.com/credentials/123",
-  "type": ["VerifiableCredential", "CertifiedMillTestReport"],
+  "type": [
+    "VerifiableCredential",
+    "CertifiedMillTestReport"
+  ],
   "issuer": "did:key:z6MkjRagNiMu91DduvCvgEsqLZDVzrJzFrwahc4tXLt9DoHd",
   "issuanceDate": "2020-03-09T18:19:10.033Z",
   "name": "Certified Mill Test Report",

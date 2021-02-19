@@ -62,7 +62,10 @@ object FileSystemKeyStore : KeyStore {
             }
         } else {
             if (keyFileExists(keyId, "raw-pubkey") && keyFileExists(keyId, "raw-privkey")) {
-                val keyPair = KeyPair(BytePublicKey(loadRawPublicKey(keyId), algorithm), BytePrivateKey(loadRawPrivateKey(keyId), algorithm))
+                val keyPair = KeyPair(
+                    BytePublicKey(loadRawPublicKey(keyId), algorithm),
+                    BytePrivateKey(loadRawPrivateKey(keyId), algorithm)
+                )
                 return Keys(keyId, keyPair, provider)
             }
         }

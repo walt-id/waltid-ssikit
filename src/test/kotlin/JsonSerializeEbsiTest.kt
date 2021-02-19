@@ -61,9 +61,27 @@ class JsonSerializeEbsiTest {
 
         var did = listOf<String>("did:ebsi:00003333", "did:ebsi:00005555")
         var organizationInfo =
-            OrganizationInfo("https://essif.europa.eu/tsr/53", "Great Company", "Great Company Street 1, Brussels, Belgium", "BE05555555XX", "https://great.company.be")
-        val proof = Proof("EidasSeal2019", LocalDateTime.now().withNano(0), "assertionMethod", VerificationMethodCert("EidasCertificate2019", "1088321447"), "BD21J4fdlnBvBA+y6D...fnC8Y=")
-        val serviceEndpoints = listOf<ServiceEndpoint>(ServiceEndpoint("did:example:123456789abcdefghi#agent", "AgentService", "https://agent.example.com/8377464"))
+            OrganizationInfo(
+                "https://essif.europa.eu/tsr/53",
+                "Great Company",
+                "Great Company Street 1, Brussels, Belgium",
+                "BE05555555XX",
+                "https://great.company.be"
+            )
+        val proof = Proof(
+            "EidasSeal2019",
+            LocalDateTime.now().withNano(0),
+            "assertionMethod",
+            VerificationMethodCert("EidasCertificate2019", "1088321447"),
+            "BD21J4fdlnBvBA+y6D...fnC8Y="
+        )
+        val serviceEndpoints = listOf<ServiceEndpoint>(
+            ServiceEndpoint(
+                "did:example:123456789abcdefghi#agent",
+                "AgentService",
+                "https://agent.example.com/8377464"
+            )
+        )
         val eidasCertificate = EidasCertificate("123456", "123456", "blob")
         var issuer = Issuer("Brand Name", did, eidasCertificate, serviceEndpoints, organizationInfo)
         var accreditationCredentials = listOf<VerifiableCredential>(

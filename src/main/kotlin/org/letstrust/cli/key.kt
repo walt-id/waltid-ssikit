@@ -30,7 +30,11 @@ class gen : CliktCommand(
 ) {
 
     val keyAlias: String by option("--key-alias", "-a", help = "Specific key alias").prompt()
-    val algorithm: String by option("--algorithm", "-g", help = "Key algorithm [Secp256k1, Ed25519]").choice("Ed25519", "Secp256k1", "RSA").default("Ed25519")
+    val algorithm: String by option("--algorithm", "-g", help = "Key algorithm [Secp256k1, Ed25519]").choice(
+        "Ed25519",
+        "Secp256k1",
+        "RSA"
+    ).default("Ed25519")
 
     override fun run() {
         echo("Generating key with ${algorithm}")

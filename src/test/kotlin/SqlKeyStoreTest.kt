@@ -20,7 +20,7 @@ class SqlKeyStoreTest : KeyStoreTest() {
     fun saveLoadByteKeysSqlApiTest() {
         var priv = BytePrivateKey("priv".toByteArray(), "alg")
         var pub = BytePublicKey("pub".toByteArray(), "alg")
-        var keys = Keys(UUID.randomUUID().toString(), KeyPair(pub,  priv), "dummy")
+        var keys = Keys(UUID.randomUUID().toString(), KeyPair(pub, priv), "dummy")
         SqlKeyStore.saveKeyPair(keys)
         var keysLoaded = SqlKeyStore.loadKeyPair(keys.keyId)
         assertNotNull(keysLoaded)

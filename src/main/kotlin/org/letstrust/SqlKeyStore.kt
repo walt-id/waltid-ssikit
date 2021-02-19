@@ -55,7 +55,10 @@ object SqlKeyStore : KeyStore {
     override fun saveKeyPair(keys: Keys) {
 
         SqlDbManager.getConnection().use { con ->
-            con.prepareStatement("insert into lt_key (name, priv, pub, algorithm, provider) values (?, ?, ?, ?, ?)", RETURN_GENERATED_KEYS)
+            con.prepareStatement(
+                "insert into lt_key (name, priv, pub, algorithm, provider) values (?, ?, ?, ?, ?)",
+                RETURN_GENERATED_KEYS
+            )
                 .use { stmt ->
                     stmt.setString(1, keys.keyId)
 
@@ -63,8 +66,18 @@ object SqlKeyStore : KeyStore {
                         keys.pair.let { stmt.setString(2, Base64.encode(it.private.encoded).toString()) }
                         keys.pair.let { stmt.setString(3, Base64.encode(it.public.encoded).toString()) }
                     } else {
-                        keys.pair.let { stmt.setString(2, Base64.encode(X509EncodedKeySpec(it.private.encoded).encoded).toString()) }
-                        keys.pair.let { stmt.setString(3, Base64.encode(X509EncodedKeySpec(it.public.encoded).encoded).toString()) }
+                        keys.pair.let {
+                            stmt.setString(
+                                2,
+                                Base64.encode(X509EncodedKeySpec(it.private.encoded).encoded).toString()
+                            )
+                        }
+                        keys.pair.let {
+                            stmt.setString(
+                                3,
+                                Base64.encode(X509EncodedKeySpec(it.public.encoded).encoded).toString()
+                            )
+                        }
                     }
 
                     keys.algorithm.let { stmt.setString(4, it) }
@@ -105,7 +118,8 @@ object SqlKeyStore : KeyStore {
                             val kf = KeyFactory.getInstance(algorithm, provider)
 
                             var pub = kf.generatePublic(X509EncodedKeySpec(Base64.from(rs.getString("pub")).decode()))
-                            var priv = kf.generatePrivate(PKCS8EncodedKeySpec(Base64.from(rs.getString("priv")).decode()))
+                            var priv =
+                                kf.generatePrivate(PKCS8EncodedKeySpec(Base64.from(rs.getString("priv")).decode()))
 
                             keys.add(Keys(keyId, KeyPair(pub, priv), provider))
 
@@ -136,7 +150,8 @@ object SqlKeyStore : KeyStore {
                             val kf = KeyFactory.getInstance(algorithm, provider)
 
                             var pub = kf.generatePublic(X509EncodedKeySpec(Base64.from(rs.getString("pub")).decode()))
-                            var priv = kf.generatePrivate(PKCS8EncodedKeySpec(Base64.from(rs.getString("priv")).decode()))
+                            var priv =
+                                kf.generatePrivate(PKCS8EncodedKeySpec(Base64.from(rs.getString("priv")).decode()))
 
                             return Keys(keyId, KeyPair(pub, priv), provider)
 

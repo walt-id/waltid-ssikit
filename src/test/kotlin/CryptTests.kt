@@ -31,7 +31,8 @@ class CryptTests {
 
     @Test
     fun convertEd25519PublicKeyToMultiBase58Btc() {
-        val mb = org.letstrust.convertEd25519PublicKeyToMultiBase58Btc("B12NYF8RrR3h41TDCTJojY59usg3mbtbjnFs7Eud1Y6u".decodeBase58())
+        val mb =
+            org.letstrust.convertEd25519PublicKeyToMultiBase58Btc("B12NYF8RrR3h41TDCTJojY59usg3mbtbjnFs7Eud1Y6u".decodeBase58())
         assertEquals("z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH", mb)
     }
 
@@ -58,7 +59,8 @@ class CryptTests {
     @Test
     fun convertEd25519toX25519PublickeyTest() {
 
-        val ed25519PublicKey = convertEd25519PublicKeyFromMultibase58Btc("z6Mkfriq1MqLBoPWecGoDLjguo1sB9brj6wT3qZ5BxkKpuP6")
+        val ed25519PublicKey =
+            convertEd25519PublicKeyFromMultibase58Btc("z6Mkfriq1MqLBoPWecGoDLjguo1sB9brj6wT3qZ5BxkKpuP6")
 
         val publicKeyBase58 = ed25519PublicKey.encodeBase58()
 
@@ -78,7 +80,8 @@ class CryptTests {
     // @Test - Error in DID spec
     fun convertEd25519toX25519PublickeyTest_DIDKEYSPEC() { // https://w3c-ccg.github.io/did-method-key/  -> NOT OK
 
-        val ed25519PublicKey = convertEd25519PublicKeyFromMultibase58Btc("z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH")
+        val ed25519PublicKey =
+            convertEd25519PublicKeyFromMultibase58Btc("z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH")
 
         val publicKeyBase58 = ed25519PublicKey.encodeBase58()
 

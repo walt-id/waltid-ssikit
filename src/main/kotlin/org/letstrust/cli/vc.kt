@@ -35,8 +35,16 @@ class issue : CliktCommand(
     val config: CliConfig by requireObject()
     val template: File? by argument().file().optional()
     val dest: File? by argument().file().optional()
-    val issuerDid: String by option("--issuer-did", "-i", help = "Specific DID of the VC subject (receiver of VC)").prompt()
-    val subjectDid: String by option("--subject-did", "-s", help = "Specific DID of the VC subject (receiver of VC)").prompt()
+    val issuerDid: String by option(
+        "--issuer-did",
+        "-i",
+        help = "Specific DID of the VC subject (receiver of VC)"
+    ).prompt()
+    val subjectDid: String by option(
+        "--subject-did",
+        "-s",
+        help = "Specific DID of the VC subject (receiver of VC)"
+    ).prompt()
 
     override fun run() {
         echo("\nIssue & send cred ...")

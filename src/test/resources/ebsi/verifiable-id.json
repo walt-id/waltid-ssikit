@@ -25,21 +25,28 @@
     "id": "https://essif.europa.eu/tsr-vid/verifiableid.json",
     "type": "JsonSchemaValidator2018"
   },
-  "evidence": [{
-    "id": "https://essif.europa.eu/evidence/f2aeec97-fc0d-42bf-8ca7-0548192d4231",
-    "type": ["DocumentVerification"],
-    "verifier": "https:// essif.europa.eu /issuers/48",
-    "evidenceDocument": "Passport",
-    "subjectPresence": "Physical",
-    "documentPresence": "Physical"
-  }, {
-    "id": "https://essif.europa.eu/evidence/f2aeec97-fc0d-42bf-8ca7-0548192dxyzab",
-    "type": ["SupportingActivity"],
-    "verifier": "https://example.edu/issuers/48",
-    "evidenceDocument": "Fluid Dynamics Focus",
-    "subjectPresence": "Digital",
-    "documentPresence": "Digital"
-  }],
+  "evidence": [
+    {
+      "id": "https://essif.europa.eu/evidence/f2aeec97-fc0d-42bf-8ca7-0548192d4231",
+      "type": [
+        "DocumentVerification"
+      ],
+      "verifier": "https:// essif.europa.eu /issuers/48",
+      "evidenceDocument": "Passport",
+      "subjectPresence": "Physical",
+      "documentPresence": "Physical"
+    },
+    {
+      "id": "https://essif.europa.eu/evidence/f2aeec97-fc0d-42bf-8ca7-0548192dxyzab",
+      "type": [
+        "SupportingActivity"
+      ],
+      "verifier": "https://example.edu/issuers/48",
+      "evidenceDocument": "Fluid Dynamics Focus",
+      "subjectPresence": "Digital",
+      "documentPresence": "Digital"
+    }
+  ],
   "proof": {
     "type": "EidasSeal2019",
     "created": "2019-06-22T14:11:44Z",

@@ -65,7 +65,6 @@ class DidServiceTest {
     }
 
 
-
 //    // https://stackoverflow.com/questions/57178093/how-to-deserialize-json-with-dynamic-object
 //    // https://stackoverflow.com/questions/12134231/jackson-dynamic-property-names
 //    internal class Product() {

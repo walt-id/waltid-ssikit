@@ -108,7 +108,7 @@ object KeyManagementService {
         return null
     }
 
-    fun listkeys() : List<Keys>{
+    fun listkeys(): List<Keys> {
         return ks.listkeys()
     }
 

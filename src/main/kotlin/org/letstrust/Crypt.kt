@@ -64,6 +64,10 @@ fun convertPublicKeyEd25519ToCurve25519(ed25519PublicKey: ByteArray): ByteArray 
     // https://libsodium.gitbook.io/doc/advanced/ed25519-curve25519
     val lazySodium = LazySodiumJava(SodiumJava())
     val dhPublicKey = ByteArray(32)
-    if (!lazySodium.convertPublicKeyEd25519ToCurve25519(dhPublicKey, ed25519PublicKey)) throw RuntimeException("Could not convert Ed25519 to X25519 pubic key")
+    if (!lazySodium.convertPublicKeyEd25519ToCurve25519(
+            dhPublicKey,
+            ed25519PublicKey
+        )
+    ) throw RuntimeException("Could not convert Ed25519 to X25519 pubic key")
     return dhPublicKey
 }

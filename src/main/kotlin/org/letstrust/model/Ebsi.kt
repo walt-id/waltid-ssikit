@@ -1,4 +1,5 @@
 @file:UseSerializers(DateAsIso8601UtcStringSerializer::class)
+
 package org.letstrust.model
 
 import kotlinx.serialization.Serializable

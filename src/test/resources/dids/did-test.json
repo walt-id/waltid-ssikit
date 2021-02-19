@@ -1,17 +1,22 @@
 {
-  "@context" : "https://w3id.org/did/v1",
-  "id" : "did:key:z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH",
-  "controller" : [ {
-    "id" : "id1",
-    "controller" : "contr1",
-    "type" : "type1",
-    "publicKeyBase58" : "key1"
-  }, {
-    "id" : "id2",
-    "controller" : "contr2",
-    "type" : "type2",
-    "publicKeyBase58" : "key2"
-  } ],
-  "authentication": ["asdf"],
+  "@context": "https://w3id.org/did/v1",
+  "id": "did:key:z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH",
+  "controller": [
+    {
+      "id": "id1",
+      "controller": "contr1",
+      "type": "type1",
+      "publicKeyBase58": "key1"
+    },
+    {
+      "id": "id2",
+      "controller": "contr2",
+      "type": "type2",
+      "publicKeyBase58": "key2"
+    }
+  ],
+  "authentication": [
+    "asdf"
+  ],
   "test": "asf"
 }

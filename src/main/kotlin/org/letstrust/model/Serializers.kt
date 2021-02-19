@@ -37,7 +37,8 @@ object DateAsIso8601UtcStringSerializer : KSerializer<LocalDateTime> {
 }
 
 @Serializer(forClass = VerificationMethodCert::class)
-object VerificationMethodCertSerializer : JsonTransformingSerializer<VerificationMethodCert>(VerificationMethodCert.serializer()) {
+object VerificationMethodCertSerializer :
+    JsonTransformingSerializer<VerificationMethodCert>(VerificationMethodCert.serializer()) {
     override fun transformDeserialize(element: JsonElement): JsonElement =
         if (element !is JsonObject) JsonObject(mapOf("CertSerial" to element)) else element
 

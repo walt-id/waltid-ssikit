@@ -105,7 +105,7 @@ data class Proof(
 )
 
 @Serializable
-data class VerificationMethodCert (
+data class VerificationMethodCert(
     val type: String? = null,
     val CertSerial: String? = null
 )
