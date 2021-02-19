@@ -38,12 +38,12 @@ open class KeyStoreTest {
         var keyId = kms.generateEcKeyPair("secp256k1")
         var keys = kms.loadKeys(keyId)!!
         assertNotNull(keys)
-        assertEquals("ECDSA", keys.pair?.private?.algorithm)
+        assertEquals("ECDSA", keys.pair.private?.algorithm)
 
         keyId = kms.generateKeyPair("RSA")
         keys = kms.loadKeys(keyId)!!
         assertNotNull(keys.pair)
-        assertEquals("RSA", keys.pair?.private?.algorithm)
+        assertEquals("RSA", keys.pair.private?.algorithm)
     }
 
     @Test

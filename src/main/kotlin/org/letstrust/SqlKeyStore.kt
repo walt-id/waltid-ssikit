@@ -57,18 +57,18 @@ object SqlKeyStore : KeyStore {
         SqlDbManager.getConnection().use { con ->
             con.prepareStatement("insert into lt_key (name, priv, pub, algorithm, provider) values (?, ?, ?, ?, ?)", RETURN_GENERATED_KEYS)
                 .use { stmt ->
-                    stmt.setString(1, keys!!.keyId)
+                    stmt.setString(1, keys.keyId)
 
                     if (keys.isByteKey()) {
-                        keys.pair?.let { stmt.setString(2, Base64.encode(it.private.encoded).toString()) }
-                        keys.pair?.let { stmt.setString(3, Base64.encode(it.public.encoded).toString()) }
+                        keys.pair.let { stmt.setString(2, Base64.encode(it.private.encoded).toString()) }
+                        keys.pair.let { stmt.setString(3, Base64.encode(it.public.encoded).toString()) }
                     } else {
-                        keys.pair?.let { stmt.setString(2, Base64.encode(X509EncodedKeySpec(it.private.encoded).encoded).toString()) }
-                        keys.pair?.let { stmt.setString(3, Base64.encode(X509EncodedKeySpec(it.public.encoded).encoded).toString()) }
+                        keys.pair.let { stmt.setString(2, Base64.encode(X509EncodedKeySpec(it.private.encoded).encoded).toString()) }
+                        keys.pair.let { stmt.setString(3, Base64.encode(X509EncodedKeySpec(it.public.encoded).encoded).toString()) }
                     }
 
-                    keys.algorithm?.let { stmt.setString(4, it) }
-                    keys.provider?.let { stmt.setString(5, it) }
+                    keys.algorithm.let { stmt.setString(4, it) }
+                    keys.provider.let { stmt.setString(5, it) }
 
                     stmt.executeUpdate()
 
@@ -77,7 +77,7 @@ object SqlKeyStore : KeyStore {
                             val key_id = generatedKeys.getInt(1)
                             con.prepareStatement("insert into lt_key_alias (key_id, alias) values (?, ?)").use { stmt ->
                                 stmt.setInt(1, key_id)
-                                stmt.setString(2, keys!!.keyId)
+                                stmt.setString(2, keys.keyId)
                                 if (stmt.executeUpdate() == 1) {
                                     con.commit()
                                 } else {
@@ -120,7 +120,7 @@ object SqlKeyStore : KeyStore {
                 }
             }
         }
-        return keys;
+        return keys
     }
 
     override fun loadKeyPair(keyId: String): Keys? {

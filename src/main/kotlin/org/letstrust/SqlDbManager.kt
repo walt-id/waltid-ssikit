@@ -4,8 +4,6 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import java.sql.Connection
 import java.sql.Statement
-import java.util.logging.Level.ALL
-import java.util.logging.Logger
 
 
 object SqlDbManager {
@@ -18,7 +16,7 @@ object SqlDbManager {
     private var ds: HikariDataSource? = null
 
     init {
-        config.setJdbcUrl(JDBC_URL)
+        config.jdbcUrl = JDBC_URL
         config.maximumPoolSize = 15
         config.isAutoCommit = false
 //        config.setUsername("user")

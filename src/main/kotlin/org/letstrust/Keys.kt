@@ -50,7 +50,7 @@ data class Keys(val keyId: String, val pair: KeyPair, val provider: String) {
         return this.pair.private is BytePrivateKey
     }
 
-    fun getPubKey(): ByteArray = (this.pair!!.public as BytePublicKey).publicKey
-    fun getPrivKey(): ByteArray = (this.pair!!.private as BytePrivateKey).privateKey
+    fun getPubKey(): ByteArray = (this.pair.public as BytePublicKey).publicKey
+    fun getPrivKey(): ByteArray = (this.pair.private as BytePrivateKey).privateKey
 
 }

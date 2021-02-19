@@ -1,6 +1,5 @@
 import mu.KotlinLogging
 import org.junit.Test
-import org.slf4j.LoggerFactory;
 
 private val log = KotlinLogging.logger {}
 
@@ -8,7 +7,7 @@ class CliTest {
 
     @Test
     fun loggingTest() {
-        println(log.isTraceEnabled())
+        println(log.isTraceEnabled)
 
         log.trace { "trace" }
         log.debug { "debug" }

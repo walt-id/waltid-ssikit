@@ -1,8 +1,8 @@
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import org.letstrust.model.DidWeb
 import org.junit.Test
+import org.letstrust.model.DidWeb
 import java.io.File
 import kotlin.test.assertEquals
 

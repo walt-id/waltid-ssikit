@@ -8,16 +8,16 @@ import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.core.config.Configuration
-import org.letstrust.cli.*
 import org.apache.logging.log4j.core.config.LoggerConfig
+import org.letstrust.cli.*
 import java.io.File
 
 
 data class CliConfig(var dataDir: String, val properties: MutableMap<String, String>, var verbose: Boolean)
 
-private val log = KotlinLogging.logger() {}
+private val log = KotlinLogging.logger {}
 
-class letstrust : CliktCommand(
+class LetsTrust : CliktCommand(
     help = """LetsTrust CLI
 
         The LetsTrust CLI is a command line tool that allows you to onboard and use
@@ -40,23 +40,24 @@ class letstrust : CliktCommand(
     val dataDir: String by option("-d", "--data-dir", help = "Set data directory [./data].")
         .default("data")
 
-    val config: Map<String, String> by option("-c", "--config", help = "Overrides a config key/value pair.").associate()
+    val cliConfig: Map<String, String> by option("-c", "--config", help = "Overrides a config key/value pair.").associate()
     val verbose: Boolean by option("-v", "--verbose", help = "Enables verbose mode.")
         .flag()
 
     override fun run() {
-
         val config = CliConfig(dataDir, HashMap(), verbose)
-        for ((k, v) in this.config) {
+
+        this.cliConfig.forEach { (k, v) ->
             config.properties[k] = v
         }
+
         currentContext.obj = config
 
         println("Config loaded: ${config}\n")
 
-        var dataDirFile = File(dataDir)
+        val dataDirFile = File(dataDir)
         if (!dataDirFile.exists()) {
-            log.info { "Creating data dir at \"${dataDir}\"" }
+            log.info { "Creating data dir at \"${dataDir}\"..." }
             dataDirFile.mkdirs()
         }
     }
@@ -64,7 +65,6 @@ class letstrust : CliktCommand(
 
 
 fun main(args: Array<String>) {
-
     log.trace { "trace" }
     log.debug { "debug" }
     log.info { "info" }
@@ -72,7 +72,7 @@ fun main(args: Array<String>) {
     log.error { "error" }
 
     val ctx: LoggerContext = LogManager.getContext(false) as LoggerContext
-    val logConf: Configuration = ctx.getConfiguration()
+    val logConf: Configuration = ctx.configuration
     val logConfig: LoggerConfig = logConf.getLoggerConfig(LogManager.ROOT_LOGGER_NAME)
 
     args.forEach {
@@ -91,7 +91,7 @@ fun main(args: Array<String>) {
     log.warn { "warn" }
     log.error { "error" }
 
-    return letstrust()
+    return LetsTrust()
         .subcommands(
             key().subcommands(gen(), listKeys(), exportKey()),
             did().subcommands(createDid(), resolveDid(), listDids()),

@@ -36,7 +36,7 @@ object KeyManagementService {
         for (name in ECNamedCurveTable.getNames()) {
             ecNames.add(name.toString())
         }
-        return ecNames;
+        return ecNames
     }
 
     fun generateEcKeyPair(ecCurveName: String): String {
@@ -52,7 +52,7 @@ object KeyManagementService {
 
         var keys = when (algorithm) {
             "Ed25519" -> {
-                TinkConfig.register();
+                TinkConfig.register()
                 var keyPair = Ed25519Sign.KeyPair.newKeyPair()
                 var publicKey = BytePublicKey(keyPair.publicKey, "Ed25519")
                 var privateKey = BytePrivateKey(keyPair.privateKey, "Ed25519")
@@ -76,7 +76,7 @@ object KeyManagementService {
 
 
     fun generateEd25519KeyPair(): String {
-        TinkConfig.register();
+        TinkConfig.register()
 
         var keyPair = Ed25519Sign.KeyPair.newKeyPair()
         var publicKey = org.letstrust.BytePublicKey(keyPair.publicKey, "Ed25519")

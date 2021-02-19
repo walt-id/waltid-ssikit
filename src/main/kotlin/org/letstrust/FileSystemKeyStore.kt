@@ -66,7 +66,7 @@ object FileSystemKeyStore : KeyStore {
                 return Keys(keyId, keyPair, provider)
             }
         }
-        return null;
+        return null
     }
 
     private fun saveEncPublicKey(keyId: String, encodedPublicKey: PublicKey) =
@@ -93,9 +93,9 @@ object FileSystemKeyStore : KeyStore {
 
     private fun keyFileExists(keyId: String, suffix: String) = File("$KEY_DIR_PATH/$keyId.$suffix").exists()
 
-    private fun loadRawPublicKey(keyId: String): ByteArray = loadKeyFile(keyId, "raw-pubkey");
+    private fun loadRawPublicKey(keyId: String): ByteArray = loadKeyFile(keyId, "raw-pubkey")
 
-    private fun loadRawPrivateKey(keyId: String): ByteArray = loadKeyFile(keyId, "raw-privkey");
+    private fun loadRawPrivateKey(keyId: String): ByteArray = loadKeyFile(keyId, "raw-privkey")
 
     private fun loadEncPublicKey(keyId: String, keyFactory: KeyFactory): PublicKey {
         return keyFactory.generatePublic(
