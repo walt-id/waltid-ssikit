@@ -13,7 +13,7 @@ import kotlin.test.assertTrue
 
 class DidServiceTest {
 
-    protected val RESOURCES_PATH: String = "src/test/resources"
+    private val RESOURCES_PATH: String = "src/test/resources"
 
     fun readExampleDid(fileName: String) =
         File("$RESOURCES_PATH/dids/${fileName}.json").readText(Charsets.UTF_8)
@@ -121,7 +121,7 @@ class DidServiceTest {
 //    )
 //
 //    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-//    data class Did(
+//    data class did(
 //        @JsonProperty("@context") val context: String,
 //        val id: String,
 ////    val controller: List<PublicKey>,
@@ -150,7 +150,7 @@ class DidServiceTest {
 //    fun jsonTest() {
 //        val mapper = jacksonObjectMapper()
 //
-////        val state = Did(
+////        val state = did(
 ////            "https://w3id.org/did/v1",
 ////            "did:key:z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH",
 ////            listOf(
@@ -162,14 +162,14 @@ class DidServiceTest {
 ////            null,
 ////            null
 ////        )
-//        val did = Did(
+//        val did = did(
 //            "https://w3id.org/did/v1",
 //            "did:key:z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH"
 //        )
 //        val writer = mapper.writer(DefaultPrettyPrinter())
 //        val json = writer.writeValueAsString(did)
 //        println(json)
-//        val out = mapper.readValue<Did>(json)
+//        val out = mapper.readValue<did>(json)
 //        println(out)
 //    }
 //
@@ -177,7 +177,7 @@ class DidServiceTest {
 //    fun parseDids() {
 //        val mapper = jacksonObjectMapper()
 //        var json = readExampleDid("did-test")
-//        val did = mapper.readValue<Did>(json)
+//        val did = mapper.readValue<did>(json)
 //        println(did)
 //        println(did.context)
 //        println(did.id)

@@ -9,7 +9,7 @@ import com.github.ajalt.clikt.parameters.types.choice
 import org.letstrust.KeyManagementService
 
 
-class key : CliktCommand(
+class KeyCommand : CliktCommand(
     help = """Key management.
 
         Key management functions like generation, export/import, and deletion."""
@@ -21,7 +21,7 @@ class key : CliktCommand(
     }
 }
 
-class gen : CliktCommand(
+class GenCommand : CliktCommand(
     help = """Generate keys.
 
         Generates an asymetric keypair by the specified alogrithm.
@@ -37,11 +37,11 @@ class gen : CliktCommand(
     ).default("Ed25519")
 
     override fun run() {
-        echo("Generating key with ${algorithm}")
+        echo("Generating key with $algorithm")
     }
 }
 
-class exportKey : CliktCommand(
+class ExportKeyCommand : CliktCommand(
     name = "export",
     help = """Export keys.
 
@@ -51,11 +51,11 @@ class exportKey : CliktCommand(
     val keyId: String by option(help = "Key ID or key alias").required()
 
     override fun run() {
-        echo("Exporting key ${keyId}")
+        echo("Exporting key $keyId")
     }
 }
 
-class listKeys : CliktCommand(
+class ListKeysCommand : CliktCommand(
     name = "list",
     help = """List keys
 

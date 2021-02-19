@@ -87,9 +87,9 @@ object SqlKeyStore : KeyStore {
 
                     stmt.generatedKeys.use { generatedKeys ->
                         if (generatedKeys.next()) {
-                            val key_id = generatedKeys.getInt(1)
+                            val keyId = generatedKeys.getInt(1)
                             con.prepareStatement("insert into lt_key_alias (key_id, alias) values (?, ?)").use { stmt ->
-                                stmt.setInt(1, key_id)
+                                stmt.setInt(1, keyId)
                                 stmt.setString(2, keys.keyId)
                                 if (stmt.executeUpdate() == 1) {
                                     con.commit()
@@ -110,24 +110,24 @@ object SqlKeyStore : KeyStore {
             con.prepareStatement("select * from lt_key").use { stmt ->
                 stmt.executeQuery().use { rs ->
                     if (rs.next()) {
-                        var keyId = rs.getString("name")
-                        var algorithm = rs.getString("algorithm")
-                        var provider = rs.getString("provider")
+                        val keyId = rs.getString("name")
+                        val algorithm = rs.getString("algorithm")
+                        val provider = rs.getString("provider")
 
                         if (provider == "BC") {
                             val kf = KeyFactory.getInstance(algorithm, provider)
 
-                            var pub = kf.generatePublic(X509EncodedKeySpec(Base64.from(rs.getString("pub")).decode()))
-                            var priv =
+                            val pub = kf.generatePublic(X509EncodedKeySpec(Base64.from(rs.getString("pub")).decode()))
+                            val priv =
                                 kf.generatePrivate(PKCS8EncodedKeySpec(Base64.from(rs.getString("priv")).decode()))
 
                             keys.add(Keys(keyId, KeyPair(pub, priv), provider))
 
                         } else {
-                            var pub = Base64.from(rs.getString("pub")).decode()
-                            var priv = Base64.from(rs.getString("priv")).decode()
+                            val pub = Base64.from(rs.getString("pub")).decode()
+                            val priv = Base64.from(rs.getString("priv")).decode()
 
-                            var keyPair = KeyPair(BytePublicKey(pub, algorithm), BytePrivateKey(priv, algorithm))
+                            val keyPair = KeyPair(BytePublicKey(pub, algorithm), BytePrivateKey(priv, algorithm))
                             keys.add(Keys(keyId, keyPair, provider))
                         }
                     }
@@ -143,23 +143,23 @@ object SqlKeyStore : KeyStore {
                 stmt.setString(1, keyId)
                 stmt.executeQuery().use { rs ->
                     if (rs.next()) {
-                        var algorithm = rs.getString("algorithm")
-                        var provider = rs.getString("provider")
+                        val algorithm = rs.getString("algorithm")
+                        val provider = rs.getString("provider")
 
                         if (provider == "BC") {
                             val kf = KeyFactory.getInstance(algorithm, provider)
 
-                            var pub = kf.generatePublic(X509EncodedKeySpec(Base64.from(rs.getString("pub")).decode()))
-                            var priv =
+                            val pub = kf.generatePublic(X509EncodedKeySpec(Base64.from(rs.getString("pub")).decode()))
+                            val priv =
                                 kf.generatePrivate(PKCS8EncodedKeySpec(Base64.from(rs.getString("priv")).decode()))
 
                             return Keys(keyId, KeyPair(pub, priv), provider)
 
                         } else {
-                            var pub = Base64.from(rs.getString("pub")).decode()
-                            var priv = Base64.from(rs.getString("priv")).decode()
+                            val pub = Base64.from(rs.getString("pub")).decode()
+                            val priv = Base64.from(rs.getString("priv")).decode()
 
-                            var keyPair = KeyPair(BytePublicKey(pub, algorithm), BytePrivateKey(priv, algorithm))
+                            val keyPair = KeyPair(BytePublicKey(pub, algorithm), BytePrivateKey(priv, algorithm))
                             return Keys(keyId, keyPair, provider)
                         }
                     }

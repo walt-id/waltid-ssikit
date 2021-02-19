@@ -16,7 +16,7 @@ object DidService {
         }
     }
 
-    private fun resolveDidKey(didUrl: DidUrl): Did? {
+    private fun resolveDidKey(didUrl: DidUrl): Did {
         val pubKey = convertEd25519PublicKeyFromMultibase58Btc(didUrl.identifier)
         return ed25519Did(didUrl, pubKey)
     }
@@ -30,7 +30,7 @@ object DidService {
         return when (didMethod) {
             "key" -> createDidKey()
             "web" -> createDidWeb()
-            else -> TODO("Did creation by method ${didMethod} not supported yet")
+            else -> TODO("did creation by method $didMethod not supported yet")
         }
     }
 
@@ -40,7 +40,7 @@ object DidService {
 
         val identifier = convertEd25519PublicKeyToMultiBase58Btc(keys.getPubKey())
 
-        var did = "did:key:" + identifier
+        val did = "did:key:$identifier"
 
         KeyManagementService.addAlias(keyId, did)
 

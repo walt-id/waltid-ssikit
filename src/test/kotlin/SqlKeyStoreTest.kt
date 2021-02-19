@@ -18,11 +18,11 @@ class SqlKeyStoreTest : KeyStoreTest() {
 
     @Test
     fun saveLoadByteKeysSqlApiTest() {
-        var priv = BytePrivateKey("priv".toByteArray(), "alg")
-        var pub = BytePublicKey("pub".toByteArray(), "alg")
-        var keys = Keys(UUID.randomUUID().toString(), KeyPair(pub, priv), "dummy")
+        val priv = BytePrivateKey("priv".toByteArray(), "alg")
+        val pub = BytePublicKey("pub".toByteArray(), "alg")
+        val keys = Keys(UUID.randomUUID().toString(), KeyPair(pub, priv), "dummy")
         SqlKeyStore.saveKeyPair(keys)
-        var keysLoaded = SqlKeyStore.loadKeyPair(keys.keyId)
+        val keysLoaded = SqlKeyStore.loadKeyPair(keys.keyId)
         assertNotNull(keysLoaded)
         assertEquals(keys.keyId, keysLoaded.keyId)
         assertEquals("priv", String(keysLoaded.pair.private.encoded))
@@ -33,13 +33,13 @@ class SqlKeyStoreTest : KeyStoreTest() {
 
     @Test
     fun addAliasSqlApiTest() {
-        var keyId = kms.generateKeyPair("Ed25519")
-        var alias = UUID.randomUUID().toString()
+        val keyId = kms.generateKeyPair("Ed25519")
+        val alias = UUID.randomUUID().toString()
         SqlKeyStore.addAlias(keyId, alias)
-        var k1 = SqlKeyStore.getKeyId(alias)
+        val k1 = SqlKeyStore.getKeyId(alias)
         assertNotNull(k1)
         assertEquals(keyId, k1)
-        var k2 = SqlKeyStore.getKeyId(keyId)
+        val k2 = SqlKeyStore.getKeyId(keyId)
         assertNotNull(k2)
         assertEquals(k1, k2)
     }

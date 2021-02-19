@@ -34,13 +34,13 @@ class JsonSerializeVerifiableCredentialTest {
                 VerificationMethodCert("EidasCertificate2019", "1088321447"),
                 "BD21J4fdlnBvBA+y6D...fnC8Y="
             )
-        var vc = VerifiableCredential(
+        val vc = VerifiableCredential(
             listOf(
                 "https://www.w3.org/2018/credentials/v1",
                 "https://essif.europa.eu/schemas/vc/2020/v1"
             ),
             "https://essif.europa.eu/tsr/53",
-            listOf<String>("VerifiableCredential", "VerifiableAttestation"),
+            listOf("VerifiableCredential", "VerifiableAttestation"),
             "did:ebsi:000098765",
             LocalDateTime.now().withNano(0),
             CredentialSubject("did:ebsi:00001235", null, listOf("claim1", "claim2")),
@@ -62,8 +62,8 @@ class JsonSerializeVerifiableCredentialTest {
     //TODO not all files working yet @Test
     fun vcExamplesTest() {
         File("src/test/resources/verifiable-credentials/").walkTopDown()
-            .filter { it -> it.toString().endsWith(".json") }
-            .forEach { it ->
+            .filter { it.toString().endsWith(".json") }
+            .forEach {
                 println("serializing: $it")
 
             }

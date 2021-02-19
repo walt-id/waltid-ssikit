@@ -43,7 +43,7 @@ object VerificationMethodCertSerializer :
         if (element !is JsonObject) JsonObject(mapOf("CertSerial" to element)) else element
 
     override fun transformSerialize(element: JsonElement): JsonElement =
-        if (element.jsonObject.get("type") == null) element.jsonObject.get("CertSerial")!! else element
+        if (element.jsonObject["type"] == null) element.jsonObject["CertSerial"]!! else element
 }
 
 

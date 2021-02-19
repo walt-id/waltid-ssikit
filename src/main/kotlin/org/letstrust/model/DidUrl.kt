@@ -18,8 +18,8 @@ data class DidUrl(
 
 fun String.fromString(): DidUrl {
     val matchResult = "^did:([a-z]+):(.+)".toRegex().find(this)!!
-    var path = matchResult.groups[2]!!.value
-    var fragmentStr = path.substringAfter('#')
-    var identifierStr = path.substringBefore('#')
+    val path = matchResult.groups[2]!!.value
+    val fragmentStr = path.substringAfter('#')
+    val identifierStr = path.substringBefore('#')
     return DidUrl(matchResult.groups[1]!!.value, identifierStr, fragmentStr)
 }

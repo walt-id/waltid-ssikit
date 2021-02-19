@@ -14,7 +14,7 @@ import kotlin.test.assertTrue
 
 class CredentialServiceTest {
 
-    protected val RESOURCES_PATH: String = "src/test/resources"
+    private val RESOURCES_PATH: String = "src/test/resources"
 
     fun readCredOffer(fileName: String) =
         File("$RESOURCES_PATH/verifiable-credentials/${fileName}.json").readText(Charsets.UTF_8)
@@ -35,9 +35,9 @@ class CredentialServiceTest {
 
         val vc = CredentialService.sign(issuerDid, domain, nonce, cred, Ed25519Signature2018)
         assertNotNull(vc)
-        println("Credential generated: ${vc}")
+        println("Credential generated: $vc")
 
-        var vcVerified = CredentialService.verify(issuerDid, vc, Ed25519Signature2018)
+        val vcVerified = CredentialService.verify(issuerDid, vc, Ed25519Signature2018)
         assertTrue(vcVerified)
         KeyManagementService.deleteKeys(issuerDid)
     }
@@ -54,9 +54,9 @@ class CredentialServiceTest {
 
         val vc = CredentialService.sign(keyId, domain, nonce, cred, EcdsaSecp256k1Signature2019)
         assertNotNull(vc)
-        println("Credential generated: ${vc}")
+        println("Credential generated: $vc")
 
-        var vcVerified = CredentialService.verify(keyId, vc, EcdsaSecp256k1Signature2019)
+        val vcVerified = CredentialService.verify(keyId, vc, EcdsaSecp256k1Signature2019)
         assertTrue(vcVerified)
         KeyManagementService.deleteKeys(keyId)
     }
@@ -72,9 +72,9 @@ class CredentialServiceTest {
 
         val vc = CredentialService.sign(issuerDid, domain, nonce, credOffer, Ed25519Signature2018)
         assertNotNull(vc)
-        println("Credential generated: ${vc}")
+        println("Credential generated: $vc")
 
-        var vcVerified = CredentialService.verify(issuerDid, vc, Ed25519Signature2018)
+        val vcVerified = CredentialService.verify(issuerDid, vc, Ed25519Signature2018)
         assertTrue(vcVerified)
     }
 
@@ -89,9 +89,9 @@ class CredentialServiceTest {
 
         val vc = CredentialService.sign(keyId, domain, nonce, credOffer, EcdsaSecp256k1Signature2019)
         assertNotNull(vc)
-        println("Credential generated: ${vc}")
+        println("Credential generated: $vc")
 
-        var vcVerified = CredentialService.verify(keyId, vc, EcdsaSecp256k1Signature2019)
+        val vcVerified = CredentialService.verify(keyId, vc, EcdsaSecp256k1Signature2019)
         assertTrue(vcVerified)
         KeyManagementService.deleteKeys(keyId)
     }

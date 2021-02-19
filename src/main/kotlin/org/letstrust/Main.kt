@@ -97,10 +97,10 @@ fun main(args: Array<String>) {
 
     return LetsTrust()
         .subcommands(
-            key().subcommands(gen(), listKeys(), exportKey()),
-            did().subcommands(createDid(), resolveDid(), listDids()),
-            vc().subcommands(issue(), verify()),
-            auth()
+            KeyCommand().subcommands(GenCommand(), ListKeysCommand(), ExportKeyCommand()),
+            Did().subcommands(CreateDidCommand(), ResolveDidCommand(), ListDidsCommand()),
+            VerifiableCredentialsCommand().subcommands(IssueCommand(), VerifyCommand()),
+            Auth()
         )
         //.main(arrayOf("-v", "-c", "mykey=myval", "vc", "-h"))
         //.main(arrayOf("vc", "verify", "vc.json"))

@@ -21,7 +21,7 @@ class SQLiteTest {
         val keyId = kms.generateKeyPair("Secp256k1")
         val keys = kms.loadKeys(keyId)!!
         val db = SqlDbManager
-        var pubKeyStr = Base64.encode(keys.pair.private.encoded).toString()
+        val pubKeyStr = Base64.encode(keys.pair.private.encoded).toString()
 
 
         db.getConnection().use { con ->
@@ -38,7 +38,7 @@ class SQLiteTest {
                         // read the result set
                         println("name = " + rs.getString("name"))
                         println("key = " + rs.getString("key"))
-                        var keyStr = rs.getString("key")
+                        val keyStr = rs.getString("key")
                         println("id = " + rs.getInt("id"))
                         assertEquals(pubKeyStr, keyStr)
                         var key = Base64.from(keyStr).decode()

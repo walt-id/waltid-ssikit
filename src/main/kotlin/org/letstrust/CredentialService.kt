@@ -51,12 +51,12 @@ object CredentialService {
 
         val issuerKeys = KeyManagementService.loadKeys(issuerDid)
 
-        var signer = when (signatureType) {
+        val signer = when (signatureType) {
             SignatureType.Ed25519Signature2018 -> Ed25519Signature2018LdSigner(issuerKeys!!.getPrivateAndPublicKey())
             SignatureType.EcdsaSecp256k1Signature2019 -> EcdsaSecp256k1Signature2019LdSigner(
                 ECKey.fromPrivate(issuerKeys!!.pair.private.encoded)
             )
-            else -> throw Exception("Signature type ${signatureType} not supported")
+            else -> throw Exception("Signature type $signatureType not supported")
         }
         // var signer = Ed25519Signature2018LdSigner(issuerKeys!!.getPrivateAndPublicKey())
         // following is working in version 0.4
@@ -76,7 +76,7 @@ object CredentialService {
 
     fun addProof(credMap: Map<String, String>, ldProof: LdProof): String {
         val signedCredMap = HashMap<String, Any>(credMap)
-        signedCredMap.put("proof", JSONObject(ldProof.toJson()))
+        signedCredMap["proof"] = JSONObject(ldProof.toJson())
         return JSONObject(signedCredMap).toString()
     }
 
@@ -84,7 +84,7 @@ object CredentialService {
         val jsonLdObject = JsonLDObject.fromJson(vc)
         val issuerKeys = KeyManagementService.loadKeys(issuerDid)
 
-        var verifier = when (signatureType) {
+        val verifier = when (signatureType) {
             SignatureType.Ed25519Signature2018 -> Ed25519Signature2018LdVerifier(issuerKeys!!.pair.public.encoded)
             SignatureType.EcdsaSecp256k1Signature2019 -> EcdsaSecp256k1Signature2019LdVerifier(
                 ECKey.fromPublicOnly(

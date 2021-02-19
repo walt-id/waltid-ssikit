@@ -37,7 +37,7 @@ data class Keys(val keyId: String, val pair: KeyPair, val provider: String) {
     var algorithm: String = pair.private.algorithm
 
     // A hack to get ld-signatures to work
-    fun getPrivateAndPublicKey(): ByteArray? {
+    fun getPrivateAndPublicKey(): ByteArray {
 
         val privAndPubKey = ByteArray(64)
         System.arraycopy(getPrivKey(), 0, privAndPubKey, 0, 32)

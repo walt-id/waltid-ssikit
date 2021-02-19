@@ -32,7 +32,7 @@ object KeyManagementService {
     }
 
     fun getSupportedCurveNames(): List<String> {
-        var ecNames = ArrayList<String>()
+        val ecNames = ArrayList<String>()
         for (name in ECNamedCurveTable.getNames()) {
             ecNames.add(name.toString())
         }
@@ -50,18 +50,18 @@ object KeyManagementService {
 
     fun generateKeyPair(algorithm: String): String {
 
-        var keys = when (algorithm) {
+        val keys = when (algorithm) {
             "Ed25519" -> {
                 TinkConfig.register()
-                var keyPair = Ed25519Sign.KeyPair.newKeyPair()
-                var publicKey = BytePublicKey(keyPair.publicKey, "Ed25519")
-                var privateKey = BytePrivateKey(keyPair.privateKey, "Ed25519")
+                val keyPair = Ed25519Sign.KeyPair.newKeyPair()
+                val publicKey = BytePublicKey(keyPair.publicKey, "Ed25519")
+                val privateKey = BytePrivateKey(keyPair.privateKey, "Ed25519")
                 Keys(generateKeyId(), KeyPair(publicKey, privateKey), "Tink")
             }
             "Secp256k1" -> {
-                var key = ECKey(SecureRandom())
-                var publicKey = BytePublicKey(key.pubKey, "Secp256k1")
-                var privateKey = BytePrivateKey(key.privKeyBytes, "Secp256k1")
+                val key = ECKey(SecureRandom())
+                val publicKey = BytePublicKey(key.pubKey, "Secp256k1")
+                val privateKey = BytePrivateKey(key.privKeyBytes, "Secp256k1")
                 Keys(generateKeyId(), KeyPair(publicKey, privateKey), "bitcoinj")
             }
             else -> {
@@ -78,19 +78,19 @@ object KeyManagementService {
     fun generateEd25519KeyPair(): String {
         TinkConfig.register()
 
-        var keyPair = Ed25519Sign.KeyPair.newKeyPair()
-        var publicKey = org.letstrust.BytePublicKey(keyPair.publicKey, "Ed25519")
-        var privateKey = org.letstrust.BytePrivateKey(keyPair.privateKey, "Ed25519")
-        val keys = org.letstrust.Keys(generateKeyId(), KeyPair(publicKey, privateKey), "Tink")
+        val keyPair = Ed25519Sign.KeyPair.newKeyPair()
+        val publicKey = BytePublicKey(keyPair.publicKey, "Ed25519")
+        val privateKey = BytePrivateKey(keyPair.privateKey, "Ed25519")
+        val keys = Keys(generateKeyId(), KeyPair(publicKey, privateKey), "Tink")
         ks.saveKeyPair(keys)
         return keys.keyId
     }
 
     fun generateSecp256k1KeyPair(): String {
-        var key = ECKey(SecureRandom())
-        var publicKey = org.letstrust.BytePublicKey(key.pubKey, "Secp256k1")
-        var privateKey = org.letstrust.BytePrivateKey(key.privKeyBytes, "Secp256k1")
-        val keys = org.letstrust.Keys(generateKeyId(), KeyPair(publicKey, privateKey), "bitcoinj")
+        val key = ECKey(SecureRandom())
+        val publicKey = BytePublicKey(key.pubKey, "Secp256k1")
+        val privateKey = BytePrivateKey(key.privKeyBytes, "Secp256k1")
+        val keys = Keys(generateKeyId(), KeyPair(publicKey, privateKey), "bitcoinj")
         ks.saveKeyPair(keys)
         return keys.keyId
     }
@@ -98,7 +98,7 @@ object KeyManagementService {
     fun generateRsaKeyPair(): String {
         val generator = KeyPairGenerator.getInstance("RSA", "BC")
         generator.initialize(1024)
-        val keys = org.letstrust.Keys(generateKeyId(), generator.generateKeyPair(), "BC")
+        val keys = Keys(generateKeyId(), generator.generateKeyPair(), "BC")
         ks.saveKeyPair(keys)
         return keys.keyId
     }

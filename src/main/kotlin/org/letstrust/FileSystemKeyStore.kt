@@ -127,7 +127,7 @@ object FileSystemKeyStore : KeyStore {
         File("$KEY_DIR_PATH/Alias-$alias").writeText(keyId)
     }
 
-    override fun getKeyId(alias: String): String? {
+    override fun getKeyId(alias: String): String {
         return File("$KEY_DIR_PATH/Alias-$alias").readText()
     }
 }

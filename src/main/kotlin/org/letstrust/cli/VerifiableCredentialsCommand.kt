@@ -10,7 +10,7 @@ import com.github.ajalt.clikt.parameters.types.file
 import org.letstrust.CliConfig
 import java.io.File
 
-class vc : CliktCommand(
+class VerifiableCredentialsCommand : CliktCommand(
     help = """Verifiable Credentials (VCs).
 
         VC related operations like issuing, verifying and revoking VCs
@@ -26,7 +26,7 @@ class vc : CliktCommand(
 }
 
 
-class issue : CliktCommand(
+class IssueCommand : CliktCommand(
     help = """Issues and distributes VC.
         
         """
@@ -51,7 +51,7 @@ class issue : CliktCommand(
     }
 }
 
-class verify : CliktCommand(
+class VerifyCommand : CliktCommand(
     help = """Verifies VC.
         
         """
@@ -60,6 +60,6 @@ class verify : CliktCommand(
     val src: File? by argument().file()
 
     override fun run() {
-        echo("\nVerify VC form file ${src} ...")
+        echo("\nVerify VC form file $src ...")
     }
 }

@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-val DID_CONTEXT_URL: String = "https://w3id.org/did/v1"
+const val DID_CONTEXT_URL: String = "https://w3id.org/did/v1"
 
 @Serializable
 data class Did(

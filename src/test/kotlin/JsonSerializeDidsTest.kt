@@ -84,8 +84,8 @@ class JsonSerializeDidsTest {
     //TODO: NOT WORKING @Test
     fun serializeAllDidWebExamples() {
         File("src/test/resources/dids/web").walkTopDown()
-            .filter { it -> it.toString().endsWith(".json") }
-            .forEach { it ->
+            .filter { it.toString().endsWith(".json") }
+            .forEach {
                 println("serializing: $it")
                 serializeDidWeb(it)
             }

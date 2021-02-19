@@ -24,17 +24,20 @@ class KeyManagementServiceTest {
     fun checkRequiredAlgorithms() {
         val kms = KeyManagementService
         var secp256k1 = false
-        var P521 = false
+        var p521 = false
         kms.getSupportedCurveNames().forEach {
             // println(it)
-            if ("secp256k1".equals(it)) {
-                secp256k1 = true
-            } else if ("P-521".equals(it)) {
-                P521 = true
+            when (it) {
+                "secp256k1" -> {
+                    secp256k1 = true
+                }
+                "P-521" -> {
+                    p521 = true
+                }
             }
         }
         assertTrue(secp256k1)
-        assertTrue(P521)
+        assertTrue(p521)
     }
 
     @Test
@@ -58,7 +61,7 @@ class KeyManagementServiceTest {
         assertEquals(keyId, keysLoaded?.keyId)
         assertNotNull(keysLoaded?.pair?.private?.encoded)
         assertNotNull(keysLoaded?.pair?.public?.encoded)
-        var pubKey = keysLoaded?.pair?.public?.encoded
+        val pubKey = keysLoaded?.pair?.public?.encoded
         assertEquals(32, pubKey?.size)
         assertTrue(kms.getMultiBase58PublicKey(keyId).length > 32)
         kms.deleteKeys(keyId)

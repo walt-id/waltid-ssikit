@@ -59,8 +59,8 @@ class JsonSerializeEbsiTest {
     @Test
     fun trustedIssuerRegistryObjTest() {
 
-        var did = listOf<String>("did:ebsi:00003333", "did:ebsi:00005555")
-        var organizationInfo =
+        val did = listOf("did:ebsi:00003333", "did:ebsi:00005555")
+        val organizationInfo =
             OrganizationInfo(
                 "https://essif.europa.eu/tsr/53",
                 "Great Company",
@@ -75,7 +75,7 @@ class JsonSerializeEbsiTest {
             VerificationMethodCert("EidasCertificate2019", "1088321447"),
             "BD21J4fdlnBvBA+y6D...fnC8Y="
         )
-        val serviceEndpoints = listOf<ServiceEndpoint>(
+        val serviceEndpoints = listOf(
             ServiceEndpoint(
                 "did:example:123456789abcdefghi#agent",
                 "AgentService",
@@ -83,15 +83,15 @@ class JsonSerializeEbsiTest {
             )
         )
         val eidasCertificate = EidasCertificate("123456", "123456", "blob")
-        var issuer = Issuer("Brand Name", did, eidasCertificate, serviceEndpoints, organizationInfo)
-        var accreditationCredentials = listOf<VerifiableCredential>(
+        val issuer = Issuer("Brand Name", did, eidasCertificate, serviceEndpoints, organizationInfo)
+        val accreditationCredentials = listOf(
             VerifiableCredential(
                 listOf(
                     "https://www.w3.org/2018/credentials/v1",
                     "https://essif.europa.eu/schemas/vc/2020/v1"
                 ),
                 "https://essif.europa.eu/tsr/53",
-                listOf<String>("VerifiableCredential", "VerifiableAttestation"),
+                listOf("VerifiableCredential", "VerifiableAttestation"),
                 "did:ebsi:000098765",
                 LocalDateTime.now().withNano(0),
                 CredentialSubject("did:ebsi:00001235", null, listOf("claim1", "claim2")),
@@ -101,7 +101,7 @@ class JsonSerializeEbsiTest {
             )
         )
 
-        var tir = TrustedIssuerRegistry(issuer, accreditationCredentials)
+        val tir = TrustedIssuerRegistry(issuer, accreditationCredentials)
 
         val string = format.encodeToString(tir)
         println(string)
@@ -131,12 +131,12 @@ class JsonSerializeEbsiTest {
 
         val dateStr = DateTimeFormatter.ISO_INSTANT.format(inDateEpochSeconds)
 
-        println("STRING:  " + dateStr) // 2021-02-11T15:38:00Z
+        println("STRING:  $dateStr") // 2021-02-11T15:38:00Z
 
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
         val outDateTime = LocalDateTime.parse(dateStr, formatter)
 
-        println("DATE TIME:  " + outDateTime) // 2021-02-11T15:41:01
+        println("DATE TIME:  $outDateTime") // 2021-02-11T15:41:01
 
     }
 }

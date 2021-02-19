@@ -56,7 +56,7 @@ open class KeyStoreTest {
 
     @Test
     open fun deleteKeysTest() {
-        var keyId = kms.generateKeyPair("Ed25519")
+        val keyId = kms.generateKeyPair("Ed25519")
         var keys = kms.loadKeys(keyId)
         assertNotNull(keys)
 
@@ -67,12 +67,12 @@ open class KeyStoreTest {
 
     @Test
     open fun addAliasTest() {
-        var keyId = kms.generateKeyPair("Ed25519")
-        var testAlias = UUID.randomUUID().toString()
+        val keyId = kms.generateKeyPair("Ed25519")
+        val testAlias = UUID.randomUUID().toString()
         kms.addAlias(keyId, testAlias)
-        var k1 = kms.loadKeys(testAlias)
+        val k1 = kms.loadKeys(testAlias)
         assertNotNull(k1)
-        var k2 = kms.loadKeys(keyId)
+        val k2 = kms.loadKeys(keyId)
         assertNotNull(k2)
         println(k1.pair.private.encoded.contentToString())
         assertEquals(k2.pair.private.encoded.contentToString(), k1.pair.private.encoded.contentToString())

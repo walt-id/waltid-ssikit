@@ -15,7 +15,7 @@ import org.letstrust.DidService
 import org.letstrust.model.encodePretty
 import java.io.File
 
-class did : CliktCommand(
+class Did : CliktCommand(
     help = """Decentralized Identifiers (DIDs).
 
         DID related operations, like registering, updating and deactivating DIDs.
@@ -28,7 +28,7 @@ class did : CliktCommand(
     }
 }
 
-class createDid : CliktCommand(
+class CreateDidCommand : CliktCommand(
     name = "create",
     help = """Create DID.
 
@@ -53,12 +53,12 @@ class createDid : CliktCommand(
         val did = didService.createDid(method)
 
         echo("\nResults:\n")
-        echo("DID created: ${did}")
+        echo("DID created: $did")
 
         val didDoc = didService.resolveDid(did)
 
         if (didDoc == null) {
-            echo("\nCould not resolve: ${did}")
+            echo("\nCould not resolve: $did")
         } else {
             val destName = dest?.name ?: "${didDoc.id?.replace(":", "-")}.json"
             val destFile = File(config.dataDir + "/" + destName)
@@ -66,7 +66,7 @@ class createDid : CliktCommand(
             destFile.createNewFile()
             destFile.writeText(didDoc.encodePretty())
 
-            echo("\nDid document:\n " + didDoc.encodePretty())
+            echo("\ndid document:\n " + didDoc.encodePretty())
         }
 
         if (config.verbose) {
@@ -75,7 +75,7 @@ class createDid : CliktCommand(
     }
 }
 
-class resolveDid : CliktCommand(
+class ResolveDidCommand : CliktCommand(
     name = "resolve",
     help = """Resolve DID.
 
@@ -85,7 +85,7 @@ class resolveDid : CliktCommand(
     val did: String by option(help = "DID to be resolved").required()
 
     override fun run() {
-        echo("Resolving ${did} ...")
+        echo("Resolving $did ...")
 
         val did = didService.resolveDid(did)
 
@@ -93,7 +93,7 @@ class resolveDid : CliktCommand(
     }
 }
 
-class listDids : CliktCommand(
+class ListDidsCommand : CliktCommand(
     name = "list",
     help = """List DIDs
 

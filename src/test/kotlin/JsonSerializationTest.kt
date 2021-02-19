@@ -80,7 +80,7 @@ class JsonSerializationTest {
             if (element !is JsonObject) JsonObject(mapOf("name" to element)) else element
 
         override fun transformSerialize(element: JsonElement): JsonElement =
-            if (element.jsonObject.get("age") == null) element.jsonObject.get("name")!! else element
+            if (element.jsonObject["age"] == null) element.jsonObject["name"]!! else element
     }
 
     @Serializable
