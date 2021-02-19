@@ -1,6 +1,7 @@
 package org.letstrust
 
 import com.google.crypto.tink.config.TinkConfig
+import com.google.crypto.tink.hybrid.HybridConfig
 import com.google.crypto.tink.subtle.Ed25519Sign
 import io.ipfs.multibase.Multibase
 import org.bitcoinj.core.ECKey
@@ -49,10 +50,9 @@ object KeyManagementService {
     }
 
     fun generateKeyPair(algorithm: String): String {
-
         val keys = when (algorithm) {
             "Ed25519" -> {
-                TinkConfig.register()
+                HybridConfig.register()
                 val keyPair = Ed25519Sign.KeyPair.newKeyPair()
                 val publicKey = BytePublicKey(keyPair.publicKey, "Ed25519")
                 val privateKey = BytePrivateKey(keyPair.privateKey, "Ed25519")
@@ -76,7 +76,7 @@ object KeyManagementService {
 
 
     fun generateEd25519KeyPair(): String {
-        TinkConfig.register()
+        HybridConfig.register()
 
         val keyPair = Ed25519Sign.KeyPair.newKeyPair()
         val publicKey = BytePublicKey(keyPair.publicKey, "Ed25519")
@@ -109,7 +109,7 @@ object KeyManagementService {
     }
 
     fun listkeys(): List<Keys> {
-        return ks.listkeys()
+        return ks.listKeys()
     }
 
     fun deleteKeys(keyId: String) {

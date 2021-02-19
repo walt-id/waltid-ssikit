@@ -104,7 +104,7 @@ object SqlKeyStore : KeyStore {
         }
     }
 
-    override fun listkeys(): List<Keys> {
+    override fun listKeys(): List<Keys> {
         val keys = ArrayList<Keys>()
         SqlDbManager.getConnection().use { con ->
             con.prepareStatement("select * from lt_key").use { stmt ->

@@ -32,7 +32,7 @@ object FileSystemKeyStore : KeyStore {
         }
     }
 
-    override fun listkeys(): List<Keys> {
+    override fun listKeys(): List<Keys> {
         TODO("Not yet implemented")
     }
 
