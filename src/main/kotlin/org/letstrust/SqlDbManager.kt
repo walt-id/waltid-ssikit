@@ -26,7 +26,7 @@ object SqlDbManager {
 //        config.addDataSourceProperty("cachePrepStmts", "true")
 //        config.addDataSourceProperty("prepStmtCacheSize", "250")
 //        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048")
-        Logger.getLogger("").level = ALL
+       // Logger.getLogger("").level = ALL
 
         ds = HikariDataSource(config)
 

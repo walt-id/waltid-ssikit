@@ -4,7 +4,13 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.options.*
 import mu.KotlinLogging
+import org.apache.logging.log4j.Level
+import org.apache.logging.log4j.LogManager
+import org.apache.logging.log4j.core.LoggerContext
+import org.apache.logging.log4j.core.config.Configuration
 import org.letstrust.cli.*
+import org.apache.logging.log4j.core.config.LoggerConfig
+
 
 data class CliConfig(var dataDir: String, val properties: MutableMap<String, String>, var verbose: Boolean)
 
@@ -39,11 +45,6 @@ class letstrust : CliktCommand(
 
     override fun run() {
 
-        logger.trace { "trace" }
-        logger.debug { "debug" }
-        logger.info { "info" }
-        logger.error { "error" }
-
         val config = CliConfig(dataDir, HashMap(), verbose)
         for ((k, v) in this.config) {
             config.properties[k] = v
@@ -55,13 +56,30 @@ class letstrust : CliktCommand(
 }
 
 
-fun main(args: Array<String>) = letstrust()
-    .subcommands(
-        key().subcommands(gen(), listKeys(), exportKey()),
-        did().subcommands(createDid(), resolveDid(), listDids()),
-        vc().subcommands(issue(), verify()),
-        auth()
-    )
-    //.main(arrayOf("-v", "-c", "mykey=myval", "vc", "-h"))
-    //.main(arrayOf("vc", "verify", "vc.json"))
-    .main(args)
+fun main(args: Array<String>) {
+
+    val ctx: LoggerContext = LogManager.getContext(false) as LoggerContext
+    val logConf: Configuration = ctx.getConfiguration()
+    val loggerConfig: LoggerConfig = logConf.getLoggerConfig(LogManager.ROOT_LOGGER_NAME)
+
+    args.forEach {
+        if (it.contains("-v") || it.contains("--verbose")) {
+            loggerConfig.level = Level.TRACE
+        }
+    }
+
+    ctx.updateLoggers()
+
+    logger.debug { "Let's Trust CLI started" }
+
+    return letstrust()
+        .subcommands(
+            key().subcommands(gen(), listKeys(), exportKey()),
+            did().subcommands(createDid(), resolveDid(), listDids()),
+            vc().subcommands(issue(), verify()),
+            auth()
+        )
+        //.main(arrayOf("-v", "-c", "mykey=myval", "vc", "-h"))
+        //.main(arrayOf("vc", "verify", "vc.json"))
+        .main(args)
+}
