@@ -16,6 +16,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.code.style>official</kotlin.code.style>
         <kotlin.compiler.jvmTarget>13</kotlin.compiler.jvmTarget>
+        <project.java.version>14</project.java.version>
+        <maven.compiler.release>11</maven.compiler.release>
     </properties>
 
     <repositories>
@@ -64,13 +66,13 @@
                             <goal>compile</goal>
                         </goals>
                     </execution>
-<!--                    <execution>-->
-<!--                        <id>test-compile</id>-->
-<!--                        <phase>test-compile</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>test-compile</goal>-->
-<!--                        </goals>-->
-<!--                    </execution>-->
+                    <!--                    <execution>-->
+                    <!--                        <id>test-compile</id>-->
+                    <!--                        <phase>test-compile</phase>-->
+                    <!--                        <goals>-->
+                    <!--                            <goal>test-compile</goal>-->
+                    <!--                        </goals>-->
+                    <!--                    </execution>-->
                 </executions>
                 <configuration>
                     <compilerPlugins>
@@ -95,18 +97,50 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>testCompile</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <source>${project.java.version}</source>
+                    <target>${project.java.version}</target>
+                    <release>${project.java.version}</release>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <version>3.3.0</version>
                 <executions>
                     <execution>
                         <id>make-assembly</id>
                         <phase>package</phase>
-                        <goals> <goal>single</goal> </goals>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
                         <configuration>
                             <archive>
                                 <manifest>
                                     <mainClass>org.letstrust.MainKt</mainClass>
                                 </manifest>
+                                <manifestEntries>
+                                    <Multi-Release>true</Multi-Release>
+                                </manifestEntries>
                             </archive>
                             <descriptorRefs>
                                 <descriptorRef>jar-with-dependencies</descriptorRef>
@@ -126,11 +160,11 @@
             <!--    needs to be installed manually    <version>0.4-SNAPSHOT</version>-->
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>org.bouncycastle</groupId>-->
-<!--            <artifactId>bcprov-jdk15to18</artifactId>-->
-<!--            <version>1.63</version>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.bouncycastle</groupId>-->
+        <!--            <artifactId>bcprov-jdk15to18</artifactId>-->
+        <!--            <version>1.63</version>-->
+        <!--        </dependency>-->
 
 
         <dependency>
