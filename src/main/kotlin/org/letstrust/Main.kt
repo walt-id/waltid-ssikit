@@ -28,7 +28,7 @@ class letstrust : CliktCommand(
     }
 
     val dataDir: String by option("-d", "--data-dir", help = "Set data directory [./data].")
-        .default(".data")
+        .default("data")
 
     val config: Map<String, String> by option("-c", "--config", help = "Overrides a config key/value pair.").associate()
     val verbose: Boolean by option("-v", "--verbose", help = "Enables verbose mode.")
@@ -49,7 +49,7 @@ class letstrust : CliktCommand(
 fun main(args: Array<String>) = letstrust()
     .subcommands(
         key().subcommands(gen(), listKeys(), exportKey()),
-        did(),
+        did().subcommands(createDid(), resolveDid(), listDids()),
         vc().subcommands(issue(), verify()),
         auth()
     )

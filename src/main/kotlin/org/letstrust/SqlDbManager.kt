@@ -18,7 +18,6 @@ object SqlDbManager {
     private var ds: HikariDataSource? = null
 
     init {
-        println("org.letstrust.SqlDbManager::init() ----------------------------------------------------------------------")
         config.setJdbcUrl(JDBC_URL)
         config.maximumPoolSize = 15
         config.isAutoCommit = false

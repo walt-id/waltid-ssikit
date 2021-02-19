@@ -38,7 +38,6 @@ object SqlKeyStore : KeyStore {
                 stmt.executeQuery().use { rs ->
                     if (rs.next()) {
                         rs.getInt("id").let { key_id ->
-                            print("keyid: " + key_id)
                             con.prepareStatement("insert into lt_key_alias (key_id, alias) values (?, ?)").use { stmt ->
                                 stmt.setInt(1, key_id)
                                 stmt.setString(2, identifier)
@@ -81,7 +80,6 @@ object SqlKeyStore : KeyStore {
                                 stmt.setString(2, keys!!.keyId)
                                 if (stmt.executeUpdate() == 1) {
                                     con.commit()
-                                    println("key ${keys.keyId} saved successfully")
                                 } else {
                                     println("key ${keys.keyId} not saved successfully")
                                     con.rollback()

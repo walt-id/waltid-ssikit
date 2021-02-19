@@ -1,14 +1,11 @@
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.junit.Test
+import org.letstrust.DidService
 import org.letstrust.model.Did
 import org.letstrust.model.DidUrl
 import org.letstrust.model.fromString
-import org.bouncycastle.jce.provider.BouncyCastleProvider
-import org.junit.Before
-import org.junit.Test
-import org.letstrust.DidService
 import java.io.File
-import java.security.Security
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -21,10 +18,10 @@ class DidServiceTest {
     fun readExampleDid(fileName: String) =
         File("$RESOURCES_PATH/dids/${fileName}.json").readText(Charsets.UTF_8)
 
-    @Before
-    fun setup() {
-        Security.addProvider(BouncyCastleProvider())
-    }
+//    @Before
+//    fun setup() {
+//        Security.addProvider(BouncyCastleProvider())
+//    }
 
     @Test
     fun parseDidUrlTest() {
@@ -43,7 +40,7 @@ class DidServiceTest {
     @Test
     fun createResolveDidKeyTest() {
         val ds = DidService
-        val did = ds.createDidKey()
+        val did = ds.createDid("key")
         assertNotNull(did)
         assertTrue(32 < did.length)
         assertEquals("did:key:", did.substring(0, 8))
@@ -56,7 +53,7 @@ class DidServiceTest {
     @Test
     fun createResolveDidWebTest() {
         val ds = DidService
-        val did = ds.createDidWeb()
+        val did = ds.createDid("web")
         assertNotNull(did)
         assertTrue(30 < did.length)
         assertEquals("did:web:", did.substring(0, 8))

@@ -26,7 +26,15 @@ object DidService {
         return ed25519Did(didUrl, keys.getPubKey())
     }
 
-    fun createDidKey(): String {
+    fun createDid(didMethod: String): String {
+        return when (didMethod) {
+            "key" -> createDidKey()
+            "web" -> createDidWeb()
+            else -> TODO("Did creation by method ${didMethod} not supported yet")
+        }
+    }
+
+    internal fun createDidKey(): String {
         val keyId = KeyManagementService.generateKeyPair("Ed25519")
         val keys = KeyManagementService.loadKeys(keyId)!!
 
@@ -39,7 +47,7 @@ object DidService {
         return did
     }
 
-    fun createDidWeb(): String {
+    internal fun createDidWeb(): String {
         val domain = "letstrust.org"
         val path = ":user:phil"
         val keyId = KeyManagementService.generateKeyPair("Ed25519")
