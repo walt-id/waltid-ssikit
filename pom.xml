@@ -15,8 +15,8 @@
         <kotlin.version>1.4.30</kotlin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.code.style>official</kotlin.code.style>
-        <kotlin.compiler.jvmTarget>13</kotlin.compiler.jvmTarget>
-        <project.java.version>14</project.java.version>
+        <kotlin.compiler.jvmTarget>11</kotlin.compiler.jvmTarget>
+        <project.java.version>11</project.java.version>
         <maven.compiler.release>11</maven.compiler.release>
     </properties>
 
