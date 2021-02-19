@@ -13,3 +13,4 @@ target/
 # LetsTrust
 keys/
 *.db
+data/

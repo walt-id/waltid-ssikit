@@ -10,11 +10,12 @@ import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.core.config.Configuration
 import org.letstrust.cli.*
 import org.apache.logging.log4j.core.config.LoggerConfig
+import java.io.File
 
 
 data class CliConfig(var dataDir: String, val properties: MutableMap<String, String>, var verbose: Boolean)
 
-private val logger = KotlinLogging.logger {}
+private val log = KotlinLogging.logger() {}
 
 class letstrust : CliktCommand(
     help = """LetsTrust CLI
@@ -52,25 +53,43 @@ class letstrust : CliktCommand(
         currentContext.obj = config
 
         println("Config loaded: ${config}\n")
+
+        var dataDirFile = File(dataDir)
+        if (!dataDirFile.exists()) {
+            log.info { "Creating data dir at \"${dataDir}\"" }
+            dataDirFile.mkdirs()
+        }
     }
 }
 
 
 fun main(args: Array<String>) {
 
+    log.trace { "trace" }
+    log.debug { "debug" }
+    log.info { "info" }
+    log.warn { "warn" }
+    log.error { "error" }
+
     val ctx: LoggerContext = LogManager.getContext(false) as LoggerContext
     val logConf: Configuration = ctx.getConfiguration()
-    val loggerConfig: LoggerConfig = logConf.getLoggerConfig(LogManager.ROOT_LOGGER_NAME)
+    val logConfig: LoggerConfig = logConf.getLoggerConfig(LogManager.ROOT_LOGGER_NAME)
 
     args.forEach {
         if (it.contains("-v") || it.contains("--verbose")) {
-            loggerConfig.level = Level.TRACE
+            logConfig.level = Level.TRACE
         }
     }
 
     ctx.updateLoggers()
 
-    logger.debug { "Let's Trust CLI started" }
+    log.debug { "Let's Trust CLI started" }
+
+    log.trace { "trace" }
+    log.debug { "debug" }
+    log.info { "info" }
+    log.warn { "warn" }
+    log.error { "error" }
 
     return letstrust()
         .subcommands(

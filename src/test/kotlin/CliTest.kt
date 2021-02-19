@@ -2,27 +2,24 @@ import mu.KotlinLogging
 import org.junit.Test
 import org.slf4j.LoggerFactory;
 
-private val logger = KotlinLogging.logger {}
+private val log = KotlinLogging.logger {}
 
 class CliTest {
 
     @Test
-    fun loggintTest() {
+    fun loggingTest() {
+        println(log.isTraceEnabled())
 
-        val log = LoggerFactory.getLogger("CliTest");
-
-        println(logger.isTraceEnabled())
-        logger.trace { "trace" }
-        logger.debug { "debug" }
-        logger.info { "info" }
-        logger.error { "error" }
+        log.trace { "trace" }
+        log.debug { "debug" }
+        log.info { "info" }
+        log.warn { "warn" }
+        log.error { "error" }
 
         try {
             throw RuntimeException("test")
         } catch (ex: Exception) {
-            logger.error(ex) { "test-exception caught" }
+            log.error(ex) { "test-exception caught" }
         }
-
-
     }
 }

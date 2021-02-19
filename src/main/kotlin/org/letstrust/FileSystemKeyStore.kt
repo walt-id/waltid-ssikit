@@ -13,7 +13,7 @@ import java.security.spec.X509EncodedKeySpec
 
 object FileSystemKeyStore : KeyStore {
 
-    private const val KEY_DIR_PATH = "keys"
+    private const val KEY_DIR_PATH = "data/keys"
 
     init {
         File(KEY_DIR_PATH).mkdirs()
