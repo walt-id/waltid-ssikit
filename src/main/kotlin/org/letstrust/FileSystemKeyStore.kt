@@ -32,6 +32,10 @@ object FileSystemKeyStore : KeyStore {
         }
     }
 
+    override fun listkeys(): List<Keys> {
+        TODO("Not yet implemented")
+    }
+
     private fun storeKeyMetaData(keys: Keys) {
         if (keys.algorithm != null && keys.provider != null) {
             saveKeyFile(keys.keyId, "meta", (keys.algorithm + ";" + keys.provider).toByteArray())

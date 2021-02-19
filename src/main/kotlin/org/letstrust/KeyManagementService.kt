@@ -108,6 +108,10 @@ object KeyManagementService {
         return null
     }
 
+    fun listkeys() : List<Keys>{
+        return ks.listkeys()
+    }
+
     fun deleteKeys(keyId: String) {
         ks.deleteKeyPair(ks.getKeyId(keyId)!!)
     }

@@ -47,6 +47,14 @@ open class KeyStoreTest {
     }
 
     @Test
+    fun listKeysTest() {
+        var keyId = kms.generateEcKeyPair("secp256k1")
+        kms.listkeys().forEach {
+            println("key $it")
+        }
+    }
+
+    @Test
     open fun deleteKeysTest() {
         var keyId = kms.generateKeyPair("Ed25519")
         var keys = kms.loadKeys(keyId)

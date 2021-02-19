@@ -6,6 +6,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
+import org.letstrust.KeyManagementService
 
 
 class key : CliktCommand(
@@ -59,5 +60,9 @@ class listKeys : CliktCommand(
 
     override fun run() {
         echo("List keys")
+
+        KeyManagementService.listkeys().forEach {
+            println("key $it")
+        }
     }
 }

@@ -91,6 +91,38 @@ object SqlKeyStore : KeyStore {
         }
     }
 
+    override fun listkeys(): List<Keys> {
+        val keys = ArrayList<Keys>()
+        SqlDbManager.getConnection().use { con ->
+            con.prepareStatement("select * from lt_key").use { stmt ->
+                stmt.executeQuery().use { rs ->
+                    if (rs.next()) {
+                        var keyId = rs.getString("name")
+                        var algorithm = rs.getString("algorithm")
+                        var provider = rs.getString("provider")
+
+                        if (provider == "BC") {
+                            val kf = KeyFactory.getInstance(algorithm, provider)
+
+                            var pub = kf.generatePublic(X509EncodedKeySpec(Base64.from(rs.getString("pub")).decode()))
+                            var priv = kf.generatePrivate(PKCS8EncodedKeySpec(Base64.from(rs.getString("priv")).decode()))
+
+                            keys.add(Keys(keyId, KeyPair(pub, priv), provider))
+
+                        } else {
+                            var pub = Base64.from(rs.getString("pub")).decode()
+                            var priv = Base64.from(rs.getString("priv")).decode()
+
+                            var keyPair = KeyPair(BytePublicKey(pub, algorithm), BytePrivateKey(priv, algorithm))
+                            keys.add(Keys(keyId, keyPair, provider))
+                        }
+                    }
+                }
+            }
+        }
+        return keys;
+    }
+
     override fun loadKeyPair(keyId: String): Keys? {
         SqlDbManager.getConnection().use { con ->
             con.prepareStatement("select * from lt_key where name = ?").use { stmt ->
@@ -113,7 +145,7 @@ object SqlKeyStore : KeyStore {
                             var priv = Base64.from(rs.getString("priv")).decode()
 
                             var keyPair = KeyPair(BytePublicKey(pub, algorithm), BytePrivateKey(priv, algorithm))
-                            return Keys(keyId,keyPair, provider)
+                            return Keys(keyId, keyPair, provider)
                         }
                     }
                 }

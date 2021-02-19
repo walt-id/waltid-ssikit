@@ -11,7 +11,7 @@ import java.util.logging.Logger
 object SqlDbManager {
 
     // TODO Should be configurable
-    val JDBC_URL = "jdbc:sqlite:data/letstrust.db"
+    val JDBC_URL = "jdbc:sqlite:letstrust.db"
     //val JDBC_URL = "jdbc:sqlite::memory:"
 
     private val config: HikariConfig = HikariConfig()
