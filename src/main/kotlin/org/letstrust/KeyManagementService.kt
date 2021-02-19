@@ -26,6 +26,8 @@ object KeyManagementService {
     // TODO: keystore implementation should be configurable
     private var ks = SqlKeyStore as KeyStore
 
+    private const val RSA_KEY_SIZE = 4096
+
     private fun generateKeyId(): String = "LetsTrust-Key-${UUID.randomUUID().toString().replace("-", "")}"
 
     fun setKeyStore(ks: KeyStore) {
@@ -66,14 +68,13 @@ object KeyManagementService {
             }
             else -> {
                 val generator = KeyPairGenerator.getInstance("RSA", "BC")
-                generator.initialize(1024)
+                generator.initialize(RSA_KEY_SIZE)
                 Keys(generateKeyId(), generator.generateKeyPair(), "BC")
             }
         }
         ks.saveKeyPair(keys)
         return keys.keyId
     }
-
 
     fun generateEd25519KeyPair(): String {
         HybridConfig.register()
@@ -97,7 +98,7 @@ object KeyManagementService {
 
     fun generateRsaKeyPair(): String {
         val generator = KeyPairGenerator.getInstance("RSA", "BC")
-        generator.initialize(1024)
+        generator.initialize(RSA_KEY_SIZE)
         val keys = Keys(generateKeyId(), generator.generateKeyPair(), "BC")
         ks.saveKeyPair(keys)
         return keys.keyId
