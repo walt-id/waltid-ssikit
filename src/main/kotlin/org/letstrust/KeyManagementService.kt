@@ -1,14 +1,13 @@
 package org.letstrust
 
-import com.google.crypto.tink.config.TinkConfig
+//import org.bouncycastle.jce.ECNamedCurveTable
+//import org.bouncycastle.jce.provider.BouncyCastleProvider
 import com.google.crypto.tink.hybrid.HybridConfig
 import com.google.crypto.tink.subtle.Ed25519Sign
 import io.ipfs.multibase.Multibase
 import org.bitcoinj.core.ECKey
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.jce.provider.BouncyCastleProvider
-//import org.bouncycastle.jce.ECNamedCurveTable
-//import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.SecureRandom
@@ -109,7 +108,7 @@ object KeyManagementService {
         return null
     }
 
-    fun listkeys(): List<Keys> {
+    fun listKeys(): List<Keys> {
         return ks.listKeys()
     }
 

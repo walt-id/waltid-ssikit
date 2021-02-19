@@ -65,7 +65,7 @@ class ListKeysCommand : CliktCommand(
     override fun run() {
         echo("List keys")
 
-        KeyManagementService.listkeys().forEach {
+        KeyManagementService.listKeys().forEach {
             println("key $it")
         }
     }

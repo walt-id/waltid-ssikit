@@ -49,7 +49,7 @@ open class KeyStoreTest {
     @Test
     fun listKeysTest() {
         var keyId = kms.generateEcKeyPair("secp256k1")
-        kms.listkeys().forEach {
+        kms.listKeys().forEach {
             println("key $it")
         }
     }
