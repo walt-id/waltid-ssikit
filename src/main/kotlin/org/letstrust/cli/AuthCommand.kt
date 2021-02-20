@@ -6,7 +6,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
 import org.letstrust.CliConfig
 
-class Auth : CliktCommand(
+class AuthCommand : CliktCommand(
 
     help = """Authentication.
 

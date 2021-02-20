@@ -15,7 +15,7 @@ import org.letstrust.DidService
 import org.letstrust.model.encodePretty
 import java.io.File
 
-class Did : CliktCommand(
+class DidCommand : CliktCommand(
     help = """Decentralized Identifiers (DIDs).
 
         DID related operations, like registering, updating and deactivating DIDs.
