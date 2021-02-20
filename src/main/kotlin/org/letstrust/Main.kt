@@ -69,11 +69,6 @@ class LetsTrust : CliktCommand(
 
 
 fun main(args: Array<String>) {
-    log.trace { "trace" }
-    log.debug { "debug" }
-    log.info { "info" }
-    log.warn { "warn" }
-    log.error { "error" }
 
     val ctx: LoggerContext = LogManager.getContext(false) as LoggerContext
     val logConf: Configuration = ctx.configuration
@@ -82,18 +77,12 @@ fun main(args: Array<String>) {
     args.forEach {
         if (it.contains("-v") || it.contains("--verbose")) {
             logConfig.level = Level.TRACE
+            ctx.updateLoggers()
+            log.debug { "Setting log-level to ${Level.TRACE}" }
         }
     }
 
-    ctx.updateLoggers()
-
     log.debug { "Let's Trust CLI started" }
-
-    log.trace { "trace" }
-    log.debug { "debug" }
-    log.info { "info" }
-    log.warn { "warn" }
-    log.error { "error" }
 
     return LetsTrust()
         .subcommands(

@@ -66,7 +66,7 @@ class ListKeysCommand : CliktCommand(
         echo("List keys")
 
         KeyManagementService.listKeys().forEach {
-            println("key $it")
+            println("- $it")
         }
     }
 }

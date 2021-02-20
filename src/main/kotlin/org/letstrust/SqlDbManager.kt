@@ -2,9 +2,11 @@ package org.letstrust
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import mu.KotlinLogging
 import java.sql.Connection
 import java.sql.Statement
 
+private val log = KotlinLogging.logger() {}
 
 object SqlDbManager {
 
@@ -15,9 +17,12 @@ object SqlDbManager {
     private val config: HikariConfig = HikariConfig()
     private var ds: HikariDataSource? = null
 
+    // TODO: Should be configurable
+    val recreateDb = false
+
     init {
         config.jdbcUrl = JDBC_URL
-        config.maximumPoolSize = 15
+        config.maximumPoolSize = 1
         config.isAutoCommit = false
 //        config.setUsername("user")
 //        config.setPassword("password")
@@ -32,11 +37,17 @@ object SqlDbManager {
     }
 
     fun createDatabase() {
+
         getConnection().use { con ->
             con.createStatement().use { stmt ->
 
+                if (recreateDb) {
+                    log.debug { "Recreating database" }
+                    stmt.executeUpdate("drop table if exists lt_key")
+                    stmt.executeUpdate("drop table if exists lt_key_alias")
+                }
+
                 // Create lt_key
-                stmt.executeUpdate("drop table if exists lt_key")
                 stmt.executeUpdate(
                     "create table if not exists lt_key(" +
                             "id integer primary key autoincrement, " +
@@ -48,7 +59,6 @@ object SqlDbManager {
                 )
 
                 // Create lt_key_alias
-                stmt.executeUpdate("drop table if exists lt_key_alias")
                 stmt.executeUpdate(
                     "create table if not exists lt_key_alias(" +
                             "id integer primary key autoincrement, " +

@@ -66,7 +66,7 @@ class CreateDidCommand : CliktCommand(
             destFile.createNewFile()
             destFile.writeText(didDoc.encodePretty())
 
-            echo("\ndid document:\n " + didDoc.encodePretty())
+            echo("\ndid document:\n" + didDoc.encodePretty())
         }
 
         if (config.verbose) {
