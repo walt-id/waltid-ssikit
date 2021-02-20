@@ -1,6 +1,7 @@
 package org.letstrust
 
 import org.letstrust.model.*
+import java.util.*
 
 object DidService {
 
@@ -26,34 +27,39 @@ object DidService {
         return ed25519Did(didUrl, keys.getPubKey())
     }
 
-    fun createDid(didMethod: String): String {
+    fun createDid(didMethod: String, keys: Keys? = null): String {
+
+        val didKey = if (keys != null) keys else {
+            val keyId = KeyManagementService.generateKeyPair("Ed25519")
+            KeyManagementService.loadKeys(keyId)
+        }!!
+
         return when (didMethod) {
-            "key" -> createDidKey()
-            "web" -> createDidWeb()
+            "key" -> createDidKey(didKey)
+            "web" -> createDidWeb(didKey)
             else -> TODO("did creation by method $didMethod not supported yet")
         }
     }
 
-    internal fun createDidKey(): String {
-        val keyId = KeyManagementService.generateKeyPair("Ed25519")
-        val keys = KeyManagementService.loadKeys(keyId)!!
+    internal fun createDidKey(didKey: Keys): String {
 
-        val identifier = convertEd25519PublicKeyToMultiBase58Btc(keys.getPubKey())
+        val identifier = convertEd25519PublicKeyToMultiBase58Btc(didKey.getPubKey())
 
         val did = "did:key:$identifier"
 
-        KeyManagementService.addAlias(keyId, did)
+        KeyManagementService.addAlias(didKey.keyId, did)
 
         return did
     }
 
-    internal fun createDidWeb(): String {
+    internal fun createDidWeb(didKey: Keys): String {
         val domain = "letstrust.org"
-        val path = ":user:phil"
-        val keyId = KeyManagementService.generateKeyPair("Ed25519")
-        val didUrl = DidUrl("web", "" + domain + path, keyId)
+        val username = UUID.randomUUID().toString().replace("-", "")
+        val path = ":user:$username"
 
-        KeyManagementService.addAlias(keyId, didUrl.did)
+        val didUrl = DidUrl("web", "" + domain + path, didKey.keyId)
+
+        KeyManagementService.addAlias(didKey.keyId, didUrl.did)
 
         return didUrl.did
     }

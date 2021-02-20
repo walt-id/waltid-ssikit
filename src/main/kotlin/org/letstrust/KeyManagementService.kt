@@ -105,7 +105,6 @@ object KeyManagementService {
 
     fun loadKeys(keyId: String): Keys? {
         return ks.getKeyId(keyId)?.let { it -> ks.loadKeyPair(it) }
-        return null
     }
 
     fun listKeys(): List<Keys> {

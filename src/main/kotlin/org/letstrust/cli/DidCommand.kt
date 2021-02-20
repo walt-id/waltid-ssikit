@@ -12,6 +12,7 @@ import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.file
 import org.letstrust.CliConfig
 import org.letstrust.DidService
+import org.letstrust.KeyManagementService
 import org.letstrust.model.encodePretty
 import java.io.File
 
@@ -50,7 +51,9 @@ class CreateDidCommand : CliktCommand(
 
         echo("Registering did:${method} (key: ${keyAlias}) ...")
 
-        val did = didService.createDid(method)
+        var keys = KeyManagementService.loadKeys(keyAlias)
+
+        val did = didService.createDid(method, keys)
 
         echo("\nResults:\n")
         echo("DID created: $did")

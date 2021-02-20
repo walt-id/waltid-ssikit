@@ -36,6 +36,7 @@ object DateAsIso8601UtcStringSerializer : KSerializer<LocalDateTime> {
     }
 }
 
+@kotlinx.serialization.ExperimentalSerializationApi
 @Serializer(forClass = VerificationMethodCert::class)
 object VerificationMethodCertSerializer :
     JsonTransformingSerializer<VerificationMethodCert>(VerificationMethodCert.serializer()) {
