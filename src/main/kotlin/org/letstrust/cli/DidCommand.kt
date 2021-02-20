@@ -39,12 +39,12 @@ class CreateDidCommand : CliktCommand(
     val didService = DidService
     val config: CliConfig by requireObject()
     val dest: File? by argument().file().optional()
-    val method: String by option("--did-method", "-m", help = "Specifiy DID method [key, web, ebsi]").choice(
+    val method: String by option("-m", "--did-method", help = "Specifiy DID method [key, web, ebsi]").choice(
         "key",
         "web",
         "ebsi"
     ).required()
-    val keyAlias: String by option("--key-alias", "-a", help = "Specific key alias").default("default")
+    val keyAlias: String by option("-a", "--key-alias", help = "Specific key alias").default("default")
 
     override fun run() {
 

@@ -29,15 +29,22 @@ class GenCommand : CliktCommand(
         """
 ) {
 
-    val keyAlias: String by option("--key-alias", "-a", help = "Specific key alias").prompt()
-    val algorithm: String by option("--algorithm", "-g", help = "Key algorithm [Secp256k1, Ed25519]").choice(
+    // val keyAlias: String by option("--key-alias", "-a", help = "Specific key alias").prompt()
+    val algorithm: String by option("-g", "--algorithm", help = "Key algorithm [Secp256k1, Ed25519]").choice(
         "Ed25519",
         "Secp256k1",
         "RSA"
     ).default("Ed25519")
 
     override fun run() {
-        echo("Generating key with $algorithm")
+        echo("Generating $algorithm key pair")
+        val keyId = when (algorithm) {
+            "Ed25519" -> KeyManagementService.generateEd25519KeyPair()
+            "Secp256k1" -> KeyManagementService.generateSecp256k1KeyPair()
+            "RSA" -> KeyManagementService.generateRsaKeyPair()
+            else -> IllegalArgumentException("Algorithm not supported")
+        }
+        echo("Key \"$keyId\" generated")
     }
 }
 
@@ -52,6 +59,7 @@ class ExportKeyCommand : CliktCommand(
 
     override fun run() {
         echo("Exporting key $keyId")
+        TODO("Key export not implemented yet")
     }
 }
 
