@@ -4,6 +4,8 @@ import org.apache.commons.io.IOUtils
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.security.KeyFactory
 import java.security.KeyPair
 import java.security.PrivateKey
@@ -33,7 +35,17 @@ object FileSystemKeyStore : KeyStore {
     }
 
     override fun listKeys(): List<Keys> {
-        TODO("Not yet implemented")
+        val keys = ArrayList<Keys>()
+        Files.walk(Paths.get(KEY_DIR_PATH))
+            .filter { it -> Files.isRegularFile(it) }
+            .filter { it -> it.toString().endsWith(".meta") }
+            .forEach {
+                val keyId = it.fileName.toString().substringBefore(".")
+                this.loadKeyPair(keyId)?.let {
+                    keys.add(it)
+                }
+            }
+        return keys
     }
 
     private fun storeKeyMetaData(keys: Keys) {

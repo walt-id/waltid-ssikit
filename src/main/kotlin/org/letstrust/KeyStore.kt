@@ -6,5 +6,5 @@ interface KeyStore {
     fun listKeys(): List<Keys>
     fun loadKeyPair(keyId: String): Keys?
     fun deleteKeyPair(keyId: String)
-    fun addAlias(keyId: String, identifier: String)
+    fun addAlias(keyId: String, alias: String)
 }
