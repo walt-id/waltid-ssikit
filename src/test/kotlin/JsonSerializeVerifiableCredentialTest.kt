@@ -58,6 +58,16 @@ class JsonSerializeVerifiableCredentialTest {
         assertEquals(vc, obj)
     }
 
+    @Test
+    fun vcTemplatesTest() {
+        File("templates/").walkTopDown()
+            .filter { it.toString().endsWith(".json") }
+            .forEach {
+                println("serializing: $it")
+                val obj = Json.decodeFromString<VerifiableCredential>(it.readText())
+                println(obj)
+            }
+    }
 
     //TODO not all files working yet @Test
     fun vcExamplesTest() {
@@ -65,9 +75,6 @@ class JsonSerializeVerifiableCredentialTest {
             .filter { it.toString().endsWith(".json") }
             .forEach {
                 println("serializing: $it")
-
             }
-
-
     }
 }

@@ -40,10 +40,11 @@ object CredentialService {
 
         val jsonLdObject: JsonLDObject = JsonLDObject.fromJson(jsonCred)
         val confLoader = LDSecurityContexts.DOCUMENT_LOADER as ConfigurableDocumentLoader
+
         confLoader.isEnableHttp = true
         confLoader.isEnableHttps = true
         confLoader.isEnableFile = true
-        confLoader.isEnableLocalCache = false
+        confLoader.isEnableLocalCache = true
         jsonLdObject.documentLoader = LDSecurityContexts.DOCUMENT_LOADER
 
         // TODO set current date
@@ -70,7 +71,7 @@ object CredentialService {
         val proof = signer.sign(jsonLdObject)
         // println("proof")
         // println(proof)
-        return jsonLdObject.toJson()
+        return jsonLdObject.toJson(true)
     }
 
 
@@ -82,6 +83,15 @@ object CredentialService {
 
     fun verify(issuerDid: String, vc: String, signatureType: SignatureType): Boolean {
         val jsonLdObject = JsonLDObject.fromJson(vc)
+
+        val confLoader = LDSecurityContexts.DOCUMENT_LOADER as ConfigurableDocumentLoader
+
+        confLoader.isEnableHttp = true
+        confLoader.isEnableHttps = true
+        confLoader.isEnableFile = true
+        confLoader.isEnableLocalCache = true
+        jsonLdObject.documentLoader = LDSecurityContexts.DOCUMENT_LOADER
+
         val issuerKeys = KeyManagementService.loadKeys(issuerDid)
 
         val verifier = when (signatureType) {

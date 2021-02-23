@@ -20,7 +20,7 @@ data class VerifiableCredential(
     val credentialSubject: CredentialSubject,
     val credentialStatus: CredentialStatus? = null,
     val credentialSchema: CredentialSchema? = null,
-    val proof: Proof,
+    val proof: Proof? = null,
     val another: JsonObject? = null
 )
 
