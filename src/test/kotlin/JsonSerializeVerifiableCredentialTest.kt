@@ -64,7 +64,7 @@ class JsonSerializeVerifiableCredentialTest {
             .filter { it.toString().endsWith(".json") }
             .forEach {
                 println("serializing: $it")
-                val obj = Json.decodeFromString<VerifiableCredential>(it.readText())
+                val obj = Json { ignoreUnknownKeys = true }.decodeFromString<VerifiableCredential>(it.readText())
                 println(obj)
             }
     }

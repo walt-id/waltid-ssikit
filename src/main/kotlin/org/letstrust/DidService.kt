@@ -71,6 +71,9 @@ object DidService {
     }
 
     fun listDids(): List<String> {
+
+        // File("data").walkTopDown().filter {  it -> Files.isRegularFile(it)  }
+
         return Files.walk(Path.of("data"))
             .filter { it -> Files.isRegularFile(it) }
             .filter { it -> it.toString().endsWith(".json") }

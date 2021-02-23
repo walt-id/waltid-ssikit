@@ -13,7 +13,7 @@ data class VerifiableCredential(
 
     @SerialName("@context")
     val context: List<String>,
-    val id: String,
+    val id: String? = null,
     val type: List<String>,
     val issuer: String,
     val issuanceDate: LocalDateTime,

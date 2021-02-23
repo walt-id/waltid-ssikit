@@ -4,6 +4,7 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.optional
+import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
 import com.github.ajalt.clikt.parameters.types.file
@@ -12,7 +13,6 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.letstrust.CliConfig
 import org.letstrust.CredentialService
-import org.letstrust.DidService
 import org.letstrust.model.CredentialSchema
 import org.letstrust.model.CredentialStatus
 import org.letstrust.model.CredentialSubject
@@ -51,7 +51,7 @@ class IssueCommand : CliktCommand(
         "--issuer-did",
         "-i",
         help = "Specific DID of the VC subject (receiver of VC)"
-    ).prompt()
+    ).default("did:key:z6MkrBJ2W4PLE5J1BtnEaSC7xSbx82whvpQRMcEWFwr2NnE4")
 
     val cs = CredentialService
     val subjectDid: String by option(
@@ -66,7 +66,7 @@ class IssueCommand : CliktCommand(
         // val credOffer = readCredOffer("WorkHistory")
 
 
-        val issuerDid = DidService.createDid("key")
+        //val issuerDid = DidService.createDid("key")
         val domain = "example.com"
         val nonce: String? = null
 

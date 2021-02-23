@@ -1,3 +1,6 @@
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.json.JSONObject
 import org.junit.Before
@@ -7,6 +10,8 @@ import org.letstrust.CredentialService.SignatureType.EcdsaSecp256k1Signature2019
 import org.letstrust.CredentialService.SignatureType.Ed25519Signature2018
 import org.letstrust.DidService
 import org.letstrust.KeyManagementService
+import org.letstrust.model.VerifiableCredential
+import org.letstrust.model.VerifiablePresentation
 import java.io.File
 import java.security.Security
 import kotlin.test.assertNotNull
@@ -17,6 +22,9 @@ class CredentialServiceTest {
     private val RESOURCES_PATH: String = "src/test/resources"
 
     fun readCredOffer(fileName: String) =
+        File("$RESOURCES_PATH/verifiable-credentials/${fileName}.json").readText(Charsets.UTF_8)
+
+    fun readVerifiableCredential(fileName: String) =
         File("$RESOURCES_PATH/verifiable-credentials/${fileName}.json").readText(Charsets.UTF_8)
 
     @Before
@@ -94,6 +102,25 @@ class CredentialServiceTest {
         val vcVerified = CredentialService.verify(keyId, vc, EcdsaSecp256k1Signature2019)
         assertTrue(vcVerified)
         KeyManagementService.deleteKeys(keyId)
+    }
+
+    @Test
+    fun issueVerifablePresentation() {
+
+        val vcStr = readVerifiableCredential("vc-simple-example")
+        val vc = Json.decodeFromString<VerifiableCredential>(vcStr)
+        val vpIn = VerifiablePresentation(listOf("https://www.w3.org/2018/credentials/v1"), "id", listOf("VerifiablePresentation"), listOf(vc, vc), null)
+        val vpInputStr = Json { prettyPrint = true }.encodeToString(vpIn)
+
+        print(vpInputStr)
+
+        val issuerDid = DidService.createDid("key")
+        val domain = "example.com"
+        val nonce: String? = null
+
+        val vp = CredentialService.sign(issuerDid, domain, nonce, vpInputStr, Ed25519Signature2018)
+        assertNotNull(vp)
+        println("Verifiable Presentation generated: $vp")
     }
 
 }

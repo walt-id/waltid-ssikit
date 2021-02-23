@@ -2,7 +2,6 @@ package org.letstrust
 
 import foundation.identity.jsonld.ConfigurableDocumentLoader
 import foundation.identity.jsonld.JsonLDObject
-import foundation.identity.jsonld.JsonLDUtils
 import info.weboftrust.ldsignatures.LdProof
 import info.weboftrust.ldsignatures.crypto.provider.Ed25519Provider
 import info.weboftrust.ldsignatures.crypto.provider.impl.TinkEd25519Provider
@@ -21,7 +20,8 @@ object CredentialService {
     // Supported signatures
     enum class SignatureType {
         Ed25519Signature2018,
-        EcdsaSecp256k1Signature2019
+        EcdsaSecp256k1Signature2019,
+        Ed25519Signature2020LdSigner
     }
 
     val kms = KeyManagementService
@@ -47,9 +47,6 @@ object CredentialService {
         confLoader.isEnableLocalCache = true
         jsonLdObject.documentLoader = LDSecurityContexts.DOCUMENT_LOADER
 
-        // TODO set current date
-        val created = JsonLDUtils.DATE_FORMAT.parse("2017-10-24T05:33:31Z")
-
         val issuerKeys = KeyManagementService.loadKeys(issuerDid)
 
         val signer = when (signatureType) {
@@ -63,14 +60,13 @@ object CredentialService {
         // following is working in version 0.4
         // var signer = Ed25519Signature2020LdSigner(issuerKeys!!.getPrivateAndPublicKey())
 
-
         signer.creator = URI.create(issuerDid)
-        signer.created = created
+        signer.created = Date() // Use the current date
         signer.domain = domain
         signer.nonce = nonce
         val proof = signer.sign(jsonLdObject)
-        // println("proof")
-        // println(proof)
+        println("proof")
+        println(proof)
         return jsonLdObject.toJson(true)
     }
 
@@ -101,6 +97,7 @@ object CredentialService {
                     issuerKeys!!.pair.public.encoded
                 )
             )
+            else -> throw Exception("Signature type $signatureType not supported")
         }
         // following is working in version 0.4
         // val verifier = Ed25519Signature2020LdVerifier(issuerKeys!!.publicKey)
