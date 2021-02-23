@@ -32,10 +32,10 @@ object CredentialService {
 
     fun sign(
         issuerDid: String,
-        domain: String,
-        nonce: String?,
         jsonCred: String,
-        signatureType: SignatureType
+        signatureType: SignatureType,
+        domain: String? = null,
+        nonce: String? = null
     ): String {
 
         val jsonLdObject: JsonLDObject = JsonLDObject.fromJson(jsonCred)
@@ -65,11 +65,10 @@ object CredentialService {
         signer.domain = domain
         signer.nonce = nonce
         val proof = signer.sign(jsonLdObject)
-        println("proof")
-        println(proof)
+        // println("proof")
+        // println(proof)
         return jsonLdObject.toJson(true)
     }
-
 
     fun addProof(credMap: Map<String, String>, ldProof: LdProof): String {
         val signedCredMap = HashMap<String, Any>(credMap)

@@ -1,0 +1,27 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1"
+  ],
+  "id": "XXX",
+  "type": [
+    "VerifiableCredential",
+    "VerifiableAttestation"
+  ],
+  "issuer": "XXX",
+  "issuanceDate": "2021-12-03T10:15:30Z",
+  "credentialSubject": {
+    "id": "XXX",
+    "authorizationClaims": [
+      "claim1",
+      "claim2"
+    ]
+  },
+  "credentialStatus": {
+    "id": "https://essif.europa.eu/status",
+    "type": "CredentialsStatusList2020"
+  },
+  "credentialSchema": {
+    "id": "https://essif.europa.eu/tsr/education/CSR1224.json",
+    "type": "JsonSchemaValidator2018"
+  }
+}

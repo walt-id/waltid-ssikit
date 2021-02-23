@@ -41,7 +41,7 @@ class CredentialServiceTest {
         val credMap: Map<String, String> = mapOf("one" to "two")
         val cred = JSONObject(credMap).toString()
 
-        val vc = CredentialService.sign(issuerDid, domain, nonce, cred, Ed25519Signature2018)
+        val vc = CredentialService.sign(issuerDid, cred, Ed25519Signature2018, domain, nonce)
         assertNotNull(vc)
         println("Credential generated: $vc")
 
@@ -60,7 +60,7 @@ class CredentialServiceTest {
         val credMap: Map<String, String> = mapOf("one" to "two")
         val cred = JSONObject(credMap).toString()
 
-        val vc = CredentialService.sign(keyId, domain, nonce, cred, EcdsaSecp256k1Signature2019)
+        val vc = CredentialService.sign(keyId, cred, EcdsaSecp256k1Signature2019, domain, nonce)
         assertNotNull(vc)
         println("Credential generated: $vc")
 
@@ -78,7 +78,7 @@ class CredentialServiceTest {
         val domain = "example.com"
         val nonce: String? = null
 
-        val vc = CredentialService.sign(issuerDid, domain, nonce, credOffer, Ed25519Signature2018)
+        val vc = CredentialService.sign(issuerDid, credOffer, Ed25519Signature2018, domain, nonce)
         assertNotNull(vc)
         println("Credential generated: $vc")
 
@@ -95,7 +95,7 @@ class CredentialServiceTest {
         val domain = "example.com"
         val nonce: String? = null
 
-        val vc = CredentialService.sign(keyId, domain, nonce, credOffer, EcdsaSecp256k1Signature2019)
+        val vc = CredentialService.sign(keyId, credOffer, EcdsaSecp256k1Signature2019, domain, nonce)
         assertNotNull(vc)
         println("Credential generated: $vc")
 
@@ -118,7 +118,7 @@ class CredentialServiceTest {
         val domain = "example.com"
         val nonce: String? = null
 
-        val vp = CredentialService.sign(issuerDid, domain, nonce, vpInputStr, Ed25519Signature2018)
+        val vp = CredentialService.sign(issuerDid, vpInputStr, Ed25519Signature2018, domain, nonce)
         assertNotNull(vp)
         println("Verifiable Presentation generated: $vp")
     }

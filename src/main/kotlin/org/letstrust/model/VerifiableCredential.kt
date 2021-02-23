@@ -12,100 +12,100 @@ import java.time.LocalDateTime
 data class VerifiableCredential(
 
     @SerialName("@context")
-    val context: List<String>,
-    val id: String? = null,
-    val type: List<String>,
-    val issuer: String,
-    val issuanceDate: LocalDateTime,
-    val credentialSubject: CredentialSubject,
-    val credentialStatus: CredentialStatus? = null,
-    val credentialSchema: CredentialSchema? = null,
-    val proof: Proof? = null,
-    val another: JsonObject? = null
+    var context: List<String>,
+    var id: String? = null,
+    var type: List<String>,
+    var issuer: String,
+    var issuanceDate: LocalDateTime,
+    var credentialSubject: CredentialSubject,
+    var credentialStatus: CredentialStatus? = null,
+    var credentialSchema: CredentialSchema? = null,
+    var proof: Proof? = null,
+    var another: JsonObject? = null
 )
 
 @Serializable
 data class ServiceEndpoint(
-    val id: String,
-    val type: String,
+    var id: String,
+    var type: String,
     var serviceEndpoint: String,
 )
 
 @Serializable
 data class CredentialSchema(
-    val id: String,
-    val type: String
+    var id: String,
+    var type: String
 )
 
 @Serializable
 data class VerifiableCredentialPRC(
 
     @SerialName("@context")
-    val context: List<String>,
-    val type: List<String>,
-    val credentialSubject: CredentialSubjectPRC,
-    val issuer: String,
-    val issuanceDate: LocalDateTime,
-    val identifier: String? = null,
-    val name: String? = null,
-    val description: String? = null,
-    val proof: Proof,
-    val another: JsonObject? = null
+    var context: List<String>,
+    var type: List<String>,
+    var credentialSubject: CredentialSubjectPRC,
+    var issuer: String,
+    var issuanceDate: LocalDateTime,
+    var identifier: String? = null,
+    var name: String? = null,
+    var description: String? = null,
+    var proof: Proof,
+    var another: JsonObject? = null
 )
 
 @Serializable
 data class CredentialSubjectPRC(
-    val did: String? = null,
-    val id: String? = null,
-    val type: List<String>? = null,
-    val authorizationClaims: List<String>? = null,
-    val naturalPerson: NaturalPerson? = null,
-    val givenName: String? = null,
-    val familyName: String? = null,
-    val gender: String? = null,
-    val image: String? = null,
-    val residentSince: String? = null,
-    val lprCategory: String? = null,
-    val lprNumber: String? = null,
-    val commuterClassification: String? = null,
-    val birthCountry: String? = null,
-    val birthDate: String? = null,
+    var did: String? = null,
+    var id: String? = null,
+    var type: List<String>? = null,
+    var authorizationClaims: List<String>? = null,
+    var naturalPerson: NaturalPerson? = null,
+    var givenName: String? = null,
+    var familyName: String? = null,
+    var gender: String? = null,
+    var image: String? = null,
+    var residentSince: String? = null,
+    var lprCategory: String? = null,
+    var lprNumber: String? = null,
+    var commuterClassification: String? = null,
+    var birthCountry: String? = null,
+    var birthDate: String? = null,
 )
 
 @Serializable
 data class CredentialSubject(
-    val did: String? = null,
-    val id: String? = null,
-    val authorizationClaims: List<String>? = null,
-    val naturalPerson: NaturalPerson? = null
+    var did: String? = null,
+    var id: String? = null,
+    var authorizationClaims: List<String>? = null,
+    var naturalPerson: NaturalPerson? = null
 )
 
 @Serializable
 data class NaturalPerson(
-    val did: String? = null,
-    val publicKey: String? = null,
-    val serviceEndpoints: List<ServiceEndpoint>
+    var did: String? = null,
+    var publicKey: String? = null,
+    var serviceEndpoints: List<ServiceEndpoint>
 )
 
 @Serializable
 data class CredentialStatus(
-    val id: String,
-    val type: String
+    var id: String,
+    var type: String
 )
 
 @Serializable
 data class Proof(
-    val type: String,
-    val created: LocalDateTime,
-    val proofPurpose: String,
+    var type: String,
+    var created: LocalDateTime,
+    var proofPurpose: String,
     @Serializable(with = VerificationMethodCertSerializer::class)
-    val verificationMethod: VerificationMethodCert,
-    val proofValue: String? = null,
-    val jws: String? = null
+    var verificationMethod: VerificationMethodCert,
+    var proofValue: String? = null,
+    var jws: String? = null
 )
 
 @Serializable
 data class VerificationMethodCert(
-    val type: String? = null,
-    val CertSerial: String? = null
+    var type: String? = null,
+    var CertSerial: String? = null
 )
