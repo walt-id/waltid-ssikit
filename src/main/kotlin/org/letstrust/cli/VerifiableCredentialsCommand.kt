@@ -6,7 +6,6 @@ import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.optional
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.clikt.parameters.options.prompt
 import com.github.ajalt.clikt.parameters.types.file
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -44,7 +43,7 @@ fun readCredOffer(templateName: String) =
     File("templates/${templateName}.json").readText(Charsets.UTF_8)
 
 class IssueVcCommand : CliktCommand(
-    name ="issue",
+    name = "issue",
     help = """Issues and distributes VC.
         
         """
@@ -74,13 +73,13 @@ class IssueVcCommand : CliktCommand(
         val vcReq = Json.decodeFromString<VerifiableCredential>(File(vcTemplateName).readText())
 
         // Populating VC with data
-        val vcId =  Timestamp.valueOf(LocalDateTime.now()).time
+        val vcId = Timestamp.valueOf(LocalDateTime.now()).time
         vcReq.id = vcId.toString()
         vcReq.issuer = issuerDid
         vcReq.credentialSubject.id = subjectDid
         vcReq.issuanceDate = LocalDateTime.now()
 
-        val vcReqEnc = Json{prettyPrint = true}.encodeToString(vcReq)
+        val vcReqEnc = Json { prettyPrint = true }.encodeToString(vcReq)
 
         log.debug { "Credential request:\n$vcReqEnc" }
 
@@ -99,7 +98,7 @@ class IssueVcCommand : CliktCommand(
 }
 
 class PresentVcCommand : CliktCommand(
-    name ="present",
+    name = "present",
     help = """Present VC.
         
         """
@@ -131,7 +130,6 @@ class PresentVcCommand : CliktCommand(
             CredentialSchema("https://essif.europa.eu/tsr/education/CSR1224.json", "JsonSchemaValidator2018")
         )
 
-
         val vcOfferEnc = Json.encodeToString(vcOffer)
 
         val vcStr = CredentialService.sign(issuerDid, vcOfferEnc, CredentialService.SignatureType.Ed25519Signature2018, domain, nonce)
@@ -149,7 +147,7 @@ class PresentVcCommand : CliktCommand(
 }
 
 class VerifyVcCommand : CliktCommand(
-    name ="verify",
+    name = "verify",
     help = """Verify VC.
         
         """
@@ -158,12 +156,23 @@ class VerifyVcCommand : CliktCommand(
     val src: File? by argument().file()
 
     override fun run() {
-        echo("\nVerify VC form file $src ...")
+        echo("Verify VC form file $src ...")
+
+        val vcStr = src!!.readText()
+        log.debug { "Loading credential from file $src" }
+        val vc = Json.decodeFromString<VerifiableCredential>(vcStr)
+        log.debug { "Decoded $vc" }
+
+        echo("Issuer DID: ${vc.issuer}")
+
+        val vcVerified = CredentialService.verify(vc.issuer, vcStr, CredentialService.SignatureType.Ed25519Signature2018)
+
+        echo("Verification result: $vcVerified")
     }
 }
 
 class ListVcCommand : CliktCommand(
-    name ="list",
+    name = "list",
     help = """List VC.
         
         """

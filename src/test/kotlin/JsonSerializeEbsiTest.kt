@@ -69,8 +69,9 @@ class JsonSerializeEbsiTest {
                 "https://great.company.be"
             )
         val proof = Proof(
-            "EidasSeal2019",
+            listOf("EidasSeal2019"),
             LocalDateTime.now().withNano(0),
+            "did:creator",
             "assertionMethod",
             VerificationMethodCert("EidasCertificate2019", "1088321447"),
             "BD21J4fdlnBvBA+y6D...fnC8Y="

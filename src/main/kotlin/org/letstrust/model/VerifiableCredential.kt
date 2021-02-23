@@ -95,11 +95,12 @@ data class CredentialStatus(
 
 @Serializable
 data class Proof(
-    var type: String,
+    var type: List<String>,
     var created: LocalDateTime,
-    var proofPurpose: String,
+    var creator: String? = null,
+    var proofPurpose: String? = null,
     @Serializable(with = VerificationMethodCertSerializer::class)
-    var verificationMethod: VerificationMethodCert,
+    var verificationMethod: VerificationMethodCert? = null,
     var proofValue: String? = null,
     var jws: String? = null
 )
