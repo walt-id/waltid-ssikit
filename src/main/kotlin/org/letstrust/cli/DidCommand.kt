@@ -84,13 +84,12 @@ class ResolveDidCommand : CliktCommand(
 
         Constructs the DID Document."""
 ) {
-    val didService = DidService
     val did: String by option(help = "DID to be resolved").required()
 
     override fun run() {
         echo("Resolving $did ...")
 
-        val did = didService.resolveDid(did)
+        val did = DidService.resolveDid(did)
 
         echo("\nResult:\n ${did?.encodePretty()}")
     }
@@ -102,8 +101,9 @@ class ListDidsCommand : CliktCommand(
 
         List all created DIDs."""
 ) {
-    val didService = DidService
     override fun run() {
         echo("List DIDs")
+
+        DidService.listDids()?.forEach { it -> println(it) }
     }
 }

@@ -1,7 +1,10 @@
 package org.letstrust
 
 import org.letstrust.model.*
+import java.nio.file.Files
+import java.nio.file.Path
 import java.util.*
+import kotlin.streams.toList
 
 object DidService {
 
@@ -22,9 +25,12 @@ object DidService {
         return ed25519Did(didUrl, pubKey)
     }
 
-    private fun resolveDidWeb(didUrl: DidUrl): Did {
-        val keys = KeyManagementService.loadKeys(didUrl.did)!!
-        return ed25519Did(didUrl, keys.getPubKey())
+    private fun resolveDidWeb(didUrl: DidUrl): Did? {
+        // TODO http lookup
+        KeyManagementService.loadKeys(didUrl.did)?.let {
+            return ed25519Did(didUrl, it.getPubKey())
+        }
+        return null
     }
 
     fun createDid(didMethod: String, keys: Keys? = null): String {
@@ -62,6 +68,13 @@ object DidService {
         KeyManagementService.addAlias(didKey.keyId, didUrl.did)
 
         return didUrl.did
+    }
+
+    fun listDids(): List<String> {
+        return Files.walk(Path.of("data"))
+            .filter { it -> Files.isRegularFile(it) }
+            .filter { it -> it.toString().endsWith(".json") }
+            .map { it.fileName.toString() }.toList()
     }
 
     private fun ed25519Did(didUrl: DidUrl, pubKey: ByteArray): Did {
