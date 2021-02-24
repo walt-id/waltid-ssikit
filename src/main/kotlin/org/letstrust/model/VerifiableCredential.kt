@@ -95,7 +95,7 @@ data class CredentialStatus(
 
 @Serializable
 data class Proof(
-    var type: List<String>,
+    var type: String,
     var created: LocalDateTime,
     var creator: String? = null,
     var proofPurpose: String? = null,

@@ -16,9 +16,12 @@ import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import org.bitcoinj.core.ECKey
 import org.json.JSONObject
+import org.letstrust.model.Proof
 import org.letstrust.model.VerifiableCredential
 import org.letstrust.model.VerifiablePresentation
 import java.net.URI
+import java.time.LocalDateTime
+import java.time.ZoneId
 import java.util.*
 
 private val log = KotlinLogging.logger {}
@@ -45,6 +48,8 @@ object CredentialService {
         domain: String? = null,
         nonce: String? = null
     ): String {
+
+        log.debug { "Signing jsonLd object with: issuerDid ($issuerDid), signatureType ($signatureType), domain ($domain), nonce ($nonce)" }
 
         val jsonLdObject: JsonLDObject = JsonLDObject.fromJson(jsonCred)
         val confLoader = LDSecurityContexts.DOCUMENT_LOADER as ConfigurableDocumentLoader
@@ -76,10 +81,27 @@ object CredentialService {
         signer.created = Date() // Use the current date
         signer.domain = domain
         signer.nonce = nonce
+
         val proof = signer.sign(jsonLdObject)
-        // println("proof")
-        // println(proof)
-        return jsonLdObject.toJson(true)
+
+        // TODO Fix: this hack is needed as, signature-ld encodes type-field as array, which is not correct
+        // return correctProofStructure(proof, jsonCred)
+        return jsonLdObject.toJson()
+
+    }
+
+    private fun correctProofStructure(ldProof: LdProof, jsonCred: String): String {
+        val vc = Json.decodeFromString<VerifiableCredential>(jsonCred)
+        vc.proof = Proof(
+            ldProof.type,
+            LocalDateTime.ofInstant(ldProof.created.toInstant(), ZoneId.systemDefault()),
+            ldProof.creator.toString(),
+            ldProof.proofPurpose,
+            null,
+            ldProof.proofValue,
+            ldProof.jws
+        )
+        return Json.encodeToString(vc)
     }
 
     fun addProof(credMap: Map<String, String>, ldProof: LdProof): String {
@@ -94,7 +116,7 @@ object CredentialService {
         val vcObj = Json.decodeFromString<VerifiableCredential>(vc)
         log.trace { "VC decoded: $vcObj" }
 
-        val signatureType = SignatureType.valueOf(vcObj.proof!!.type.get(0))
+        val signatureType = SignatureType.valueOf(vcObj.proof!!.type)
         log.debug { "Issuer: ${vcObj.issuer}" }
         log.debug { "Signature type: $signatureType" }
 
@@ -140,7 +162,7 @@ object CredentialService {
         return verifier.verify(jsonLdObject)
     }
 
-    fun present(vc: String): String {
+    fun present(vc: String, domain: String?, challenge: String?): String {
         log.debug { "Creating a presentation for VC:\n$vc" }
         val vcObj = Json.decodeFromString<VerifiableCredential>(vc)
         log.trace { "Decoded VC $vcObj" }
@@ -159,10 +181,7 @@ object CredentialService {
 //            throw Exception("Could not load authentication key for $holderDid")
 //        }
 
-        val domain = "example.com"
-        val nonce: String? = null
-
-        val vp = CredentialService.sign(holderDid, vpReqStr, SignatureType.Ed25519Signature2018, domain, nonce)
+        val vp = sign(holderDid, vpReqStr, SignatureType.Ed25519Signature2018, domain, challenge)
         log.debug { "VP created:$vp" }
         return vp
     }

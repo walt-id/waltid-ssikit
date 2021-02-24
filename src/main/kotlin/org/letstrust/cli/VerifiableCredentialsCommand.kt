@@ -13,9 +13,6 @@ import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import org.letstrust.CliConfig
 import org.letstrust.CredentialService
-import org.letstrust.model.CredentialSchema
-import org.letstrust.model.CredentialStatus
-import org.letstrust.model.CredentialSubject
 import org.letstrust.model.VerifiableCredential
 import java.io.File
 import java.nio.file.Files
@@ -70,6 +67,9 @@ class IssueVcCommand : CliktCommand(
         vcReq.id = vcId.toString()
         issuerDid?.let { vcReq.issuer = it }
         subjectDid?.let { vcReq.credentialSubject.id = it }
+
+        // TODO: we could create a did:key for issuing a self-signed VC at this point
+
         vcReq.issuanceDate = LocalDateTime.now()
 
         val vcReqEnc = Json { prettyPrint = true }.encodeToString(vcReq)
@@ -105,6 +105,8 @@ class PresentVcCommand : CliktCommand(
 ) {
 
     val src: File by argument().file()
+    val domain: String? by option("-d", "--domain", help = "Domain name to be used in the proof")
+    val challenge: String? by option("-c", "--challenge", help = "Challenge to be used in the proof")
     // val holderDid: String? by option("-i", "--holder-did", help = "DID of the holder (owner of the VC)")
 
     override fun run() {
@@ -115,8 +117,7 @@ class PresentVcCommand : CliktCommand(
             throw Exception("Could not load VC $src")
         }
 
-        val vp = CredentialService.present(src.readText())
-
+        val vp = CredentialService.present(src.readText(), domain, challenge)
 
         echo("Presentation created:\n$vp")
 

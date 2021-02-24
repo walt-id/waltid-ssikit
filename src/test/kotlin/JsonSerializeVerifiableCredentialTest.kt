@@ -28,7 +28,7 @@ class JsonSerializeVerifiableCredentialTest {
 
         val proof =
             Proof(
-                listOf("EidasSeal2019"),
+                "EidasSeal2019",
                 LocalDateTime.now().withNano(0),
                 "did:creator",
                 "assertionMethod",
