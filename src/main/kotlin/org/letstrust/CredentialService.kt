@@ -10,10 +10,13 @@ import info.weboftrust.ldsignatures.signer.EcdsaSecp256k1Signature2019LdSigner
 import info.weboftrust.ldsignatures.signer.Ed25519Signature2018LdSigner
 import info.weboftrust.ldsignatures.verifier.EcdsaSecp256k1Signature2019LdVerifier
 import info.weboftrust.ldsignatures.verifier.Ed25519Signature2018LdVerifier
+import mu.KotlinLogging
 import org.bitcoinj.core.ECKey
 import org.json.JSONObject
 import java.net.URI
 import java.util.*
+
+private val log = KotlinLogging.logger {}
 
 object CredentialService {
 
@@ -48,9 +51,13 @@ object CredentialService {
         jsonLdObject.documentLoader = LDSecurityContexts.DOCUMENT_LOADER
 
         val issuerKeys = KeyManagementService.loadKeys(issuerDid)
+        if (issuerKeys == null) {
+            log.error { "Could not load signing key for $issuerDid" }
+            throw Exception("Could not load signing key for $issuerDid")
+        }
 
         val signer = when (signatureType) {
-            SignatureType.Ed25519Signature2018 -> Ed25519Signature2018LdSigner(issuerKeys!!.getPrivateAndPublicKey())
+            SignatureType.Ed25519Signature2018 -> Ed25519Signature2018LdSigner(issuerKeys.getPrivateAndPublicKey())
             SignatureType.EcdsaSecp256k1Signature2019 -> EcdsaSecp256k1Signature2019LdSigner(
                 ECKey.fromPrivate(issuerKeys!!.pair.private.encoded)
             )

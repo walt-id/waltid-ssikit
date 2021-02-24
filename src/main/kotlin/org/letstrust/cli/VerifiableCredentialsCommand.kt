@@ -44,39 +44,32 @@ fun readCredOffer(templateName: String) =
 
 class IssueVcCommand : CliktCommand(
     name = "issue",
-    help = """Issues and distributes VC.
+    help = """Issues and save VC.
         
         """
 ) {
     val config: CliConfig by requireObject()
-    val template: File? by argument().file().optional()
     val dest: File? by argument().file().optional()
-    val issuerDid: String by option(
-        "--issuer-did",
-        "-i",
-        help = "Specific DID of the VC subject (receiver of VC)"
-    ).default("did:key:z6MkrBJ2W4PLE5J1BtnEaSC7xSbx82whvpQRMcEWFwr2NnE4")
-
-    val cs = CredentialService
-    val subjectDid: String by option(
-        "--subject-did",
-        "-s",
-        help = "Specific DID of the VC subject (receiver of VC)"
-    ).default("did:key:z6MkrBJ2W4PLE5J1BtnEaSC7xSbx82whvpQRMcEWFwr2NnE4")
+    val template: String by option("-t","--template", help = "VC template [templates/vc-template-default.json]").default("templates/vc-template-default.json")
+    val issuerDid: String? by option("-i","--issuer-did", help = "DID of the issuer (associated with signing key)")
+    val subjectDid: String? by option("-s","--subject-did", help = "DID of the VC subject (receiver of VC)")
 
     override fun run() {
-        echo("Issue & save cred ...")
+        echo("Issuing & saving cred ...")
 
         // Loading VC template
-        val vcTemplateName = "templates/vc-template-ebsi-attestation.json"
-        log.debug { "Loading credential template: $vcTemplateName" }
-        val vcReq = Json.decodeFromString<VerifiableCredential>(File(vcTemplateName).readText())
+        log.debug { "Loading credential template: $template" }
+        if (!template.contains("vc-template")) {
+            log.error { "Template-file name must start with \"vc-template\"" }
+            return
+        }
+        val vcReq = Json.decodeFromString<VerifiableCredential>(File(template).readText())
 
         // Populating VC with data
         val vcId = Timestamp.valueOf(LocalDateTime.now()).time
         vcReq.id = vcId.toString()
-        vcReq.issuer = issuerDid
-        vcReq.credentialSubject.id = subjectDid
+        issuerDid?.let { vcReq.issuer = it }
+        subjectDid?.let { vcReq.credentialSubject.id = it}
         vcReq.issuanceDate = LocalDateTime.now()
 
         val vcReqEnc = Json { prettyPrint = true }.encodeToString(vcReq)
@@ -84,16 +77,23 @@ class IssueVcCommand : CliktCommand(
         log.debug { "Credential request:\n$vcReqEnc" }
 
         // Signing VC
-        val vcStr = CredentialService.sign(issuerDid, vcReqEnc, CredentialService.SignatureType.Ed25519Signature2018)
+        val vcStr = CredentialService.sign(vcReq.issuer, vcReqEnc, CredentialService.SignatureType.Ed25519Signature2018)
 
         echo("Credential generated:\n$vcStr")
 
         // Saving VC to file
         Files.createDirectories(Path.of("data/vc"))
-        val vcFileName = "data/vc/vc-" + vcId + vcTemplateName.substringAfterLast("vc-template")
+        val vcFileName = "data/vc/vc-" + vcId + template.substringAfterLast("vc-template")
+
         log.debug { "Writing VC to file $vcFileName" }
         File(vcFileName).writeText(vcStr)
-        echo("\nSaving credential to $vcFileName")
+        echo("\nSaving credential to credential store $vcFileName")
+
+        dest?.run {
+            log.debug { "Writing VC to DEST file $dest" }
+            dest!!.writeText(vcStr)
+            echo("\nSaving credential to DEST file: $dest")
+        }
     }
 }
 
