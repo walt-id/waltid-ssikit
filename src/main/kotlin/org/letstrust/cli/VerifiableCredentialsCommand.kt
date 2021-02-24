@@ -14,6 +14,7 @@ import mu.KotlinLogging
 import org.letstrust.CliConfig
 import org.letstrust.CredentialService
 import org.letstrust.model.VerifiableCredential
+import org.letstrust.model.VerifiablePresentation
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
@@ -117,40 +118,22 @@ class PresentVcCommand : CliktCommand(
             throw Exception("Could not load VC $src")
         }
 
+        // Creating the Verifiable Presentation
         val vp = CredentialService.present(src.readText(), domain, challenge)
 
-        echo("Presentation created:\n$vp")
+        log.debug { "Presentation created (ld-signature):\n$vp" }
 
+        // FIX: This is required to filter out "type" : [ "Ed25519Signature2018" ] in the proof, which is s bug from signature.ld
+        val vpStr = Json.decodeFromString<VerifiablePresentation>(vp).let { Json { prettyPrint = true }.encodeToString(it) }
 
-//        val domain = "example.com"
-//        val nonce: String? = null
-//
-//        val vcOffer = VerifiableCredential(
-//            listOf(
-//                "https://www.w3.org/2018/credentials/v1"
-//            ),
-//            "https://essif.europa.eu/tsr/53",
-//            listOf("VerifiableCredential", "VerifiableAttestation"),
-//            "did:ebsi:000098765",
-//            LocalDateTime.now().withNano(0),
-//            CredentialSubject("did:ebsi:00001235", null, listOf("claim1", "claim2")),
-//            CredentialStatus("https://essif.europa.eu/status/45", "CredentialsStatusList2020"),
-//            CredentialSchema("https://essif.europa.eu/tsr/education/CSR1224.json", "JsonSchemaValidator2018")
-//        )
-//
-//        val vcOfferEnc = Json.encodeToString(vcOffer)
-//
-//        val vcStr = CredentialService.sign(issuerDid, vcOfferEnc, CredentialService.SignatureType.Ed25519Signature2018, domain, nonce)
-//
-//        println("Credential generated:\n $vcStr")
-//
-//        val vc = Json { prettyPrint = true }.decodeFromString<VerifiableCredential>(vcStr)
-//
-//        val vcEnc = Json.encodeToString(vc)
-//
-//        val vcVerified = CredentialService.verify(issuerDid, vcEnc, CredentialService.SignatureType.Ed25519Signature2018)
-//
-//        println("Credential verified: $vcVerified")
+        echo("Presentation created:\n$vpStr")
+
+        // Storing VP
+        Files.createDirectories(Path.of("data/vp"))
+        val vpFileName = "data/vp/vp-${Timestamp.valueOf(LocalDateTime.now())}.json"
+        log.debug { "Writing VP to file $vpFileName" }
+        File(vpFileName).writeText(vpStr)
+        echo("\nSaving presentation to credential store $vpFileName")
     }
 }
 

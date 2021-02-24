@@ -8,8 +8,10 @@ import info.weboftrust.ldsignatures.crypto.provider.impl.TinkEd25519Provider
 import info.weboftrust.ldsignatures.jsonld.LDSecurityContexts
 import info.weboftrust.ldsignatures.signer.EcdsaSecp256k1Signature2019LdSigner
 import info.weboftrust.ldsignatures.signer.Ed25519Signature2018LdSigner
+import info.weboftrust.ldsignatures.signer.Ed25519Signature2020LdSigner
 import info.weboftrust.ldsignatures.verifier.EcdsaSecp256k1Signature2019LdVerifier
 import info.weboftrust.ldsignatures.verifier.Ed25519Signature2018LdVerifier
+import info.weboftrust.ldsignatures.verifier.Ed25519Signature2020LdVerifier
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -32,7 +34,7 @@ object CredentialService {
     enum class SignatureType {
         Ed25519Signature2018,
         EcdsaSecp256k1Signature2019,
-        Ed25519Signature2020LdSigner
+        Ed25519Signature2020
     }
 
     val kms = KeyManagementService
@@ -68,14 +70,9 @@ object CredentialService {
 
         val signer = when (signatureType) {
             SignatureType.Ed25519Signature2018 -> Ed25519Signature2018LdSigner(issuerKeys.getPrivateAndPublicKey())
-            SignatureType.EcdsaSecp256k1Signature2019 -> EcdsaSecp256k1Signature2019LdSigner(
-                ECKey.fromPrivate(issuerKeys!!.pair.private.encoded)
-            )
-            else -> throw Exception("Signature type $signatureType not supported")
+            SignatureType.EcdsaSecp256k1Signature2019 -> EcdsaSecp256k1Signature2019LdSigner(ECKey.fromPrivate(issuerKeys.getPrivKey()))
+            SignatureType.Ed25519Signature2020 -> Ed25519Signature2020LdSigner(issuerKeys.getPrivateAndPublicKey())
         }
-        // var signer = Ed25519Signature2018LdSigner(issuerKeys!!.getPrivateAndPublicKey())
-        // following is working in version 0.4
-        // var signer = Ed25519Signature2020LdSigner(issuerKeys!!.getPrivateAndPublicKey())
 
         signer.creator = URI.create(issuerDid)
         signer.created = Date() // Use the current date
@@ -86,7 +83,7 @@ object CredentialService {
 
         // TODO Fix: this hack is needed as, signature-ld encodes type-field as array, which is not correct
         // return correctProofStructure(proof, jsonCred)
-        return jsonLdObject.toJson()
+        return jsonLdObject.toJson(true)
 
     }
 
@@ -147,18 +144,13 @@ object CredentialService {
         log.trace { "Decoded Json LD object: $jsonLdObject" }
 
         val verifier = when (signatureType) {
-            SignatureType.Ed25519Signature2018 -> Ed25519Signature2018LdVerifier(issuerKeys!!.pair.public.encoded)
-            SignatureType.EcdsaSecp256k1Signature2019 -> EcdsaSecp256k1Signature2019LdVerifier(
-                ECKey.fromPublicOnly(
-                    issuerKeys!!.pair.public.encoded
-                )
-            )
-            else -> throw Exception("Signature type $signatureType not supported")
+            SignatureType.Ed25519Signature2018 -> Ed25519Signature2018LdVerifier(issuerKeys.getPubKey())
+            SignatureType.EcdsaSecp256k1Signature2019 -> EcdsaSecp256k1Signature2019LdVerifier(ECKey.fromPublicOnly(issuerKeys.getPubKey()))
+            SignatureType.Ed25519Signature2020 -> Ed25519Signature2020LdVerifier(issuerKeys.getPubKey())
         }
         log.trace { "Loaded Json LD verifier with signature suite: ${verifier.signatureSuite}" }
 
-        // following is working in version 0.4
-        // val verifier = Ed25519Signature2020LdVerifier(issuerKeys!!.publicKey)
+
         return verifier.verify(jsonLdObject)
     }
 

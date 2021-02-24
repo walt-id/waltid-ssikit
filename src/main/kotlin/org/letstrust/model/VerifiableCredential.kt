@@ -4,8 +4,12 @@ package org.letstrust.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Serializer
 import kotlinx.serialization.UseSerializers
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonTransformingSerializer
+import kotlinx.serialization.json.jsonObject
 import java.time.LocalDateTime
 
 @Serializable
@@ -93,8 +97,21 @@ data class CredentialStatus(
     var type: String
 )
 
+@kotlinx.serialization.ExperimentalSerializationApi
+@Serializer(forClass = VerificationMethodCert::class)
+object VerificationMethodCertSerializer :
+    JsonTransformingSerializer<VerificationMethodCert>(VerificationMethodCert.serializer()) {
+    override fun transformDeserialize(element: JsonElement): JsonElement =
+        if (element !is JsonObject) JsonObject(mapOf("CertSerial" to element)) else element
+
+    override fun transformSerialize(element: JsonElement): JsonElement =
+        if (element.jsonObject["type"] == null) element.jsonObject["CertSerial"]!! else element
+}
+
+
 @Serializable
 data class Proof(
+    @Serializable(with = ProofTypeSerializer::class)
     var type: String,
     var created: LocalDateTime,
     var creator: String? = null,
@@ -102,6 +119,8 @@ data class Proof(
     @Serializable(with = VerificationMethodCertSerializer::class)
     var verificationMethod: VerificationMethodCert? = null,
     var proofValue: String? = null,
+    var domain: String? = null,
+    var nonce: String? = null,
     var jws: String? = null
 )
 

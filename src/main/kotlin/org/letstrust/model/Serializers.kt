@@ -2,15 +2,13 @@ package org.letstrust.model
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonTransformingSerializer
-import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.*
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -36,15 +34,14 @@ object DateAsIso8601UtcStringSerializer : KSerializer<LocalDateTime> {
     }
 }
 
-@kotlinx.serialization.ExperimentalSerializationApi
-@Serializer(forClass = VerificationMethodCert::class)
-object VerificationMethodCertSerializer :
-    JsonTransformingSerializer<VerificationMethodCert>(VerificationMethodCert.serializer()) {
-    override fun transformDeserialize(element: JsonElement): JsonElement =
-        if (element !is JsonObject) JsonObject(mapOf("CertSerial" to element)) else element
 
-    override fun transformSerialize(element: JsonElement): JsonElement =
-        if (element.jsonObject["type"] == null) element.jsonObject["CertSerial"]!! else element
+@kotlinx.serialization.ExperimentalSerializationApi
+@Serializer(forClass = String::class)
+object ProofTypeSerializer :
+    JsonTransformingSerializer<String>(String.serializer()) {
+    override fun transformDeserialize(element: JsonElement): JsonElement = if (element is JsonArray) element[0] else element
+
+    override fun transformSerialize(element: JsonElement): JsonElement = element
 }
 
 

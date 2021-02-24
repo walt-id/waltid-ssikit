@@ -36,7 +36,7 @@ data class Keys(val keyId: String, val pair: KeyPair, val provider: String) {
 
     var algorithm: String = pair.private.algorithm
 
-    // A hack to get ld-signatures to work
+    // A hack, required for ld-signatures
     fun getPrivateAndPublicKey(): ByteArray {
 
         val privAndPubKey = ByteArray(64)
@@ -46,10 +46,7 @@ data class Keys(val keyId: String, val pair: KeyPair, val provider: String) {
         return privAndPubKey
     }
 
-    fun isByteKey(): Boolean {
-        return this.pair.private is BytePrivateKey
-    }
-
+    fun isByteKey(): Boolean = this.pair.private is BytePrivateKey
     fun getPubKey(): ByteArray = (this.pair.public as BytePublicKey).publicKey
     fun getPrivKey(): ByteArray = (this.pair.private as BytePrivateKey).privateKey
 
