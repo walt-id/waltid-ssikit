@@ -11,11 +11,13 @@ import info.weboftrust.ldsignatures.signer.Ed25519Signature2018LdSigner
 import info.weboftrust.ldsignatures.verifier.EcdsaSecp256k1Signature2019LdVerifier
 import info.weboftrust.ldsignatures.verifier.Ed25519Signature2018LdVerifier
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import org.bitcoinj.core.ECKey
 import org.json.JSONObject
 import org.letstrust.model.VerifiableCredential
+import org.letstrust.model.VerifiablePresentation
 import java.net.URI
 import java.util.*
 
@@ -87,7 +89,7 @@ object CredentialService {
     }
 
     fun verify(vc: String): Boolean {
-        log.debug { "Verifying VC: $vc" }
+        log.debug { "Verifying VC:\n$vc" }
 
         val vcObj = Json.decodeFromString<VerifiableCredential>(vc)
         log.trace { "VC decoded: $vcObj" }
@@ -102,7 +104,6 @@ object CredentialService {
     }
 
     fun verify(issuerDid: String, vc: String, signatureType: SignatureType): Boolean {
-
         log.trace { "Loading verification key for:  $issuerDid" }
         val issuerKeys = KeyManagementService.loadKeys(issuerDid)
         if (issuerKeys == null) {
@@ -137,5 +138,32 @@ object CredentialService {
         // following is working in version 0.4
         // val verifier = Ed25519Signature2020LdVerifier(issuerKeys!!.publicKey)
         return verifier.verify(jsonLdObject)
+    }
+
+    fun present(vc: String): String {
+        log.debug { "Creating a presentation for VC:\n$vc" }
+        val vcObj = Json.decodeFromString<VerifiableCredential>(vc)
+        log.trace { "Decoded VC $vcObj" }
+
+        val holderDid = vcObj.credentialSubject.id ?: vcObj.credentialSubject.did ?: throw Exception("Could not determine holder DID for $vcObj")
+
+        log.debug { "Holder DID: $holderDid" }
+
+        val vpReq = VerifiablePresentation(listOf("https://www.w3.org/2018/credentials/v1"), "id", listOf("VerifiablePresentation"), listOf(vcObj), null)
+        val vpReqStr = Json { prettyPrint = true }.encodeToString(vpReq)
+        log.trace { "VP request:\n$vpReq" }
+
+//        val holderKeys = KeyManagementService.loadKeys(holderDid!!)
+//        if (holderKeys == null) {
+//            log.error { "Could not load authentication key for $holderDid" }
+//            throw Exception("Could not load authentication key for $holderDid")
+//        }
+
+        val domain = "example.com"
+        val nonce: String? = null
+
+        val vp = CredentialService.sign(holderDid, vpReqStr, SignatureType.Ed25519Signature2018, domain, nonce)
+        log.debug { "VP created:$vp" }
+        return vp
     }
 }

@@ -44,7 +44,7 @@ class CreateDidCommand : CliktCommand(
         "key",
         "web",
         "ebsi"
-    ).required()
+    ).default("key")
     val keyAlias: String by option("-a", "--key-alias", help = "Specific key alias").default("default")
 
     override fun run() {

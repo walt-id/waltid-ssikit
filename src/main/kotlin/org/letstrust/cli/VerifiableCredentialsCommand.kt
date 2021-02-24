@@ -104,45 +104,52 @@ class PresentVcCommand : CliktCommand(
         """
 ) {
 
-    val src: File? by argument().file()
-    val issuerDid: String by option(
-        "--issuer-did",
-        "-i",
-        help = "Specific DID of the VC subject (receiver of VC)"
-    ).default("did:key:z6MkrBJ2W4PLE5J1BtnEaSC7xSbx82whvpQRMcEWFwr2NnE4")
+    val src: File by argument().file()
+    // val holderDid: String? by option("-i", "--holder-did", help = "DID of the holder (owner of the VC)")
 
     override fun run() {
-        echo("\nCreate VP form file $src ...")
+        echo("Create VP form file $src ...")
 
-        val domain = "example.com"
-        val nonce: String? = null
+        if (!src.exists()) {
+            log.error("Could not load VC $src")
+            throw Exception("Could not load VC $src")
+        }
 
-        val vcOffer = VerifiableCredential(
-            listOf(
-                "https://www.w3.org/2018/credentials/v1"
-            ),
-            "https://essif.europa.eu/tsr/53",
-            listOf("VerifiableCredential", "VerifiableAttestation"),
-            "did:ebsi:000098765",
-            LocalDateTime.now().withNano(0),
-            CredentialSubject("did:ebsi:00001235", null, listOf("claim1", "claim2")),
-            CredentialStatus("https://essif.europa.eu/status/45", "CredentialsStatusList2020"),
-            CredentialSchema("https://essif.europa.eu/tsr/education/CSR1224.json", "JsonSchemaValidator2018")
-        )
+        val vp = CredentialService.present(src.readText())
 
-        val vcOfferEnc = Json.encodeToString(vcOffer)
 
-        val vcStr = CredentialService.sign(issuerDid, vcOfferEnc, CredentialService.SignatureType.Ed25519Signature2018, domain, nonce)
+        echo("Presentation created:\n$vp")
 
-        println("Credential generated:\n $vcStr")
 
-        val vc = Json { prettyPrint = true }.decodeFromString<VerifiableCredential>(vcStr)
-
-        val vcEnc = Json.encodeToString(vc)
-
-        val vcVerified = CredentialService.verify(issuerDid, vcEnc, CredentialService.SignatureType.Ed25519Signature2018)
-
-        println("Credential verified: $vcVerified")
+//        val domain = "example.com"
+//        val nonce: String? = null
+//
+//        val vcOffer = VerifiableCredential(
+//            listOf(
+//                "https://www.w3.org/2018/credentials/v1"
+//            ),
+//            "https://essif.europa.eu/tsr/53",
+//            listOf("VerifiableCredential", "VerifiableAttestation"),
+//            "did:ebsi:000098765",
+//            LocalDateTime.now().withNano(0),
+//            CredentialSubject("did:ebsi:00001235", null, listOf("claim1", "claim2")),
+//            CredentialStatus("https://essif.europa.eu/status/45", "CredentialsStatusList2020"),
+//            CredentialSchema("https://essif.europa.eu/tsr/education/CSR1224.json", "JsonSchemaValidator2018")
+//        )
+//
+//        val vcOfferEnc = Json.encodeToString(vcOffer)
+//
+//        val vcStr = CredentialService.sign(issuerDid, vcOfferEnc, CredentialService.SignatureType.Ed25519Signature2018, domain, nonce)
+//
+//        println("Credential generated:\n $vcStr")
+//
+//        val vc = Json { prettyPrint = true }.decodeFromString<VerifiableCredential>(vcStr)
+//
+//        val vcEnc = Json.encodeToString(vc)
+//
+//        val vcVerified = CredentialService.verify(issuerDid, vcEnc, CredentialService.SignatureType.Ed25519Signature2018)
+//
+//        println("Credential verified: $vcVerified")
     }
 }
 
