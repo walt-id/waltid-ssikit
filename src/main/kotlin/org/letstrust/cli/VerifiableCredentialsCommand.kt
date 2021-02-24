@@ -50,9 +50,9 @@ class IssueVcCommand : CliktCommand(
 ) {
     val config: CliConfig by requireObject()
     val dest: File? by argument().file().optional()
-    val template: String by option("-t","--template", help = "VC template [templates/vc-template-default.json]").default("templates/vc-template-default.json")
-    val issuerDid: String? by option("-i","--issuer-did", help = "DID of the issuer (associated with signing key)")
-    val subjectDid: String? by option("-s","--subject-did", help = "DID of the VC subject (receiver of VC)")
+    val template: String by option("-t", "--template", help = "VC template [templates/vc-template-default.json]").default("templates/vc-template-default.json")
+    val issuerDid: String? by option("-i", "--issuer-did", help = "DID of the issuer (associated with signing key)")
+    val subjectDid: String? by option("-s", "--subject-did", help = "DID of the VC subject (receiver of VC)")
 
     override fun run() {
         echo("Issuing & saving cred ...")
@@ -69,7 +69,7 @@ class IssueVcCommand : CliktCommand(
         val vcId = Timestamp.valueOf(LocalDateTime.now()).time
         vcReq.id = vcId.toString()
         issuerDid?.let { vcReq.issuer = it }
-        subjectDid?.let { vcReq.credentialSubject.id = it}
+        subjectDid?.let { vcReq.credentialSubject.id = it }
         vcReq.issuanceDate = LocalDateTime.now()
 
         val vcReqEnc = Json { prettyPrint = true }.encodeToString(vcReq)
@@ -153,21 +153,21 @@ class VerifyVcCommand : CliktCommand(
         """
 ) {
 
-    val src: File? by argument().file()
+    val src: File by argument().file()
 
     override fun run() {
-        echo("Verify VC form file $src ...")
+        echo("Verify VC form file $src ...\n")
 
-        val vcStr = src!!.readText()
-        log.debug { "Loading credential from file $src" }
-        val vc = Json.decodeFromString<VerifiableCredential>(vcStr)
-        log.debug { "Decoded $vc" }
+        if (!src.exists()) {
+            log.error("Could not load file $src")
+            throw Exception("Could not load file $src")
+        }
 
-        echo("Issuer DID: ${vc.issuer}")
-
-        val vcVerified = CredentialService.verify(vc.issuer, vcStr, CredentialService.SignatureType.Ed25519Signature2018)
-
-        echo("Verification result: $vcVerified")
+        if (CredentialService.verify(src.readText())) {
+            echo("Credential verified successfully")
+        } else {
+            echo("Credential not valid")
+        }
     }
 }
 

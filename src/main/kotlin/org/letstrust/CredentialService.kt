@@ -10,9 +10,12 @@ import info.weboftrust.ldsignatures.signer.EcdsaSecp256k1Signature2019LdSigner
 import info.weboftrust.ldsignatures.signer.Ed25519Signature2018LdSigner
 import info.weboftrust.ldsignatures.verifier.EcdsaSecp256k1Signature2019LdVerifier
 import info.weboftrust.ldsignatures.verifier.Ed25519Signature2018LdVerifier
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import org.bitcoinj.core.ECKey
 import org.json.JSONObject
+import org.letstrust.model.VerifiableCredential
 import java.net.URI
 import java.util.*
 
@@ -83,8 +86,29 @@ object CredentialService {
         return JSONObject(signedCredMap).toString()
     }
 
+    fun verify(vc: String): Boolean {
+        log.debug { "Verifying VC: $vc" }
+
+        val vcObj = Json.decodeFromString<VerifiableCredential>(vc)
+        log.trace { "VC decoded: $vcObj" }
+
+        val signatureType = SignatureType.valueOf(vcObj.proof!!.type.get(0))
+        log.debug { "Issuer: ${vcObj.issuer}" }
+        log.debug { "Signature type: $signatureType" }
+
+        val vcVerified = verify(vcObj.issuer, vc, signatureType)
+        log.debug { "Verification of LD-Proof returned: $vcVerified" }
+        return vcVerified
+    }
+
     fun verify(issuerDid: String, vc: String, signatureType: SignatureType): Boolean {
-        val jsonLdObject = JsonLDObject.fromJson(vc)
+
+        log.trace { "Loading verification key for:  $issuerDid" }
+        val issuerKeys = KeyManagementService.loadKeys(issuerDid)
+        if (issuerKeys == null) {
+            log.error { "Could not load verification key for $issuerDid" }
+            throw Exception("Could not load verification key for $issuerDid")
+        }
 
         val confLoader = LDSecurityContexts.DOCUMENT_LOADER as ConfigurableDocumentLoader
 
@@ -92,9 +116,12 @@ object CredentialService {
         confLoader.isEnableHttps = true
         confLoader.isEnableFile = true
         confLoader.isEnableLocalCache = true
-        jsonLdObject.documentLoader = LDSecurityContexts.DOCUMENT_LOADER
 
-        val issuerKeys = KeyManagementService.loadKeys(issuerDid)
+        log.trace { "Document loader config: isEnableHttp (${confLoader.isEnableHttp}), isEnableHttps (${confLoader.isEnableHttps}), isEnableFile (${confLoader.isEnableFile}), isEnableLocalCache (${confLoader.isEnableLocalCache})" }
+
+        val jsonLdObject = JsonLDObject.fromJson(vc)
+        jsonLdObject.documentLoader = LDSecurityContexts.DOCUMENT_LOADER
+        log.trace { "Decoded Json LD object: $jsonLdObject" }
 
         val verifier = when (signatureType) {
             SignatureType.Ed25519Signature2018 -> Ed25519Signature2018LdVerifier(issuerKeys!!.pair.public.encoded)
@@ -105,6 +132,8 @@ object CredentialService {
             )
             else -> throw Exception("Signature type $signatureType not supported")
         }
+        log.trace { "Loaded Json LD verifier with signature suite: ${verifier.signatureSuite}" }
+
         // following is working in version 0.4
         // val verifier = Ed25519Signature2020LdVerifier(issuerKeys!!.publicKey)
         return verifier.verify(jsonLdObject)
