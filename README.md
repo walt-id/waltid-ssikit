@@ -3,20 +3,44 @@
 ## Install
 
     docker pull letstrust/test
-    docker tag  letstrust/test letstrust
+    docker tag letstrust/test letstrust
 
 ## Build
 
-    docker build -f docker/Dockerfile . -t letstrust/test
+    docker build -f docker/Dockerfile . -t letstrust
+
+## Push
+    docker tag letstrust letstrust/test
+    docker push letstrust/test
 
 ## Run
 
-    docker run -it letstrust
+    docker run -it -v $(pwd)/data:/data letstrust
 
-_Examples_
+_For getting help, add "-h" to each command or sub-command e.g.:_
 
-    docker run -it letstrust key gen --algorithm Secp256k1
+    docker run -it -v $(pwd)/data:/data letstrust did create -h
 
-    docker run -it letstrust -c backend=api.letstrust.io -c timeout=3000 did register
+_For debug infos add "-v" e.g.:_
+    
+    docker run -it -v $(pwd)/data:/data letstrust -v did create
 
-    docker run -it letstrust vc verify vc.json
+_Examples_ 
+
+    docker run -it -v $(pwd)/data:/data letstrust key gen --algorithm Ed25519
+
+    docker run -it -v $(pwd)/data:/data letstrust key list
+
+    docker run -it -v $(pwd)/data:/data letstrust did create -m web
+
+    docker run -it -v $(pwd)/data:/data letstrust -v vc issue --issuer-did did:key:z6MkmNMF2... --subject-did did:key:zjkl2sd...
+
+    docker run -it -v $(pwd)/data:/data letstrust vc verify data/vc/created/vc-1614291790088-default.json
+
+    docker run -it -v $(pwd)/data:/data letstrust -v vc present data/vc/created/vc-1614291790088-default.json
+
+    docker run -it -v $(pwd)/data:/data letstrust vc verify -p data/vc/presented/vp-1614291892489.json
+
+## TODOs
+
+- Add ConfigLoader https://github.com/sksamuel/hoplite

@@ -7,6 +7,7 @@ import com.github.ajalt.clikt.parameters.arguments.optional
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -17,6 +18,7 @@ import org.letstrust.CredentialService
 import org.letstrust.DidService
 import org.letstrust.model.VerifiableCredential
 import org.letstrust.model.VerifiablePresentation
+import org.letstrust.model.encodePretty
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
@@ -50,20 +52,25 @@ class IssueVcCommand : CliktCommand(
 ) {
     val config: CliConfig by requireObject()
     val dest: File? by argument().file().optional()
-    val template: String by option("-t", "--template", help = "VC template [templates/vc-template-default.json]").default("templates/vc-template-default.json")
-    val issuerDid: String? by option("-i", "--issuer-did", help = "DID of the issuer (associated with signing key)")
-    val subjectDid: String? by option("-s", "--subject-did", help = "DID of the VC subject (receiver of VC)")
+    val template: File by option("-t", "--template", help = "VC template [data/vc/templates/vc-template-default.json]").file().default(File("data/vc/templates/vc-template-default.json"))
+    val issuerDid: String? by option("-i", "--issuer-did", help = "DID of the issuer (associated with signing key)").required()
+    val subjectDid: String? by option("-s", "--subject-did", help = "DID of the VC subject (receiver of VC)").required()
 
     override fun run() {
         echo("Issuing & saving cred ...")
 
         // Loading VC template
-        log.debug { "Loading credential template: $template" }
-        if (!template.contains("vc-template")) {
+        log.debug { "Loading credential template: ${template.absolutePath}" }
+        if (!template.name.contains("vc-template")) {
             log.error { "Template-file name must start with \"vc-template\"" }
             return
         }
-        val vcReq = Json.decodeFromString<VerifiableCredential>(File(template).readText())
+
+        if (!template.exists()) {
+            template.writeText(CredentialService.defaultVcTemplate().encodePretty())
+        }
+
+        val vcReq = Json.decodeFromString<VerifiableCredential>(template.readText())
 
         // Populating VC with data
         val vcId = Timestamp.valueOf(LocalDateTime.now()).time
@@ -85,8 +92,7 @@ class IssueVcCommand : CliktCommand(
         echo("Credential generated:\n$vcStr")
 
         // Saving VC to file
-        Files.createDirectories(Path.of("data/vc"))
-        val vcFileName = "data/vc/vc-" + vcId + template.substringAfterLast("vc-template")
+        val vcFileName = "data/vc/created/vc-" + vcId + template.name.substringAfterLast("vc-template")
 
         log.debug { "Writing VC to file $vcFileName" }
         File(vcFileName).writeText(vcStr)
@@ -131,8 +137,7 @@ class PresentVcCommand : CliktCommand(
         echo("Presentation created:\n$vpStr")
 
         // Storing VP
-        Files.createDirectories(Path.of("data/vp"))
-        val vpFileName = "data/vp/vp-${Timestamp.valueOf(LocalDateTime.now()).time}.json"
+        val vpFileName = "data/vc/presented/vp-${Timestamp.valueOf(LocalDateTime.now()).time}.json"
         log.debug { "Writing VP to file $vpFileName" }
         File(vpFileName).writeText(vpStr)
         echo("\nSaving presentation to: $vpFileName")
@@ -183,7 +188,7 @@ class ListVcCommand : CliktCommand(
     override fun run() {
         echo("\nList VCs ...")
 
-        CredentialService.listVCs()?.forEach { it -> echo(it) }
+        CredentialService.listVCs()?.forEach { it -> echo(" - $it") }
     }
 }
 

@@ -15,7 +15,7 @@ object SqlKeyStore : KeyStore {
     private val db = SqlDbManager
 
     init {
-        SqlDbManager.createDatabase()
+        SqlDbManager.start()
     }
 
     override fun getKeyId(alias: String): String? {

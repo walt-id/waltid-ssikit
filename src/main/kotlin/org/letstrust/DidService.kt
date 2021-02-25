@@ -8,8 +8,6 @@ import kotlin.streams.toList
 
 object DidService {
 
-    var kms = KeyManagementService
-
     fun resolveDid(did: String): Did? = resolveDid(did.fromString())
 
     fun resolveDid(didUrl: DidUrl): Did? {
@@ -74,7 +72,7 @@ object DidService {
 
         // File("data").walkTopDown().filter {  it -> Files.isRegularFile(it)  }
 
-        return Files.walk(Path.of("data/created"))
+        return Files.walk(Path.of("data/did/created"))
             .filter { it -> Files.isRegularFile(it) }
             .filter { it -> it.toString().endsWith(".json") }
             .map { it.fileName.toString() }.toList()

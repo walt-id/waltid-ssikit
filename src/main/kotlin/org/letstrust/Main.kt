@@ -2,7 +2,10 @@ package org.letstrust
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.subcommands
-import com.github.ajalt.clikt.parameters.options.*
+import com.github.ajalt.clikt.parameters.options.associate
+import com.github.ajalt.clikt.parameters.options.flag
+import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.options.versionOption
 import mu.KotlinLogging
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.LogManager
@@ -10,7 +13,8 @@ import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.core.config.Configuration
 import org.apache.logging.log4j.core.config.LoggerConfig
 import org.letstrust.cli.*
-import java.io.File
+import java.nio.file.Files
+import java.nio.file.Path
 
 
 data class CliConfig(var dataDir: String, val properties: MutableMap<String, String>, var verbose: Boolean)
@@ -37,8 +41,8 @@ class LetsTrust : CliktCommand(
         versionOption("1.0")
     }
 
-    val dataDir: String by option("-d", "--data-dir", help = "Set data directory [./data].")
-        .default("data")
+//    val dataDir: String by option("-d", "--data-dir", help = "Set data directory [./data].")
+//        .default("data")
 
     val cliConfig: Map<String, String> by option(
         "-c",
@@ -49,7 +53,7 @@ class LetsTrust : CliktCommand(
         .flag()
 
     override fun run() {
-        val config = CliConfig(dataDir, HashMap(), verbose)
+        val config = CliConfig("data", HashMap(), verbose)
 
         this.cliConfig.forEach { (k, v) ->
             config.properties[k] = v
@@ -61,11 +65,13 @@ class LetsTrust : CliktCommand(
             log.debug { "Config loaded: ${config}" }
         }
 
-        val dataDirFile = File(dataDir)
-        if (!dataDirFile.exists()) {
-            log.info { "Creating data dir at \"${dataDir}\"..." }
-            dataDirFile.mkdirs()
-        }
+        log.debug { "Creating dir-structure at: ${config.dataDir}" }
+        Files.createDirectories(Path.of("${config.dataDir}/did/created"))
+        Files.createDirectories(Path.of("${config.dataDir}/did/resolved"))
+        Files.createDirectories(Path.of("${config.dataDir}/vc/templates"))
+        Files.createDirectories(Path.of("${config.dataDir}/vc/created"))
+        Files.createDirectories(Path.of("${config.dataDir}/vc/presented"))
+
     }
 }
 

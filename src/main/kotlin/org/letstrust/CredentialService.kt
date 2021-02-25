@@ -18,9 +18,7 @@ import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import org.bitcoinj.core.ECKey
 import org.json.JSONObject
-import org.letstrust.model.Proof
-import org.letstrust.model.VerifiableCredential
-import org.letstrust.model.VerifiablePresentation
+import org.letstrust.model.*
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
@@ -39,8 +37,6 @@ object CredentialService {
         EcdsaSecp256k1Signature2019,
         Ed25519Signature2020
     }
-
-    val kms = KeyManagementService
 
     init {
         Ed25519Provider.set(TinkEd25519Provider())
@@ -198,9 +194,24 @@ object CredentialService {
     }
 
     fun listVCs(): List<String> {
-        return Files.walk(Path.of("data/vc"))
+        return Files.walk(Path.of("data/vc/created"))
             .filter { it -> Files.isRegularFile(it) }
             .filter { it -> it.toString().endsWith(".json") }
             .map { it.fileName.toString() }.toList()
+    }
+
+    fun defaultVcTemplate(): VerifiableCredential {
+        return VerifiableCredential(
+            listOf(
+                "https://www.w3.org/2018/credentials/v1"
+            ),
+            "XXX",
+            listOf("VerifiableCredential", "VerifiableAttestation"),
+            "XXX",
+            LocalDateTime.now().withNano(0),
+            CredentialSubject(null, "XXX", listOf("claim1", "claim2")),
+            CredentialStatus("https://essif.europa.eu/status", "CredentialsStatusList2020"),
+            CredentialSchema("https://essif.europa.eu/tsr/education/CSR1224.json", "JsonSchemaValidator2018")
+        )
     }
 }

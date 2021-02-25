@@ -65,13 +65,13 @@ class ExportKeyCommand : CliktCommand(
 
 class ListKeysCommand : CliktCommand(
     name = "list",
-    help = """List keys
+    help = """List keys.
 
         List all keys in the key store."""
 ) {
 
     override fun run() {
-        echo("List keys")
+        echo("List keys ...")
 
         KeyManagementService.listKeys().forEach {
             println("- $it")

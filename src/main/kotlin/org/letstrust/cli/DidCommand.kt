@@ -69,14 +69,13 @@ class CreateDidCommand : CliktCommand(
             echo("\ndid document:\n" + didDocEnc)
 
             val didFileName ="${didDoc.id?.replace(":", "-")}.json"
-            Files.createDirectories(Path.of(config.dataDir + "/did/created"))
             val destFile = File(config.dataDir + "/did/created/" + didFileName)
             echo("Saving DID to file: ${destFile.absolutePath}")
             destFile.writeText(didDocEnc)
 
             dest?.let {
-                echo("Saving DID to DEST file: ${dest!!.absolutePath}")
-                dest!!.writeText(didDocEnc)
+                echo("Saving DID to DEST file: ${it.absolutePath}")
+                it.writeText(didDocEnc)
             }
         }
     }
@@ -106,8 +105,8 @@ class ListDidsCommand : CliktCommand(
         List all created DIDs."""
 ) {
     override fun run() {
-        echo("List DIDs")
+        echo("List DIDs ...")
 
-        DidService.listDids()?.forEach { it -> echo(it) }
+        DidService.listDids()?.forEach { it -> echo("- $it") }
     }
 }

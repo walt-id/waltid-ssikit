@@ -2,15 +2,12 @@
 
 package org.letstrust.model
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Serializer
-import kotlinx.serialization.UseSerializers
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonTransformingSerializer
-import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.*
+import kotlinx.serialization.json.*
 import java.time.LocalDateTime
+
+fun VerifiableCredential.encode() = Json.encodeToString(this)
+fun VerifiableCredential.encodePretty() = Json { prettyPrint = true }.encodeToString(this)
 
 @Serializable
 data class VerifiableCredential(

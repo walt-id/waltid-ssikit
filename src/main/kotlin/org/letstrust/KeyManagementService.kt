@@ -17,15 +17,16 @@ import kotlin.collections.ArrayList
 
 object KeyManagementService {
 
-    init {
-        Security.addProvider(BouncyCastleProvider())
-    }
+    private const val RSA_KEY_SIZE = 4096
 
     // TODO: keystore implementation should be configurable
-    private var ks = SqlKeyStore as KeyStore
+    private var ks: KeyStore = FileSystemKeyStore as KeyStore
     // private var ks = FileSystemKeyStore as KeyStore
 
-    private const val RSA_KEY_SIZE = 4096
+    init {
+        Security.addProvider(BouncyCastleProvider())
+        ks = SqlKeyStore as KeyStore
+    }
 
     private fun generateKeyId(): String = "LetsTrust-Key-${UUID.randomUUID().toString().replace("-", "")}"
 

@@ -11,7 +11,7 @@ private val log = KotlinLogging.logger() {}
 object SqlDbManager {
 
     // TODO Should be configurable
-    val JDBC_URL = "jdbc:sqlite:letstrust.db"
+    val JDBC_URL = "jdbc:sqlite:data/letstrust.db"
     //val JDBC_URL = "jdbc:sqlite::memory:"
 
     private val config: HikariConfig = HikariConfig()
@@ -20,7 +20,7 @@ object SqlDbManager {
     // TODO: Should be configurable
     val recreateDb = false
 
-    init {
+    fun start() {
         config.jdbcUrl = JDBC_URL
         config.maximumPoolSize = 1
         config.isAutoCommit = false
@@ -36,7 +36,11 @@ object SqlDbManager {
         createDatabase()
     }
 
-    fun createDatabase() {
+    fun stop() {
+        ds?.close()
+    }
+
+    private fun createDatabase() {
 
         getConnection().use { con ->
             con.createStatement().use { stmt ->
