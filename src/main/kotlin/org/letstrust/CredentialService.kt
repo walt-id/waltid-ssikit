@@ -22,9 +22,12 @@ import org.letstrust.model.Proof
 import org.letstrust.model.VerifiableCredential
 import org.letstrust.model.VerifiablePresentation
 import java.net.URI
+import java.nio.file.Files
+import java.nio.file.Path
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.*
+import kotlin.streams.toList
 
 private val log = KotlinLogging.logger {}
 
@@ -122,6 +125,22 @@ object CredentialService {
         return vcVerified
     }
 
+    fun verifyVp(vp: String): Boolean {
+        log.debug { "Verifying VP:\n$vp" }
+
+        val vpObj = Json.decodeFromString<VerifiablePresentation>(vp)
+        log.trace { "VC decoded: $vpObj" }
+
+        val signatureType = SignatureType.valueOf(vpObj.proof!!.type)
+        val issuer = vpObj.proof.creator!!
+        log.debug { "Issuer: $issuer" }
+        log.debug { "Signature type: $signatureType" }
+
+        val vpVerified = verify(issuer, vp, signatureType)
+        log.debug { "Verification of LD-Proof returned: $vpVerified" }
+        return vpVerified
+    }
+
     fun verify(issuerDid: String, vc: String, signatureType: SignatureType): Boolean {
         log.trace { "Loading verification key for:  $issuerDid" }
         val issuerKeys = KeyManagementService.loadKeys(issuerDid)
@@ -176,5 +195,12 @@ object CredentialService {
         val vp = sign(holderDid, vpReqStr, SignatureType.Ed25519Signature2018, domain, challenge)
         log.debug { "VP created:$vp" }
         return vp
+    }
+
+    fun listVCs(): List<String> {
+        return Files.walk(Path.of("data/vc"))
+            .filter { it -> Files.isRegularFile(it) }
+            .filter { it -> it.toString().endsWith(".json") }
+            .map { it.fileName.toString() }.toList()
     }
 }

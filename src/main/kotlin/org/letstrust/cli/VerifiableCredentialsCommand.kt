@@ -5,6 +5,7 @@ import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.optional
 import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.file
 import kotlinx.serialization.decodeFromString
@@ -13,6 +14,7 @@ import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import org.letstrust.CliConfig
 import org.letstrust.CredentialService
+import org.letstrust.DidService
 import org.letstrust.model.VerifiableCredential
 import org.letstrust.model.VerifiablePresentation
 import java.io.File
@@ -130,10 +132,10 @@ class PresentVcCommand : CliktCommand(
 
         // Storing VP
         Files.createDirectories(Path.of("data/vp"))
-        val vpFileName = "data/vp/vp-${Timestamp.valueOf(LocalDateTime.now())}.json"
+        val vpFileName = "data/vp/vp-${Timestamp.valueOf(LocalDateTime.now()).time}.json"
         log.debug { "Writing VP to file $vpFileName" }
         File(vpFileName).writeText(vpStr)
-        echo("\nSaving presentation to credential store $vpFileName")
+        echo("\nSaving presentation to: $vpFileName")
     }
 }
 
@@ -145,6 +147,7 @@ class VerifyVcCommand : CliktCommand(
 ) {
 
     val src: File by argument().file()
+    val isPresentation: Boolean by option("-p", "--is-presentation", help = "In case a VP is verified.").flag()
 
     override fun run() {
         echo("Verify VC form file $src ...\n")
@@ -154,10 +157,18 @@ class VerifyVcCommand : CliktCommand(
             throw Exception("Could not load file $src")
         }
 
-        if (CredentialService.verify(src.readText())) {
-            echo("Credential verified successfully")
-        } else {
-            echo("Credential not valid")
+        if (isPresentation) {
+            if (CredentialService.verifyVp(src.readText())) {
+                echo("Presentation verified successfully")
+            } else {
+                echo("Presentation not valid")
+            }
+        }else {
+            if (CredentialService.verify(src.readText())) {
+                echo("Credential verified successfully")
+            } else {
+                echo("Credential not valid")
+            }
         }
     }
 }
@@ -169,10 +180,10 @@ class ListVcCommand : CliktCommand(
         """
 ) {
 
-    val src: File? by argument().file()
-
     override fun run() {
         echo("\nList VCs ...")
+
+        CredentialService.listVCs()?.forEach { it -> echo(it) }
     }
 }
 

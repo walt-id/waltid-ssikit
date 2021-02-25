@@ -57,7 +57,9 @@ class LetsTrust : CliktCommand(
 
         currentContext.obj = config
 
-        println("Config loaded: ${config}\n")
+        if (config.verbose) {
+            log.debug { "Config loaded: ${config}" }
+        }
 
         val dataDirFile = File(dataDir)
         if (!dataDirFile.exists()) {

@@ -74,7 +74,7 @@ object DidService {
 
         // File("data").walkTopDown().filter {  it -> Files.isRegularFile(it)  }
 
-        return Files.walk(Path.of("data"))
+        return Files.walk(Path.of("data/created"))
             .filter { it -> Files.isRegularFile(it) }
             .filter { it -> it.toString().endsWith(".json") }
             .map { it.fileName.toString() }.toList()

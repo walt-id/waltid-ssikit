@@ -15,7 +15,7 @@ class KeyCommand : CliktCommand(
         Key management functions like generation, export/import, and deletion."""
 ) {
     // val repo: RepoConfig by requireObject()
-    val algorithm: String by option(help = "Key algorithm [Secp256k1, Ed25519]").default("Ed25519")
+    val algorithm: String by option(help = "Key algorithm [Ed25519]").default("Ed25519")
 
     override fun run() {
     }

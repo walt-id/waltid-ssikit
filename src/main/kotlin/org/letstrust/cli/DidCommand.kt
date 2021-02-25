@@ -15,6 +15,8 @@ import org.letstrust.DidService
 import org.letstrust.KeyManagementService
 import org.letstrust.model.encodePretty
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.Path
 
 class DidCommand : CliktCommand(
     help = """Decentralized Identifiers (DIDs).
@@ -40,7 +42,7 @@ class CreateDidCommand : CliktCommand(
     val didService = DidService
     val config: CliConfig by requireObject()
     val dest: File? by argument().file().optional()
-    val method: String by option("-m", "--did-method", help = "Specifiy DID method [key, web, ebsi]").choice(
+    val method: String by option("-m", "--did-method", help = "Specifiy DID method [key]").choice(
         "key",
         "web",
         "ebsi"
@@ -63,17 +65,19 @@ class CreateDidCommand : CliktCommand(
         if (didDoc == null) {
             echo("\nCould not resolve: $did")
         } else {
-            val destName = dest?.name ?: "${didDoc.id?.replace(":", "-")}.json"
-            val destFile = File(config.dataDir + "/" + destName)
+            val didDocEnc = didDoc.encodePretty()
+            echo("\ndid document:\n" + didDocEnc)
+
+            val didFileName ="${didDoc.id?.replace(":", "-")}.json"
+            Files.createDirectories(Path.of(config.dataDir + "/did/created"))
+            val destFile = File(config.dataDir + "/did/created/" + didFileName)
             echo("Saving DID to file: ${destFile.absolutePath}")
-            destFile.createNewFile()
-            destFile.writeText(didDoc.encodePretty())
+            destFile.writeText(didDocEnc)
 
-            echo("\ndid document:\n" + didDoc.encodePretty())
-        }
-
-        if (config.verbose) {
-            echo("Lets make some noise here ...")
+            dest?.let {
+                echo("Saving DID to DEST file: ${dest!!.absolutePath}")
+                dest!!.writeText(didDocEnc)
+            }
         }
     }
 }
@@ -104,6 +108,6 @@ class ListDidsCommand : CliktCommand(
     override fun run() {
         echo("List DIDs")
 
-        DidService.listDids()?.forEach { it -> println(it) }
+        DidService.listDids()?.forEach { it -> echo(it) }
     }
 }
