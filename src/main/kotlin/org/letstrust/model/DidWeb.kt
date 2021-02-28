@@ -2,6 +2,9 @@ package org.letstrust.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 @Serializable
 data class DidWeb(
@@ -31,3 +34,6 @@ data class DidWeb(
         val publicKeyBase58: String? // CaSHXEvLKS6SfN9aBfkVGBpp15jSnaHazqHgLHp8KZ3Y
     )
 }
+
+fun DidWeb.encode() = Json.encodeToString(this)
+fun DidWeb.encodePretty() = Json { prettyPrint = true }.encodeToString(this)

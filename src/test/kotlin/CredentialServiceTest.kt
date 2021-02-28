@@ -55,7 +55,7 @@ class CredentialServiceTest {
         val testEd25519PrivateKey = Hex.decodeHex(testEd25519PrivateKeyString.toCharArray())
         val testEd25519PublicKey = Hex.decodeHex(testEd25519PublicKeyString.toCharArray())
 
-        val jsonLdObject = JsonLDObject.fromJson(File("input.jsonld").readText())
+        val jsonLdObject = JsonLDObject.fromJson(File("src/test/resources/input.jsonld").readText())
         jsonLdObject.documentLoader = LDSecurityContexts.DOCUMENT_LOADER
         val creator = URI.create("did:sov:WRfXPg8dantKVubE3HX8pw")
         val created = JsonLDUtils.DATE_FORMAT.parse("2017-10-24T05:33:31Z")

@@ -1,19 +1,25 @@
 package org.letstrust
 
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import mu.KotlinLogging
 import org.letstrust.model.*
+import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.*
 import kotlin.streams.toList
 
+private val log = KotlinLogging.logger {}
+
 object DidService {
 
-    fun resolveDid(did: String): Did? = resolveDid(did.fromString())
+    fun resolveDid(did: String): Did = resolveDid(did.fromString())
 
-    fun resolveDid(didUrl: DidUrl): Did? {
+    fun resolveDid(didUrl: DidUrl): Did {
         return when (didUrl.method) {
             "key" -> resolveDidKey(didUrl)
-            "web" -> resolveDidWeb(didUrl)
+            "web" -> resolveDidWebDummy(didUrl)
             else -> TODO("did:${didUrl.method} implemented yet")
         }
     }
@@ -23,12 +29,22 @@ object DidService {
         return ed25519Did(didUrl, pubKey)
     }
 
-    private fun resolveDidWeb(didUrl: DidUrl): Did? {
-        // TODO http lookup
-        KeyManagementService.loadKeys(didUrl.did)?.let {
-            return ed25519Did(didUrl, it.getPubKey())
+    private fun resolveDidWebDummy(didUrl: DidUrl): Did {
+        KeyManagementService.loadKeys(didUrl.did).let {
+            return ed25519Did(didUrl, it!!.getPubKey())
         }
-        return null
+    }
+
+    internal fun resolveDidWeb(didUrl: DidUrl): DidWeb {
+        var domain = didUrl.identifier
+        var didUrl = "https://${domain}/.well-known/did.json"
+        log.debug { "Resolving did:web for domain $domain at: $didUrl" }
+        var didWebStr = URL(didUrl).readText()
+        log.debug { "did:web resolved:\n$didWebStr" }
+        print(didWebStr)
+        var did = Json.decodeFromString<DidWeb>(didWebStr)
+        log.debug { "did:web decoded:\n$did" }
+        return did
     }
 
     fun createDid(didMethod: String, keys: Keys? = null): String {

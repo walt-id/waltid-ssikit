@@ -6,6 +6,8 @@ import org.letstrust.model.Did
 import org.letstrust.model.DidUrl
 import org.letstrust.model.fromString
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.Path
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -66,9 +68,20 @@ class DidServiceTest {
 
     @Test
     fun listDidTest() {
+        Files.createDirectories(Path.of("data/did/created"))
         val ds = DidService
         val dids = ds.listDids()
         println(dids)
+    }
+
+    @Test
+    fun didWebResolution() {
+        val identifier = "did:web:mattr.global"
+        val didUrl:  DidUrl= identifier.fromString()
+        val didWeb = DidService.resolveDidWeb(didUrl)
+        assertNotNull(didWeb)
+        // assertEquals("https://w3id.org/did/v1", didWeb.context)
+        assertEquals(identifier, didWeb.id)
     }
 
 //    // https://stackoverflow.com/questions/57178093/how-to-deserialize-json-with-dynamic-object

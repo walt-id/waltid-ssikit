@@ -2,6 +2,7 @@ package org.letstrust.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -23,6 +24,7 @@ data class Did(
 
 fun Did.encode() = Json.encodeToString(this)
 fun Did.encodePretty() = Json { prettyPrint = true }.encodeToString(this)
+fun String.decode() = Json.decodeFromString<Did>(this)
 
 @Serializable
 data class VerificationMethod(

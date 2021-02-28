@@ -14,9 +14,8 @@ import org.letstrust.CliConfig
 import org.letstrust.DidService
 import org.letstrust.KeyManagementService
 import org.letstrust.model.encodePretty
+import org.letstrust.model.fromString
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.Path
 
 class DidCommand : CliktCommand(
     help = """Decentralized Identifiers (DIDs).
@@ -68,7 +67,7 @@ class CreateDidCommand : CliktCommand(
             val didDocEnc = didDoc.encodePretty()
             echo("\ndid document:\n" + didDocEnc)
 
-            val didFileName ="${didDoc.id?.replace(":", "-")}.json"
+            val didFileName = "${didDoc.id?.replace(":", "-")}.json"
             val destFile = File(config.dataDir + "/did/created/" + didFileName)
             echo("Saving DID to file: ${destFile.absolutePath}")
             destFile.writeText(didDocEnc)
@@ -88,13 +87,22 @@ class ResolveDidCommand : CliktCommand(
         Constructs the DID Document."""
 ) {
     val did: String by option(help = "DID to be resolved").required()
+    val config: CliConfig by requireObject()
 
     override fun run() {
         echo("Resolving $did ...")
 
-        val did = DidService.resolveDid(did)
+        var encodedDid = when (did.contains("mattr")) {
+            true -> DidService.resolveDidWeb(did.fromString()).encodePretty()
+            else -> DidService.resolveDid(did).encodePretty()
+        }
 
-        echo("\nResult:\n ${did?.encodePretty()}")
+        echo("\nResult:\n ${encodedDid}")
+
+        val didFileName = "${did.replace(":", "-").replace(".", "_")}.json"
+        val destFile = File(config.dataDir + "/did/resolved/" + didFileName)
+        echo("Saving DID to file: ${destFile.absolutePath}")
+        destFile.writeText(encodedDid)
     }
 }
 
