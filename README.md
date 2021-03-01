@@ -33,6 +33,8 @@ _Examples_
 
     docker run -it -v $(pwd)/data:/data letstrust did create -m web
 
+    docker run -it -v $(pwd)/data:/data letstrust did resolve --did did:web:mattr.global
+
     docker run -it -v $(pwd)/data:/data letstrust -v vc issue --issuer-did did:key:z6MkmNMF2... --subject-did did:key:zjkl2sd...
 
     docker run -it -v $(pwd)/data:/data letstrust vc verify data/vc/created/vc-1614291790088-default.json
