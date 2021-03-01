@@ -26,9 +26,9 @@ jobs:
     - name: Build with Maven
       run: mvn --batch-mode --update-snapshots verify
     - name: Docker Build and Push
-        uses: philpotisk/github-action-docker-build-push@master
-        env:
-          DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
-          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
-          DOCKER_FILE: docker/Dockerfile
-          CONTAINER_TAG: letstrust/test:latest
+      uses: philpotisk/github-action-docker-build-push@master
+      env:
+        DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
+        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        DOCKER_FILE: docker/Dockerfile
+        CONTAINER_TAG: letstrust/test:latest
