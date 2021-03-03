@@ -98,7 +98,8 @@ fun main(args: Array<String>) {
             KeyCommand().subcommands(GenCommand(), ListKeysCommand(), ExportKeyCommand()),
             DidCommand().subcommands(CreateDidCommand(), ResolveDidCommand(), ListDidsCommand()),
             VerifiableCredentialsCommand().subcommands(IssueVcCommand(), PresentVcCommand(), VerifyVcCommand(), ListVcCommand()),
-            AuthCommand()
+            AuthCommand(),
+            EssifCommand().subcommands(EssifAuthCommand())
         )
         //.main(arrayOf("-v", "-c", "mykey=myval", "vc", "-h"))
         //.main(arrayOf("vc", "verify", "vc.json"))

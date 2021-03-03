@@ -10,7 +10,7 @@ import org.letstrust.KeyManagementService
 
 
 class KeyCommand : CliktCommand(
-    help = """Key management.
+    help = """Key Management.
 
         Key management functions like generation, export/import, and deletion."""
 ) {
