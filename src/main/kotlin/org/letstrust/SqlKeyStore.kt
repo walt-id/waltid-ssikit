@@ -76,7 +76,7 @@ object SqlKeyStore : KeyStore {
                         keys.pair?.let { stmt.setString(2, Base64.encode(it.private.encoded).toString()) }
                         keys.pair?.let { stmt.setString(3, Base64.encode(it.public.encoded).toString()) }
                     } else {
-                        keys.pair?.let { stmt.setString(2, Base64.encode(X509EncodedKeySpec(it.private.encoded).encoded).toString()) }
+                        keys.pair?.let { stmt.setString(2, Base64.encode(PKCS8EncodedKeySpec(it.private.encoded).encoded).toString()) }
                         keys.pair?.let { stmt.setString(3, Base64.encode(X509EncodedKeySpec(it.public.encoded).encoded).toString()) }
                     }
 
@@ -115,7 +115,7 @@ object SqlKeyStore : KeyStore {
                         var algorithm = rs.getString("algorithm")
                         var provider = rs.getString("provider")
 
-                        if (provider == "BC") {
+                        if (provider == "BC" || provider == "SunEC") {
                             val kf = KeyFactory.getInstance(algorithm, provider)
 
                             var pub = kf.generatePublic(X509EncodedKeySpec(Base64.from(rs.getString("pub")).decode()))
@@ -149,8 +149,16 @@ object SqlKeyStore : KeyStore {
                         var provider = rs.getString("provider")
 
                         val keys = when (provider) {
-                            "BC" -> {
+                            "BC"  -> {
                                 val kf = KeyFactory.getInstance(algorithm, provider)
+
+                                var pub = kf.generatePublic(X509EncodedKeySpec(Base64.from(rs.getString("pub")).decode()))
+                                var priv = kf.generatePrivate(PKCS8EncodedKeySpec(Base64.from(rs.getString("priv")).decode()))
+
+                                Keys(keyId, KeyPair(pub, priv), provider)
+                            }
+                            "SunEC"  -> {
+                                val kf = KeyFactory.getInstance(algorithm)
 
                                 var pub = kf.generatePublic(X509EncodedKeySpec(Base64.from(rs.getString("pub")).decode()))
                                 var priv = kf.generatePrivate(PKCS8EncodedKeySpec(Base64.from(rs.getString("priv")).decode()))

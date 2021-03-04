@@ -6,9 +6,7 @@ import com.google.crypto.tink.hybrid.HybridConfig
 import com.google.crypto.tink.subtle.Ed25519Sign
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.jwk.Curve
-import com.nimbusds.jose.jwk.Curve.SECP256K1
 import com.nimbusds.jose.jwk.KeyUse
-import com.nimbusds.jose.jwk.gen.OctetKeyPairGenerator
 import io.ipfs.multibase.Multibase
 import org.bitcoinj.core.ECKey
 import org.bouncycastle.jce.ECNamedCurveTable
@@ -109,7 +107,7 @@ object KeyManagementService {
         val keys = Keys(generateKeyId(), kp, "sun")
         ks.saveKeyPair(keys)
 
-        val jwk = KeyUtil.make(keyCurve, keyUse, keyAlg, keys.keyId)
+        val jwk = KeyUtil.make(kp, keyCurve, keyUse, keyAlg, keys.keyId)
         if (jwk != null) {
             println("JWK format: " + jwk.toJSONString())
         }
@@ -142,7 +140,7 @@ object KeyManagementService {
         val priv = kp.getPrivate() as ECPrivateKey
 
         println(priv.format)
-        val keys = Keys(generateKeyId(), kp, "sun")
+        val keys = Keys(generateKeyId(), kp, "SunEC")
         ks.saveKeyPair(keys)
 
         val ecKey = com.nimbusds.jose.jwk.ECKey.Builder(keyCurve, pub)

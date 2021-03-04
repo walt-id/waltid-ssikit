@@ -24,22 +24,19 @@ import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.gen.*;
 import com.nimbusds.jose.crypto.ECDSAVerifier
 import com.nimbusds.jose.jwk.OctetKeyPair
+import org.letstrust.JwtService
 import org.letstrust.KeyManagementService
+
 
 // https://mkjwk.org/
 // https://bitbucket.org/connect2id/nimbus-jose-jwt/src/master/
 // https://github.com/mitreid-connect/json-web-key-generator
+@Deprecated(message = "This is a test-class and should be removed")
 class JwtTest {
 
-    @Test
-    fun genJwt() {
-        val kms = KeyManagementService.generateEd25519KeyPairNimbus()
-
-    }
 
     @Test // https://connect2id.com/products/nimbus-jose-jwt/examples/jws-with-eddsa
     fun jwtEd25519() {
-        // Generate a key pair with Ed25519 curve
         // Generate a key pair with Ed25519 curve
         val jwk = OctetKeyPairGenerator(Curve.Ed25519)
             .keyID("123")
@@ -93,7 +90,6 @@ class JwtTest {
     @Test
     fun jwtSpec256k1() {
         // Generate EC key pair on the secp256k1 curve
-        // Generate EC key pair on the secp256k1 curve
         val ecJWK = ECKeyGenerator(Curve.SECP256K1)
             .keyUse(KeyUse.SIGNATURE)
             .keyID("123")
@@ -101,17 +97,12 @@ class JwtTest {
 
         // Get the public EC key, for recipients to validate the signatures
 
-        // Get the public EC key, for recipients to validate the signatures
         val ecPublicJWK = ecJWK.toPublicJWK()
-
-        // Sample JWT claims
 
         // Sample JWT claims
         val claimsSet = JWTClaimsSet.Builder()
             .subject("alice")
             .build()
-
-        // Create JWT for ES256K alg
 
         // Create JWT for ES256K alg
         val jwt = SignedJWT(
@@ -123,10 +114,8 @@ class JwtTest {
 
         // Sign with private EC key
 
-        // Sign with private EC key
-        jwt.sign(ECDSASigner(ecJWK))
 
-        // Output the JWT
+        jwt.sign(ECDSASigner(ecJWK))
 
         // Output the JWT
         println(jwt.serialize())
@@ -137,14 +126,12 @@ class JwtTest {
         // XZi_-U4RdMr4JvbiTKXH1ClofZgw
 
         // Parse the signed JWT
-        // Parse the signed JWT
         val jwtString = "eyJraWQiOiIxMjMiLCJhbGciOiJFUzI1NksifQ.eyJzdWIiOiJhbGljZSJ9.kbqs7pDjDCKNsy9KddEnfOD0i1BjsiqveVJztAXraIsH_ATLzJ_LqyDSTQ0vQhfuy24HBdA4jSwax8_0r6gTbg"
 
         val jwt2 = SignedJWT.parse(jwt.serialize())
 
         // Verify the ES256K signature with the public EC key
 
-        // Verify the ES256K signature with the public EC key
         assertTrue(jwt2.verify(ECDSAVerifier(ecPublicJWK)))
 
         // Output the JWT claims: {"sub":"alice"}
