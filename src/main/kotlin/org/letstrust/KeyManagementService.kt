@@ -4,6 +4,11 @@ package org.letstrust
 //import org.bouncycastle.jce.provider.BouncyCastleProvider
 import com.google.crypto.tink.hybrid.HybridConfig
 import com.google.crypto.tink.subtle.Ed25519Sign
+import com.nimbusds.jose.JWSAlgorithm
+import com.nimbusds.jose.jwk.Curve
+import com.nimbusds.jose.jwk.Curve.SECP256K1
+import com.nimbusds.jose.jwk.KeyUse
+import com.nimbusds.jose.jwk.gen.OctetKeyPairGenerator
 import io.ipfs.multibase.Multibase
 import org.bitcoinj.core.ECKey
 import org.bouncycastle.jce.ECNamedCurveTable
@@ -12,6 +17,9 @@ import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.SecureRandom
 import java.security.Security
+import java.security.interfaces.ECPrivateKey
+import java.security.interfaces.ECPublicKey
+import java.security.spec.ECParameterSpec
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -87,12 +95,65 @@ object KeyManagementService {
         return keys.keyId
     }
 
-    fun generateSecp256k1KeyPair(): String {
+    fun generateEd25519KeyPairNimbus(): String {
+
+        val keyUse = KeyUse.parse("sig")
+        val keyAlg = JWSAlgorithm.parse("EdDSA")
+        val keyCurve = Curve.parse("Ed25519")
+
+        val kp = KeyPairGenerator.getInstance("Ed25519").generateKeyPair()
+
+        println("default format: " + kp.private.format)
+//        return keys.keyId
+
+        val keys = Keys(generateKeyId(), kp, "sun")
+        ks.saveKeyPair(keys)
+
+        val jwk = KeyUtil.make(keyCurve, keyUse, keyAlg, keys.keyId)
+        if (jwk != null) {
+            println("JWK format: " + jwk.toJSONString())
+        }
+
+        return keys.keyId
+
+    }
+
+    fun generateSecp256k1KeyPairBitcoinj(): String {
         val key = ECKey(SecureRandom())
         val publicKey = BytePublicKey(key.pubKey, "Secp256k1")
         val privateKey = BytePrivateKey(key.privKeyBytes, "Secp256k1")
         val keys = Keys(generateKeyId(), KeyPair(publicKey, privateKey), "bitcoinj")
         ks.saveKeyPair(keys)
+        return keys.keyId
+    }
+
+    fun generateSecp256k1KeyPairSun(): String {
+        val keyUse = KeyUse.parse("sig");
+        val keyAlg = JWSAlgorithm.parse("ES256K")
+        val keyCurve = Curve.parse("secp256k1")
+        val ecSpec: ECParameterSpec = keyCurve.toECParameterSpec();
+
+        val generator = KeyPairGenerator.getInstance("EC")
+        generator.initialize(ecSpec)
+
+        val kp = generator.generateKeyPair()
+
+        val pub = kp.getPublic() as ECPublicKey
+        val priv = kp.getPrivate() as ECPrivateKey
+
+        println(priv.format)
+        val keys = Keys(generateKeyId(), kp, "sun")
+        ks.saveKeyPair(keys)
+
+        val ecKey = com.nimbusds.jose.jwk.ECKey.Builder(keyCurve, pub)
+            .privateKey(priv)
+            .keyID(keys.keyId)
+            .algorithm(keyAlg)
+            .keyUse(keyUse)
+            .build()
+
+        println(ecKey.toJSONString())
+
         return keys.keyId
     }
 

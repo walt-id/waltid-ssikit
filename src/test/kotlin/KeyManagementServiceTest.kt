@@ -54,6 +54,28 @@ class KeyManagementServiceTest {
     }
 
     @Test
+    fun generateSecp256k1KeyPairNimbusSunTest() {
+        val kms = KeyManagementService
+
+        val keyId = kms.generateSecp256k1KeyPairSun()
+
+        val keysLoaded = kms.loadKeys(keyId)
+        assertEquals(keyId, keysLoaded?.keyId)
+        assertNotNull(keysLoaded?.pair)
+        assertNotNull(keysLoaded?.pair?.private)
+        assertNotNull(keysLoaded?.pair?.public)
+        assertEquals("EC", keysLoaded?.pair?.private?.algorithm)
+        kms.deleteKeys(keyId)
+    }
+
+    @Test
+    fun generateEd25519KeyPairNimbusSunTest() {
+        val kms = KeyManagementService
+
+        val keyId = kms.generateEd25519KeyPairNimbus()
+    }
+
+    @Test
     fun generateEd25519KeyPairTest() {
         val kms = KeyManagementService
         val keyId = kms.generateKeyPair("Ed25519")

@@ -40,7 +40,7 @@ class GenCommand : CliktCommand(
         echo("Generating $algorithm key pair")
         val keyId = when (algorithm) {
             "Ed25519" -> KeyManagementService.generateEd25519KeyPair()
-            "Secp256k1" -> KeyManagementService.generateSecp256k1KeyPair()
+            "Secp256k1" -> KeyManagementService.generateSecp256k1KeyPairBitcoinj()
             "RSA" -> KeyManagementService.generateRsaKeyPair()
             else -> IllegalArgumentException("Algorithm not supported")
         }
