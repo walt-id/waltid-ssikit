@@ -72,7 +72,6 @@ class LetsTrust : CliktCommand(
         Files.createDirectories(Path.of("${config.dataDir}/vc/templates"))
         Files.createDirectories(Path.of("${config.dataDir}/vc/created"))
         Files.createDirectories(Path.of("${config.dataDir}/vc/presented"))
-
     }
 }
 
@@ -99,7 +98,7 @@ fun main(args: Array<String>) {
             DidCommand().subcommands(CreateDidCommand(), ResolveDidCommand(), ListDidsCommand()),
             VerifiableCredentialsCommand().subcommands(IssueVcCommand(), PresentVcCommand(), VerifyVcCommand(), ListVcCommand()),
             AuthCommand(),
-            EssifCommand().subcommands(EssifAuthCommand())
+            EssifCommand().subcommands(EssifAuthCommand(), EssifDidCommand(), EssifTirCommand(), EssifTaorCommand(), EssifTsrCommand())
         )
         //.main(arrayOf("-v", "-c", "mykey=myval", "vc", "-h"))
         //.main(arrayOf("vc", "verify", "vc.json"))
