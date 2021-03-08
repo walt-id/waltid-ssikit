@@ -44,7 +44,8 @@ class JsonSerializeVerifiableCredentialTest {
             listOf("VerifiableCredential", "VerifiableAttestation"),
             "did:ebsi:000098765",
             LocalDateTime.now().withNano(0),
-            CredentialSubject("did:ebsi:00001235", null, listOf("claim1", "claim2")),
+            null,
+            CredentialSubject("did:ebsi:00001235", null, null, listOf("claim1", "claim2")),
             CredentialStatus("https://essif.europa.eu/status/45", "CredentialsStatusList2020"),
             CredentialSchema("https://essif.europa.eu/tsr/education/CSR1224.json", "JsonSchemaValidator2018"),
             proof

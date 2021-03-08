@@ -209,7 +209,8 @@ object CredentialService {
             listOf("VerifiableCredential", "VerifiableAttestation"),
             "XXX",
             LocalDateTime.now().withNano(0),
-            CredentialSubject(null, "XXX", listOf("claim1", "claim2")),
+            LocalDateTime.now().withNano(0),
+            CredentialSubject(null, "XXX", null, listOf("claim1", "claim2")),
             CredentialStatus("https://essif.europa.eu/status", "CredentialsStatusList2020"),
             CredentialSchema("https://essif.europa.eu/tsr/education/CSR1224.json", "JsonSchemaValidator2018")
         )

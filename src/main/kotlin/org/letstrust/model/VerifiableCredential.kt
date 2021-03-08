@@ -18,6 +18,7 @@ data class VerifiableCredential(
     var type: List<String>,
     var issuer: String,
     var issuanceDate: LocalDateTime,
+    var expirationDate: LocalDateTime? = null,
     var credentialSubject: CredentialSubject,
     var credentialStatus: CredentialStatus? = null,
     var credentialSchema: CredentialSchema? = null,
@@ -77,6 +78,7 @@ data class CredentialSubjectPRC(
 data class CredentialSubject(
     var did: String? = null,
     var id: String? = null,
+    var hash: String? = null,
     var authorizationClaims: List<String>? = null,
     var naturalPerson: NaturalPerson? = null
 )

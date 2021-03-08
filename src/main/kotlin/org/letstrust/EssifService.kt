@@ -4,6 +4,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import mu.KotlinLogging
+import org.letstrust.model.AccessTokenPayload
 import org.letstrust.model.AuthenticationRequestPayload
 import org.letstrust.model.Claim
 import org.letstrust.model.OidcAuthenticationRequestUri
@@ -17,6 +18,7 @@ object EssifService {
 
     val ESSIF_BASE_URL = "https://api.letstrust.org/essif"
 
+    // https://ec.europa.eu/cefdigital/wiki/pages/viewpage.action?spaceKey=BLOCKCHAININT&title=2.+Authorization+API
     // https://ec.europa.eu/cefdigital/wiki/pages/viewpage.action?spaceKey=BLOCKCHAININT&title=Authorisation+API
     fun authenticate() {
         // request SIOP Authorization Request
@@ -46,15 +48,18 @@ object EssifService {
         log.info("Accessing protected EBSI resource ...")
     }
 
-    private fun siopSessionsRequest(authReq: AuthenticationRequestPayload) {
+    private fun siopSessionsRequest(authReq: AuthenticationRequestPayload): AccessTokenPayload? {
 
+
+
+        return null // AccessTokenPayload
     }
 
     fun validateAuthenticationRequest(authReq: AuthenticationRequestPayload) {
 
         log.debug { "Validating Authentication Request $authReq" }
 
-        if (authReq.claims.id_token.verified_claims.verification.trust_framework != "EBSI"){
+        if (authReq.claims.id_token.verified_claims.verification.trust_framework != "EBSI") {
             throw Exception("Trustframework needs to be: EBSI")
         }
 

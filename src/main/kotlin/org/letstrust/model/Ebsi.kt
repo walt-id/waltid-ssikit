@@ -168,5 +168,22 @@ data class AuthenticationResponsePayload(
 data class AuthenticationResponseVerifiedClaims(
     val verified_claims: String,
     val encryption_key: String
+)
 
+@Serializable
+data class AccessTokenHeader(
+    val alg: String,
+    val cty: String,
+    val typ: String
+)
+
+@Serializable
+data class AccessTokenPayload(
+    val iss: String,
+    val sub: String,
+    val aud: String,
+    val iat: Long,
+    val exp: Long,
+    val nonce: String,
+    val atHash: String,
 )

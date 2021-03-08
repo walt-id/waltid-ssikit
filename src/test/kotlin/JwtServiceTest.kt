@@ -3,11 +3,13 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.Test
+import org.letstrust.CredentialService
 import org.letstrust.JwtService
 import org.letstrust.KeyManagementService
 import org.letstrust.model.AuthenticationRequestPayload
 import org.letstrust.model.AuthenticationResponsePayload
 import org.letstrust.model.AuthenticationResponseVerifiedClaims
+import org.letstrust.model.VerifiablePresentation
 import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -72,23 +74,13 @@ class JwtServiceTest {
     }
 
 
-    //    {
-//        "iss": "did:ebsi:0x123abc",
-//        "sub": "{thumbprint of the sub_jwk}",
-//        "aud": "did:ebsi:RP-did-here", => WHICH DID IS THIS???
-//        "iat": 1610714000,
-//        "exp": 1610714900,
-//        "sub_jwk":{signing JWK},
-//        "sub_did_verification_method_uri": "did:ebsi:0x123abc#authentication-key-proof-3",
-//        "nonce": "n-0S6_WzA2M",
-//        "claims": {
-//        "verified_claims": {Authentication-Response-Verifiable-Presentation},
-//        "encryption_key": {JWK encryption key}
-//    }
-//    }
+
+    // This test-case depends on the associated subject-key in verifiable-authorization2.json, which needs to be available in the keystore
     @Test
-    fun signAuthenticationResponse() {
-        val vp = File("src/test/resources/ebsi/authentication-response-verifiable-presentation.json").readText()
+    fun signAuthenticationResponseTest() {
+        val verifiableAuthorization = File("src/test/resources/ebsi/verifiable-authorization2.json").readText()
+
+        val vp = CredentialService.present(verifiableAuthorization, "api.ebsi.xyz", null)
 
         val arp = AuthenticationResponsePayload(
             "did:ebsi:0x123abc",
@@ -99,8 +91,10 @@ class JwtServiceTest {
             "signing JWK",
             "did:ebsi:0x123abc#authentication-key-proof-3",
             "n-0S6_WzA2M",
-            AuthenticationResponseVerifiedClaims("vp", "enc_key")
+            AuthenticationResponseVerifiedClaims(vp, "enc_key")
         )
+
+        println(Json { prettyPrint = true }.encodeToString(arp))
 
         val keyId = KeyManagementService.generateSecp256k1KeyPairSun()
 
@@ -108,15 +102,20 @@ class JwtServiceTest {
 
         println(jwt)
 
+        val resJwt = JwtService.verify(jwt)
+
+        assertTrue(resJwt, "JWT verification failed")
+
         val claims = JwtService.parseClaims(jwt)!!
 
         val childClaims = claims["claims"] as JSONObject
 
-        assertEquals("vp", childClaims["verified_claims"])
+        assertEquals(vp, childClaims["verified_claims"])
 
-        val res = JwtService.verify(jwt)
+        val resVP = CredentialService.verifyVp(vp)
 
-        assertTrue(res, "JWT verification failed")
+        assertTrue(resVP, "LD-Proof verification failed")
+
     }
 
 }
