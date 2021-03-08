@@ -1,8 +1,11 @@
 package org.letstrust
 
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import mu.KotlinLogging
+import org.letstrust.model.AuthenticationRequestPayload
+import org.letstrust.model.Claim
 import org.letstrust.model.OidcAuthenticationRequestUri
 import java.io.File
 import java.net.URLDecoder
@@ -18,19 +21,21 @@ object EssifService {
     fun authenticate() {
         // request SIOP Authorization Request
         log.info("Request an access request token from the Authorisation API")
-        this.authenticationRequest()
+        var authReq = this.authenticationRequest()
 
-        log.info("Authorization request received")
+        println(authReq)
+
         // process Authorization Request
         log.info("Validating the authentication request (validate the issuer, content, expiration date, etc.)")
 
-        validateAuthenticationRequest()
+        validateAuthenticationRequest(authReq)
 
         // Verify DID
         log.info("Resolving issuer DID")
 
         // Establish SIOP Session
         log.info("Assembling authorization response to open a SIOP session")
+        this.siopSessionsRequest(authReq)
 
         // process ID Token including VP
         log.info("ID Token received")
@@ -41,20 +46,26 @@ object EssifService {
         log.info("Accessing protected EBSI resource ...")
     }
 
-    fun validateAuthenticationRequest() {
-        val authenticationRequestStr = File("src/test/resources/ebsi/authentication-request-payload.json").readText()
-
-        println(authenticationRequestStr)
-
+    private fun siopSessionsRequest(authReq: AuthenticationRequestPayload) {
 
     }
 
-    // https://github.com/Baeldung/kotlin-tutorials/tree/master/kotlin-libraries-http/src/main/kotlin/com/baeldung/fuel
-    fun authenticationRequest(): OidcAuthenticationRequestUri {
+    fun validateAuthenticationRequest(authReq: AuthenticationRequestPayload) {
 
-//        {
-//            "scope": "ebsi user profile"
-//        }
+        log.debug { "Validating Authentication Request $authReq" }
+
+        if (authReq.claims.id_token.verified_claims.verification.trust_framework != "EBSI"){
+            throw Exception("Trustframework needs to be: EBSI")
+        }
+
+        //TODO add further validations and validation based on the JSON schema
+
+    }
+
+
+    // Request parsing and signature validation
+    fun authenticationRequest(): AuthenticationRequestPayload {
+
         val authenticationRequest = "{\n" +
                 "  \"scope\": \"ebsi user profile\"\n" +
                 "}"
@@ -62,18 +73,43 @@ object EssifService {
         log.debug { "POST /authentication-requests:\n${authenticationRequest}" }
 
         val authenticationRequestResponse = "{\n" +
-                "  \"uri\": \"openid://?response_type=id_token&client_id=https%3A%2F%2Fapi.ebsi.zyz%2Faccess-tokens&scope=openid%20did_authn&request=eyJhbGciOiJIUzI1Ni...\"\n" +
+                "  \"uri\": \"openid://?response_type=id_token&client_id=https%3A%2F%2Fapi.ebsi.zyz%2Faccess-tokens&scope=openid%20did_authn&request=eyJraWQiOiJMZXRzVHJ1c3QtS2V5LTBhNzBjZmZlMmQxMDQyY2Q4NDkwYzIxYjcxYjkzZTM3IiwiYWxnIjoiRVMyNTZLIn0.eyJzY29wZSI6Im9wZW5pZCBkaWRfYXV0aG4iLCJpc3MiOiJkaWQ6ZWJzaToweDQxNmU2ZTYxNjI2NTZjMmU0YzY1NjUyZTQ1MmQ0MTJkNTA2ZjY1MmUiLCJjbGFpbXMiOnsiaWRfdG9rZW4iOnsidmVyaWZpZWRfY2xhaW1zIjp7InZlcmlmaWNhdGlvbiI6eyJldmlkZW5jZSI6eyJkb2N1bWVudCI6eyJjcmVkZW50aWFsU2NoZW1hIjp7ImlkIjp7InZhbHVlIjoiaHR0cHM6XC9cL2Vic2kueHl6XC90cnVzdGVkLXNjaGVtYXMtcmVnaXN0cnlcL3ZlcmlmaWFibGUtYXV0aG9yaXNhdGlvbiIsImVzc2VudGlhbCI6dHJ1ZX19LCJ0eXBlIjp7InZhbHVlIjpbIlZlcmlmaWFibGVDcmVkZW50aWFsIiwiVmVyaWZpYWJsZUF1dGhvcmlzYXRpb24iXSwiZXNzZW50aWFsIjp0cnVlfX0sInR5cGUiOnsidmFsdWUiOiJ2ZXJpZmlhYmxlX2NyZWRlbnRpYWwifX0sInRydXN0X2ZyYW1ld29yayI6IkVCU0kifX19fSwicmVzcG9uc2VfdHlwZSI6ImlkX3Rva2VuIiwicmVnaXN0cmF0aW9uIjoiPHJlZ2lzdHJhdGluIG9iamVjdD4iLCJub25jZSI6IjxyYW5kb20tbm9uY2U-IiwiY2xpZW50X2lkIjoiPHJlZGlyZWN0LXVyaT4ifQ.4SM7quGYTHq8b8jXcx1tQHUay9MZwM4obVN459HMXX3V6lfhGjBeqVQOd3TyE18ORVn8SAviTBLSnkWdZN14zg\"\n" +
                 "}"
 
+        // https://github.com/Baeldung/kotlin-tutorials/tree/master/kotlin-libraries-http/src/main/kotlin/com/baeldung/fuel
         //val resp = post("$ESSIF_BASE_URL/authentication-requests", json = mapOf("scope" to "ebsi user profile"))
 
+        log.info("Authorization request received")
         log.debug { "Response of /authentication-requests:\n$authenticationRequestResponse" }
 
-        val oidcReq = jsonToOidcAuthenticationRequestUri(authenticationRequestResponse)
+        val oidcReqUri = jsonToOidcAuthenticationRequestUri(authenticationRequestResponse)
 
-        log.debug { "SIOP Request: $oidcReq" }
+        log.debug { "OidcReqUri: $oidcReqUri" }
 
-        return oidcReq;
+        if (!JwtService.verify(oidcReqUri.request)) {
+            log.error { "Could not verify Authentication Request Token signature: " + oidcReqUri.request }
+            throw Exception("Could not verify Authentication Request Token signature: " + oidcReqUri.request)
+        } else {
+            log.debug { "Authentication Request Token Verified successfully" }
+        }
+
+        val claims = JwtService.parseClaims(oidcReqUri.request)
+
+        println(claims)
+
+        println(claims?.get("claims")!!.toString())
+
+        val claim = Json.decodeFromString<Claim>(claims["claims"].toString())
+
+        return AuthenticationRequestPayload(
+            claims["scope"].toString(),
+            claims["iss"].toString(),
+            claims["response_type"].toString(),
+            claims["client_id"].toString(),
+            claims["nonce"].toString(),
+            claims["registration"].toString(),
+            claim
+        )
     }
 
     //        {

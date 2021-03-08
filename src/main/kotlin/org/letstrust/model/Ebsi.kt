@@ -99,7 +99,7 @@ data class AuthenticationRequestPayload(
 )
 
 @Serializable
-data class Claim (
+data class Claim(
     val id_token: IdToken
 )
 
@@ -149,4 +149,24 @@ data class Type(
 data class TypeDocument(
     val essential: Boolean? = null,
     val value: List<String>
+)
+
+@Serializable
+data class AuthenticationResponsePayload(
+    val iss: String,
+    val sub: String,
+    val aud: String,
+    val iat: Long,
+    val exp: Long,
+    val sub_jwk: String,
+    val sub_did_verification_method_uri: String,
+    val nonce: String,
+    val claims: AuthenticationResponseVerifiedClaims,
+)
+
+@Serializable
+data class AuthenticationResponseVerifiedClaims(
+    val verified_claims: String,
+    val encryption_key: String
+
 )
