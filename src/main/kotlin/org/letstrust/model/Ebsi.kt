@@ -73,3 +73,8 @@ data class CredentialStatusListEntry(
     val modificationReason: List<String>
 )
 
+data class OidcAuthenticationRequestUri(
+    val response_type: String,
+    val scope: String,
+    val request: String
+)
