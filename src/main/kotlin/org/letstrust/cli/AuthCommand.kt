@@ -4,6 +4,7 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
+import com.nimbusds.jwt.SignedJWT
 import khttp.post
 import org.letstrust.CliConfig
 
@@ -15,7 +16,8 @@ class AuthCommand : CliktCommand(
 ) {
 
     val config: CliConfig by requireObject()
-//    val username: String by option(help = "The developer's shown username.")
+
+    //    val username: String by option(help = "The developer's shown username.")
 //        .prompt()
     val email: String by option(help = "Your email address.")
         .prompt(text = "E-Mail")
@@ -29,7 +31,10 @@ class AuthCommand : CliktCommand(
 //        echo("Changed credentials.")
 //        println(config)
 
-        val token = post("https://api.letstrust.io/users/auth/login", json = mapOf("email" to email, "password" to password)).jsonObject["token"]
+        val token = post("https://api.letstrust.io/users/auth/login", json = mapOf("email" to email, "password" to password)).jsonObject["token"].toString()
         println(token)
+        val jwt = SignedJWT.parse(token)
+        var claimsMap = jwt.jwtClaimsSet.claims
+        claimsMap.iterator().forEach { println(it) }
     }
 }

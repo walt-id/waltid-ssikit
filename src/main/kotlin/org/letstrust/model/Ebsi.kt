@@ -2,6 +2,7 @@
 
 package org.letstrust.model
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import java.time.LocalDateTime
@@ -77,4 +78,75 @@ data class OidcAuthenticationRequestUri(
     val response_type: String,
     val scope: String,
     val request: String
+)
+
+@Serializable
+data class AuthenticationRequestHeader(
+    val alg: String,
+    val typ: String,
+    val jwk: String
+)
+
+@Serializable
+data class AuthenticationRequestPayload(
+    val scope: String,
+    val iss: String,
+    val response_type: String,
+    val client_id: String,
+    val nonce: String,
+    val registration: String,
+    val claims: Claim
+)
+
+@Serializable
+data class Claim (
+    val id_token: IdToken
+)
+
+@Serializable
+data class IdToken(
+    val verified_claims: VerifiedClaims
+)
+
+@Serializable
+data class VerifiedClaims(
+    val verification: Verification
+)
+
+@Serializable
+data class Verification(
+    val trust_framework: String,
+    val evidence: Evidence
+)
+
+@Serializable
+data class Evidence(
+    val type: Type,
+    val document: Document
+)
+
+@Serializable
+data class Document(
+    @SerialName("type")
+    val type: TypeDocument,
+    @SerialName("credentialSchema")
+    val credentialSchema: CredentialSchemaAr
+)
+
+@Serializable
+data class CredentialSchemaAr(
+    val id: Type
+)
+
+
+@Serializable
+data class Type(
+    val essential: Boolean? = null,
+    val value: String
+)
+
+@Serializable
+data class TypeDocument(
+    val essential: Boolean? = null,
+    val value: List<String>
 )

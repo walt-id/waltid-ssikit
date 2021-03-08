@@ -43,13 +43,8 @@ class JwtTest {
             .generate()
         val publicJWK = jwk.toPublicJWK()
 
-
-        // Create the EdDSA signer
-
         // Create the EdDSA signer
         val signer: JWSSigner = Ed25519Signer(jwk)
-
-        // Prepare JWT with claims set
 
         // Prepare JWT with claims set
         val claimsSet = JWTClaimsSet.Builder()
@@ -66,7 +61,6 @@ class JwtTest {
         // Compute the EC signature
         signedJWT.sign(signer)
 
-
         // Serialize the JWS to compact form
         val s = signedJWT.serialize()
 
@@ -78,8 +72,6 @@ class JwtTest {
         println(jwk.toJSONString())
         val verifier: JWSVerifier = Ed25519Verifier(publicJWK)
         assertTrue(signedJWT.verify(verifier))
-
-        // Retrieve / verify the JWT claims according to the app requirements
 
         // Retrieve / verify the JWT claims according to the app requirements
         assertEquals("alice", signedJWT.jwtClaimsSet.subject)

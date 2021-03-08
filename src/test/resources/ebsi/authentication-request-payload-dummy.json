@@ -1,0 +1,34 @@
+{
+  "scope": "openid did_authn",
+  "iss": "did:ebsi:0x416e6e6162656c2e4c65652e452d412d506f652e",
+  "response_type": "id_token",
+  "client_id": "<redirect-uri>",
+  "nonce": "<random-nonce>",
+  "registration": "<registratin object>",
+  "claims": {
+    "id_token": {
+      "verified_claims": {
+        "verification": {
+          "trust_framework": "EBSI",
+          "evidence": {
+            "type": {
+              "value": "verifiable_credential"
+            },
+            "document": {
+              "type": {
+                "essential": true,
+                "value": ["VerifiableCredential", "VerifiableAuthorisation"]
+              },
+              "credentialSchema": {
+                "id": {
+                  "essential": true,
+                  "value": "https://ebsi.xyz/trusted-schemas-registry/verifiable-authorisation"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -17,11 +17,18 @@ object JwtService {
 
     fun sign(
         keyAlias: String,
-        payload: String
+        payload: String? = null
     ): String {
 
-        // TODO: replace sample JWT claims
-        val claimsSet = JWTClaimsSet.Builder()
+        // Default JWT claims
+//        val claimsSet = JWTClaimsSet.Builder()
+//            .subject("alice")
+//            .issuer("https://c2id.com")
+//            .expirationTime(Date(Date().getTime() + 60 * 1000))
+//            .build()
+
+
+        val claimsSet = if (payload != null) JWTClaimsSet.parse(payload) else JWTClaimsSet.Builder()
             .subject("alice")
             .issuer("https://c2id.com")
             .expirationTime(Date(Date().getTime() + 60 * 1000))
@@ -76,5 +83,11 @@ object JwtService {
 
         log.debug { "JWT verified returned:  $res" }
         return res
+    }
+
+    fun parseClaims(token: String): MutableMap<String, Any>? {
+        val jwt = SignedJWT.parse(token)
+        val claimsMap = jwt.jwtClaimsSet.claims
+        return claimsMap
     }
 }

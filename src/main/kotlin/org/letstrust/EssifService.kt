@@ -4,6 +4,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import mu.KotlinLogging
 import org.letstrust.model.OidcAuthenticationRequestUri
+import java.io.File
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets.UTF_8
 
@@ -23,6 +24,8 @@ object EssifService {
         // process Authorization Request
         log.info("Validating the authentication request (validate the issuer, content, expiration date, etc.)")
 
+        validateAuthenticationRequest()
+
         // Verify DID
         log.info("Resolving issuer DID")
 
@@ -38,13 +41,20 @@ object EssifService {
         log.info("Accessing protected EBSI resource ...")
     }
 
+    fun validateAuthenticationRequest() {
+        val authenticationRequestStr = File("src/test/resources/ebsi/authentication-request-payload.json").readText()
+
+        println(authenticationRequestStr)
+
+
+    }
+
     // https://github.com/Baeldung/kotlin-tutorials/tree/master/kotlin-libraries-http/src/main/kotlin/com/baeldung/fuel
-    fun authenticationRequest() {
+    fun authenticationRequest(): OidcAuthenticationRequestUri {
 
 //        {
 //            "scope": "ebsi user profile"
 //        }
-
         val authenticationRequest = "{\n" +
                 "  \"scope\": \"ebsi user profile\"\n" +
                 "}"
@@ -61,18 +71,17 @@ object EssifService {
 
         val oidcReq = jsonToOidcAuthenticationRequestUri(authenticationRequestResponse)
 
-        log.debug { "SiopReq: $oidcReq" }
+        log.debug { "SIOP Request: $oidcReq" }
 
-
+        return oidcReq;
     }
 
-//        {
-//            "uri": "openid://?response_type=id_token&client_id=https%3A%2F%2Fapi.ebsi.zyz%2Faccess-tokens&scope=openid%20did_authn&request=eyJhbGciOiJIUzI1Ni..."
-//        }
+    //        {
+    //            "uri": "openid://?response_type=id_token&client_id=https%3A%2F%2Fapi.ebsi.zyz%2Faccess-tokens&scope=openid%20did_authn&request=eyJhbGciOiJIUzI1Ni..."
+    //        }
     fun jsonToOidcAuthenticationRequestUri(authenticationRequestResponseJson: String): OidcAuthenticationRequestUri {
         try {
             val uri = Json.parseToJsonElement(authenticationRequestResponseJson).jsonObject["uri"].toString()
-            log.debug { "uri: $uri" }
             val paramString = uri.substringAfter("openid://?")
             val pm = toParamMap(paramString)
             return OidcAuthenticationRequestUri(pm["response_type"]!!, pm["scope"]!!, pm["request"]!!)

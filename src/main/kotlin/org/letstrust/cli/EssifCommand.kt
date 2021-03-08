@@ -25,6 +25,8 @@ import org.letstrust.EssifService
 // essif tsr --id 12345
 // essif tsr register
 
+// maybe: "registries"
+
 class EssifCommand : CliktCommand(
     name = "essif",
     help = """ESSIF Use Cases.
