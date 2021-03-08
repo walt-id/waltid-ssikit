@@ -104,6 +104,11 @@ data class Claim(
 )
 
 @Serializable
+data class SiopSessionRequest (
+    val id_token: String
+)
+
+@Serializable
 data class IdToken(
     val verified_claims: VerifiedClaims
 )
@@ -168,6 +173,26 @@ data class AuthenticationResponsePayload(
 data class AuthenticationResponseVerifiedClaims(
     val verified_claims: String,
     val encryption_key: String
+)
+
+@Serializable
+data class AccessTokenResponse(
+    val ake1_enc_payload: Ake1EncPayload,
+    val ake1_jws_detached: Ake1JwsDetached,
+    val did: String
+)
+
+@Serializable
+data class Ake1EncPayload(
+    val access_token: String,
+    val did: String
+)
+
+@Serializable
+data class Ake1JwsDetached(
+    val ake1_nonce: String,
+    val ake1_enc_paylod: String,
+    val did: String
 )
 
 @Serializable

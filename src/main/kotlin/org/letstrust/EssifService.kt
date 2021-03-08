@@ -1,13 +1,11 @@
 package org.letstrust
 
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import mu.KotlinLogging
-import org.letstrust.model.AccessTokenPayload
-import org.letstrust.model.AuthenticationRequestPayload
-import org.letstrust.model.Claim
-import org.letstrust.model.OidcAuthenticationRequestUri
+import org.letstrust.model.*
 import java.io.File
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets.UTF_8
@@ -37,7 +35,7 @@ object EssifService {
 
         // Establish SIOP Session
         log.info("Assembling authorization response to open a SIOP session")
-        this.siopSessionsRequest(authReq)
+        val atr = this.siopSessionsRequest(authReq)
 
         // process ID Token including VP
         log.info("ID Token received")
@@ -48,11 +46,54 @@ object EssifService {
         log.info("Accessing protected EBSI resource ...")
     }
 
-    private fun siopSessionsRequest(authReq: AuthenticationRequestPayload): AccessTokenPayload? {
+    private fun siopSessionsRequest(authReq: AuthenticationRequestPayload): AccessTokenResponse? {
+
+        val verifiableAuthorization = File("src/test/resources/ebsi/verifiable-authorization2.json").readText()
+
+        val vp = CredentialService.present(verifiableAuthorization, "api.ebsi.xyz", null)
+
+        // TODO: set correct values
+        val arp = AuthenticationResponsePayload(
+            "did:ebsi:0x123abc",
+            "thumbprint of the sub_jwk",
+            "did:ebsi:RP-did-here",
+            1610714000,
+            1610714900,
+            "signing JWK",
+            "did:ebsi:0x123abc#authentication-key-proof-3",
+            authReq.nonce,
+            AuthenticationResponseVerifiedClaims(vp, "enc_key")
+        )
+
+        println(Json { prettyPrint = true }.encodeToString(arp))
+
+        val id_token = JwtService.sign("did:key:z6MksTeZpzyCdeRHuvk6kAAfQQCas3NPTRtxnB5a68mDrps5", Json.encodeToString(arp))
+
+        val siopSessionRequest = SiopSessionRequest(id_token)
+        println(Json { prettyPrint = true }.encodeToString(siopSessionRequest))
 
 
+//        {
+//            "grantType": "client_credentials",
+//            "clientAssertionType": "urn:ietf:params:oauth:client-assertion-type:jwt-bearer",
+//            "clientAssertion": "eyJhbGciOiJIUzI...",
+//            "scope": "openid did_authn"
+//        }
 
-        return null // AccessTokenPayload
+        // https://ec.europa.eu/cefdigital/wiki/pages/viewpage.action?spaceKey=BLOCKCHAININT&title=Authorisation+API#AuthorisationAPI-AccessTokenandAuthenticatedKeyExchangedatamodels
+        // TODO send siopSessionRequest
+
+        // AccessToken Received
+
+        val atr = AccessTokenResponse(
+            Ake1EncPayload("JWS encoded access token", "DID of the RP"),
+            Ake1JwsDetached("Nonce from the ID Token used for authentication", "ake1_enc_payload", "DID of the Client"),
+            "did"
+        )
+
+        println("AccessTokenResponse received: $atr")
+
+        return atr // AccessTokenPayload
     }
 
     fun validateAuthenticationRequest(authReq: AuthenticationRequestPayload) {
