@@ -72,6 +72,7 @@ class LetsTrust : CliktCommand(
         Files.createDirectories(Path.of("${config.dataDir}/vc/templates"))
         Files.createDirectories(Path.of("${config.dataDir}/vc/created"))
         Files.createDirectories(Path.of("${config.dataDir}/vc/presented"))
+        Files.createDirectories(Path.of("${config.dataDir}/ebsi/"))
     }
 }
 

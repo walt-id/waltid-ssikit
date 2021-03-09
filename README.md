@@ -7,6 +7,7 @@
 
 ## Build
 
+    maven install
     docker build -f docker/Dockerfile . -t letstrust
 
 ## Push

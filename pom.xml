@@ -255,6 +255,16 @@
             <artifactId>khttp</artifactId>
             <version>1.0.0</version>
         </dependency>
+        <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-client-core</artifactId>
+            <version>1.5.2</version>
+        </dependency>
+        <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-client-cio</artifactId>
+            <version>1.5.2</version>
+        </dependency>
         <!-- LOGGING -->
         <dependency>
             <groupId>org.slf4j</groupId>
