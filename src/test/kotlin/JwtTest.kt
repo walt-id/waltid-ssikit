@@ -131,4 +131,61 @@ class JwtTest {
         // Output the JWT claims: {"sub":"alice"}
         println(jwt2.jwtClaimsSet.toJSONObject())
     }
+
+    // https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/Authorisation+API
+    // https://github.com/felx/nimbus-jose-jwt/blob/master/src/test/java/com/nimbusds/jose/crypto/ECDHCryptoTest.java
+    @Test
+    fun signAndEncryptedJwtP_256() {
+        // setup
+        // Generate EC key pair on the secp256k1 curve
+        val senderJWK = ECKeyGenerator(Curve.SECP256K1)
+            .keyUse(KeyUse.SIGNATURE)
+            .keyID("123")
+            .generate()
+
+        // Create JWT
+        val signedJWT = SignedJWT(
+            JWSHeader.Builder(JWSAlgorithm.ES256K).keyID(senderJWK.getKeyID()).build(),
+            JWTClaimsSet.Builder()
+                .subject("alice")
+                .issueTime(Date())
+                .issuer("https://c2id.com")
+                .build()
+        )
+
+        // Sign the JWT
+        signedJWT.sign(ECDSASigner(senderJWK))
+
+        // Create JWE object with signed JWT as payload
+        val jweObject = JWEObject(
+            JWEHeader.Builder(JWEAlgorithm.ECDH_ES, EncryptionMethod.A256GCM)
+                .contentType("JWT") // required to indicate nested JWT
+
+                .build(),
+            Payload(signedJWT)
+        )
+
+        val recipientPublicJWK = ECKeyGenerator(Curve.P_256) // SECP256K1 not working for encrypter
+            .keyUse(KeyUse.SIGNATURE)
+            .keyID("456")
+            .generate()
+
+        // Encrypt with the recipient's public key
+        jweObject.encrypt(ECDHEncrypter(recipientPublicJWK))
+
+        // Serialise to JWE compact form
+        val jweString = jweObject.serialize()
+
+        println(jweString)
+
+        var jwe2 = JWEObject.parse(jweString)
+
+        jwe2.decrypt(ECDHDecrypter(recipientPublicJWK))
+
+        val jwt2 = jwe2.payload.toSignedJWT()
+
+        // Verify the ES256K signature with the public EC key
+
+        assertTrue(jwt2.verify(ECDSAVerifier(senderJWK)))
+    }
 }
