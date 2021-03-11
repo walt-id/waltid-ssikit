@@ -141,10 +141,18 @@ class JwtServiceTest {
         println("ake1_jws_detached:\n" + ake1_jws_detached)
 
 
+        // Received AccessTokenResponse
+        val received_access_token_response = Json.decodeFromString<AccessTokenResponse>(access_token_response)
         // Verifies the signature ake1_sig_payload
+        val verified = JwtService.verify(received_access_token_response.ake1_jws_detached)
+        assertTrue(verified)
 
         // encrypted payload ake1_enc_payload
+        val received_ake1_enc_payload = JwtService.dencrypt(received_access_token_response.ake1_enc_payload)
+        val received_ake1_enc_payload_obj  = Json.decodeFromString<Ake1EncPayload>(received_ake1_enc_payload)
+        val received_access_token = received_ake1_enc_payload_obj.access_token
 
+        assertEquals(accessToken, received_access_token)
         // Creates an ake1_sig_payload(nonce, ake1_enc_payload, did(P))
 
     }

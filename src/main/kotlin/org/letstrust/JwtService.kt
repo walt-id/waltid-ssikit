@@ -18,7 +18,18 @@ object JwtService {
         payload: String? = null
     ): String {
 
-        // TODO load key and load encryption config based on key-alg
+// TODO load key and load encryption config based on key-alg
+//        val recipientJWK = KeyManagementService.loadKeys(keyAlias)
+//        if (recipientJWK == null) {
+//            log.error { "Could not load verifying key for $keyAlias" }
+//            throw Exception("Could not load verifying key for $keyAlias")
+//        }
+        val encKey = OctetKeyPairGenerator(Curve.X25519)
+            .keyID("123")
+            .generate()
+        val pubEncKey = encKey.toPublicJWK()
+
+
         val jweObject = JWEObject(
             JWEHeader.Builder(JWEAlgorithm.ECDH_ES, EncryptionMethod.A256GCM)
                 .contentType("JWT") // required to indicate nested JWT
@@ -26,20 +37,25 @@ object JwtService {
             Payload(payload)
         )
 
-        val recipientJWK = OctetKeyPairGenerator(Curve.X25519)
-            .keyID("123")
-            .generate()
-        val recipientPublicJWK = recipientJWK.toPublicJWK()
-
-        // Encrypt with the recipient's public key
-        jweObject.encrypt(X25519Encrypter(recipientPublicJWK))
+        jweObject.encrypt(X25519Encrypter(pubEncKey))
         return jweObject.serialize()
     }
 
     fun dencrypt(
-        encPayload: String
+        jwe: String
     ): String {
-        return "true"
+        val jweObj = JWEObject.parse(jwe)
+
+        val keyId = jweObj.header.keyID
+
+        val encKey = KeyManagementService.loadKeys(keyId)
+        if (encKey == null) {
+            log.error { "Could not load verifying key for $keyId" }
+            throw Exception("Could not load verifying key for $keyId")
+        }
+        jweObj.decrypt(X25519Decrypter(encKey.toOctetKeyPair()))
+
+        return jweObj.payload.toString()
     }
 
     fun sign(
