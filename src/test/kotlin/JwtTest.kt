@@ -147,9 +147,9 @@ class JwtTest {
         val signedJWT = SignedJWT(
             JWSHeader.Builder(JWSAlgorithm.ES256K).keyID(senderJWK.getKeyID()).build(),
             JWTClaimsSet.Builder()
-                .subject("alice")
+                .subject("test")
                 .issueTime(Date())
-                .issuer("https://c2id.com")
+                .issuer("https://test.com")
                 .build()
         )
 
@@ -160,7 +160,6 @@ class JwtTest {
         val jweObject = JWEObject(
             JWEHeader.Builder(JWEAlgorithm.ECDH_ES, EncryptionMethod.A256GCM)
                 .contentType("JWT") // required to indicate nested JWT
-
                 .build(),
             Payload(signedJWT)
         )
@@ -187,5 +186,63 @@ class JwtTest {
         // Verify the ES256K signature with the public EC key
 
         assertTrue(jwt2.verify(ECDSAVerifier(senderJWK)))
+    }
+
+    @Test
+    fun signAndEncryptedJwtEd25519() {
+
+        // setup
+        // Generate a key pair with Ed25519 curve
+        val senderJWK = OctetKeyPairGenerator(Curve.Ed25519)
+            .keyID("123")
+            .generate()
+        val senderPublicJWK = senderJWK.toPublicJWK()
+
+        // Create the EdDSA signer
+        val signer: JWSSigner = Ed25519Signer(senderJWK)
+
+        // Prepare JWT with claims set
+        val claimsSet = JWTClaimsSet.Builder()
+            .subject("test")
+            .issuer("https://test.com")
+            .build()
+
+        var signedJWT = SignedJWT(
+            JWSHeader.Builder(JWSAlgorithm.EdDSA).keyID(senderJWK.keyID).build(),
+            claimsSet
+        )
+
+        // Compute the EC signature
+        signedJWT.sign(signer)
+
+        // Create JWE object with signed JWT as payload
+        val jweObject = JWEObject(
+            JWEHeader.Builder(JWEAlgorithm.ECDH_ES, EncryptionMethod.A256GCM)
+                .contentType("JWT") // required to indicate nested JWT
+                .build(),
+            Payload(signedJWT)
+        )
+
+        val recipientJWK = OctetKeyPairGenerator(Curve.X25519)
+            .keyID("123")
+            .generate()
+        val recipientPublicJWK = recipientJWK.toPublicJWK()
+
+        // Encrypt with the recipient's public key
+        jweObject.encrypt(X25519Encrypter(recipientPublicJWK))
+
+        // Serialise to JWE compact form
+        val jweString = jweObject.serialize()
+
+        println(jweString)
+
+        var jwe2 = JWEObject.parse(jweString)
+
+        jwe2.decrypt(X25519Decrypter(recipientJWK))
+
+        val jwt2 = jwe2.payload.toSignedJWT()
+
+        // Verify the Ed25519 signature with the public EC key
+       assertTrue(jwt2.verify(Ed25519Verifier(senderPublicJWK)))
     }
 }
