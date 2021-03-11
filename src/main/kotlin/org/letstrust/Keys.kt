@@ -54,8 +54,21 @@ data class Keys(val keyId: String, val pair: KeyPair, val provider: String) {
     }
 
     fun isByteKey(): Boolean = this.pair.private is BytePrivateKey
-    fun getPubKey(): ByteArray = (this.pair.public as BytePublicKey).publicKey
-    fun getPrivKey(): ByteArray = (this.pair.private as BytePrivateKey).privateKey
+
+    fun getPubKey(): ByteArray {
+        if (provider == "SunEC") {
+            return toOctetKeyPair().decodedX
+        }
+        return (this.pair.public as BytePublicKey).publicKey            
+    }
+
+    fun getPrivKey(): ByteArray {
+        if (provider == "SunEC") {
+            return toOctetKeyPair().decodedD
+        }
+        return (this.pair.private as BytePrivateKey).privateKey
+    }
+
     fun toOctetKeyPair(): OctetKeyPair {
         val keyUse = KeyUse.parse("sig")
         val keyAlg = JWSAlgorithm.parse("EdDSA")
@@ -79,3 +92,4 @@ data class Keys(val keyId: String, val pair: KeyPair, val provider: String) {
             .build()
     }
 }
+

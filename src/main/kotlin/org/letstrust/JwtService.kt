@@ -1,11 +1,9 @@
 package org.letstrust
 
-import com.nimbusds.jose.JWSAlgorithm
-import com.nimbusds.jose.JWSHeader
-import com.nimbusds.jose.crypto.ECDSASigner
-import com.nimbusds.jose.crypto.ECDSAVerifier
-import com.nimbusds.jose.crypto.Ed25519Signer
-import com.nimbusds.jose.crypto.Ed25519Verifier
+import com.nimbusds.jose.*
+import com.nimbusds.jose.crypto.*
+import com.nimbusds.jose.jwk.Curve
+import com.nimbusds.jose.jwk.gen.OctetKeyPairGenerator
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import mu.KotlinLogging
@@ -14,6 +12,35 @@ import java.util.*
 private val log = KotlinLogging.logger {}
 
 object JwtService {
+
+    fun encrypt(
+        keyAlias: String,
+        payload: String? = null
+    ): String {
+
+        // TODO load key and load encryption config based on key-alg
+        val jweObject = JWEObject(
+            JWEHeader.Builder(JWEAlgorithm.ECDH_ES, EncryptionMethod.A256GCM)
+                .contentType("JWT") // required to indicate nested JWT
+                .build(),
+            Payload(payload)
+        )
+
+        val recipientJWK = OctetKeyPairGenerator(Curve.X25519)
+            .keyID("123")
+            .generate()
+        val recipientPublicJWK = recipientJWK.toPublicJWK()
+
+        // Encrypt with the recipient's public key
+        jweObject.encrypt(X25519Encrypter(recipientPublicJWK))
+        return jweObject.serialize()
+    }
+
+    fun dencrypt(
+        encPayload: String
+    ): String {
+        return "true"
+    }
 
     fun sign(
         keyAlias: String,
@@ -29,8 +56,8 @@ object JwtService {
 
 
         val claimsSet = if (payload != null) JWTClaimsSet.parse(payload) else JWTClaimsSet.Builder()
-            .subject("alice")
-            .issuer("https://c2id.com")
+            .subject(keyAlias)
+            .issuer("https://letstrust.org")
             .expirationTime(Date(Date().getTime() + 60 * 1000))
             .build()
 
@@ -66,6 +93,7 @@ object JwtService {
         log.debug { "Verifying token:  $token" }
         val jwt = SignedJWT.parse(token)
 
+        //TODO: key might also be entirely extracted out of the header",
         val verifierKey = KeyManagementService.loadKeys(jwt.header.keyID)
         if (verifierKey == null) {
             log.error { "Could not load verifying key for $jwt.header.keyID" }

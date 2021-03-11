@@ -4,13 +4,12 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.Test
 import org.letstrust.CredentialService
+import org.letstrust.DidService
 import org.letstrust.JwtService
 import org.letstrust.KeyManagementService
-import org.letstrust.model.AuthenticationRequestPayload
-import org.letstrust.model.AuthenticationResponsePayload
-import org.letstrust.model.AuthenticationResponseVerifiedClaims
-import org.letstrust.model.VerifiablePresentation
+import org.letstrust.model.*
 import java.io.File
+import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -73,8 +72,6 @@ class JwtServiceTest {
         assertTrue(res, "JWT verification failed")
     }
 
-
-
     // This test-case depends on the associated subject-key in verifiable-authorization2.json, which needs to be available in the keystore
     @Test
     fun signAuthenticationResponseTest() {
@@ -115,6 +112,40 @@ class JwtServiceTest {
         val resVP = CredentialService.verifyVp(vp)
 
         assertTrue(resVP, "LD-Proof verification failed")
+
+    }
+
+    // https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/Authorisation+API
+    @Test
+    fun authenticatedKeyExchangeTest() {
+        val accessToken =
+            "eyJraWQiOiJMZXRzVHJ1c3QtS2V5LTFhZjNlMWIzNGIxNjQ3NzViNGQwY2IwMDJkODRlZmQwIiwidHlwIjoiSldUIiwiYWxnIjoiRVM1MTIifQ.eyJzdWIiOiIwNTQyNTVhOC1iODJmLTRkZWQtYmQ0OC05NWY5MGY0NmM1M2UiLCJpc3MiOiJodHRwczovL2FwaS5sZXRzdHJ1c3QuaW8iLCJleHAiOjE2MTUyMDg5MTYsImlhdCI6MTYxNTIwNTkxNn0.ARUKAO0f6vpRyUXWWEeL4xPegzl66eaC-AeEXswhsrs1OREae81JPNqnWs8e3rTrRCLCfRTcVS658hV8jfjAAY6vASwtNjV9HwJcmUGmpanBjAuQkJLkmv6Sn3lqzF5PU3hFv3GnVznvcDDyLRlsI8OooPZmM6p-FWUR8tAYKpvzAdMB"
+
+        val did_of_rp = DidService.createDid("key") // Creates a Ed25519 key, as well as an derived X25519 key
+        val did_of_client = DidService.createDid("key")
+
+        // ake1_enc_payload(Access Token, DID(Q)) and encrypts it: c = Enc(Access Token, DID(Q)) -> https://connect2id.com/products/nimbus-jose-jwt/algorithm-selection-guide#encryption
+        val ake1_enc_payload = Json { prettyPrint = true }.encodeToString(Ake1EncPayload(accessToken, did_of_rp))
+        val ake1_enc_payload_ENC = JwtService.encrypt(did_of_rp, ake1_enc_payload)
+
+        // ake1_sig_payload(nonce, ake1_enc_payload, did(P))
+        val ake1_nonce = UUID.randomUUID().toString()
+        val ake1_jws_detached = Json { prettyPrint = true }.encodeToString(Ake1JwsDetached(ake1_nonce, ake1_enc_payload_ENC, did_of_client))
+        val ake1_jws_detached_SIG = JwtService.sign(did_of_rp, ake1_jws_detached)
+
+        // AKE response (ake1_jws_detached, ake1_enc_payload, did(Q))
+        val access_token_response = Json { prettyPrint = true }.encodeToString(AccessTokenResponse(ake1_enc_payload_ENC, ake1_jws_detached_SIG, did_of_rp))
+
+        println("access_token_response:\n" + access_token_response)
+        println("ake1_enc_payload:\n" + ake1_enc_payload)
+        println("ake1_jws_detached:\n" + ake1_jws_detached)
+
+
+        // Verifies the signature ake1_sig_payload
+
+        // encrypted payload ake1_enc_payload
+
+        // Creates an ake1_sig_payload(nonce, ake1_enc_payload, did(P))
 
     }
 

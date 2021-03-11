@@ -23,6 +23,10 @@ import kotlin.collections.ArrayList
 
 object KeyManagementService {
 
+    enum class CryptoProvider {
+        SunEC
+    }
+
     private const val RSA_KEY_SIZE = 4096
 
     // TODO: keystore implementation should be configurable
@@ -101,15 +105,12 @@ object KeyManagementService {
 
         val kp = KeyPairGenerator.getInstance("Ed25519").generateKeyPair()
 
-        println("default format: " + kp.private.format)
-//        return keys.keyId
-
-        val keys = Keys(generateKeyId(), kp, "sun")
+        val keys = Keys(generateKeyId(), kp, "SunEC")
         ks.saveKeyPair(keys)
 
         val jwk = KeyUtil.make(kp, keyCurve, keyUse, keyAlg, keys.keyId)
         if (jwk != null) {
-            println("JWK format: " + jwk.toJSONString())
+            println("generateEd25519KeyPairNimbus: " + jwk.toJSONString())
         }
 
         return keys.keyId

@@ -132,7 +132,6 @@ class JwtTest {
         println(jwt2.jwtClaimsSet.toJSONObject())
     }
 
-    // https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/Authorisation+API
     // https://github.com/felx/nimbus-jose-jwt/blob/master/src/test/java/com/nimbusds/jose/crypto/ECDHCryptoTest.java
     @Test
     fun signAndEncryptedJwtP_256() {

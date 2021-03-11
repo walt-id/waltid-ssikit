@@ -50,7 +50,7 @@ object DidService {
     fun createDid(didMethod: String, keys: Keys? = null): String {
 
         val didKey = if (keys != null) keys else {
-            val keyId = KeyManagementService.generateKeyPair("Ed25519")
+            val keyId = KeyManagementService.generateEd25519KeyPairNimbus() // .generateKeyPair("Ed25519")
             KeyManagementService.loadKeys(keyId)
         }!!
 

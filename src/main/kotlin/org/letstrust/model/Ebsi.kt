@@ -177,8 +177,8 @@ data class AuthenticationResponseVerifiedClaims(
 
 @Serializable
 data class AccessTokenResponse(
-    val ake1_enc_payload: Ake1EncPayload,
-    val ake1_jws_detached: Ake1JwsDetached,
+    val ake1_enc_payload: String,
+    val ake1_jws_detached: String,
     val did: String
 )
 
@@ -191,7 +191,7 @@ data class Ake1EncPayload(
 @Serializable
 data class Ake1JwsDetached(
     val ake1_nonce: String,
-    val ake1_enc_paylod: String,
+    val ake1_enc_payload: String,
     val did: String
 )
 
