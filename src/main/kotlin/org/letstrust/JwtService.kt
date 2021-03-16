@@ -24,8 +24,9 @@ object JwtService {
 //            log.error { "Could not load verifying key for $keyAlias" }
 //            throw Exception("Could not load verifying key for $keyAlias")
 //        }
+        val keyId = "123"
         val encKey = OctetKeyPairGenerator(Curve.X25519)
-            .keyID("123")
+            .keyID(keyId)
             .generate()
         val pubEncKey = encKey.toPublicJWK()
 
@@ -33,6 +34,7 @@ object JwtService {
         val jweObject = JWEObject(
             JWEHeader.Builder(JWEAlgorithm.ECDH_ES, EncryptionMethod.A256GCM)
                 .contentType("JWT") // required to indicate nested JWT
+                .keyID(keyId)
                 .build(),
             Payload(payload)
         )

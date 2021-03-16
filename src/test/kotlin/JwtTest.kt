@@ -135,6 +135,8 @@ class JwtTest {
     // https://github.com/felx/nimbus-jose-jwt/blob/master/src/test/java/com/nimbusds/jose/crypto/ECDHCryptoTest.java
     @Test
     fun signAndEncryptedJwtP_256() {
+        // check: invalid curev attack
+        // ecdh-es x
         // setup
         // Generate EC key pair on the secp256k1 curve
         val senderJWK = ECKeyGenerator(Curve.SECP256K1)
@@ -163,7 +165,7 @@ class JwtTest {
             Payload(signedJWT)
         )
 
-        val recipientPublicJWK = ECKeyGenerator(Curve.P_256) // SECP256K1 not working for encrypter
+        val recipientPublicJWK = ECKeyGenerator(Curve.P_384) // SECP256K1 not working for encrypter; P_384 -> nist complient
             .keyUse(KeyUse.SIGNATURE)
             .keyID("456")
             .generate()
