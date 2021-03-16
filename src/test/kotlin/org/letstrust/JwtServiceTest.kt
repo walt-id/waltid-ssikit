@@ -1,13 +1,15 @@
+package org.letstrust
+
 import com.nimbusds.jose.shaded.json.JSONObject
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.Test
-import org.letstrust.CredentialService
-import org.letstrust.DidService
-import org.letstrust.JwtService
-import org.letstrust.KeyManagementService
 import org.letstrust.model.*
+import org.letstrust.services.did.DidService
+import org.letstrust.services.jwt.JwtService
+import org.letstrust.services.key.KeyManagementService
+import org.letstrust.services.vc.CredentialService
 import java.io.File
 import java.util.*
 import kotlin.test.assertEquals

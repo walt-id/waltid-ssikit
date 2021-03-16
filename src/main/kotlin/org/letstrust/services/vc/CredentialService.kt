@@ -1,4 +1,4 @@
-package org.letstrust
+package org.letstrust.services.vc
 
 import foundation.identity.jsonld.ConfigurableDocumentLoader
 import foundation.identity.jsonld.JsonLDObject
@@ -19,6 +19,7 @@ import mu.KotlinLogging
 import org.bitcoinj.core.ECKey
 import org.json.JSONObject
 import org.letstrust.model.*
+import org.letstrust.services.key.KeyManagementService
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path

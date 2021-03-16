@@ -1,4 +1,4 @@
-package org.letstrust
+package org.letstrust.common
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource

@@ -1,9 +1,11 @@
+package org.letstrust
+
 import com.google.crypto.tink.subtle.X25519
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.junit.Before
 import org.junit.Test
-import org.letstrust.FileSystemKeyStore
-import org.letstrust.KeyManagementService
+import org.letstrust.services.key.FileSystemKeyStore
+import org.letstrust.services.key.KeyManagementService
 import java.security.*
 import java.security.spec.*
 import java.util.*

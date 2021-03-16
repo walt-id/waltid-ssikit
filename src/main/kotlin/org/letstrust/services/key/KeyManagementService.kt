@@ -1,4 +1,4 @@
-package org.letstrust
+package org.letstrust.services.key
 
 //import org.bouncycastle.jce.ECNamedCurveTable
 //import org.bouncycastle.jce.provider.BouncyCastleProvider
@@ -11,6 +11,7 @@ import io.ipfs.multibase.Multibase
 import org.bitcoinj.core.ECKey
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.jce.provider.BouncyCastleProvider
+import org.letstrust.*
 import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.SecureRandom

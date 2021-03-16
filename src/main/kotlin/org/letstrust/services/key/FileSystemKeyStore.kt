@@ -1,4 +1,4 @@
-package org.letstrust
+package org.letstrust.services.key
 
 import org.apache.commons.io.IOUtils
 import java.io.File
@@ -41,7 +41,7 @@ object FileSystemKeyStore : KeyStore {
             .filter { it -> it.toString().endsWith(".meta") }
             .forEach {
                 val keyId = it.fileName.toString().substringBefore(".")
-                this.loadKeyPair(keyId)?.let {
+                loadKeyPair(keyId)?.let {
                     keys.add(it)
                 }
             }

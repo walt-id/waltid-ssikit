@@ -1,9 +1,12 @@
-package org.letstrust
+package org.letstrust.services.did
 
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import mu.KotlinLogging
+import org.letstrust.*
 import org.letstrust.model.*
+import org.letstrust.services.key.KeyManagementService
+import org.letstrust.services.key.Keys
 import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Path

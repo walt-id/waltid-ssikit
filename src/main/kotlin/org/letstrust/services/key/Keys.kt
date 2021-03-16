@@ -1,4 +1,4 @@
-package org.letstrust
+package org.letstrust.services.key
 
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.jwk.Curve
@@ -59,7 +59,7 @@ data class Keys(val keyId: String, val pair: KeyPair, val provider: String) {
         if (provider == "SunEC") {
             return toOctetKeyPair().decodedX
         }
-        return (this.pair.public as BytePublicKey).publicKey            
+        return (this.pair.public as BytePublicKey).publicKey
     }
 
     fun getPrivKey(): ByteArray {

@@ -1,5 +1,6 @@
+package org.letstrust
+
 import org.junit.Test
-import org.letstrust.*
 import kotlin.test.assertEquals
 
 

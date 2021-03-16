@@ -1,4 +1,4 @@
-package org.letstrust
+package org.letstrust.services.jwt
 
 import com.nimbusds.jose.*
 import com.nimbusds.jose.crypto.*
@@ -7,6 +7,7 @@ import com.nimbusds.jose.jwk.gen.OctetKeyPairGenerator
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import mu.KotlinLogging
+import org.letstrust.services.key.KeyManagementService
 import java.util.*
 
 private val log = KotlinLogging.logger {}

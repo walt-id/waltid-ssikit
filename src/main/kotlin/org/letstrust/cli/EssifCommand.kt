@@ -1,7 +1,7 @@
 package org.letstrust.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
-import org.letstrust.EssifService
+import org.letstrust.services.essif.EssifService
 
 // TODO: Support following commands
 

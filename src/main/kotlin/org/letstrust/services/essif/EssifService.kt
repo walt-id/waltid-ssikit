@@ -1,4 +1,4 @@
-package org.letstrust
+package org.letstrust.services.essif
 
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -6,6 +6,8 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import mu.KotlinLogging
 import org.letstrust.model.*
+import org.letstrust.services.jwt.JwtService
+import org.letstrust.services.vc.CredentialService
 import java.io.File
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets.UTF_8

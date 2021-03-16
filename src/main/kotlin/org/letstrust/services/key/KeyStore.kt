@@ -1,4 +1,4 @@
-package org.letstrust
+package org.letstrust.services.key
 
 interface KeyStore {
     fun getKeyId(keyId: String): String?

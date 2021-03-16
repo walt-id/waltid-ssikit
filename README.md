@@ -15,8 +15,9 @@
     docker push letstrust/test
 
 ## Run
-
     docker run -it -v $(pwd)/data:/data letstrust
+
+    java -jar target/letstrust-ssi-core-1.0-SNAPSHOT-jar-with-dependencies.jar
 
 _For getting help, add "-h" to each command or sub-command e.g.:_
 

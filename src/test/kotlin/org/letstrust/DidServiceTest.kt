@@ -1,10 +1,12 @@
+package org.letstrust
+
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.Test
-import org.letstrust.DidService
 import org.letstrust.model.Did
 import org.letstrust.model.DidUrl
 import org.letstrust.model.fromString
+import org.letstrust.services.did.DidService
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path

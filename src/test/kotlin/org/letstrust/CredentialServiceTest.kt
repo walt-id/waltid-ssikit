@@ -1,3 +1,5 @@
+package org.letstrust
+
 import foundation.identity.jsonld.JsonLDObject
 import foundation.identity.jsonld.JsonLDUtils
 import info.weboftrust.ldsignatures.LdProof
@@ -14,13 +16,12 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.json.JSONObject
 import org.junit.Before
 import org.junit.Test
-import org.letstrust.CredentialService
-import org.letstrust.CredentialService.SignatureType.EcdsaSecp256k1Signature2019
-import org.letstrust.CredentialService.SignatureType.Ed25519Signature2018
-import org.letstrust.DidService
-import org.letstrust.KeyManagementService
 import org.letstrust.model.VerifiableCredential
 import org.letstrust.model.VerifiablePresentation
+import org.letstrust.services.did.DidService
+import org.letstrust.services.key.KeyManagementService
+import org.letstrust.services.vc.CredentialService
+import org.letstrust.services.vc.CredentialService.SignatureType.*
 import java.io.File
 import java.net.URI
 import java.security.Security

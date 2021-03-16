@@ -1,6 +1,8 @@
+package org.letstrust
+
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.junit.Test
-import org.letstrust.KeyManagementService
+import org.letstrust.services.key.KeyManagementService
 import java.security.Security
 import java.util.*
 import kotlin.test.assertEquals

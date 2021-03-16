@@ -11,10 +11,10 @@ import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.file
 import org.letstrust.CliConfig
-import org.letstrust.DidService
-import org.letstrust.KeyManagementService
+import org.letstrust.services.key.KeyManagementService
 import org.letstrust.model.encodePretty
 import org.letstrust.model.fromString
+import org.letstrust.services.did.DidService
 import java.io.File
 
 class DidCommand : CliktCommand(

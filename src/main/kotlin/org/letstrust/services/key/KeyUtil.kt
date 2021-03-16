@@ -1,4 +1,4 @@
-package org.letstrust
+package org.letstrust.services.key
 
 import com.nimbusds.jose.Algorithm
 import com.nimbusds.jose.jwk.Curve

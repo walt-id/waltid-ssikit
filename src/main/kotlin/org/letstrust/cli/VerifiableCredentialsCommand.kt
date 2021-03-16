@@ -14,14 +14,11 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import org.letstrust.CliConfig
-import org.letstrust.CredentialService
-import org.letstrust.DidService
 import org.letstrust.model.VerifiableCredential
 import org.letstrust.model.VerifiablePresentation
 import org.letstrust.model.encodePretty
+import org.letstrust.services.vc.CredentialService
 import java.io.File
-import java.nio.file.Files
-import java.nio.file.Path
 import java.sql.Timestamp
 import java.time.LocalDateTime
 

@@ -1,8 +1,10 @@
+package org.letstrust
+
 import org.junit.Test
-import org.letstrust.BytePrivateKey
-import org.letstrust.BytePublicKey
-import org.letstrust.Keys
-import org.letstrust.SqlKeyStore
+import org.letstrust.services.key.BytePrivateKey
+import org.letstrust.services.key.BytePublicKey
+import org.letstrust.services.key.Keys
+import org.letstrust.services.key.SqlKeyStore
 import java.security.KeyPair
 import java.util.*
 import kotlin.test.BeforeTest

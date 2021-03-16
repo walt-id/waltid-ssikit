@@ -1,7 +1,8 @@
-package org.letstrust
+package org.letstrust.services.key
 
 import com.nimbusds.jose.util.Base64
 import mu.KotlinLogging
+import org.letstrust.common.SqlDbManager
 import java.security.KeyFactory
 import java.security.KeyPair
 import java.security.spec.PKCS8EncodedKeySpec
