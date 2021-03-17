@@ -11,16 +11,42 @@ import java.time.LocalDateTime
 @Serializable
 data class TrustedIssuerRegistry(
     val issuer: Issuer,
-    val accreditationCredentials: List<VerifiableCredential>
+    // val accreditationCredentials: List<VerifiableCredential>
 )
 
 @Serializable
 data class TrustedAccreditationOrganizationRegistry(
-    val accreditationOrganization: EssifAuthority,
+    val accreditationOrganization: AccreditationOrganization,
     val accreditationAuthorization: List<AccreditationAuthorization>,
-    val validFrom: LocalDateTime,
-    val validUntil: LocalDateTime,
-    val evidence: String
+    val proof: Proof
+)
+
+@Serializable
+data class RevocationRegistry(
+    val id: String,
+    val version: String,
+    val type: List<String>,
+    val context: List<String>
+)
+
+@Serializable
+data class SchemaRegistry(
+    val id: String,
+    val version: String,
+    val type: List<String>,
+    val context: List<String>
+)
+
+
+@Serializable
+data class AccreditationOrganization(
+    val preferredName: String,
+    val domain: String,
+    val did: List<String>,
+    val eidasCertificate: EidasCertificate,
+    val serviceEndpoints: List<ServiceEndpoint>,
+    val accreditationPolicy: List<String>,
+    val organizationInfo: OrganizationInfo
 )
 
 @Serializable
@@ -43,10 +69,12 @@ data class AccreditationAuthorization(
 @Serializable
 data class Issuer(
     val preferredName: String,
+    val domain: String,
     val did: List<String>,
     val eidasCertificate: EidasCertificate,
     val serviceEndpoints: List<ServiceEndpoint>,
-    val organizationInfo: OrganizationInfo
+    val organizationInfo: OrganizationInfo,
+    val proof: Proof
 )
 
 @Serializable
@@ -58,10 +86,15 @@ data class EidasCertificate(
 
 @Serializable
 data class OrganizationInfo(
-    val id: String,
+    val legalPersonalIdentifier: String,
     val legalName: String,
-    val currentAddress: String,
-    val vatNumber: String,
+    val legalAddress: String,
+    val VATRegistration: String,
+    val taxReference: String,
+    val LEI: String,
+    val EORI: String,
+    val SEED: String,
+    val SIC: String,
     val domainName: String
 )
 
@@ -104,7 +137,7 @@ data class Claim(
 )
 
 @Serializable
-data class SiopSessionRequest (
+data class SiopSessionRequest(
     val id_token: String
 )
 

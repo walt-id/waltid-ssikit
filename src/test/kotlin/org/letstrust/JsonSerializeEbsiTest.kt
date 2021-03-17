@@ -64,11 +64,16 @@ class JsonSerializeEbsiTest {
         val did = listOf("did:ebsi:00003333", "did:ebsi:00005555")
         val organizationInfo =
             OrganizationInfo(
-                "https://essif.europa.eu/tsr/53",
-                "Great Company",
-                "Great Company Street 1, Brussels, Belgium",
-                "BE05555555XX",
-                "https://great.company.be"
+                "123456789",
+                "Example Legal Name",
+                "Example Street 42, Vienna, Austria",
+                "https://great.company.be",
+                "123456789",
+                "12341212EXAMPLE34512",
+                "AT123456789101",
+                "AT12345678910",
+                "1234",
+                "https://example.organization.com"
             )
         val proof = Proof(
             "EidasSeal2019",
@@ -86,7 +91,7 @@ class JsonSerializeEbsiTest {
             )
         )
         val eidasCertificate = EidasCertificate("123456", "123456", "blob")
-        val issuer = Issuer("Brand Name", did, eidasCertificate, serviceEndpoints, organizationInfo)
+        val issuer = Issuer("Brand Name", "www.domain.com",did, eidasCertificate, serviceEndpoints, organizationInfo, proof)
         val accreditationCredentials = listOf(
             VerifiableCredential(
                 listOf(
@@ -105,7 +110,7 @@ class JsonSerializeEbsiTest {
             )
         )
 
-        val tir = TrustedIssuerRegistry(issuer, accreditationCredentials)
+        val tir = TrustedIssuerRegistry(issuer) // accreditationCredentials
 
         val string = format.encodeToString(tir)
         println(string)
@@ -118,8 +123,38 @@ class JsonSerializeEbsiTest {
 
     @Test
     fun trustedIssuerRegistryFileTest() {
-        val expected = File("src/test/resources/ebsi/trusted-issuer-registry.json").readText()
+        val expected = File("src/test/resources/ebsi/tir-organization-record.json").readText()
         val obj = Json.decodeFromString<TrustedIssuerRegistry>(expected)
+        println(obj)
+        val string = format.encodeToString(obj)
+        println(string)
+        assertEquals(expected.replace("\\s".toRegex(), ""), string.replace("\\s".toRegex(), ""))
+    }
+
+    @Test
+    fun trustedAccreditationOrganizationFileTest() {
+        val expected = File("src/test/resources/ebsi/taor-accreditation-organization-record.json").readText()
+        val obj = Json.decodeFromString<TrustedAccreditationOrganizationRegistry>(expected)
+        println(obj)
+        val string = format.encodeToString(obj)
+        println(string)
+        assertEquals(expected.replace("\\s".toRegex(), ""), string.replace("\\s".toRegex(), ""))
+    }
+
+    @Test
+    fun trustedSchemaRegistryFileTest() {
+        val expected = File("src/test/resources/ebsi/trusted-schema-registry.json").readText()
+        val obj = Json.decodeFromString<SchemaRegistry>(expected)
+        println(obj)
+        val string = format.encodeToString(obj)
+        println(string)
+        assertEquals(expected.replace("\\s".toRegex(), ""), string.replace("\\s".toRegex(), ""))
+    }
+
+    @Test
+    fun trustedRevocationRegistryFileTest() {
+        val expected = File("src/test/resources/ebsi/revocation-registry.json").readText()
+        val obj = Json.decodeFromString<RevocationRegistry>(expected)
         println(obj)
         val string = format.encodeToString(obj)
         println(string)
