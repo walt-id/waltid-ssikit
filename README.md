@@ -1,4 +1,8 @@
-# LetsTrust CLI
+# LetsTrust SSI Core
+
+Kotlin/Java Library & Dockerized CLI tool for SSI core services, with primary focus on European EBSI/ESSIF ecosystem.
+
+The core services are in the scope of: key-management, signing, encryption, DID & VC operations.
 
 ## Install
 

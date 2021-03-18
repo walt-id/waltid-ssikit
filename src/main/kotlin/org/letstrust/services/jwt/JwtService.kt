@@ -15,7 +15,7 @@ private val log = KotlinLogging.logger {}
 object JwtService {
 
     fun encrypt(
-        keyAlias: String,
+        keyAlias: String, // verification method
         payload: String? = null
     ): String {
 
@@ -62,7 +62,7 @@ object JwtService {
     }
 
     fun sign(
-        keyAlias: String,
+        keyAlias: String, // verifiacation method
         payload: String? = null
     ): String {
 
@@ -113,6 +113,7 @@ object JwtService {
         val jwt = SignedJWT.parse(token)
 
         //TODO: key might also be entirely extracted out of the header",
+        // Maybe resolve DID (verifacation method)
         val verifierKey = KeyManagementService.loadKeys(jwt.header.keyID)
         if (verifierKey == null) {
             log.error { "Could not load verifying key for $jwt.header.keyID" }

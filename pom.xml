@@ -19,6 +19,7 @@
         <project.java.version>11</project.java.version>
         <maven.compiler.release>11</maven.compiler.release>
         <dokka.version>1.4.20</dokka.version>
+        <hoplite.version>1.3.15</hoplite.version>
     </properties>
 
     <repositories>
@@ -326,7 +327,27 @@
             <artifactId>kotlin-logging</artifactId>
             <version>1.12.0</version>
         </dependency>
-
+        <!-- CONFIG -->
+        <dependency>
+            <groupId>com.sksamuel.hoplite</groupId>
+            <artifactId>hoplite-core</artifactId>
+            <version>${hoplite.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sksamuel.hoplite</groupId>
+            <artifactId>hoplite-yaml</artifactId>
+            <version>${hoplite.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.sksamuel.hoplite</groupId>
+            <artifactId>hoplite-hikaricp</artifactId>
+            <version>${hoplite.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.uchuhimo</groupId>
+            <artifactId>konf</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 
 </project>
