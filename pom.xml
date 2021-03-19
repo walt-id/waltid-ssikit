@@ -343,11 +343,6 @@
             <artifactId>hoplite-hikaricp</artifactId>
             <version>${hoplite.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.uchuhimo</groupId>
-            <artifactId>konf</artifactId>
-            <version>1.0.0</version>
-        </dependency>
     </dependencies>
 
 </project>

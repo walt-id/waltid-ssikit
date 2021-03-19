@@ -30,14 +30,15 @@ object KeyManagementService {
 
     private const val RSA_KEY_SIZE = 4096
 
-    // TODO: keystore implementation should be configurable
-    private var ks: KeyStore = FileSystemKeyStore as KeyStore
-    // private var ks = FileSystemKeyStore as KeyStore
+    private var ks: KeyStore = LetsTrustServices.load(KeyStore::javaClass.name)
 
-    init {
-        Security.addProvider(BouncyCastleProvider())
-        ks = SqlKeyStore as KeyStore
-    }
+//    private var ks: KeyStore = FileSystemKeyStore as KeyStore
+//    // private var ks = FileSystemKeyStore as KeyStore
+//
+//    init {
+//        Security.addProvider(BouncyCastleProvider())
+//        ks = SqlKeyStore as KeyStore
+//    }
 
     private fun generateKeyId(): String = "LetsTrust-Key-${UUID.randomUUID().toString().replace("-", "")}"
 

@@ -1,0 +1,25 @@
+
+keystore:
+  type: custom # allowed values: 'file', 'database' or 'custom'
+
+essif:
+  essifApiBaseUrl: "https://api.ebsi.xyz"
+  authorizationApi: "/authorization/v1"
+  ledgerAPI: "/ledger/v1"
+  trustedIssuerRegistryApi: "/tir/v2"
+  trustedAccreditationOrganizationRegistryApi: "/taor/v1"
+  revocationRegistry: "/revocation/v1"
+  schemaRegistry: "/revocation/v1"
+
+server:
+  host: 0.0.0.0
+  port: 8080
+
+hikariDataSource:
+  dataSourceClassName: org.sqlite.SQLiteDataSource
+  jdbcUrl: jdbc:sqlite:data/letstrust.db
+  maximumPoolSize: 5
+  autoCommit: false
+  dataSource:
+    journalMode: WAL
+    fullColumnNames: true

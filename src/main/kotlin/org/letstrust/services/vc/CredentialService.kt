@@ -30,6 +30,9 @@ import kotlin.streams.toList
 
 private val log = KotlinLogging.logger {}
 
+/**
+ * W3C Verifiable Credential Service
+ */
 object CredentialService {
 
     // Supported signatures
