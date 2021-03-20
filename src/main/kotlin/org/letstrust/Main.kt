@@ -6,6 +6,13 @@ import com.github.ajalt.clikt.parameters.options.associate
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.versionOption
+import com.sksamuel.hoplite.ConfigFilePropertySource
+import com.sksamuel.hoplite.ConfigLoader
+import com.sksamuel.hoplite.ConfigSource
+import com.sksamuel.hoplite.PropertySource
+import com.sksamuel.hoplite.hikari.HikariDataSourceDecoder
+import com.sksamuel.hoplite.parsers.defaultParserRegistry
+import com.sksamuel.hoplite.yaml.YamlParser
 import mu.KotlinLogging
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.LogManager
@@ -13,6 +20,7 @@ import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.core.config.Configuration
 import org.apache.logging.log4j.core.config.LoggerConfig
 import org.letstrust.cli.*
+import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -79,15 +87,9 @@ class LetsTrust : CliktCommand(
 
 fun main(args: Array<String>) {
 
-    val ctx: LoggerContext = LogManager.getContext(false) as LoggerContext
-    val logConf: Configuration = ctx.configuration
-    val logConfig: LoggerConfig = logConf.getLoggerConfig(LogManager.ROOT_LOGGER_NAME)
-
     args.forEach {
         if (it.contains("-v") || it.contains("--verbose")) {
-            logConfig.level = Level.TRACE
-            ctx.updateLoggers()
-            log.debug { "Setting log-level to ${Level.TRACE}" }
+            LetsTrustServices.setLogLevel(Level.TRACE)
         }
     }
 
