@@ -1,6 +1,6 @@
 
 keystore:
-  type: custom # allowed values: 'file', 'database' or 'custom'
+  type: database # allowed values: 'file', 'database' or 'custom'
 
 essif:
   essifApiBaseUrl: "https://api.ebsi.xyz"
@@ -22,4 +22,4 @@ hikariDataSource:
   autoCommit: false
   dataSource:
     journalMode: WAL
-    fullColumnNames: true
+    fullColumnNames: false

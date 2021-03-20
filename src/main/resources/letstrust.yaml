@@ -1,6 +1,6 @@
 
 keystore:
-  type: file # allowed values: 'file' or 'database'
+  type: custom
 
 essif:
   essifApiBaseUrl: "https://api.ebsi.xyz"

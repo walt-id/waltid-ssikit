@@ -30,7 +30,7 @@ object KeyManagementService {
 
     private const val RSA_KEY_SIZE = 4096
 
-    private var ks: KeyStore = LetsTrustServices.load(KeyStore::javaClass.name)
+    private var ks: KeyStore = LetsTrustServices.load<KeyStore>()
 
 //    private var ks: KeyStore = FileSystemKeyStore as KeyStore
 //    // private var ks = FileSystemKeyStore as KeyStore

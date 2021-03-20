@@ -4,10 +4,12 @@ package org.letstrust
 import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.PropertySource
 import com.zaxxer.hikari.HikariDataSource
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.letstrust.services.key.FileSystemKeyStore
 import org.letstrust.services.key.KeyStore
 import org.letstrust.services.key.SqlKeyStore
 import java.io.File
+import java.security.Security
 import java.util.*
 
 inline class Port(val value: Int)
@@ -31,7 +33,8 @@ data class LetsTrustConfig(
     val keystore: Keystore,
     val essif: Essif?,
     val server: Server?,
-    val hikariDataSource: HikariDataSource = HikariDataSource()) {
+    val hikariDataSource: HikariDataSource = HikariDataSource()
+) {
     init {
         println(this)
     }
@@ -39,24 +42,31 @@ data class LetsTrustConfig(
 
 object LetsTrustServices {
 
-    fun <T> load(serviceName: String): T {
+    init {
+        Security.addProvider(BouncyCastleProvider())
+    }
+
+    inline fun <reified T> load(): T {
 
         val conf = loadConfig()
 
-        if (serviceName == KeyStore::javaClass.name) {
-            val keyStore = when (conf.keystore.type) {
-                KeystoreType.custom -> loadCustomKeyStore()
-                KeystoreType.database -> SqlKeyStore
-                else -> FileSystemKeyStore
-            }
-            println("KeyStore loaded: $keyStore")
-            return keyStore as T
-        } else {
-            throw Exception("Service $serviceName not registered")
+        val service = when (T::class) {
+            KeyStore::class -> loadKeyStore(conf)
+            HikariDataSource::class -> conf.hikariDataSource as T
+            else -> throw Exception("Service " + T::class + " not registered")
         }
+
+        println("Service: $service loaded")
+        return service as T
     }
 
-    private fun loadCustomKeyStore(): KeyStore {
+    fun loadKeyStore(conf: LetsTrustConfig) = when (conf.keystore.type) {
+        KeystoreType.custom -> loadCustomKeyStore()
+        KeystoreType.database -> SqlKeyStore
+        else -> FileSystemKeyStore
+    }
+
+    fun loadCustomKeyStore(): KeyStore {
         println("Loading Custom KeyStore")
         val loader = ServiceLoader.load(KeyStore::class.java)
         val customKeyStore = loader.iterator().next()
@@ -64,7 +74,7 @@ object LetsTrustServices {
         return customKeyStore!!
     }
 
-    private fun loadConfig() = ConfigLoader.Builder()
+    fun loadConfig() = ConfigLoader.Builder()
         .addSource(PropertySource.file(File("letstrust.yaml"), optional = true))
         .addSource(PropertySource.resource("/letstrust-default.yaml"))
         .build()
