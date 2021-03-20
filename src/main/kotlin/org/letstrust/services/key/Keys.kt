@@ -91,5 +91,16 @@ data class Keys(val keyId: String, val pair: KeyPair, val provider: String) {
             .keyUse(keyUse)
             .build()
     }
+
+    fun exportJwk(): String{
+        if (provider == "SunEC") {
+            return when(algorithm) {
+                "ed" -> toOctetKeyPair().toJSONString()
+                "sec" -> toEcKey().toJSONString()
+                else -> throw Exception("Export of algo: $algorithm not supported")
+            }
+        }
+        throw Exception("Export of for provider: $provider not supported")
+    }
 }
 

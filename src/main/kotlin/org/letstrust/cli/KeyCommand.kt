@@ -38,7 +38,7 @@ class GenCommand : CliktCommand(
     override fun run() {
         echo("Generating $algorithm key pair")
         val keyId = when (algorithm) {
-            "Ed25519" -> KeyManagementService.generateEd25519KeyPair()
+            "Ed25519" -> KeyManagementService.generateEd25519KeyPairNimbus()
             "Secp256k1" -> KeyManagementService.generateSecp256k1KeyPairBitcoinj()
             "RSA" -> KeyManagementService.generateRsaKeyPair()
             else -> IllegalArgumentException("Algorithm not supported")
@@ -58,7 +58,8 @@ class ExportKeyCommand : CliktCommand(
 
     override fun run() {
         echo("Exporting key $keyId")
-        TODO("Key export not implemented yet")
+        val jwk = KeyManagementService.export(keyId)
+        println(jwk)
     }
 }
 

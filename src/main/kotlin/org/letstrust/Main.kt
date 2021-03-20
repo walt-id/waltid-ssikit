@@ -75,6 +75,7 @@ class LetsTrust : CliktCommand(
 
         // TODO: move this to some central config-service
         log.debug { "Creating dir-structure at: ${config.dataDir}" }
+        Files.createDirectories(Path.of("${config.dataDir}/key/"))
         Files.createDirectories(Path.of("${config.dataDir}/did/created"))
         Files.createDirectories(Path.of("${config.dataDir}/did/resolved"))
         Files.createDirectories(Path.of("${config.dataDir}/vc/templates"))

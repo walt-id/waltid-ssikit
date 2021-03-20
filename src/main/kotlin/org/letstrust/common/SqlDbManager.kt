@@ -34,6 +34,8 @@ object SqlDbManager {
 
       //  ds = HikariDataSource(config)
 
+        println(ds)
+
         createDatabase()
     }
 

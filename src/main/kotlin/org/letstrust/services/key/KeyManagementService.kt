@@ -192,4 +192,9 @@ object KeyManagementService {
         ks.addAlias(keyId, identifier)
     }
 
+    fun export(keyId: String): String {
+        val key = this.loadKeys(keyId)!!
+        return key.exportJwk()
+    }
+
 }
