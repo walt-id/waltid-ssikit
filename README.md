@@ -18,10 +18,53 @@ The core services are in the scope of: key-management, signing, encryption, DID 
     docker tag letstrust letstrust/test
     docker push letstrust/test
 
+## Configuration
+
+The default-configuration is set to the following values:
+
+````
+keystore:
+  type: database # allowed values: 'file', 'database' or 'custom'
+
+essif:
+  essifApiBaseUrl: "https://api.ebsi.xyz"
+  authorizationApi: "/authorization/v1"
+  ledgerAPI: "/ledger/v1"
+  trustedIssuerRegistryApi: "/tir/v2"
+  trustedAccreditationOrganizationRegistryApi: "/taor/v1"
+  revocationRegistry: "/revocation/v1"
+  schemaRegistry: "/revocation/v1"
+
+server:
+  host: 0.0.0.0
+  port: 8080
+
+hikariDataSource:
+  dataSourceClassName: org.sqlite.SQLiteDataSource
+  jdbcUrl: jdbc:sqlite:data/letstrust.db
+  maximumPoolSize: 5
+  autoCommit: false
+  dataSource:
+    journalMode: WAL
+    fullColumnNames: false
+````
+
+In order to overwrite these values, simply place a yaml-based config-file named _letstrust.yaml_ in the root folder with the desired values.
+
+
 ## Run
-    docker run -it -v $(pwd)/data:/data letstrust
+
+Running the Java application:
 
     java -jar target/letstrust-ssi-core-1.0-SNAPSHOT-jar-with-dependencies.jar
+
+Run CLI tools via Docker:
+
+    docker run -it -v $(pwd)/data:/data letstrust
+
+Via Docker including an optional config-file called _letstrust.yaml_:
+
+    docker run -it -v $(pwd)/data:/data -v $(pwd)/letstrust.yaml:/letstrust.yaml letstrust -v did create
 
 _For getting help, add "-h" to each command or sub-command e.g.:_
 
@@ -49,6 +92,4 @@ _Examples_
 
     docker run -it -v $(pwd)/data:/data letstrust vc verify -p data/vc/presented/vp-1614291892489.json
 
-## TODOs
 
-- Add ConfigLoader https://github.com/sksamuel/hoplite
