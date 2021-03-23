@@ -6,11 +6,11 @@ import java.security.SignatureSpi
 
 open class LetsTrustSignature(val algorithm: String) : SignatureSpi() {
 
-    class SHA1 : LetsTrustSignature("SHA1")
-    class SHA224 : LetsTrustSignature("SHA-224")
-    class SHA256 : LetsTrustSignature("SHA-256")
-    class SHA384 : LetsTrustSignature("SHA-384")
-    class SHA512 : LetsTrustSignature("SHA-512")
+    class SHA1withECDSA : LetsTrustSignature("SHA1withECDSA")
+    class SHA224withECDSA : LetsTrustSignature("SHA224withECDSA")
+    class SHA256withECDSA : LetsTrustSignature("SHA256withECDSA")
+    class SHA384withECDSA : LetsTrustSignature("SHA384withECDSAS")
+    class SHA512withECDSA : LetsTrustSignature("SHA512withECDSA")
 
     var keyId: String? = null
 

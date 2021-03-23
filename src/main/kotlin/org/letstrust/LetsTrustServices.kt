@@ -82,18 +82,21 @@ object LetsTrustServices {
     private fun loadCustomKeyStore(): KeyStore {
         println("Loading Custom KeyStore")
         val loader = ServiceLoader.load(KeyStore::class.java)
-        val customKeyStore = loader.iterator().next()
-        println("Loaded custom KeyStore: $customKeyStore")
-        return customKeyStore!!
+        if (loader.iterator().hasNext()) {
+            val customKeyStore = loader.iterator().next()
+            println("Loaded custom KeyStore: $customKeyStore")
+            return customKeyStore
+        }
+        throw Exception("No custom keystore configured")
     }
 
     fun loadConfig(): LetsTrustConfig = ConfigLoader.Builder()
-            .addFileExtensionMapping("yaml", YamlParser())
-            .addSource(PropertySource.file(File("letstrust.yaml"), optional = true))
-            .addSource(PropertySource.resource("/letstrust-default.yaml"))
-            .addDecoder(HikariDataSourceDecoder())
-            .build()
-            .loadConfigOrThrow<LetsTrustConfig>()
+        .addFileExtensionMapping("yaml", YamlParser())
+        .addSource(PropertySource.file(File("letstrust.yaml"), optional = true))
+        .addSource(PropertySource.resource("/letstrust-default.yaml"))
+        .addDecoder(HikariDataSourceDecoder())
+        .build()
+        .loadConfigOrThrow<LetsTrustConfig>()
 
     fun setLogLevel(level: Level) {
         val ctx: LoggerContext = LogManager.getContext(false) as LoggerContext

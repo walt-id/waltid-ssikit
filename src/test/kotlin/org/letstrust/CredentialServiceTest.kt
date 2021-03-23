@@ -16,12 +16,14 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.json.JSONObject
 import org.junit.Before
 import org.junit.Test
+import org.letstrust.crypto.EcdsaSecp256k1Signature2019LdSigner
 import org.letstrust.model.VerifiableCredential
 import org.letstrust.model.VerifiablePresentation
 import org.letstrust.services.did.DidService
 import org.letstrust.services.key.KeyManagementService
 import org.letstrust.services.vc.CredentialService
-import org.letstrust.services.vc.CredentialService.SignatureType.*
+import org.letstrust.services.vc.CredentialService.SignatureType.EcdsaSecp256k1Signature2019
+import org.letstrust.services.vc.CredentialService.SignatureType.Ed25519Signature2018
 import java.io.File
 import java.net.URI
 import java.security.Security
@@ -81,6 +83,37 @@ class CredentialServiceTest {
         val verifier = Ed25519Signature2018LdVerifier(testEd25519PublicKey)
         val verify: Boolean = verifier.verify(jsonLdObject, ldProof)
         assertTrue(verify)
+    }
+
+    @Test
+    fun testSecp256k1Signature2018_LTSigner() {
+
+        val keyId = KeyManagementService.generateSecp256k1KeyPairSun()
+
+        val jsonLdObject = JsonLDObject.fromJson(File("src/test/resources/input.jsonld").readText())
+        jsonLdObject.documentLoader = LDSecurityContexts.DOCUMENT_LOADER
+        val creator = URI.create("did:sov:WRfXPg8dantKVubE3HX8pw")
+        val created = JsonLDUtils.DATE_FORMAT.parse("2017-10-24T05:33:31Z")
+        val domain = "example.com"
+        val nonce: String? = null
+        //val signer = Ed25519Signature2018LdSigner(testEd25519PrivateKey)
+        val signer = EcdsaSecp256k1Signature2019LdSigner(keyId)
+        signer.creator = creator
+        signer.created = created
+        signer.domain = domain
+        signer.nonce = nonce
+        val ldProof: LdProof = signer.sign(jsonLdObject)
+
+        println(ldProof.toJson(true))
+        assertEquals(SignatureSuites.SIGNATURE_SUITE_ECDSASECP256L1SIGNATURE2019.term, ldProof.type)
+        assertEquals(creator, ldProof.creator)
+        assertEquals(created, ldProof.created)
+        assertEquals(domain, ldProof.domain)
+        assertEquals(nonce, ldProof.nonce)
+
+//        val verifier = Ed25519Signature2018LdVerifier(testEd25519PublicKey)
+//        val verify: Boolean = verifier.verify(jsonLdObject, ldProof)
+//        assertTrue(verify)
     }
 
     @Test
