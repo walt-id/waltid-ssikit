@@ -1,107 +1,28 @@
 package org.letstrust
 
-import com.nimbusds.jose.*
+import com.nimbusds.jose.JWSAlgorithm
+import com.nimbusds.jose.JWSHeader
+import com.nimbusds.jose.JWSVerifier
 import com.nimbusds.jose.crypto.ECDSASigner
-import com.nimbusds.jose.crypto.impl.AlgorithmSupportMessage
-import com.nimbusds.jose.crypto.impl.ECDSA
 import com.nimbusds.jose.jca.JCAContext
 import com.nimbusds.jose.jwk.Curve
-import com.nimbusds.jose.jwk.ECKey
-import com.nimbusds.jose.jwk.KeyUse
-import com.nimbusds.jose.jwk.gen.ECKeyGenerator
 import com.nimbusds.jose.util.Base64URL
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import org.junit.Test
+import org.letstrust.crypto.CryptoService
+import org.letstrust.crypto.JwtSigner
 import org.letstrust.crypto.LetsTrustProvider
-import java.security.*
-
-
+import org.letstrust.crypto.PrivateKeyHandle
+import org.letstrust.services.key.KeyManagementService
+import java.security.KeyStore
+import java.security.Provider
+import java.security.Security
+import java.security.Signature
 
 
 // SignatureSpi()
 
-
-
-object CryptoService {
-    var ecJWK: ECKey? = null
-
-    fun generate(): String {
-        ecJWK = ECKeyGenerator(Curve.SECP256K1)
-            .keyUse(KeyUse.SIGNATURE)
-            .keyID("123")
-            .generate()
-        return ecJWK!!.keyID
-    }
-
-    fun sign(keyId: String, data: ByteArray): ByteArray {
-
-        val jcaSignature = try {
-            val dsa = Signature.getInstance("ES256K");// ECDSA.getSignerAndVerifier(JWSAlgorithm.ES256K, null)
-            dsa.initSign(ecJWK!!.toPrivateKey())
-            dsa.update(data)
-            dsa.sign()
-        } catch (e: InvalidKeyException) {
-            throw JOSEException(e.message, e)
-        }
-        return jcaSignature
-    }
-
-    fun verify(keyId: String, signature: ByteArray) {
-
-    }
-}
-
-// Proxy for enabling secure key storage
-class LtECDSASigner(val keyId: String) : JWSSigner {
-
-    val nimbusSigner = com.nimbusds.jose.crypto.ECDSASigner(CryptoService.ecJWK)
-
-
-    override fun getJCAContext(): JCAContext {
-        return nimbusSigner.jcaContext
-    }
-
-    override fun supportedJWSAlgorithms(): MutableSet<JWSAlgorithm> {
-        return nimbusSigner.supportedJWSAlgorithms()
-    }
-
-    override fun sign(header: JWSHeader?, signingInput: ByteArray?): Base64URL {
-        // return nimbusSigner.sign(header, signingInput)
-
-        val alg = header!!.algorithm
-
-        if (!supportedJWSAlgorithms().contains(alg)) {
-            throw JOSEException(AlgorithmSupportMessage.unsupportedJWSAlgorithm(alg, supportedJWSAlgorithms()))
-        }
-
-        // DER-encoded signature, according to JCA spec
-        // (sequence of two integers - R + S)
-
-        val jcaSignature = CryptoService.sign(keyId, signingInput!!)
-
-        // OR keyId to PrivateKey Handle + JCA Provider
-
-        //       val jcaSignature: ByteArray
-
-//        jcaSignature = try {
-//            val dsa = ECDSA.getSignerAndVerifier(alg, jcaContext.provider)
-//            dsa.initSign(privateKey, jcaContext.secureRandom)
-//            dsa.update(signingInput)
-//            dsa.sign()
-//        } catch (e: InvalidKeyException) {
-//            throw JOSEException(e.message, e)
-//        } catch (e: SignatureException) {
-//            throw JOSEException(e.message, e)
-//        }
-
-        val rsByteArrayLength = ECDSA.getSignatureByteArrayLength(header!!.algorithm)
-        val jwsSignature = ECDSA.transcodeSignatureToConcat(jcaSignature, rsByteArrayLength)
-        return Base64URL.encode(jwsSignature)
-
-    }
-    // ECDSASigner(ecJWK)
-}
 
 class JwtVerifier() : JWSVerifier {
     override fun getJCAContext(): JCAContext {
@@ -118,6 +39,7 @@ class JwtVerifier() : JWSVerifier {
 
 
 }
+
 
 class CryptoServiceTest {
 
@@ -145,7 +67,7 @@ class CryptoServiceTest {
         // Sign with private EC key
 
 
-        jwt.sign(LtECDSASigner(keyId))
+        jwt.sign(JwtSigner(keyId))
 //
 //        // Output the JWT
         println(jwt.serialize())
@@ -154,19 +76,8 @@ class CryptoServiceTest {
     @Test
     fun testProviderSign() {
 
-      //  Security.addProvider(LetsTrustProvider());
+        val keyId = KeyManagementService.generateSecp256k1KeyPairSun()
 
-
-        val ecJWK = ECKeyGenerator(Curve.SECP256K1)
-            .keyUse(KeyUse.SIGNATURE)
-            .keyID("123")
-            .generate()
-
-        // Get the public EC key, for recipients to validate the signatures
-
-        val ecPublicJWK = ecJWK.toPublicJWK()
-
-        // Sample JWT claims
         val claimsSet = JWTClaimsSet.Builder()
             .subject("alice")
             .build()
@@ -174,27 +85,32 @@ class CryptoServiceTest {
         // Create JWT for ES256K alg
         val jwt = SignedJWT(
             JWSHeader.Builder(JWSAlgorithm.ES256K)
-                .keyID(ecJWK.keyID)
+                .keyID(keyId)
                 .build(),
             claimsSet
         )
 
-        val signer = ECDSASigner(ecJWK)
+
+        ///val signer = JwtSigner(keyId)
+        //Security.addProvider(LetsTrustProvider())
+        val privateKeyHandle = PrivateKeyHandle(keyId)
+        val signer = ECDSASigner(privateKeyHandle, Curve.SECP256K1)
         signer.jcaContext.provider = LetsTrustProvider()
         val sig = jwt.sign(signer)
         println(jwt.serialize())
 
     }
+
     @Test
     @Throws(Exception::class)
     fun testProviders() {
 
         Security.addProvider(LetsTrustProvider());
 
-        val mysig = Signature.getInstance("ES256k", "LT")
+        val mysig = Signature.getInstance("SHA256withECDSA", "LetsTrust")
         println(mysig)
 
-        val myks = KeyStore.getInstance("PKCS11", "LT")
+        val myks = KeyStore.getInstance("PKCS11", "LetsTrust")
         println(myks)
 
         val providers: Array<Provider> = Security.getProviders()

@@ -12,13 +12,19 @@ open class LetsTrustSignature(val algorithm: String) : SignatureSpi() {
     class SHA384 : LetsTrustSignature("SHA-384")
     class SHA512 : LetsTrustSignature("SHA-512")
 
+    var keyId: String? = null
+
+    var b: ByteArray? = null
+    var off: Int? = null
+    var len: Int? = null
+
+
     override fun engineInitVerify(publicKey: PublicKey?) {
         TODO("Not yet implemented")
     }
 
     override fun engineInitSign(privateKey: PrivateKey?) {
-        println(this)
-        TODO("Not yet implemented")
+        keyId = (privateKey as PrivateKeyHandle).keyId
     }
 
     override fun engineUpdate(b: Byte) {
@@ -26,11 +32,13 @@ open class LetsTrustSignature(val algorithm: String) : SignatureSpi() {
     }
 
     override fun engineUpdate(b: ByteArray?, off: Int, len: Int) {
-        TODO("Not yet implemented")
+        this.b = b
+        this.off = off
+        this.len = len
     }
 
     override fun engineSign(): ByteArray {
-        TODO("Not yet implemented")
+        return CryptoService.sign(keyId!!, b!!)
     }
 
     override fun engineVerify(sigBytes: ByteArray?): Boolean {
