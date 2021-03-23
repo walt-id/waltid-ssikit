@@ -1,6 +1,16 @@
 package org.letstrust.services.key
 
+
 class CustomKeyStore : KeyStore {
+
+    init {
+
+    }
+
+    fun generate() {
+
+    }
+
     override fun getKeyId(keyId: String): String? {
         TODO("Not yet implemented")
     }
