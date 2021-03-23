@@ -1,12 +1,12 @@
 package org.letstrust
 
+import com.nimbusds.jose.*
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.JWSHeader
-import com.nimbusds.jose.JWSSigner
-import com.nimbusds.jose.JWSVerifier
-import com.nimbusds.jose.crypto.Ed25519Signer
-import com.nimbusds.jose.crypto.Ed25519Verifier
+import com.nimbusds.jose.crypto.*
 import com.nimbusds.jose.jwk.Curve
+import com.nimbusds.jose.jwk.KeyUse
+import com.nimbusds.jose.jwk.gen.ECKeyGenerator
 import com.nimbusds.jose.jwk.gen.OctetKeyPairGenerator
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
@@ -14,12 +14,6 @@ import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
 import org.junit.Test
 import java.util.*
-import com.nimbusds.jose.jwk.gen.ECKeyGenerator
-
-import com.nimbusds.jose.*;
-import com.nimbusds.jose.crypto.*;
-import com.nimbusds.jose.jwk.KeyUse;
-import com.nimbusds.jose.crypto.ECDSAVerifier
 
 
 // https://mkjwk.org/
@@ -99,8 +93,6 @@ class JwtTest {
         )
 
         // Sign with private EC key
-
-
         jwt.sign(ECDSASigner(ecJWK))
 
         // Output the JWT

@@ -17,6 +17,7 @@ import org.json.JSONObject
 import org.junit.Before
 import org.junit.Test
 import org.letstrust.crypto.EcdsaSecp256k1Signature2019LdSigner
+import org.letstrust.crypto.EcdsaSecp256k1Signature2019LdVerifier
 import org.letstrust.model.VerifiableCredential
 import org.letstrust.model.VerifiablePresentation
 import org.letstrust.services.did.DidService
@@ -111,9 +112,10 @@ class CredentialServiceTest {
         assertEquals(domain, ldProof.domain)
         assertEquals(nonce, ldProof.nonce)
 
-//        val verifier = Ed25519Signature2018LdVerifier(testEd25519PublicKey)
-//        val verify: Boolean = verifier.verify(jsonLdObject, ldProof)
-//        assertTrue(verify)
+        val pubKey = KeyManagementService.loadKeys(keyId)!!.toEcKey().toECPublicKey()
+        val verifier = EcdsaSecp256k1Signature2019LdVerifier(pubKey)
+        val verify: Boolean = verifier.verify(jsonLdObject, ldProof)
+        assertTrue(verify)
     }
 
     @Test
