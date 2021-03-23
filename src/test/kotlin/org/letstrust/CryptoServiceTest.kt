@@ -4,11 +4,13 @@ import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.JWSHeader
 import com.nimbusds.jose.JWSVerifier
 import com.nimbusds.jose.crypto.ECDSASigner
+import com.nimbusds.jose.crypto.ECDSAVerifier
 import com.nimbusds.jose.jca.JCAContext
 import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.util.Base64URL
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
+import junit.framework.Assert.assertTrue
 import org.junit.Test
 import org.letstrust.crypto.CryptoService
 import org.letstrust.crypto.JwtSigner
@@ -64,11 +66,8 @@ class CryptoServiceTest {
             claimsSet
         )
 
-        // Sign with private EC key
-
-
         jwt.sign(JwtSigner(keyId))
-//
+
 //        // Output the JWT
         println(jwt.serialize())
     }
@@ -82,7 +81,6 @@ class CryptoServiceTest {
             .subject("alice")
             .build()
 
-        // Create JWT for ES256K alg
         val jwt = SignedJWT(
             JWSHeader.Builder(JWSAlgorithm.ES256K)
                 .keyID(keyId)
@@ -90,14 +88,23 @@ class CryptoServiceTest {
             claimsSet
         )
 
-
         ///val signer = JwtSigner(keyId)
         //Security.addProvider(LetsTrustProvider())
         val privateKeyHandle = PrivateKeyHandle(keyId)
         val signer = ECDSASigner(privateKeyHandle, Curve.SECP256K1)
         signer.jcaContext.provider = LetsTrustProvider()
-        val sig = jwt.sign(signer)
+        jwt.sign(signer)
+
         println(jwt.serialize())
+
+        val jwt2 = SignedJWT.parse(jwt.serialize())
+
+        val pubKey = KeyManagementService.loadKeys(keyId)!!.toEcKey().toECPublicKey()
+        val verifier = ECDSAVerifier(pubKey)
+        assertTrue(jwt2.verify(verifier))
+
+
+        println(jwt2.jwtClaimsSet.toJSONObject())
 
     }
 
