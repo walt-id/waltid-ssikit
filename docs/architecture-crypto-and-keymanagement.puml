@@ -41,7 +41,7 @@ LetsTrustServices ..> KeyStore
 interface Crypto  {
 sign(keyId, bytes): bytes
 addAlias(keyId, alias): boolean
-encrypt(keyId, bytes): (Key): bytes
+encrypt(keyId, bytes): bytes
 decrypt(keyId, bytes): bytes
 }
 
@@ -51,6 +51,13 @@ addAlias(keyId, alias)
 loadKey(name): (Key)
 deleteKey(name)
 }
+
+class Key {
+keyId: String
+pair: KeyPair //JCA
+}
+
+KeyStore -up-> Key
 
 class SQLKeyStore  {}
 class FileKeyStore  {}
@@ -63,9 +70,10 @@ end note
 
 CustomKeyStoreNote --> CustomKeyStore
 
+KeyStore <|-right- CustomKeyStore
 KeyStore <|-- SQLKeyStore
 KeyStore <|-- FileKeyStore
-KeyStore <|-- CustomKeyStore
+
 
 Crypto <|-- SunCrypto
 Crypto <|-- TinkCrypto
