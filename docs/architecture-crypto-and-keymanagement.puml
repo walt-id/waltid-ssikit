@@ -1,0 +1,78 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+skinparam classFontColor 007BFF
+skinparam classFontSize 12
+skinparam classFontName Aapex
+skinparam backgroundColor white
+skinparam minClassWidth 155
+skinparam nodesep 34
+skinparam ranksep 70
+
+skinparam class {
+BorderColor 007BFF
+ArrowColor 007BFF
+BackgroundColor white
+}
+
+skinparam interface {
+BorderColor 007BFF
+ArrowColor 007BFF
+}
+
+skinparam note {
+BorderColor 007BFF
+BackgroundColor 7ACFF5
+}
+
+note as ConfNote
+  letstrust.yaml
+end note
+
+class LetsTrustServices {
+load<ServiceType>()
+}
+
+ConfNote -right- LetsTrustServices
+
+LetsTrustServices ..> Crypto
+LetsTrustServices ..> KeyStore
+
+interface Crypto  {
+sign(keyId, bytes): bytes
+addAlias(keyId, alias): boolean
+encrypt(keyId, bytes): (Key): bytes
+decrypt(keyId, bytes): bytes
+}
+
+interface KeyStore {
+store(Key)
+addAlias(keyId, alias)
+loadKey(name): (Key)
+deleteKey(name)
+}
+
+class SQLKeyStore  {}
+class FileKeyStore  {}
+class CustomKeyStore  {}
+
+note as CustomKeyStoreNote
+  Dyn. instantiated via:
+  META-INF/services
+end note
+
+CustomKeyStoreNote --> CustomKeyStore
+
+KeyStore <|-- SQLKeyStore
+KeyStore <|-- FileKeyStore
+KeyStore <|-- CustomKeyStore
+
+Crypto <|-- SunCrypto
+Crypto <|-- TinkCrypto
+
+Crypto o-right-> KeyStore
+
+
+
+
+@enduml

@@ -169,7 +169,6 @@ object CredentialService {
         }
         log.trace { "Loaded Json LD verifier with signature suite: ${verifier.signatureSuite}" }
 
-
         return verifier.verify(jsonLdObject)
     }
 

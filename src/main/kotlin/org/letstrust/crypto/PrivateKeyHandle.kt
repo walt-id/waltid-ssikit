@@ -1,5 +1,6 @@
 package org.letstrust.crypto
 
+import java.security.GeneralSecurityException
 import java.security.PrivateKey
 
 class PrivateKeyHandle(val keyId: String) : PrivateKey {
@@ -8,10 +9,10 @@ class PrivateKeyHandle(val keyId: String) : PrivateKey {
     }
 
     override fun getFormat(): String {
-        TODO("Not yet implemented")
+        throw GeneralSecurityException("Not supported, as private keys will not be exposed.")
     }
 
     override fun getEncoded(): ByteArray {
-        TODO("Not yet implemented")
+        throw GeneralSecurityException("Not supported, as private keys will not be exposed.")
     }
 }
