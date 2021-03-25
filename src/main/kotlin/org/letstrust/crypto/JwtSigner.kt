@@ -7,13 +7,7 @@ import com.nimbusds.jose.JWSSigner
 import com.nimbusds.jose.crypto.impl.AlgorithmSupportMessage
 import com.nimbusds.jose.crypto.impl.ECDSA
 import com.nimbusds.jose.jca.JCAContext
-import com.nimbusds.jose.jwk.Curve
-import com.nimbusds.jose.jwk.ECKey
-import com.nimbusds.jose.jwk.KeyUse
-import com.nimbusds.jose.jwk.gen.ECKeyGenerator
 import com.nimbusds.jose.util.Base64URL
-import java.security.InvalidKeyException
-import java.security.Signature
 
 
 
@@ -24,7 +18,7 @@ class JwtSigner(val keyId: String) : JWSSigner {
         jcaContext.provider = LetsTrustProvider()
     }
 
-    val nimbusSigner = com.nimbusds.jose.crypto.ECDSASigner(CryptoService.ecJWK)
+    val nimbusSigner = com.nimbusds.jose.crypto.ECDSASigner(SunCryptoService.ecJWK)
 
 
     override fun getJCAContext(): JCAContext {
@@ -47,7 +41,7 @@ class JwtSigner(val keyId: String) : JWSSigner {
         // DER-encoded signature, according to JCA spec
         // (sequence of two integers - R + S)
 
-        val jcaSignature = CryptoService.sign(keyId, signingInput!!)
+        val jcaSignature = SunCryptoService.sign(keyId, signingInput!!)
 
         // OR keyId to PrivateKey Handle + JCA Provider
 

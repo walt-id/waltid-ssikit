@@ -39,10 +39,11 @@ LetsTrustServices ..> Crypto
 LetsTrustServices ..> KeyStore
 
 interface Crypto  {
-sign(keyId, bytes): bytes
+gen(algorithm): KeyId
+sign(keyId, sig, data): bytes
 addAlias(keyId, alias): boolean
-encrypt(keyId, bytes): bytes
-decrypt(keyId, bytes): bytes
+encrypt(keyId, data): bytes
+decrypt(keyId, data): bytes
 }
 
 interface KeyStore {
@@ -57,7 +58,7 @@ keyId: String
 pair: KeyPair //JCA
 }
 
-KeyStore -up-> Key
+KeyStore --> Key
 
 class SQLKeyStore  {}
 class FileKeyStore  {}

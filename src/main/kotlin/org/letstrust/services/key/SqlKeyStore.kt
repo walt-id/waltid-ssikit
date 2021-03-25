@@ -3,6 +3,7 @@ package org.letstrust.services.key
 import com.nimbusds.jose.util.Base64
 import mu.KotlinLogging
 import org.letstrust.common.SqlDbManager
+import org.letstrust.crypto.Key
 import java.security.KeyFactory
 import java.security.KeyPair
 import java.security.spec.PKCS8EncodedKeySpec
@@ -61,6 +62,20 @@ object SqlKeyStore : KeyStore {
                 }
             }
         }
+
+    }
+
+    override fun store(key: Key) {
+//        if (key is KeySun) {
+//            println("sun")
+//            log.debug { "Saving sun-key \"${key}\"" }
+//        } else if (key is KeyTink) {
+//            println("tink")
+//            log.debug { "Saving tink-key \"${key}\"" }
+//        } else {
+//            println("error")
+//            log.error { "Key not supported \"${key}\"" }
+//        }
 
     }
 

@@ -38,7 +38,7 @@ open class LetsTrustSignature(val algorithm: String) : SignatureSpi() {
     }
 
     override fun engineSign(): ByteArray {
-        return CryptoService.sign(keyId!!, b!!)
+        return SunCryptoService.sign(keyId!!, b!!)
     }
 
     override fun engineVerify(sigBytes: ByteArray?): Boolean {

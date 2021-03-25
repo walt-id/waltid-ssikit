@@ -1,6 +1,7 @@
 package org.letstrust.services.key
 
 import org.apache.commons.io.IOUtils
+import org.letstrust.crypto.Key
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -137,6 +138,10 @@ object FileSystemKeyStore : KeyStore {
 
     override fun addAlias(keyId: String, alias: String) {
         File("$KEY_DIR_PATH/Alias-$alias").writeText(keyId)
+    }
+
+    override fun store(key: Key) {
+        TODO("Not yet implemented")
     }
 
     override fun getKeyId(alias: String): String {

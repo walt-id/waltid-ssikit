@@ -10,12 +10,11 @@ import com.nimbusds.jose.jwk.KeyUse
 import io.ipfs.multibase.Multibase
 import org.bitcoinj.core.ECKey
 import org.bouncycastle.jce.ECNamedCurveTable
-import org.bouncycastle.jce.provider.BouncyCastleProvider
-import org.letstrust.*
+import org.letstrust.LetsTrustServices
+import org.letstrust.encodeBase58
 import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.SecureRandom
-import java.security.Security
 import java.security.interfaces.ECPrivateKey
 import java.security.interfaces.ECPublicKey
 import java.security.spec.ECParameterSpec
@@ -57,7 +56,6 @@ object KeyManagementService {
     fun generateEcKeyPair(ecCurveName: String): String {
         val generator = KeyPairGenerator.getInstance("ECDSA", "BC")
         generator.initialize(ECNamedCurveTable.getParameterSpec(ecCurveName), SecureRandom())
-
         val keys = Keys(generateKeyId(), generator.generateKeyPair(), "BC")
         ks.saveKeyPair(keys)
         return keys.keyId

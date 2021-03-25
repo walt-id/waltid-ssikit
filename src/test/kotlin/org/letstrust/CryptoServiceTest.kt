@@ -2,20 +2,14 @@ package org.letstrust
 
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.JWSHeader
-import com.nimbusds.jose.JWSVerifier
 import com.nimbusds.jose.crypto.ECDSASigner
 import com.nimbusds.jose.crypto.ECDSAVerifier
-import com.nimbusds.jose.jca.JCAContext
 import com.nimbusds.jose.jwk.Curve
-import com.nimbusds.jose.util.Base64URL
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import junit.framework.Assert.assertTrue
 import org.junit.Test
-import org.letstrust.crypto.CryptoService
-import org.letstrust.crypto.JwtSigner
-import org.letstrust.crypto.LetsTrustProvider
-import org.letstrust.crypto.PrivateKeyHandle
+import org.letstrust.crypto.*
 import org.letstrust.services.key.KeyManagementService
 import java.security.KeyStore
 import java.security.Provider
@@ -23,32 +17,27 @@ import java.security.Security
 import java.security.Signature
 
 
-// SignatureSpi()
-
-
-class JwtVerifier() : JWSVerifier {
-    override fun getJCAContext(): JCAContext {
-        TODO("Not yet implemented")
-    }
-
-    override fun supportedJWSAlgorithms(): MutableSet<JWSAlgorithm> {
-        TODO("Not yet implemented")
-    }
-
-    override fun verify(header: JWSHeader?, signingInput: ByteArray?, signature: Base64URL?): Boolean {
-        TODO("Not yet implemented")
-    }
-
-
-}
-
 
 class CryptoServiceTest {
 
     @Test
+    fun testGenSecp256k1Sun() {
+
+        val keyId = SunCryptoService.generateKey(KeyAlgorithm.Secp256k1)
+
+    }
+
+    @Test
+    fun testGenSecp256k1Tink() {
+
+        val keyId = TinkCryptoService.generateKey(KeyAlgorithm.Secp256k1)
+
+    }
+
+    @Test
     fun testJwtSigner() {
 
-        val keyId = CryptoService.generate()
+        val keyId = KeyManagementService.generateEd25519KeyPairNimbus()
 
         // Get the public EC key, for recipients to validate the signatures
         //val ecPublicJWK = CryptoService.ecJWK?.toPublicJWK()

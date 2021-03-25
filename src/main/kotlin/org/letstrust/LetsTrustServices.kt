@@ -19,6 +19,7 @@ import java.io.File
 import java.security.Security
 import java.util.*
 
+enum class CryptoProvider { SUN, TINK }
 inline class Port(val value: Int)
 inline class Host(val value: String)
 enum class KeystoreType { file, database, custom }
@@ -40,6 +41,7 @@ data class LetsTrustConfig(
     val keystore: Keystore,
     val essif: Essif?,
     val server: Server?,
+    val cryptoProvider: CryptoProvider = CryptoProvider.SUN,
     val hikariDataSource: HikariDataSource = HikariDataSource()
 ) {
     val log = KotlinLogging.logger {}
