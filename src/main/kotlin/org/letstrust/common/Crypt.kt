@@ -4,17 +4,12 @@ import com.goterl.lazycode.lazysodium.LazySodiumJava
 import com.goterl.lazycode.lazysodium.SodiumJava
 import io.ipfs.multibase.Base58
 import io.ipfs.multibase.Multibase
-import java.util.*
 
 
 enum class KeyAlgorithm {
     Ed25519,
     Secp256k1
 }
-
-inline class KeyId(val id: String)
-
-fun generateKeyId(): KeyId = KeyId("LetsTrust-Key-${UUID.randomUUID().toString().replace("-", "")}")
 
 fun ByteArray.encodeBase58(): String = Base58.encode(this)
 

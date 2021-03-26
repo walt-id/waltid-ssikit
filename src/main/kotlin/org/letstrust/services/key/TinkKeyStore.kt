@@ -5,8 +5,8 @@ import com.google.crypto.tink.JsonKeysetReader
 import com.google.crypto.tink.JsonKeysetWriter
 import org.letstrust.CryptoProvider
 import org.letstrust.KeyAlgorithm
-import org.letstrust.KeyId
 import org.letstrust.crypto.Key
+import org.letstrust.crypto.KeyId
 import java.io.File
 
 object TinkKeyStore : KeyStore {

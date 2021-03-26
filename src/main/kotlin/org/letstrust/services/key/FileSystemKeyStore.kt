@@ -2,6 +2,7 @@ package org.letstrust.services.key
 
 import org.apache.commons.io.IOUtils
 import org.letstrust.crypto.Key
+import org.letstrust.crypto.KeyId
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -141,6 +142,10 @@ object FileSystemKeyStore : KeyStore {
     }
 
     override fun store(key: Key) {
+        TODO("Not yet implemented")
+    }
+
+    override fun load(keyId: KeyId): Key {
         TODO("Not yet implemented")
     }
 

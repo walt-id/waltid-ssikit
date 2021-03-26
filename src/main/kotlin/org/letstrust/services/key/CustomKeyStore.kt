@@ -1,6 +1,7 @@
 package org.letstrust.services.key
 
 import org.letstrust.crypto.Key
+import org.letstrust.crypto.KeyId
 
 
 class CustomKeyStore : KeyStore {
@@ -38,6 +39,10 @@ class CustomKeyStore : KeyStore {
     }
 
     override fun store(key: Key) {
+        TODO("Not yet implemented")
+    }
+
+    override fun load(keyId: KeyId): Key {
         TODO("Not yet implemented")
     }
 }

@@ -1,7 +1,7 @@
 package org.letstrust.services.key
 
-import org.letstrust.KeyId
 import org.letstrust.crypto.Key
+import org.letstrust.crypto.KeyId
 
 interface KeyStore {
     fun getKeyId(keyId: String): String?

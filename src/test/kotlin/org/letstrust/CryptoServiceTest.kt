@@ -22,15 +22,22 @@ class CryptoServiceTest {
 
     @Test
     fun testGenSecp256k1Sun() {
-
         val keyId = SunCryptoService.generateKey(KeyAlgorithm.Secp256k1)
-
     }
 
     @Test
-    fun testGenSecp256k1Tink() {
+    fun signSecp256k1Test() {
+        val data = "some data".toByteArray()
+        val keyId = SunCryptoService.generateKey(KeyAlgorithm.Secp256k1)
+        val sig = SunCryptoService.sign(keyId, data)
+        val res = SunCryptoService.verfiy(keyId, sig, data)
+        kotlin.test.assertTrue(res)
+    }
 
-        val keyId = TinkCryptoService.generateKey(KeyAlgorithm.Secp256k1)
+    @Test
+    fun testGenEd25519Tink() {
+
+        val keyId = TinkCryptoService.generateKey(KeyAlgorithm.Ed25519)
 
     }
 

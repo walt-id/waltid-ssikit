@@ -12,13 +12,17 @@ import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.jwk.KeyUse
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator
-import org.letstrust.*
+import org.bouncycastle.jce.ECNamedCurveTable
+import org.letstrust.CryptoProvider
+import org.letstrust.KeyAlgorithm
+import org.letstrust.LetsTrustServices
 import org.letstrust.services.key.KeyManagementService
 import org.letstrust.services.key.KeyStore
 import org.letstrust.services.key.TinkKeyStore
 import java.security.InvalidKeyException
-import java.security.KeyPair
 import java.security.KeyPairGenerator
+import java.security.SecureRandom
+import java.security.Signature
 
 
 interface CryptoService {
@@ -28,24 +32,10 @@ interface CryptoService {
     fun verfiy(keyId: KeyId, sig: ByteArray, data: ByteArray): Boolean
 }
 
-data class Key(val keyId: KeyId, val keyAlgorithm: KeyAlgorithm, val cryptoProvider: CryptoProvider) {
-    constructor(keyId: KeyId, keyAlgorithm: KeyAlgorithm, cryptoProvider: CryptoProvider, keyPair: KeyPair) : this(keyId, keyAlgorithm, cryptoProvider) {
-        this.keyPair = keyPair
-    }
-
-    constructor(keyId: KeyId, keyAlgorithm: KeyAlgorithm, cryptoProvider: CryptoProvider, keysetHandle: KeysetHandle) : this(keyId, keyAlgorithm, cryptoProvider) {
-        this.keysetHandle = keysetHandle
-    }
-
-    var keyPair: KeyPair? = null
-    var keysetHandle: KeysetHandle? = null
-}
-
 
 object TinkCryptoService : CryptoService {
     private var ks: KeyStore = TinkKeyStore //LetsTrustServices.load<KeyStore>()
     override fun generateKey(algorithm: KeyAlgorithm): KeyId {
-        val keyId = generateKeyId()
 
         val keysetHandle = when (algorithm) {
             KeyAlgorithm.Secp256k1 -> KeysetHandle.generateNew(EcdsaSignKeyManager.ecdsaP256Template())
@@ -54,9 +44,9 @@ object TinkCryptoService : CryptoService {
 
         println(keysetHandle)
 
-        val key = Key(keyId, KeyAlgorithm.Secp256k1, CryptoProvider.TINK, keysetHandle)
+        val key = Key(KeyId(), KeyAlgorithm.Secp256k1, CryptoProvider.TINK, keysetHandle)
         ks.store(key)
-        return keyId
+        return key.keyId
     }
 
     override fun sign(keyId: KeyId, data: ByteArray): ByteArray {
@@ -67,8 +57,13 @@ object TinkCryptoService : CryptoService {
 
     override fun verfiy(keyId: KeyId, sig: ByteArray, data: ByteArray): Boolean {
         val key = ks.load(keyId)
-        val verifier: PublicKeyVerify = key.keysetHandle!!.getPrimitive(PublicKeyVerify::class.java)
-        return verifier.verify(sig, data);
+        val verifier: PublicKeyVerify = key.keysetHandle!!.publicKeysetHandle.getPrimitive(PublicKeyVerify::class.java)
+        try {
+            verifier.verify(sig, data);
+        } catch (e: Exception) {
+            return false
+        }
+        return true
     }
 
 }
@@ -109,19 +104,40 @@ object SunCryptoService : CryptoService {
     }
 
     override fun generateKey(algorithm: KeyAlgorithm): KeyId {
-        val generator = KeyPairGenerator.getInstance("RSA")
-        generator.initialize(RSA_KEY_SIZE)
-        val keyPair = generator.genKeyPair()
-        val key = Key(generateKeyId(), KeyAlgorithm.Secp256k1, CryptoProvider.SUN, keyPair)
+
+        val generator = when (algorithm) {
+            KeyAlgorithm.Secp256k1 -> {
+                val generator = KeyPairGenerator.getInstance("ECDSA", "BC")
+                generator.initialize(ECNamedCurveTable.getParameterSpec("secp256k1"), SecureRandom())
+                generator
+            }
+            KeyAlgorithm.Ed25519 -> {
+                val generator = KeyPairGenerator.getInstance("Ed25519")
+                generator
+            }
+        }
+
+//        val generator = KeyPairGenerator.getInstance("RSA")
+//        generator.initialize(RSA_KEY_SIZE)
+
+        val keyPair = generator.generateKeyPair()
+        val key = Key(KeyId(), KeyAlgorithm.Secp256k1, CryptoProvider.SUN, keyPair)
         ks.store(key)
         return key.keyId
     }
 
     override fun sign(keyId: KeyId, data: ByteArray): ByteArray {
-        TODO("Not yet implemented")
+        val key = ks.load(keyId)
+        val sig = when (key.algorithm) {
+            KeyAlgorithm.Secp256k1 -> Signature.getInstance("SHA256withECDSA")
+            KeyAlgorithm.Ed25519 -> Signature.getInstance("Ed25519")
+        }
+        sig.initSign(key.keyPair!!.private)
+        sig.update(data)
+        return sig.sign()
     }
 
-    override fun verfiy(keyId: KeyId, sig: ByteArray): Boolean {
+    override fun verfiy(keyId: KeyId, sig: ByteArray, data: ByteArray): Boolean {
         TODO("Not yet implemented")
     }
 }

@@ -4,6 +4,7 @@ import com.nimbusds.jose.util.Base64
 import mu.KotlinLogging
 import org.letstrust.common.SqlDbManager
 import org.letstrust.crypto.Key
+import org.letstrust.crypto.KeyId
 import java.security.KeyFactory
 import java.security.KeyPair
 import java.security.spec.PKCS8EncodedKeySpec
@@ -77,6 +78,10 @@ object SqlKeyStore : KeyStore {
 //            log.error { "Key not supported \"${key}\"" }
 //        }
 
+    }
+
+    override fun load(keyId: KeyId): Key {
+        TODO("Not yet implemented")
     }
 
     override fun saveKeyPair(keys: Keys) {
