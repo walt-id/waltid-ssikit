@@ -54,8 +54,9 @@ deleteKey(name)
 }
 
 class Key {
-keyId: String
-pair: KeyPair //JCA
+keyId
+keyPair //JCA
+keysetHandle // Tink
 }
 
 KeyStore --> Key

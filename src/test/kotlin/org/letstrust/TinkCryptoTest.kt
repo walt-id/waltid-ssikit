@@ -11,21 +11,22 @@ class TinkCryptoTest {
         TinkConfig.register()
     }
 
+    val crypto = TinkCryptoService
+    val data = "some data".toByteArray()
+
     @Test
     fun signSecp256k1Test() {
-        val data = "some data".toByteArray()
-        val keyId = TinkCryptoService.generateKey(KeyAlgorithm.Secp256k1)
-        val sig = TinkCryptoService.sign(keyId, data)
-        val res = TinkCryptoService.verfiy(keyId, sig, data)
+        val keyId = crypto.generateKey(KeyAlgorithm.Secp256k1)
+        val sig = crypto.sign(keyId, data)
+        val res = crypto.verfiy(keyId, sig, data)
         assertTrue(res)
     }
 
     @Test
     fun signEd25519Test() {
-        val data = "some data".toByteArray()
-        val keyId = TinkCryptoService.generateKey(KeyAlgorithm.Ed25519)
-        val sig = TinkCryptoService.sign(keyId, data)
-        val res = TinkCryptoService.verfiy(keyId, sig, data)
+        val keyId = crypto.generateKey(KeyAlgorithm.Ed25519)
+        val sig = crypto.sign(keyId, data)
+        val res = crypto.verfiy(keyId, sig, data)
         assertTrue(res)
     }
 }

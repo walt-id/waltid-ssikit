@@ -3,13 +3,14 @@ package org.letstrust.services.key
 import com.google.crypto.tink.CleartextKeysetHandle
 import com.google.crypto.tink.JsonKeysetReader
 import com.google.crypto.tink.JsonKeysetWriter
-import org.letstrust.CryptoProvider
-import org.letstrust.KeyAlgorithm
 import org.letstrust.crypto.Key
 import org.letstrust.crypto.KeyId
 import java.io.File
 
-object TinkKeyStore : KeyStore {
+
+
+
+object TinkKeyStore : KeyStoreBase() {
     override fun getKeyId(keyId: String): String? {
         TODO("Not yet implemented")
     }
@@ -40,6 +41,9 @@ object TinkKeyStore : KeyStore {
 
     override fun load(keyId: KeyId): Key {
         val keysetHandle =  CleartextKeysetHandle.read(JsonKeysetReader.withFile(File(keyId.id + ".tink")))
-        return Key(keyId, KeyAlgorithm.Secp256k1, CryptoProvider.TINK, keysetHandle)
+        println(keysetHandle)
+        val metaData = loadMetaData(keyId)
+        return Key(keyId, metaData.algorithm, metaData.cryptoProvider, keysetHandle)
     }
+
 }

@@ -16,6 +16,7 @@ import org.bouncycastle.jce.ECNamedCurveTable
 import org.letstrust.CryptoProvider
 import org.letstrust.KeyAlgorithm
 import org.letstrust.LetsTrustServices
+import org.letstrust.newKeyId
 import org.letstrust.services.key.KeyManagementService
 import org.letstrust.services.key.KeyStore
 import org.letstrust.services.key.TinkKeyStore
@@ -44,7 +45,7 @@ object TinkCryptoService : CryptoService {
 
         println(keysetHandle)
 
-        val key = Key(KeyId(), KeyAlgorithm.Secp256k1, CryptoProvider.TINK, keysetHandle)
+        val key = Key(newKeyId(), KeyAlgorithm.Secp256k1, CryptoProvider.TINK, keysetHandle)
         ks.store(key)
         return key.keyId
     }
@@ -121,7 +122,7 @@ object SunCryptoService : CryptoService {
 //        generator.initialize(RSA_KEY_SIZE)
 
         val keyPair = generator.generateKeyPair()
-        val key = Key(KeyId(), KeyAlgorithm.Secp256k1, CryptoProvider.SUN, keyPair)
+        val key = Key(newKeyId(), KeyAlgorithm.Secp256k1, CryptoProvider.SUN, keyPair)
         ks.store(key)
         return key.keyId
     }
