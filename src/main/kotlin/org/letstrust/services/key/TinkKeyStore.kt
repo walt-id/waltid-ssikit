@@ -3,14 +3,16 @@ package org.letstrust.services.key
 import com.google.crypto.tink.CleartextKeysetHandle
 import com.google.crypto.tink.JsonKeysetReader
 import com.google.crypto.tink.JsonKeysetWriter
+import org.letstrust.KeyAlgorithm
 import org.letstrust.crypto.Key
 import org.letstrust.crypto.KeyId
 import java.io.File
 
 
-
-
 object TinkKeyStore : KeyStoreBase() {
+
+    private const val KEY_DIR_PATH = "data/keys"
+
     override fun getKeyId(keyId: String): String? {
         TODO("Not yet implemented")
     }
@@ -36,14 +38,19 @@ object TinkKeyStore : KeyStoreBase() {
     }
 
     override fun store(key: Key) {
-        CleartextKeysetHandle.write(key.keysetHandle, JsonKeysetWriter.withFile(File(key.keyId.id + ".tink")))
+        CleartextKeysetHandle.write(key.keysetHandle, JsonKeysetWriter.withFile(File("$KEY_DIR_PATH/${key.keyId.id}.tink")))
     }
 
     override fun load(keyId: KeyId): Key {
-        val keysetHandle =  CleartextKeysetHandle.read(JsonKeysetReader.withFile(File(keyId.id + ".tink")))
+        val keysetHandle = CleartextKeysetHandle.read(JsonKeysetReader.withFile(File("$KEY_DIR_PATH/${keyId.id}.tink")))
+        val algorithm = when (keysetHandle.keysetInfo.getKeyInfo(0).typeUrl) {
+            "type.googleapis.com/google.crypto.tink.Ed25519PrivateKey" -> KeyAlgorithm.Ed25519
+            "type.googleapis.com/google.crypto.tink.EcdsaPrivateKey" -> KeyAlgorithm.Secp256k1
+            else  -> throw Exception("Could not determine KeyAlgorithm")
+        }
         println(keysetHandle)
         val metaData = loadMetaData(keyId)
-        return Key(keyId, metaData.algorithm, metaData.cryptoProvider, keysetHandle)
+        return Key(keyId, algorithm, metaData.cryptoProvider, keysetHandle)
     }
 
 }

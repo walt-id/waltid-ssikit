@@ -45,7 +45,7 @@ object TinkCryptoService : CryptoService {
 
         println(keysetHandle)
 
-        val key = Key(newKeyId(), KeyAlgorithm.Secp256k1, CryptoProvider.TINK, keysetHandle)
+        val key = Key(newKeyId(), algorithm, CryptoProvider.TINK, keysetHandle)
         ks.store(key)
         return key.keyId
     }
