@@ -108,7 +108,7 @@ object SunCryptoService : CryptoService {
 
         val generator = when (algorithm) {
             KeyAlgorithm.Secp256k1 -> {
-                val generator = KeyPairGenerator.getInstance("ECDSA")
+                val generator = KeyPairGenerator.getInstance("ECDSA", "BC")
                 generator.initialize(ECNamedCurveTable.getParameterSpec("secp256k1"), SecureRandom())
                 generator
             }

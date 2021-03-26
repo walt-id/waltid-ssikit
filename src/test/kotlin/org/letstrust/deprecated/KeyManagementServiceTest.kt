@@ -1,4 +1,4 @@
-package org.letstrust
+package org.letstrust.deprecated
 
 import com.google.crypto.tink.subtle.X25519
 import org.bouncycastle.jce.provider.BouncyCastleProvider

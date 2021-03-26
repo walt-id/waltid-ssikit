@@ -1,4 +1,6 @@
 
+cryptoProvider: SUN # allowed values: 'SUN' or 'TINK'
+
 keystore:
   type: database # allowed values: 'file', 'database' or 'custom'
 

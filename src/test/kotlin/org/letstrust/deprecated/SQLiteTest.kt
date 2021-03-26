@@ -1,4 +1,4 @@
-package org.letstrust
+package org.letstrust.deprecated
 
 import com.nimbusds.jose.util.Base64
 import org.bouncycastle.jce.provider.BouncyCastleProvider

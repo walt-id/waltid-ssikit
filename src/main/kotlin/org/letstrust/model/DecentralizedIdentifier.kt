@@ -8,6 +8,11 @@ import kotlinx.serialization.json.Json
 
 const val DID_CONTEXT_URL: String = "https://w3id.org/did/v1"
 
+enum class DidMethod {
+    key,
+    web,
+    ebsi
+}
 @Serializable
 data class Did(
     @SerialName("@context")

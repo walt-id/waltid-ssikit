@@ -1,4 +1,4 @@
-package org.letstrust
+package org.letstrust.deprecated
 
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString

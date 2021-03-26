@@ -1,4 +1,4 @@
-package org.letstrust
+package org.letstrust.deprecated
 
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.JWSHeader
@@ -9,6 +9,7 @@ import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import junit.framework.Assert.assertTrue
 import org.junit.Test
+import org.letstrust.KeyAlgorithm
 import org.letstrust.crypto.*
 import org.letstrust.services.key.KeyManagementService
 import java.security.KeyStore

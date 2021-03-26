@@ -16,7 +16,7 @@ data class DidUrl(
     val url = did + if (fragment != null) "#${fragment}" else ""
 }
 
-fun String.fromString(): DidUrl {
+fun String.toDidUrl(): DidUrl {
     val matchResult = "^did:([a-z]+):(.+)".toRegex().find(this)!!
     val path = matchResult.groups[2]!!.value
     val fragmentStr = path.substringAfter('#')

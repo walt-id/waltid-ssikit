@@ -3,9 +3,13 @@ package org.letstrust.services.did
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import mu.KotlinLogging
+import org.bouncycastle.asn1.ASN1BitString
+import org.bouncycastle.asn1.ASN1Sequence
 import org.letstrust.*
+import org.letstrust.crypto.CryptoService
 import org.letstrust.model.*
 import org.letstrust.services.key.KeyManagementService
+import org.letstrust.services.key.KeyStore
 import org.letstrust.services.key.Keys
 import java.net.URL
 import java.nio.file.Files
@@ -20,7 +24,90 @@ private val log = KotlinLogging.logger {}
  */
 object DidService {
 
-    fun resolveDid(did: String): Did = resolveDid(did.fromString())
+    private val crypto = LetsTrustServices.load<CryptoService>()
+    private val ks: KeyStore = LetsTrustServices.load<KeyStore>()
+
+    // Public methods
+
+    fun create(method: DidMethod): String {
+        return when (method) {
+            DidMethod.key -> createDidKey()
+            DidMethod.web -> createDidWeb()
+            else -> throw Exception("DID method $method not supported")
+        }
+    }
+
+    fun resolve(did: String): Did = resolve(did.toDidUrl())
+    fun resolve(didUrl: DidUrl): Did {
+        return when (didUrl.method) {
+            DidMethod.key.name -> resolveDidKey(didUrl)
+            DidMethod.web.name -> resolveDidWebDummy(didUrl)
+            else -> TODO("did:${didUrl.method} not implemented yet")
+        }
+    }
+
+    // Private methods
+
+    private fun createDidKey(): String {
+        val keyId = crypto.generateKey(KeyAlgorithm.Ed25519)
+        val key = ks.load(keyId)
+
+        val pubPrim = ASN1Sequence.fromByteArray(key.keyPair!!.public.encoded) as ASN1Sequence
+        val x = (pubPrim.getObjectAt(1) as ASN1BitString).octets
+
+        val identifier = convertEd25519PublicKeyToMultiBase58Btc(x)
+
+        return "did:key:$identifier"
+    }
+
+    private fun createDidWeb(): String {
+        TODO("")
+    }
+
+    private fun resolveDidKey(didUrl: DidUrl): Did {
+        val pubKey = convertEd25519PublicKeyFromMultibase58Btc(didUrl.identifier)
+        return ed25519Did(didUrl, pubKey)
+    }
+
+    private fun ed25519Did(didUrl: DidUrl, pubKey: ByteArray): Did {
+
+        val dhKey = convertPublicKeyEd25519ToCurve25519(pubKey)
+
+        val dhKeyMb = convertX25519PublicKeyToMultiBase58Btc(dhKey)
+
+        val pubKeyId = didUrl.identifier + "#" + didUrl.identifier
+        val dhKeyId = didUrl.identifier + "#" + dhKeyMb
+
+        val verificationMethods = listOf(
+            VerificationMethod(pubKeyId, "Ed25519VerificationKey2018", didUrl.did, pubKey.encodeBase58()),
+            VerificationMethod(dhKeyId, "X25519KeyAgreementKey2019", didUrl.did, dhKey.encodeBase58())
+        )
+
+        val keyRef = listOf(pubKeyId)
+
+        return Did(
+            DID_CONTEXT_URL,
+            didUrl.did,
+            verificationMethods,
+            keyRef,
+            keyRef,
+            keyRef,
+            keyRef,
+            listOf(dhKeyId),
+            null
+        )
+    }
+
+
+
+
+
+
+
+
+    // TODO: consider the methods below. They might be deprecated!
+
+    fun resolveDid(did: String): Did = resolveDid(did.toDidUrl())
 
     fun resolveDid(didUrl: DidUrl): Did {
         return when (didUrl.method) {
@@ -30,10 +117,7 @@ object DidService {
         }
     }
 
-    private fun resolveDidKey(didUrl: DidUrl): Did {
-        val pubKey = convertEd25519PublicKeyFromMultibase58Btc(didUrl.identifier)
-        return ed25519Did(didUrl, pubKey)
-    }
+
 
     private fun resolveDidWebDummy(didUrl: DidUrl): Did {
         KeyManagementService.loadKeys(didUrl.did).let {
@@ -100,33 +184,6 @@ object DidService {
             .map { it.fileName.toString() }.toList()
     }
 
-    private fun ed25519Did(didUrl: DidUrl, pubKey: ByteArray): Did {
 
-        val dhKey = convertPublicKeyEd25519ToCurve25519(pubKey)
-
-        val dhKeyMb = convertX25519PublicKeyToMultiBase58Btc(dhKey)
-
-        val pubKeyId = didUrl.identifier + "#" + didUrl.identifier
-        val dhKeyId = didUrl.identifier + "#" + dhKeyMb
-
-        val verificationMethods = listOf(
-            VerificationMethod(pubKeyId, "Ed25519VerificationKey2018", didUrl.did, pubKey.encodeBase58()),
-            VerificationMethod(dhKeyId, "X25519KeyAgreementKey2019", didUrl.did, dhKey.encodeBase58())
-        )
-
-        val keyRef = listOf(pubKeyId)
-
-        return Did(
-            DID_CONTEXT_URL,
-            didUrl.did,
-            verificationMethods,
-            keyRef,
-            keyRef,
-            keyRef,
-            keyRef,
-            listOf(dhKeyId),
-            null
-        )
-    }
 
 }

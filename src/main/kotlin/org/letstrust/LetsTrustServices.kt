@@ -12,10 +12,15 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.core.config.LoggerConfig
 import org.bouncycastle.jce.provider.BouncyCastleProvider
+import org.letstrust.crypto.CryptoService
+import org.letstrust.crypto.SunCryptoService
+import org.letstrust.crypto.TinkCryptoService
 import org.letstrust.services.key.FileSystemKeyStore
 import org.letstrust.services.key.KeyStore
 import org.letstrust.services.key.SqlKeyStore
 import java.io.File
+import java.nio.file.Files
+import java.nio.file.Path
 import java.security.Security
 import java.util.*
 
@@ -53,6 +58,9 @@ data class LetsTrustConfig(
 
 object LetsTrustServices {
 
+    const val dataDir = "./data"
+    const val keyDir = "$dataDir/key/"
+
     val log = KotlinLogging.logger {}
 
     init {
@@ -63,10 +71,12 @@ object LetsTrustServices {
 
         log.debug { "Loading: " + T::class }
 
+        createDirStructure()
         val conf = this.loadConfig()
 
         val service = when (T::class) {
             KeyStore::class -> loadKeyStore(conf)
+            CryptoService::class -> loadCrypto(conf)
             HikariDataSource::class -> conf.hikariDataSource as T
             else -> throw Exception("Service " + T::class + " not registered")
         }
@@ -75,10 +85,26 @@ object LetsTrustServices {
         return service as T
     }
 
+    fun createDirStructure() {
+        log.debug { "Creating dir-structure at: ${dataDir}" }
+        Files.createDirectories(Path.of(keyDir))
+        Files.createDirectories(Path.of("${dataDir}/did/created"))
+        Files.createDirectories(Path.of("${dataDir}/did/resolved"))
+        Files.createDirectories(Path.of("${dataDir}/vc/templates"))
+        Files.createDirectories(Path.of("${dataDir}/vc/created"))
+        Files.createDirectories(Path.of("${dataDir}/vc/presented"))
+        Files.createDirectories(Path.of("${dataDir}/ebsi/"))
+    }
+
     fun loadKeyStore(conf: LetsTrustConfig) = when (conf.keystore.type) {
         KeystoreType.custom -> loadCustomKeyStore()
         KeystoreType.database -> SqlKeyStore
         else -> FileSystemKeyStore
+    }
+
+    fun loadCrypto(conf: LetsTrustConfig) = when (conf.cryptoProvider) {
+        CryptoProvider.TINK -> TinkCryptoService
+        else -> SunCryptoService
     }
 
     private fun loadCustomKeyStore(): KeyStore {

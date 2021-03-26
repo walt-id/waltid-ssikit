@@ -1,4 +1,4 @@
-package org.letstrust
+package org.letstrust.deprecated
 
 import com.nimbusds.jose.shaded.json.JSONObject
 import kotlinx.serialization.decodeFromString

@@ -13,7 +13,7 @@ import com.github.ajalt.clikt.parameters.types.file
 import org.letstrust.CliConfig
 import org.letstrust.services.key.KeyManagementService
 import org.letstrust.model.encodePretty
-import org.letstrust.model.fromString
+import org.letstrust.model.toDidUrl
 import org.letstrust.services.did.DidService
 import java.io.File
 
@@ -93,7 +93,7 @@ class ResolveDidCommand : CliktCommand(
         echo("Resolving $did ...")
 
         var encodedDid = when (did.contains("mattr")) {
-            true -> DidService.resolveDidWeb(did.fromString()).encodePretty()
+            true -> DidService.resolveDidWeb(did.toDidUrl()).encodePretty()
             else -> DidService.resolveDid(did).encodePretty()
         }
 

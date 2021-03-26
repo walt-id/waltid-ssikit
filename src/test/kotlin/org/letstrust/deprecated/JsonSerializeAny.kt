@@ -1,4 +1,4 @@
-package org.letstrust//import kotlinx.serialization.*
+package org.letstrust.deprecated//import kotlinx.serialization.*
 //import kotlinx.serialization.descriptors.SerialDescriptor
 //import kotlinx.serialization.encoding.CompositeDecoder
 //import kotlinx.serialization.encoding.Decoder

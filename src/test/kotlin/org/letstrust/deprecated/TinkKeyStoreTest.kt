@@ -1,7 +1,8 @@
-package org.letstrust
+package org.letstrust.deprecated
 
 import com.google.crypto.tink.config.TinkConfig
 import org.junit.Test
+import org.letstrust.KeyAlgorithm
 import org.letstrust.crypto.TinkCryptoService
 
 class TinkKeyStoreTest {

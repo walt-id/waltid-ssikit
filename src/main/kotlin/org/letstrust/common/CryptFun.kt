@@ -20,7 +20,6 @@ enum class KeyAlgorithm {
 
 fun newKeyId(): KeyId = KeyId("LetsTrust-Key-${UUID.randomUUID().toString().replace("-", "")}")
 
-
 fun PrivateKey.toPEM(): String =
     "-----BEGIN PRIVATE KEY-----\n" +
             String(

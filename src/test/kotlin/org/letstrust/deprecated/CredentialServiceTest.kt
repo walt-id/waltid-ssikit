@@ -1,4 +1,4 @@
-package org.letstrust
+package org.letstrust.deprecated
 
 import foundation.identity.jsonld.JsonLDObject
 import foundation.identity.jsonld.JsonLDUtils
@@ -31,6 +31,7 @@ import java.security.Security
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
+@Deprecated(message="New version in package org.letstrust.service.vc")
 class CredentialServiceTest {
 
     private val RESOURCES_PATH: String = "src/test/resources"

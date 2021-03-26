@@ -1,4 +1,4 @@
-package org.letstrust
+package org.letstrust.deprecated
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.junit.Test

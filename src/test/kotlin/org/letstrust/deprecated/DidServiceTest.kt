@@ -1,11 +1,11 @@
-package org.letstrust
+package org.letstrust.deprecated
 
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.Test
 import org.letstrust.model.Did
 import org.letstrust.model.DidUrl
-import org.letstrust.model.fromString
+import org.letstrust.model.toDidUrl
 import org.letstrust.services.did.DidService
 import java.io.File
 import java.nio.file.Files
@@ -14,7 +14,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-
+@Deprecated(message="New version in package org.letstrust.service.did")
 class DidServiceTest {
 
     private val RESOURCES_PATH: String = "src/test/resources"
@@ -36,7 +36,7 @@ class DidServiceTest {
 
         assertEquals("did:method:identifier#key1", didUrl.url)
 
-        val obj: DidUrl = didUrl.url.fromString()
+        val obj: DidUrl = didUrl.url.toDidUrl()
 
         assertEquals(didUrl, obj)
     }
@@ -79,7 +79,7 @@ class DidServiceTest {
     @Test
     fun didWebResolution() {
         val identifier = "did:web:mattr.global"
-        val didUrl:  DidUrl= identifier.fromString()
+        val didUrl:  DidUrl= identifier.toDidUrl()
         val didWeb = DidService.resolveDidWeb(didUrl)
         assertNotNull(didWeb)
         // assertEquals("https://w3id.org/did/v1", didWeb.context)

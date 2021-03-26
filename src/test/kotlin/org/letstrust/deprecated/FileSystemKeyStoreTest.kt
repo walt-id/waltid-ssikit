@@ -1,4 +1,4 @@
-package org.letstrust
+package org.letstrust.deprecated
 
 import org.junit.Before
 import org.letstrust.services.key.FileSystemKeyStore

@@ -1,6 +1,7 @@
-package org.letstrust
+package org.letstrust.deprecated
 
 import org.junit.Test
+import org.letstrust.*
 import kotlin.test.assertEquals
 
 
@@ -33,7 +34,7 @@ class CryptTests {
     @Test
     fun convertEd25519PublicKeyToMultiBase58Btc() {
         val mb =
-            convertEd25519PublicKeyToMultiBase58Btc("B12NYF8RrR3h41TDCTJojY59usg3mbtbjnFs7Eud1Y6u".decodeBase58())
+            org.letstrust.convertEd25519PublicKeyToMultiBase58Btc("B12NYF8RrR3h41TDCTJojY59usg3mbtbjnFs7Eud1Y6u".decodeBase58())
         assertEquals("z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH", mb)
     }
 

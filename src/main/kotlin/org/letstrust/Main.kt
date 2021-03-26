@@ -6,23 +6,9 @@ import com.github.ajalt.clikt.parameters.options.associate
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.versionOption
-import com.sksamuel.hoplite.ConfigFilePropertySource
-import com.sksamuel.hoplite.ConfigLoader
-import com.sksamuel.hoplite.ConfigSource
-import com.sksamuel.hoplite.PropertySource
-import com.sksamuel.hoplite.hikari.HikariDataSourceDecoder
-import com.sksamuel.hoplite.parsers.defaultParserRegistry
-import com.sksamuel.hoplite.yaml.YamlParser
 import mu.KotlinLogging
 import org.apache.logging.log4j.Level
-import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.core.LoggerContext
-import org.apache.logging.log4j.core.config.Configuration
-import org.apache.logging.log4j.core.config.LoggerConfig
 import org.letstrust.cli.*
-import java.io.File
-import java.nio.file.Files
-import java.nio.file.Path
 
 
 data class CliConfig(var dataDir: String, val properties: MutableMap<String, String>, var verbose: Boolean)
@@ -72,16 +58,6 @@ class LetsTrust : CliktCommand(
         if (config.verbose) {
             log.debug { "Config loaded: ${config}" }
         }
-
-        // TODO: move this to some central config-service
-        log.debug { "Creating dir-structure at: ${config.dataDir}" }
-        Files.createDirectories(Path.of("${config.dataDir}/key/"))
-        Files.createDirectories(Path.of("${config.dataDir}/did/created"))
-        Files.createDirectories(Path.of("${config.dataDir}/did/resolved"))
-        Files.createDirectories(Path.of("${config.dataDir}/vc/templates"))
-        Files.createDirectories(Path.of("${config.dataDir}/vc/created"))
-        Files.createDirectories(Path.of("${config.dataDir}/vc/presented"))
-        Files.createDirectories(Path.of("${config.dataDir}/ebsi/"))
     }
 }
 
