@@ -122,7 +122,7 @@ object SunCryptoService : CryptoService {
 //        generator.initialize(RSA_KEY_SIZE)
 
         val keyPair = generator.generateKeyPair()
-        val key = Key(newKeyId(), KeyAlgorithm.Secp256k1, CryptoProvider.SUN, keyPair)
+        val key = Key(newKeyId(),algorithm, CryptoProvider.SUN, keyPair)
         ks.store(key)
         return key.keyId
     }

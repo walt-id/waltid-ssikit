@@ -50,7 +50,7 @@ object SqlKeyStore : KeyStoreBase() {
     }
 
     override fun load(keyId: KeyId): Key {
-        val metaData = loadMetaData(keyId)
+       // val metaData = loadMetaData(keyId)
         log.debug { "Loading key \"${keyId}\"." }
         var key: Key? = null
         SqlDbManager.getConnection().use { con ->
@@ -58,17 +58,17 @@ object SqlKeyStore : KeyStoreBase() {
                 stmt.setString(1, keyId.id)
                 stmt.executeQuery().use { rs ->
                     if (rs.next()) {
-                        var algorithm = rs.getString("algorithm")
-                        var provider = rs.getString("provider")
+                        var algorithm = KeyAlgorithm.valueOf(rs.getString("algorithm"))
+                        var provider = CryptoProvider.valueOf(rs.getString("provider"))
 
-                        val kf = when (metaData.algorithm) {
+                        val kf = when (algorithm) {
                             KeyAlgorithm.Secp256k1 -> KeyFactory.getInstance("ECDSA")
                             KeyAlgorithm.Ed25519 -> KeyFactory.getInstance("Ed25519")
                         }
                         var pub = decodePubKey(rs.getString("pub"), kf)
                         var priv = decodePrivKey(rs.getString("priv"), kf)
 
-                        key = Key(keyId, metaData.algorithm, metaData.cryptoProvider, KeyPair(pub, priv))
+                        key = Key(keyId, algorithm, provider, KeyPair(pub, priv))
 
                     }
                 }

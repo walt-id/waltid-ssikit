@@ -17,12 +17,12 @@ class SunCryptoTest {
         assertTrue(res)
     }
 
-    // TODO: Ed25519 only supported with Java 15
-//    @Test
-//    fun signEd25519Test() {
-//        val keyId = crypto.generateKey(KeyAlgorithm.Ed25519)
-//        val sig = crypto.sign(keyId, data)
-//        val res = crypto.verfiy(keyId, sig, data)
-//        assertTrue(res)
-//    }
+    // Ed25519 only supported with Java 15
+    @Test
+    fun signEd25519Test() {
+        val keyId = crypto.generateKey(KeyAlgorithm.Ed25519)
+        val sig = crypto.sign(keyId, data)
+        val res = crypto.verfiy(keyId, sig, data)
+        assertTrue(res)
+    }
 }
