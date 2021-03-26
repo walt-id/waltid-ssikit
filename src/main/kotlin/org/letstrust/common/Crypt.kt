@@ -5,6 +5,11 @@ import com.goterl.lazycode.lazysodium.SodiumJava
 import io.ipfs.multibase.Base58
 import io.ipfs.multibase.Multibase
 import org.letstrust.crypto.KeyId
+import java.security.KeyFactory
+import java.security.PrivateKey
+import java.security.PublicKey
+import java.security.spec.PKCS8EncodedKeySpec
+import java.security.spec.X509EncodedKeySpec
 import java.util.*
 
 
@@ -14,6 +19,33 @@ enum class KeyAlgorithm {
 }
 
 fun newKeyId(): KeyId = KeyId("LetsTrust-Key-${UUID.randomUUID().toString().replace("-", "")}")
+
+
+fun PrivateKey.toPEM(): String =
+    "-----BEGIN PRIVATE KEY-----\n" +
+            String(
+                Base64.getMimeEncoder(64, "\n".toByteArray()).encode(PKCS8EncodedKeySpec(this.encoded).encoded)
+            ) +
+            "\n-----END PRIVATE KEY-----"
+
+
+fun PrivateKey.toBase64(): String = String(Base64.getEncoder().encode(PKCS8EncodedKeySpec(this.encoded).encoded))
+
+fun PrivateKey.toJwk(): String = "todo"
+
+fun PublicKey.toPEM(): String = "-----BEGIN PUBLIC KEY-----\n" +
+        String(
+            Base64.getMimeEncoder(64, "\n".toByteArray()).encode(X509EncodedKeySpec(this.encoded).encoded)
+        ) +
+        "\n-----END PUBLIC KEY-----"
+
+fun PublicKey.toJwk(): String = "todo"
+
+fun PublicKey.toBase64(): String = String(Base64.getEncoder().encode(X509EncodedKeySpec(this.encoded).encoded))
+
+fun decodePubKey(s: String, kf: KeyFactory): PublicKey = kf.generatePublic(X509EncodedKeySpec(Base64.getDecoder().decode(s)))
+
+fun decodePrivKey(s: String, kf: KeyFactory): PrivateKey = kf.generatePrivate(PKCS8EncodedKeySpec(Base64.getDecoder().decode(s)))
 
 fun ByteArray.encodeBase58(): String = Base58.encode(this)
 

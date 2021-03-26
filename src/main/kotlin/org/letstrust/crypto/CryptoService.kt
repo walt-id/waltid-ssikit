@@ -57,7 +57,7 @@ object TinkCryptoService : CryptoService {
     }
 
     override fun verfiy(keyId: KeyId, sig: ByteArray, data: ByteArray): Boolean {
-        val key = ks.load(keyId)
+        val key = ks.load(keyId)!!
         val verifier: PublicKeyVerify = key.keysetHandle!!.publicKeysetHandle.getPrimitive(PublicKeyVerify::class.java)
         try {
             verifier.verify(sig, data);
@@ -108,7 +108,7 @@ object SunCryptoService : CryptoService {
 
         val generator = when (algorithm) {
             KeyAlgorithm.Secp256k1 -> {
-                val generator = KeyPairGenerator.getInstance("ECDSA", "BC")
+                val generator = KeyPairGenerator.getInstance("ECDSA")
                 generator.initialize(ECNamedCurveTable.getParameterSpec("secp256k1"), SecureRandom())
                 generator
             }
@@ -139,6 +139,13 @@ object SunCryptoService : CryptoService {
     }
 
     override fun verfiy(keyId: KeyId, sig: ByteArray, data: ByteArray): Boolean {
-        TODO("Not yet implemented")
+        val key = ks.load(keyId)
+        val signature = when (key.algorithm) {
+            KeyAlgorithm.Secp256k1 -> Signature.getInstance("SHA256withECDSA")
+            KeyAlgorithm.Ed25519 -> Signature.getInstance("Ed25519")
+        }
+        signature.initVerify(key.keyPair!!.public)
+        signature.update(data)
+        return signature.verify(sig)
     }
 }

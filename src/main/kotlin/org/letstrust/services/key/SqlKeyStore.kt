@@ -2,6 +2,7 @@ package org.letstrust.services.key
 
 import com.nimbusds.jose.util.Base64
 import mu.KotlinLogging
+import org.letstrust.*
 import org.letstrust.common.SqlDbManager
 import org.letstrust.crypto.Key
 import org.letstrust.crypto.KeyId
@@ -13,13 +14,70 @@ import java.sql.Statement.RETURN_GENERATED_KEYS
 
 private val log = KotlinLogging.logger() {}
 
-object SqlKeyStore : KeyStore {
+object SqlKeyStore : KeyStoreBase() {
 
     private val db = SqlDbManager
 
     init {
         SqlDbManager.start()
     }
+
+    override fun store(key: Key) {
+        log.debug { "Saving key \"${key}\"" }
+
+        SqlDbManager.getConnection().use { con ->
+            con.prepareStatement("insert into lt_key (name, priv, pub, algorithm, provider) values (?, ?, ?, ?, ?)", RETURN_GENERATED_KEYS)
+                .use { stmt ->
+                    stmt.setString(1, key.keyId.id)
+                    println(key.keyPair!!.private.toPEM());
+                    println(key.keyPair!!.public.toPEM());
+
+                    stmt.setString(2, key.keyPair!!.private.toBase64())
+                    stmt.setString(3, key.keyPair!!.public.toBase64())
+                    stmt.setString(4, key.algorithm.name)
+                    stmt.setString(5, key.cryptoProvider.name)
+
+                    if (stmt.executeUpdate() == 1) {
+                        con.commit()
+                        log.trace { "Key \"${key}\" saved successfully." }
+                    } else {
+                        log.error { "Error when saving key \"${key}\". Rolling back transaction." }
+                        con.rollback()
+                    }
+                }
+        }
+
+    }
+
+    override fun load(keyId: KeyId): Key {
+        val metaData = loadMetaData(keyId)
+        log.debug { "Loading key \"${keyId}\"." }
+        var key: Key? = null
+        SqlDbManager.getConnection().use { con ->
+            con.prepareStatement("select * from lt_key where name = ?").use { stmt ->
+                stmt.setString(1, keyId.id)
+                stmt.executeQuery().use { rs ->
+                    if (rs.next()) {
+                        var algorithm = rs.getString("algorithm")
+                        var provider = rs.getString("provider")
+
+                        val kf = when (metaData.algorithm) {
+                            KeyAlgorithm.Secp256k1 -> KeyFactory.getInstance("ECDSA")
+                            KeyAlgorithm.Ed25519 -> KeyFactory.getInstance("Ed25519")
+                        }
+                        var pub = decodePubKey(rs.getString("pub"), kf)
+                        var priv = decodePrivKey(rs.getString("priv"), kf)
+
+                        key = Key(keyId, metaData.algorithm, metaData.cryptoProvider, KeyPair(pub, priv))
+
+                    }
+                }
+                con.commit()
+            }
+        }
+        return key ?: throw Exception("Could not load $keyId")
+    }
+
 
     override fun getKeyId(alias: String): String? {
         log.trace { "Loading keyId for alias \"${alias}\"." }
@@ -64,24 +122,6 @@ object SqlKeyStore : KeyStore {
             }
         }
 
-    }
-
-    override fun store(key: Key) {
-//        if (key is KeySun) {
-//            println("sun")
-//            log.debug { "Saving sun-key \"${key}\"" }
-//        } else if (key is KeyTink) {
-//            println("tink")
-//            log.debug { "Saving tink-key \"${key}\"" }
-//        } else {
-//            println("error")
-//            log.error { "Key not supported \"${key}\"" }
-//        }
-
-    }
-
-    override fun load(keyId: KeyId): Key {
-        TODO("Not yet implemented")
     }
 
     override fun saveKeyPair(keys: Keys) {
@@ -170,7 +210,7 @@ object SqlKeyStore : KeyStore {
                         var provider = rs.getString("provider")
 
                         val keys = when (provider) {
-                            "BC"  -> {
+                            "BC" -> {
                                 val kf = KeyFactory.getInstance(algorithm, provider)
 
                                 var pub = kf.generatePublic(X509EncodedKeySpec(Base64.from(rs.getString("pub")).decode()))
@@ -178,7 +218,7 @@ object SqlKeyStore : KeyStore {
 
                                 Keys(keyId, KeyPair(pub, priv), provider)
                             }
-                            "SunEC"  -> {
+                            "SunEC" -> {
                                 val kf = KeyFactory.getInstance(algorithm)
 
                                 var pub = kf.generatePublic(X509EncodedKeySpec(Base64.from(rs.getString("pub")).decode()))
