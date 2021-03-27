@@ -25,8 +25,8 @@ object TinkCryptoService : CryptoService {
     override fun generateKey(algorithm: KeyAlgorithm): KeyId {
 
         val keysetHandle = when (algorithm) {
-            KeyAlgorithm.Secp256k1 -> KeysetHandle.generateNew(EcdsaSignKeyManager.ecdsaP256Template())
-            KeyAlgorithm.Ed25519 -> KeysetHandle.generateNew(Ed25519PrivateKeyManager.ed25519Template())
+            KeyAlgorithm.Secp256k1 -> KeysetHandle.generateNew(EcdsaSignKeyManager.rawEcdsaP256Template())
+            KeyAlgorithm.Ed25519 -> KeysetHandle.generateNew(Ed25519PrivateKeyManager.rawEd25519Template())
         }
 
         println(keysetHandle)

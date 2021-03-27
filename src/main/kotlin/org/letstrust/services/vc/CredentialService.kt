@@ -28,7 +28,6 @@ import org.letstrust.services.key.KeyStore
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
-import java.security.interfaces.ECPublicKey
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.*
@@ -106,7 +105,7 @@ object CredentialService {
         log.trace { "Decoded Json LD object: $jsonLdObject" }
 
         val verifier = when (key.algorithm) {
-            KeyAlgorithm.Secp256k1 -> org.letstrust.crypto.EcdsaSecp256k1Signature2019LdVerifier(key.keyPair!!.public as ECPublicKey)
+            KeyAlgorithm.Secp256k1 -> org.letstrust.crypto.EcdsaSecp256k1Signature2019LdVerifier(key.getPublicKey())
             else -> throw Exception("Signature for key algorithm ${key.algorithm} not supported")
         }
 

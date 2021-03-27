@@ -4,6 +4,7 @@ import com.google.crypto.tink.config.TinkConfig
 import org.junit.Test
 import org.letstrust.KeyAlgorithm
 import org.letstrust.crypto.TinkCryptoService
+import org.letstrust.services.key.TinkKeyStore
 
 class TinkKeyStoreTest {
 
@@ -13,6 +14,10 @@ class TinkKeyStoreTest {
 
     @Test
     fun storeTest() {
-        val key = TinkCryptoService.generateKey(KeyAlgorithm.Secp256k1)
+        val keyId = TinkCryptoService.generateKey(KeyAlgorithm.Secp256k1)
+
+        val key = TinkKeyStore.load(keyId)
+
+        println(key)
     }
 }
