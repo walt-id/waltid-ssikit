@@ -64,7 +64,14 @@ object LetsTrustServices {
     val log = KotlinLogging.logger {}
 
     init {
+        println(System.getProperty("java.runtime.version"))
+        println("SupportedCurves")
+        println("- SunEC: " + Security.getProvider("SunEC").getProperty("AlgorithmParameters.EC SupportedCurves"))
+
+        // BC is required for
+        // - secp256k1 curve
         Security.addProvider(BouncyCastleProvider())
+        println("- BC: " + Security.getProvider("BC").getProperty("AlgorithmParameters.EC SupportedCurves"))
     }
 
     inline fun <reified T> load(): T {

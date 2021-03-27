@@ -12,17 +12,11 @@ import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.jwk.KeyUse
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator
-import org.bouncycastle.jce.ECNamedCurveTable
-import org.letstrust.CryptoProvider
-import org.letstrust.KeyAlgorithm
-import org.letstrust.LetsTrustServices
-import org.letstrust.newKeyId
+import org.letstrust.*
 import org.letstrust.services.key.KeyManagementService
 import org.letstrust.services.key.KeyStore
 import org.letstrust.services.key.TinkKeyStore
 import java.security.InvalidKeyException
-import java.security.KeyPairGenerator
-import java.security.SecureRandom
 import java.security.Signature
 
 
@@ -107,19 +101,9 @@ object SunCryptoService : CryptoService {
     override fun generateKey(algorithm: KeyAlgorithm): KeyId {
 
         val generator = when (algorithm) {
-            KeyAlgorithm.Secp256k1 -> {
-                val generator = KeyPairGenerator.getInstance("ECDSA", "BC")
-                generator.initialize(ECNamedCurveTable.getParameterSpec("secp256k1"), SecureRandom())
-                generator
-            }
-            KeyAlgorithm.Ed25519 -> {
-                val generator = KeyPairGenerator.getInstance("Ed25519")
-                generator
-            }
+            KeyAlgorithm.Secp256k1 -> keyPairGeneratorSecp256k1()
+            KeyAlgorithm.Ed25519 -> keyPairGeneratorEd25519()
         }
-
-//        val generator = KeyPairGenerator.getInstance("RSA")
-//        generator.initialize(RSA_KEY_SIZE)
 
         val keyPair = generator.generateKeyPair()
         val key = Key(newKeyId(),algorithm, CryptoProvider.SUN, keyPair)

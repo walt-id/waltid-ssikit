@@ -10,7 +10,7 @@ import info.weboftrust.ldsignatures.suites.EcdsaSecp256k1Signature2019SignatureS
 import info.weboftrust.ldsignatures.suites.SignatureSuites
 import info.weboftrust.ldsignatures.util.JWSUtil
 
-class EcdsaSecp256k1Signature2019LdSigner(val keyId: String) :
+class EcdsaSecp256k1Signature2019LdSigner(val keyId: KeyId) :
     LdSigner<EcdsaSecp256k1Signature2019SignatureSuite?>(SignatureSuites.SIGNATURE_SUITE_ECDSASECP256L1SIGNATURE2019, null) {
 
     override fun sign(ldProofBuilder: LdProof.Builder<*>, signingInput: ByteArray) {

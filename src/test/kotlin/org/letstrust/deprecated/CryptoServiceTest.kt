@@ -10,6 +10,7 @@ import com.nimbusds.jwt.SignedJWT
 import junit.framework.Assert.assertTrue
 import org.junit.Test
 import org.letstrust.KeyAlgorithm
+import org.letstrust.LetsTrustServices
 import org.letstrust.crypto.*
 import org.letstrust.services.key.KeyManagementService
 import java.security.KeyStore
@@ -62,7 +63,7 @@ class CryptoServiceTest {
     }
 
     @Test
-    fun testProviderSign() {
+    fun testProviderSignJwt() {
 
         val keyId = KeyManagementService.generateSecp256k1KeyPairSun()
 
@@ -99,7 +100,9 @@ class CryptoServiceTest {
 
     @Test
     @Throws(Exception::class)
-    fun testProviders() {
+    fun testPrintProviders() {
+
+        LetsTrustServices
 
         Security.addProvider(LetsTrustProvider());
 

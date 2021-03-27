@@ -5,17 +5,23 @@ import com.goterl.lazycode.lazysodium.SodiumJava
 import io.ipfs.multibase.Base58
 import io.ipfs.multibase.Multibase
 import org.letstrust.crypto.KeyId
-import java.security.KeyFactory
-import java.security.PrivateKey
-import java.security.PublicKey
+import java.security.*
+import java.security.spec.ECGenParameterSpec
 import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
 import java.util.*
 
-
+// Supported key algorithms
 enum class KeyAlgorithm {
     Ed25519,
     Secp256k1
+}
+
+// Supported signatures
+enum class SignatureType {
+    Ed25519Signature2018,
+    EcdsaSecp256k1Signature2019,
+    Ed25519Signature2020
 }
 
 fun newKeyId(): KeyId = KeyId("LetsTrust-Key-${UUID.randomUUID().toString().replace("-", "")}")
@@ -110,4 +116,15 @@ fun convertPublicKeyEd25519ToCurve25519(ed25519PublicKey: ByteArray): ByteArray 
         )
     ) throw RuntimeException("Could not convert Ed25519 to X25519 pubic key")
     return dhPublicKey
+}
+
+
+fun keyPairGeneratorSecp256k1() : KeyPairGenerator {
+    val kg = KeyPairGenerator.getInstance("EC", "BC")
+    kg.initialize(ECGenParameterSpec("secp256k1"), SecureRandom())
+    return kg
+}
+
+fun keyPairGeneratorEd25519(): KeyPairGenerator {
+    return KeyPairGenerator.getInstance("Ed25519")
 }

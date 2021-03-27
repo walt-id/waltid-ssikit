@@ -24,7 +24,7 @@ open class LetsTrustSignature(val algorithm: String) : SignatureSpi() {
     }
 
     override fun engineInitSign(privateKey: PrivateKey?) {
-        keyId = (privateKey as PrivateKeyHandle).keyId
+        keyId = (privateKey as PrivateKeyHandle).keyId.id
     }
 
     override fun engineUpdate(b: Byte) {

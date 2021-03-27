@@ -18,8 +18,12 @@ import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import org.bitcoinj.core.ECKey
 import org.json.JSONObject
+import org.letstrust.LetsTrustServices
+import org.letstrust.SignatureType
+import org.letstrust.crypto.KeyId
 import org.letstrust.model.*
 import org.letstrust.services.key.KeyManagementService
+import org.letstrust.services.key.KeyStore
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
@@ -35,18 +39,52 @@ private val log = KotlinLogging.logger {}
  */
 object CredentialService {
 
-    // Supported signatures
-    enum class SignatureType {
-        Ed25519Signature2018,
-        EcdsaSecp256k1Signature2019,
-        Ed25519Signature2020
-    }
+    private var ks: KeyStore = LetsTrustServices.load<KeyStore>()
 
     init {
         Ed25519Provider.set(TinkEd25519Provider())
     }
 
     fun sign(
+        issuerDid: String,
+        jsonCred: String,
+        signatureType: SignatureType,
+        domain: String? = null,
+        nonce: String? = null
+    ): String {
+
+        log.debug { "Signing jsonLd object with: issuerDid ($issuerDid), signatureType ($signatureType), domain ($domain), nonce ($nonce)" }
+
+        val jsonLdObject: JsonLDObject = JsonLDObject.fromJson(jsonCred)
+        val confLoader = LDSecurityContexts.DOCUMENT_LOADER as ConfigurableDocumentLoader
+
+        confLoader.isEnableHttp = true
+        confLoader.isEnableHttps = true
+        confLoader.isEnableFile = true
+        confLoader.isEnableLocalCache = true
+        jsonLdObject.documentLoader = LDSecurityContexts.DOCUMENT_LOADER
+
+        val keyId = KeyId(issuerDid)
+
+        val signer = when (signatureType) {
+            SignatureType.EcdsaSecp256k1Signature2019 -> org.letstrust.crypto.EcdsaSecp256k1Signature2019LdSigner(keyId)
+            else -> throw Exception("Signature $signatureType not supported")
+        }
+
+        signer.creator = URI.create(issuerDid)
+        signer.created = Date() // Use the current date
+        signer.domain = domain
+        signer.nonce = nonce
+
+        val proof = signer.sign(jsonLdObject)
+
+        // TODO Fix: this hack is needed as, signature-ld encodes type-field as array, which is not correct
+        // return correctProofStructure(proof, jsonCred)
+        return jsonLdObject.toJson(true)
+
+    }
+
+    fun sign_old(
         issuerDid: String,
         jsonCred: String,
         signatureType: SignatureType,

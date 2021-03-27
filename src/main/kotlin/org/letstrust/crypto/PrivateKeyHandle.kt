@@ -3,7 +3,7 @@ package org.letstrust.crypto
 import java.security.GeneralSecurityException
 import java.security.PrivateKey
 
-class PrivateKeyHandle(val keyId: String) : PrivateKey {
+class PrivateKeyHandle(val keyId: KeyId) : PrivateKey {
     override fun getAlgorithm(): String {
         return "EC"
     }
