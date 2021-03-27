@@ -7,14 +7,17 @@ import org.letstrust.crypto.KeyId
 import org.letstrust.crypto.KeyMetaData
 
 interface KeyStore {
+    fun store(key: Key)
+    fun load(keyId: KeyId): Key
+    fun addAlias(keyId: KeyId, alias: String)
+
+    // OLD
     fun getKeyId(keyId: String): String?
     fun saveKeyPair(keys: Keys)
     fun listKeys(): List<Keys>
     fun loadKeyPair(keyId: String): Keys?
     fun deleteKeyPair(keyId: String)
     fun addAlias(keyId: String, alias: String)
-    fun store(key: Key)
-    fun load(keyId: KeyId): Key
 }
 
 abstract class KeyStoreBase : KeyStore {

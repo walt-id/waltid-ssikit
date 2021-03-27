@@ -46,6 +46,7 @@ object DidService {
         }
     }
 
+
     // Private methods
 
     private fun createDidKey(): String {
@@ -56,12 +57,26 @@ object DidService {
         val x = (pubPrim.getObjectAt(1) as ASN1BitString).octets
 
         val identifier = convertEd25519PublicKeyToMultiBase58Btc(x)
+        val didUrl = "did:key:$identifier"
 
-        return "did:key:$identifier"
+        ks.addAlias(keyId, didUrl)
+
+        return didUrl
     }
 
     private fun createDidWeb(): String {
-        TODO("")
+        val keyId = crypto.generateKey(KeyAlgorithm.Secp256k1)
+        val key = ks.load(keyId)
+
+        val domain = "letstrust.org"
+        val username = UUID.randomUUID().toString().replace("-", "")
+        val path = ":user:$username"
+
+        val didUrl = DidUrl("key", "" + domain + path)
+
+        ks.addAlias(keyId, didUrl.did)
+
+        return didUrl.did
     }
 
     private fun resolveDidKey(didUrl: DidUrl): Did {

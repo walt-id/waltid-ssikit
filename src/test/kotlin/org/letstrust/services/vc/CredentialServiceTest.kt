@@ -2,6 +2,7 @@ package org.letstrust.services.vc
 
 import org.junit.Before
 import org.junit.Test
+import org.letstrust.SignatureType.Ed25519Signature2018
 import org.letstrust.model.DidMethod
 import org.letstrust.services.did.DidService
 import java.io.File
@@ -23,21 +24,20 @@ class CredentialServiceTest {
 
     }
 
-
     @Test
     fun issueWorkHistoryCredential() {
 
         val credOffer = readCredOffer("WorkHistory")
 
-        val issuerDid = DidService.create(DidMethod.key)
+        val issuerDid = DidService.create(DidMethod.web)
         val domain = "example.com"
         val nonce: String? = null
 
-        val vc = CredentialService.sign(issuerDid, credOffer, CredentialService.SignatureType.Ed25519Signature2018, domain, nonce)
+        val vc = CredentialService.sign(issuerDid, credOffer, domain, nonce)
         assertNotNull(vc)
         println("Credential generated: $vc")
 
-        val vcVerified = CredentialService.verify(issuerDid, vc, CredentialService.SignatureType.Ed25519Signature2018)
+        val vcVerified = CredentialService.verify(issuerDid, vc, Ed25519Signature2018)
         assertTrue(vcVerified)
     }
 

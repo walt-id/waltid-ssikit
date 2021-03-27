@@ -41,7 +41,7 @@ class JwtSigner(val keyId: String) : JWSSigner {
         // DER-encoded signature, according to JCA spec
         // (sequence of two integers - R + S)
 
-        val jcaSignature = SunCryptoService.sign(keyId, signingInput!!)
+        val jcaSignature = SunCryptoService.sign(KeyId(keyId), signingInput!!)
 
         // OR keyId to PrivateKey Handle + JCA Provider
 

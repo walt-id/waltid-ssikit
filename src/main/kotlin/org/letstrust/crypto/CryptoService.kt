@@ -5,18 +5,10 @@ import com.google.crypto.tink.PublicKeySign
 import com.google.crypto.tink.PublicKeyVerify
 import com.google.crypto.tink.signature.EcdsaSignKeyManager
 import com.google.crypto.tink.signature.Ed25519PrivateKeyManager
-import com.nimbusds.jose.JOSEException
-import com.nimbusds.jose.JWSAlgorithm
-import com.nimbusds.jose.crypto.impl.ECDSA
-import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.jwk.ECKey
-import com.nimbusds.jose.jwk.KeyUse
-import com.nimbusds.jose.jwk.gen.ECKeyGenerator
 import org.letstrust.*
-import org.letstrust.services.key.KeyManagementService
 import org.letstrust.services.key.KeyStore
 import org.letstrust.services.key.TinkKeyStore
-import java.security.InvalidKeyException
 import java.security.Signature
 
 
@@ -71,33 +63,6 @@ object SunCryptoService : CryptoService {
 
     var ecJWK: ECKey? = null
 
-    fun generate(): String {
-        ecJWK = ECKeyGenerator(Curve.SECP256K1)
-            .keyUse(KeyUse.SIGNATURE)
-            .keyID("123")
-            .generate()
-        return ecJWK!!.keyID
-    }
-
-    fun sign(keyId: String, data: ByteArray): ByteArray {
-
-        val signingKey = KeyManagementService.loadKeys(keyId)
-
-        val jcaSignature = try {
-            val dsa = ECDSA.getSignerAndVerifier(JWSAlgorithm.ES256K, null)
-            dsa.initSign(signingKey!!.toEcKey().toECPrivateKey())
-            dsa.update(data)
-            dsa.sign()
-        } catch (e: InvalidKeyException) {
-            throw JOSEException(e.message, e)
-        }
-        return jcaSignature
-    }
-
-    fun verify(keyId: String, signature: ByteArray) {
-
-    }
-
     override fun generateKey(algorithm: KeyAlgorithm): KeyId {
 
         val generator = when (algorithm) {
@@ -109,6 +74,33 @@ object SunCryptoService : CryptoService {
         val key = Key(newKeyId(),algorithm, CryptoProvider.SUN, keyPair)
         ks.store(key)
         return key.keyId
+    }
+
+//    fun generate(): String {
+//        ecJWK = ECKeyGenerator(Curve.SECP256K1)
+//            .keyUse(KeyUse.SIGNATURE)
+//            .keyID("123")
+//            .generate()
+//        return ecJWK!!.keyID
+//    }
+
+//    fun sign(keyId: String, data: ByteArray): ByteArray {
+//
+//        val signingKey = KeyManagementService.loadKeys(keyId)
+//
+//        val jcaSignature = try {
+//            val dsa = ECDSA.getSignerAndVerifier(JWSAlgorithm.ES256K, null)
+//            dsa.initSign(signingKey!!.toEcKey().toECPrivateKey())
+//            dsa.update(data)
+//            dsa.sign()
+//        } catch (e: InvalidKeyException) {
+//            throw JOSEException(e.message, e)
+//        }
+//        return jcaSignature
+//    }
+
+    fun verify(keyId: String, signature: ByteArray) {
+
     }
 
     override fun sign(keyId: KeyId, data: ByteArray): ByteArray {

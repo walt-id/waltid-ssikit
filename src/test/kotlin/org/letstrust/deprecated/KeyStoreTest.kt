@@ -2,9 +2,11 @@ package org.letstrust.deprecated
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.junit.Test
+import org.letstrust.services.key.FileSystemKeyStore
 import org.letstrust.services.key.KeyManagementService
 import java.security.Security
 import java.util.*
+import kotlin.reflect.full.createInstance
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -15,6 +17,20 @@ open class KeyStoreTest {
 
     init {
         Security.addProvider(BouncyCastleProvider())
+    }
+
+    @Test
+    fun sl() {
+        val loader = ServiceLoader.load(org.letstrust.services.key.KeyStore::class.java)
+        val ksServiceLoader = loader.iterator().next()
+        println(ksServiceLoader)
+
+        val ksKClass = Class.forName("org.letstrust.services.key.CustomKeyStore").kotlin.createInstance()
+        println(ksKClass)
+
+        val ksObject = FileSystemKeyStore
+        println(ksObject)
+
     }
 
     @Test

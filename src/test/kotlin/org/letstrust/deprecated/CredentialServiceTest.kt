@@ -16,15 +16,16 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.json.JSONObject
 import org.junit.Before
 import org.junit.Test
+import org.letstrust.SignatureType.EcdsaSecp256k1Signature2019
+import org.letstrust.SignatureType.Ed25519Signature2018
 import org.letstrust.crypto.EcdsaSecp256k1Signature2019LdSigner
 import org.letstrust.crypto.EcdsaSecp256k1Signature2019LdVerifier
+import org.letstrust.crypto.KeyId
 import org.letstrust.model.VerifiableCredential
 import org.letstrust.model.VerifiablePresentation
 import org.letstrust.services.did.DidService
 import org.letstrust.services.key.KeyManagementService
 import org.letstrust.services.vc.CredentialService
-import org.letstrust.services.vc.CredentialService.SignatureType.EcdsaSecp256k1Signature2019
-import org.letstrust.services.vc.CredentialService.SignatureType.Ed25519Signature2018
 import java.io.File
 import java.net.URI
 import java.security.Security
@@ -99,7 +100,7 @@ class CredentialServiceTest {
         val domain = "example.com"
         val nonce: String? = null
         //val signer = Ed25519Signature2018LdSigner(testEd25519PrivateKey)
-        val signer = EcdsaSecp256k1Signature2019LdSigner(keyId)
+        val signer = EcdsaSecp256k1Signature2019LdSigner(KeyId(keyId))
         signer.creator = creator
         signer.created = created
         signer.domain = domain
@@ -128,7 +129,7 @@ class CredentialServiceTest {
         val credMap: Map<String, String> = mapOf("one" to "two")
         val cred = JSONObject(credMap).toString()
 
-        val vc = CredentialService.sign(issuerDid, cred, Ed25519Signature2018, domain, nonce)
+        val vc = CredentialService.sign(issuerDid, cred, domain, nonce)
         assertNotNull(vc)
         println("Credential generated: $vc")
 
@@ -147,7 +148,7 @@ class CredentialServiceTest {
         val credMap: Map<String, String> = mapOf("one" to "two")
         val cred = JSONObject(credMap).toString()
 
-        val vc = CredentialService.sign(keyId, cred, EcdsaSecp256k1Signature2019, domain, nonce)
+        val vc = CredentialService.sign(keyId, cred, domain, nonce)
         assertNotNull(vc)
         println("Credential generated: $vc")
 
@@ -165,7 +166,7 @@ class CredentialServiceTest {
         val domain = "example.com"
         val nonce: String? = null
 
-        val vc = CredentialService.sign(issuerDid, credOffer, Ed25519Signature2018, domain, nonce)
+        val vc = CredentialService.sign(issuerDid, credOffer, domain, nonce)
         assertNotNull(vc)
         println("Credential generated: $vc")
 
@@ -182,7 +183,7 @@ class CredentialServiceTest {
         val domain = "example.com"
         val nonce: String? = null
 
-        val vc = CredentialService.sign(keyId, credOffer, EcdsaSecp256k1Signature2019, domain, nonce)
+        val vc = CredentialService.sign(keyId, credOffer, domain, nonce)
         assertNotNull(vc)
         println("Credential generated: $vc")
 
@@ -205,7 +206,7 @@ class CredentialServiceTest {
         val domain = "example.com"
         val nonce: String? = null
 
-        val vp = CredentialService.sign(issuerDid, vpInputStr, Ed25519Signature2018, domain, nonce)
+        val vp = CredentialService.sign(issuerDid, vpInputStr, domain, nonce)
         assertNotNull(vp)
         println("Verifiable Presentation generated: $vp")
     }

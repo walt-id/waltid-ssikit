@@ -149,6 +149,10 @@ object FileSystemKeyStore : KeyStore {
         TODO("Not yet implemented")
     }
 
+    override fun addAlias(keyId: KeyId, alias: String) {
+        TODO("Not yet implemented")
+    }
+
     override fun getKeyId(alias: String): String {
         return File("$KEY_DIR_PATH/Alias-$alias").readText()
     }

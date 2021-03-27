@@ -71,7 +71,6 @@ object LetsTrustServices {
         // BC is required for
         // - secp256k1 curve
         Security.addProvider(BouncyCastleProvider())
-        println("- BC: " + Security.getProvider("BC").getProperty("AlgorithmParameters.EC SupportedCurves"))
     }
 
     inline fun <reified T> load(): T {

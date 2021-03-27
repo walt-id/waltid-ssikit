@@ -18,6 +18,7 @@ import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import org.bitcoinj.core.ECKey
 import org.json.JSONObject
+import org.letstrust.KeyAlgorithm
 import org.letstrust.LetsTrustServices
 import org.letstrust.SignatureType
 import org.letstrust.crypto.KeyId
@@ -48,12 +49,11 @@ object CredentialService {
     fun sign(
         issuerDid: String,
         jsonCred: String,
-        signatureType: SignatureType,
         domain: String? = null,
         nonce: String? = null
     ): String {
 
-        log.debug { "Signing jsonLd object with: issuerDid ($issuerDid), signatureType ($signatureType), domain ($domain), nonce ($nonce)" }
+        log.debug { "Signing jsonLd object with: issuerDid ($issuerDid), domain ($domain), nonce ($nonce)" }
 
         val jsonLdObject: JsonLDObject = JsonLDObject.fromJson(jsonCred)
         val confLoader = LDSecurityContexts.DOCUMENT_LOADER as ConfigurableDocumentLoader
@@ -64,11 +64,12 @@ object CredentialService {
         confLoader.isEnableLocalCache = true
         jsonLdObject.documentLoader = LDSecurityContexts.DOCUMENT_LOADER
 
-        val keyId = KeyId(issuerDid)
+        val keyId = KeyId(ks.getKeyId(issuerDid)!!)
+        val key = ks.load(keyId)
 
-        val signer = when (signatureType) {
-            SignatureType.EcdsaSecp256k1Signature2019 -> org.letstrust.crypto.EcdsaSecp256k1Signature2019LdSigner(keyId)
-            else -> throw Exception("Signature $signatureType not supported")
+        val signer = when (key.algorithm) {
+            KeyAlgorithm.Secp256k1 -> org.letstrust.crypto.EcdsaSecp256k1Signature2019LdSigner(keyId)
+            else -> throw Exception("Signature for key algorithm ${key.algorithm} not supported")
         }
 
         signer.creator = URI.create(issuerDid)
@@ -229,7 +230,7 @@ object CredentialService {
 //            throw Exception("Could not load authentication key for $holderDid")
 //        }
 
-        val vp = sign(holderDid, vpReqStr, SignatureType.Ed25519Signature2018, domain, challenge)
+        val vp = sign(holderDid, vpReqStr, domain, challenge)
         log.debug { "VP created:$vp" }
         return vp
     }

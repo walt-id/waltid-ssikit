@@ -14,7 +14,6 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import org.letstrust.CliConfig
-import org.letstrust.SignatureType
 import org.letstrust.model.VerifiableCredential
 import org.letstrust.model.VerifiablePresentation
 import org.letstrust.model.encodePretty
@@ -85,7 +84,7 @@ class IssueVcCommand : CliktCommand(
         log.debug { "Credential request:\n$vcReqEnc" }
 
         // Signing VC
-        val vcStr = CredentialService.sign(vcReq.issuer, vcReqEnc, SignatureType.Ed25519Signature2018)
+        val vcStr = CredentialService.sign(vcReq.issuer, vcReqEnc)
 
         echo("Credential generated:\n$vcStr")
 

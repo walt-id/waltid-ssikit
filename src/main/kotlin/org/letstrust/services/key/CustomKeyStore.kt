@@ -4,7 +4,7 @@ import org.letstrust.crypto.Key
 import org.letstrust.crypto.KeyId
 
 
-class CustomKeyStore : KeyStore {
+class CustomKeyStore protected constructor() : KeyStore {
 
     init {
 
@@ -43,6 +43,10 @@ class CustomKeyStore : KeyStore {
     }
 
     override fun load(keyId: KeyId): Key {
+        TODO("Not yet implemented")
+    }
+
+    override fun addAlias(keyId: KeyId, alias: String) {
         TODO("Not yet implemented")
     }
 }

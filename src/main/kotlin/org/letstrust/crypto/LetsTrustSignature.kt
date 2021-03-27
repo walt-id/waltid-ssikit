@@ -12,7 +12,7 @@ open class LetsTrustSignature(val algorithm: String) : SignatureSpi() {
     class SHA384withECDSA : LetsTrustSignature("SHA384withECDSAS")
     class SHA512withECDSA : LetsTrustSignature("SHA512withECDSA")
 
-    var keyId: String? = null
+    var keyId: KeyId? = null
 
     var b: ByteArray? = null
     var off: Int? = null
@@ -24,7 +24,7 @@ open class LetsTrustSignature(val algorithm: String) : SignatureSpi() {
     }
 
     override fun engineInitSign(privateKey: PrivateKey?) {
-        keyId = (privateKey as PrivateKeyHandle).keyId.id
+        keyId = (privateKey as PrivateKeyHandle).keyId
     }
 
     override fun engineUpdate(b: Byte) {

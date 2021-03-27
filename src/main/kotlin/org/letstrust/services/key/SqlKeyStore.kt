@@ -50,7 +50,7 @@ object SqlKeyStore : KeyStoreBase() {
     }
 
     override fun load(keyId: KeyId): Key {
-       // val metaData = loadMetaData(keyId)
+        // val metaData = loadMetaData(keyId)
         log.debug { "Loading key \"${keyId}\"." }
         var key: Key? = null
         SqlDbManager.getConnection().use { con ->
@@ -69,7 +69,6 @@ object SqlKeyStore : KeyStoreBase() {
                         var priv = decodePrivKey(rs.getString("priv"), kf)
 
                         key = Key(keyId, algorithm, provider, KeyPair(pub, priv))
-
                     }
                 }
                 con.commit()
@@ -101,27 +100,52 @@ object SqlKeyStore : KeyStoreBase() {
     override fun addAlias(keyId: String, alias: String) {
 
         log.debug { "Adding alias \"${alias}\" for keyId \"${keyId}\"" }
-
         SqlDbManager.getConnection().use { con ->
-            con.prepareStatement("select k.id from lt_key k where k.name = ?").use { stmt ->
-                stmt.setString(1, keyId)
-                stmt.executeQuery().use { rs ->
-                    con.commit()
-                    if (rs.next()) {
-                        rs.getInt("id").let { key_id ->
-                            con.prepareStatement("insert into lt_key_alias (key_id, alias) values (?, ?)").use { stmt ->
-                                stmt.setInt(1, key_id)
-                                stmt.setString(2, alias)
-                                stmt.executeUpdate()
-                                con.commit()
-                                log.trace { "Alias \"${alias}\" for keyId \"${keyId}\" saved successfully." }
+            try {
+                con.prepareStatement("select k.id from lt_key k where k.name = ?").use { stmt ->
+                    stmt.setString(1, keyId)
+                    stmt.executeQuery().use { rs ->
+                        if (rs.next()) {
+                            rs.getInt("id").let { key_id ->
+                                con.prepareStatement("insert into lt_key_alias (key_id, alias) values (?, ?)").use { stmt ->
+                                    stmt.setInt(1, key_id)
+                                    stmt.setString(2, alias)
+                                    stmt.executeUpdate()
+                                    log.trace { "Alias \"${alias}\" for keyId \"${keyId}\" saved successfully." }
+                                }
                             }
                         }
                     }
                 }
+            } finally {
+                con.commit()
             }
         }
+    }
 
+    override fun addAlias(keyId: KeyId, alias: String) {
+        log.debug { "Adding alias \"${alias}\" for keyId \"${keyId}\"" }
+        SqlDbManager.getConnection().use { con ->
+            try {
+                con.prepareStatement("select k.id from lt_key k where k.name = ?").use { stmt ->
+                    stmt.setString(1, keyId.id)
+                    stmt.executeQuery().use { rs ->
+                        if (rs.next()) {
+                            rs.getInt("id").let { key_id ->
+                                con.prepareStatement("insert into lt_key_alias (key_id, alias) values (?, ?)").use { stmt ->
+                                    stmt.setInt(1, key_id)
+                                    stmt.setString(2, alias)
+                                    stmt.executeUpdate()
+                                    log.trace { "Alias \"${alias}\" for keyId \"${keyId}\" saved successfully." }
+                                }
+                            }
+                        }
+                    }
+                }
+            } finally {
+                con.commit()
+            }
+        }
     }
 
     override fun saveKeyPair(keys: Keys) {

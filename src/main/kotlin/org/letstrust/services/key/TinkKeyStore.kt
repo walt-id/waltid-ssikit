@@ -53,4 +53,8 @@ object TinkKeyStore : KeyStoreBase() {
         return Key(keyId, algorithm, metaData.cryptoProvider, keysetHandle)
     }
 
+    override fun addAlias(keyId: KeyId, alias: String) {
+        TODO("Not yet implemented")
+    }
+
 }

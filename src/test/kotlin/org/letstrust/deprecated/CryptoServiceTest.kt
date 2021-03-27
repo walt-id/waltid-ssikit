@@ -80,7 +80,7 @@ class CryptoServiceTest {
 
         ///val signer = JwtSigner(keyId)
         //Security.addProvider(LetsTrustProvider())
-        val privateKeyHandle = PrivateKeyHandle(keyId)
+        val privateKeyHandle = PrivateKeyHandle(KeyId(keyId))
         val signer = ECDSASigner(privateKeyHandle, Curve.SECP256K1)
         signer.jcaContext.provider = LetsTrustProvider()
         jwt.sign(signer)
