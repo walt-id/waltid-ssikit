@@ -28,6 +28,7 @@ import org.letstrust.services.key.KeyStore
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
+import java.security.interfaces.ECPublicKey
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.*
@@ -84,6 +85,45 @@ object CredentialService {
         return jsonLdObject.toJson(true)
 
     }
+
+    fun verify(issuerDid: String, vc: String): Boolean {
+        log.trace { "Loading verification key for:  $issuerDid" }
+
+        val keyId = KeyId(ks.getKeyId(issuerDid)!!)
+        val key = ks.load(keyId)
+
+        val confLoader = LDSecurityContexts.DOCUMENT_LOADER as ConfigurableDocumentLoader
+
+        confLoader.isEnableHttp = true
+        confLoader.isEnableHttps = true
+        confLoader.isEnableFile = true
+        confLoader.isEnableLocalCache = true
+
+        log.trace { "Document loader config: isEnableHttp (${confLoader.isEnableHttp}), isEnableHttps (${confLoader.isEnableHttps}), isEnableFile (${confLoader.isEnableFile}), isEnableLocalCache (${confLoader.isEnableLocalCache})" }
+
+        val jsonLdObject = JsonLDObject.fromJson(vc)
+        jsonLdObject.documentLoader = LDSecurityContexts.DOCUMENT_LOADER
+        log.trace { "Decoded Json LD object: $jsonLdObject" }
+
+        val verifier = when (key.algorithm) {
+            KeyAlgorithm.Secp256k1 -> org.letstrust.crypto.EcdsaSecp256k1Signature2019LdVerifier(key.keyPair!!.public as ECPublicKey)
+            else -> throw Exception("Signature for key algorithm ${key.algorithm} not supported")
+        }
+
+        log.trace { "Loaded Json LD verifier with signature suite: ${verifier.signatureSuite}" }
+
+        return verifier.verify(jsonLdObject)
+    }
+
+
+
+
+
+
+
+    //TODO: following methods might be depreciated
+
+
 
     fun sign_old(
         issuerDid: String,
@@ -159,7 +199,7 @@ object CredentialService {
         log.debug { "Issuer: ${vcObj.issuer}" }
         log.debug { "Signature type: $signatureType" }
 
-        val vcVerified = verify(vcObj.issuer, vc, signatureType)
+        val vcVerified = verify(vcObj.issuer, vc)
         log.debug { "Verification of LD-Proof returned: $vcVerified" }
         return vcVerified
     }
@@ -175,12 +215,12 @@ object CredentialService {
         log.debug { "Issuer: $issuer" }
         log.debug { "Signature type: $signatureType" }
 
-        val vpVerified = verify(issuer, vp, signatureType)
+        val vpVerified = verify(issuer, vp)
         log.debug { "Verification of LD-Proof returned: $vpVerified" }
         return vpVerified
     }
 
-    fun verify(issuerDid: String, vc: String, signatureType: SignatureType): Boolean {
+    fun verify_old(issuerDid: String, vc: String, signatureType: SignatureType): Boolean {
         log.trace { "Loading verification key for:  $issuerDid" }
         val issuerKeys = KeyManagementService.loadKeys(issuerDid)
         if (issuerKeys == null) {

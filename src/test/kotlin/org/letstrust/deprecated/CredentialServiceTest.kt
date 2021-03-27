@@ -16,8 +16,6 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.json.JSONObject
 import org.junit.Before
 import org.junit.Test
-import org.letstrust.SignatureType.EcdsaSecp256k1Signature2019
-import org.letstrust.SignatureType.Ed25519Signature2018
 import org.letstrust.crypto.EcdsaSecp256k1Signature2019LdSigner
 import org.letstrust.crypto.EcdsaSecp256k1Signature2019LdVerifier
 import org.letstrust.crypto.KeyId
@@ -133,7 +131,7 @@ class CredentialServiceTest {
         assertNotNull(vc)
         println("Credential generated: $vc")
 
-        val vcVerified = CredentialService.verify(issuerDid, vc, Ed25519Signature2018)
+        val vcVerified = CredentialService.verify(issuerDid, vc)
         assertTrue(vcVerified)
         KeyManagementService.deleteKeys(issuerDid)
     }
@@ -152,7 +150,7 @@ class CredentialServiceTest {
         assertNotNull(vc)
         println("Credential generated: $vc")
 
-        val vcVerified = CredentialService.verify(keyId, vc, EcdsaSecp256k1Signature2019)
+        val vcVerified = CredentialService.verify(keyId, vc)
         assertTrue(vcVerified)
         KeyManagementService.deleteKeys(keyId)
     }
@@ -170,7 +168,7 @@ class CredentialServiceTest {
         assertNotNull(vc)
         println("Credential generated: $vc")
 
-        val vcVerified = CredentialService.verify(issuerDid, vc, Ed25519Signature2018)
+        val vcVerified = CredentialService.verify(issuerDid, vc)
         assertTrue(vcVerified)
     }
 
@@ -187,7 +185,7 @@ class CredentialServiceTest {
         assertNotNull(vc)
         println("Credential generated: $vc")
 
-        val vcVerified = CredentialService.verify(keyId, vc, EcdsaSecp256k1Signature2019)
+        val vcVerified = CredentialService.verify(keyId, vc)
         assertTrue(vcVerified)
         KeyManagementService.deleteKeys(keyId)
     }

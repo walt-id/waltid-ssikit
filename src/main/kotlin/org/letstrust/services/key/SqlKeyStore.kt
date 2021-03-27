@@ -14,7 +14,7 @@ import java.sql.Statement.RETURN_GENERATED_KEYS
 
 private val log = KotlinLogging.logger() {}
 
-object SqlKeyStore : KeyStoreBase() {
+object SqlKeyStore : KeyStore {
 
     private val db = SqlDbManager
 
@@ -50,7 +50,6 @@ object SqlKeyStore : KeyStoreBase() {
     }
 
     override fun load(keyId: KeyId): Key {
-        // val metaData = loadMetaData(keyId)
         log.debug { "Loading key \"${keyId}\"." }
         var key: Key? = null
         SqlDbManager.getConnection().use { con ->
