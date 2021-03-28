@@ -11,10 +11,10 @@ import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.file
 import org.letstrust.CliConfig
-import org.letstrust.services.key.KeyManagementService
 import org.letstrust.model.encodePretty
 import org.letstrust.model.fromString
 import org.letstrust.services.did.DidService
+import org.letstrust.services.key.KeyManagementService
 import java.io.File
 
 class DidCommand : CliktCommand(
@@ -34,14 +34,14 @@ class CreateDidCommand : CliktCommand(
     name = "create",
     help = """Create DID.
 
-        Generates an asymetric keypair and register the DID containing the public key.
+        Generates an asymmetric keypair and register the DID containing the public key.
         
         """
 ) {
     val didService = DidService
     val config: CliConfig by requireObject()
     val dest: File? by argument().file().optional()
-    val method: String by option("-m", "--did-method", help = "Specifiy DID method [key]").choice(
+    val method: String by option("-m", "--did-method", help = "Specify DID method [key]").choice(
         "key",
         "web",
         "ebsi"
@@ -49,23 +49,26 @@ class CreateDidCommand : CliktCommand(
     val keyAlias: String by option("-a", "--key-alias", help = "Specific key alias").default("default")
 
     override fun run() {
-
         echo("Registering did:${method} (key: ${keyAlias}) ...")
 
-        var keys = KeyManagementService.loadKeys(keyAlias)
+        val keys = KeyManagementService.loadKeys(keyAlias)
 
         val did = didService.createDid(method, keys)
 
         echo("\nResults:\n")
         echo("DID created: $did")
 
-        val didDoc = didService.resolveDid(did)
+        val didDoc = try {
+            didService.resolveDid(did)
+        } catch (e: Exception) {
+            null
+        }
 
         if (didDoc == null) {
             echo("\nCould not resolve: $did")
         } else {
             val didDocEnc = didDoc.encodePretty()
-            echo("\ndid document:\n" + didDocEnc)
+            echo("\ndid document:\n$didDocEnc")
 
             val didFileName = "${didDoc.id?.replace(":", "-")}.json"
             val destFile = File(config.dataDir + "/did/created/" + didFileName)
@@ -92,12 +95,12 @@ class ResolveDidCommand : CliktCommand(
     override fun run() {
         echo("Resolving $did ...")
 
-        var encodedDid = when (did.contains("mattr")) {
+        val encodedDid = when (did.contains("mattr")) {
             true -> DidService.resolveDidWeb(did.fromString()).encodePretty()
             else -> DidService.resolveDid(did).encodePretty()
         }
 
-        echo("\nResult:\n ${encodedDid}")
+        echo("\nResult:\n $encodedDid")
 
         val didFileName = "${did.replace(":", "-").replace(".", "_")}.json"
         val destFile = File(config.dataDir + "/did/resolved/" + didFileName)
@@ -115,6 +118,6 @@ class ListDidsCommand : CliktCommand(
     override fun run() {
         echo("List DIDs ...")
 
-        DidService.listDids()?.forEach { it -> echo("- $it") }
+        DidService.listDids().forEach { echo("- $it") }
     }
 }
