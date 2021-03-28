@@ -21,7 +21,7 @@ import java.util.*
 
 inline class Port(val value: Int)
 inline class Host(val value: String)
-enum class KeystoreType { file, database, custom }
+enum class KeystoreType { File, Database, Custom }
 data class Keystore(val type: KeystoreType)
 data class Server(val host: Host, val port: Port)
 
@@ -74,8 +74,8 @@ object LetsTrustServices {
     }
 
     fun loadKeyStore(conf: LetsTrustConfig) = when (conf.keystore.type) {
-        KeystoreType.custom -> loadCustomKeyStore()
-        KeystoreType.database -> SqlKeyStore
+        KeystoreType.Custom -> loadCustomKeyStore()
+        KeystoreType.Database -> SqlKeyStore
         else -> FileSystemKeyStore
     }
 
@@ -88,12 +88,12 @@ object LetsTrustServices {
     }
 
     fun loadConfig(): LetsTrustConfig = ConfigLoader.Builder()
-            .addFileExtensionMapping("yaml", YamlParser())
-            .addSource(PropertySource.file(File("letstrust.yaml"), optional = true))
-            .addSource(PropertySource.resource("/letstrust-default.yaml"))
-            .addDecoder(HikariDataSourceDecoder())
-            .build()
-            .loadConfigOrThrow<LetsTrustConfig>()
+        .addFileExtensionMapping("yaml", YamlParser())
+        .addSource(PropertySource.file(File("letstrust.yaml"), optional = true))
+        .addSource(PropertySource.resource("/letstrust-default.yaml"))
+        .addDecoder(HikariDataSourceDecoder())
+        .build()
+        .loadConfigOrThrow<LetsTrustConfig>()
 
     fun setLogLevel(level: Level) {
         val ctx: LoggerContext = LogManager.getContext(false) as LoggerContext
