@@ -9,7 +9,7 @@ import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
 import java.sql.Statement.RETURN_GENERATED_KEYS
 
-private val log = KotlinLogging.logger() {}
+private val log = KotlinLogging.logger {}
 
 object SqlKeyStore : KeyStore {
 
@@ -69,29 +69,42 @@ object SqlKeyStore : KeyStore {
         log.debug { "Saving key \"${keys.keyId}\"" }
 
         SqlDbManager.getConnection().use { con ->
-            con.prepareStatement("insert into lt_key (name, priv, pub, algorithm, provider) values (?, ?, ?, ?, ?)", RETURN_GENERATED_KEYS)
+            con.prepareStatement(
+                "insert into lt_key (name, priv, pub, algorithm, provider) values (?, ?, ?, ?, ?)",
+                RETURN_GENERATED_KEYS
+            )
                 .use { stmt ->
-                    stmt.setString(1, keys!!.keyId)
+                    stmt.setString(1, keys.keyId)
 
                     if (keys.isByteKey()) {
-                        keys.pair?.let { stmt.setString(2, Base64.encode(it.private.encoded).toString()) }
-                        keys.pair?.let { stmt.setString(3, Base64.encode(it.public.encoded).toString()) }
+                        keys.pair.let { stmt.setString(2, Base64.encode(it.private.encoded).toString()) }
+                        keys.pair.let { stmt.setString(3, Base64.encode(it.public.encoded).toString()) }
                     } else {
-                        keys.pair?.let { stmt.setString(2, Base64.encode(PKCS8EncodedKeySpec(it.private.encoded).encoded).toString()) }
-                        keys.pair?.let { stmt.setString(3, Base64.encode(X509EncodedKeySpec(it.public.encoded).encoded).toString()) }
+                        keys.pair.let {
+                            stmt.setString(
+                                2,
+                                Base64.encode(PKCS8EncodedKeySpec(it.private.encoded).encoded).toString()
+                            )
+                        }
+                        keys.pair.let {
+                            stmt.setString(
+                                3,
+                                Base64.encode(X509EncodedKeySpec(it.public.encoded).encoded).toString()
+                            )
+                        }
                     }
 
-                    keys.algorithm?.let { stmt.setString(4, it) }
-                    keys.provider?.let { stmt.setString(5, it) }
+                    keys.algorithm.let { stmt.setString(4, it) }
+                    keys.provider.let { stmt.setString(5, it) }
 
                     stmt.executeUpdate()
 
                     stmt.generatedKeys.use { generatedKeys ->
                         if (generatedKeys.next()) {
-                            val key_id = generatedKeys.getInt(1)
+                            val keyId = generatedKeys.getInt(1)
                             con.prepareStatement("insert into lt_key_alias (key_id, alias) values (?, ?)").use { stmt ->
-                                stmt.setInt(1, key_id)
-                                stmt.setString(2, keys!!.keyId)
+                                stmt.setInt(1, keyId)
+                                stmt.setString(2, keys.keyId)
                                 if (stmt.executeUpdate() == 1) {
                                     con.commit()
                                     log.trace { "Key \"${keys.keyId}\" saved successfully." }
@@ -112,23 +125,24 @@ object SqlKeyStore : KeyStore {
             con.prepareStatement("select * from lt_key").use { stmt ->
                 stmt.executeQuery().use { rs ->
                     while (rs.next()) {
-                        var keyId = rs.getString("name")
-                        var algorithm = rs.getString("algorithm")
-                        var provider = rs.getString("provider")
+                        val keyId = rs.getString("name")
+                        val algorithm = rs.getString("algorithm")
+                        val provider = rs.getString("provider")
 
                         if (provider == "BC" || provider == "SunEC") {
                             val kf = KeyFactory.getInstance(algorithm, provider)
 
-                            var pub = kf.generatePublic(X509EncodedKeySpec(Base64.from(rs.getString("pub")).decode()))
-                            var priv = kf.generatePrivate(PKCS8EncodedKeySpec(Base64.from(rs.getString("priv")).decode()))
+                            val pub = kf.generatePublic(X509EncodedKeySpec(Base64.from(rs.getString("pub")).decode()))
+                            val priv =
+                                kf.generatePrivate(PKCS8EncodedKeySpec(Base64.from(rs.getString("priv")).decode()))
 
                             keys.add(Keys(keyId, KeyPair(pub, priv), provider))
 
                         } else {
-                            var pub = Base64.from(rs.getString("pub")).decode()
-                            var priv = Base64.from(rs.getString("priv")).decode()
+                            val pub = Base64.from(rs.getString("pub")).decode()
+                            val priv = Base64.from(rs.getString("priv")).decode()
 
-                            var keyPair = KeyPair(BytePublicKey(pub, algorithm), BytePrivateKey(priv, algorithm))
+                            val keyPair = KeyPair(BytePublicKey(pub, algorithm), BytePrivateKey(priv, algorithm))
                             keys.add(Keys(keyId, keyPair, provider))
                         }
                     }
@@ -136,7 +150,7 @@ object SqlKeyStore : KeyStore {
             }
             con.commit()
         }
-        return keys;
+        return keys
     }
 
     override fun loadKeyPair(keyId: String): Keys? {
@@ -146,31 +160,35 @@ object SqlKeyStore : KeyStore {
                 stmt.setString(1, keyId)
                 stmt.executeQuery().use { rs ->
                     if (rs.next()) {
-                        var algorithm = rs.getString("algorithm")
-                        var provider = rs.getString("provider")
+                        val algorithm = rs.getString("algorithm")
+                        val provider = rs.getString("provider")
 
                         val keys = when (provider) {
-                            "BC"  -> {
+                            "BC" -> {
                                 val kf = KeyFactory.getInstance(algorithm, provider)
 
-                                var pub = kf.generatePublic(X509EncodedKeySpec(Base64.from(rs.getString("pub")).decode()))
-                                var priv = kf.generatePrivate(PKCS8EncodedKeySpec(Base64.from(rs.getString("priv")).decode()))
+                                val pub =
+                                    kf.generatePublic(X509EncodedKeySpec(Base64.from(rs.getString("pub")).decode()))
+                                val priv =
+                                    kf.generatePrivate(PKCS8EncodedKeySpec(Base64.from(rs.getString("priv")).decode()))
 
                                 Keys(keyId, KeyPair(pub, priv), provider)
                             }
-                            "SunEC"  -> {
+                            "SunEC" -> {
                                 val kf = KeyFactory.getInstance(algorithm)
 
-                                var pub = kf.generatePublic(X509EncodedKeySpec(Base64.from(rs.getString("pub")).decode()))
-                                var priv = kf.generatePrivate(PKCS8EncodedKeySpec(Base64.from(rs.getString("priv")).decode()))
+                                val pub =
+                                    kf.generatePublic(X509EncodedKeySpec(Base64.from(rs.getString("pub")).decode()))
+                                val priv =
+                                    kf.generatePrivate(PKCS8EncodedKeySpec(Base64.from(rs.getString("priv")).decode()))
 
                                 Keys(keyId, KeyPair(pub, priv), provider)
                             }
                             else -> {
-                                var pub = Base64.from(rs.getString("pub")).decode()
-                                var priv = Base64.from(rs.getString("priv")).decode()
+                                val pub = Base64.from(rs.getString("pub")).decode()
+                                val priv = Base64.from(rs.getString("priv")).decode()
 
-                                var keyPair = KeyPair(BytePublicKey(pub, algorithm), BytePrivateKey(priv, algorithm))
+                                val keyPair = KeyPair(BytePublicKey(pub, algorithm), BytePrivateKey(priv, algorithm))
                                 Keys(keyId, keyPair, provider)
                             }
                         }

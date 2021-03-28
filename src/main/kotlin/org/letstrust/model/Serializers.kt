@@ -8,7 +8,9 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonTransformingSerializer
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -39,7 +41,8 @@ object DateAsIso8601UtcStringSerializer : KSerializer<LocalDateTime> {
 @Serializer(forClass = String::class)
 object ProofTypeSerializer :
     JsonTransformingSerializer<String>(String.serializer()) {
-    override fun transformDeserialize(element: JsonElement): JsonElement = if (element is JsonArray) element[0] else element
+    override fun transformDeserialize(element: JsonElement): JsonElement =
+        if (element is JsonArray) element[0] else element
 
     override fun transformSerialize(element: JsonElement): JsonElement = element
 }
