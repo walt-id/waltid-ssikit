@@ -19,12 +19,14 @@ object JwtService {
         payload: String? = null
     ): String {
 
-// TODO load key and load encryption config based on key-alg
-//        val recipientJWK = KeyManagementService.loadKeys(keyAlias)
-//        if (recipientJWK == null) {
-//            log.error { "Could not load verifying key for $keyAlias" }
-//            throw Exception("Could not load verifying key for $keyAlias")
-//        }
+        /*
+        TODO load key and load encryption config based on key-alg
+        val recipientJWK = KeyManagementService.loadKeys(keyAlias)
+        if (recipientJWK == null) {
+        log.error { "Could not load verifying key for $keyAlias" }
+        throw Exception("Could not load verifying key for $keyAlias")
+        }
+        */
         val keyId = "123"
         val encKey = OctetKeyPairGenerator(Curve.X25519)
             .keyID(keyId)
@@ -44,7 +46,7 @@ object JwtService {
         return jweObject.serialize()
     }
 
-    fun dencrypt(
+    fun decrypt(
         jwe: String
     ): String {
         val jweObj = JWEObject.parse(jwe)
@@ -62,22 +64,24 @@ object JwtService {
     }
 
     fun sign(
-        keyAlias: String, // verifiacation method
+        keyAlias: String, // verification method
         payload: String? = null
     ): String {
 
-        // Default JWT claims
-//        val claimsSet = JWTClaimsSet.Builder()
-//            .subject("alice")
-//            .issuer("https://c2id.com")
-//            .expirationTime(Date(Date().getTime() + 60 * 1000))
-//            .build()
+        /*
+        Default JWT claims
+        val claimsSet = JWTClaimsSet.Builder()
+        .subject("alice")
+        .issuer("https://c2id.com")
+        .expirationTime(Date(Date().getTime() + 60 * 1000))
+        .build()
+        */
 
 
         val claimsSet = if (payload != null) JWTClaimsSet.parse(payload) else JWTClaimsSet.Builder()
             .subject(keyAlias)
             .issuer("https://letstrust.org")
-            .expirationTime(Date(Date().getTime() + 60 * 1000))
+            .expirationTime(Date(Date().time + 60 * 1000))
             .build()
 
         val issuerKey = KeyManagementService.loadKeys(keyAlias)
@@ -88,14 +92,14 @@ object JwtService {
 
         val jwt = when (issuerKey.algorithm) {
             "Ed25519" -> {
-                var jwt = SignedJWT(JWSHeader.Builder(JWSAlgorithm.EdDSA).keyID(keyAlias).build(), claimsSet)
-                jwt.sign(Ed25519Signer(issuerKey.toOctetKeyPair()))
-                jwt
+                SignedJWT(JWSHeader.Builder(JWSAlgorithm.EdDSA).keyID(keyAlias).build(), claimsSet).apply {
+                    sign(Ed25519Signer(issuerKey.toOctetKeyPair()))
+                }
             }
             "EC" -> {
-                val jwt = SignedJWT(JWSHeader.Builder(JWSAlgorithm.ES256K).keyID(keyAlias).build(), claimsSet)
-                jwt.sign(ECDSASigner(issuerKey.toEcKey()))
-                jwt
+                SignedJWT(JWSHeader.Builder(JWSAlgorithm.ES256K).keyID(keyAlias).build(), claimsSet).apply {
+                    sign(ECDSASigner(issuerKey.toEcKey()))
+                }
             }
             else -> {
                 log.error { "Algorithm ${issuerKey.algorithm} not supported" }
@@ -112,8 +116,10 @@ object JwtService {
         log.debug { "Verifying token:  $token" }
         val jwt = SignedJWT.parse(token)
 
-        //TODO: key might also be entirely extracted out of the header",
-        // Maybe resolve DID (verifacation method)
+        /*
+        TODO: key might also be entirely extracted out of the header",
+        Maybe resolve DID (verification method)
+        */
         val verifierKey = KeyManagementService.loadKeys(jwt.header.keyID)
         if (verifierKey == null) {
             log.error { "Could not load verifying key for $jwt.header.keyID" }
