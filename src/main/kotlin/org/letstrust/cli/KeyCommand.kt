@@ -23,7 +23,7 @@ class KeyCommand : CliktCommand(
 class GenCommand : CliktCommand(
     help = """Generate keys.
 
-        Generates an asymetric keypair by the specified alogrithm.
+        Generates an asymmetric keypair by the specified algorithm.
         
         """
 ) {
