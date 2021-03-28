@@ -10,17 +10,15 @@ import com.nimbusds.jose.jwk.KeyUse
 import io.ipfs.multibase.Multibase
 import org.bitcoinj.core.ECKey
 import org.bouncycastle.jce.ECNamedCurveTable
-import org.bouncycastle.jce.provider.BouncyCastleProvider
-import org.letstrust.*
+import org.letstrust.LetsTrustServices
+import org.letstrust.common.encodeBase58
 import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.SecureRandom
-import java.security.Security
 import java.security.interfaces.ECPrivateKey
 import java.security.interfaces.ECPublicKey
 import java.security.spec.ECParameterSpec
 import java.util.*
-import kotlin.collections.ArrayList
 
 object KeyManagementService {
 
@@ -32,13 +30,15 @@ object KeyManagementService {
 
     private var ks: KeyStore = LetsTrustServices.load<KeyStore>()
 
-//    private var ks: KeyStore = FileSystemKeyStore as KeyStore
-//    // private var ks = FileSystemKeyStore as KeyStore
-//
-//    init {
-//        Security.addProvider(BouncyCastleProvider())
-//        ks = SqlKeyStore as KeyStore
-//    }
+    /*
+    private var ks: KeyStore = FileSystemKeyStore as KeyStore
+    // private var ks = FileSystemKeyStore as KeyStore
+
+    init {
+    Security.addProvider(BouncyCastleProvider())
+    ks = SqlKeyStore as KeyStore
+    }
+    */
 
     private fun generateKeyId(): String = "LetsTrust-Key-${UUID.randomUUID().toString().replace("-", "")}"
 
@@ -46,13 +46,7 @@ object KeyManagementService {
         KeyManagementService.ks = ks
     }
 
-    fun getSupportedCurveNames(): List<String> {
-        val ecNames = ArrayList<String>()
-        for (name in ECNamedCurveTable.getNames()) {
-            ecNames.add(name.toString())
-        }
-        return ecNames
-    }
+    fun getSupportedCurveNames(): List<String> = ECNamedCurveTable.getNames().toList().map { it.toString() }
 
     fun generateEcKeyPair(ecCurveName: String): String {
         val generator = KeyPairGenerator.getInstance("ECDSA", "BC")
@@ -129,18 +123,18 @@ object KeyManagementService {
     }
 
     fun generateSecp256k1KeyPairSun(): String {
-        val keyUse = KeyUse.parse("sig");
+        val keyUse = KeyUse.parse("sig")
         val keyAlg = JWSAlgorithm.parse("ES256K")
         val keyCurve = Curve.parse("secp256k1")
-        val ecSpec: ECParameterSpec = keyCurve.toECParameterSpec();
+        val ecSpec: ECParameterSpec = keyCurve.toECParameterSpec()
 
         val generator = KeyPairGenerator.getInstance("EC")
         generator.initialize(ecSpec)
 
         val kp = generator.generateKeyPair()
 
-        val pub = kp.getPublic() as ECPublicKey
-        val priv = kp.getPrivate() as ECPrivateKey
+        val pub = kp.public as ECPublicKey
+        val priv = kp.private as ECPrivateKey
 
         println(priv.format)
         val keys = Keys(generateKeyId(), kp, "SunEC")
@@ -166,35 +160,20 @@ object KeyManagementService {
         return keys.keyId
     }
 
-    fun loadKeys(keyId: String): Keys? {
-        return ks.getKeyId(keyId)?.let { it -> ks.loadKeyPair(it) }
+    fun loadKeys(keyId: String): Keys? = ks.getKeyId(keyId)?.let { it -> ks.loadKeyPair(it) }
+
+    fun listKeys(): List<Keys> = ks.listKeys()
+
+    fun deleteKeys(keyId: String) = ks.deleteKeyPair(ks.getKeyId(keyId)!!)
+
+    fun getMultiBase58PublicKey(keyId: String): String = ks.loadKeyPair(keyId).let {
+        Multibase.encode(Multibase.Base.Base58BTC, it!!.getPubKey())
     }
 
-    fun listKeys(): List<Keys> {
-        return ks.listKeys()
-    }
+    fun getBase58PublicKey(keyId: String): String? = ks.loadKeyPair(keyId)?.getPubKey()?.encodeBase58()
 
-    fun deleteKeys(keyId: String) {
-        ks.deleteKeyPair(ks.getKeyId(keyId)!!)
-    }
+    fun addAlias(keyId: String, identifier: String) = ks.addAlias(keyId, identifier)
 
-    fun getMultiBase58PublicKey(keyId: String): String {
-        return ks.loadKeyPair(keyId).let {
-            Multibase.encode(Multibase.Base.Base58BTC, it!!.getPubKey())
-        }
-    }
-
-    fun getBase58PublicKey(keyId: String): String? {
-        return ks.loadKeyPair(keyId)?.getPubKey()?.encodeBase58()
-    }
-
-    fun addAlias(keyId: String, identifier: String) {
-        ks.addAlias(keyId, identifier)
-    }
-
-    fun export(keyId: String): String {
-        val key = this.loadKeys(keyId)!!
-        return key.exportJwk()
-    }
+    fun export(keyId: String): String = loadKeys(keyId)!!.exportJwk()
 
 }
