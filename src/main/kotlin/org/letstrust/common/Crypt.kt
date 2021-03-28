@@ -1,4 +1,4 @@
-package org.letstrust
+package org.letstrust.common
 
 import com.goterl.lazycode.lazysodium.LazySodiumJava
 import com.goterl.lazycode.lazysodium.SodiumJava
