@@ -3,7 +3,7 @@ package org.letstrust.services.did
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import mu.KotlinLogging
-import org.letstrust.*
+import org.letstrust.common.*
 import org.letstrust.model.*
 import org.letstrust.services.key.KeyManagementService
 import org.letstrust.services.key.Keys
@@ -42,14 +42,19 @@ object DidService {
     }
 
     internal fun resolveDidWeb(didUrl: DidUrl): DidWeb {
-        var domain = didUrl.identifier
-        var didUrl = "https://${domain}/.well-known/did.json"
+        val domain = didUrl.identifier
+
+        val didUrl = "https://${domain}/.well-known/did.json"
         log.debug { "Resolving did:web for domain $domain at: $didUrl" }
-        var didWebStr = URL(didUrl).readText()
+
+        val didWebStr = URL(didUrl).readText()
         log.debug { "did:web resolved:\n$didWebStr" }
+
         print(didWebStr)
-        var did = Json.decodeFromString<DidWeb>(didWebStr)
+
+        val did = Json.decodeFromString<DidWeb>(didWebStr)
         log.debug { "did:web decoded:\n$did" }
+
         return did
     }
 
@@ -68,7 +73,6 @@ object DidService {
     }
 
     internal fun createDidKey(didKey: Keys): String {
-
         val identifier = convertEd25519PublicKeyToMultiBase58Btc(didKey.getPubKey())
 
         val did = "did:key:$identifier"
@@ -91,12 +95,11 @@ object DidService {
     }
 
     fun listDids(): List<String> {
-
         // File("data").walkTopDown().filter {  it -> Files.isRegularFile(it)  }
 
         return Files.walk(Path.of("data/did/created"))
-            .filter { it -> Files.isRegularFile(it) }
-            .filter { it -> it.toString().endsWith(".json") }
+            .filter { Files.isRegularFile(it) }
+            .filter { it.toString().endsWith(".json") }
             .map { it.fileName.toString() }.toList()
     }
 
