@@ -69,8 +69,8 @@ object CredentialService {
         val key = ks.load(keyId)
 
         val signer = when (key.algorithm) {
-            KeyAlgorithm.Secp256k1 -> LdSigner.EcdsaSecp256k1Signature2019(keyId)
-            KeyAlgorithm.Ed25519 -> LdSigner.Ed25519Signature2018(keyId)
+            KeyAlgorithm.ECDSA_Secp256k1 -> LdSigner.EcdsaSecp256k1Signature2019(keyId)
+            KeyAlgorithm.EdDSA_Ed25519 -> LdSigner.Ed25519Signature2018(keyId)
             else -> throw Exception("Signature for key algorithm ${key.algorithm} not supported")
         }
 
@@ -107,8 +107,8 @@ object CredentialService {
         log.trace { "Decoded Json LD object: $jsonLdObject" }
 
         val verifier = when (publicKey.algorithm) {
-            KeyAlgorithm.Secp256k1 -> org.letstrust.crypto.LdVerifier.EcdsaSecp256k1Signature2019(publicKey.getPublicKey())
-            KeyAlgorithm.Ed25519 -> org.letstrust.crypto.LdVerifier.Ed25519Signature2018(publicKey)
+            KeyAlgorithm.ECDSA_Secp256k1 -> org.letstrust.crypto.LdVerifier.EcdsaSecp256k1Signature2019(publicKey.getPublicKey())
+            KeyAlgorithm.EdDSA_Ed25519 -> org.letstrust.crypto.LdVerifier.Ed25519Signature2018(publicKey)
             else -> throw Exception("Signature for key algorithm ${publicKey.algorithm} not supported")
         }
 

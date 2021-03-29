@@ -13,8 +13,8 @@ import java.util.*
 
 // Supported key algorithms
 enum class KeyAlgorithm {
-    Ed25519,
-    Secp256k1
+    EdDSA_Ed25519,
+    ECDSA_Secp256k1
 }
 
 // Supported signatures

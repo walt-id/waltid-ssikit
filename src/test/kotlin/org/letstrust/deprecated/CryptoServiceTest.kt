@@ -24,14 +24,14 @@ class CryptoServiceTest {
 
     @Test
     fun testGenSecp256k1Sun() {
-        val keyId = SunCryptoService.generateKey(KeyAlgorithm.Secp256k1)
+        val keyId = SunCryptoService.generateKey(KeyAlgorithm.ECDSA_Secp256k1)
     }
 
 
     @Test
     fun testGenEd25519Tink() {
 
-        val keyId = TinkCryptoService.generateKey(KeyAlgorithm.Ed25519)
+        val keyId = TinkCryptoService.generateKey(KeyAlgorithm.EdDSA_Ed25519)
 
     }
 

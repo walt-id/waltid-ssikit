@@ -14,7 +14,7 @@ class TinkKeyStoreTest {
 
     @Test
     fun storeTest() {
-        val keyId = TinkCryptoService.generateKey(KeyAlgorithm.Secp256k1)
+        val keyId = TinkCryptoService.generateKey(KeyAlgorithm.ECDSA_Secp256k1)
 
         val key = TinkKeyStore.load(keyId)
 

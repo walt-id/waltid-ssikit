@@ -50,7 +50,7 @@ object DidService {
     // Private methods
 
     private fun createDidKey(): String {
-        val keyId = crypto.generateKey(KeyAlgorithm.Ed25519)
+        val keyId = crypto.generateKey(KeyAlgorithm.EdDSA_Ed25519)
         val key = ks.load(keyId)
 
         val pubPrim = ASN1Sequence.fromByteArray(key.getPublicKey().encoded) as ASN1Sequence
@@ -65,7 +65,7 @@ object DidService {
     }
 
     private fun createDidWeb(): String {
-        val keyId = crypto.generateKey(KeyAlgorithm.Secp256k1)
+        val keyId = crypto.generateKey(KeyAlgorithm.ECDSA_Secp256k1)
         val key = ks.load(keyId)
 
         val domain = "letstrust.org"

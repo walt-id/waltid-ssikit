@@ -31,8 +31,8 @@ object TinkCryptoService : CryptoService {
 //        )
         // https://github.com/google/tink/issues/146
         val keysetHandle = when (algorithm) {
-            KeyAlgorithm.Secp256k1 -> KeysetHandle.generateNew(EcdsaSignKeyManager.rawEcdsaP256Template())
-            KeyAlgorithm.Ed25519 -> KeysetHandle.generateNew(Ed25519PrivateKeyManager.rawEd25519Template())
+            KeyAlgorithm.ECDSA_Secp256k1 -> KeysetHandle.generateNew(EcdsaSignKeyManager.rawEcdsaP256Template())
+            KeyAlgorithm.EdDSA_Ed25519 -> KeysetHandle.generateNew(Ed25519PrivateKeyManager.rawEd25519Template())
         }
 
         println(keysetHandle)
@@ -73,8 +73,8 @@ object SunCryptoService : CryptoService {
     override fun generateKey(algorithm: KeyAlgorithm): KeyId {
 
         val generator = when (algorithm) {
-            KeyAlgorithm.Secp256k1 -> keyPairGeneratorSecp256k1()
-            KeyAlgorithm.Ed25519 -> keyPairGeneratorEd25519()
+            KeyAlgorithm.ECDSA_Secp256k1 -> keyPairGeneratorSecp256k1()
+            KeyAlgorithm.EdDSA_Ed25519 -> keyPairGeneratorEd25519()
         }
 
         val keyPair = generator.generateKeyPair()
@@ -113,8 +113,8 @@ object SunCryptoService : CryptoService {
     override fun sign(keyId: KeyId, data: ByteArray): ByteArray {
         val key = ks.load(keyId)
         val sig = when (key.algorithm) {
-            KeyAlgorithm.Secp256k1 -> Signature.getInstance("SHA256withECDSA")
-            KeyAlgorithm.Ed25519 -> Signature.getInstance("Ed25519")
+            KeyAlgorithm.ECDSA_Secp256k1 -> Signature.getInstance("SHA256withECDSA")
+            KeyAlgorithm.EdDSA_Ed25519 -> Signature.getInstance("Ed25519")
         }
         sig.initSign(key.keyPair!!.private)
         sig.update(data)
@@ -124,8 +124,8 @@ object SunCryptoService : CryptoService {
     override fun verfiy(keyId: KeyId, sig: ByteArray, data: ByteArray): Boolean {
         val key = ks.load(keyId)
         val signature = when (key.algorithm) {
-            KeyAlgorithm.Secp256k1 -> Signature.getInstance("SHA256withECDSA")
-            KeyAlgorithm.Ed25519 -> Signature.getInstance("Ed25519")
+            KeyAlgorithm.ECDSA_Secp256k1 -> Signature.getInstance("SHA256withECDSA")
+            KeyAlgorithm.EdDSA_Ed25519 -> Signature.getInstance("Ed25519")
         }
         signature.initVerify(key.keyPair!!.public)
         signature.update(data)

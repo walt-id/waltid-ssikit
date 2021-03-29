@@ -4,8 +4,10 @@ import com.nimbusds.jose.JOSEException
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.JWSHeader
 import com.nimbusds.jose.JWSSigner
+import com.nimbusds.jose.crypto.ECDSASigner
 import com.nimbusds.jose.crypto.impl.ECDSA
 import com.nimbusds.jose.jca.JCAContext
+import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.util.Base64URL
 import info.weboftrust.ldsignatures.LdProof
 import info.weboftrust.ldsignatures.signer.LdSigner
@@ -22,6 +24,8 @@ import java.security.SignatureException
 class LdSigner {
 
     // Calls LetsTrust CryptoService via JCA LetsTrustProvider
+    // Currently not required since ECDSASigner is sufficient
+    @Deprecated(message = "Only for testing - Use ECDSASigner instead")
     class JcaSigner : JWSSigner {
 
         val privateKey: PrivateKey
@@ -96,7 +100,9 @@ class LdSigner {
         override fun sign(ldProofBuilder: LdProof.Builder<*>, signingInput: ByteArray) {
             val jwsHeader = JWSHeader.Builder(JWSAlgorithm.ES256K).base64URLEncodePayload(false).criticalParams(setOf("b64")).build()
             val jwsSigningInput = JWSUtil.getJwsSigningInput(jwsHeader, signingInput)
-            val jwsSigner = JcaSigner(PrivateKeyHandle(keyId))
+            //val jwsSigner = JcaSigner(PrivateKeyHandle(keyId))
+            val jwsSigner = ECDSASigner(PrivateKeyHandle(keyId), Curve.SECP256K1)
+            jwsSigner.jcaContext.provider = LetsTrustProvider()
             val signature = jwsSigner.sign(jwsHeader, jwsSigningInput)
             val jws = JWSUtil.serializeDetachedJws(jwsHeader, signature)
             ldProofBuilder.jws(jws)

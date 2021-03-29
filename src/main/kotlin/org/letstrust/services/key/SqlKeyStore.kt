@@ -61,8 +61,8 @@ object SqlKeyStore : KeyStore {
                         var provider = CryptoProvider.valueOf(rs.getString("provider"))
 
                         val kf = when (algorithm) {
-                            KeyAlgorithm.Secp256k1 -> KeyFactory.getInstance("ECDSA")
-                            KeyAlgorithm.Ed25519 -> KeyFactory.getInstance("Ed25519")
+                            KeyAlgorithm.ECDSA_Secp256k1 -> KeyFactory.getInstance("ECDSA")
+                            KeyAlgorithm.EdDSA_Ed25519 -> KeyFactory.getInstance("Ed25519")
                         }
                         var pub = decodePubKey(rs.getString("pub"), kf)
                         var priv = decodePrivKey(rs.getString("priv"), kf)
