@@ -78,9 +78,7 @@ class LdSigner {
             TODO("Not yet implemented")
         }
 
-        override fun supportedJWSAlgorithms(): MutableSet<JWSAlgorithm> {
-            TODO("Not yet implemented")
-        }
+        override fun supportedJWSAlgorithms(): MutableSet<JWSAlgorithm> = HashSet(setOf(JWSAlgorithm.EdDSA, JWSAlgorithm.ES256K))
 
         override fun sign(header: JWSHeader, signingInput: ByteArray): Base64URL {
 

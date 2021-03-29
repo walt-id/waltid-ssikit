@@ -4,7 +4,7 @@ import org.letstrust.crypto.Key
 import org.letstrust.crypto.KeyId
 
 
-class CustomKeyStore protected constructor() : KeyStore {
+class CustomKeyStore constructor() : KeyStore {
 
     init {
 
@@ -30,7 +30,7 @@ class CustomKeyStore protected constructor() : KeyStore {
         TODO("Not yet implemented")
     }
 
-    override fun deleteKeyPair(keyId: String) {
+    override fun delete(alias: String) {
         TODO("Not yet implemented")
     }
 

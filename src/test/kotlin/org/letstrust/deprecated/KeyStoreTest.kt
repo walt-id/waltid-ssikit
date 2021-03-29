@@ -2,6 +2,7 @@ package org.letstrust.deprecated
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.junit.Test
+import org.letstrust.KeyAlgorithm
 import org.letstrust.services.key.FileSystemKeyStore
 import org.letstrust.services.key.KeyManagementService
 import java.security.Security
@@ -20,7 +21,7 @@ open class KeyStoreTest {
     }
 
     @Test
-    fun sl() {
+    fun serviceLoaderTest() {
         val loader = ServiceLoader.load(org.letstrust.services.key.KeyStore::class.java)
         val ksServiceLoader = loader.iterator().next()
         println(ksServiceLoader)
@@ -32,6 +33,22 @@ open class KeyStoreTest {
         println(ksObject)
 
     }
+
+
+    @Test
+    open fun addAliasTest() {
+        val keyId = kms.generate(KeyAlgorithm.EdDSA_Ed25519)
+        val testAlias = UUID.randomUUID().toString()
+        kms.addAlias(keyId, testAlias)
+        val k1 = kms.load(testAlias)
+        assertNotNull(k1)
+        val k2 = kms.load(keyId.id)
+        assertNotNull(k2)
+        assertEquals(k2.getPublicKey().encoded.contentToString(), k1.getPublicKey().encoded.contentToString())
+    }
+
+
+
 
     @Test
     open fun saveLoadEd25519KeysTest() {
@@ -78,21 +95,10 @@ open class KeyStoreTest {
         var keys = kms.loadKeys(keyId)
         assertNotNull(keys)
 
-        kms.deleteKeys(keyId)
+        kms.delete(keyId)
         keys = kms.loadKeys(keyId)
         assertTrue(keys === null)
     }
 
-    @Test
-    open fun addAliasTest() {
-        val keyId = kms.generateKeyPair("Ed25519")
-        val testAlias = UUID.randomUUID().toString()
-        kms.addAlias(keyId, testAlias)
-        val k1 = kms.loadKeys(testAlias)
-        assertNotNull(k1)
-        val k2 = kms.loadKeys(keyId)
-        assertNotNull(k2)
-        println(k1.pair.private.encoded.contentToString())
-        assertEquals(k2.pair.private.encoded.contentToString(), k1.pair.private.encoded.contentToString())
-    }
+
 }

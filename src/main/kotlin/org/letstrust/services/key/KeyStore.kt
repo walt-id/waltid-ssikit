@@ -7,13 +7,13 @@ interface KeyStore {
     fun store(key: Key)
     fun load(alias: String): Key
     fun addAlias(keyId: KeyId, alias: String)
+    fun delete(alias: String)
+    fun listKeys(): List<Keys>
 
     // OLD
     fun getKeyId(keyId: String): String?
     fun saveKeyPair(keys: Keys)
-    fun listKeys(): List<Keys>
     fun loadKeyPair(keyId: String): Keys?
-    fun deleteKeyPair(keyId: String)
     fun addAlias(keyId: String, alias: String)
 }
 

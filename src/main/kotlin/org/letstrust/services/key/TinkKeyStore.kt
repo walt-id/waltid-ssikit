@@ -38,7 +38,7 @@ object TinkKeyStore : KeyStore {
         TODO("Not yet implemented")
     }
 
-    override fun deleteKeyPair(keyId: String) {
+    override fun delete(alias: String) {
         TODO("Not yet implemented")
     }
 

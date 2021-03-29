@@ -10,7 +10,10 @@ import com.nimbusds.jose.jwk.KeyUse
 import io.ipfs.multibase.Multibase
 import org.bitcoinj.core.ECKey
 import org.bouncycastle.jce.ECNamedCurveTable
+import org.letstrust.KeyAlgorithm
 import org.letstrust.LetsTrustServices
+import org.letstrust.crypto.CryptoService
+import org.letstrust.crypto.KeyId
 import org.letstrust.encodeBase58
 import java.security.KeyPair
 import java.security.KeyPairGenerator
@@ -23,28 +26,36 @@ import kotlin.collections.ArrayList
 
 object KeyManagementService {
 
-    enum class CryptoProvider {
-        SunEC
-    }
-
     private const val RSA_KEY_SIZE = 4096
+
+    private var cs: CryptoService = LetsTrustServices.load<CryptoService>()
 
     private var ks: KeyStore = LetsTrustServices.load<KeyStore>()
 
-//    private var ks: KeyStore = FileSystemKeyStore as KeyStore
-//    // private var ks = FileSystemKeyStore as KeyStore
-//
-//    init {
-//        Security.addProvider(BouncyCastleProvider())
-//        ks = SqlKeyStore as KeyStore
-//    }
+    fun generate(keyAlgorithm: KeyAlgorithm) = cs.generateKey(keyAlgorithm)
 
+    fun addAlias(keyId: KeyId, alias: String) = ks.addAlias(keyId, alias)
+
+    fun load(keyAlias: String) = ks.load(keyAlias)
+
+    fun export(keyAlias: String): String = ks.load(keyAlias).let { it.toJwk().toJSONString() }
+
+    fun listKeys(): List<Keys> = ks.listKeys()
+
+    fun delete(alias: String) = ks.delete(alias)
+
+
+    // TODO: consider deprecated methods below
+
+    @Deprecated(message = "outdated")
     private fun generateKeyId(): String = "LetsTrust-Key-${UUID.randomUUID().toString().replace("-", "")}"
 
+    @Deprecated(message = "outdated")
     fun setKeyStore(ks: KeyStore) {
         KeyManagementService.ks = ks
     }
 
+    @Deprecated(message = "outdated")
     fun getSupportedCurveNames(): List<String> {
         val ecNames = ArrayList<String>()
         for (name in ECNamedCurveTable.getNames()) {
@@ -53,6 +64,7 @@ object KeyManagementService {
         return ecNames
     }
 
+    @Deprecated(message = "outdated")
     fun generateEcKeyPair(ecCurveName: String): String {
         val generator = KeyPairGenerator.getInstance("ECDSA", "BC")
         generator.initialize(ECNamedCurveTable.getParameterSpec(ecCurveName), SecureRandom())
@@ -61,6 +73,7 @@ object KeyManagementService {
         return keys.keyId
     }
 
+    @Deprecated(message = "outdated")
     fun generateKeyPair(algorithm: String): String {
         val keys = when (algorithm) {
             "Ed25519" -> {
@@ -86,6 +99,7 @@ object KeyManagementService {
         return keys.keyId
     }
 
+    @Deprecated(message = "outdated")
     fun generateEd25519KeyPair(): String {
         HybridConfig.register()
 
@@ -97,6 +111,7 @@ object KeyManagementService {
         return keys.keyId
     }
 
+    @Deprecated(message = "outdated")
     fun generateEd25519KeyPairNimbus(): String {
 
         val keyUse = KeyUse.parse("sig")
@@ -117,6 +132,7 @@ object KeyManagementService {
 
     }
 
+    @Deprecated(message = "outdated")
     fun generateSecp256k1KeyPairBitcoinj(): String {
         val key = ECKey(SecureRandom())
         val publicKey = BytePublicKey(key.pubKey, "Secp256k1")
@@ -126,6 +142,7 @@ object KeyManagementService {
         return keys.keyId
     }
 
+    @Deprecated(message = "outdated")
     fun generateSecp256k1KeyPairSun(): String {
         val keyUse = KeyUse.parse("sig");
         val keyAlg = JWSAlgorithm.parse("ES256K")
@@ -156,6 +173,7 @@ object KeyManagementService {
         return keys.keyId
     }
 
+    @Deprecated(message = "outdated")
     fun generateRsaKeyPair(): String {
         val generator = KeyPairGenerator.getInstance("RSA", "BC")
         generator.initialize(RSA_KEY_SIZE)
@@ -164,35 +182,22 @@ object KeyManagementService {
         return keys.keyId
     }
 
+    @Deprecated(message = "outdated")
     fun loadKeys(keyId: String): Keys? {
         return ks.getKeyId(keyId)?.let { it -> ks.loadKeyPair(it) }
     }
 
-    fun listKeys(): List<Keys> {
-        return ks.listKeys()
-    }
-
-    fun deleteKeys(keyId: String) {
-        ks.deleteKeyPair(ks.getKeyId(keyId)!!)
-    }
-
+    @Deprecated(message = "outdated")
     fun getMultiBase58PublicKey(keyId: String): String {
         return ks.loadKeyPair(keyId).let {
             Multibase.encode(Multibase.Base.Base58BTC, it!!.getPubKey())
         }
     }
 
+    @Deprecated(message = "outdated")
     fun getBase58PublicKey(keyId: String): String? {
         return ks.loadKeyPair(keyId)?.getPubKey()?.encodeBase58()
     }
 
-    fun addAlias(keyId: String, identifier: String) {
-        ks.addAlias(keyId, identifier)
-    }
-
-    fun export(keyId: String): String {
-        val key = this.loadKeys(keyId)!!
-        return key.exportJwk()
-    }
 
 }

@@ -5,6 +5,9 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.Test
+import org.letstrust.KeyAlgorithm
+import org.letstrust.LetsTrustServices
+import org.letstrust.crypto.CryptoService
 import org.letstrust.model.*
 import org.letstrust.services.did.DidService
 import org.letstrust.services.jwt.JwtService
@@ -17,11 +20,13 @@ import kotlin.test.assertTrue
 
 class JwtServiceTest {
 
+    val cs = LetsTrustServices.load<CryptoService>()
+
     @Test
     fun genJwtSecp256k1() {
-        val keyId = KeyManagementService.generateSecp256k1KeyPairSun()
+        val keyId = cs.generateKey(KeyAlgorithm.ECDSA_Secp256k1)
 
-        val jwt = JwtService.sign(keyId)
+        val jwt = JwtService.sign(keyId.id)
 
         val res1 = JwtService.verify(jwt)
         assertTrue(res1, "JWT verification failed")
@@ -29,9 +34,9 @@ class JwtServiceTest {
 
     @Test
     fun genJwtEd25519() {
-        val keyId = KeyManagementService.generateEd25519KeyPairNimbus()
+        val keyId = cs.generateKey(KeyAlgorithm.EdDSA_Ed25519)
 
-        val jwt = JwtService.sign(keyId)
+        val jwt = JwtService.sign(keyId.id)
 
         val res1 = JwtService.verify(jwt)
         assertTrue(res1, "JWT verification failed")
@@ -59,9 +64,9 @@ class JwtServiceTest {
 
         val arp = Json.decodeFromString<AuthenticationRequestPayload>(payload)
 
-        val keyId = KeyManagementService.generateSecp256k1KeyPairSun()
+        val keyId = KeyManagementService.generate(KeyAlgorithm.ECDSA_Secp256k1)
 
-        val jwt = JwtService.sign(keyId, Json.encodeToString(arp))
+        val jwt = JwtService.sign(keyId.id, Json.encodeToString(arp))
 
         println(jwt)
 
@@ -95,9 +100,9 @@ class JwtServiceTest {
 
         println(Json { prettyPrint = true }.encodeToString(arp))
 
-        val keyId = KeyManagementService.generateSecp256k1KeyPairSun()
+        val keyId = KeyManagementService.generate(KeyAlgorithm.ECDSA_Secp256k1)
 
-        val jwt = JwtService.sign(keyId, Json.encodeToString(arp))
+        val jwt = JwtService.sign(keyId.id, Json.encodeToString(arp))
 
         println(jwt)
 

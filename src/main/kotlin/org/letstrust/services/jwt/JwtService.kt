@@ -7,7 +7,12 @@ import com.nimbusds.jose.jwk.gen.OctetKeyPairGenerator
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import mu.KotlinLogging
+import org.letstrust.KeyAlgorithm
+import org.letstrust.crypto.LdSigner
+import org.letstrust.crypto.LetsTrustProvider
+import org.letstrust.crypto.PrivateKeyHandle
 import org.letstrust.services.key.KeyManagementService
+import java.security.interfaces.ECPublicKey
 import java.util.*
 
 private val log = KotlinLogging.logger {}
@@ -62,7 +67,7 @@ object JwtService {
     }
 
     fun sign(
-        keyAlias: String, // verifiacation method
+        keyAlias: String, // verification method
         payload: String? = null
     ): String {
 
@@ -80,21 +85,24 @@ object JwtService {
             .expirationTime(Date(Date().getTime() + 60 * 1000))
             .build()
 
-        val issuerKey = KeyManagementService.loadKeys(keyAlias)
+        val issuerKey = KeyManagementService.load(keyAlias)
         if (issuerKey == null) {
             log.error { "Could not load signing key for $keyAlias" }
             throw Exception("Could not load signing key for $keyAlias")
         }
 
         val jwt = when (issuerKey.algorithm) {
-            "Ed25519" -> {
+            KeyAlgorithm.EdDSA_Ed25519 -> {
                 var jwt = SignedJWT(JWSHeader.Builder(JWSAlgorithm.EdDSA).keyID(keyAlias).build(), claimsSet)
-                jwt.sign(Ed25519Signer(issuerKey.toOctetKeyPair()))
+                //jwt.sign(Ed25519Signer(issuerKey.toOctetKeyPair()))
+                jwt.sign(LdSigner.JwsLtSigner(issuerKey.keyId))
                 jwt
             }
-            "EC" -> {
+            KeyAlgorithm.ECDSA_Secp256k1 -> {
                 val jwt = SignedJWT(JWSHeader.Builder(JWSAlgorithm.ES256K).keyID(keyAlias).build(), claimsSet)
-                jwt.sign(ECDSASigner(issuerKey.toEcKey()))
+                val jwsSigner = ECDSASigner(PrivateKeyHandle(issuerKey.keyId), Curve.SECP256K1)
+                jwsSigner.jcaContext.provider = LetsTrustProvider()
+                jwt.sign(jwsSigner)
                 jwt
             }
             else -> {
@@ -114,15 +122,15 @@ object JwtService {
 
         //TODO: key might also be entirely extracted out of the header",
         // Maybe resolve DID (verifacation method)
-        val verifierKey = KeyManagementService.loadKeys(jwt.header.keyID)
+        val verifierKey = KeyManagementService.load(jwt.header.keyID)
         if (verifierKey == null) {
             log.error { "Could not load verifying key for $jwt.header.keyID" }
             throw Exception("Could not load verifying key for $jwt.header.keyID")
         }
 
         val res = when (verifierKey.algorithm) {
-            "Ed25519" -> jwt.verify(Ed25519Verifier(verifierKey.toOctetKeyPair().toPublicJWK()))
-            "EC" -> jwt.verify(ECDSAVerifier(verifierKey.toEcKey()))
+            KeyAlgorithm.EdDSA_Ed25519 -> jwt.verify(Ed25519Verifier(verifierKey.toJwk()))
+            KeyAlgorithm.ECDSA_Secp256k1 -> jwt.verify(ECDSAVerifier(verifierKey.getPublicKey() as ECPublicKey))
             else -> {
                 log.error { "Algorithm ${verifierKey.algorithm} not supported" }
                 throw Exception("Algorithm ${verifierKey.algorithm} not supported")

@@ -52,7 +52,7 @@ class KeyManagementServiceTest {
         assertNotNull(keysLoaded?.pair?.private)
         assertNotNull(keysLoaded?.pair?.public)
         assertEquals("ECDSA", keysLoaded?.pair?.private?.algorithm)
-        kms.deleteKeys(keyId)
+        kms.delete(keyId)
     }
 
     @Test
@@ -67,7 +67,7 @@ class KeyManagementServiceTest {
         assertNotNull(keysLoaded?.pair?.private)
         assertNotNull(keysLoaded?.pair?.public)
         assertEquals("EC", keysLoaded?.pair?.private?.algorithm)
-        kms.deleteKeys(keyId)
+        kms.delete(keyId)
     }
 
     @Test
@@ -88,7 +88,7 @@ class KeyManagementServiceTest {
         val pubKey = keysLoaded?.pair?.public?.encoded
         assertEquals(32, pubKey?.size)
         assertTrue(kms.getMultiBase58PublicKey(keyId).length > 32)
-        kms.deleteKeys(keyId)
+        kms.delete(keyId)
     }
 
     @Test
@@ -102,7 +102,7 @@ class KeyManagementServiceTest {
         assertNotNull(keysLoaded?.pair?.private)
         assertNotNull(keysLoaded?.pair?.public)
         assertEquals("RSA", keysLoaded?.pair?.private?.algorithm)
-        kms.deleteKeys(keyId)
+        kms.delete(keyId)
     }
 
     @Test

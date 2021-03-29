@@ -130,11 +130,11 @@ object FileSystemKeyStore : KeyStore {
         )
     }
 
-    override fun deleteKeyPair(keyId: String) {
-        deleteKeyFile(keyId, "enc-pubkey")
-        deleteKeyFile(keyId, "enc-privkey")
-        deleteKeyFile(keyId, "raw-pubkey")
-        deleteKeyFile(keyId, "raw-privkey")
+    override fun delete(alias: String) {
+        deleteKeyFile(alias, "enc-pubkey")
+        deleteKeyFile(alias, "enc-privkey")
+        deleteKeyFile(alias, "raw-pubkey")
+        deleteKeyFile(alias, "raw-privkey")
     }
 
     override fun addAlias(keyId: String, alias: String) {

@@ -269,12 +269,12 @@ object SqlKeyStore : KeyStore {
         return null
     }
 
-    override fun deleteKeyPair(keyId: String) {
-        log.debug { "Deleting key \"${keyId}\"." }
+    override fun delete(alias: String) {
+        log.debug { "Deleting key \"${alias}\"." }
         SqlDbManager.getConnection().use { con ->
             con.prepareStatement("delete from lt_key where name = ?")
                 .use { stmt ->
-                    stmt.setString(1, keyId)
+                    stmt.setString(1, alias)
                     stmt.executeUpdate()
                 }
             // TODO clean up key_alias

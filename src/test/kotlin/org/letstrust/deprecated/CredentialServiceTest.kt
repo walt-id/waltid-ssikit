@@ -134,7 +134,7 @@ class CredentialServiceTest {
 
         val vcVerified = CredentialService.verify(issuerDid, vc)
         assertTrue(vcVerified)
-        KeyManagementService.deleteKeys(issuerDid)
+        KeyManagementService.delete(issuerDid)
     }
 
     @Test
@@ -153,7 +153,7 @@ class CredentialServiceTest {
 
         val vcVerified = CredentialService.verify(keyId, vc)
         assertTrue(vcVerified)
-        KeyManagementService.deleteKeys(keyId)
+        KeyManagementService.delete(keyId)
     }
 
     @Test
@@ -188,7 +188,7 @@ class CredentialServiceTest {
 
         val vcVerified = CredentialService.verify(keyId, vc)
         assertTrue(vcVerified)
-        KeyManagementService.deleteKeys(keyId)
+        KeyManagementService.delete(keyId)
     }
 
     @Test
