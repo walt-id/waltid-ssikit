@@ -1,6 +1,7 @@
 package org.letstrust
 
 
+import com.google.crypto.tink.config.TinkConfig
 import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.PropertySource
 import com.sksamuel.hoplite.hikari.HikariDataSourceDecoder
@@ -18,6 +19,7 @@ import org.letstrust.crypto.TinkCryptoService
 import org.letstrust.services.key.FileSystemKeyStore
 import org.letstrust.services.key.KeyStore
 import org.letstrust.services.key.SqlKeyStore
+import org.letstrust.services.key.TinkKeyStore
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
@@ -27,7 +29,7 @@ import java.util.*
 enum class CryptoProvider { SUN, TINK }
 inline class Port(val value: Int)
 inline class Host(val value: String)
-enum class KeystoreType { file, database, custom }
+enum class KeystoreType { file, database, tink, custom }
 data class Keystore(val type: KeystoreType)
 data class Server(val host: Host, val port: Port)
 
@@ -71,6 +73,8 @@ object LetsTrustServices {
         // BC is required for
         // - secp256k1 curve
         Security.addProvider(BouncyCastleProvider())
+
+        TinkConfig.register()
     }
 
     inline fun <reified T> load(): T {
@@ -105,6 +109,7 @@ object LetsTrustServices {
     fun loadKeyStore(conf: LetsTrustConfig) = when (conf.keystore.type) {
         KeystoreType.custom -> loadCustomKeyStore()
         KeystoreType.database -> SqlKeyStore
+        KeystoreType.tink -> TinkKeyStore
         else -> FileSystemKeyStore
     }
 

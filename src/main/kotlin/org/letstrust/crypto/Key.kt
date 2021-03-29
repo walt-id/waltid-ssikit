@@ -5,14 +5,15 @@ import org.letstrust.CryptoProvider
 import org.letstrust.KeyAlgorithm
 import org.letstrust.services.key.TinkKeyStore
 import java.security.KeyPair
+import java.security.PublicKey
 import java.security.interfaces.ECPublicKey
 
 inline class KeyId(val id: String) {}
 
 data class Key(val keyId: KeyId, val algorithm: KeyAlgorithm, val cryptoProvider: CryptoProvider) {
-    fun getPublicKey(): ECPublicKey {
+    fun getPublicKey(): PublicKey {
         if (this.keyPair != null){
-            return this.keyPair!!.public as ECPublicKey
+            return this.keyPair!!.public
         } else if (this.keysetHandle != null) {
             return TinkKeyStore.loadPublicKey(this) as ECPublicKey
         }

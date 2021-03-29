@@ -1,5 +1,6 @@
 package org.letstrust.crypto
 
+import org.letstrust.LetsTrustServices
 import java.security.PrivateKey
 import java.security.PublicKey
 import java.security.SignatureSpi
@@ -18,6 +19,7 @@ open class LetsTrustSignature(val algorithm: String) : SignatureSpi() {
     var off: Int? = null
     var len: Int? = null
 
+    val cryptoService = LetsTrustServices.load<CryptoService>()
 
     override fun engineInitVerify(publicKey: PublicKey?) {
         TODO("Not yet implemented")
@@ -38,7 +40,7 @@ open class LetsTrustSignature(val algorithm: String) : SignatureSpi() {
     }
 
     override fun engineSign(): ByteArray {
-        return SunCryptoService.sign(keyId!!, b!!)
+        return cryptoService.sign(keyId!!, b!!)
     }
 
     override fun engineVerify(sigBytes: ByteArray?): Boolean {

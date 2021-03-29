@@ -150,7 +150,7 @@ object FileSystemKeyStore : KeyStore {
     }
 
     override fun addAlias(keyId: KeyId, alias: String) {
-        TODO("Not yet implemented")
+        File("$KEY_DIR_PATH/Alias-$alias").writeText(keyId.id)
     }
 
     override fun getKeyId(alias: String): String {

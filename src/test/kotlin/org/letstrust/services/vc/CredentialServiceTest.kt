@@ -24,11 +24,28 @@ class CredentialServiceTest {
     }
 
     @Test
-    fun issueWorkHistoryCredential() {
+    fun signCredentialECDSASecp256k1() {
 
         val credOffer = readCredOffer("WorkHistory")
 
-        val issuerDid = DidService.create(DidMethod.web)
+        val issuerDid = DidService.create(DidMethod.web) // DID web uses an ECDSA Secp256k1
+        val domain = "example.com"
+        val nonce: String? = null
+
+        val vc = CredentialService.sign(issuerDid, credOffer, domain, nonce)
+        assertNotNull(vc)
+        println("Credential generated: $vc")
+
+        val vcVerified = CredentialService.verify(issuerDid, vc)
+        assertTrue(vcVerified)
+    }
+
+    @Test
+    fun signCredentialEd25519k1() {
+
+        val credOffer = readCredOffer("WorkHistory")
+
+        val issuerDid = DidService.create(DidMethod.key) // DID key uses an EdDSA Ed25519k1 key
         val domain = "example.com"
         val nonce: String? = null
 

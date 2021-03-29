@@ -53,7 +53,7 @@ object DidService {
         val keyId = crypto.generateKey(KeyAlgorithm.Ed25519)
         val key = ks.load(keyId)
 
-        val pubPrim = ASN1Sequence.fromByteArray(key.keyPair!!.public.encoded) as ASN1Sequence
+        val pubPrim = ASN1Sequence.fromByteArray(key.getPublicKey().encoded) as ASN1Sequence
         val x = (pubPrim.getObjectAt(1) as ASN1BitString).octets
 
         val identifier = convertEd25519PublicKeyToMultiBase58Btc(x)

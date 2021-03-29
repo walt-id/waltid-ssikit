@@ -5,6 +5,7 @@ import com.google.crypto.tink.PublicKeySign
 import com.google.crypto.tink.PublicKeyVerify
 import com.google.crypto.tink.signature.EcdsaSignKeyManager
 import com.google.crypto.tink.signature.Ed25519PrivateKeyManager
+import com.nimbusds.jose.crypto.impl.ECDSA
 import com.nimbusds.jose.jwk.ECKey
 import org.letstrust.*
 import org.letstrust.services.key.KeyStore
@@ -23,7 +24,13 @@ interface CryptoService {
 object TinkCryptoService : CryptoService {
     private var ks: KeyStore = TinkKeyStore //LetsTrustServices.load<KeyStore>()
     override fun generateKey(algorithm: KeyAlgorithm): KeyId {
-
+//        EcdsaSignKeyManager.createKeyTemplate(
+//            HashType.SHA256,
+//            EllipticCurveType.CURVE25519,
+//            EcdsaSignatureEncoding.DER,
+//            KeyTemplate.OutputPrefixType.RAW
+//        )
+        // https://github.com/google/tink/issues/146
         val keysetHandle = when (algorithm) {
             KeyAlgorithm.Secp256k1 -> KeysetHandle.generateNew(EcdsaSignKeyManager.rawEcdsaP256Template())
             KeyAlgorithm.Ed25519 -> KeysetHandle.generateNew(Ed25519PrivateKeyManager.rawEd25519Template())
@@ -39,7 +46,7 @@ object TinkCryptoService : CryptoService {
     override fun sign(keyId: KeyId, data: ByteArray): ByteArray {
         val key = ks.load(keyId)
         val signer: PublicKeySign = key.keysetHandle!!.getPrimitive(PublicKeySign::class.java)
-        return signer.sign(data)
+        return ECDSA.transcodeSignatureToDER(signer.sign(data))
     }
 
     override fun verfiy(keyId: KeyId, sig: ByteArray, data: ByteArray): Boolean {

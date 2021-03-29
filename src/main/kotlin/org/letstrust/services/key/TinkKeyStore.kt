@@ -26,10 +26,6 @@ import java.security.spec.InvalidKeySpecException
 object TinkKeyStore : KeyStore {
 
 
-    override fun getKeyId(keyId: String): String? {
-        TODO("Not yet implemented")
-    }
-
     override fun saveKeyPair(keys: Keys) {
         TODO("Not yet implemented")
     }
@@ -142,6 +138,13 @@ object TinkKeyStore : KeyStore {
                 .keyID(key.keyId.toString())
                 .keyOperations(ImmutableSet.of(KeyOperation.VERIFY))
                 .build()
+
+            // LD Signer would require this key:
+//            return ECKey.Builder(Curve.SECP256K1, publicKey)
+//                .algorithm(JWSAlgorithm.ES256K)
+//                .keyID(key.keyId.toString())
+//                .keyOperations(ImmutableSet.of(KeyOperation.VERIFY))
+//                .build()
         }
 
         override fun write(keyset: EncryptedKeyset?) {
@@ -152,7 +155,13 @@ object TinkKeyStore : KeyStore {
 
 
     override fun addAlias(keyId: KeyId, alias: String) {
-        TODO("Not yet implemented")
+        //TODO remove dependency to FileSystemKeyStore
+        FileSystemKeyStore.addAlias(keyId, alias)
+    }
+
+    override fun getKeyId(keyId: String): String? {
+        //TODO remove dependency to FileSystemKeyStore
+        return FileSystemKeyStore.getKeyId(keyId)
     }
 
 }
