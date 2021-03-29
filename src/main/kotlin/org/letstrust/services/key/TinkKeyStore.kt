@@ -53,15 +53,15 @@ object TinkKeyStore : KeyStore {
        // CleartextKeysetHandle.write(key.keysetHandle!!.publicKeysetHandle, JwksWriter.withOutputStream(FileOutputStream("${LetsTrustServices.keyDir}/${key.keyId.id}.json")))
     }
 
-    override fun load(keyId: KeyId): Key {
-        val keysetHandle = CleartextKeysetHandle.read(JsonKeysetReader.withFile(File("${LetsTrustServices.keyDir}/${keyId.id}.tink")))
+    override fun load(alias: String): Key {
+        val keysetHandle = CleartextKeysetHandle.read(JsonKeysetReader.withFile(File("${LetsTrustServices.keyDir}/${alias}.tink")))
         val algorithm = when (keysetHandle.keysetInfo.getKeyInfo(0).typeUrl) {
             "type.googleapis.com/google.crypto.tink.Ed25519PrivateKey" -> KeyAlgorithm.EdDSA_Ed25519
             "type.googleapis.com/google.crypto.tink.EcdsaPrivateKey" -> KeyAlgorithm.ECDSA_Secp256k1
             else -> throw Exception("Could not determine KeyAlgorithm")
         }
 
-        return Key(keyId, algorithm, CryptoProvider.TINK, keysetHandle)
+        return Key(KeyId(alias), algorithm, CryptoProvider.TINK, keysetHandle)
     }
 
     // TODO load public https://github.com/google/tink/issues/300

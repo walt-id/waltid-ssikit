@@ -21,7 +21,6 @@ import org.json.JSONObject
 import org.letstrust.KeyAlgorithm
 import org.letstrust.LetsTrustServices
 import org.letstrust.SignatureType
-import org.letstrust.crypto.KeyId
 import org.letstrust.crypto.LdSigner
 import org.letstrust.model.*
 import org.letstrust.services.key.KeyManagementService
@@ -65,12 +64,11 @@ object CredentialService {
         confLoader.isEnableLocalCache = true
         jsonLdObject.documentLoader = LDSecurityContexts.DOCUMENT_LOADER
 
-        val keyId = KeyId(ks.getKeyId(issuerDid)!!)
-        val key = ks.load(keyId)
+        val key = ks.load(issuerDid)
 
         val signer = when (key.algorithm) {
-            KeyAlgorithm.ECDSA_Secp256k1 -> LdSigner.EcdsaSecp256k1Signature2019(keyId)
-            KeyAlgorithm.EdDSA_Ed25519 -> LdSigner.Ed25519Signature2018(keyId)
+            KeyAlgorithm.ECDSA_Secp256k1 -> LdSigner.EcdsaSecp256k1Signature2019(key.keyId)
+            KeyAlgorithm.EdDSA_Ed25519 -> LdSigner.Ed25519Signature2018(key.keyId)
             else -> throw Exception("Signature for key algorithm ${key.algorithm} not supported")
         }
 
@@ -90,8 +88,7 @@ object CredentialService {
     fun verify(issuerDid: String, vc: String): Boolean {
         log.trace { "Loading verification key for:  $issuerDid" }
 
-        val keyId = KeyId(ks.getKeyId(issuerDid)!!)
-        val publicKey = ks.load(keyId)
+        val publicKey = ks.load(issuerDid)
 
         val confLoader = LDSecurityContexts.DOCUMENT_LOADER as ConfigurableDocumentLoader
 

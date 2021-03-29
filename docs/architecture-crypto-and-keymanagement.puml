@@ -59,10 +59,11 @@ keyPair //JCA
 keysetHandle // Tink
 }
 
-KeyStore --> Key
+KeyStore -up-> Key
 
 class SQLKeyStore  {}
 class FileKeyStore  {}
+class TinkKeyStore  {}
 class CustomKeyStore  {}
 
 note as CustomKeyStoreNote
@@ -75,6 +76,7 @@ CustomKeyStoreNote --> CustomKeyStore
 KeyStore <|-right- CustomKeyStore
 KeyStore <|-- SQLKeyStore
 KeyStore <|-- FileKeyStore
+KeyStore <|-- TinkKeyStore
 
 
 Crypto <|-- SunCrypto

@@ -46,4 +46,20 @@ class DidServiceTest {
         println(encoded)
     }
 
+    @Test
+    fun createResolveDidWebTest() {
+
+        // Create
+        val did = ds.create(DidMethod.web)
+        assertNotNull(did)
+        assertTrue(32 < did.length)
+        assertEquals("did:web:", did.substring(0, 8))
+        print(did)
+
+        // Resolve
+        val resolvedDid = ds.resolve(did)
+        val encoded = Json { prettyPrint = true }.encodeToString(resolvedDid)
+        println(encoded)
+    }
+
 }

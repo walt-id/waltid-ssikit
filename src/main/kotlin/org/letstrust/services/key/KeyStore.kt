@@ -5,7 +5,7 @@ import org.letstrust.crypto.KeyId
 
 interface KeyStore {
     fun store(key: Key)
-    fun load(keyId: KeyId): Key
+    fun load(alias: String): Key
     fun addAlias(keyId: KeyId, alias: String)
 
     // OLD

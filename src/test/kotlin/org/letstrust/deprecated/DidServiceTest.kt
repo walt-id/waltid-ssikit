@@ -4,6 +4,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.Test
 import org.letstrust.model.Did
+import org.letstrust.model.DidMethod
 import org.letstrust.model.DidUrl
 import org.letstrust.model.toDidUrl
 import org.letstrust.services.did.DidService
@@ -44,12 +45,12 @@ class DidServiceTest {
     @Test
     fun createResolveDidKeyTest() {
         val ds = DidService
-        val did = ds.createDid("key")
+        val did = ds.create(DidMethod.key)
         assertNotNull(did)
         assertTrue(32 < did.length)
         assertEquals("did:key:", did.substring(0, 8))
         print(did)
-        val didKey = ds.resolveDid("did:key:z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH")
+        val didKey = ds.resolve("did:key:z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH")
         val encoded = Json { prettyPrint = true }.encodeToString(didKey)
         println(encoded)
     }
@@ -57,13 +58,13 @@ class DidServiceTest {
     @Test
     fun createResolveDidWebTest() {
         val ds = DidService
-        val did = ds.createDid("web")
+        val did = ds.create(DidMethod.key)
         assertNotNull(did)
         assertTrue(30 < did.length)
         assertEquals("did:web:", did.substring(0, 8))
         print(did)
 
-        val didWeb = ds.resolveDid(did)
+        val didWeb = ds.resolve(did)
         val encoded = Json { prettyPrint = true }.encodeToString(didWeb)
         println(encoded)
     }

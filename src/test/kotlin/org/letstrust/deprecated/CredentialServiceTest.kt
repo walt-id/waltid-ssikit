@@ -19,6 +19,7 @@ import org.junit.Test
 import org.letstrust.crypto.EcdsaSecp256k1Signature2019LdSigner
 import org.letstrust.crypto.EcdsaSecp256k1Signature2019LdVerifier
 import org.letstrust.crypto.KeyId
+import org.letstrust.model.DidMethod
 import org.letstrust.model.VerifiableCredential
 import org.letstrust.model.VerifiablePresentation
 import org.letstrust.services.did.DidService
@@ -121,7 +122,7 @@ class CredentialServiceTest {
     @Test
     fun signEd25519Signature2018Test() {
 
-        val issuerDid = DidService.createDid("key")
+        val issuerDid = DidService.create(DidMethod.key)
         val domain = "example.com"
         val nonce: String? = null
         val credMap: Map<String, String> = mapOf("one" to "two")
@@ -140,7 +141,7 @@ class CredentialServiceTest {
     fun signEcdsaSecp256k1Signature2019Test() {
 
         val keyId = KeyManagementService.generateKeyPair("Secp256k1")
-        val issuerDid = DidService.createDid("key")
+        val issuerDid = DidService.create(DidMethod.key)
         val domain = "example.com"
         val nonce: String? = null
         val credMap: Map<String, String> = mapOf("one" to "two")
@@ -160,7 +161,7 @@ class CredentialServiceTest {
 
         val credOffer = readCredOffer("WorkHistory")
 
-        val issuerDid = DidService.createDid("key")
+        val issuerDid = DidService.create(DidMethod.key)
         val domain = "example.com"
         val nonce: String? = null
 
@@ -200,7 +201,7 @@ class CredentialServiceTest {
 
         print(vpInputStr)
 
-        val issuerDid = DidService.createDid("key")
+        val issuerDid = DidService.create(DidMethod.key)
         val domain = "example.com"
         val nonce: String? = null
 

@@ -7,10 +7,9 @@ import org.bouncycastle.asn1.ASN1BitString
 import org.bouncycastle.asn1.ASN1Sequence
 import org.letstrust.*
 import org.letstrust.crypto.CryptoService
+import org.letstrust.crypto.KeyId
 import org.letstrust.model.*
-import org.letstrust.services.key.KeyManagementService
 import org.letstrust.services.key.KeyStore
-import org.letstrust.services.key.Keys
 import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Path
@@ -29,10 +28,10 @@ object DidService {
 
     // Public methods
 
-    fun create(method: DidMethod): String {
+    fun create(method: DidMethod, keyAlias: String? = null): String {
         return when (method) {
-            DidMethod.key -> createDidKey()
-            DidMethod.web -> createDidWeb()
+            DidMethod.key -> createDidKey(keyAlias)
+            DidMethod.web -> createDidWeb(keyAlias)
             else -> throw Exception("DID method $method not supported")
         }
     }
@@ -49,9 +48,15 @@ object DidService {
 
     // Private methods
 
-    private fun createDidKey(): String {
-        val keyId = crypto.generateKey(KeyAlgorithm.EdDSA_Ed25519)
-        val key = ks.load(keyId)
+    private fun createDidKey(keyAlias: String?): String {
+
+        var keyId = keyAlias?.let{ KeyId(it) }
+        val key = if (keyId != null) {
+            ks.load(keyId.id)
+        } else {
+            keyId = crypto.generateKey(KeyAlgorithm.EdDSA_Ed25519)
+            ks.load(keyId.id)
+        }
 
         val pubPrim = ASN1Sequence.fromByteArray(key.getPublicKey().encoded) as ASN1Sequence
         val x = (pubPrim.getObjectAt(1) as ASN1BitString).octets
@@ -59,20 +64,20 @@ object DidService {
         val identifier = convertEd25519PublicKeyToMultiBase58Btc(x)
         val didUrl = "did:key:$identifier"
 
-        ks.addAlias(keyId, didUrl)
+        ks.addAlias(keyId!!, didUrl)
 
         return didUrl
     }
 
-    private fun createDidWeb(): String {
+    private fun createDidWeb(keyAlias: String?): String {
         val keyId = crypto.generateKey(KeyAlgorithm.ECDSA_Secp256k1)
-        val key = ks.load(keyId)
+        val key = ks.load(keyId.id)
 
         val domain = "letstrust.org"
         val username = UUID.randomUUID().toString().replace("-", "")
         val path = ":user:$username"
 
-        val didUrl = DidUrl("key", "" + domain + path)
+        val didUrl = DidUrl("web", "" + domain + path)
 
         ks.addAlias(keyId, didUrl.did)
 
@@ -113,32 +118,46 @@ object DidService {
         )
     }
 
-
-
-
-
-
+    private fun resolveDidWebDummy(didUrl: DidUrl): Did {
+        ks.getKeyId(didUrl.did).let {
+            ks.load(it!!).let {
+                val pubKeyId = didUrl.identifier + "#key-1"
+                val verificationMethods = listOf(
+                    VerificationMethod(
+                        pubKeyId,
+                        "ECDSASecp256k1VerificationKey2018",
+                        didUrl.did,
+                        "zMIGNAgEAMBAGByqGSM49AgEGBSuBBAAKBHYwdAIBAQQgPI4jGjTGPA3yFJp07jvx"
+                    ), // TODO: key encoding
+                )
+                val keyRef = listOf(pubKeyId)
+                return Did(
+                    DID_CONTEXT_URL,
+                    didUrl.did,
+                    verificationMethods,
+                    keyRef,
+                    keyRef,
+                    keyRef,
+                    keyRef,
+                    null
+                )
+            }
+        }
+    }
 
 
     // TODO: consider the methods below. They might be deprecated!
 
-    fun resolveDid(did: String): Did = resolveDid(did.toDidUrl())
+//    fun resolveDid(did: String): Did = resolveDid(did.toDidUrl())
+//
+//    fun resolveDid(didUrl: DidUrl): Did {
+//        return when (didUrl.method) {
+//            "key" -> resolveDidKey(didUrl)
+//            "web" -> resolveDidWebDummy(didUrl)
+//            else -> TODO("did:${didUrl.method} implemented yet")
+//        }
+//    }
 
-    fun resolveDid(didUrl: DidUrl): Did {
-        return when (didUrl.method) {
-            "key" -> resolveDidKey(didUrl)
-            "web" -> resolveDidWebDummy(didUrl)
-            else -> TODO("did:${didUrl.method} implemented yet")
-        }
-    }
-
-
-
-    private fun resolveDidWebDummy(didUrl: DidUrl): Did {
-        KeyManagementService.loadKeys(didUrl.did).let {
-            return ed25519Did(didUrl, it!!.getPubKey())
-        }
-    }
 
     internal fun resolveDidWeb(didUrl: DidUrl): DidWeb {
         var domain = didUrl.identifier
@@ -152,42 +171,43 @@ object DidService {
         return did
     }
 
-    fun createDid(didMethod: String, keys: Keys? = null): String {
+//    @Deprecated(message ="use create()")
+//    fun createDid(didMethod: String, keys: Keys? = null): String {
+//
+//        val didKey = if (keys != null) keys else {
+//            val keyId = KeyManagementService.generateEd25519KeyPairNimbus() // .generateKeyPair("Ed25519")
+//            KeyManagementService.loadKeys(keyId)
+//        }!!
+//
+//        return when (didMethod) {
+//            "key" -> createDidKey(didKey)
+//            "web" -> createDidWeb(didKey)
+//            else -> TODO("did creation by method $didMethod not supported yet")
+//        }
+//    }
 
-        val didKey = if (keys != null) keys else {
-            val keyId = KeyManagementService.generateEd25519KeyPairNimbus() // .generateKeyPair("Ed25519")
-            KeyManagementService.loadKeys(keyId)
-        }!!
-
-        return when (didMethod) {
-            "key" -> createDidKey(didKey)
-            "web" -> createDidWeb(didKey)
-            else -> TODO("did creation by method $didMethod not supported yet")
-        }
-    }
-
-    internal fun createDidKey(didKey: Keys): String {
-
-        val identifier = convertEd25519PublicKeyToMultiBase58Btc(didKey.getPubKey())
-
-        val did = "did:key:$identifier"
-
-        KeyManagementService.addAlias(didKey.keyId, did)
-
-        return did
-    }
-
-    internal fun createDidWeb(didKey: Keys): String {
-        val domain = "letstrust.org"
-        val username = UUID.randomUUID().toString().replace("-", "")
-        val path = ":user:$username"
-
-        val didUrl = DidUrl("web", "" + domain + path, didKey.keyId)
-
-        KeyManagementService.addAlias(didKey.keyId, didUrl.did)
-
-        return didUrl.did
-    }
+//    internal fun createDidKey(didKey: Keys): String {
+//
+//        val identifier = convertEd25519PublicKeyToMultiBase58Btc(didKey.getPubKey())
+//
+//        val did = "did:key:$identifier"
+//
+//        KeyManagementService.addAlias(didKey.keyId, did)
+//
+//        return did
+//    }
+//
+//    internal fun createDidWeb(didKey: Keys): String {
+//        val domain = "letstrust.org"
+//        val username = UUID.randomUUID().toString().replace("-", "")
+//        val path = ":user:$username"
+//
+//        val didUrl = DidUrl("web", "" + domain + path, didKey.keyId)
+//
+//        KeyManagementService.addAlias(didKey.keyId, didUrl.did)
+//
+//        return didUrl.did
+//    }
 
     fun listDids(): List<String> {
 
@@ -198,7 +218,6 @@ object DidService {
             .filter { it -> it.toString().endsWith(".json") }
             .map { it.fileName.toString() }.toList()
     }
-
 
 
 }

@@ -145,7 +145,7 @@ object FileSystemKeyStore : KeyStore {
         TODO("Not yet implemented")
     }
 
-    override fun load(keyId: KeyId): Key {
+    override fun load(alias: String): Key {
         TODO("Not yet implemented")
     }
 

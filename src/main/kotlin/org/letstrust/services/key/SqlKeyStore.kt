@@ -49,12 +49,15 @@ object SqlKeyStore : KeyStore {
 
     }
 
-    override fun load(keyId: KeyId): Key {
-        log.debug { "Loading key \"${keyId}\"." }
+    override fun load(alias: String): Key {
+        log.debug { "Loading key \"${alias}\"." }
         var key: Key? = null
+
+        var keyId = this.getKeyId(alias)?: alias
+
         SqlDbManager.getConnection().use { con ->
             con.prepareStatement("select * from lt_key where name = ?").use { stmt ->
-                stmt.setString(1, keyId.id)
+                stmt.setString(1, keyId)
                 stmt.executeQuery().use { rs ->
                     if (rs.next()) {
                         var algorithm = KeyAlgorithm.valueOf(rs.getString("algorithm"))
@@ -67,7 +70,7 @@ object SqlKeyStore : KeyStore {
                         var pub = decodePubKey(rs.getString("pub"), kf)
                         var priv = decodePrivKey(rs.getString("priv"), kf)
 
-                        key = Key(keyId, algorithm, provider, KeyPair(pub, priv))
+                        key = Key(KeyId(keyId), algorithm, provider, KeyPair(pub, priv))
                     }
                 }
                 con.commit()

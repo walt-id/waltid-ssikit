@@ -123,8 +123,8 @@ class JwtServiceTest {
         val accessToken =
             "eyJraWQiOiJMZXRzVHJ1c3QtS2V5LTFhZjNlMWIzNGIxNjQ3NzViNGQwY2IwMDJkODRlZmQwIiwidHlwIjoiSldUIiwiYWxnIjoiRVM1MTIifQ.eyJzdWIiOiIwNTQyNTVhOC1iODJmLTRkZWQtYmQ0OC05NWY5MGY0NmM1M2UiLCJpc3MiOiJodHRwczovL2FwaS5sZXRzdHJ1c3QuaW8iLCJleHAiOjE2MTUyMDg5MTYsImlhdCI6MTYxNTIwNTkxNn0.ARUKAO0f6vpRyUXWWEeL4xPegzl66eaC-AeEXswhsrs1OREae81JPNqnWs8e3rTrRCLCfRTcVS658hV8jfjAAY6vASwtNjV9HwJcmUGmpanBjAuQkJLkmv6Sn3lqzF5PU3hFv3GnVznvcDDyLRlsI8OooPZmM6p-FWUR8tAYKpvzAdMB"
 
-        val did_of_rp = DidService.createDid("key") // Creates a Ed25519 key, as well as an derived X25519 key
-        val did_of_client = DidService.createDid("key")
+        val did_of_rp = DidService.create(DidMethod.key) // Creates a Ed25519 key, as well as an derived X25519 key
+        val did_of_client = DidService.create(DidMethod.key)
 
         // ake1_enc_payload(Access Token, DID(Q)) and encrypts it: c = Enc(Access Token, DID(Q)) -> https://connect2id.com/products/nimbus-jose-jwt/algorithm-selection-guide#encryption
         val ake1_enc_payload = Json { prettyPrint = true }.encodeToString(Ake1EncPayload(accessToken, did_of_rp))

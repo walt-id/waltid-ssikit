@@ -11,7 +11,7 @@ import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.file
 import org.letstrust.CliConfig
-import org.letstrust.services.key.KeyManagementService
+import org.letstrust.model.DidMethod
 import org.letstrust.model.encodePretty
 import org.letstrust.model.toDidUrl
 import org.letstrust.services.did.DidService
@@ -52,14 +52,16 @@ class CreateDidCommand : CliktCommand(
 
         echo("Registering did:${method} (key: ${keyAlias}) ...")
 
-        var keys = KeyManagementService.loadKeys(keyAlias)
+//        var keys = KeyManagementService.loadKeys(keyAlias)
+//
+//        val did = didService.createDid(method, keys)
 
-        val did = didService.createDid(method, keys)
+        val did = didService.create(DidMethod.valueOf(method))
 
         echo("\nResults:\n")
         echo("DID created: $did")
 
-        val didDoc = didService.resolveDid(did)
+        val didDoc = didService.resolve(did)
 
         if (didDoc == null) {
             echo("\nCould not resolve: $did")
@@ -94,7 +96,7 @@ class ResolveDidCommand : CliktCommand(
 
         var encodedDid = when (did.contains("mattr")) {
             true -> DidService.resolveDidWeb(did.toDidUrl()).encodePretty()
-            else -> DidService.resolveDid(did).encodePretty()
+            else -> DidService.resolve(did).encodePretty()
         }
 
         echo("\nResult:\n ${encodedDid}")
