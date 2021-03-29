@@ -6,41 +6,31 @@ import com.nimbusds.jose.JWSHeader
 import com.nimbusds.jose.JWSSigner
 import com.nimbusds.jose.crypto.impl.ECDSA
 import com.nimbusds.jose.jca.JCAContext
-import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.util.Base64URL
 import info.weboftrust.ldsignatures.LdProof
-import info.weboftrust.ldsignatures.crypto.ByteSigner
-import info.weboftrust.ldsignatures.crypto.adapter.JWSSignerAdapter
-import info.weboftrust.ldsignatures.crypto.impl.Ed25519_EdDSA_PrivateKeySigner
 import info.weboftrust.ldsignatures.signer.LdSigner
 import info.weboftrust.ldsignatures.suites.EcdsaSecp256k1Signature2019SignatureSuite
 import info.weboftrust.ldsignatures.suites.Ed25519Signature2018SignatureSuite
 import info.weboftrust.ldsignatures.suites.SignatureSuites
 import info.weboftrust.ldsignatures.util.JWSUtil
-import java.security.GeneralSecurityException
+import org.letstrust.LetsTrustServices
 import java.security.InvalidKeyException
 import java.security.PrivateKey
+import java.security.SecureRandom
 import java.security.SignatureException
-import java.security.interfaces.ECPrivateKey
 
 class LdSigner {
 
+    // Calls LetsTrust CryptoService via JCA LetsTrustProvider
     class JcaSigner : JWSSigner {
 
         val privateKey: PrivateKey
 
-        private val jcaContext = JCAContext()
+        private val jcaContext = JCAContext(LetsTrustProvider(), SecureRandom())
 
-        constructor(privateKey: ECPrivateKey) {
+        constructor(privateKey: PrivateKey) {
             this.privateKey = privateKey
         }
-
-
-        constructor(privateKey: PrivateKey, curve: Curve?) {
-            require("EC".equals(privateKey.algorithm, ignoreCase = true)) { "The private key algorithm must be EC" }
-            this.privateKey = privateKey
-        }
-
 
         override fun getJCAContext(): JCAContext {
             return this.jcaContext
@@ -75,14 +65,38 @@ class LdSigner {
         }
     }
 
+    // Directly calls LetsTrust CryptoService
+    class JwsLtSigner(val keyId: KeyId) : JWSSigner {
+
+        val cryptoService = LetsTrustServices.load<CryptoService>()
+
+        override fun getJCAContext(): JCAContext {
+            TODO("Not yet implemented")
+        }
+
+        override fun supportedJWSAlgorithms(): MutableSet<JWSAlgorithm> {
+            TODO("Not yet implemented")
+        }
+
+        override fun sign(header: JWSHeader, signingInput: ByteArray): Base64URL {
+
+
+            val jcaSignature = cryptoService.sign(keyId, signingInput)
+            // ED sig seems not to be DER decoding
+            // val rsByteArrayLength = 64  // ECDSA.getSignatureByteArrayLength(header.algorithm)
+            //  val jwsSignature = CryptoUtilJava.transcodeSignatureToConcat(jcaSignature, rsByteArrayLength)
+            return Base64URL.encode(jcaSignature)
+        }
+
+    }
+
     class EcdsaSecp256k1Signature2019(val keyId: KeyId) :
         LdSigner<EcdsaSecp256k1Signature2019SignatureSuite?>(SignatureSuites.SIGNATURE_SUITE_ECDSASECP256L1SIGNATURE2019, null) {
 
         override fun sign(ldProofBuilder: LdProof.Builder<*>, signingInput: ByteArray) {
             val jwsHeader = JWSHeader.Builder(JWSAlgorithm.ES256K).base64URLEncodePayload(false).criticalParams(setOf("b64")).build()
             val jwsSigningInput = JWSUtil.getJwsSigningInput(jwsHeader, signingInput)
-            val jwsSigner = JcaSigner(PrivateKeyHandle(keyId), Curve.SECP256K1)
-            jwsSigner.jcaContext.provider = LetsTrustProvider()
+            val jwsSigner = JcaSigner(PrivateKeyHandle(keyId))
             val signature = jwsSigner.sign(jwsHeader, jwsSigningInput)
             val jws = JWSUtil.serializeDetachedJws(jwsHeader, signature)
             ldProofBuilder.jws(jws)
@@ -94,38 +108,12 @@ class LdSigner {
 
         override fun sign(ldProofBuilder: LdProof.Builder<*>, signingInput: ByteArray) {
 
-//            val jwsHeader = JWSHeader.Builder(JWSAlgorithm.EdDSA).base64URLEncodePayload(false).criticalParams(setOf("b64")).build()
-//            val jwsSigningInput = JWSUtil.getJwsSigningInput(jwsHeader, signingInput)
-//            val privateKey: OctetKeyPair = ...
-//            val jwsSigner: JWSSigner = Ed25519Signer(privateKey)
-//            val signature = jwsSigner.sign(jwsHeader, jwsSigningInput)
-//            val jws = JWSUtil.serializeDetachedJws(jwsHeader, signature)
-//
-//            ldProofBuilder.jws(jws)
-        }
-    }
+            val jwsHeader = JWSHeader.Builder(JWSAlgorithm.EdDSA).base64URLEncodePayload(false).criticalParams(setOf("b64")).build()
+            val jwsSigningInput = JWSUtil.getJwsSigningInput(jwsHeader, signingInput)
+            val signature = JwsLtSigner(keyId).sign(jwsHeader, jwsSigningInput)
+            val jws = JWSUtil.serializeDetachedJws(jwsHeader, signature)
 
-    class Ed25519Signature2018LdSigner(signer: ByteSigner? = null as ByteSigner?) :
-        LdSigner<Ed25519Signature2018SignatureSuite?>(SignatureSuites.SIGNATURE_SUITE_ED25519SIGNATURE2018, signer) {
-        constructor(privateKey: ByteArray?) : this(Ed25519_EdDSA_PrivateKeySigner(privateKey)) {}
-
-        @Throws(GeneralSecurityException::class)
-        override fun sign(ldProofBuilder: LdProof.Builder<*>, signingInput: ByteArray) {
-
-            val jws: String
-            jws = try {
-                val jwsHeader = JWSHeader.Builder(JWSAlgorithm.EdDSA).base64URLEncodePayload(false).criticalParams(setOf("b64")).build()
-                val jwsSigningInput = JWSUtil.getJwsSigningInput(jwsHeader, signingInput)
-                val jwsSigner: JWSSigner = JWSSignerAdapter(signer, JWSAlgorithm.EdDSA)
-                val signature = jwsSigner.sign(jwsHeader, jwsSigningInput)
-                JWSUtil.serializeDetachedJws(jwsHeader, signature)
-            } catch (ex: JOSEException) {
-                throw GeneralSecurityException("JOSE signing problem: " + ex.message, ex)
-            }
-
-            // done
             ldProofBuilder.jws(jws)
         }
     }
-
 }

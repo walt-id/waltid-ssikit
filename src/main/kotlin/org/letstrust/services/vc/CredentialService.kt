@@ -22,13 +22,13 @@ import org.letstrust.KeyAlgorithm
 import org.letstrust.LetsTrustServices
 import org.letstrust.SignatureType
 import org.letstrust.crypto.KeyId
+import org.letstrust.crypto.LdSigner
 import org.letstrust.model.*
 import org.letstrust.services.key.KeyManagementService
 import org.letstrust.services.key.KeyStore
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
-import java.security.interfaces.ECPublicKey
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.*
@@ -69,7 +69,8 @@ object CredentialService {
         val key = ks.load(keyId)
 
         val signer = when (key.algorithm) {
-            KeyAlgorithm.Secp256k1 -> org.letstrust.crypto.EcdsaSecp256k1Signature2019LdSigner(keyId)
+            KeyAlgorithm.Secp256k1 -> LdSigner.EcdsaSecp256k1Signature2019(keyId)
+            KeyAlgorithm.Ed25519 -> LdSigner.Ed25519Signature2018(keyId)
             else -> throw Exception("Signature for key algorithm ${key.algorithm} not supported")
         }
 
@@ -90,7 +91,7 @@ object CredentialService {
         log.trace { "Loading verification key for:  $issuerDid" }
 
         val keyId = KeyId(ks.getKeyId(issuerDid)!!)
-        val key = ks.load(keyId)
+        val publicKey = ks.load(keyId)
 
         val confLoader = LDSecurityContexts.DOCUMENT_LOADER as ConfigurableDocumentLoader
 
@@ -105,9 +106,10 @@ object CredentialService {
         jsonLdObject.documentLoader = LDSecurityContexts.DOCUMENT_LOADER
         log.trace { "Decoded Json LD object: $jsonLdObject" }
 
-        val verifier = when (key.algorithm) {
-            KeyAlgorithm.Secp256k1 -> org.letstrust.crypto.EcdsaSecp256k1Signature2019LdVerifier(key.getPublicKey() as ECPublicKey)
-            else -> throw Exception("Signature for key algorithm ${key.algorithm} not supported")
+        val verifier = when (publicKey.algorithm) {
+            KeyAlgorithm.Secp256k1 -> org.letstrust.crypto.LdVerifier.EcdsaSecp256k1Signature2019(publicKey.getPublicKey())
+            KeyAlgorithm.Ed25519 -> org.letstrust.crypto.LdVerifier.Ed25519Signature2018(publicKey)
+            else -> throw Exception("Signature for key algorithm ${publicKey.algorithm} not supported")
         }
 
         log.trace { "Loaded Json LD verifier with signature suite: ${verifier.signatureSuite}" }

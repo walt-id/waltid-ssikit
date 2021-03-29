@@ -5,7 +5,6 @@ import com.google.crypto.tink.PublicKeySign
 import com.google.crypto.tink.PublicKeyVerify
 import com.google.crypto.tink.signature.EcdsaSignKeyManager
 import com.google.crypto.tink.signature.Ed25519PrivateKeyManager
-import com.nimbusds.jose.crypto.impl.ECDSA
 import com.nimbusds.jose.jwk.ECKey
 import org.letstrust.*
 import org.letstrust.services.key.KeyStore
@@ -46,7 +45,8 @@ object TinkCryptoService : CryptoService {
     override fun sign(keyId: KeyId, data: ByteArray): ByteArray {
         val key = ks.load(keyId)
         val signer: PublicKeySign = key.keysetHandle!!.getPrimitive(PublicKeySign::class.java)
-        return ECDSA.transcodeSignatureToDER(signer.sign(data))
+        /// JCA expectes a DER encoded signature: ECDSA.transcodeSignatureToDER(signer.sign(data))
+        return signer.sign(data)
     }
 
     override fun verfiy(keyId: KeyId, sig: ByteArray, data: ByteArray): Boolean {

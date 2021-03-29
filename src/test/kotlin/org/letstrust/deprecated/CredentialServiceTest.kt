@@ -30,7 +30,7 @@ import java.security.Security
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-@Deprecated(message="New version in package org.letstrust.service.vc")
+@Deprecated(message = "New version in package org.letstrust.service.vc")
 class CredentialServiceTest {
 
     private val RESOURCES_PATH: String = "src/test/resources"

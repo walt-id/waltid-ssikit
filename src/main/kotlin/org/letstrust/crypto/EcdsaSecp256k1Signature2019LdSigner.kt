@@ -10,6 +10,7 @@ import info.weboftrust.ldsignatures.suites.EcdsaSecp256k1Signature2019SignatureS
 import info.weboftrust.ldsignatures.suites.SignatureSuites
 import info.weboftrust.ldsignatures.util.JWSUtil
 
+@Deprecated(message = "Replaced with LdSigner")
 class EcdsaSecp256k1Signature2019LdSigner(val keyId: KeyId) :
     LdSigner<EcdsaSecp256k1Signature2019SignatureSuite?>(SignatureSuites.SIGNATURE_SUITE_ECDSASECP256L1SIGNATURE2019, null) {
 

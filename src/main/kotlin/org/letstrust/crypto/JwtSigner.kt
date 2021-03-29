@@ -12,6 +12,8 @@ import com.nimbusds.jose.util.Base64URL
 
 
 // Proxy for enabling secure key storage
+// TODO: EdDSA not supported yet
+// TODO: Merge with LdSigner.JwtSigner
 class JwtSigner(val keyId: String) : JWSSigner {
 
     init {
