@@ -67,9 +67,6 @@ object LetsTrustServices {
 
     init {
         println(System.getProperty("java.runtime.version"))
-        println("SupportedCurves")
-        println("- SunEC: " + Security.getProvider("SunEC").getProperty("AlgorithmParameters.EC SupportedCurves"))
-
         // BC is required for
         // - secp256k1 curve
         Security.addProvider(BouncyCastleProvider())
