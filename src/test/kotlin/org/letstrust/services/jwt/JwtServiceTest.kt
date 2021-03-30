@@ -1,6 +1,7 @@
-package org.letstrust.deprecated
+package org.letstrust.services.jwt
 
 import com.nimbusds.jose.shaded.json.JSONObject
+import com.nimbusds.jwt.SignedJWT
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -10,7 +11,6 @@ import org.letstrust.LetsTrustServices
 import org.letstrust.crypto.CryptoService
 import org.letstrust.model.*
 import org.letstrust.services.did.DidService
-import org.letstrust.services.jwt.JwtService
 import org.letstrust.services.key.KeyManagementService
 import org.letstrust.services.vc.CredentialService
 import java.io.File
@@ -21,26 +21,6 @@ import kotlin.test.assertTrue
 class JwtServiceTest {
 
     val cs = LetsTrustServices.load<CryptoService>()
-
-    @Test
-    fun genJwtSecp256k1() {
-        val keyId = cs.generateKey(KeyAlgorithm.ECDSA_Secp256k1)
-
-        val jwt = JwtService.sign(keyId.id)
-
-        val res1 = JwtService.verify(jwt)
-        assertTrue(res1, "JWT verification failed")
-    }
-
-    @Test
-    fun genJwtEd25519() {
-        val keyId = cs.generateKey(KeyAlgorithm.EdDSA_Ed25519)
-
-        val jwt = JwtService.sign(keyId.id)
-
-        val res1 = JwtService.verify(jwt)
-        assertTrue(res1, "JWT verification failed")
-    }
 
     @Test
     fun parseClaimsTest() {
@@ -56,6 +36,36 @@ class JwtServiceTest {
         assertEquals("https://api.letstrust.io", claims["iss"].toString())
         assertEquals("Mon Mar 08 14:08:36 CET 2021", claims["exp"].toString())
         assertEquals("Mon Mar 08 13:18:36 CET 2021", claims["iat"].toString())
+    }
+
+    @Test
+    fun genJwtSecp256k1() {
+        val keyId = cs.generateKey(KeyAlgorithm.ECDSA_Secp256k1)
+
+        val jwt = JwtService.sign(keyId.id)
+
+        val signedJwt = SignedJWT.parse(jwt)
+        assertEquals("ES256K", signedJwt.header.algorithm.name)
+        assertEquals(keyId.id, signedJwt.header.keyID)
+        assertEquals("https://letstrust.org", signedJwt.jwtClaimsSet.claims["iss"])
+
+        val res1 = JwtService.verify(jwt)
+        assertTrue(res1, "JWT verification failed")
+    }
+
+    @Test
+    fun genJwtEd25519() {
+        val keyId = cs.generateKey(KeyAlgorithm.EdDSA_Ed25519)
+
+        val jwt = JwtService.sign(keyId.id)
+
+        val signedJwt = SignedJWT.parse(jwt)
+        assertEquals("EdDSA", signedJwt.header.algorithm.name)
+        assertEquals(keyId.id, signedJwt.header.keyID)
+        assertEquals("https://letstrust.org", signedJwt.jwtClaimsSet.claims["iss"])
+
+        val res1 = JwtService.verify(jwt)
+        assertTrue(res1, "JWT verification failed")
     }
 
     @Test
@@ -80,7 +90,7 @@ class JwtServiceTest {
     }
 
     // This test-case depends on the associated subject-key in verifiable-authorization2.json, which needs to be available in the keystore
-    @Test
+    //@Test
     fun signAuthenticationResponseTest() {
         val verifiableAuthorization = File("src/test/resources/ebsi/verifiable-authorization2.json").readText()
 

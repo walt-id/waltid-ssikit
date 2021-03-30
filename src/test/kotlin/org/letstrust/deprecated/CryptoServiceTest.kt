@@ -7,6 +7,7 @@ import com.nimbusds.jose.crypto.ECDSAVerifier
 import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
+import junit.framework.Assert.assertNotNull
 import junit.framework.Assert.assertTrue
 import org.junit.Test
 import org.letstrust.KeyAlgorithm
@@ -25,14 +26,26 @@ class CryptoServiceTest {
     @Test
     fun testGenSecp256k1Sun() {
         val keyId = SunCryptoService.generateKey(KeyAlgorithm.ECDSA_Secp256k1)
+        assertNotNull(keyId.id)
     }
 
+    @Test
+    fun testGenEd255191Sun() {
+        val keyId = SunCryptoService.generateKey(KeyAlgorithm.EdDSA_Ed25519)
+        assertNotNull(keyId.id)
+    }
 
     @Test
     fun testGenEd25519Tink() {
-
         val keyId = TinkCryptoService.generateKey(KeyAlgorithm.EdDSA_Ed25519)
+        assertNotNull(keyId.id)
+    }
 
+    // TODO: not supported yet https://github.com/google/tink/issues/146
+    // @Test
+    fun testGenSecp256k1Tink() {
+        val keyId = TinkCryptoService.generateKey(KeyAlgorithm.ECDSA_Secp256k1)
+        assertNotNull(keyId.id)
     }
 
     @Test
