@@ -26,10 +26,6 @@ class CustomKeyStore constructor() : KeyStore {
         TODO("Not yet implemented")
     }
 
-    override fun loadKeyPair(keyId: String): Keys? {
-        TODO("Not yet implemented")
-    }
-
     override fun delete(alias: String) {
         TODO("Not yet implemented")
     }

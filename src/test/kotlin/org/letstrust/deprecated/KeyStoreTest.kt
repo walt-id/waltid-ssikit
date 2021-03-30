@@ -10,7 +10,6 @@ import java.util.*
 import kotlin.reflect.full.createInstance
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 
 open class KeyStoreTest {
 
@@ -47,58 +46,58 @@ open class KeyStoreTest {
         assertEquals(k2.getPublicKey().encoded.contentToString(), k1.getPublicKey().encoded.contentToString())
     }
 
+// TODO consider deprecated methods below
 
-
-
-    @Test
-    open fun saveLoadEd25519KeysTest() {
-        val keyId = kms.generateKeyPair("Ed25519")
-        val keys = kms.loadKeys(keyId)!!
-        assertNotNull(keys)
-        assertEquals(32, keys.pair.private.encoded.size)
-    }
-
-    @Test
-    open fun saveLoadSecp256k1KeysTest() {
-        val keyId = kms.generateKeyPair("Secp256k1")
-        val keys = kms.loadKeys(keyId)!!
-        assertNotNull(keys)
-        assertEquals(33, keys.pair.public.encoded.size)
-        assertEquals(32, keys.pair.private.encoded.size)
-    }
-
-    @Test
-    open fun saveLoadStandardKeysTest() {
-
-        var keyId = kms.generateEcKeyPair("secp256k1")
-        var keys = kms.loadKeys(keyId)!!
-        assertNotNull(keys)
-        assertEquals("ECDSA", keys.pair.private?.algorithm)
-
-        keyId = kms.generateKeyPair("RSA")
-        keys = kms.loadKeys(keyId)!!
-        assertNotNull(keys.pair)
-        assertEquals("RSA", keys.pair.private?.algorithm)
-    }
-
-    @Test
-    fun listKeysTest() {
-        var keyId = kms.generateEcKeyPair("secp256k1")
-        kms.listKeys().forEach {
-            println("key $it")
-        }
-    }
-
-    @Test
-    open fun deleteKeysTest() {
-        val keyId = kms.generateKeyPair("Ed25519")
-        var keys = kms.loadKeys(keyId)
-        assertNotNull(keys)
-
-        kms.delete(keyId)
-        keys = kms.loadKeys(keyId)
-        assertTrue(keys === null)
-    }
+//
+//    @Test
+//    open fun saveLoadEd25519KeysTest() {
+//        val keyId = kms.generateKeyPair("Ed25519")
+//        val keys = kms.loadKeys(keyId)!!
+//        assertNotNull(keys)
+//        assertEquals(32, keys.pair.private.encoded.size)
+//    }
+//
+//    @Test
+//    open fun saveLoadSecp256k1KeysTest() {
+//        val keyId = kms.generateKeyPair("Secp256k1")
+//        val keys = kms.loadKeys(keyId)!!
+//        assertNotNull(keys)
+//        assertEquals(33, keys.pair.public.encoded.size)
+//        assertEquals(32, keys.pair.private.encoded.size)
+//    }
+//
+//    @Test
+//    open fun saveLoadStandardKeysTest() {
+//
+//        var keyId = kms.generateEcKeyPair("secp256k1")
+//        var keys = kms.loadKeys(keyId)!!
+//        assertNotNull(keys)
+//        assertEquals("ECDSA", keys.pair.private?.algorithm)
+//
+//        keyId = kms.generateKeyPair("RSA")
+//        keys = kms.loadKeys(keyId)!!
+//        assertNotNull(keys.pair)
+//        assertEquals("RSA", keys.pair.private?.algorithm)
+//    }
+//
+//    @Test
+//    fun listKeysTest() {
+//        var keyId = kms.generateEcKeyPair("secp256k1")
+//        kms.listKeys().forEach {
+//            println("key $it")
+//        }
+//    }
+//
+//    @Test
+//    open fun deleteKeysTest() {
+//        val keyId = kms.generateKeyPair("Ed25519")
+//        var keys = kms.loadKeys(keyId)
+//        assertNotNull(keys)
+//
+//        kms.delete(keyId)
+//        keys = kms.loadKeys(keyId)
+//        assertTrue(keys === null)
+//    }
 
 
 }

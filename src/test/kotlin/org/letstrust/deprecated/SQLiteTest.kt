@@ -4,6 +4,7 @@ import com.nimbusds.jose.util.Base64
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.junit.Before
 import org.junit.Test
+import org.letstrust.KeyAlgorithm
 import org.letstrust.common.SqlDbManager
 import org.letstrust.services.key.KeyManagementService
 import java.security.Security
@@ -20,10 +21,10 @@ class SQLiteTest {
     fun createKeyStoreDb() {
 
         val kms = KeyManagementService
-        val keyId = kms.generateKeyPair("Secp256k1")
-        val keys = kms.loadKeys(keyId)!!
+        val keyId = kms.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val key = kms.load(keyId.id)!!
         val db = SqlDbManager
-        val pubKeyStr = Base64.encode(keys.pair.private.encoded).toString()
+        val pubKeyStr = Base64.encode(key.getPublicKey().encoded).toString()
 
 
         db.getConnection().use { con ->

@@ -13,7 +13,7 @@ interface KeyStore {
     // OLD
     fun getKeyId(keyId: String): String?
     fun saveKeyPair(keys: Keys)
-    fun loadKeyPair(keyId: String): Keys?
+   // fun loadKeyPair(keyId: String): Keys?
     fun addAlias(keyId: String, alias: String)
 }
 

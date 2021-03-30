@@ -225,49 +225,49 @@ object SqlKeyStore : KeyStore {
         return keys;
     }
 
-    override fun loadKeyPair(keyId: String): Keys? {
-        log.debug { "Loading key \"${keyId}\"." }
-        SqlDbManager.getConnection().use { con ->
-            con.prepareStatement("select * from lt_key where name = ?").use { stmt ->
-                stmt.setString(1, keyId)
-                stmt.executeQuery().use { rs ->
-                    if (rs.next()) {
-                        var algorithm = rs.getString("algorithm")
-                        var provider = rs.getString("provider")
-
-                        val keys = when (provider) {
-                            "BC" -> {
-                                val kf = KeyFactory.getInstance(algorithm, provider)
-
-                                var pub = kf.generatePublic(X509EncodedKeySpec(Base64.from(rs.getString("pub")).decode()))
-                                var priv = kf.generatePrivate(PKCS8EncodedKeySpec(Base64.from(rs.getString("priv")).decode()))
-
-                                Keys(keyId, KeyPair(pub, priv), provider)
-                            }
-                            "SunEC" -> {
-                                val kf = KeyFactory.getInstance(algorithm)
-
-                                var pub = kf.generatePublic(X509EncodedKeySpec(Base64.from(rs.getString("pub")).decode()))
-                                var priv = kf.generatePrivate(PKCS8EncodedKeySpec(Base64.from(rs.getString("priv")).decode()))
-
-                                Keys(keyId, KeyPair(pub, priv), provider)
-                            }
-                            else -> {
-                                var pub = Base64.from(rs.getString("pub")).decode()
-                                var priv = Base64.from(rs.getString("priv")).decode()
-
-                                var keyPair = KeyPair(BytePublicKey(pub, algorithm), BytePrivateKey(priv, algorithm))
-                                Keys(keyId, keyPair, provider)
-                            }
-                        }
-                        con.commit()
-                        return keys
-                    }
-                }
-            }
-        }
-        return null
-    }
+//    override fun loadKeyPair(keyId: String): Keys? {
+//        log.debug { "Loading key \"${keyId}\"." }
+//        SqlDbManager.getConnection().use { con ->
+//            con.prepareStatement("select * from lt_key where name = ?").use { stmt ->
+//                stmt.setString(1, keyId)
+//                stmt.executeQuery().use { rs ->
+//                    if (rs.next()) {
+//                        var algorithm = rs.getString("algorithm")
+//                        var provider = rs.getString("provider")
+//
+//                        val keys = when (provider) {
+//                            "BC" -> {
+//                                val kf = KeyFactory.getInstance(algorithm, provider)
+//
+//                                var pub = kf.generatePublic(X509EncodedKeySpec(Base64.from(rs.getString("pub")).decode()))
+//                                var priv = kf.generatePrivate(PKCS8EncodedKeySpec(Base64.from(rs.getString("priv")).decode()))
+//
+//                                Keys(keyId, KeyPair(pub, priv), provider)
+//                            }
+//                            "SunEC" -> {
+//                                val kf = KeyFactory.getInstance(algorithm)
+//
+//                                var pub = kf.generatePublic(X509EncodedKeySpec(Base64.from(rs.getString("pub")).decode()))
+//                                var priv = kf.generatePrivate(PKCS8EncodedKeySpec(Base64.from(rs.getString("priv")).decode()))
+//
+//                                Keys(keyId, KeyPair(pub, priv), provider)
+//                            }
+//                            else -> {
+//                                var pub = Base64.from(rs.getString("pub")).decode()
+//                                var priv = Base64.from(rs.getString("priv")).decode()
+//
+//                                var keyPair = KeyPair(BytePublicKey(pub, algorithm), BytePrivateKey(priv, algorithm))
+//                                Keys(keyId, keyPair, provider)
+//                            }
+//                        }
+//                        con.commit()
+//                        return keys
+//                    }
+//                }
+//            }
+//        }
+//        return null
+//    }
 
     override fun delete(alias: String) {
         log.debug { "Deleting key \"${alias}\"." }

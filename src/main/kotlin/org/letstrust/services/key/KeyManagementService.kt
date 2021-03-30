@@ -7,14 +7,12 @@ import com.google.crypto.tink.subtle.Ed25519Sign
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.jwk.KeyUse
-import io.ipfs.multibase.Multibase
 import org.bitcoinj.core.ECKey
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.letstrust.KeyAlgorithm
 import org.letstrust.LetsTrustServices
 import org.letstrust.crypto.CryptoService
 import org.letstrust.crypto.KeyId
-import org.letstrust.encodeBase58
 import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.SecureRandom
@@ -182,22 +180,22 @@ object KeyManagementService {
         return keys.keyId
     }
 
-    @Deprecated(message = "outdated")
-    fun loadKeys(keyId: String): Keys? {
-        return ks.getKeyId(keyId)?.let { it -> ks.loadKeyPair(it) }
-    }
-
-    @Deprecated(message = "outdated")
-    fun getMultiBase58PublicKey(keyId: String): String {
-        return ks.loadKeyPair(keyId).let {
-            Multibase.encode(Multibase.Base.Base58BTC, it!!.getPubKey())
-        }
-    }
-
-    @Deprecated(message = "outdated")
-    fun getBase58PublicKey(keyId: String): String? {
-        return ks.loadKeyPair(keyId)?.getPubKey()?.encodeBase58()
-    }
+//    @Deprecated(message = "outdated")
+//    fun loadKeys(keyId: String): Keys? {
+//        return ks.getKeyId(keyId)?.let { it -> ks.loadKeyPair(it) }
+//    }
+//
+//    @Deprecated(message = "outdated")
+//    fun getMultiBase58PublicKey(keyId: String): String {
+//        return ks.loadKeyPair(keyId).let {
+//            Multibase.encode(Multibase.Base.Base58BTC, it!!.getPubKey())
+//        }
+//    }
+//
+//    @Deprecated(message = "outdated")
+//    fun getBase58PublicKey(keyId: String): String? {
+//        return ks.loadKeyPair(keyId)?.getPubKey()?.encodeBase58()
+//    }
 
 
 }

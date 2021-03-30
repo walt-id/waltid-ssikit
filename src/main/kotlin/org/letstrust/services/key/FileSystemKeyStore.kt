@@ -1,6 +1,8 @@
 package org.letstrust.services.key
 
 import org.apache.commons.io.IOUtils
+import org.letstrust.CryptoProvider
+import org.letstrust.KeyAlgorithm
 import org.letstrust.crypto.Key
 import org.letstrust.crypto.KeyId
 import java.io.File
@@ -36,6 +38,37 @@ object FileSystemKeyStore : KeyStore {
         }
     }
 
+    override fun load(keyId: String): Key {
+        val metaData = String(loadKeyFile(keyId, "meta"))
+        val algorithm = KeyAlgorithm.valueOf(metaData.substringBefore(delimiter = ";"))
+        val provider = CryptoProvider.valueOf(metaData.substringAfter(delimiter = ";"))
+
+
+        // KeyFactory.getInstance("RSA", "BC")
+        // KeyFactory.getInstance("ECDSA", "BC")
+
+        if (CryptoProvider.SUN.equals(provider)) {
+            val keyFactory = KeyFactory.getInstance(algorithm.name, provider.name)
+
+            if (keyFileExists(keyId, "enc-pubkey") && keyFileExists(keyId, "enc-privkey")) {
+                return Key(
+                    KeyId(keyId), algorithm, provider,
+                    KeyPair(loadEncPublicKey(keyId, keyFactory), loadEncPrivateKey(keyId, keyFactory))
+                )
+            }
+//        } else {
+//            if (keyFileExists(keyId, "raw-pubkey") && keyFileExists(keyId, "raw-privkey")) {
+//                val keyPair = KeyPair(
+//                    BytePublicKey(loadRawPublicKey(keyId), algorithm.name),
+//                    BytePrivateKey(loadRawPrivateKey(keyId), algorithm.name)
+//                )
+//                return Key(KeyId(keyId), algorithm, provider, keyPair)
+//            }
+        }
+        throw Exception("Could not load key: $keyId")
+    }
+
+
     override fun listKeys(): List<Keys> {
         val keys = ArrayList<Keys>()
         Files.walk(Paths.get(KEY_DIR_PATH))
@@ -56,7 +89,7 @@ object FileSystemKeyStore : KeyStore {
         }
     }
 
-    override fun loadKeyPair(keyId: String): Keys? {
+    fun loadKeyPair(keyId: String): Keys? {
         val metaData = String(loadKeyFile(keyId, "meta"))
         val algorithm = metaData.substringBefore(delimiter = ";")
         val provider = metaData.substringAfter(delimiter = ";")
@@ -142,10 +175,6 @@ object FileSystemKeyStore : KeyStore {
     }
 
     override fun store(key: Key) {
-        TODO("Not yet implemented")
-    }
-
-    override fun load(alias: String): Key {
         TODO("Not yet implemented")
     }
 
