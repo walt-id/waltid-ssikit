@@ -19,24 +19,23 @@ private val log = KotlinLogging.logger {}
 
 object JwtService {
 
-    fun encrypt(
-        keyAlias: String, // verification method
-        payload: String? = null
-    ): String {
-
-// TODO load key and load encryption config based on key-alg
+    // TODO load key and load encryption config based on key-alg
 //        val recipientJWK = KeyManagementService.loadKeys(keyAlias)
 //        if (recipientJWK == null) {
 //            log.error { "Could not load verifying key for $keyAlias" }
 //            throw Exception("Could not load verifying key for $keyAlias")
 //        }
-        val keyId = "123"
-        val encKey = OctetKeyPairGenerator(Curve.X25519)
-            .keyID(keyId)
-            .generate()
-        val pubEncKey = encKey.toPublicJWK()
+    val keyId = "123"
+    val encKey = OctetKeyPairGenerator(Curve.X25519)
+        .keyID(keyId)
+        .generate()
 
 
+    fun encrypt(
+        keyAlias: String, // verification method
+        payload: String? = null
+    ): String {
+        //TODO key loading/storing
         val jweObject = JWEObject(
             JWEHeader.Builder(JWEAlgorithm.ECDH_ES, EncryptionMethod.A256GCM)
                 .contentType("JWT") // required to indicate nested JWT
@@ -45,8 +44,9 @@ object JwtService {
             Payload(payload)
         )
 
+        val pubEncKey = encKey.toPublicJWK()
         val encrypter = X25519Encrypter(pubEncKey)
-       encrypter.jcaContext.provider = LetsTrustProvider() // TODO debug
+        encrypter.jcaContext.provider = LetsTrustProvider()
         jweObject.encrypt(encrypter)
         return jweObject.serialize()
     }
@@ -58,12 +58,15 @@ object JwtService {
 
         val keyId = jweObj.header.keyID
 
-        val encKey = KeyManagementService.loadKeys(keyId)
+        //TODO: key loading/storing
+        //val encKey = KeyManagementService.load(keyId)
         if (encKey == null) {
             log.error { "Could not load verifying key for $keyId" }
             throw Exception("Could not load verifying key for $keyId")
         }
-        jweObj.decrypt(X25519Decrypter(encKey.toOctetKeyPair()))
+        val decrypter = X25519Decrypter(encKey)
+        decrypter.jcaContext.provider = LetsTrustProvider()
+        jweObj.decrypt(decrypter)
 
         return jweObj.payload.toString()
     }

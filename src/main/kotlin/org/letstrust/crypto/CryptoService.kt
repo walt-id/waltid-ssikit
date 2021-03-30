@@ -5,11 +5,17 @@ import com.google.crypto.tink.PublicKeySign
 import com.google.crypto.tink.PublicKeyVerify
 import com.google.crypto.tink.signature.EcdsaSignKeyManager
 import com.google.crypto.tink.signature.Ed25519PrivateKeyManager
+import com.nimbusds.jose.crypto.impl.AESGCM
 import com.nimbusds.jose.jwk.ECKey
 import org.letstrust.*
 import org.letstrust.services.key.KeyStore
 import org.letstrust.services.key.TinkKeyStore
+import java.security.SecureRandom
 import java.security.Signature
+import javax.crypto.Cipher
+import javax.crypto.KeyGenerator
+import javax.crypto.SecretKey
+import javax.crypto.spec.GCMParameterSpec
 
 
 interface CryptoService {
@@ -17,6 +23,8 @@ interface CryptoService {
     fun generateKey(algorithm: KeyAlgorithm): KeyId
     fun sign(keyId: KeyId, data: ByteArray): ByteArray
     fun verfiy(keyId: KeyId, sig: ByteArray, data: ByteArray): Boolean
+    fun encrypt(keyId: KeyId, algorithm: String, plainText: ByteArray, authData: ByteArray?, iv: ByteArray?): ByteArray
+    fun decrypt(keyId: KeyId, algorithm: String, plainText: ByteArray, authData: ByteArray?, iv: ByteArray?): ByteArray
 }
 
 
@@ -60,6 +68,14 @@ object TinkCryptoService : CryptoService {
         return true
     }
 
+    override fun encrypt(keyId: KeyId, algorithm: String, plainText: ByteArray, authData: ByteArray?, iv: ByteArray?): ByteArray {
+        TODO("Not yet implemented")
+    }
+
+    override fun decrypt(keyId: KeyId, algorithm: String, plainText: ByteArray, authData: ByteArray?, iv: ByteArray?): ByteArray {
+        TODO("Not yet implemented")
+    }
+
 }
 
 object SunCryptoService : CryptoService {
@@ -78,7 +94,7 @@ object SunCryptoService : CryptoService {
         }
 
         val keyPair = generator.generateKeyPair()
-        val key = Key(newKeyId(),algorithm, CryptoProvider.SUN, keyPair)
+        val key = Key(newKeyId(), algorithm, CryptoProvider.SUN, keyPair)
         ks.store(key)
         return key.keyId
     }
@@ -130,5 +146,26 @@ object SunCryptoService : CryptoService {
         signature.initVerify(key.keyPair!!.public)
         signature.update(data)
         return signature.verify(sig)
+    }
+
+    var secretKey: SecretKey? = null
+    override fun encrypt(keyId: KeyId, algorithm: String, plainText: ByteArray, authData: ByteArray?, iv: ByteArray?): ByteArray {
+
+        //TODO: load key
+        val keyGenerator: KeyGenerator = KeyGenerator.getInstance("AES");
+        keyGenerator.init(256, SecureRandom());
+        secretKey = keyGenerator.generateKey()
+
+        val c = Cipher.getInstance(algorithm)
+        c.init(Cipher.ENCRYPT_MODE, secretKey, GCMParameterSpec(AESGCM.AUTH_TAG_BIT_LENGTH, iv))
+        authData?.let { c.updateAAD(authData) }
+        return c.doFinal(plainText)
+    }
+
+    override fun decrypt(keyId: KeyId, algorithm: String, plainText: ByteArray, authData: ByteArray?, iv: ByteArray?): ByteArray {
+        val c = Cipher.getInstance(algorithm)
+        c.init(Cipher.DECRYPT_MODE, secretKey, GCMParameterSpec(AESGCM.AUTH_TAG_BIT_LENGTH, iv))
+        authData?.let { c.updateAAD(authData) }
+        return c.doFinal(plainText)
     }
 }
