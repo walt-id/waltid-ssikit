@@ -10,7 +10,7 @@ import org.bouncycastle.asn1.ASN1BitString
 import org.bouncycastle.asn1.ASN1Sequence
 import org.letstrust.CryptoProvider
 import org.letstrust.KeyAlgorithm
-import org.letstrust.services.key.TinkKeyStore
+import org.letstrust.crypto.keystore.TinkKeyStore
 import java.security.KeyPair
 import java.security.PublicKey
 import java.security.interfaces.ECPublicKey

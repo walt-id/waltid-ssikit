@@ -1,12 +1,12 @@
 package org.letstrust.deprecated
 
 import org.junit.Before
-import org.letstrust.services.key.FileSystemKeyStore
 
-open class FileSystemKeyStoreTest : KeyStoreTest() {
+@Deprecated(message = "We proably remove FileSystemKeyStore at some point")
+open class FileSystemKeyStoreTest {//: KeyStoreTest() {
 
     @Before
     fun setUp() {
-        kms.setKeyStore(FileSystemKeyStore)
+       // kms.setKeyStore(FileSystemKeyStore)
     }
 }

@@ -1,4 +1,4 @@
-package org.letstrust.services.key
+package org.letstrust.crypto.keystore
 
 import com.google.common.collect.ImmutableSet
 import com.google.crypto.tink.CleartextKeysetHandle
@@ -18,6 +18,7 @@ import org.letstrust.KeyAlgorithm
 import org.letstrust.LetsTrustServices
 import org.letstrust.crypto.Key
 import org.letstrust.crypto.KeyId
+import org.letstrust.services.key.Keys
 import java.io.File
 import java.security.PublicKey
 import java.security.spec.InvalidKeySpecException

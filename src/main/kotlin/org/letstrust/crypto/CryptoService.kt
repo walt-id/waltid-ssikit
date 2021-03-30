@@ -8,8 +8,8 @@ import com.google.crypto.tink.signature.Ed25519PrivateKeyManager
 import com.nimbusds.jose.crypto.impl.AESGCM
 import com.nimbusds.jose.jwk.ECKey
 import org.letstrust.*
-import org.letstrust.services.key.KeyStore
-import org.letstrust.services.key.TinkKeyStore
+import org.letstrust.crypto.keystore.KeyStore
+import org.letstrust.crypto.keystore.TinkKeyStore
 import java.security.SecureRandom
 import java.security.Signature
 import javax.crypto.Cipher

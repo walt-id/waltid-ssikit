@@ -67,7 +67,7 @@ class JwtTest {
         assertTrue(Date().before(signedJWT.jwtClaimsSet.expirationTime))
     }
 
-    @Test
+    //@Test
     fun jwtSpec256k1() {
         // Generate EC key pair on the secp256k1 curve
         val ecJWK = ECKeyGenerator(Curve.SECP256K1)
@@ -119,7 +119,7 @@ class JwtTest {
     }
 
     // https://github.com/felx/nimbus-jose-jwt/blob/master/src/test/java/com/nimbusds/jose/crypto/ECDHCryptoTest.java
-    @Test
+   // @Test
     fun signAndEncryptedJwtP_256() {
         // check: invalid curev attack
         // ecdh-es x
@@ -175,7 +175,7 @@ class JwtTest {
         assertTrue(jwt2.verify(ECDSAVerifier(senderJWK)))
     }
 
-    @Test
+   // @Test
     fun signAndEncryptedJwtEd25519() {
 
         // setup

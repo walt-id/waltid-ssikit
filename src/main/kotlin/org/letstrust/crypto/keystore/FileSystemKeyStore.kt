@@ -1,10 +1,13 @@
-package org.letstrust.services.key
+package org.letstrust.crypto.keystore
 
 import org.apache.commons.io.IOUtils
 import org.letstrust.CryptoProvider
 import org.letstrust.KeyAlgorithm
 import org.letstrust.crypto.Key
 import org.letstrust.crypto.KeyId
+import org.letstrust.services.key.BytePrivateKey
+import org.letstrust.services.key.BytePublicKey
+import org.letstrust.services.key.Keys
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream

@@ -1,7 +1,8 @@
-package org.letstrust.services.key
+package org.letstrust.crypto.keystore
 
 import org.letstrust.crypto.Key
 import org.letstrust.crypto.KeyId
+import org.letstrust.services.key.Keys
 
 interface KeyStore {
     fun store(key: Key)
@@ -16,11 +17,3 @@ interface KeyStore {
    // fun loadKeyPair(keyId: String): Keys?
     fun addAlias(keyId: String, alias: String)
 }
-
-//abstract class KeyStoreBase : KeyStore {
-//
-//    fun loadMetaData(keyId: KeyId): KeyMetaData {
-//        // TODO: implement
-//        return KeyMetaData(KeyAlgorithm.Secp256k1, CryptoProvider.TINK)
-//    }
-//}

@@ -16,6 +16,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.json.JSONObject
 import org.junit.Before
 import org.junit.Test
+import org.letstrust.KeyAlgorithm
 import org.letstrust.model.DidMethod
 import org.letstrust.model.VerifiableCredential
 import org.letstrust.model.VerifiablePresentation
@@ -137,20 +138,19 @@ class CredentialServiceTest {
     @Test
     fun signEcdsaSecp256k1Signature2019Test() {
 
-        val keyId = KeyManagementService.generateKeyPair("Secp256k1")
         val issuerDid = DidService.create(DidMethod.key)
         val domain = "example.com"
         val nonce: String? = null
         val credMap: Map<String, String> = mapOf("one" to "two")
         val cred = JSONObject(credMap).toString()
 
-        val vc = CredentialService.sign(keyId, cred, domain, nonce)
+        val vc = CredentialService.sign(issuerDid, cred, domain, nonce)
         assertNotNull(vc)
         println("Credential generated: $vc")
 
-        val vcVerified = CredentialService.verify(keyId, vc)
+        val vcVerified = CredentialService.verify(issuerDid, vc)
         assertTrue(vcVerified)
-        KeyManagementService.delete(keyId)
+        KeyManagementService.delete(issuerDid)
     }
 
     @Test
@@ -175,17 +175,17 @@ class CredentialServiceTest {
 
         val credOffer = readCredOffer("PermanentResidentCard")
 
-        val keyId = KeyManagementService.generateKeyPair("Secp256k1")
+        val keyId = KeyManagementService.generate(KeyAlgorithm.ECDSA_Secp256k1)
         val domain = "example.com"
         val nonce: String? = null
 
-        val vc = CredentialService.sign(keyId, credOffer, domain, nonce)
+        val vc = CredentialService.sign(keyId.id, credOffer, domain, nonce)
         assertNotNull(vc)
         println("Credential generated: $vc")
 
-        val vcVerified = CredentialService.verify(keyId, vc)
+        val vcVerified = CredentialService.verify(keyId.id, vc)
         assertTrue(vcVerified)
-        KeyManagementService.delete(keyId)
+        KeyManagementService.delete(keyId.id)
     }
 
     @Test

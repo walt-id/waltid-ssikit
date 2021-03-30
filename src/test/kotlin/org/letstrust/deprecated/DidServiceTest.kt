@@ -58,7 +58,7 @@ class DidServiceTest {
     @Test
     fun createResolveDidWebTest() {
         val ds = DidService
-        val did = ds.create(DidMethod.key)
+        val did = ds.create(DidMethod.web)
         assertNotNull(did)
         assertTrue(30 < did.length)
         assertEquals("did:web:", did.substring(0, 8))

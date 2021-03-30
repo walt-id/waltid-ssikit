@@ -1,11 +1,10 @@
-package org.letstrust.deprecated
+package org.letstrust.services.key
 
 import com.google.crypto.tink.subtle.X25519
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.junit.Before
 import org.junit.Test
 import org.letstrust.KeyAlgorithm
-import org.letstrust.services.key.KeyManagementService
 import java.security.*
 import java.security.spec.*
 import java.util.*
@@ -55,8 +54,9 @@ class KeyManagementServiceTest {
         kms.delete(keyId.id)
     }
 
+
     @Test
-    fun generateSecp256k1KeyPairNimbusSunTest() {
+    fun generateEd25519KeyPairTest() {
         val kms = KeyManagementService
         val keyId = kms.generate(KeyAlgorithm.EdDSA_Ed25519)
         val keysLoaded = kms.load(keyId.id)
@@ -64,30 +64,9 @@ class KeyManagementServiceTest {
         assertNotNull(keysLoaded?.keyPair)
         assertNotNull(keysLoaded?.keyPair?.private)
         assertNotNull(keysLoaded?.keyPair?.public)
-        assertEquals("EC", keysLoaded?.keyPair?.private?.algorithm)
+       // assertTrue(keysLoaded?.getMultiBase58PublicKey(keyId).length > 32)
         kms.delete(keyId.id)
     }
-
-    @Test
-    fun generateEd25519KeyPairNimbusSunTest() {
-        val kms = KeyManagementService
-
-        val keyId = kms.generateEd25519KeyPairNimbus()
-    }
-
-//    @Test
-//    fun generateEd25519KeyPairTest() {
-//        val kms = KeyManagementService
-//        val keyId = kms.generateKeyPair("Ed25519")
-//        val keysLoaded = kms.loadKeys(keyId)
-//        assertEquals(keyId, keysLoaded?.keyId)
-//        assertNotNull(keysLoaded?.pair?.private?.encoded)
-//        assertNotNull(keysLoaded?.pair?.public?.encoded)
-//        val pubKey = keysLoaded?.pair?.public?.encoded
-//        assertEquals(32, pubKey?.size)
-//        assertTrue(kms.getMultiBase58PublicKey(keyId).length > 32)
-//        kms.delete(keyId)
-//    }
 //
 //    @Test
 //    fun generateRsaKeyPairTest() {
@@ -115,26 +94,6 @@ class KeyManagementServiceTest {
 
         assertEquals(sharedSecret1, sharedSecret2)
     }
-
-    // @Test
-    //   fun sfd() {
-//        val kpg: KeyPairGenerator = KeyPairGenerator.getInstance("XDH");
-//        val paramSpec: NamedParameterSpec = NamedParameterSpec("X25519");
-//        kpg.initialize(paramSpec); // equivalent to kpg.initialize(255)
-//        // alternatively: kpg = KeyPairGenerator.getInstance("X25519")
-//        val kp1: KeyPair = kpg.generateKeyPair();
-//        val kp2: KeyPair = kpg.generateKeyPair();
-//
-//        val kf: KeyFactory = KeyFactory.getInstance("XDH");
-//        val pubSpec: XECPublicKeySpec = XECPublicKeySpec(paramSpec, kp1.);
-//        val pubKey = kf.generatePublic(pubSpec);
-//
-//        val ka = KeyAgreement.getInstance("XDH");
-//        ka.init(kp.getPrivate());
-//        ka.doPhase(pubKey, true);
-//        val secret = ka.generateSecret();
-//    }
-
 
     // https://github.com/AdoptOpenJDK/openjdk-jdk11/blob/master/test/jdk/sun/security/ec/xec/TestXDH.java
     @Test

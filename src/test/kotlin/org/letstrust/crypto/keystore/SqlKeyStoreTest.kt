@@ -1,8 +1,7 @@
-package org.letstrust.deprecated
+package org.letstrust.crypto.keystore
 
 import org.junit.Test
 import org.letstrust.KeyAlgorithm
-import org.letstrust.services.key.SqlKeyStore
 import java.util.*
 import kotlin.test.BeforeTest
 import kotlin.test.assertEquals

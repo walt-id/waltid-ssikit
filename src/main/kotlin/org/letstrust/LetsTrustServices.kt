@@ -16,10 +16,10 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.letstrust.crypto.CryptoService
 import org.letstrust.crypto.SunCryptoService
 import org.letstrust.crypto.TinkCryptoService
-import org.letstrust.services.key.FileSystemKeyStore
-import org.letstrust.services.key.KeyStore
-import org.letstrust.services.key.SqlKeyStore
-import org.letstrust.services.key.TinkKeyStore
+import org.letstrust.crypto.keystore.FileSystemKeyStore
+import org.letstrust.crypto.keystore.KeyStore
+import org.letstrust.crypto.keystore.SqlKeyStore
+import org.letstrust.crypto.keystore.TinkKeyStore
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
@@ -105,9 +105,10 @@ object LetsTrustServices {
 
     fun loadKeyStore(conf: LetsTrustConfig) = when (conf.keystore.type) {
         KeystoreType.custom -> loadCustomKeyStore()
-        KeystoreType.database -> SqlKeyStore
         KeystoreType.tink -> TinkKeyStore
-        else -> FileSystemKeyStore
+        KeystoreType.file -> FileSystemKeyStore
+        KeystoreType.database -> SqlKeyStore
+        else -> throw Exception("No Keystore implementation defined.")
     }
 
     fun loadCrypto(conf: LetsTrustConfig) = when (conf.cryptoProvider) {

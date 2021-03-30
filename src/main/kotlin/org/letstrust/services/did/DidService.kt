@@ -9,7 +9,7 @@ import org.letstrust.*
 import org.letstrust.crypto.CryptoService
 import org.letstrust.crypto.KeyId
 import org.letstrust.model.*
-import org.letstrust.services.key.KeyStore
+import org.letstrust.crypto.keystore.KeyStore
 import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Path

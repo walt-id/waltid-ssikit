@@ -1,4 +1,4 @@
-package org.letstrust.services.key
+package org.letstrust.crypto.keystore
 
 import com.nimbusds.jose.util.Base64
 import mu.KotlinLogging
@@ -6,6 +6,9 @@ import org.letstrust.*
 import org.letstrust.common.SqlDbManager
 import org.letstrust.crypto.Key
 import org.letstrust.crypto.KeyId
+import org.letstrust.services.key.BytePrivateKey
+import org.letstrust.services.key.BytePublicKey
+import org.letstrust.services.key.Keys
 import java.security.KeyFactory
 import java.security.KeyPair
 import java.security.spec.PKCS8EncodedKeySpec
@@ -53,7 +56,7 @@ object SqlKeyStore : KeyStore {
         log.debug { "Loading key \"${alias}\"." }
         var key: Key? = null
 
-        var keyId = this.getKeyId(alias)?: alias
+        var keyId = getKeyId(alias) ?: alias
 
         SqlDbManager.getConnection().use { con ->
             con.prepareStatement("select * from lt_key where name = ?").use { stmt ->

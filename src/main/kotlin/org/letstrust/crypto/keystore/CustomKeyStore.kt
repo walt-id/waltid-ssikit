@@ -1,7 +1,8 @@
-package org.letstrust.services.key
+package org.letstrust.crypto.keystore
 
 import org.letstrust.crypto.Key
 import org.letstrust.crypto.KeyId
+import org.letstrust.services.key.Keys
 
 
 class CustomKeyStore constructor() : KeyStore {

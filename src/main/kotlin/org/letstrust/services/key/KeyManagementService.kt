@@ -13,6 +13,7 @@ import org.letstrust.KeyAlgorithm
 import org.letstrust.LetsTrustServices
 import org.letstrust.crypto.CryptoService
 import org.letstrust.crypto.KeyId
+import org.letstrust.crypto.keystore.KeyStore
 import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.SecureRandom

@@ -16,7 +16,7 @@ import org.letstrust.LetsTrustServices
 import org.letstrust.SignatureType
 import org.letstrust.crypto.LdSigner
 import org.letstrust.model.*
-import org.letstrust.services.key.KeyStore
+import org.letstrust.crypto.keystore.KeyStore
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
