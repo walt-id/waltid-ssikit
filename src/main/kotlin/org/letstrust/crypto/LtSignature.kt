@@ -5,13 +5,13 @@ import java.security.PrivateKey
 import java.security.PublicKey
 import java.security.SignatureSpi
 
-open class LetsTrustSignature(val algorithm: String) : SignatureSpi() {
+open class LtSignature(val algorithm: String) : SignatureSpi() {
 
-    class SHA1withECDSA : LetsTrustSignature("SHA1withECDSA")
-    class SHA224withECDSA : LetsTrustSignature("SHA224withECDSA")
-    class SHA256withECDSA : LetsTrustSignature("SHA256withECDSA")
-    class SHA384withECDSA : LetsTrustSignature("SHA384withECDSAS")
-    class SHA512withECDSA : LetsTrustSignature("SHA512withECDSA")
+    class SHA1withECDSA : LtSignature("SHA1withECDSA")
+    class SHA224withECDSA : LtSignature("SHA224withECDSA")
+    class SHA256withECDSA : LtSignature("SHA256withECDSA")
+    class SHA384withECDSA : LtSignature("SHA384withECDSAS")
+    class SHA512withECDSA : LtSignature("SHA512withECDSA")
 
     var keyId: KeyId? = null
 

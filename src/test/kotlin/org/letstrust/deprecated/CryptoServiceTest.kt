@@ -17,7 +17,7 @@ import java.security.KeyStore
 import java.security.Provider
 import java.security.Security
 import java.security.Signature
-
+import javax.crypto.Cipher
 
 
 class CryptoServiceTest {
@@ -111,6 +111,9 @@ class CryptoServiceTest {
 
         val myks = KeyStore.getInstance("PKCS11", "LetsTrust")
         println(myks)
+
+        val mycipher = Cipher.getInstance("AES/GCM/NoPadding", "LetsTrust")
+        println(mycipher)
 
         val providers: Array<Provider> = Security.getProviders()
 

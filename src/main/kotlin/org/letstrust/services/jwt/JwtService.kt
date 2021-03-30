@@ -45,7 +45,9 @@ object JwtService {
             Payload(payload)
         )
 
-        jweObject.encrypt(X25519Encrypter(pubEncKey))
+        val encrypter = X25519Encrypter(pubEncKey)
+       encrypter.jcaContext.provider = LetsTrustProvider() // TODO debug
+        jweObject.encrypt(encrypter)
         return jweObject.serialize()
     }
 

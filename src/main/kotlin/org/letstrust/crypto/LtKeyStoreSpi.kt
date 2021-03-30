@@ -8,7 +8,7 @@ import java.security.UnrecoverableKeyException
 import java.security.cert.Certificate
 import java.util.*
 
-open class LetsTrustKeyStoreSpi: KeyStoreSpi() {
+open class LtKeyStoreSpi: KeyStoreSpi() {
 
     private val keys = Properties()
 
