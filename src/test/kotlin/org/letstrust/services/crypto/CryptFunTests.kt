@@ -1,4 +1,4 @@
-package org.letstrust.deprecated
+package org.letstrust.services.crypto
 
 import org.junit.Test
 import org.letstrust.*
@@ -12,7 +12,7 @@ import java.security.spec.ECPoint
 import kotlin.test.assertEquals
 
 
-class CryptTests {
+class CryptFunTests {
     @Test
     fun base58EncodingTest() {
         val input = "Hello World!"
@@ -41,7 +41,7 @@ class CryptTests {
     @Test
     fun convertEd25519PublicKeyToMultiBase58Btc() {
         val mb =
-            org.letstrust.convertEd25519PublicKeyToMultiBase58Btc("B12NYF8RrR3h41TDCTJojY59usg3mbtbjnFs7Eud1Y6u".decodeBase58())
+            convertEd25519PublicKeyToMultiBase58Btc("B12NYF8RrR3h41TDCTJojY59usg3mbtbjnFs7Eud1Y6u".decodeBase58())
         assertEquals("z6MkpTHR8VNsBxYAAWHut2Geadd9jSwuBV8xRoAnwWsdvktH", mb)
     }
 
@@ -107,41 +107,7 @@ class CryptTests {
         assertEquals("zBzoR5sqFgi6q3iFia8JPNfENCpi7RNSTKF7XNXX96SBY4", x25519CryptonymMultiBase)
     }
 
-    // https://stackoverflow.com/questions/48832170/generate-ec-public-key-from-byte-array-private-key-in-native-java-7
-    // Following will be used in CryptFun::keyPairGeneratorSecp256k1
-    @Test
-    fun secp256k1() {
-
-        // val kg = KeyPairGenerator.getInstance("EC") // only working with Java 11  - not higher :-( -> https://bugs.openjdk.java.net/browse/JDK-8251547
-
-        LetsTrustServices // For loading Bouncy Castle
-        val kg = KeyPairGenerator.getInstance("EC", "BC")
-        kg.initialize(ECGenParameterSpec("secp256k1"), SecureRandom())
-//OR
-//        val kg = KeyPairGenerator.getInstance("ECDSA", "BC")
-//        kg.initialize(ECNamedCurveTable.getParameterSpec("secp256k1"), SecureRandom())
-
-        val p: ECParameterSpec = (kg.generateKeyPair().public as ECPublicKey).getParams()
-        println("p=(dec)" + (p.getCurve().getField() as ECFieldFp).p)
-        val G: ECPoint = p.getGenerator()
-        System.out.format("Gx=(hex)%032x%n", G.getAffineX())
-        System.out.format("Gy=(hex)%032x%n", G.getAffineY())
-        //
-        //
-//        val privatekey_enc: ByteArray = DatatypeConverter.parseHexBinary(
-//            "303E020100301006072A8648CE3D020106052B8104000A042730250201010420" +
-//                    "1184CD2CDD640CA42CFC3A091C51D549B2F016D454B2774019C2B2D2E08529FD"
-//        )
-        // note fixed prefix for PKCS8-EC-secp256k1 plus your private value
-//        val kf: KeyFactory = KeyFactory.getInstance("EC")
-//        val k1: PrivateKey = kf.generatePrivate(PKCS8EncodedKeySpec(privatekey_enc))
-//        val p2: ECParameterSpec = (k1 as ECPrivateKey).getParams()
-//        println("again p=(dec)" + (p2.getCurve().getField() as ECFieldFp).p)
-    }
-
-}
-
-///VALUE zBzoR5sqFgi6q3iFia8JPNfENCpi7RNSTKF7XNXX96SBY4 is calculated wrongly!!
+    ///VALUE zBzoR5sqFgi6q3iFia8JPNfENCpi7RNSTKF7XNXX96SBY4 is calculated wrongly!!
 
 //{
 //    "@context": "https://w3id.org/did/v1",
@@ -163,3 +129,37 @@ class CryptTests {
 //    "publicKeyBase58": "JhNWeSVLMYccCk7iopQW4guaSJTojqpMEELgSLhKwRr"
 //}]
 //}
+
+
+    // https://stackoverflow.com/questions/48832170/generate-ec-public-key-from-byte-array-private-key-in-native-java-7
+    // Following will be used in CryptFun::keyPairGeneratorSecp256k1
+    @Test
+    fun generateECDSA_Secp256k1() {
+
+        // val kg = KeyPairGenerator.getInstance("EC") // only working with Java 11  - not higher :-( -> https://bugs.openjdk.java.net/browse/JDK-8251547
+
+        LetsTrustServices // For loading Bouncy Castle
+        val kg = KeyPairGenerator.getInstance("EC", "BC")
+        kg.initialize(ECGenParameterSpec("secp256k1"), SecureRandom())
+//OR
+//        val kg = KeyPairGenerator.getInstance("ECDSA", "BC")
+//        kg.initialize(ECNamedCurveTable.getParameterSpec("secp256k1"), SecureRandom())
+
+        val p: ECParameterSpec = (kg.generateKeyPair().public as ECPublicKey).getParams()
+        println("p=(dec)" + (p.getCurve().getField() as ECFieldFp).p)
+        val G: ECPoint = p.getGenerator()
+        System.out.format("Gx=(hex)%032x%n", G.getAffineX())
+        System.out.format("Gy=(hex)%032x%n", G.getAffineY())
+
+//        val privatekey_enc: ByteArray = DatatypeConverter.parseHexBinary(
+//            "303E020100301006072A8648CE3D020106052B8104000A042730250201010420" +
+//                    "1184CD2CDD640CA42CFC3A091C51D549B2F016D454B2774019C2B2D2E08529FD"
+//        ) // note fixed prefix for PKCS8-EC-secp256k1 plus your private value
+//        val kf: KeyFactory = KeyFactory.getInstance("EC")
+//        val k1: PrivateKey = kf.generatePrivate(PKCS8EncodedKeySpec(privatekey_enc))
+//        val p2: ECParameterSpec = (k1 as ECPrivateKey).getParams()
+//        println("again p=(dec)" + (p2.getCurve().getField() as ECFieldFp).p)
+    }
+
+}
+
