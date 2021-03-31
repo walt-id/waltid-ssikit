@@ -2,17 +2,13 @@ package org.letstrust.services.key
 
 import com.nimbusds.jose.Algorithm
 import com.nimbusds.jose.jwk.Curve
-import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jose.jwk.KeyUse
 import com.nimbusds.jose.jwk.OctetKeyPair
 import com.nimbusds.jose.util.Base64URL
 import org.bouncycastle.asn1.ASN1BitString
 import org.bouncycastle.asn1.ASN1OctetString
 import org.bouncycastle.asn1.ASN1Sequence
-import java.io.IOException
 import java.security.KeyPair
-import java.security.KeyPairGenerator
-import java.security.NoSuchAlgorithmException
 
 object KeyUtil {
 

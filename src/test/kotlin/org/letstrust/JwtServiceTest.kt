@@ -150,7 +150,7 @@ class JwtServiceTest {
         assertTrue(verified)
 
         // encrypted payload ake1_enc_payload
-        val received_ake1_enc_payload = JwtService.dencrypt(received_access_token_response.ake1_enc_payload)
+        val received_ake1_enc_payload = JwtService.decrypt(received_access_token_response.ake1_enc_payload)
         val received_ake1_enc_payload_obj  = Json.decodeFromString<Ake1EncPayload>(received_ake1_enc_payload)
         val received_access_token = received_ake1_enc_payload_obj.access_token
 

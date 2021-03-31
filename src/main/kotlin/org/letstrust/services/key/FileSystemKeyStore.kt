@@ -37,8 +37,8 @@ object FileSystemKeyStore : KeyStore {
     override fun listKeys(): List<Keys> {
         val keys = ArrayList<Keys>()
         Files.walk(Paths.get(KEY_DIR_PATH))
-            .filter { it -> Files.isRegularFile(it) }
-            .filter { it -> it.toString().endsWith(".meta") }
+            .filter { Files.isRegularFile(it) }
+            .filter { it.toString().endsWith(".meta") }
             .forEach {
                 val keyId = it.fileName.toString().substringBefore(".")
                 loadKeyPair(keyId)?.let {

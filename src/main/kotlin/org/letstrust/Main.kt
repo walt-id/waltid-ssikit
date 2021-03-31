@@ -6,21 +6,9 @@ import com.github.ajalt.clikt.parameters.options.associate
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.versionOption
-import com.sksamuel.hoplite.ConfigFilePropertySource
-import com.sksamuel.hoplite.ConfigLoader
-import com.sksamuel.hoplite.ConfigSource
-import com.sksamuel.hoplite.PropertySource
-import com.sksamuel.hoplite.hikari.HikariDataSourceDecoder
-import com.sksamuel.hoplite.parsers.defaultParserRegistry
-import com.sksamuel.hoplite.yaml.YamlParser
 import mu.KotlinLogging
 import org.apache.logging.log4j.Level
-import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.core.LoggerContext
-import org.apache.logging.log4j.core.config.Configuration
-import org.apache.logging.log4j.core.config.LoggerConfig
 import org.letstrust.cli.*
-import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -70,7 +58,7 @@ class LetsTrust : CliktCommand(
         currentContext.obj = config
 
         if (config.verbose) {
-            log.debug { "Config loaded: ${config}" }
+            log.debug { "Config loaded: $config" }
         }
 
         // TODO: move this to some central config-service
@@ -100,9 +88,20 @@ fun main(args: Array<String>) {
         .subcommands(
             KeyCommand().subcommands(GenCommand(), ListKeysCommand(), ExportKeyCommand()),
             DidCommand().subcommands(CreateDidCommand(), ResolveDidCommand(), ListDidsCommand()),
-            VerifiableCredentialsCommand().subcommands(IssueVcCommand(), PresentVcCommand(), VerifyVcCommand(), ListVcCommand()),
+            VerifiableCredentialsCommand().subcommands(
+                IssueVcCommand(),
+                PresentVcCommand(),
+                VerifyVcCommand(),
+                ListVcCommand()
+            ),
             AuthCommand(),
-            EssifCommand().subcommands(EssifAuthCommand(), EssifDidCommand(), EssifTirCommand(), EssifTaorCommand(), EssifTsrCommand())
+            EssifCommand().subcommands(
+                EssifAuthCommand(),
+                EssifDidCommand(),
+                EssifTirCommand(),
+                EssifTaorCommand(),
+                EssifTsrCommand()
+            )
         )
         //.main(arrayOf("-v", "-c", "mykey=myval", "vc", "-h"))
         //.main(arrayOf("vc", "verify", "vc.json"))

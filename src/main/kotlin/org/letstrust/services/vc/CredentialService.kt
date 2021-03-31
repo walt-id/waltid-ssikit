@@ -73,7 +73,11 @@ object CredentialService {
 
         val signer = when (signatureType) {
             SignatureType.Ed25519Signature2018 -> Ed25519Signature2018LdSigner(issuerKeys.getPrivateAndPublicKey())
-            SignatureType.EcdsaSecp256k1Signature2019 -> EcdsaSecp256k1Signature2019LdSigner(ECKey.fromPrivate(issuerKeys.getPrivKey()))
+            SignatureType.EcdsaSecp256k1Signature2019 -> EcdsaSecp256k1Signature2019LdSigner(
+                ECKey.fromPrivate(
+                    issuerKeys.getPrivKey()
+                )
+            )
             SignatureType.Ed25519Signature2020 -> Ed25519Signature2020LdSigner(issuerKeys.getPrivateAndPublicKey())
         }
 
@@ -164,7 +168,11 @@ object CredentialService {
 
         val verifier = when (signatureType) {
             SignatureType.Ed25519Signature2018 -> Ed25519Signature2018LdVerifier(issuerKeys.getPubKey())
-            SignatureType.EcdsaSecp256k1Signature2019 -> EcdsaSecp256k1Signature2019LdVerifier(ECKey.fromPublicOnly(issuerKeys.getPubKey()))
+            SignatureType.EcdsaSecp256k1Signature2019 -> EcdsaSecp256k1Signature2019LdVerifier(
+                ECKey.fromPublicOnly(
+                    issuerKeys.getPubKey()
+                )
+            )
             SignatureType.Ed25519Signature2020 -> Ed25519Signature2020LdVerifier(issuerKeys.getPubKey())
         }
         log.trace { "Loaded Json LD verifier with signature suite: ${verifier.signatureSuite}" }
@@ -178,11 +186,18 @@ object CredentialService {
         val vcObj = Json.decodeFromString<VerifiableCredential>(vc)
         log.trace { "Decoded VC $vcObj" }
 
-        val holderDid = vcObj.credentialSubject.id ?: vcObj.credentialSubject.did ?: throw Exception("Could not determine holder DID for $vcObj")
+        val holderDid = vcObj.credentialSubject.id ?: vcObj.credentialSubject.did
+        ?: throw Exception("Could not determine holder DID for $vcObj")
 
         log.debug { "Holder DID: $holderDid" }
 
-        val vpReq = VerifiablePresentation(listOf("https://www.w3.org/2018/credentials/v1"), "id", listOf("VerifiablePresentation"), listOf(vcObj), null)
+        val vpReq = VerifiablePresentation(
+            listOf("https://www.w3.org/2018/credentials/v1"),
+            "id",
+            listOf("VerifiablePresentation"),
+            listOf(vcObj),
+            null
+        )
         val vpReqStr = Json { prettyPrint = true }.encodeToString(vpReq)
         log.trace { "VP request:\n$vpReq" }
 
@@ -199,8 +214,8 @@ object CredentialService {
 
     fun listVCs(): List<String> {
         return Files.walk(Path.of("data/vc/created"))
-            .filter { it -> Files.isRegularFile(it) }
-            .filter { it -> it.toString().endsWith(".json") }
+            .filter { Files.isRegularFile(it) }
+            .filter { it.toString().endsWith(".json") }
             .map { it.fileName.toString() }.toList()
     }
 
