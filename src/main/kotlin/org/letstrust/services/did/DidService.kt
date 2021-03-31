@@ -8,8 +8,9 @@ import org.bouncycastle.asn1.ASN1Sequence
 import org.letstrust.*
 import org.letstrust.crypto.CryptoService
 import org.letstrust.crypto.KeyId
-import org.letstrust.model.*
 import org.letstrust.crypto.keystore.KeyStore
+import org.letstrust.model.*
+import java.io.File
 import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Path
@@ -29,11 +30,20 @@ object DidService {
     // Public methods
 
     fun create(method: DidMethod, keyAlias: String? = null): String {
-        return when (method) {
+        val didUrl = when (method) {
             DidMethod.key -> createDidKey(keyAlias)
             DidMethod.web -> createDidWeb(keyAlias)
             else -> throw Exception("DID method $method not supported")
         }
+
+        resolveAndStore(didUrl)
+
+        return didUrl
+    }
+
+    private fun resolveAndStore(didUrl: String) {
+        val destFile = File("data/did/created/$didUrl.json")
+        destFile.writeText(resolve(didUrl).encodePretty())
     }
 
     fun resolve(did: String): Did = resolve(did.toDidUrl())
@@ -119,6 +129,7 @@ object DidService {
     }
 
     private fun resolveDidWebDummy(didUrl: DidUrl): Did {
+        log.warn { "DID WEB implementation is not finalized yet. Use it only for demo purpose." }
         ks.getKeyId(didUrl.did).let {
             ks.load(it!!).let {
                 val pubKeyId = didUrl.identifier + "#key-1"
@@ -216,7 +227,7 @@ object DidService {
         return Files.walk(Path.of("data/did/created"))
             .filter { it -> Files.isRegularFile(it) }
             .filter { it -> it.toString().endsWith(".json") }
-            .map { it.fileName.toString() }.toList()
+            .map { it.fileName.toString().substringBefore(".json").replace("-", ":") }.toList()
     }
 
 

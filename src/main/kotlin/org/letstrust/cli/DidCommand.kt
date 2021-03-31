@@ -46,17 +46,15 @@ class CreateDidCommand : CliktCommand(
         "web",
         "ebsi"
     ).default("key")
-    val keyAlias: String by option("-a", "--key-alias", help = "Specific key alias").default("default")
+    val keyAlias: String by option("-k", "--key", help = "Specific key (ID or alias)").default("default")
 
     override fun run() {
 
         echo("Registering did:${method} (key: ${keyAlias}) ...")
 
-//        var keys = KeyManagementService.loadKeys(keyAlias)
-//
-//        val did = didService.createDid(method, keys)
+        val keyId = if (keyAlias =="default") null else keyAlias
 
-        val did = didService.create(DidMethod.valueOf(method))
+        val did = didService.create(DidMethod.valueOf(method), keyId)
 
         echo("\nResults:\n")
         echo("DID created: $did")
@@ -68,11 +66,6 @@ class CreateDidCommand : CliktCommand(
         } else {
             val didDocEnc = didDoc.encodePretty()
             echo("\ndid document:\n" + didDocEnc)
-
-            val didFileName = "${didDoc.id?.replace(":", "-")}.json"
-            val destFile = File(config.dataDir + "/did/created/" + didFileName)
-            echo("Saving DID to file: ${destFile.absolutePath}")
-            destFile.writeText(didDocEnc)
 
             dest?.let {
                 echo("Saving DID to DEST file: ${it.absolutePath}")

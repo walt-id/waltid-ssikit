@@ -2,6 +2,8 @@ package org.letstrust.services.crypto
 
 import org.junit.Test
 import org.letstrust.*
+import org.letstrust.services.key.KeyManagementService
+import java.security.KeyFactory
 import java.security.KeyPairGenerator
 import java.security.SecureRandom
 import java.security.interfaces.ECPublicKey
@@ -13,6 +15,16 @@ import kotlin.test.assertEquals
 
 
 class CryptFunTests {
+
+    @Test
+    fun publicKeyBase64EncodingTest() {
+        val keyId = KeyManagementService.generate(KeyAlgorithm.EdDSA_Ed25519)
+        val pubKey = KeyManagementService.load(keyId.id).getPublicKey()
+        val base64 = pubKey.toBase64()
+        val decodedPubKey = decodePubKey(base64, KeyFactory.getInstance("Ed25519"))
+        assertEquals(pubKey, decodedPubKey)
+    }
+
     @Test
     fun base58EncodingTest() {
         val input = "Hello World!"

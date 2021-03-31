@@ -4,6 +4,7 @@ import com.goterl.lazycode.lazysodium.LazySodiumJava
 import com.goterl.lazycode.lazysodium.SodiumJava
 import io.ipfs.multibase.Base58
 import io.ipfs.multibase.Multibase
+import org.letstrust.crypto.Key
 import org.letstrust.crypto.KeyId
 import java.security.*
 import java.security.spec.ECGenParameterSpec
@@ -45,9 +46,24 @@ fun PublicKey.toPEM(): String = "-----BEGIN PUBLIC KEY-----\n" +
 
 fun PublicKey.toBase64(): String = String(Base64.getEncoder().encode(X509EncodedKeySpec(this.encoded).encoded))
 
-fun decodePubKey(s: String, kf: KeyFactory): PublicKey = kf.generatePublic(X509EncodedKeySpec(Base64.getDecoder().decode(s)))
+fun decodePubKey(base64: String, kf: KeyFactory): PublicKey = kf.generatePublic(X509EncodedKeySpec(Base64.getDecoder().decode(base64)))
 
-fun decodePrivKey(s: String, kf: KeyFactory): PrivateKey = kf.generatePrivate(PKCS8EncodedKeySpec(Base64.getDecoder().decode(s)))
+fun decodePrivKey(base64: String, kf: KeyFactory): PrivateKey = kf.generatePrivate(PKCS8EncodedKeySpec(Base64.getDecoder().decode(base64)))
+
+fun buildKey(keyId: String, algorithm: String, provider: String, publicPart: String, privatePart: String): Key {
+
+    var algorithm = KeyAlgorithm.valueOf(algorithm)
+    var provider = CryptoProvider.valueOf(provider)
+
+    val kf = when (algorithm) {
+        KeyAlgorithm.ECDSA_Secp256k1 -> KeyFactory.getInstance("ECDSA")
+        KeyAlgorithm.EdDSA_Ed25519 -> KeyFactory.getInstance("Ed25519")
+    }
+    var pub = decodePubKey(publicPart, kf)
+    var priv = decodePrivKey(privatePart, kf)
+
+    return Key(KeyId(keyId), algorithm, provider, KeyPair(pub, priv))
+}
 
 fun ByteArray.encodeBase58(): String = Base58.encode(this)
 

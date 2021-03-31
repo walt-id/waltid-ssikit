@@ -66,7 +66,11 @@ object LetsTrustServices {
     val log = KotlinLogging.logger {}
 
     init {
-        println(System.getProperty("java.runtime.version"))
+        val javaVersion = System.getProperty("java.runtime.version")
+        println("LetsTrust Services started (Java version: $javaVersion)")
+        if (javaVersion.substring(0,1).equals("15")) {
+            log.error { "Java version must be 15" }
+        }
         // BC is required for
         // - secp256k1 curve
         Security.addProvider(BouncyCastleProvider())

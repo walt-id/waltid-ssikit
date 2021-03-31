@@ -2,7 +2,6 @@ package org.letstrust.crypto.keystore
 
 import org.letstrust.crypto.Key
 import org.letstrust.crypto.KeyId
-import org.letstrust.services.key.Keys
 
 
 class CustomKeyStore constructor() : KeyStore {
@@ -19,19 +18,11 @@ class CustomKeyStore constructor() : KeyStore {
         TODO("Not yet implemented")
     }
 
-    override fun saveKeyPair(keys: Keys) {
-        TODO("Not yet implemented")
-    }
-
-    override fun listKeys(): List<Keys> {
+    override fun listKeys(): List<Key> {
         TODO("Not yet implemented")
     }
 
     override fun delete(alias: String) {
-        TODO("Not yet implemented")
-    }
-
-    override fun addAlias(keyId: String, alias: String) {
         TODO("Not yet implemented")
     }
 

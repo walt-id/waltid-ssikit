@@ -43,8 +43,6 @@ object TinkCryptoService : CryptoService {
             KeyAlgorithm.EdDSA_Ed25519 -> KeysetHandle.generateNew(Ed25519PrivateKeyManager.rawEd25519Template())
         }
 
-        println(keysetHandle)
-
         val key = Key(newKeyId(), algorithm, CryptoProvider.TINK, keysetHandle)
         ks.store(key)
         return key.keyId
@@ -85,6 +83,10 @@ object SunCryptoService : CryptoService {
     private var ks: KeyStore = LetsTrustServices.load<KeyStore>()
 
     var ecJWK: ECKey? = null
+
+    internal fun setKeyStore(ks: KeyStore) {
+        SunCryptoService.ks = ks
+    }
 
     override fun generateKey(algorithm: KeyAlgorithm): KeyId {
 

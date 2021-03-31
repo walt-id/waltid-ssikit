@@ -62,4 +62,16 @@ class DidServiceTest {
         println(encoded)
     }
 
+    @Test
+    fun listDidsTest() {
+
+        ds.create(DidMethod.key)
+
+        val dids = ds.listDids()
+
+        assertTrue(dids.size > 0)
+
+        dids.forEach { s -> assertEquals("did:", s.substring(0,4)) }
+    }
+
 }

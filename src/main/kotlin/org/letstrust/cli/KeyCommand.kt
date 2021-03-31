@@ -5,6 +5,7 @@ import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
+import org.letstrust.KeyAlgorithm
 import org.letstrust.services.key.KeyManagementService
 
 
@@ -23,24 +24,23 @@ class KeyCommand : CliktCommand(
 class GenCommand : CliktCommand(
     help = """Generate keys.
 
-        Generates an asymetric keypair by the specified alogrithm.
+        Generates an asymmetric keypair by the specified algorithm. Supported algorithms are ECDSA Secp256k1 & EdDSA Ed25519 (default)
         
         """
 ) {
 
-    // val keyAlias: String by option("--key-alias", "-a", help = "Specific key alias").prompt()
-    val algorithm: String by option("-g", "--algorithm", help = "Key algorithm [Secp256k1, Ed25519]").choice(
+    // val keyAlias: String by option("--key-alias", "-k", help = "Specific key alias").prompt()
+    val algorithm: String by option("-a", "--algorithm", help = "Key algorithm [Ed25519]").choice(
         "Ed25519",
-        "Secp256k1",
-        "RSA"
+        "Secp256k1"
     ).default("Ed25519")
 
     override fun run() {
         echo("Generating $algorithm key pair")
         val keyId = when (algorithm) {
-            "Ed25519" -> KeyManagementService.generateEd25519KeyPairNimbus()
-            "Secp256k1" -> KeyManagementService.generateSecp256k1KeyPairBitcoinj()
-            "RSA" -> KeyManagementService.generateRsaKeyPair()
+            "Ed25519" -> KeyManagementService.generate(KeyAlgorithm.EdDSA_Ed25519)
+            "Secp256k1" -> KeyManagementService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+            // TODO add RSA: "RSA" -> KeyManagementService.generateRsaKeyPair()
             else -> IllegalArgumentException("Algorithm not supported")
         }
         echo("Key \"$keyId\" generated")

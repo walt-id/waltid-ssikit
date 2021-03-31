@@ -18,7 +18,6 @@ import org.letstrust.KeyAlgorithm
 import org.letstrust.LetsTrustServices
 import org.letstrust.crypto.Key
 import org.letstrust.crypto.KeyId
-import org.letstrust.services.key.Keys
 import java.io.File
 import java.security.PublicKey
 import java.security.spec.InvalidKeySpecException
@@ -27,11 +26,7 @@ import java.security.spec.InvalidKeySpecException
 object TinkKeyStore : KeyStore {
 
 
-    override fun saveKeyPair(keys: Keys) {
-        TODO("Not yet implemented")
-    }
-
-    override fun listKeys(): List<Keys> {
+    override fun listKeys(): List<Key> {
         TODO("Not yet implemented")
     }
 
@@ -43,15 +38,12 @@ object TinkKeyStore : KeyStore {
         TODO("Not yet implemented")
     }
 
-    override fun addAlias(keyId: String, alias: String) {
-        TODO("Not yet implemented")
-    }
 
     override fun store(key: Key) {
         CleartextKeysetHandle.write(key.keysetHandle, JsonKeysetWriter.withFile(File("${LetsTrustServices.keyDir}/${key.keyId.id}.tink")))
 
         //TODO: only working for Secp256k1; shoudl be impl. for Ed25519 as well
-       // CleartextKeysetHandle.write(key.keysetHandle!!.publicKeysetHandle, JwksWriter.withOutputStream(FileOutputStream("${LetsTrustServices.keyDir}/${key.keyId.id}.json")))
+        // CleartextKeysetHandle.write(key.keysetHandle!!.publicKeysetHandle, JwksWriter.withOutputStream(FileOutputStream("${LetsTrustServices.keyDir}/${key.keyId.id}.json")))
     }
 
     override fun load(alias: String): Key {
