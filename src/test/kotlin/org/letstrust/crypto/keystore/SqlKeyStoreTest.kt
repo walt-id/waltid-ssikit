@@ -1,7 +1,7 @@
 package org.letstrust.crypto.keystore
 
 import org.junit.Test
-import org.letstrust.KeyAlgorithm
+import org.letstrust.crypto.KeyAlgorithm
 import java.util.*
 import kotlin.test.BeforeTest
 import kotlin.test.assertEquals

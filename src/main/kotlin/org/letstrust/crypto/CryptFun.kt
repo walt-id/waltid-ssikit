@@ -1,11 +1,10 @@
-package org.letstrust
+package org.letstrust.crypto
 
 import com.goterl.lazycode.lazysodium.LazySodiumJava
 import com.goterl.lazycode.lazysodium.SodiumJava
 import io.ipfs.multibase.Base58
 import io.ipfs.multibase.Multibase
-import org.letstrust.crypto.Key
-import org.letstrust.crypto.KeyId
+import org.letstrust.CryptoProvider
 import java.security.*
 import java.security.spec.ECGenParameterSpec
 import java.security.spec.PKCS8EncodedKeySpec

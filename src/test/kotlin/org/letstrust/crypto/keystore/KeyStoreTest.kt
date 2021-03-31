@@ -2,7 +2,7 @@ package org.letstrust.crypto.keystore
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.junit.Test
-import org.letstrust.KeyAlgorithm
+import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.services.key.KeyManagementService
 import java.security.Security
 import java.util.*

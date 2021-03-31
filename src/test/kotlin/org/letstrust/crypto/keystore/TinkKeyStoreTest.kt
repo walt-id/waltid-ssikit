@@ -2,7 +2,7 @@ package org.letstrust.crypto.keystore
 
 import com.google.crypto.tink.config.TinkConfig
 import org.junit.Test
-import org.letstrust.KeyAlgorithm
+import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.TinkCryptoService
 
 class TinkKeyStoreTest {

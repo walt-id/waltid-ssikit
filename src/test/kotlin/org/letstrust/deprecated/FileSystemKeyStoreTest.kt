@@ -3,7 +3,7 @@ package org.letstrust.deprecated
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.letstrust.KeyAlgorithm
+import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.SunCryptoService
 import org.letstrust.crypto.keystore.FileSystemKeyStore
 import org.letstrust.crypto.keystore.SqlKeyStore

@@ -5,9 +5,9 @@ import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import org.bouncycastle.asn1.ASN1BitString
 import org.bouncycastle.asn1.ASN1Sequence
-import org.letstrust.*
-import org.letstrust.crypto.CryptoService
-import org.letstrust.crypto.KeyId
+import org.letstrust.LetsTrustServices
+import org.letstrust.crypto.*
+import org.letstrust.crypto.KeyAlgorithm.*
 import org.letstrust.crypto.keystore.KeyStore
 import org.letstrust.model.*
 import java.io.File
@@ -64,11 +64,11 @@ object DidService {
         val key = if (keyId != null) {
             ks.load(keyId.id)
         } else {
-            keyId = crypto.generateKey(KeyAlgorithm.EdDSA_Ed25519)
+            keyId = crypto.generateKey(EdDSA_Ed25519)
             ks.load(keyId.id)
         }
 
-        if (key.algorithm != KeyAlgorithm.EdDSA_Ed25519) {
+        if (key.algorithm != EdDSA_Ed25519) {
             throw Exception("DID KEY can only be created with an EdDSA Ed25519 key.")
         }
 
@@ -84,7 +84,7 @@ object DidService {
     }
 
     private fun createDidWeb(keyAlias: String?): String {
-        val keyId = crypto.generateKey(KeyAlgorithm.ECDSA_Secp256k1)
+        val keyId = crypto.generateKey(ECDSA_Secp256k1)
         val key = ks.load(keyId.id)
 
         val domain = "letstrust.org"

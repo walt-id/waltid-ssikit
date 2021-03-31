@@ -2,7 +2,6 @@ package org.letstrust.crypto
 
 import com.google.crypto.tink.config.TinkConfig
 import org.junit.Test
-import org.letstrust.KeyAlgorithm
 import kotlin.test.assertTrue
 
 class TinkCryptoTest {

@@ -1,7 +1,6 @@
 package org.letstrust.crypto
 
 import org.junit.Test
-import org.letstrust.KeyAlgorithm
 import kotlin.test.assertTrue
 
 class SunCryptoTest {

@@ -14,7 +14,7 @@ import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.jwk.KeyOperation
 import org.letstrust.CryptoProvider
-import org.letstrust.KeyAlgorithm
+import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.LetsTrustServices
 import org.letstrust.crypto.Key
 import org.letstrust.crypto.KeyId

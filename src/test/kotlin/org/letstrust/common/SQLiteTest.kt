@@ -4,7 +4,7 @@ import com.nimbusds.jose.util.Base64
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.junit.Before
 import org.junit.Test
-import org.letstrust.KeyAlgorithm
+import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.services.key.KeyManagementService
 import java.security.Security
 import kotlin.test.assertEquals

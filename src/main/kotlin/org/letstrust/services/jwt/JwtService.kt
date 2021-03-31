@@ -7,7 +7,7 @@ import com.nimbusds.jose.jwk.gen.OctetKeyPairGenerator
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import mu.KotlinLogging
-import org.letstrust.KeyAlgorithm
+import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.LdSigner
 import org.letstrust.crypto.LetsTrustProvider
 import org.letstrust.crypto.PrivateKeyHandle

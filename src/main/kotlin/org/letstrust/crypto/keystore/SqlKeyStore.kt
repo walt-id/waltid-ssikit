@@ -1,11 +1,11 @@
 package org.letstrust.crypto.keystore
 
 import mu.KotlinLogging
-import org.letstrust.buildKey
+import org.letstrust.crypto.buildKey
 import org.letstrust.common.SqlDbManager
 import org.letstrust.crypto.Key
 import org.letstrust.crypto.KeyId
-import org.letstrust.toBase64
+import org.letstrust.crypto.toBase64
 import java.sql.Statement.RETURN_GENERATED_KEYS
 
 private val log = KotlinLogging.logger() {}

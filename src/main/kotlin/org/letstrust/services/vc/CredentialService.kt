@@ -11,9 +11,9 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import org.json.JSONObject
-import org.letstrust.KeyAlgorithm
+import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.LetsTrustServices
-import org.letstrust.SignatureType
+import org.letstrust.crypto.SignatureType
 import org.letstrust.crypto.LdSigner
 import org.letstrust.model.*
 import org.letstrust.crypto.keystore.KeyStore

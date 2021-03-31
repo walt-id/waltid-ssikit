@@ -2,7 +2,7 @@ package org.letstrust.services.crypto
 
 import junit.framework.Assert.assertNotNull
 import org.junit.Test
-import org.letstrust.KeyAlgorithm
+import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.LetsTrustServices
 import org.letstrust.crypto.LetsTrustProvider
 import org.letstrust.crypto.SunCryptoService

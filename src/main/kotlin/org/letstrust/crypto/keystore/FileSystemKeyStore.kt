@@ -1,10 +1,10 @@
 package org.letstrust.crypto.keystore
 
 import org.apache.commons.io.IOUtils
-import org.letstrust.buildKey
+import org.letstrust.crypto.buildKey
 import org.letstrust.crypto.Key
 import org.letstrust.crypto.KeyId
-import org.letstrust.toBase64
+import org.letstrust.crypto.toBase64
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
