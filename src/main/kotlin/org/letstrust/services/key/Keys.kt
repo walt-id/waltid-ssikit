@@ -23,6 +23,24 @@ data class BytePrivateKey(val privateKey: ByteArray, private val algorithm: Stri
     override fun getEncoded(): ByteArray {
         return this.privateKey
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as BytePrivateKey
+
+        if (!privateKey.contentEquals(other.privateKey)) return false
+        if (algorithm != other.algorithm) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = privateKey.contentHashCode()
+        result = 31 * result + algorithm.hashCode()
+        return result
+    }
 }
 
 data class BytePublicKey(val publicKey: ByteArray, private val algorithm: String) : PublicKey {
@@ -36,6 +54,24 @@ data class BytePublicKey(val publicKey: ByteArray, private val algorithm: String
 
     override fun getEncoded(): ByteArray {
         return this.publicKey
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as BytePublicKey
+
+        if (!publicKey.contentEquals(other.publicKey)) return false
+        if (algorithm != other.algorithm) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = publicKey.contentHashCode()
+        result = 31 * result + algorithm.hashCode()
+        return result
     }
 }
 
@@ -80,12 +116,12 @@ data class Keys(val keyId: String, val pair: KeyPair, val provider: String) {
     }
 
     fun toEcKey(): ECKey {
-        val keyUse = KeyUse.parse("sig");
+        val keyUse = KeyUse.parse("sig")
         val keyAlg = JWSAlgorithm.parse("ES256K")
         val keyCurve = Curve.parse("secp256k1")
 
-        val pub = pair.getPublic() as ECPublicKey
-        val priv = pair.getPrivate() as ECPrivateKey
+        val pub = pair.public as ECPublicKey
+        val priv = pair.private as ECPrivateKey
 
         return ECKey.Builder(keyCurve, pub)
             .privateKey(priv)
@@ -95,9 +131,9 @@ data class Keys(val keyId: String, val pair: KeyPair, val provider: String) {
             .build()
     }
 
-    fun exportJwk(): String{
+    fun exportJwk(): String {
         if (provider == "SunEC") {
-            return when(algorithm) {
+            return when (algorithm) {
                 "ed" -> toOctetKeyPair().toJSONString()
                 "sec" -> toEcKey().toJSONString()
                 else -> throw Exception("Export of algo: $algorithm not supported")

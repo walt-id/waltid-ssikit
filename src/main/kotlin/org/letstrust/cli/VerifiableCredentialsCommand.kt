@@ -49,8 +49,16 @@ class IssueVcCommand : CliktCommand(
 ) {
     val config: CliConfig by requireObject()
     val dest: File? by argument().file().optional()
-    val template: File by option("-t", "--template", help = "VC template [data/vc/templates/vc-template-default.json]").file().default(File("data/vc/templates/vc-template-default.json"))
-    val issuerDid: String? by option("-i", "--issuer-did", help = "DID of the issuer (associated with signing key)").required()
+    val template: File by option(
+        "-t",
+        "--template",
+        help = "VC template [data/vc/templates/vc-template-default.json]"
+    ).file().default(File("data/vc/templates/vc-template-default.json"))
+    val issuerDid: String? by option(
+        "-i",
+        "--issuer-did",
+        help = "DID of the issuer (associated with signing key)"
+    ).required()
     val subjectDid: String? by option("-s", "--subject-did", help = "DID of the VC subject (receiver of VC)").required()
 
     override fun run() {
@@ -129,7 +137,8 @@ class PresentVcCommand : CliktCommand(
         log.debug { "Presentation created (ld-signature):\n$vp" }
 
         // FIX: This is required to filter out "type" : [ "Ed25519Signature2018" ] in the proof, which is s bug from signature.ld
-        val vpStr = Json.decodeFromString<VerifiablePresentation>(vp).let { Json { prettyPrint = true }.encodeToString(it) }
+        val vpStr =
+            Json.decodeFromString<VerifiablePresentation>(vp).let { Json { prettyPrint = true }.encodeToString(it) }
 
         echo("Presentation created:\n$vpStr")
 
@@ -159,19 +168,18 @@ class VerifyVcCommand : CliktCommand(
             throw Exception("Could not load file $src")
         }
 
-        if (isPresentation) {
-            if (CredentialService.verifyVp(src.readText())) {
-                echo("Presentation verified successfully")
-            } else {
-                echo("Presentation not valid")
+        echo(
+            when {
+                isPresentation -> when {
+                    CredentialService.verifyVp(src.readText()) -> "Presentation verified successfully"
+                    else -> "Presentation not valid"
+                }
+                else -> when {
+                    CredentialService.verify(src.readText()) -> "Credential verified successfully"
+                    else -> "Credential not valid"
+                }
             }
-        }else {
-            if (CredentialService.verify(src.readText())) {
-                echo("Credential verified successfully")
-            } else {
-                echo("Credential not valid")
-            }
-        }
+        )
     }
 }
 
@@ -185,7 +193,7 @@ class ListVcCommand : CliktCommand(
     override fun run() {
         echo("\nList VCs ...")
 
-        CredentialService.listVCs()?.forEach { it -> echo(" - $it") }
+        CredentialService.listVCs().forEach { echo(" - $it") }
     }
 }
 

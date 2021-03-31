@@ -17,24 +17,35 @@ class AuthCommand : CliktCommand(
 
     val config: CliConfig by requireObject()
 
-    //    val username: String by option(help = "The developer's shown username.")
-//        .prompt()
-    val email: String by option(help = "Your email address.")
+    /*
+    val username: String by option(help = "The developer's shown username.")
+    .prompt()
+    */
+
+    private val email: String by option(help = "Your email address.")
         .prompt(text = "E-Mail")
-    val password: String by option(help = "Your password.")
+    private val password: String by option(help = "Your password.")
         .prompt(hideInput = true)//, requireConfirmation = true)
 
     override fun run() {
-//        config.properties["username"] = username
-//        config.properties["email"] = email
-//        config.properties["password"] = "*".repeat(password.length)
-//        echo("Changed credentials.")
-//        println(config)
+        /*
+        config.properties["username"] = username
+        config.properties["email"] = email
+        config.properties["password"] = "*".repeat(password.length)
+        echo("Changed credentials.")
+        println(config)
+        */
 
-        val token = post("https://api.letstrust.io/users/auth/login", json = mapOf("email" to email, "password" to password)).jsonObject["token"].toString()
+        val token = post(
+            "https://api.letstrust.io/users/auth/login",
+            json = mapOf("email" to email, "password" to password)
+        ).jsonObject["token"].toString()
+
         println(token)
+
         val jwt = SignedJWT.parse(token)
-        var claimsMap = jwt.jwtClaimsSet.claims
+
+        val claimsMap = jwt.jwtClaimsSet.claims
         claimsMap.iterator().forEach { println(it) }
     }
 }
