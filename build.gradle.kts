@@ -70,6 +70,12 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "13"
 }
 
+tasks.withType<Jar> {
+    configurations["compileClasspath"].forEach { file: File ->
+        from(zipTree(file.absoluteFile))
+    }
+}
+
 application {
     mainClass.set("MainKt")
 }
