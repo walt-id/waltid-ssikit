@@ -12,6 +12,7 @@ target/
 
 # Gradle
 .gradle
+gradle
 build/
 gradle-app.setting
 !gradle-wrapper.jar
