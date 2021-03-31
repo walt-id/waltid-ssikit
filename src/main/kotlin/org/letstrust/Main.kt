@@ -2,6 +2,7 @@ package org.letstrust
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.subcommands
+import com.github.ajalt.clikt.output.TermUi.echo
 import com.github.ajalt.clikt.parameters.options.associate
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
@@ -63,24 +64,29 @@ class LetsTrust : CliktCommand(
 
 
 fun main(args: Array<String>) {
-
-    args.forEach {
-        if (it.contains("-v") || it.contains("--verbose")) {
-            LetsTrustServices.setLogLevel(Level.TRACE)
+    try {
+        args.forEach {
+            if (it.contains("-v") || it.contains("--verbose")) {
+                LetsTrustServices.setLogLevel(Level.TRACE)
+            }
         }
+
+        log.debug { "Let's Trust CLI started" }
+
+        LetsTrust()
+            .subcommands(
+                KeyCommand().subcommands(GenCommand(), ListKeysCommand(), ExportKeyCommand()),
+                DidCommand().subcommands(CreateDidCommand(), ResolveDidCommand(), ListDidsCommand()),
+                VerifiableCredentialsCommand().subcommands(IssueVcCommand(), PresentVcCommand(), VerifyVcCommand(), ListVcCommand()),
+                AuthCommand(),
+                EssifCommand().subcommands(EssifAuthCommand(), EssifDidCommand(), EssifTirCommand(), EssifTaorCommand(), EssifTsrCommand())
+            )
+            //.main(arrayOf("-v", "-c", "mykey=myval", "vc", "-h"))
+            //.main(arrayOf("vc", "verify", "vc.json"))
+            .main(args)
+    } catch (e: Exception) {
+        echo(e.message)
+        log.debug { e.printStackTrace() }
     }
 
-    log.debug { "Let's Trust CLI started" }
-
-    return LetsTrust()
-        .subcommands(
-            KeyCommand().subcommands(GenCommand(), ListKeysCommand(), ExportKeyCommand()),
-            DidCommand().subcommands(CreateDidCommand(), ResolveDidCommand(), ListDidsCommand()),
-            VerifiableCredentialsCommand().subcommands(IssueVcCommand(), PresentVcCommand(), VerifyVcCommand(), ListVcCommand()),
-            AuthCommand(),
-            EssifCommand().subcommands(EssifAuthCommand(), EssifDidCommand(), EssifTirCommand(), EssifTaorCommand(), EssifTsrCommand())
-        )
-        //.main(arrayOf("-v", "-c", "mykey=myval", "vc", "-h"))
-        //.main(arrayOf("vc", "verify", "vc.json"))
-        .main(args)
 }

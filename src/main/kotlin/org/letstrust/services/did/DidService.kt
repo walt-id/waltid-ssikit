@@ -60,12 +60,16 @@ object DidService {
 
     private fun createDidKey(keyAlias: String?): String {
 
-        var keyId = keyAlias?.let{ KeyId(it) }
+        var keyId = keyAlias?.let { KeyId(it) }
         val key = if (keyId != null) {
             ks.load(keyId.id)
         } else {
             keyId = crypto.generateKey(KeyAlgorithm.EdDSA_Ed25519)
             ks.load(keyId.id)
+        }
+
+        if (key.algorithm != KeyAlgorithm.EdDSA_Ed25519) {
+            throw Exception("DID KEY can only be created with an EdDSA Ed25519 key.")
         }
 
         val pubPrim = ASN1Sequence.fromByteArray(key.getPublicKey().encoded) as ASN1Sequence

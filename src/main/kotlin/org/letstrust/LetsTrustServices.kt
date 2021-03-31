@@ -67,7 +67,7 @@ object LetsTrustServices {
 
     init {
         val javaVersion = System.getProperty("java.runtime.version")
-        println("LetsTrust Services started (Java version: $javaVersion)")
+        println("LetsTrust services started (Java version: $javaVersion)")
         if (javaVersion.substring(0,1).equals("15")) {
             log.error { "Java version must be 15" }
         }
