@@ -51,7 +51,7 @@ object JwtService {
         return jweObject.serialize()
     }
 
-    fun dencrypt(
+    fun decrypt(
         jwe: String
     ): String {
         val jweObj = JWEObject.parse(jwe)
