@@ -13,10 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Set up JDK 14
+    - name: Set up JDK 15
       uses: actions/setup-java@v1
       with:
-        java-version: 14
+        java-version: 15
     - name: Build with Gradle
       run: gradle clean assemble --no-daemon
     - name: Docker Build and Push
