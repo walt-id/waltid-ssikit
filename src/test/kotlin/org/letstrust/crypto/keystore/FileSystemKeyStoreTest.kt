@@ -1,16 +1,13 @@
-package org.letstrust.deprecated
+package org.letstrust.crypto.keystore
 
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.SunCryptoService
-import org.letstrust.crypto.keystore.FileSystemKeyStore
-import org.letstrust.crypto.keystore.SqlKeyStore
 import org.letstrust.services.key.KeyManagementService
-import kotlin.test.assertTrue
+import kotlin.test.assertEquals
 
-@Deprecated(message = "We probably remove FileSystemKeyStore at some point")
 open class FileSystemKeyStoreTest {//: KeyStoreTest() {
 
     @Before
@@ -30,15 +27,9 @@ open class FileSystemKeyStoreTest {//: KeyStoreTest() {
 
         var keyId1 = KeyManagementService.generate(KeyAlgorithm.EdDSA_Ed25519)
         var keyId2 = KeyManagementService.generate(KeyAlgorithm.ECDSA_Secp256k1)
-
-        var foundKeyId1 = false
-        var foundKeyId2 = false
-        KeyManagementService.listKeys().forEach {
-            println("key $it")
-            if (keyId1.equals(it.keyId)) foundKeyId1 = true
-            if (keyId2.equals(it.keyId)) foundKeyId2 = true
-        }
-        assertTrue(foundKeyId1)
-        assertTrue(foundKeyId2)
+        var key1 = FileSystemKeyStore.load(keyId1.id)
+        var key2 = FileSystemKeyStore.load(keyId2.id)
+        assertEquals(keyId1, key1.keyId)
+        assertEquals(keyId2, key2.keyId)
     }
 }
