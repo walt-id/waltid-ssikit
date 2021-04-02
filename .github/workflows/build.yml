@@ -18,7 +18,7 @@ jobs:
       with:
         java-version: 14
     - name: Build with Gradle
-      run: gradle clean assemble
+      run: gradle clean assemble --no-daemon
     - name: Docker Build and Push
       uses: philpotisk/github-action-docker-build-push@master
       env:
