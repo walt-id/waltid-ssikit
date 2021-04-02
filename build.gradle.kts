@@ -85,6 +85,12 @@ val fatJar = task("fatJar", type = Jar::class) {
     with(tasks.jar.get() as CopySpec)
 }
 
+tasks {
+    "build" {
+        dependsOn(fatJar)
+    }
+}
+
 application {
     mainClass.set("MainKt")
 }
