@@ -70,12 +70,21 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "13"
 }
 
-tasks.withType<Jar> {
-    configurations["compileClasspath"].forEach { file: File ->
-        from(zipTree(file.absoluteFile))
+val fatJar = task("fatJar", type = Jar::class) {
+    group = "build"
+
+    archiveBaseName.set("${project.name}-with-dependencies")
+
+    manifest {
+        attributes["Implementation-Title"] = "Gradle Jar Bundling"
+        attributes["Implementation-Version"] = archiveVersion.get()
+        attributes["Main-Class"] = "org.letstrust.MainKt"
     }
+
+    from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
+    with(tasks.jar.get() as CopySpec)
 }
 
 application {
-    mainClass.set("MainKt")
+    mainClass.set("org.letstrust.MainKt")
 }
