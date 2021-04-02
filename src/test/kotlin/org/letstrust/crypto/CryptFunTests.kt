@@ -1,8 +1,7 @@
-package org.letstrust.services.crypto
+package org.letstrust.crypto
 
 import org.junit.Test
-import org.letstrust.*
-import org.letstrust.crypto.*
+import org.letstrust.LetsTrustServices
 import org.letstrust.services.key.KeyManagementService
 import java.security.KeyFactory
 import java.security.KeyPairGenerator

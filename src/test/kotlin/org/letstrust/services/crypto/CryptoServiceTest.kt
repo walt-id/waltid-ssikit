@@ -1,17 +1,17 @@
 package org.letstrust.services.crypto
 
-import junit.framework.Assert.assertNotNull
 import org.junit.Test
-import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.LetsTrustServices
-import org.letstrust.crypto.LetsTrustProvider
-import org.letstrust.crypto.SunCryptoService
-import org.letstrust.crypto.TinkCryptoService
+import org.letstrust.crypto.*
 import java.security.KeyStore
 import java.security.Provider
 import java.security.Security
 import java.security.Signature
 import javax.crypto.Cipher
+import javax.crypto.KeyGenerator
+import javax.crypto.spec.SecretKeySpec
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 
@@ -81,6 +81,24 @@ class CryptoServiceTest {
             }
         }
         assertTrue(letsTrustProviderFound, "LetsTrust provider not registered correctly")
+    }
+
+    @Test
+    fun testEncWithAes() {
+        val data = "Encrypt Me!"
+        val encKey = KeyGenerator.getInstance("AES").generateKey()
+        val encCipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        encCipher.init(Cipher.ENCRYPT_MODE, encKey)
+        val enc = encCipher.doFinal(data.toByteArray())
+
+        val encodedKey = encBase64(encKey.encoded)
+//        val ap = encCipher.parameters // IV
+        val decKey = SecretKeySpec(decBase64(encodedKey), "AES")
+        val decCipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
+        decCipher.init(Cipher.DECRYPT_MODE, decKey)
+        val decData = String(decCipher.doFinal(enc))
+
+        assertEquals(data, decData)
     }
 
 }

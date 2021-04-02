@@ -42,12 +42,15 @@ fun PublicKey.toPEM(): String = "-----BEGIN PUBLIC KEY-----\n" +
         ) +
         "\n-----END PUBLIC KEY-----"
 
+fun encBase64(bytes: ByteArray): String = String(Base64.getEncoder().encode(bytes))
 
-fun PublicKey.toBase64(): String = String(Base64.getEncoder().encode(X509EncodedKeySpec(this.encoded).encoded))
+fun decBase64(base64: String): ByteArray = Base64.getDecoder().decode(base64)
 
-fun decodePubKey(base64: String, kf: KeyFactory): PublicKey = kf.generatePublic(X509EncodedKeySpec(Base64.getDecoder().decode(base64)))
+fun PublicKey.toBase64(): String = encBase64(X509EncodedKeySpec(this.encoded).encoded)
 
-fun decodePrivKey(base64: String, kf: KeyFactory): PrivateKey = kf.generatePrivate(PKCS8EncodedKeySpec(Base64.getDecoder().decode(base64)))
+fun decodePubKey(base64: String, kf: KeyFactory): PublicKey = kf.generatePublic(X509EncodedKeySpec(decBase64(base64)))
+
+fun decodePrivKey(base64: String, kf: KeyFactory): PrivateKey = kf.generatePrivate(PKCS8EncodedKeySpec(decBase64(base64)))
 
 fun buildKey(keyId: String, algorithm: String, provider: String, publicPart: String, privatePart: String): Key {
 
