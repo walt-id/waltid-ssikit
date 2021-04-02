@@ -1,10 +1,8 @@
 package org.letstrust.crypto.keystore
 
+import mu.KotlinLogging
 import org.apache.commons.io.IOUtils
-import org.letstrust.crypto.buildKey
-import org.letstrust.crypto.Key
-import org.letstrust.crypto.KeyId
-import org.letstrust.crypto.toBase64
+import org.letstrust.crypto.*
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -16,10 +14,15 @@ import java.security.PublicKey
 import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
 
+private val log = KotlinLogging.logger() {}
+
 object FileSystemKeyStore : KeyStore {
 
     //TODO: get path from config
     private const val KEY_DIR_PATH = "data/key"
+
+    //TODO: get key fomrat from config
+    private val KEY_FORMAT = KeyFormat.PEM
 
     init {
         File(KEY_DIR_PATH).mkdirs()
@@ -39,15 +42,18 @@ object FileSystemKeyStore : KeyStore {
         return keys
     }
 
-    override fun load(keyId: String): Key {
+    override fun load(alias: String): Key {
+        log.debug { "Loading key \"${alias}\"." }
+
+        var keyId = getKeyId(alias) ?: alias
+
         val metaData = String(loadKeyFile(keyId, "meta"))
         val algorithm = metaData.substringBefore(delimiter = ";")
         val provider = metaData.substringAfter(delimiter = ";")
         val publicPart = File("$KEY_DIR_PATH/$keyId.enc-pubkey").readText()
         val privatePart = File("$KEY_DIR_PATH/$keyId.enc-privkey").readText()
 
-        return buildKey(keyId, algorithm, provider, publicPart, privatePart)
-
+        return buildKey(keyId, algorithm, provider, publicPart, privatePart, KEY_FORMAT)
     }
 
     override fun addAlias(keyId: KeyId, alias: String) {
@@ -57,15 +63,19 @@ object FileSystemKeyStore : KeyStore {
     override fun store(key: Key) {
         addAlias(key.keyId, key.keyId.id)
         storeKeyMetaData(key)
-        storePublicKeyPEM(key)
-        storePrivateKeyWhenExistingPEM(key)
+        storePublicKey(key)
+        storePrivateKeyWhenExisting(key)
 
 //        saveEncPublicKey(key.keyId.id, key.keyPair!!.public)
 //        saveEncPrivateKey(key.keyId.id, key.keyPair!!.private)
     }
 
-    override fun getKeyId(alias: String): String {
-        return File("$KEY_DIR_PATH/Alias-$alias").readText()
+    override fun getKeyId(alias: String): String? {
+        try {
+            return File("$KEY_DIR_PATH/Alias-$alias").readText()
+        } catch (e: Exception) {
+        }
+        return null;
     }
 
     override fun delete(alias: String) {
@@ -75,19 +85,33 @@ object FileSystemKeyStore : KeyStore {
         deleteKeyFile(alias, "raw-privkey")
     }
 
-    private fun storePublicKeyPEM(key: Key) {
-        File("$KEY_DIR_PATH/${key.keyId.id}.enc-pubkey").writeText(key.getPublicKey().toBase64())
-    }
+    private fun storePublicKey(key: Key) =
+        saveKeyData(
+            key, "enc-pubkey",
+            when (KEY_FORMAT) {
+                KeyFormat.PEM -> key.getPublicKey().toPEM()
+                KeyFormat.BASE64 -> key.getPublicKey().toBase64()
+            }.toByteArray()
+        )
 
-    private fun storePrivateKeyWhenExistingPEM(key: Key) {
+    private fun storePrivateKeyWhenExisting(key: Key) {
         if (key.keyPair != null && key.keyPair!!.private != null) {
-            File("$KEY_DIR_PATH/${key.keyId.id}.enc-privkey").writeText(key.keyPair!!.private.toBase64())
+            saveKeyData(
+                key, "enc-privkey", when (KEY_FORMAT) {
+                    KeyFormat.PEM -> key.keyPair!!.private.toPEM()
+                    KeyFormat.BASE64 -> key.keyPair!!.private.toBase64()
+                }.toByteArray()
+            )
         }
     }
 
     private fun storeKeyMetaData(key: Key) {
-        saveKeyFile(key.keyId.id, "meta", (key.algorithm.name + ";" + key.cryptoProvider.name).toByteArray())
+        saveKeyData(key, "meta", (key.algorithm.name + ";" + key.cryptoProvider.name).toByteArray())
     }
+
+    private fun saveKeyData(key: Key, suffix: String, data: ByteArray): Unit =
+        FileOutputStream("$KEY_DIR_PATH/${key.keyId.id}.$suffix").use { it.write(data) }
+
 
     //TODO consider deprecated methods below
 
@@ -170,6 +194,9 @@ object FileSystemKeyStore : KeyStore {
 ////        return null
 //    }>
 
+    private fun saveKeyFile(keyId: String, suffix: String, data: ByteArray): Unit =
+        FileOutputStream("$KEY_DIR_PATH/$keyId.$suffix").use { it.write(data) }
+
     private fun saveEncPublicKey(keyId: String, encodedPublicKey: PublicKey) =
         saveKeyFile(keyId, "enc-pubkey", X509EncodedKeySpec(encodedPublicKey.encoded).encoded)
 
@@ -182,8 +209,6 @@ object FileSystemKeyStore : KeyStore {
     private fun saveRawPrivateKey(keyId: String, rawPrivateKey: PrivateKey) =
         saveKeyFile(keyId, "raw-privkey", rawPrivateKey.encoded)
 
-    private fun saveKeyFile(keyId: String, suffix: String, data: ByteArray): Unit =
-        FileOutputStream("$KEY_DIR_PATH/$keyId.$suffix").use { it.write(data) }
 
     private fun loadKeyFile(keyId: String, suffix: String): ByteArray =
         IOUtils.toByteArray(FileInputStream("$KEY_DIR_PATH/$keyId.$suffix"))

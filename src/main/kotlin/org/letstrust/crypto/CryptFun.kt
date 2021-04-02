@@ -17,6 +17,11 @@ enum class KeyAlgorithm {
     ECDSA_Secp256k1
 }
 
+enum class KeyFormat {
+    PEM,
+    BASE64
+}
+
 // Supported signatures
 enum class SignatureType {
     Ed25519Signature2018,
@@ -59,16 +64,18 @@ fun decodePrivKeyBase64(base64: String, kf: KeyFactory): PrivateKey = kf.generat
 
 fun decodePrivKeyPem(pem: String, kf: KeyFactory): PrivateKey = decodePrivKeyBase64(pemToBase64(pem), kf)
 
-fun buildKey(keyId: String, algorithm: String, provider: String, publicPart: String, privatePart: String): Key {
+fun buildKey(keyId: String, algorithm: String, provider: String, publicPart: String, privatePart: String, format: KeyFormat = KeyFormat.PEM): Key {
 
     val kf = when (KeyAlgorithm.valueOf(algorithm)) {
-        KeyAlgorithm.ECDSA_Secp256k1 -> KeyFactory.getInstance("ECDSA", provider)
-        KeyAlgorithm.EdDSA_Ed25519 -> KeyFactory.getInstance("Ed25519", provider)
+        KeyAlgorithm.ECDSA_Secp256k1 -> KeyFactory.getInstance("ECDSA")
+        KeyAlgorithm.EdDSA_Ed25519 -> KeyFactory.getInstance("Ed25519")
     }
-    var pub = decodePubKeyBase64(publicPart, kf)
-    var priv = decodePrivKeyBase64(privatePart, kf)
+    val kp = when (format) {
+        KeyFormat.PEM -> Pair(decodePubKeyPem(publicPart, kf), decodePrivKeyPem(privatePart, kf))
+        KeyFormat.BASE64 -> Pair(decodePubKeyBase64(publicPart, kf), decodePrivKeyPem(privatePart, kf))
+    }
 
-    return Key(KeyId(keyId), KeyAlgorithm.valueOf(algorithm), CryptoProvider.valueOf(provider), KeyPair(pub, priv))
+    return Key(KeyId(keyId), KeyAlgorithm.valueOf(algorithm), CryptoProvider.valueOf(provider), KeyPair(kp.first, kp.second))
 }
 
 fun ByteArray.encodeBase58(): String = Base58.encode(this)
