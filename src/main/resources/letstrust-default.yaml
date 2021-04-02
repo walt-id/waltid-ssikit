@@ -2,7 +2,7 @@
 cryptoProvider: SUN # allowed values: 'SUN'; 'TINK' will be supported in future
 
 keystore:
-  type: database # allowed values: 'file', 'database', or 'custom';  'tink' will be supported in futrue
+  type: database # allowed values: 'file', 'database', or 'custom';  'tink' will be supported in future
 
 essif:
   essifApiBaseUrl: "https://api.ebsi.xyz"
