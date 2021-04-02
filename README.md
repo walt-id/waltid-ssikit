@@ -1,20 +1,28 @@
-# LetsTrust SSI Core
+# Let's Trust SSI Core
 
-Kotlin/Java Library & Dockerized CLI tool for SSI core services, with primary focus on European EBSI/ESSIF ecosystem.
+Kotlin/Java library & dockerized CLI tool for SSI core services, with primary focus on European EBSI/ESSIF ecosystem.
 
-The core services are in the scope of: key-management, signing, encryption, DID & VC operations.
+The core services are in the scope of:
 
-## Install
+  - key-management
+  - signing
+  - encryption
+  - DID & VC operations.
+
+## Install (using Docker)
 
     docker pull letstrust/test
     docker tag letstrust/test letstrust
 
-## Build
+## :hammer: Build
 
-    maven install
-    docker build -f docker/Dockerfile . -t letstrust
+### Building the application
+    gradle clean assemble
 
-## Push
+### Building the Docker container
+    docker build -t letstrust .
+
+### Pushing the Docker container
     docker tag letstrust letstrust/test
     docker push letstrust/test
 
@@ -52,29 +60,38 @@ hikariDataSource:
 In order to overwrite these values, simply place a yaml-based config-file named _letstrust.yaml_ in the root folder with the desired values.
 
 
-## Run
+## :gear: Run
 
-Running the Java application:
+### Running the application directly:
 
-    java -jar target/letstrust-ssi-core-1.0-SNAPSHOT-jar-with-dependencies.jar
+In build/distributions you have two archives, a .tar, and a .zip.  
+Extract either one of them, and execute `letstrust-ssi-core-1.0-SNAPSHOT/bin/letstrust-ssi-core`.
 
-Run CLI tools via Docker:
+e.g.:
+
+    cd build/distributions
+    tar xf letstrust-ssi-core-1.0-SNAPSHOT.tar    # or unzip for the .zip
+    cd letstrust-ssi-core-1.0-SNAPSHOT/bin
+
+    ./letstrust-ssi-core
+
+### Run CLI tools via Docker:
 
     docker run -it -v $(pwd)/data:/data letstrust
 
-Via Docker including an optional config-file called _letstrust.yaml_:
+#### Via Docker including an optional config-file called _letstrust.yaml_:
 
     docker run -it -v $(pwd)/data:/data -v $(pwd)/letstrust.yaml:/letstrust.yaml letstrust -v did create
 
-_For getting help, add "-h" to each command or sub-command e.g.:_
+#### _For getting help, add "-h" to each command or sub-command e.g.:_
 
     docker run -it -v $(pwd)/data:/data letstrust did create -h
 
-_For debug infos add "-v" e.g.:_
+#### _For debug infos add "-v" e.g.:_
     
     docker run -it -v $(pwd)/data:/data letstrust -v did create
 
-_Examples_ 
+#### _Examples_ 
 
     docker run -it -v $(pwd)/data:/data letstrust key gen --algorithm Ed25519
 
