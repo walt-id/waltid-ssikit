@@ -3,14 +3,12 @@
 Kotlin/Java library & dockerized CLI tool for SSI core services, with primary focus on European EBSI/ESSIF ecosystem.
 
 The core services are in the scope of:
+ - **key-management**
+ - **signing**
+ - **encryption**
+ - **DID & VC operations**
 
-  - key-management
-  - signing
-  - encryption
-  - DID & VC operations.
-
-## Install (using Docker)
-
+## Installation (using Docker)
     docker pull letstrust/test
     docker tag letstrust/test letstrust
 
@@ -57,14 +55,14 @@ hikariDataSource:
     fullColumnNames: false
 ````
 
-In order to overwrite these values, simply place a yaml-based config-file named _letstrust.yaml_ in the root folder with the desired values.
+In order to overwrite these values, simply place a yaml-based config-file named `letstrust.yaml` in the root folder with the desired values.
 
 
 ## :gear: Run
 
 ### Running the application directly:
 
-In build/distributions you have two archives, a .tar, and a .zip.  
+In `build/distributions/` you have two archives, a .tar, and a .zip.  
 Extract either one of them, and execute `letstrust-ssi-core-1.0-SNAPSHOT/bin/letstrust-ssi-core`.
 
 e.g.:
@@ -81,23 +79,19 @@ alternatively unpack the archive and run the start-up script:
 
     letsturst.sh
 ### Run CLI tools via Docker:
-
     docker run -it -v $(pwd)/data:/data letstrust
 
-#### Via Docker including an optional config-file called _letstrust.yaml_:
-
+#### Via Docker including an optional config-file called `letstrust.yaml`:
     docker run -it -v $(pwd)/data:/data -v $(pwd)/letstrust.yaml:/letstrust.yaml letstrust -v did create
 
-#### _For getting help, add "-h" to each command or sub-command e.g.:_
-
+#### For getting help, add "-h" to each command or sub-command e.g.:
     docker run -it -v $(pwd)/data:/data letstrust did create -h
 
-#### _For debug infos add "-v" e.g.:_
-    
+#### For debug infos add "-v" e.g.:
+
     docker run -it -v $(pwd)/data:/data letstrust -v did create
 
-#### _Examples_ 
-
+#### Examples
     docker run -it -v $(pwd)/data:/data letstrust key gen --algorithm Ed25519
 
     docker run -it -v $(pwd)/data:/data letstrust key list
