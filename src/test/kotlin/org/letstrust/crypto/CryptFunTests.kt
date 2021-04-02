@@ -2,7 +2,6 @@ package org.letstrust.crypto
 
 import org.junit.Test
 import org.letstrust.LetsTrustServices
-import org.letstrust.services.key.KeyManagementService
 import java.security.KeyFactory
 import java.security.KeyPairGenerator
 import java.security.SecureRandom
@@ -18,11 +17,24 @@ class CryptFunTests {
 
     @Test
     fun publicKeyBase64EncodingTest() {
-        val keyId = KeyManagementService.generate(KeyAlgorithm.EdDSA_Ed25519)
-        val pubKey = KeyManagementService.load(keyId.id).getPublicKey()
-        val base64 = pubKey.toBase64()
-        val decodedPubKey = decodePubKey(base64, KeyFactory.getInstance("Ed25519"))
-        assertEquals(pubKey, decodedPubKey)
+        val keypair = keyPairGeneratorEd25519().generateKeyPair()
+        val pub = keypair.public.toBase64()
+        val priv = keypair.private.toBase64()
+        val decodedPubKey = decodePubKeyBase64(pub, KeyFactory.getInstance("Ed25519"))
+        val decodedPrivKey = decodePrivKeyBase64(priv, KeyFactory.getInstance("Ed25519"))
+        assertEquals(keypair.public, decodedPubKey)
+        assertEquals(keypair.private, decodedPrivKey)
+    }
+
+    @Test
+    fun publicKeyPemEncodingTest() {
+        val keypair = keyPairGeneratorEd25519().generateKeyPair()
+        val pub = keypair.public.toPEM()
+        val priv = keypair.private.toPEM()
+        val decodedPubKey = decodePubKeyPem(pub, KeyFactory.getInstance("Ed25519"))
+        assertEquals(keypair.public, decodedPubKey)
+        val decodedPrivKey = decodePrivKeyPem(priv, KeyFactory.getInstance("Ed25519"))
+        assertEquals(keypair.private, decodedPrivKey)
     }
 
     @Test

@@ -26,6 +26,7 @@ enum class SignatureType {
 
 fun newKeyId(): KeyId = KeyId("LetsTrust-Key-${UUID.randomUUID().toString().replace("-", "")}")
 
+// EdECPrivateKeySpec(ED25519, this.encoded
 fun PrivateKey.toPEM(): String =
     "-----BEGIN PRIVATE KEY-----\n" +
             String(
@@ -48,23 +49,26 @@ fun decBase64(base64: String): ByteArray = Base64.getDecoder().decode(base64)
 
 fun PublicKey.toBase64(): String = encBase64(X509EncodedKeySpec(this.encoded).encoded)
 
-fun decodePubKey(base64: String, kf: KeyFactory): PublicKey = kf.generatePublic(X509EncodedKeySpec(decBase64(base64)))
+fun decodePubKeyBase64(base64: String, kf: KeyFactory): PublicKey = kf.generatePublic(X509EncodedKeySpec(decBase64(base64)))
 
-fun decodePrivKey(base64: String, kf: KeyFactory): PrivateKey = kf.generatePrivate(PKCS8EncodedKeySpec(decBase64(base64)))
+fun decodePubKeyPem(pem: String, kf: KeyFactory): PublicKey = decodePubKeyBase64(pemToBase64(pem), kf)
+
+fun pemToBase64(pem: String): String = pem.substringAfter("\n").substringBefore("-").replace("\n", "")
+
+fun decodePrivKeyBase64(base64: String, kf: KeyFactory): PrivateKey = kf.generatePrivate(PKCS8EncodedKeySpec(decBase64(base64)))
+
+fun decodePrivKeyPem(pem: String, kf: KeyFactory): PrivateKey = decodePrivKeyBase64(pemToBase64(pem), kf)
 
 fun buildKey(keyId: String, algorithm: String, provider: String, publicPart: String, privatePart: String): Key {
 
-    var algorithm = KeyAlgorithm.valueOf(algorithm)
-    var provider = CryptoProvider.valueOf(provider)
-
-    val kf = when (algorithm) {
-        KeyAlgorithm.ECDSA_Secp256k1 -> KeyFactory.getInstance("ECDSA")
-        KeyAlgorithm.EdDSA_Ed25519 -> KeyFactory.getInstance("Ed25519")
+    val kf = when (KeyAlgorithm.valueOf(algorithm)) {
+        KeyAlgorithm.ECDSA_Secp256k1 -> KeyFactory.getInstance("ECDSA", provider)
+        KeyAlgorithm.EdDSA_Ed25519 -> KeyFactory.getInstance("Ed25519", provider)
     }
-    var pub = decodePubKey(publicPart, kf)
-    var priv = decodePrivKey(privatePart, kf)
+    var pub = decodePubKeyBase64(publicPart, kf)
+    var priv = decodePrivKeyBase64(privatePart, kf)
 
-    return Key(KeyId(keyId), algorithm, provider, KeyPair(pub, priv))
+    return Key(KeyId(keyId), KeyAlgorithm.valueOf(algorithm), CryptoProvider.valueOf(provider), KeyPair(pub, priv))
 }
 
 fun ByteArray.encodeBase58(): String = Base58.encode(this)
@@ -134,7 +138,7 @@ fun convertPublicKeyEd25519ToCurve25519(ed25519PublicKey: ByteArray): ByteArray 
 }
 
 
-fun keyPairGeneratorSecp256k1() : KeyPairGenerator {
+fun keyPairGeneratorSecp256k1(): KeyPairGenerator {
     val kg = KeyPairGenerator.getInstance("EC", "BC")
     kg.initialize(ECGenParameterSpec("secp256k1"), SecureRandom())
     return kg
@@ -143,3 +147,4 @@ fun keyPairGeneratorSecp256k1() : KeyPairGenerator {
 fun keyPairGeneratorEd25519(): KeyPairGenerator {
     return KeyPairGenerator.getInstance("Ed25519")
 }
+
