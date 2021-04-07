@@ -6,6 +6,7 @@ import org.letstrust.model.DidMethod
 import org.letstrust.services.did.DidService
 import kotlin.test.assertTrue
 
+// https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/2.+OIDC-SSI+Flow
 class OidcSsiFlowTest {
     @Test
     fun runOidcSsiFlowTest() {
