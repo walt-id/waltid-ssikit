@@ -1,6 +1,7 @@
 package org.letstrust.s.essif
 
 import org.letstrust.services.essif.DidRegistry
+import org.letstrust.services.essif.EnterpriseWalletService
 
 object EosService {
 
@@ -30,13 +31,23 @@ object EosService {
         return "uri"
     }
 
-    fun didOwnershipResponse() : String {
+    fun didOwnershipResponse(): String {
         println("8. [Eos] Response DID ownership")
         println("9. [Eos] Validate DID ownership")
         return "200 V.ID Request OK"
     }
 
-    fun getCredentials() {
-        println("12. [Eos] [GET]/credentials")
+    fun getCredentials(isUserAuthenticated: Boolean = false): String {
+        if (isUserAuthenticated) {
+            println("12. [Eos] [GET]/credentials")
+            return "QR code / URI"
+        } else {
+            println("2. [Eos] [GET]/credentials")
+            EnterpriseWalletService.generateDidAuthReq()
+            println("4. [Eos] 200 <DID->uth Req>")
+            println("5. Generate QR, URI")
+            return "QR code / URI"
+        }
+
     }
 }

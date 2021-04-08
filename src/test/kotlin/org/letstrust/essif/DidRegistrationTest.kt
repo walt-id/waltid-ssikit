@@ -1,13 +1,13 @@
 package org.letstrust.essif
 
 import org.junit.Test
-import org.letstrust.services.essif.WalletService
+import org.letstrust.services.essif.EnterpriseWalletService
 
 class DidRegistrationTest {
     @Test
     fun testEbsiDidRegistration() {
-        WalletService.didGeneration()
+        EnterpriseWalletService.didGeneration()
 
-        WalletService.authorizationRequest()
+        EnterpriseWalletService.authorizationRequest()
     }
 }
