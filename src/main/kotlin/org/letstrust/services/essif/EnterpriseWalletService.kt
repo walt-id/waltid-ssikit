@@ -61,4 +61,9 @@ object EnterpriseWalletService {
         println("15. DID AuthN validation")
         return true
     }
+
+    fun validateDidAuthResponse(didAuthResp: String) : String {
+        println("15. Validate response")
+        return "vcToken"
+    }
 }
