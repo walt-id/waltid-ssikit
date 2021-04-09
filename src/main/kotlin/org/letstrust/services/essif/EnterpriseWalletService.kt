@@ -1,10 +1,13 @@
 package org.letstrust.services.essif
 
-import org.letstrust.model.DidMethod
 import org.letstrust.s.essif.EosService
-import org.letstrust.services.did.DidService
 
 object EnterpriseWalletService {
+
+//    val didUrlRp by lazy {
+//        DidService.create(DidMethod.web)
+//    }
+
 
     // https://besu.hyperledger.org/en/stable/HowTo/Send-Transactions/Account-Management/
     fun didGeneration() {
@@ -14,16 +17,12 @@ object EnterpriseWalletService {
         println("4. [EWallet] Generate DID Document")
     }
 
-    fun authorizationRequest() {
+    fun requestVerifiableAuthorization() {
         println("5. [EWallet] POST /onboards")
         val didOwnershipReq = EosService.onboards()
         println("7. [EWallet] Signed Challenge")
         val verifiableAuthorization = EosService.signedChallenge("signedChallenge")
         println("12. [EWallet] 201 V. Authorization")
-    }
-
-    fun generateDidAuthReq() {
-        println("3. [EWallet] Generate <DID-Auth Request>")
     }
 
     fun requestVerifiableId() {
@@ -38,12 +37,8 @@ object EnterpriseWalletService {
         return vIdRequest
     }
 
-    val didUrlRp by lazy {
-        DidService.create(DidMethod.web)
-    }
 
-
-    fun auth(): String {
+    fun generateOidcAuthRequest(): String {
         println("3/2. [EWallet] Auth /auth")
 
         println("4/3. [EWallet] Generate Authentication Request")
@@ -54,6 +49,12 @@ object EnterpriseWalletService {
         return authRequest
     }
 
+
+    fun generateDidAuthRequest() {
+        println("3. [EWallet] Generate <DID-Auth Request>")
+    }
+
+
     fun token(authResp: String): Boolean {
         println("13. [EWallet] /token <Authentication Response>")
 
@@ -63,7 +64,7 @@ object EnterpriseWalletService {
         return true
     }
 
-    fun validateDidAuthResponse(didAuthResp: String) : String {
+    fun validateDidAuthResponse(didAuthResp: String): String {
         println("15/13. [EWallet]  Validate response")
         return "vcToken"
     }

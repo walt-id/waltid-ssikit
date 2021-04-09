@@ -4,7 +4,7 @@ import org.letstrust.services.essif.EnterpriseWalletService
 
 class RelyingParty() {
     fun signOn(): String {
-        val authReq = EnterpriseWalletService.auth()
+        val authReq = EnterpriseWalletService.generateOidcAuthRequest()
 
         println("5/4. [RP] 200 Return Authentication Request")
         println("5. [RP] Generate QR, URI")

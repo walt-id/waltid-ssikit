@@ -1,9 +1,12 @@
 package org.letstrust.s.essif
 
-import org.letstrust.services.essif.DidRegistry
 import org.letstrust.services.essif.EnterpriseWalletService
+import org.letstrust.services.essif.mock.DidRegistry
+import java.io.File
 
 object EosService {
+
+    private fun readEssif(fileName: String) = File("src/test/resources/essif/${fileName}.json").readText(Charsets.UTF_8)
 
     // POST /onboards
     // returns DID ownership
@@ -40,15 +43,15 @@ object EosService {
     fun getCredentials(isUserAuthenticated: Boolean = false): String {
         if (isUserAuthenticated) {
             println("12. [Eos] [GET]/credentials")
-            return "QR code / URI"
+            return readEssif("vc-issuance-auth-req")
         } else {
             println("2. [Eos] [GET]/credentials")
-            EnterpriseWalletService.generateDidAuthReq()
-            println("4. [Eos] 200 <DID->uth Req>")
+            EnterpriseWalletService.generateDidAuthRequest()
+            println("4. [Eos] 200 <DID-Auth Req>")
             println("5. [Eos] Generate QR, URI")
             // TODO: Trigger job for [GET] /sessions/{id}
             val str = EnterpriseWalletService.getSession("sessionID")
-            return "QR code / URI"
+            return readEssif("vc-issuance-auth-req")
         }
 
     }

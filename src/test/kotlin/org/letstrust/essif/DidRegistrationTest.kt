@@ -8,6 +8,6 @@ class DidRegistrationTest {
     fun testEbsiDidRegistration() {
         EnterpriseWalletService.didGeneration()
 
-        EnterpriseWalletService.authorizationRequest()
+        EnterpriseWalletService.requestVerifiableAuthorization()
     }
 }

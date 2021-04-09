@@ -1,7 +1,7 @@
 package org.letstrust.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
-import org.letstrust.services.essif.EssifService
+import org.letstrust.services.essif.UserWalletService
 
 // TODO: Support following commands
 
@@ -43,7 +43,8 @@ class EssifAuthCommand : CliktCommand(
         ESSIF Authorization flow"""
 ) {
     override fun run() {
-        EssifService.authenticate()
+        //EssifService.authenticate()
+        UserWalletService.requestVerifiableAuthorization()
     }
 }
 

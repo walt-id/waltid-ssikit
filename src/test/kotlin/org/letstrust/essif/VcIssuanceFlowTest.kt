@@ -4,7 +4,7 @@ import org.junit.Test
 import org.letstrust.s.essif.EosService
 import org.letstrust.services.essif.UserWalletService
 
-// https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/2.+Main+Flow%3A+VC-Request+-+Onboarding+Flow
+// https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/VC-Issuance+Flow
 class VcIssuanceFlowTest {
 
     @Test
