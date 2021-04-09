@@ -44,9 +44,9 @@ object EnterpriseWalletService {
 
 
     fun auth(): String {
-        println("3. Auth")
+        println("2. Auth /auth")
 
-        println("4. Generate Authentication Request")
+        println("4/3. Generate Authentication Request")
         val authRequest = "openid://?response_type=id_token\n" +
                 "    &client_id=https%3A%2F%2Frp.example.com%2Fcb\n" +
                 "    &scope=openid%20did_authn\n" +
@@ -64,12 +64,13 @@ object EnterpriseWalletService {
     }
 
     fun validateDidAuthResponse(didAuthResp: String) : String {
-        println("15. [EWallet]  Validate response")
+        println("15/13. [EWallet]  Validate response")
         return "vcToken"
     }
 
     fun getSession(sessionId: String): String {
-        println("8. [EWallet]428 (no content)")
+        println("7/16. [EWallet] /sessions/{id}")
+        println("8/17. [EWallet] 428 (no content)")
         return "notfound - or session"
     }
 }
