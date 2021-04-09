@@ -5,8 +5,6 @@ import kotlin.test.assertTrue
 
 // https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/2.+DID-Auth+Flow
 class DidAuthFlowTest {
-    val rp = RelyingParty()
-    val ua = UserAgent()
 
     @Test
     fun testDidAuthFlow() {

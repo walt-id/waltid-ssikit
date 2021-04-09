@@ -1,32 +1,41 @@
 package org.letstrust.s.essif
 
+import mu.KotlinLogging
+import org.letstrust.common.readEssif
 import org.letstrust.services.essif.EnterpriseWalletService
 import org.letstrust.services.essif.mock.DidRegistry
-import java.io.File
+
+private val log = KotlinLogging.logger {}
 
 object EosService {
-
-    private fun readEssif(fileName: String) = File("src/test/resources/essif/${fileName}.json").readText(Charsets.UTF_8)
 
     // POST /onboards
     // returns DID ownership
     fun onboards(): String {
         println("6. [Eos] Request DID ownership")
-        return "DID ownership req"
+        return readEssif("onboarding-onboards-resp")
     }
 
     fun signedChallenge(signedChallenge: String): String {
+
+        val header = readEssif("onboarding-onboards-callback-req-header")
+        val body = readEssif("onboarding-onboards-callback-req-body")
+
+        log.debug { "header: $header" }
+        log.debug { "body: $body" }
+
         println("8. [Eos] Validate DID Document")
         println("9. [Eos] GET /identifiers/{did}")
         DidRegistry.get("did")
         println("10. [Eos] 404 Not found")
         println("11. [Eos] Generate Verifiable Authorization")
-        return "Verifiable Authorization"
+        val verifiableAuthorization = readEssif("onboarding-onboards-callback-resp")
+        return verifiableAuthorization
     }
 
     fun requestVerifiableId(): String {
         println("4. [Eos] Request V.ID")
-        return "didOwnershipReq"
+        return readEssif("onboarding-did-ownership-req")
     }
 
     fun requestCredentialUri(): String {
@@ -34,15 +43,25 @@ object EosService {
         return "uri"
     }
 
-    fun didOwnershipResponse(): String {
+    fun didOwnershipResponse(didOwnershipResp: String): String {
         println("8. [Eos] Response DID ownership")
+        log.debug { "didOwnershipResp: $didOwnershipResp" }
         println("9. [Eos] Validate DID ownership")
-        return "200 V.ID Request OK"
+        val didOwnershipRespHeader = readEssif("onboarding-did-ownership-resp-header")
+        log.debug { "didOwnershipRespHeader: $didOwnershipRespHeader" }
+        val didOwnershipRespBody = readEssif("onboarding-did-ownership-resp-body")
+        log.debug { "didOwnershipRespBody: $didOwnershipRespBody" }
+        val vIdRequestOkResp = readEssif("onboarding-vid-req-ok")
+        return vIdRequestOkResp
+    }
+
+    fun getCredential(id: String): String {
+        println("12. [Eos] [GET]/credentials")
+        return readEssif("onboarding-vid")
     }
 
     fun getCredentials(isUserAuthenticated: Boolean = false): String {
         if (isUserAuthenticated) {
-            println("12. [Eos] [GET]/credentials")
             return readEssif("vc-issuance-auth-req")
         } else {
             println("2. [Eos] [GET]/credentials")

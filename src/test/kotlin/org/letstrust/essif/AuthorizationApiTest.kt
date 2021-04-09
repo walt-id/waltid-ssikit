@@ -3,6 +3,7 @@ package org.letstrust.essif
 import org.junit.Test
 import org.letstrust.services.essif.UserWalletService
 
+// https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/2.+Authorization+API
 class AuthorizationApiTest {
 
     @Test

@@ -49,11 +49,6 @@ object UserWalletService {
 
     }
 
-    fun accessProtectedResource() {
-
-    }
-
-
     // https://ec.europa.eu/cefdigital/wiki/pages/viewpage.action?spaceKey=BLOCKCHAININT&title=2.+Authorization+API
     fun requestVerifiableAuthorization() {
         println("--------------------------------------------------------------------------------")
@@ -69,6 +64,11 @@ object UserWalletService {
         // AKE Protocol
         validateAccessTokenResponse(atr)
     }
+
+    fun accessProtectedResource() {
+
+    }
+
 
 
     private fun didAuthAuthorizationApi(): AuthenticationRequestPayload {

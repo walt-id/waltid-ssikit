@@ -1,6 +1,10 @@
 package org.letstrust.services.essif
 
+import mu.KotlinLogging
+import org.letstrust.common.readEssif
 import org.letstrust.s.essif.EosService
+
+private val log = KotlinLogging.logger {}
 
 object EnterpriseWalletService {
 
@@ -10,31 +14,42 @@ object EnterpriseWalletService {
 
 
     // https://besu.hyperledger.org/en/stable/HowTo/Send-Transactions/Account-Management/
-    fun didGeneration() {
+    fun didGeneration(): String {
         println("1. [EWallet] Generate ETH address (keys)")
         println("2. [EWallet] Generate DID Controlling Keys)")
         println("3. [EWallet] Store DID Controlling Private Key")
         println("4. [EWallet] Generate DID Document")
+        return "didDoc"
     }
 
-    fun requestVerifiableAuthorization() {
+    fun requestVerifiableAuthorization(): String {
         println("5. [EWallet] POST /onboards")
         val didOwnershipReq = EosService.onboards()
+        log.debug { "didOwnershipReq: $didOwnershipReq" }
+        log.debug { "didOwnershipReqHeader:" + readEssif("onboarding-onboards-resp-header") }
+        log.debug { "didOwnershipReqBody: " + readEssif("onboarding-onboards-resp-body") }
         println("7. [EWallet] Signed Challenge")
-        val verifiableAuthorization = EosService.signedChallenge("signedChallenge")
+
+        val signedChallenge = readEssif("onboarding-onboards-callback-req")
+        log.debug { "signedChallenge: $signedChallenge" }
+        val verifiableAuthorization = EosService.signedChallenge(signedChallenge)
         println("12. [EWallet] 201 V. Authorization")
+        return verifiableAuthorization
     }
 
     fun requestVerifiableId() {
         val didOwnershipReq = EosService.requestVerifiableId()
+        log.debug { didOwnershipReq }
         println("5. [EWallet] Request DID prove")
     }
 
     fun getVerifiableId(): String {
-        val vIdRequest = EosService.didOwnershipResponse()
-        EosService.getCredentials()
+        val didOwnershipResp = readEssif("onboarding-did-ownership-resp")
+        val vIdRequest = EosService.didOwnershipResponse(didOwnershipResp)
+        log.debug { "vIdRequest: $vIdRequest" }
+        val vId = EosService.getCredential("id")
         println("13 [EWallet] 200 <V.ID>")
-        return vIdRequest
+        return vId
     }
 
 
