@@ -44,9 +44,9 @@ object EnterpriseWalletService {
 
 
     fun auth(): String {
-        println("2. Auth /auth")
+        println("3/2. [EWallet] Auth /auth")
 
-        println("4/3. Generate Authentication Request")
+        println("4/3. [EWallet] Generate Authentication Request")
         val authRequest = "openid://?response_type=id_token\n" +
                 "    &client_id=https%3A%2F%2Frp.example.com%2Fcb\n" +
                 "    &scope=openid%20did_authn\n" +
@@ -55,11 +55,11 @@ object EnterpriseWalletService {
     }
 
     fun token(authResp: String): Boolean {
-        println("13. /token <Authentication Response>")
+        println("13. [EWallet] /token <Authentication Response>")
 
-        println("14. OIDC Validation")
+        println("14. [EWallet] OIDC Validation")
 
-        println("15. DID AuthN validation")
+        println("15. [EWallet] DID AuthN validation")
         return true
     }
 
@@ -72,5 +72,13 @@ object EnterpriseWalletService {
         println("7/16. [EWallet] /sessions/{id}")
         println("8/17. [EWallet] 428 (no content)")
         return "notfound - or session"
+    }
+
+    // used in Trusted Issuer Onboarding
+    fun onboardTrustedIssuer(scanQrUri: String) {
+        // Send information to the Trusted Accreditation Organization
+        println("9. [EWallet] GET /sessions/{id}")
+        println("10. [EWallet] 200 <Sessions>")
+        println("11. [EWallet] [POST] /sessions")
     }
 }

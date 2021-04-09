@@ -6,8 +6,8 @@ class RelyingParty() {
     fun signOn(): String {
         val authReq = EnterpriseWalletService.auth()
 
-        println("5/4. 200 Return Authentication Request")
-        println("5. Generate QR, URI")
+        println("5/4. [RP] 200 Return Authentication Request")
+        println("5. [RP] Generate QR, URI")
 
         EnterpriseWalletService.getSession("sessionId")
 
@@ -15,9 +15,9 @@ class RelyingParty() {
     }
 
     fun callback(authResp: String): Boolean {
-        println("12. Authentication Response: Callback /callback")
+        println("12. [RP] Authentication Response: Callback /callback")
         return EnterpriseWalletService.token(authResp)
-        print("15. Success")
+        print("15. [RP] Success")
     }
 
     fun getSession(sessionId: String) {
