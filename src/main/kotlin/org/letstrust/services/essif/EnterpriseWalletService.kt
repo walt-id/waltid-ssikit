@@ -6,6 +6,7 @@ import org.letstrust.services.did.DidService
 
 object EnterpriseWalletService {
 
+    // https://besu.hyperledger.org/en/stable/HowTo/Send-Transactions/Account-Management/
     fun didGeneration() {
         println("1. [EWallet] Generate ETH address (keys)")
         println("2. [EWallet] Generate DID Controlling Keys)")
@@ -63,7 +64,12 @@ object EnterpriseWalletService {
     }
 
     fun validateDidAuthResponse(didAuthResp: String) : String {
-        println("15. Validate response")
+        println("15. [EWallet]  Validate response")
         return "vcToken"
+    }
+
+    fun getSession(sessionId: String): String {
+        println("8. [EWallet]428 (no content)")
+        return "notfound - or session"
     }
 }

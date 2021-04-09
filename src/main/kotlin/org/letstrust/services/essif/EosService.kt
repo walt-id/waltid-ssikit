@@ -45,7 +45,9 @@ object EosService {
             println("2. [Eos] [GET]/credentials")
             EnterpriseWalletService.generateDidAuthReq()
             println("4. [Eos] 200 <DID->uth Req>")
-            println("5. Generate QR, URI")
+            println("5. [Eos] Generate QR, URI")
+            // TODO: Trigger job for [GET] /sessions/{id}
+            val str = EnterpriseWalletService.getSession("sessionID")
             return "QR code / URI"
         }
 
