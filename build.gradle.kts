@@ -4,6 +4,7 @@ plugins {
     kotlin("jvm") version "1.4.32"
     kotlin("plugin.serialization") version "1.4.30"
     application
+    `maven-publish`
 }
 
 group = "org.letstrust"
@@ -87,4 +88,28 @@ val fatJar = task("fatJar", type = Jar::class) {
 
 application {
     mainClass.set("org.letstrust.MainKt")
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            pom {
+                name.set("Lets Trust SSI Core")
+                description.set("Kotlin/Java library for SSI core services, with primary focus on European EBSI/ESSIF ecosystem.")
+                url.set("https://letstrust.io")
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            // change to point to your repo, e.g. http://my.org/repo
+            url = uri("https://maven.letstrust.io/repository/letstrust-ssi-core/")
+
+            credentials {
+                username = "letstrust-build"
+                password = "naidohTeiraG9ouzoo0"
+            }
+        }
+    }
 }
