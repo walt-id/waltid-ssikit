@@ -73,6 +73,11 @@ e.g.:
 
     ./letstrust-ssi-core
 
+alternatively unpack the archive and run the start-up script:
+
+    tar xf build/distributions/letstrust-ssi-core-1.0-SNAPSHOT.tar -C build/distributions/
+
+    letstrust.sh
 ### Run CLI tools via Docker:
     docker run -it -v $(pwd)/data:/data letstrust
 

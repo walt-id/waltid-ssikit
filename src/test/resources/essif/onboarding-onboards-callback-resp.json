@@ -1,0 +1,24 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://essif.europa.eu/schemas/vc/2020/v1"
+  ],
+  "id": "did:ebsi:2123456789AB...fghijkmno/credentials/1872",
+  "type": [
+    "VerifiableCredential",
+    "VerifiableAuthorization"
+  ],
+  "issuer": "did:ebsi:2123456789AB...fghijkmno",
+  "issuanceDate": "2020-08-24T14:13:44Z",
+  "credentialSubject": {
+    "id": "did:ebsi:00000004321",
+    "hash": "0x31a014c390aa9ad2b47a1df8904c8addf87db279b06eae50797f546da63229d3"
+  },
+  "proof": {
+    "type": "EcdsaSecp256k1Signature2019",
+    "created": "2020-08-24T14:13:44Z",
+    "proofPurpose": "assertionMethod",
+    "verificationMethod": "did:ebsi:2123456789AB...fghijkmno#key-1",
+    "jws": "eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..TCYt5X"
+  }
+}
