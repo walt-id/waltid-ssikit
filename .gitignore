@@ -22,5 +22,5 @@ gradle-app.setting
 # LetsTrust
 keys/
 *.db
-data/
+/data/
 /docs/essif/*
