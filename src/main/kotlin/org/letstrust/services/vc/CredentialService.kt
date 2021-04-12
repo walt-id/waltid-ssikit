@@ -207,8 +207,16 @@ object CredentialService {
         log.debug { "Signature type: $signatureType" }
 
         val vpVerified = verify(issuer, vp)
-        log.debug { "Verification of LD-Proof returned: $vpVerified" }
-        return vpVerified
+        log.debug { "Verification of VP-Proof returned: $vpVerified" }
+
+        val vc = vpObj.verifiableCredential.get(0)
+        val vcStr = vc.encodePretty()
+        log.debug { "Verifying VC:\n$vcStr" }
+        val vcVerified = verify(vc.issuer, vcStr)
+
+        log.debug { "Verification of VC-Proof returned: $vpVerified" }
+
+        return vpVerified && vcVerified
     }
 
 //    fun verify_old(issuerDid: String, vc: String, signatureType: SignatureType): Boolean {
