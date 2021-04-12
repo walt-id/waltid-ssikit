@@ -152,13 +152,13 @@ class PresentVcCommand : CliktCommand(
 
 class VerifyVcCommand : CliktCommand(
     name = "verify",
-    help = """Verify VC.
+    help = """Verify VC or VP.
         
         """
 ) {
 
     val src: File by argument().file()
-    val isPresentation: Boolean by option("-p", "--is-presentation", help = "In case a VP is verified.").flag()
+    //val isPresentation: Boolean by option("-p", "--is-presentation", help = "In case a VP is verified.").flag()
 
     override fun run() {
         echo("Verify VC form file $src ...\n")
@@ -168,9 +168,11 @@ class VerifyVcCommand : CliktCommand(
             throw Exception("Could not load file $src")
         }
 
+        val vcOrVP = src.readText()
+
         echo(
             when {
-                isPresentation -> when {
+                vcOrVP.contains("VerifiablePresentation") -> when {
                     CredentialService.verifyVp(src.readText()) -> "Presentation verified successfully"
                     else -> "Presentation not valid"
                 }
