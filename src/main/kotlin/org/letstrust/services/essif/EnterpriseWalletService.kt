@@ -3,15 +3,30 @@ package org.letstrust.services.essif
 import mu.KotlinLogging
 import org.letstrust.common.readEssif
 import org.letstrust.s.essif.EosService
-
-private val log = KotlinLogging.logger {}
+import org.letstrust.services.essif.mock.DidRegistry
 
 object EnterpriseWalletService {
+
+    private val log = KotlinLogging.logger {}
 
 //    val didUrlRp by lazy {
 //        DidService.create(DidMethod.web)
 //    }
 
+
+    fun createDid(): String {
+        val didDoc = didGeneration()
+        log.debug { "didDoc: $didDoc" }
+
+        val verifiableAuthorization = requestVerifiableAuthorization()
+        log.debug { "verifiableAuthorization: $verifiableAuthorization" }
+
+        val unsignedTransaction = DidRegistry.insertDidDocument()
+        println("16. [EWallet] 200 <unsigned transaction>")
+        println("17. [EWallet] Generate <signed transaction>")
+        DidRegistry.signedTransaction()
+        return "OK"
+    }
 
     // https://besu.hyperledger.org/en/stable/HowTo/Send-Transactions/Account-Management/
     fun didGeneration(): String {
@@ -97,4 +112,6 @@ object EnterpriseWalletService {
         println("10. [EWallet] 200 <Sessions>")
         println("11. [EWallet] [POST] /sessions")
     }
+
+
 }

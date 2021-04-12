@@ -40,7 +40,7 @@ object EosService {
 
     fun requestCredentialUri(): String {
         println("2 [Eos] Request Credential (QR, URI, ...)")
-        return "uri"
+        return "new session - QR/URI"
     }
 
     fun didOwnershipResponse(didOwnershipResp: String): String {
