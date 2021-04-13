@@ -13,19 +13,19 @@ object EnterpriseWalletService {
 //        DidService.create(DidMethod.web)
 //    }
 
-
     fun createDid(): String {
-        val didDoc = didGeneration()
-        log.debug { "didDoc: $didDoc" }
+        val did = didGeneration()
+        log.debug { "did: $did" }
 
-        val verifiableAuthorization = requestVerifiableAuthorization()
+        val verifiableAuthorization = requestVerifiableAuthorization(did)
         log.debug { "verifiableAuthorization: $verifiableAuthorization" }
 
         val unsignedTransaction = DidRegistry.insertDidDocument()
         println("16. [EWallet] 200 <unsigned transaction>")
         println("17. [EWallet] Generate <signed transaction>")
-        DidRegistry.signedTransaction()
-        return "OK"
+        val signedTransaction = ""
+        DidRegistry.signedTransaction(signedTransaction)
+        return did
     }
 
     // https://besu.hyperledger.org/en/stable/HowTo/Send-Transactions/Account-Management/
@@ -34,10 +34,10 @@ object EnterpriseWalletService {
         println("2. [EWallet] Generate DID Controlling Keys)")
         println("3. [EWallet] Store DID Controlling Private Key")
         println("4. [EWallet] Generate DID Document")
-        return "didDoc"
+        return "did"
     }
 
-    fun requestVerifiableAuthorization(): String {
+    fun requestVerifiableAuthorization(did: String): String {
         println("5. [EWallet] POST /onboards")
         val didOwnershipReq = EosService.onboards()
         log.debug { "didOwnershipReq: $didOwnershipReq" }
@@ -52,13 +52,15 @@ object EnterpriseWalletService {
         return verifiableAuthorization
     }
 
-    fun requestVerifiableId() {
-        val didOwnershipReq = EosService.requestVerifiableId()
+    fun requestVerifiableId(credentialRequestUri: String): String {
+        val didOwnershipReq = EosService.requestVerifiableId(credentialRequestUri)
         log.debug { didOwnershipReq }
         println("5. [EWallet] Request DID prove")
+        return didOwnershipReq
     }
 
-    fun getVerifiableId(): String {
+    fun getVerifiableId(didOwnershipReq: String, didOfLegalEntity: String): String {
+        // TODO Build didOwnershipResp
         val didOwnershipResp = readEssif("onboarding-did-ownership-resp")
         val vIdRequest = EosService.didOwnershipResponse(didOwnershipResp)
         log.debug { "vIdRequest: $vIdRequest" }
@@ -78,7 +80,6 @@ object EnterpriseWalletService {
                 "    &request=<authentication-request-JWS>"
         return authRequest
     }
-
 
     fun generateDidAuthRequest() {
         println("3. [EWallet] Generate <DID-Auth Request>")

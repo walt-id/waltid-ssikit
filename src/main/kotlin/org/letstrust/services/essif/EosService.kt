@@ -33,7 +33,7 @@ object EosService {
         return verifiableAuthorization
     }
 
-    fun requestVerifiableId(): String {
+    fun requestVerifiableId(credentialRequestUri: String): String {
         println("4. [Eos] Request V.ID")
         return readEssif("onboarding-did-ownership-req")
     }

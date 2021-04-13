@@ -11,10 +11,10 @@ object DidRegistry {
         println("13 [POST] /insertDidDocument")
         println("14 Validate request")
         println("15 Generate <unsigned transaction>")
-        return readEssif("")
+        return "<unsigned transaction>"//readEssif("")
     }
 
-    fun signedTransaction() {
-        TODO("Not yet implemented")
+    fun signedTransaction(signedTransaction: String) {
+        // write DID to the ledger
     }
 }
