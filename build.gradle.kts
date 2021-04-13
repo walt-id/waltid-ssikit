@@ -98,6 +98,7 @@ publishing {
                 description.set("Kotlin/Java library for SSI core services, with primary focus on European EBSI/ESSIF ecosystem.")
                 url.set("https://letstrust.io")
             }
+            from(components["java"])
         }
     }
 
