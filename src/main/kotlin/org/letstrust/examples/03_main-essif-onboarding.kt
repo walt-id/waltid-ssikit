@@ -1,0 +1,32 @@
+package org.letstrust.examples
+
+
+fun main() {
+
+    println("ESSIF Onboarding of an Leagal Entity")
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Generate ETH address + DID
+    ///////////////////////////////////////////////////////////////////////////
+
+    // val did = EssifService.generateDid("ebsi")
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Obtain Verifiable Authorization by following steps
+    // - Precondition: Access Token needs to be obtained via EU login
+    // - Proof control over DID
+    // - Receive/store Verifiable Authorisation
+    ///////////////////////////////////////////////////////////////////////////
+
+    // val verifiableAuthorization = EssifService.onboard(accessToken, did)
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Register EBSI DID
+    // - present Verifiable Authorisation to API
+    // - Insert DID to the EBSI ledger
+    // - Sign transaction
+    ///////////////////////////////////////////////////////////////////////////
+
+    // EssifService.registerDid(verifiableAuthorization, did)
+
+}
