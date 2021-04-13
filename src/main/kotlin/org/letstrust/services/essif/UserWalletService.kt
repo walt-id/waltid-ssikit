@@ -34,7 +34,7 @@ object UserWalletService {
         this.generateDidAuthResponse(didAuthRequest)
     }
 
-    fun validateVcExchangeRequest(vcExchangeRequest: String) {
+    fun vcAuthResponse(vcExchangeRequest: String) {
         println("10. [UWallet] Validate request")
 
         this.generateDidAuthResponse(vcExchangeRequest)
