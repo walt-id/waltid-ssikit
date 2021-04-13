@@ -5,7 +5,6 @@ import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.optional
 import com.github.ajalt.clikt.parameters.options.default
-import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
@@ -168,18 +167,10 @@ class VerifyVcCommand : CliktCommand(
             throw Exception("Could not load file $src")
         }
 
-        val vcOrVP = src.readText()
-
         echo(
-            when {
-                vcOrVP.contains("VerifiablePresentation") -> when {
-                    CredentialService.verifyVp(src.readText()) -> "Presentation verified successfully"
-                    else -> "Presentation not valid"
-                }
-                else -> when {
-                    CredentialService.verify(src.readText()) -> "Credential verified successfully"
-                    else -> "Credential not valid"
-                }
+            when (CredentialService.verify(src.readText())) {
+                true -> "Presentation verified successfully"
+                else -> "Presentation not valid"
             }
         )
     }

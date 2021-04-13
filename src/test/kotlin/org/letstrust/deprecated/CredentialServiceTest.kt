@@ -130,7 +130,7 @@ class CredentialServiceTest {
         assertNotNull(vc)
         println("Credential generated: $vc")
 
-        val vcVerified = CredentialService.verify(issuerDid, vc)
+        val vcVerified = CredentialService.verifyVc(issuerDid, vc)
         assertTrue(vcVerified)
         KeyManagementService.delete(issuerDid)
     }
@@ -148,7 +148,7 @@ class CredentialServiceTest {
         assertNotNull(vc)
         println("Credential generated: $vc")
 
-        val vcVerified = CredentialService.verify(issuerDid, vc)
+        val vcVerified = CredentialService.verifyVc(issuerDid, vc)
         assertTrue(vcVerified)
         KeyManagementService.delete(issuerDid)
     }
@@ -166,7 +166,7 @@ class CredentialServiceTest {
         assertNotNull(vc)
         println("Credential generated: $vc")
 
-        val vcVerified = CredentialService.verify(issuerDid, vc)
+        val vcVerified = CredentialService.verifyVc(issuerDid, vc)
         assertTrue(vcVerified)
     }
 
@@ -183,7 +183,7 @@ class CredentialServiceTest {
         assertNotNull(vc)
         println("Credential generated: $vc")
 
-        val vcVerified = CredentialService.verify(keyId.id, vc)
+        val vcVerified = CredentialService.verifyVc(keyId.id, vc)
         assertTrue(vcVerified)
         KeyManagementService.delete(keyId.id)
     }

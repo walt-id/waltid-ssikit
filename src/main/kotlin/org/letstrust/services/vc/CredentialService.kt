@@ -77,7 +77,7 @@ object CredentialService {
 
     }
 
-    fun verify(issuerDid: String, vc: String): Boolean {
+    fun verifyVc(issuerDid: String, vc: String): Boolean {
         log.trace { "Loading verification key for:  $issuerDid" }
 
         val publicKey = ks.load(issuerDid)
@@ -107,13 +107,7 @@ object CredentialService {
     }
 
 
-
-
-
-
-
     //TODO: following methods might be depreciated
-
 
 
 //    fun sign_old(
@@ -180,7 +174,16 @@ object CredentialService {
         return JSONObject(signedCredMap).toString()
     }
 
-    fun verify(vc: String): Boolean {
+    fun verify(vcOrVp: String): Boolean {
+        if (vcOrVp.contains("VerifiablePresentation")) {
+            return verifyVp(vcOrVp)
+        }
+
+        return CredentialService.verifyVc(vcOrVp)
+    }
+
+
+    fun verifyVc(vc: String): Boolean {
         log.debug { "Verifying VC:\n$vc" }
 
         val vcObj = Json.decodeFromString<VerifiableCredential>(vc)
@@ -190,7 +193,7 @@ object CredentialService {
         log.debug { "Issuer: ${vcObj.issuer}" }
         log.debug { "Signature type: $signatureType" }
 
-        val vcVerified = verify(vcObj.issuer, vc)
+        val vcVerified = verifyVc(vcObj.issuer, vc)
         log.debug { "Verification of LD-Proof returned: $vcVerified" }
         return vcVerified
     }
@@ -206,13 +209,13 @@ object CredentialService {
         log.debug { "Issuer: $issuer" }
         log.debug { "Signature type: $signatureType" }
 
-        val vpVerified = verify(issuer, vp)
+        val vpVerified = verifyVc(issuer, vp)
         log.debug { "Verification of VP-Proof returned: $vpVerified" }
 
         val vc = vpObj.verifiableCredential.get(0)
         val vcStr = vc.encodePretty()
         log.debug { "Verifying VC:\n$vcStr" }
-        val vcVerified = verify(vc.issuer, vcStr)
+        val vcVerified = verifyVc(vc.issuer, vcStr)
 
         log.debug { "Verification of VC-Proof returned: $vpVerified" }
 
