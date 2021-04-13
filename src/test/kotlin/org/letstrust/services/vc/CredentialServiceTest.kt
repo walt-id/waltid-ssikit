@@ -62,7 +62,7 @@ class CredentialServiceTest {
         assertNotNull(vc)
         println("Credential generated: $vc")
 
-        val vcVerified = CredentialService.verifyVc(DidService.create(DidMethod.key), vc)
+        val vcVerified = CredentialService.verifyVc(issuerDid, vc)
         assertTrue(vcVerified)
     }
 

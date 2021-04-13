@@ -2,6 +2,7 @@ package org.letstrust.essif
 
 
 import org.junit.Test
+import org.letstrust.services.essif.mock.UserAgent
 import kotlin.test.assertTrue
 
 // https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/2.+OIDC-SSI+Flow

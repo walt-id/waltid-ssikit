@@ -1,4 +1,4 @@
-package org.letstrust.essif
+package org.letstrust.services.essif.mock
 
 import org.letstrust.services.essif.EnterpriseWalletService
 
