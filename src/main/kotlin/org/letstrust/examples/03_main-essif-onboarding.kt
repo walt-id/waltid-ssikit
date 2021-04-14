@@ -94,7 +94,7 @@ fun main() {
     val verifiableId = EnterpriseWalletService.getVerifiableId(didOwnershipReq, didOfLegalEntity)
 
     ///////////////////////////////////////////////////////////////////////////
-    // The reqeuested V.ID is returned and should look like the following::
+    // The requested V.ID is returned and should look like the following::
     // {
     //   "@context": [
     //     "https://www.w3.org/2018/credentials/v1",

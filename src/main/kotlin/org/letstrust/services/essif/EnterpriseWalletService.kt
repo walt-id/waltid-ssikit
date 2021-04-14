@@ -81,8 +81,9 @@ object EnterpriseWalletService {
         return authRequest
     }
 
-    fun generateDidAuthRequest() {
+    fun generateDidAuthRequest() : String {
         println("3. [EWallet] Generate <DID-Auth Request>")
+        return readEssif("onboarding-did-ownership-req")
     }
 
 

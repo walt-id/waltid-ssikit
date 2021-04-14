@@ -35,7 +35,7 @@ object EosService {
 
     fun requestVerifiableId(credentialRequestUri: String): String {
         println("4. [Eos] Request V.ID")
-        return readEssif("onboarding-did-ownership-req")
+        return EnterpriseWalletService.generateDidAuthRequest()
     }
 
     fun requestCredentialUri(): String {
@@ -46,12 +46,17 @@ object EosService {
     fun didOwnershipResponse(didOwnershipResp: String): String {
         println("8. [Eos] Response DID ownership")
         log.debug { "didOwnershipResp: $didOwnershipResp" }
+
+        // TODO: move following call to:
+        //EnterpriseWalletService.validateDidAuthResponse(didOwnershipResp)
+
         println("9. [Eos] Validate DID ownership")
         val didOwnershipRespHeader = readEssif("onboarding-did-ownership-resp-header")
         log.debug { "didOwnershipRespHeader: $didOwnershipRespHeader" }
         val didOwnershipRespBody = readEssif("onboarding-did-ownership-resp-body")
         log.debug { "didOwnershipRespBody: $didOwnershipRespBody" }
         val vIdRequestOkResp = readEssif("onboarding-vid-req-ok")
+
         return vIdRequestOkResp
     }
 

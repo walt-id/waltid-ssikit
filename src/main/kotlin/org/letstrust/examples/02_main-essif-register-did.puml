@@ -46,32 +46,32 @@ BackgroundColor 7ACFF5
 
 autonumber
 
-header Legal Entity - A high-level flow
+header EBSI DID Registration
 title
-Legal Entity Onboards
+EBSI DID Registration
 end title
 autonumber
 actor "Legal Entity" as LE
 participant "Enterprise Wallet\n(from LE)" as EW
 participant "eSSIF Onboarding Service\n(Trusted Issuer)" as TI
+participant "EBSI DID Registry" as RE
 
-LE -> TI: Request V.ID (Manually)
-TI --> LE: Request Credential (QR, URI, ...)
-LE -> EW: Trigger Wallet
-EW -> TI: Request V.ID
+LE -> EW: Create DID
+activate EW
+EW --> EW: Generate DID (ETH key, DID key, DID Doc)
+EW -> TI: Request Verifiable Authorization
 TI --> EW: Request DID prove
-EW --> LE: Notify\nDID ownership request
-note over TI, EW: The process is blocked till the Legal Entity receives its DID
-LE -> EW: Create a new DID
-
-hnote across:SUB-FLOW: DID Registration
-
-EW -> TI: Response DID ownership
-TI -> TI: Validate DID ownership
-TI --> EW: 200 <V.ID Request OK>
-TI -> TI: Generate <V.ID>
-EW -> TI: [GET] /credentials
-TI --> EW: 200 <V.ID>
+EW -> TI: Signed challenge
+TI -> TI: Validate DID doc
+TI -> TI: Generate Verifiable Authorization
+TI --> EW: Return Verifiable Authorization
+EW --> RE: Insert DID
+RE --> RE: Validate request + generate unsigned ETH transaction
+RE --> EW: Return unsigned transaction
+EW --> RE: Sign and return ETH transaction
+RE --> RE: Execute transaction
+RE --> EW: DID inserted successfully 
+destroy EW
 
 EW --> LE: Successful process
 @enduml
