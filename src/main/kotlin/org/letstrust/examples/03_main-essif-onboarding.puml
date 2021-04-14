@@ -57,7 +57,7 @@ participant "eSSIF Onboarding Service\n(Trusted Issuer)" as TI
 
 LE -> TI: Request V.ID (Manually)
 TI --> LE: Request Credential (QR, URI, ...)
-LE -> EW: Trigger Wallet
+LE -> EW: Request Verifiable ID
 EW -> TI: Request V.ID
 TI -> TI: Generate DID Auth Request
 TI --> EW: Request DID prove

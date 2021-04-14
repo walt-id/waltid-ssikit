@@ -87,7 +87,7 @@ object EnterpriseWalletService {
     }
 
 
-    fun token(authResp: String): Boolean {
+    fun token(oidcAuthResp: String): Boolean {
         println("13. [EWallet] /token <Authentication Response>")
 
         println("14. [EWallet] OIDC Validation")

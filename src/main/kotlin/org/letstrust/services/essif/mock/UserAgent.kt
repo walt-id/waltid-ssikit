@@ -11,7 +11,7 @@ class UserAgent() {
 
         println("6. [UA] Process Authentication Request: 302 openid://")
         println("7. [UA] Process Authentication Request: openid://")
-        val authResp = UserWalletService.processAuthenticationRequest(authReq)
+        val authResp = UserWalletService.generateOidcAuthResponse(authReq)
         println("11. [UA] Authentication Response: Callback /callback 302")
         return rp.callback(authResp)
     }

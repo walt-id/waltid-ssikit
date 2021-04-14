@@ -20,7 +20,7 @@ object UserWalletService {
 //        DidService.create(DidMethod.web)
 //    }
 
-    fun processAuthenticationRequest(authReq: String): String {
+    fun generateOidcAuthResponse(oidcAuthReq: String): String {
         println("8. [UWallet] OIDC Validation")
         println("9. [UWallet] DID AuthN validation")
         println("10. [UWallet] Generate Authentication Response")
