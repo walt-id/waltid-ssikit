@@ -3,8 +3,6 @@ import org.letstrust.services.essif.mock.RelyingParty
 
 fun main() {
 
-    val rp = RelyingParty()
-
     println("ESSIF Verifiable Credential Exchange from an Natural Person (Holder) to a Legal Entity")
 
     ///////////////////////////////////////////////////////////////////////////
@@ -58,7 +56,7 @@ fun main() {
     //}
     ///////////////////////////////////////////////////////////////////////////
     println("1 Request Login")
-    val vcExchangeRequest = rp.signOn()
+    val vcExchangeRequest = RelyingParty.signOn()
     println("6. QR, URI")
 
     ////////////////////////////////////////////////////////////////////////////
@@ -90,7 +88,7 @@ fun main() {
     UserWalletService.vcAuthResponse(vcExchangeRequest)
     println("15. Credentials share successfully")
 
-    rp.getSession("sessionId")
+    RelyingParty.getSession("sessionId")
     println("18. Process completed successsfully")
 
 }

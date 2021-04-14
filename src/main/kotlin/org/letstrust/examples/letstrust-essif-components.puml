@@ -25,15 +25,27 @@ BorderColor 007BFF
 BackgroundColor 7ACFF5
 }
 
-LegalEntity -> EnterpriseWallet
-LegalEntity <|-- RelyingParty
+package "Issuer or Verifier" {
+class Backend {
+ - enterpriseWallet
+ }
+}
+
+Backend -> EnterpriseWallet: has
+Backend -> LegalEntityService: interacts with
+LegalEntityService -> EnterpriseWallet
+LegalEntityService <|-- RelyingParty
 RelyingParty <|-- TrustedIssuer
 TrustedIssuer <|-- EOS
 
 'EnterpriseWallet ..> EOS: onboards >
 'UserWallet ..> EOS: onboards >
 
-NaturalPerson -> UserWallet
+package "Holder App" {
+class App
+}
+
+App -> UserWallet: has
 
 class EnterpriseWallet {
 + createDid()
@@ -54,7 +66,7 @@ class UserWallet {
 + requestVerifiableAuthorization()
 }
 
-class LegalEntity {
+class LegalEntityService {
  - enterpriseWallet
 }
 
@@ -77,8 +89,10 @@ class EOS {
  + onboards()
 }
 
-class NaturalPerson {
+class App {
  - userWallet
 }
+
+App -[hidden]- Backend
 
 @enduml
