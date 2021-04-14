@@ -26,8 +26,8 @@ BackgroundColor 7ACFF5
 }
 
 LegalEntity -> EnterpriseWallet
-LegalEntity <|-- TrustedIssuer
 LegalEntity <|-- RelyingParty
+RelyingParty <|-- TrustedIssuer
 TrustedIssuer <|-- EOS
 
 'EnterpriseWallet ..> EOS: onboards >
@@ -48,9 +48,9 @@ class EnterpriseWallet {
 
 class UserWallet {
 + createDid()
-+ generateOidcAuthResponse(oidcAuthReq: String)
++ oidcAuthResponse(oidcAuthReq: String)
 + validateDidAuthRequest(didAuthRequest: String)
-+ generateDidAuthResponse(didAuthRequest: String)
++ didAuthResponse(didAuthRequest: String)
 + requestVerifiableAuthorization()
 }
 

@@ -10,7 +10,7 @@ class VcIssuanceFlowTest {
     @Test
     fun testVcIssuanceFlow() {
 
-        println("Credential issuance from an Legal Entity (EOS/Trusted Issuer) to a Natural Person.")
+        println("Credential issuance from a Legal Entity (EOS/Trusted Issuer) to a Natural Person.")
 
         ///////////////////////////////////////////////////////////////////////////
         // Prerequisite: The Natural Person (NP) must be authenticated and authorized by the
@@ -92,13 +92,16 @@ class VcIssuanceFlowTest {
         //    "encryption_key": {JWK encryption key}
         //  }
         //}
-        val didAuthResp = UserWalletService.generateDidAuthResponse(didAuthRequest)
+        val vcToken = UserWalletService.didAuthResponse(didAuthRequest)
 
         println("17 VC requested successfully")
         println("20 Process completed successfully")
         ///////////////////////////////////////////////////////////////////////////
         // Finally the mutual authenticated session is established and the VC may be
         // obtained.
+        // Depending on the mechanism to get the new VC (Polling, Push notification, ,manual, ...)
+        // the User Wallet request to the Enterprise Wallet asynchronously the VC requested previously.
+        // To call this endpoint is necessary the VC Token received
         ///////////////////////////////////////////////////////////////////////////
         val credential = EosService.getCredentials(true) // user is authenticated (VC token is received); TODO: Align with spec, as the request goes to the EWallet there
         println("21 Credential received")

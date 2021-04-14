@@ -2,7 +2,7 @@ package org.letstrust.services.essif.mock
 
 import org.letstrust.services.essif.EnterpriseWalletService
 
-class RelyingParty() {
+object RelyingParty {
     fun signOn(): String {
         val authReq = EnterpriseWalletService.generateOidcAuthRequest()
 

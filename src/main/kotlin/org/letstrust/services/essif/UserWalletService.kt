@@ -7,6 +7,7 @@ import kotlinx.serialization.json.jsonObject
 import mu.KotlinLogging
 import org.letstrust.model.*
 import org.letstrust.services.essif.mock.AuthorizationApi
+import org.letstrust.services.essif.mock.RelyingParty
 import org.letstrust.services.jwt.JwtService
 import java.io.File
 import java.net.URLDecoder
@@ -20,33 +21,33 @@ object UserWalletService {
 //        DidService.create(DidMethod.web)
 //    }
 
-    fun generateOidcAuthResponse(oidcAuthReq: String): String {
+    fun oidcAuthResponse(oidcAuthReq: String): Boolean {
         println("8. [UWallet] OIDC Validation")
         println("9. [UWallet] DID AuthN validation")
         println("10. [UWallet] Generate Authentication Response")
-        val authResp = ""
-        return authResp
+        println("11. [UA] Authentication Response: Callback /callback 302")
+        return RelyingParty.callback("<auth response>")
     }
 
     fun validateDidAuthRequest(didAuthRequest: String) {
         println("10. [UWallet] Validate request")
 
-        this.generateDidAuthResponse(didAuthRequest)
+        this.didAuthResponse(didAuthRequest)
     }
 
     fun vcAuthResponse(vcExchangeRequest: String) {
         println("10. [UWallet] Validate request")
 
-        this.generateDidAuthResponse(vcExchangeRequest)
+        this.didAuthResponse(vcExchangeRequest)
 
     }
 
-    fun generateDidAuthResponse(didAuthRequest: String) {
+    fun didAuthResponse(didAuthRequest: String): String {
         println("13/11. [UWallet] Generate (DID-)Auth Response")
         println("14/12. [UWallet] /callback (DID-)Auth Response")
         val vcToken = EnterpriseWalletService.validateDidAuthResponse("didAuthResp")
         println("16/14. [UWallet] 200 OK")
-
+        return "vcToken"
     }
 
     // https://ec.europa.eu/cefdigital/wiki/pages/viewpage.action?spaceKey=BLOCKCHAININT&title=2.+Authorization+API

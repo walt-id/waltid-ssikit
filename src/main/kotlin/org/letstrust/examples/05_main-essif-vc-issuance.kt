@@ -1,6 +1,5 @@
 import org.letstrust.s.essif.EosService
 import org.letstrust.services.essif.UserWalletService
-import org.letstrust.services.essif.mock.RelyingParty
 
 fun main() {
 
@@ -86,7 +85,7 @@ fun main() {
     //    "encryption_key": {JWK encryption key}
     //  }
     //}
-    val didAuthResp = UserWalletService.generateDidAuthResponse(didAuthRequest)
+    val didAuthResp = UserWalletService.didAuthResponse(didAuthRequest)
 
     println("17 VC requested successfully")
     println("20 Process completed successfully")
