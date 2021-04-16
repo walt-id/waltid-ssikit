@@ -51,7 +51,7 @@ object UserWalletService {
     }
 
     // https://ec.europa.eu/cefdigital/wiki/pages/viewpage.action?spaceKey=BLOCKCHAININT&title=2.+Authorization+API
-    fun requestVerifiableAuthorization() {
+    fun requestAccessToken(verifiableAuthorization: String): String {
         println("--------------------------------------------------------------------------------")
         println("1 [UWallet] [POST] /authentication-request - Request & validate SIOP AuthorizationRequest (init DID auth) ...")
         val authReq = didAuthAuthorizationApi()
@@ -60,13 +60,13 @@ object UserWalletService {
 
         println("--------------------------------------------------------------------------------")
         println("Establish SIOP session (finalize DID auth) ...")
-        val atr = this.siopSessionsRequest(authReq)
+        val atr = this.siopSessionsRequest(authReq, verifiableAuthorization)
 
         // AKE Protocol
-        validateAccessTokenResponse(atr)
+        return validateAccessTokenResponse(atr)
     }
 
-    fun accessProtectedResource() {
+    fun accessProtectedResource(accessToken: String) {
 
     }
 
@@ -155,7 +155,7 @@ object UserWalletService {
         println("")
     }
 
-    private fun siopSessionsRequest(authReq: AuthenticationRequestPayload): AccessTokenResponse? {
+    private fun siopSessionsRequest(authReq: AuthenticationRequestPayload, verifiableAuthorization: String): AccessTokenResponse? {
 
         val verifiableAuthorization = File("src/test/resources/ebsi/verifiable-authorization.json").readText()
 
@@ -214,7 +214,7 @@ object UserWalletService {
     }
 
     // https://ec.europa.eu/cefdigital/wiki/pages/viewpage.action?pageId=271909906
-    private fun validateAccessTokenResponse(atr: AccessTokenResponse?) {
+    private fun validateAccessTokenResponse(atr: AccessTokenResponse?): String {
         log.debug { "Validating Access Token Response $atr" }
 
         //TODO validate access token
@@ -225,6 +225,7 @@ object UserWalletService {
         println("- DID of Client: ✔")
         println("- ake1_nonce: ✔")
         println("")
+        return "access token"
     }
 
 

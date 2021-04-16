@@ -1,3 +1,4 @@
+import org.letstrust.services.essif.UserWalletService
 
 fun main() {
 
@@ -35,11 +36,11 @@ fun main() {
     // and receive JWT Access Token + Authenticated Key Exchange Protocol)
     ///////////////////////////////////////////////////////////////////////////
 
-    // val accessToken = EssifService.authenticate(verifiableAuthorization)
+    val accessToken =  UserWalletService.requestAccessToken(verifiableAuthorization)
 
     ///////////////////////////////////////////////////////////////////////////
     // Protected resource can now be accessed
     ///////////////////////////////////////////////////////////////////////////
 
-    // EssifService.protectedResource(accessToken) // e.g updateDID, revoke VC
+    UserWalletService.accessProtectedResource(accessToken) // e.g updateDID, revoke VC
 }

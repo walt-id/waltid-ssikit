@@ -10,7 +10,7 @@ import org.letstrust.model.VerifiableCredential
 import org.letstrust.services.did.DidService
 import org.letstrust.services.vc.CredentialService
 
-val credentialTemplate = "{\n" +
+val credentialTemplate1 = "{\n" +
         "    \"@context\": [\n" +
         "        \"https://www.w3.org/2018/credentials/v1\"\n" +
         "    ],\n" +
@@ -64,7 +64,7 @@ fun main() {
     // Issue Verifiable Credential (by Issuer)
     ///////////////////////////////////////////////////////////////////////////
 
-    val credentialTemplate = Json.decodeFromString<VerifiableCredential>(credentialTemplate)
+    val credentialTemplate = Json.decodeFromString<VerifiableCredential>(credentialTemplate1)
 
     credentialTemplate.issuer = didIssuer
     credentialTemplate.credentialSubject.id = didHolder

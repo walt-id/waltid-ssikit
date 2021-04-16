@@ -12,13 +12,13 @@ class AuthorizationApiTest {
         println("--------------------------------------------------------------------------------")
         // Requesting Verifiable Authorization
         println("Accessing protected EBSI resource ...\n")
-        UserWalletService.requestVerifiableAuthorization()
+        UserWalletService.requestAccessToken()
 
 
         println("--------------------------------------------------------------------------------")
         // Access protected resource
         println("Accessing protected EBSI resource ...\n")
-        UserWalletService.accessProtectedResource()
+        UserWalletService.accessProtectedResource(accessToken)
         println("Accessed /protectedResource successfully ✔ ")
 
     }

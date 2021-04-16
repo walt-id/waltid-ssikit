@@ -44,7 +44,7 @@ class EssifAuthCommand : CliktCommand(
 ) {
     override fun run() {
         //EssifService.authenticate()
-        UserWalletService.requestVerifiableAuthorization()
+        UserWalletService.requestAccessToken("verifiableAuthorization")
     }
 }
 

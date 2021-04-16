@@ -63,7 +63,7 @@ class UserWallet {
 + oidcAuthResponse(oidcAuthReq: String)
 + validateDidAuthRequest(didAuthRequest: String)
 + didAuthResponse(didAuthRequest: String)
-+ requestVerifiableAuthorization()
++ requestAccessToken(verifiableAuthorization: String)
 }
 
 class LegalEntityService {
