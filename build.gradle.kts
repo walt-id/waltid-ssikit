@@ -104,7 +104,6 @@ publishing {
 
     repositories {
         maven {
-            // change to point to your repo, e.g. http://my.org/repo
             url = uri("https://maven.letstrust.io/repository/letstrust-ssi-core/")
 
             credentials {
