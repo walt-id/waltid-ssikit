@@ -5,7 +5,7 @@ import java.security.MessageDigestSpi
 
 open class LtMessageDigestSpi(val algorithm: String) : MessageDigestSpi() {
 
-    val md = MessageDigest.getInstance(algorithm)
+    val md: MessageDigest = MessageDigest.getInstance(algorithm)
 
     class SHA256 : LtMessageDigestSpi("SHA-256") {}
 

@@ -42,7 +42,7 @@ object TinkKeyStore : KeyStore {
     override fun store(key: Key) {
         CleartextKeysetHandle.write(key.keysetHandle, JsonKeysetWriter.withFile(File("${LetsTrustServices.keyDir}/${key.keyId.id}.tink")))
 
-        //TODO: only working for Secp256k1; shoudl be impl. for Ed25519 as well
+        //TODO: only working for Secp256k1; should be impl. for Ed25519 as well
         // CleartextKeysetHandle.write(key.keysetHandle!!.publicKeysetHandle, JwksWriter.withOutputStream(FileOutputStream("${LetsTrustServices.keyDir}/${key.keyId.id}.json")))
     }
 

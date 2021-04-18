@@ -55,9 +55,9 @@ fun main() {
     println("DID created (holder): $didHolder")
 
     val didDocIssuer = DidService.resolve(didIssuer)
-    println("\nDID Document resolved (issuer):\n" + didDocIssuer)
+    println("\nDID Document resolved (issuer):\n$didDocIssuer")
     val didDocHolder = DidService.resolve(didHolder)
-    println("\nDID Document resolved (holder):\n" + didDocHolder)
+    println("\nDID Document resolved (holder):\n$didDocHolder")
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -73,7 +73,7 @@ fun main() {
 
     val signedCredential = CredentialService.sign(didIssuer, credOffer)
 
-    println("\nVerifiable Credential issued:\n" + signedCredential)
+    println("\nVerifiable Credential issued:\n$signedCredential")
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -82,7 +82,7 @@ fun main() {
 
     val verifyCredential = CredentialService.verifyVc(signedCredential)
 
-    println("\nVerifiable Credential verified: " + verifyCredential)
+    println("\nVerifiable Credential verified: $verifyCredential")
 
     ///////////////////////////////////////////////////////////////////////////
     // Create Verifiable Presentation (by Holder)
@@ -90,7 +90,7 @@ fun main() {
 
     val presentation = CredentialService.present(signedCredential, "example.com", "asdf")
 
-    println("\nVerifiable Presentation issued:\n" + presentation)
+    println("\nVerifiable Presentation issued:\n$presentation")
 
 
     ///////////////////////////////////////////////////////////////////////////
@@ -99,5 +99,5 @@ fun main() {
 
     val verifyPresentation = CredentialService.verify(presentation)
 
-    println("\nVerifiable Presentation verified: " + verifyPresentation)
+    println("\nVerifiable Presentation verified: $verifyPresentation")
 }

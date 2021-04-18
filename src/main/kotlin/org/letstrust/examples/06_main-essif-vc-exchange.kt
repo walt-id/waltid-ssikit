@@ -1,3 +1,5 @@
+package org.letstrust.examples
+
 import org.letstrust.services.essif.UserWalletService
 import org.letstrust.services.essif.mock.RelyingParty
 
@@ -89,6 +91,6 @@ fun main() {
     println("15. Credentials share successfully")
 
     RelyingParty.getSession("sessionId")
-    println("18. Process completed successsfully")
+    println("18. Process completed successfully")
 
 }

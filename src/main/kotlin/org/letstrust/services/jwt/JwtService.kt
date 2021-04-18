@@ -3,6 +3,7 @@ package org.letstrust.services.jwt
 import com.nimbusds.jose.*
 import com.nimbusds.jose.crypto.*
 import com.nimbusds.jose.jwk.Curve
+import com.nimbusds.jose.jwk.OctetKeyPair
 import com.nimbusds.jose.jwk.gen.OctetKeyPairGenerator
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
@@ -26,7 +27,7 @@ object JwtService {
 //            throw Exception("Could not load verifying key for $keyAlias")
 //        }
     val keyId = "123"
-    val encKey = OctetKeyPairGenerator(Curve.X25519)
+    val encKey: OctetKeyPair = OctetKeyPairGenerator(Curve.X25519)
         .keyID(keyId)
         .generate()
 
@@ -126,7 +127,7 @@ object JwtService {
         val jwt = SignedJWT.parse(token)
 
         //TODO: key might also be entirely extracted out of the header",
-        // Maybe resolve DID (verifacation method)
+        // Maybe resolve DID (verification method)
         val verifierKey = KeyManagementService.load(jwt.header.keyID)
         if (verifierKey == null) {
             log.error { "Could not load verifying key for $jwt.header.keyID" }

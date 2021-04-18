@@ -34,14 +34,14 @@ class CreateDidCommand : CliktCommand(
     name = "create",
     help = """Create DID.
 
-        Generates an asymetric keypair and register the DID containing the public key.
+        Generates an asymmetric keypair and register the DID containing the public key.
         
         """
 ) {
     val didService = DidService
     val config: CliConfig by requireObject()
     val dest: File? by argument().file().optional()
-    val method: String by option("-m", "--did-method", help = "Specifiy DID method [key]").choice(
+    val method: String by option("-m", "--did-method", help = "Specify DID method [key]").choice(
         "key",
         "web",
         "ebsi"
@@ -65,7 +65,7 @@ class CreateDidCommand : CliktCommand(
             echo("\nCould not resolve: $did")
         } else {
             val didDocEnc = didDoc.encodePretty()
-            echo("\ndid document:\n" + didDocEnc)
+            echo("\ndid document:\n$didDocEnc")
 
             dest?.let {
                 echo("Saving DID to DEST file: ${it.absolutePath}")
@@ -110,6 +110,6 @@ class ListDidsCommand : CliktCommand(
     override fun run() {
         echo("List DIDs ...")
 
-        DidService.listDids()?.forEach { it -> echo("- $it") }
+        DidService.listDids().forEach { it -> echo("- $it") }
     }
 }

@@ -22,7 +22,7 @@ interface CryptoService {
 
     fun generateKey(algorithm: KeyAlgorithm): KeyId
     fun sign(keyId: KeyId, data: ByteArray): ByteArray
-    fun verfiy(keyId: KeyId, sig: ByteArray, data: ByteArray): Boolean
+    fun verify(keyId: KeyId, sig: ByteArray, data: ByteArray): Boolean
     fun encrypt(keyId: KeyId, algorithm: String, plainText: ByteArray, authData: ByteArray?, iv: ByteArray?): ByteArray
     fun decrypt(keyId: KeyId, algorithm: String, plainText: ByteArray, authData: ByteArray?, iv: ByteArray?): ByteArray
 }
@@ -51,12 +51,12 @@ object TinkCryptoService : CryptoService {
     override fun sign(keyId: KeyId, data: ByteArray): ByteArray {
         val key = ks.load(keyId.id)
         val signer: PublicKeySign = key.keysetHandle!!.getPrimitive(PublicKeySign::class.java)
-        /// JCA expectes a DER encoded signature: ECDSA.transcodeSignatureToDER(signer.sign(data))
+        /// JCA expects a DER encoded signature: ECDSA.transcodeSignatureToDER(signer.sign(data))
         return signer.sign(data)
     }
 
-    override fun verfiy(keyId: KeyId, sig: ByteArray, data: ByteArray): Boolean {
-        val key = ks.load(keyId.id)!!
+    override fun verify(keyId: KeyId, sig: ByteArray, data: ByteArray): Boolean {
+        val key = ks.load(keyId.id)
         val verifier: PublicKeyVerify = key.keysetHandle!!.publicKeysetHandle.getPrimitive(PublicKeyVerify::class.java)
         try {
             verifier.verify(sig, data);
@@ -139,7 +139,7 @@ object SunCryptoService : CryptoService {
         return sig.sign()
     }
 
-    override fun verfiy(keyId: KeyId, sig: ByteArray, data: ByteArray): Boolean {
+    override fun verify(keyId: KeyId, sig: ByteArray, data: ByteArray): Boolean {
         val key = ks.load(keyId.id)
         val signature = when (key.algorithm) {
             KeyAlgorithm.ECDSA_Secp256k1 -> Signature.getInstance("SHA256withECDSA")

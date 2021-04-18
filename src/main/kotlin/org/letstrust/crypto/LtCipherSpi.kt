@@ -11,7 +11,7 @@ import javax.crypto.spec.GCMParameterSpec
 
 open class LtCipherSpi(val algorithm: String) : CipherSpi() {
 
-    val c = Cipher.getInstance(algorithm)
+    val c: Cipher = Cipher.getInstance(algorithm)
 
     val cryptoService = LetsTrustServices.load<CryptoService>()
 

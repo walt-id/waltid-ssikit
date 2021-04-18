@@ -12,7 +12,7 @@ class SunCryptoTest {
     fun signSecp256k1Test() {
         val keyId = crypto.generateKey(KeyAlgorithm.ECDSA_Secp256k1)
         val sig = crypto.sign(keyId, data)
-        val res = crypto.verfiy(keyId, sig, data)
+        val res = crypto.verify(keyId, sig, data)
         assertTrue(res)
     }
 
@@ -21,7 +21,7 @@ class SunCryptoTest {
     fun signEd25519Test() {
         val keyId = crypto.generateKey(KeyAlgorithm.EdDSA_Ed25519)
         val sig = crypto.sign(keyId, data)
-        val res = crypto.verfiy(keyId, sig, data)
+        val res = crypto.verify(keyId, sig, data)
         assertTrue(res)
     }
 }

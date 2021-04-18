@@ -81,8 +81,8 @@ fun main(args: Array<String>) {
                 AuthCommand(),
                 EssifCommand().subcommands(EssifAuthCommand(), EssifDidCommand(), EssifTirCommand(), EssifTaorCommand(), EssifTsrCommand())
             )
-            //.main(arrayOf("-v", "-c", "mykey=myval", "vc", "-h"))
-            //.main(arrayOf("vc", "verify", "vc.json"))
+            //.org.letstrust.examples.org.letstrust.examples.org.letstrust.examples.main(arrayOf("-v", "-c", "mykey=myval", "vc", "-h"))
+            //.org.letstrust.examples.org.letstrust.examples.org.letstrust.examples.main(arrayOf("vc", "verify", "vc.json"))
             .main(args)
     } catch (e: Exception) {
         echo(e.message)

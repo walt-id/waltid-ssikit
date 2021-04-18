@@ -78,7 +78,7 @@ object DidService {
         val identifier = convertEd25519PublicKeyToMultiBase58Btc(x)
         val didUrl = "did:key:$identifier"
 
-        ks.addAlias(keyId!!, didUrl)
+        ks.addAlias(keyId, didUrl)
 
         return didUrl
     }

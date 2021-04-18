@@ -13,10 +13,7 @@ open class LtKeyStoreSpi: KeyStoreSpi() {
     private val keys = Properties()
 
     override fun engineGetKey(alias: String?, password: CharArray?): Key {
-        val value = keys.getProperty(alias);
-        if (value == null) {
-            throw UnrecoverableKeyException("Unknown key: " + alias);
-        }
+        val value = keys.getProperty(alias) ?: throw UnrecoverableKeyException("Unknown key: $alias");
         TODO("Not yet implemented")
     }
 

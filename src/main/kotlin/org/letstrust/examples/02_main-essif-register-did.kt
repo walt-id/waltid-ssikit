@@ -95,8 +95,8 @@ fun main() {
     // - Receive/store Verifiable Authorisation
     ///////////////////////////////////////////////////////////////////////////
 
-    val verifiableAuthoriztation = EnterpriseWalletService.requestVerifiableAuthorization(did)
-    log.debug { "verifiableAuthoriztation: $verifiableAuthoriztation" }
+    val verifiableAuthorization = EnterpriseWalletService.requestVerifiableAuthorization(did)
+    log.debug { "verifiableAuthorization: $verifiableAuthorization" }
 
 
     ///////////////////////////////////////////////////////////////////////////

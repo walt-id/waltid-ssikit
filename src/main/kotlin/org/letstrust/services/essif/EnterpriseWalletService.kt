@@ -2,7 +2,6 @@ package org.letstrust.services.essif
 
 import mu.KotlinLogging
 import org.letstrust.common.readEssif
-import org.letstrust.s.essif.EosService
 import org.letstrust.services.essif.mock.DidRegistry
 
 object EnterpriseWalletService {

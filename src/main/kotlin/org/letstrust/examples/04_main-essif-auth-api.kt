@@ -1,3 +1,5 @@
+package org.letstrust.examples
+
 import org.letstrust.services.essif.UserWalletService
 
 fun main() {

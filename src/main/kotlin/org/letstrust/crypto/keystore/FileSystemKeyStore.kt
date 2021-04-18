@@ -21,7 +21,7 @@ object FileSystemKeyStore : KeyStore {
     //TODO: get path from config
     private const val KEY_DIR_PATH = "data/key"
 
-    //TODO: get key fomrat from config
+    //TODO: get key format from config
     private val KEY_FORMAT = KeyFormat.PEM
 
     init {
@@ -31,12 +31,12 @@ object FileSystemKeyStore : KeyStore {
     override fun listKeys(): List<Key> {
         val keys = ArrayList<Key>()
         Files.walk(Paths.get(KEY_DIR_PATH))
-            .filter { it -> Files.isRegularFile(it) }
-            .filter { it -> it.toString().endsWith(".meta") }
+            .filter { Files.isRegularFile(it) }
+            .filter { it.toString().endsWith(".meta") }
             .forEach {
                 val keyId = it.fileName.toString().substringBefore(".")
-                load(keyId)?.let {
-                    keys.add(it)
+                load(keyId).let { key ->
+                    keys.add(key)
                 }
             }
         return keys

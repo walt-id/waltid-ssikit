@@ -1,4 +1,6 @@
-import org.letstrust.s.essif.EosService
+package org.letstrust.examples
+
+import org.letstrust.services.essif.EosService
 import org.letstrust.services.essif.UserWalletService
 
 fun main() {

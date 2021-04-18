@@ -26,15 +26,9 @@ class LdSigner {
     // Calls LetsTrust CryptoService via JCA LetsTrustProvider
     // Currently not required since ECDSASigner is sufficient
     @Deprecated(message = "Only for testing - Use ECDSASigner instead")
-    class JcaSigner : JWSSigner {
-
-        val privateKey: PrivateKey
+    class JcaSigner(val privateKey: PrivateKey) : JWSSigner {
 
         private val jcaContext = JCAContext(LetsTrustProvider(), SecureRandom())
-
-        constructor(privateKey: PrivateKey) {
-            this.privateKey = privateKey
-        }
 
         override fun getJCAContext(): JCAContext {
             return this.jcaContext
@@ -52,8 +46,7 @@ class LdSigner {
 
             // DER-encoded signature, according to JCA spec
             // (sequence of two integers - R + S)
-            val jcaSignature: ByteArray
-            jcaSignature = try {
+            val jcaSignature: ByteArray = try {
                 val dsa = ECDSA.getSignerAndVerifier(alg, jcaContext.provider)
                 dsa.initSign(privateKey, jcaContext.secureRandom)
                 dsa.update(signingInput)
@@ -78,7 +71,8 @@ class LdSigner {
             TODO("Not yet implemented")
         }
 
-        override fun supportedJWSAlgorithms(): MutableSet<JWSAlgorithm> = HashSet(setOf(JWSAlgorithm.EdDSA, JWSAlgorithm.ES256K))
+        override fun supportedJWSAlgorithms(): MutableSet<JWSAlgorithm> =
+            HashSet(setOf(JWSAlgorithm.EdDSA, JWSAlgorithm.ES256K))
 
         override fun sign(header: JWSHeader, signingInput: ByteArray): Base64URL {
 
@@ -93,10 +87,15 @@ class LdSigner {
     }
 
     class EcdsaSecp256k1Signature2019(val keyId: KeyId) :
-        LdSigner<EcdsaSecp256k1Signature2019SignatureSuite?>(SignatureSuites.SIGNATURE_SUITE_ECDSASECP256L1SIGNATURE2019, null) {
+        LdSigner<EcdsaSecp256k1Signature2019SignatureSuite?>(
+            SignatureSuites.SIGNATURE_SUITE_ECDSASECP256L1SIGNATURE2019,
+            null
+        ) {
 
         override fun sign(ldProofBuilder: LdProof.Builder<*>, signingInput: ByteArray) {
-            val jwsHeader = JWSHeader.Builder(JWSAlgorithm.ES256K).base64URLEncodePayload(false).criticalParams(setOf("b64")).build()
+            val jwsHeader =
+                JWSHeader.Builder(JWSAlgorithm.ES256K).base64URLEncodePayload(false).criticalParams(setOf("b64"))
+                    .build()
             val jwsSigningInput = JWSUtil.getJwsSigningInput(jwsHeader, signingInput)
             //val jwsSigner = JcaSigner(PrivateKeyHandle(keyId))
             val jwsSigner = ECDSASigner(PrivateKeyHandle(keyId), Curve.SECP256K1)
@@ -112,7 +111,8 @@ class LdSigner {
 
         override fun sign(ldProofBuilder: LdProof.Builder<*>, signingInput: ByteArray) {
 
-            val jwsHeader = JWSHeader.Builder(JWSAlgorithm.EdDSA).base64URLEncodePayload(false).criticalParams(setOf("b64")).build()
+            val jwsHeader =
+                JWSHeader.Builder(JWSAlgorithm.EdDSA).base64URLEncodePayload(false).criticalParams(setOf("b64")).build()
             val jwsSigningInput = JWSUtil.getJwsSigningInput(jwsHeader, signingInput)
             val signature = JwsLtSigner(keyId).sign(jwsHeader, jwsSigningInput)
             val jws = JWSUtil.serializeDetachedJws(jwsHeader, signature)

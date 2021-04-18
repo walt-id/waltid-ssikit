@@ -1,7 +1,7 @@
 package org.letstrust.essif
 
 import mu.KotlinLogging
-import org.letstrust.s.essif.EosService
+import org.letstrust.services.essif.EosService
 import org.letstrust.services.essif.EnterpriseWalletService
 
 

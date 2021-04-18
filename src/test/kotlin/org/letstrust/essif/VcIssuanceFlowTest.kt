@@ -1,7 +1,7 @@
 package org.letstrust.essif
 
 import org.junit.Test
-import org.letstrust.s.essif.EosService
+import org.letstrust.services.essif.EosService
 import org.letstrust.services.essif.UserWalletService
 
 // https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/VC-Issuance+Flow

@@ -1,8 +1,7 @@
-package org.letstrust.s.essif
+package org.letstrust.services.essif
 
 import mu.KotlinLogging
 import org.letstrust.common.readEssif
-import org.letstrust.services.essif.EnterpriseWalletService
 import org.letstrust.services.essif.mock.DidRegistry
 
 private val log = KotlinLogging.logger {}
@@ -66,8 +65,8 @@ object EosService {
     }
 
     fun getCredentials(isUserAuthenticated: Boolean = false): String {
-        if (isUserAuthenticated) {
-            return readEssif("vc-issuance-auth-req")
+        return if (isUserAuthenticated) {
+            readEssif("vc-issuance-auth-req")
         } else {
             println("2. [Eos] [GET]/credentials")
             EnterpriseWalletService.generateDidAuthRequest()
@@ -75,7 +74,7 @@ object EosService {
             println("5. [Eos] Generate QR, URI")
             // TODO: Trigger job for [GET] /sessions/{id}
             val str = EnterpriseWalletService.getSession("sessionID")
-            return readEssif("vc-issuance-auth-req")
+            readEssif("vc-issuance-auth-req")
         }
 
     }

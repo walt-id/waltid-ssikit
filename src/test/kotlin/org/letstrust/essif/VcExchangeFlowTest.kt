@@ -6,7 +6,7 @@ import org.letstrust.services.essif.mock.RelyingParty
 
 class VcExchangeFlowTest {
 
-    val rp = RelyingParty()
+    val rp = RelyingParty
 
     @Test
     fun testVcExchangeFlow() {

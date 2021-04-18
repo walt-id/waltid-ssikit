@@ -60,7 +60,7 @@ class JwtSigner(val keyId: String) : JWSSigner {
 //            throw JOSEException(e.message, e)
 //        }
 
-        val rsByteArrayLength = ECDSA.getSignatureByteArrayLength(header!!.algorithm)
+        val rsByteArrayLength = ECDSA.getSignatureByteArrayLength(header.algorithm)
         val jwsSignature = ECDSA.transcodeSignatureToConcat(jcaSignature, rsByteArrayLength)
         return Base64URL.encode(jwsSignature)
 
