@@ -16,14 +16,14 @@ class EbsiOnboardingFlowTest {
         val credentialRequestUri = EosService.requestCredentialUri()
         log.debug { "credentialRequest: $credentialRequestUri" }
         println("3 Trigger Wallet")
-        val didOwnershipReq = EnterpriseWalletService.requestVerifiableId(credentialRequestUri)
+        val didOwnershipReq = EnterpriseWalletService.requestVerifiableCredential(credentialRequestUri)
         log.debug { "didOwnershipReq: $didOwnershipReq" }
         println("6. Notify DID ownership request")
         println("7. Create a new DID")
 
         val didOfLegalEntity = EnterpriseWalletService.createDid()
 
-        val verifiableId = EnterpriseWalletService.getVerifiableId(didOwnershipReq, didOfLegalEntity)
+        val verifiableId = EnterpriseWalletService.getVerifiableCredential(didOwnershipReq, didOfLegalEntity)
         log.debug { "verifiableId: $verifiableId" }
         println("14. Successful process")
 

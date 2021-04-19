@@ -51,14 +51,14 @@ object EnterpriseWalletService {
         return verifiableAuthorization
     }
 
-    fun requestVerifiableId(credentialRequestUri: String): String {
+    fun requestVerifiableCredential(credentialRequestUri: String): String {
         val didOwnershipReq = EosService.requestVerifiableId(credentialRequestUri)
         log.debug { didOwnershipReq }
         println("5. [EWallet] Request DID prove")
         return didOwnershipReq
     }
 
-    fun getVerifiableId(didOwnershipReq: String, didOfLegalEntity: String): String {
+    fun getVerifiableCredential(didOwnershipReq: String, didOfLegalEntity: String): String {
         // TODO Build didOwnershipResp
         val didOwnershipResp = readEssif("onboarding-did-ownership-resp")
         val vIdRequest = EosService.didOwnershipResponse(didOwnershipResp)

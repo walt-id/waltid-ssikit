@@ -27,7 +27,7 @@ fun main() {
     // the credential request ([POST] /credentials with and empty body) to the EOS
     ///////////////////////////////////////////////////////////////////////////
     println("3 Trigger Wallet")
-    val didOwnershipReq = EnterpriseWalletService.requestVerifiableId(credentialRequestUri)
+    val didOwnershipReq = EnterpriseWalletService.requestVerifiableCredential(credentialRequestUri)
 
     ///////////////////////////////////////////////////////////////////////////
     // The DID ownership request is a JWT, which must be verified bey the public key of the EOS.
@@ -91,7 +91,7 @@ fun main() {
     ///////////////////////////////////////////////////////////////////////////
 
 
-    val verifiableId = EnterpriseWalletService.getVerifiableId(didOwnershipReq, didOfLegalEntity)
+    val verifiableId = EnterpriseWalletService.getVerifiableCredential(didOwnershipReq, didOfLegalEntity)
 
     ///////////////////////////////////////////////////////////////////////////
     // The requested V.ID is returned and should look like the following::

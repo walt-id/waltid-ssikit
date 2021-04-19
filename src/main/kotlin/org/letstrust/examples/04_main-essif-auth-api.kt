@@ -35,7 +35,7 @@ fun main() {
 
     ///////////////////////////////////////////////////////////////////////////
     // Run authentication protocol (DID Auth + Authenticated Key Exchange Protocol)
-    // and receive JWT Access Token + Authenticated Key Exchange Protocol)
+    // and receive JWT Access Token + Authenticated Key Exchange Protocol.
     ///////////////////////////////////////////////////////////////////////////
 
     val accessToken =  UserWalletService.requestAccessToken(verifiableAuthorization)

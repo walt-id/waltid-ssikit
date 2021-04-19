@@ -32,7 +32,7 @@ class Backend {
 }
 
 Backend -> EnterpriseWallet: has
-Backend -> LegalEntityService: interacts with
+Backend .right.> LegalEntityService: interacts with
 LegalEntityService -> EnterpriseWallet
 LegalEntityService <|-- RelyingParty
 RelyingParty <|-- TrustedIssuer
@@ -49,8 +49,8 @@ App -> UserWallet: has
 
 class EnterpriseWallet {
 + createDid()
-+ requestVerifiableId(credentialRequestUri: String)
-+ getVerifiableId(didOwnershipReq: String, didOfLegalEntity: String)
++ requestVerifiableCredential(credentialRequestUri: String)
++ getVerifiableCredential(didOwnershipReq: String, didOfLegalEntity: String)
 + generateDidAuthRequest()
 + validateDidAuthResponse(didAuthResp: String)
 + generateOidcAuthRequest()
@@ -78,7 +78,7 @@ class RelyingParty {
 
 class TrustedIssuer {
  + signedChallenge(challenge: String)
- + requestVerifiableId(credentialRequestUri: String)
+ + requestVerifiableCredential(credentialRequestUri: String)
  + requestCredentialUri()
  + didOwnershipResponse(didOwnershipResp: String)
  + getCredential(id: String)

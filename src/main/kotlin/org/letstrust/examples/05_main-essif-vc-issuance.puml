@@ -67,6 +67,6 @@ UW -> EW: callback <DID Auth Response>
 EW -> EW: Validate <DID Auth Response>
 EW --> UW: Authenticated session established
 NP -> TI: getCredentials()
-TI --> UW: 200 <V.ID>
+TI --> UW: 200 <VC> (Verifiable ID / Attestation)
 UW --> NP: Successful process
 @enduml
