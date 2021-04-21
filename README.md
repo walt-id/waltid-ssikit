@@ -1,16 +1,11 @@
-# Let's Trust SSI Core
+# LetsTrust SSI Core
 
 Kotlin/Java library & dockerized CLI tool for SSI core services, with primary focus on European EBSI/ESSIF ecosystem.
 
 The core services are in the scope of:
- - **key-management**
- - **signing**
- - **encryption**
- - **DID & VC operations**
-
-## Installation (using Docker)
-    docker pull letstrust/test
-    docker tag letstrust/test letstrust
+ - **Key Management**
+ - **Decentralized Identifier (DID) operations (register, update, deactivate)**
+ - **Verifiable Credential (VC) operations (issue, present, verify)**
 
 ## :hammer: Build
 
@@ -19,10 +14,6 @@ The core services are in the scope of:
 
 ### Building the Docker container
     docker build -t letstrust .
-
-### Pushing the Docker container
-    docker tag letstrust letstrust/test
-    docker push letstrust/test
 
 ## Configuration
 
@@ -79,33 +70,60 @@ alternatively unpack the archive and run the start-up script:
 
     ./letstrust.sh
 ### Run CLI tools via Docker:
-    docker run -it -v $(pwd)/data:/data letstrust
-
-#### Via Docker including an optional config-file called `letstrust.yaml`:
-    docker run -it -v $(pwd)/data:/data -v $(pwd)/letstrust.yaml:/letstrust.yaml letstrust -v did create
+    ./letstrust.sh
+    or
+    docker run -it $(pwd)/data:/opt/data letstrust
 
 #### For getting help, add "-h" to each command or sub-command e.g.:
-    docker run -it -v $(pwd)/data:/data letstrust did create -h
+    ./letstrust.sh did create -h
+    or
+    docker run -it -v $(pwd)/data:/opt/data letstrust did create -h
 
 #### For debug infos add "-v" e.g.:
 
-    docker run -it -v $(pwd)/data:/data letstrust -v did create
+    ./letstrust.sh -v
+    or
+    docker run -it -v $(pwd)/data:/opt/data letstrust -v did create
 
-#### Examples
-    docker run -it -v $(pwd)/data:/data letstrust key gen --algorithm Ed25519
+#### Overwriting the default config:
+    Simply add a file named _lestrust.yaml_ in the root folder and run ./letstrust.sh
 
-    docker run -it -v $(pwd)/data:/data letstrust key list
+    When using Docker, the following command will do the trick:
+    docker run -it $(pwd)/data:/opt/data -v $(pwd)/letstrust.yaml:/letstrust.yaml letstrust -v did create
 
-    docker run -it -v $(pwd)/data:/data letstrust did create -m web
+#### Examples Startup-Scrip 
 
-    docker run -it -v $(pwd)/data:/data letstrust did resolve --did did:web:mattr.global
+    ./letstrust.sh key gen --algorithm Ed25519
 
-    docker run -it -v $(pwd)/data:/data letstrust -v vc issue --issuer-did did:key:z6MkmNMF2... --subject-did did:key:zjkl2sd...
+    ./letstrust.sh key list
 
-    docker run -it -v $(pwd)/data:/data letstrust vc verify data/vc/created/vc-1614291790088-default.json
+    ./letstrust.sh did create -m web
 
-    docker run -it -v $(pwd)/data:/data letstrust -v vc present data/vc/created/vc-1614291790088-default.json
+    ./letstrust.sh did resolve --did did:web:mattr.global
 
-    docker run -it -v $(pwd)/data:/data letstrust vc verify -p data/vc/presented/vp-1614291892489.json
+    ./letstrust.sh -v vc issue --issuer-did did:key:z6MkmNMF2... --subject-did did:key:zjkl2sd...
+
+    ./letstrust.sh vc verify data/vc/created/vc-1614291790088-default.json
+
+    ./letstrust.sh -v vc present data/vc/created/vc-1614291790088-default.json
+
+    ./letstrust.sh vc verify -p data/vc/presented/vp-1614291892489.json
+
+#### Examples Docker
+    docker run -it -v $(pwd)/data:/opt/data letstrust key gen --algorithm Ed25519
+
+    docker run -it -v $(pwd)/data:/opt/data letstrust key list
+
+    docker run -it -v $(pwd)/data:/opt/data letstrust did create -m web
+
+    docker run -it -v $(pwd)/data:/opt/data letstrust did resolve --did did:web:mattr.global
+
+    docker run -it -v $(pwd)/data:/opt/data letstrust -v vc issue --issuer-did did:key:z6MkmNMF2... --subject-did did:key:zjkl2sd...
+
+    docker run -it -v $(pwd)/data:/opt/data letstrust vc verify data/vc/created/vc-1614291790088-default.json
+
+    docker run -it -v $(pwd)/data:/opt/data letstrust -v vc present data/vc/created/vc-1614291790088-default.json
+
+    docker run -it -v $(pwd)/data:/opt/data letstrust vc verify -p data/vc/presented/vp-1614291892489.json
 
 
