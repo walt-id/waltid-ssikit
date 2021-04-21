@@ -68,7 +68,6 @@ object EnterpriseWalletService {
         return vId
     }
 
-
     fun generateOidcAuthRequest(): String {
         println("3/2. [EWallet] Auth /auth")
 
