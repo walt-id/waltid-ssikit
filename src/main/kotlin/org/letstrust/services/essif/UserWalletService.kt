@@ -7,7 +7,6 @@ import kotlinx.serialization.json.jsonObject
 import mu.KotlinLogging
 import org.letstrust.model.*
 import org.letstrust.services.essif.mock.AuthorizationApi
-import org.letstrust.services.essif.mock.RelyingParty
 import org.letstrust.services.jwt.JwtService
 import java.io.File
 import java.net.URLDecoder
@@ -26,7 +25,7 @@ object UserWalletService {
         println("9. [UWallet] DID AuthN validation")
         println("10. [UWallet] Generate Authentication Response")
         println("11. [UA] Authentication Response: Callback /callback 302")
-        return RelyingParty.callback("<auth response>")
+        return LegalEntityClient.rp.callback("<auth response>")
     }
 
     fun validateDidAuthRequest(didAuthRequest: String) {
@@ -69,8 +68,6 @@ object UserWalletService {
     fun accessProtectedResource(accessToken: String) {
 
     }
-
-
 
     private fun didAuthAuthorizationApi(): AuthenticationRequestPayload {
         val authenticationRequest = Json.encodeToString(mapOf("scope" to "ebsi user profile"))

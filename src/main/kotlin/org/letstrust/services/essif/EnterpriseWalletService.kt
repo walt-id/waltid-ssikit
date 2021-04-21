@@ -38,7 +38,7 @@ object EnterpriseWalletService {
 
     fun requestVerifiableAuthorization(did: String): String {
         println("5. [EWallet] POST /onboards")
-        val didOwnershipReq = EosService.onboards()
+        val didOwnershipReq = LegalEntityClient.eos.onboards()
         log.debug { "didOwnershipReq: $didOwnershipReq" }
         log.debug { "didOwnershipReqHeader:" + readEssif("onboarding-onboards-resp-header") }
         log.debug { "didOwnershipReqBody: " + readEssif("onboarding-onboards-resp-body") }
@@ -46,13 +46,13 @@ object EnterpriseWalletService {
 
         val signedChallenge = readEssif("onboarding-onboards-callback-req")
         log.debug { "signedChallenge: $signedChallenge" }
-        val verifiableAuthorization = EosService.signedChallenge(signedChallenge)
+        val verifiableAuthorization = LegalEntityClient.eos.signedChallenge(signedChallenge)
         println("12. [EWallet] 201 V. Authorization")
         return verifiableAuthorization
     }
 
     fun requestVerifiableCredential(credentialRequestUri: String): String {
-        val didOwnershipReq = EosService.requestVerifiableId(credentialRequestUri)
+        val didOwnershipReq = LegalEntityClient.eos.requestVerifiableId(credentialRequestUri)
         log.debug { didOwnershipReq }
         println("5. [EWallet] Request DID prove")
         return didOwnershipReq
@@ -61,9 +61,9 @@ object EnterpriseWalletService {
     fun getVerifiableCredential(didOwnershipReq: String, didOfLegalEntity: String): String {
         // TODO Build didOwnershipResp
         val didOwnershipResp = readEssif("onboarding-did-ownership-resp")
-        val vIdRequest = EosService.didOwnershipResponse(didOwnershipResp)
+        val vIdRequest = LegalEntityClient.eos.didOwnershipResponse(didOwnershipResp)
         log.debug { "vIdRequest: $vIdRequest" }
-        val vId = EosService.getCredential("id")
+        val vId = LegalEntityClient.eos.getCredential("id")
         println("13 [EWallet] 200 <V.ID>")
         return vId
     }
