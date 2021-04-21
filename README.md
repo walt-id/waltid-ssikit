@@ -1,6 +1,6 @@
 # LetsTrust SSI Core
 
-Kotlin/Java library & dockerized CLI tool for SSI core services, with primary focus on European EBSI/ESSIF ecosystem.
+Kotlin/Java library & dockerized CLI tool for SSI core services, with primary focus on the European EBSI/ESSIF ecosystem.
 
 The core services are in the scope of:
  - **Key Management**
@@ -9,13 +9,15 @@ The core services are in the scope of:
 
 ## :hammer: Build
 
-### Building the application
+Building the application
+
     gradle clean assemble
 
-### Building the Docker container
+optionally building the Docker container afterwards
+
     docker build -t letstrust .
 
-## Configuration
+## :page_facing_up:  Configuration
 
 The default-configuration is set to the following values:
 
@@ -51,7 +53,7 @@ In order to overwrite these values, simply place a yaml-based config-file named 
 
 ## :gear: Run
 
-### Running the application directly:
+### Running CLI tool directly (requires Java 15):
 
 In `build/distributions/` you have two archives, a .tar, and a .zip.  
 Extract either one of them, and execute `letstrust-ssi-core-1.0-SNAPSHOT/bin/letstrust-ssi-core`.
@@ -69,29 +71,28 @@ alternatively unpack the archive and run the start-up script:
     tar xf build/distributions/letstrust-ssi-core-1.0-SNAPSHOT.tar -C build/distributions/
 
     ./letstrust.sh
-### Run CLI tools via Docker:
-    ./letstrust.sh
-    or
+### Run CLI tool via Docker:
+
     docker run -it $(pwd)/data:/opt/data letstrust
 
-#### For getting help, add "-h" to each command or sub-command e.g.:
+### For getting help, add "-h" to each command or sub-command e.g.:
     ./letstrust.sh did create -h
     or
     docker run -it -v $(pwd)/data:/opt/data letstrust did create -h
 
-#### For debug infos add "-v" e.g.:
+### For debug infos add "-v" e.g.:
 
     ./letstrust.sh -v
     or
     docker run -it -v $(pwd)/data:/opt/data letstrust -v did create
 
-#### Overwriting the default config:
+### Overwriting the default config:
     Simply add a file named _lestrust.yaml_ in the root folder and run ./letstrust.sh
 
     When using Docker, the following command will do the trick:
     docker run -it $(pwd)/data:/opt/data -v $(pwd)/letstrust.yaml:/letstrust.yaml letstrust -v did create
 
-#### Examples Startup-Scrip 
+### Examples Startup-Scrip 
 
     ./letstrust.sh key gen --algorithm Ed25519
 
@@ -109,7 +110,7 @@ alternatively unpack the archive and run the start-up script:
 
     ./letstrust.sh vc verify -p data/vc/presented/vp-1614291892489.json
 
-#### Examples Docker
+### Examples Docker
     docker run -it -v $(pwd)/data:/opt/data letstrust key gen --algorithm Ed25519
 
     docker run -it -v $(pwd)/data:/opt/data letstrust key list

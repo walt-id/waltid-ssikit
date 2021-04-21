@@ -88,7 +88,7 @@ class ResolveDidCommand : CliktCommand(
         echo("Resolving $did ...")
 
         var encodedDid = when (did.contains("mattr")) {
-            true -> DidService.resolveDidWeb(did.toDidUrl()).encodePretty()
+            true -> DidService.resolveDidWeb(toDidUrl(did)).encodePretty()
             else -> DidService.resolve(did).encodePretty()
         }
 

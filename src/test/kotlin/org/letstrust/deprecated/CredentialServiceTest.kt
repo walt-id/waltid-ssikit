@@ -189,7 +189,7 @@ class CredentialServiceTest {
     }
 
     @Test
-    fun issueVerifablePresentation() {
+    fun issueVerifiablePresentation() {
 
         val vcStr = readVerifiableCredential("vc-simple-example")
         val vc = Json.decodeFromString<VerifiableCredential>(vcStr)

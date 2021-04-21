@@ -17,6 +17,7 @@ data class CliConfig(var dataDir: String, val properties: MutableMap<String, Str
 private val log = KotlinLogging.logger {}
 
 class LetsTrust : CliktCommand(
+    name ="letstrust",
     help = """LetsTrust CLI
 
         The LetsTrust CLI is a command line tool that allows you to onboard and use
@@ -26,9 +27,9 @@ class LetsTrust : CliktCommand(
         
         Example commands are:
         
-        docker run -it letstrust key gen --algorithm Secp256k1
+        ./letstrust.sh key gen --algorithm Secp256k1
 
-        docker run -it letstrust vc verify vc.json
+        docker run -it -v ${'$'}(pwd)/data:/opt/data letstrust did create -m web
         
         """
 ) {
@@ -75,11 +76,33 @@ fun main(args: Array<String>) {
 
         LetsTrust()
             .subcommands(
-                KeyCommand().subcommands(GenCommand(), ListKeysCommand(), ExportKeyCommand()),
-                DidCommand().subcommands(CreateDidCommand(), ResolveDidCommand(), ListDidsCommand()),
-                VerifiableCredentialsCommand().subcommands(IssueVcCommand(), PresentVcCommand(), VerifyVcCommand(), ListVcCommand()),
-                AuthCommand(),
-                EssifCommand().subcommands(EssifAuthCommand(), EssifDidCommand(), EssifTirCommand(), EssifTaorCommand(), EssifTsrCommand())
+                KeyCommand().subcommands(
+                    GenCommand(),
+                    ListKeysCommand(),
+                    ExportKeyCommand()
+                ),
+                DidCommand().subcommands(
+                    CreateDidCommand(),
+                    ResolveDidCommand(),
+                    ListDidsCommand()
+                ),
+                VerifiableCredentialsCommand().subcommands(
+                    IssueVcCommand(),
+                    PresentVcCommand(),
+                    VerifyVcCommand(),
+                    ListVcCommand()
+                ),
+                //AuthCommand(),
+                EssifCommand().subcommands(
+                    EssifOnboardingCommand(),
+                    EssifAuthCommand(),
+                    EssifVcIssuanceCommand(),
+                    EssifVcExchangeCommand(),
+                    EssifDidCommand(),
+                    EssifTirCommand(),
+                    EssifTaorCommand(),
+                    EssifTsrCommand()
+                )
             )
             //.org.letstrust.examples.org.letstrust.examples.org.letstrust.examples.main(arrayOf("-v", "-c", "mykey=myval", "vc", "-h"))
             //.org.letstrust.examples.org.letstrust.examples.org.letstrust.examples.main(arrayOf("vc", "verify", "vc.json"))

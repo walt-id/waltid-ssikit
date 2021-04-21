@@ -46,7 +46,7 @@ object DidService {
         destFile.writeText(resolve(didUrl).encodePretty())
     }
 
-    fun resolve(did: String): Did = resolve(did.toDidUrl())
+    fun resolve(did: String): Did = resolve(toDidUrl(did))
     fun resolve(didUrl: DidUrl): Did {
         return when (didUrl.method) {
             DidMethod.key.name -> resolveDidKey(didUrl)

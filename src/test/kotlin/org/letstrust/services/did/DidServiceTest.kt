@@ -26,7 +26,7 @@ class DidServiceTest {
         val didUrl = DidUrl("method", "identifier", "key1")
         assertEquals("did:method:identifier#key1", didUrl.url)
 
-        val obj: DidUrl = didUrl.url.toDidUrl()
+        val obj: DidUrl = toDidUrl(didUrl.url)
         assertEquals(didUrl, obj)
     }
 
@@ -35,9 +35,9 @@ class DidServiceTest {
 
         // Create
         val did = ds.create(DidMethod.key)
-        assertNotNull(did)
-        assertTrue(32 < did.length)
-        assertEquals("did:key:", did.substring(0, 8))
+        val didUrl = toDidUrl(did)
+        assertEquals(did, didUrl.did)
+        assertEquals("key", didUrl.method)
         print(did)
 
         // Resolve
@@ -51,9 +51,9 @@ class DidServiceTest {
 
         // Create
         val did = ds.create(DidMethod.web)
-        assertNotNull(did)
-        assertTrue(32 < did.length)
-        assertEquals("did:web:", did.substring(0, 8))
+        val didUrl = toDidUrl(did)
+        assertEquals(did, didUrl.did)
+        assertEquals("web", didUrl.method)
         print(did)
 
         // Resolve
@@ -71,7 +71,7 @@ class DidServiceTest {
 
         assertTrue(dids.size > 0)
 
-        dids.forEach { s -> assertEquals("did:", s.substring(0,4)) }
+        dids.forEach { s -> assertEquals(s, toDidUrl(s).did) }
     }
 
 }

@@ -1,7 +1,7 @@
 package org.letstrust.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
-import org.letstrust.services.essif.UserWalletService
+import org.letstrust.services.essif.EssifFlowRunner
 
 // TODO: Support following commands
 
@@ -36,16 +36,40 @@ class EssifCommand : CliktCommand(
     override fun run() {}
 }
 
+class EssifOnboardingCommand : CliktCommand(
+    name = "onboard",
+    help = """ESSIF Onboarding flow
+
+        ESSIF onboarding flow"""
+) {
+    override fun run() = EssifFlowRunner.onboard()
+}
+
 class EssifAuthCommand : CliktCommand(
-    name = "auth",
+    name = "auth-api",
     help = """ESSIF Authorization flow
 
         ESSIF Authorization flow"""
 ) {
-    override fun run() {
-        //EssifService.authenticate()
-        UserWalletService.requestAccessToken("verifiableAuthorization")
-    }
+    override fun run() = EssifFlowRunner.authApi()
+}
+
+class EssifVcIssuanceCommand : CliktCommand(
+    name = "vc-issuance",
+    help = """ESSIF VC issuance flow
+
+        ESSIF VC issuance flow"""
+) {
+    override fun run() = EssifFlowRunner.vcIssuance()
+}
+
+class EssifVcExchangeCommand : CliktCommand(
+    name = "vc-exchange",
+    help = """ESSIF VC exchange flow
+
+        ESSIF VC exchange flow"""
+) {
+    override fun run() = EssifFlowRunner.vcExchange()
 }
 
 class EssifDidCommand : CliktCommand(
@@ -54,7 +78,9 @@ class EssifDidCommand : CliktCommand(
 
         ESSIF DID operations."""
 ) {
-    override fun run() {}
+    override fun run() {
+        echo("TODO")
+    }
 }
 
 class EssifTirCommand : CliktCommand(

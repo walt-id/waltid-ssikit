@@ -37,7 +37,7 @@ class DidServiceTest {
 
         assertEquals("did:method:identifier#key1", didUrl.url)
 
-        val obj: DidUrl = didUrl.url.toDidUrl()
+        val obj: DidUrl = toDidUrl(didUrl.url)
 
         assertEquals(didUrl, obj)
     }
@@ -80,7 +80,7 @@ class DidServiceTest {
     @Test
     fun didWebResolution() {
         val identifier = "did:web:mattr.global"
-        val didUrl:  DidUrl= identifier.toDidUrl()
+        val didUrl:  DidUrl= toDidUrl(identifier)
         val didWeb = DidService.resolveDidWeb(didUrl)
         assertNotNull(didWeb)
         // assertEquals("https://w3id.org/did/v1", didWeb.context)
