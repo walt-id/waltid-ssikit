@@ -33,17 +33,17 @@ object RestAPI {
                 registerPlugin(OpenApiPlugin(OpenApiOptions(InitialConfigurationCreator {
                     OpenAPI().apply {
                         info {
-                            title = "Let's Trust API"
+                            title = "Let's Trust Core API"
                             description = "The Let's Trust public API documentation"
                             contact = Contact().apply {
                                 name = "SSI Fabric GmbH"
                                 url = "https://letstrust.id"
-                                email = "contact@letstrust.id"
+                                email = "office@letstrust.id"
                             }
                             version = "1.0"
                         }
                         servers = listOf(
-                            Server().description("Let's Trust").url("https://api.letstrust.io"),
+                            Server().description("Let's Trust").url("https://core-api.letstrust.io"),
                             Server().description("Local testing server").url("http://localhost:7000")
                         )
                         externalDocs {
@@ -78,10 +78,11 @@ object RestAPI {
 
             it.enableDevLogging()
         }.routes {
-            ApiBuilder.path("users") {
-                ApiBuilder.path("auth") {
-                    ApiBuilder.post("register", UserRegistrationController::register)
-                }
+            ApiBuilder.path("key") {
+                ApiBuilder.post("gen", KeyController::gen)
+                ApiBuilder.get("list", KeyController::list)
+                ApiBuilder.post("import", KeyController::import)
+                ApiBuilder.post("export", KeyController::export)
             }
 
         }.exception(IllegalArgumentException::class.java) { e, ctx ->
