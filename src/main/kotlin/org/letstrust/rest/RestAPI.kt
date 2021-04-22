@@ -89,6 +89,12 @@ object RestAPI {
                 ApiBuilder.post("resolve", DidController::resolve)
                 ApiBuilder.get("list", DidController::list)
             }
+            ApiBuilder.path("vc") {
+                ApiBuilder.post("create", VcController::create)
+                ApiBuilder.post("present", VcController::present)
+                ApiBuilder.post("verify", VcController::verify)
+                ApiBuilder.get("list", VcController::list)
+            }
 
         }.exception(IllegalArgumentException::class.java) { e, ctx ->
             log.error(e.stackTraceToString())
