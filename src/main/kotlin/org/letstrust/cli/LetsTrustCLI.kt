@@ -8,6 +8,8 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.versionOption
 import mu.KotlinLogging
+import org.letstrust.LetsTrustServices
+import org.apache.logging.log4j.Level
 
 
 data class CliConfig(var dataDir: String, val properties: MutableMap<String, String>, var verbose: Boolean)
@@ -64,9 +66,16 @@ class LetsTrust : CliktCommand(
 object LetsTrustCLI {
 
     fun start(args: Array<String>) {
+
         try {
 
             log.debug { "Let's Trust CLI started" }
+
+            args.forEach {
+                if (it.contains("-v") || it.contains("--verbose")) {
+                    LetsTrustServices.setLogLevel(Level.TRACE)
+                }
+            }
 
             LetsTrust()
                 .subcommands(
@@ -105,6 +114,5 @@ object LetsTrustCLI {
             TermUi.echo(e.message)
             log.debug { e.printStackTrace() }
         }
-
     }
 }
