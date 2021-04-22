@@ -84,6 +84,11 @@ object RestAPI {
                 ApiBuilder.post("import", KeyController::import)
                 ApiBuilder.post("export", KeyController::export)
             }
+            ApiBuilder.path("did") {
+                ApiBuilder.post("create", DidController::create)
+                ApiBuilder.post("resolve", DidController::resolve)
+                ApiBuilder.get("list", DidController::list)
+            }
 
         }.exception(IllegalArgumentException::class.java) { e, ctx ->
             log.error(e.stackTraceToString())
