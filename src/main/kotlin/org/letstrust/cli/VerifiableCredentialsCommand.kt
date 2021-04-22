@@ -12,7 +12,7 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import mu.KotlinLogging
-import org.letstrust.CliConfig
+import org.letstrust.cli.CliConfig
 import org.letstrust.model.VerifiableCredential
 import org.letstrust.model.VerifiablePresentation
 import org.letstrust.model.encodePretty

@@ -10,7 +10,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.file
-import org.letstrust.CliConfig
+import org.letstrust.cli.CliConfig
 import org.letstrust.model.DidMethod
 import org.letstrust.model.encodePretty
 import org.letstrust.model.toDidUrl
@@ -52,7 +52,7 @@ class CreateDidCommand : CliktCommand(
 
         echo("Registering did:${method} (key: ${keyAlias}) ...")
 
-        val keyId = if (keyAlias =="default") null else keyAlias
+        val keyId = if (keyAlias == "default") null else keyAlias
 
         val did = didService.create(DidMethod.valueOf(method), keyId)
 
@@ -61,17 +61,14 @@ class CreateDidCommand : CliktCommand(
 
         val didDoc = didService.resolve(did)
 
-        if (didDoc == null) {
-            echo("\nCould not resolve: $did")
-        } else {
-            val didDocEnc = didDoc.encodePretty()
-            echo("\ndid document:\n$didDocEnc")
+        val didDocEnc = didDoc.encodePretty()
+        echo("\ndid document:\n$didDocEnc")
 
-            dest?.let {
-                echo("Saving DID to DEST file: ${it.absolutePath}")
-                it.writeText(didDocEnc)
-            }
+        dest?.let {
+            echo("Saving DID to DEST file: ${it.absolutePath}")
+            it.writeText(didDocEnc)
         }
+        
     }
 }
 

@@ -6,7 +6,6 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
 import com.nimbusds.jwt.SignedJWT
 import khttp.post
-import org.letstrust.CliConfig
 
 class AuthCommand : CliktCommand(
 

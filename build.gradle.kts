@@ -82,7 +82,7 @@ val fatJar = task("fatJar", type = Jar::class) {
     manifest {
         attributes["Implementation-Title"] = "Gradle Jar Bundling"
         attributes["Implementation-Version"] = archiveVersion.get()
-        attributes["Main-Class"] = "org.letstrust.MainKt"
+        attributes["Main-Class"] = "org.letstrust.MainCliKt"
     }
 
     from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
