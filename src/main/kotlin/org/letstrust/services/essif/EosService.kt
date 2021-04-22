@@ -32,7 +32,7 @@ object EosService {
         return verifiableAuthorization
     }
 
-    fun requestVerifiableId(credentialRequestUri: String): String {
+    fun requestVerifiableCredential(credentialRequestUri: String): String {
         println("4. [Eos] Request V.ID")
         return EnterpriseWalletService.generateDidAuthRequest()
     }

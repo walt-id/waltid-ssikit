@@ -95,6 +95,20 @@ object RestAPI {
                 ApiBuilder.post("verify", VcController::verify)
                 ApiBuilder.get("list", VcController::list)
             }
+            ApiBuilder.path("essif") {
+                ApiBuilder.path("trusted-issuer") {
+                    ApiBuilder.post("create", EssifController::todo)
+                }
+                ApiBuilder.path("eos") {
+                    ApiBuilder.post("onboard", EssifController::todo)
+                }
+                ApiBuilder.path("user-wallet") {
+                    ApiBuilder.post("receive-vc", EssifController::todo)
+                }
+                ApiBuilder.path("enterprise-wallet") {
+                    ApiBuilder.post("issue-vc", EssifController::todo)
+                }
+            }
 
         }.exception(IllegalArgumentException::class.java) { e, ctx ->
             log.error(e.stackTraceToString())
