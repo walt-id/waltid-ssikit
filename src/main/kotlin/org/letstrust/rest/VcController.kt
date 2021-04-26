@@ -26,7 +26,7 @@ object VcController {
     @OpenApi(
         summary = "Create VC",
         operationId = "createVc",
-        tags = ["vc"],
+        tags = ["Verifiable Credentials"],
         requestBody = OpenApiRequestBody(
             [OpenApiContent(CreateVcRequest::class)],
             true,
@@ -45,7 +45,7 @@ object VcController {
     @OpenApi(
         summary = "Present VC",
         operationId = "presentVc",
-        tags = ["vc"],
+        tags = ["Verifiable Credentials"],
         requestBody = OpenApiRequestBody(
             [OpenApiContent(PresentVcRequest::class)],
             true,
@@ -63,7 +63,7 @@ object VcController {
     @OpenApi(
         summary = "Verify VC",
         operationId = "verifyVc",
-        tags = ["vc"],
+        tags = ["Verifiable Credentials"],
         requestBody = OpenApiRequestBody(
             [OpenApiContent(VerifyVcRequest::class)],
             true,
@@ -81,7 +81,7 @@ object VcController {
     @OpenApi(
         summary = "List VCs",
         operationId = "listVcs",
-        tags = ["vc"],
+        tags = ["Verifiable Credentials"],
         responses = [
             OpenApiResponse("200", [OpenApiContent(Array<String>::class)]),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")

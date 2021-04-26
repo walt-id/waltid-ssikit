@@ -1,7 +1,7 @@
 package org.letstrust.rest
 
 data class ErrorResponse(
-    val title: String,
+    val message: String,
     val status: Int,
-    val details: Map<String, String>? = emptyMap()
+    //val details: Map<String, String>? = emptyMap()
 )

@@ -30,7 +30,7 @@ object DidController {
     @OpenApi(
         summary = "Create DID",
         operationId = "createDid",
-        tags = ["did"],
+        tags = ["Decentralized Identifiers"],
         requestBody = OpenApiRequestBody(
             [OpenApiContent(CreateDidRequest::class)],
             true,
@@ -49,7 +49,7 @@ object DidController {
     @OpenApi(
         summary = "Resolve DID",
         operationId = "resolve DID",
-        tags = ["did"],
+        tags = ["Decentralized Identifiers"],
         requestBody = OpenApiRequestBody(
             [OpenApiContent(ResolveDidRequest::class)],
             true,
@@ -67,7 +67,7 @@ object DidController {
     @OpenApi(
         summary = "List DIDs",
         operationId = "listDids",
-        tags = ["did"],
+        tags = ["Decentralized Identifiers"],
         responses = [
             OpenApiResponse("200", [OpenApiContent(Array<String>::class)]),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")

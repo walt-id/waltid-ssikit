@@ -5,7 +5,8 @@ import cc.vileda.openapi.dsl.externalDocs
 import cc.vileda.openapi.dsl.info
 import cc.vileda.openapi.dsl.securityScheme
 import io.javalin.Javalin
-import io.javalin.apibuilder.ApiBuilder
+import io.javalin.apibuilder.ApiBuilder.*
+import io.javalin.apibuilder.*
 import io.javalin.core.util.RouteOverviewPlugin
 import io.javalin.plugin.openapi.InitialConfigurationCreator
 import io.javalin.plugin.openapi.OpenApiOptions
@@ -78,35 +79,23 @@ object RestAPI {
 
             it.enableDevLogging()
         }.routes {
-            ApiBuilder.path("key") {
-                ApiBuilder.post("gen", KeyController::gen)
-                ApiBuilder.get("list", KeyController::list)
-                ApiBuilder.post("import", KeyController::import)
-                ApiBuilder.post("export", KeyController::export)
-            }
-            ApiBuilder.path("did") {
-                ApiBuilder.post("create", DidController::create)
-                ApiBuilder.post("resolve", DidController::resolve)
-                ApiBuilder.get("list", DidController::list)
-            }
-            ApiBuilder.path("vc") {
-                ApiBuilder.post("create", VcController::create)
-                ApiBuilder.post("present", VcController::present)
-                ApiBuilder.post("verify", VcController::verify)
-                ApiBuilder.get("list", VcController::list)
-            }
-            ApiBuilder.path("essif") {
-                ApiBuilder.path("trusted-issuer") {
-                    ApiBuilder.post("create", EssifController::todo)
+            path("v1") {
+                path("key") {
+                    post("gen", KeyController::gen)
+                    get("list", KeyController::list)
+                    post("import", KeyController::import)
+                    post("export", KeyController::export)
                 }
-                ApiBuilder.path("eos") {
-                    ApiBuilder.post("onboard", EssifController::todo)
+                path("did") {
+                    post("create", DidController::create)
+                    post("resolve", DidController::resolve)
+                    get("list", DidController::list)
                 }
-                ApiBuilder.path("user-wallet") {
-                    ApiBuilder.post("receive-vc", EssifController::todo)
-                }
-                ApiBuilder.path("enterprise-wallet") {
-                    ApiBuilder.post("issue-vc", EssifController::todo)
+                path("vc") {
+                    post("create", VcController::create)
+                    post("present", VcController::present)
+                    post("verify", VcController::verify)
+                    get("list", VcController::list)
                 }
             }
 
@@ -117,5 +106,105 @@ object RestAPI {
             log.error(e.stackTraceToString())
             ctx.status(500)
         }.start(7000)
+
+
+        Javalin.create {
+
+            it.apply {
+                registerPlugin(RouteOverviewPlugin("/api-routes"))
+
+                registerPlugin(OpenApiPlugin(OpenApiOptions(InitialConfigurationCreator {
+                    OpenAPI().apply {
+                        info {
+                            title = "Let's Trust ESSIF API"
+                            description = "The Let's Trust public API documentation"
+                            contact = Contact().apply {
+                                name = "SSI Fabric GmbH"
+                                url = "https://letstrust.id"
+                                email = "office@letstrust.id"
+                            }
+                            version = "1.0"
+                        }
+                        servers = listOf(
+                            Server().description("Let's Trust").url("https://core-api.letstrust.io"),
+                            Server().description("Local testing server").url("http://localhost:7000")
+                        )
+                        externalDocs {
+                            description = "Let's Trust Docs"
+                            url = "https://docs.letstrust.io/api"
+                        }
+
+                        components {
+                            securityScheme {
+                                name = "bearerAuth"
+                                type = SecurityScheme.Type.HTTP
+                                scheme = "bearer"
+                                `in` = SecurityScheme.In.HEADER
+                                description = "HTTP Bearer Token authentication"
+                                bearerFormat = "JWT"
+                            }
+                        }
+                    }
+                }).apply {
+                    path("/api-documentation")
+                    swagger(SwaggerOptions("/swagger").title("Let's Trust API"))
+                    reDoc(ReDocOptions("/redoc").title("Let's Trust API"))
+//                defaultDocumentation { doc ->
+//                    doc.json("5XX", ErrorResponse::class.java)
+//                }
+                }))
+
+                //addStaticFiles("/static")
+            }
+
+            it.enableCorsForAllOrigins()
+
+            it.enableDevLogging()
+        }.routes {
+            path("v1") {
+                path("essif") {
+                    path("ti") {
+                        path("credentials"){
+                            get("",  EosController::getCredential)
+                            get(":credentialId",  EosController::getCredential)
+                        }
+                        post("requestCredentialUri", EosController::requestCredentialUri)
+                        post("requestVerifiableCredential", EosController::requestVerifiableCredential)
+                        post("signedChallenge", EosController::signedChallenge)
+                    }
+                    path("eos") {
+                        post("onboard", EosController::onboards)
+                    }
+                    path("user") {
+                        path("wallet") {
+                            post("requestAccessToken", UserWalletController::requestAccessToken)
+                            post("validateDidAuthRequest", UserWalletController::validateDidAuthRequest)
+                            post("didAuthResponse", UserWalletController::didAuthResponse)
+                            post("vcAuthResponse", UserWalletController::vcAuthResponse)
+                            post("oidcAuthResponse", UserWalletController::oidcAuthResponse)
+                        }
+                    }
+                    path("enterprise") {
+                        path("wallet") {
+                            post("createDid", EnterpriseWalletController::createDid)
+                            post("requestVerifiableAuthorization", EnterpriseWalletController::requestVerifiableAuthorization)
+                            post("requestVerifiableCredential", EnterpriseWalletController::requestVerifiableAuthorization)
+                            post("generateDidAuthRequest", EnterpriseWalletController::generateDidAuthRequest)
+                            post("onboardTrustedIssuer", EnterpriseWalletController::onboardTrustedIssuer)
+                            post("validateDidAuthResponse", EnterpriseWalletController::validateDidAuthResponse)
+                            get("getVerifiableCredential", EnterpriseWalletController::getVerifiableCredential)
+                            post("token", EnterpriseWalletController::token)
+                        }
+                    }
+                }
+            }
+
+        }.exception(IllegalArgumentException::class.java) { e, ctx ->
+            log.error(e.stackTraceToString())
+            ctx.status(400)
+        }.exception(Exception::class.java) { e, ctx ->
+            log.error(e.stackTraceToString())
+            ctx.status(500)
+        }.start(7001)
     }
 }

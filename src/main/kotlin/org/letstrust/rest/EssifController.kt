@@ -32,6 +32,7 @@ object EssifController {
     )
     fun todo(ctx: Context) {
         ctx.json("todo")
+        /**
         // EnterpriseWalletService
         EnterpriseWalletService.onboardTrustedIssuer("")
         EnterpriseWalletService.token("")
@@ -57,5 +58,6 @@ object EssifController {
         EosService.requestCredentialUri()
         EosService.requestVerifiableCredential("")
         EosService.signedChallenge("")
+        **/
     }
 }

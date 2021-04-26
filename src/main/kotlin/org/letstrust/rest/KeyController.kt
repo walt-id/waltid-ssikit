@@ -28,7 +28,7 @@ object KeyController {
     @OpenApi(
         summary = "Generate key",
         operationId = "genKey",
-        tags = ["key"],
+        tags = ["Key Management"],
         requestBody = OpenApiRequestBody(
             [OpenApiContent(GenKeyRequest::class)],
             true,
@@ -47,7 +47,7 @@ object KeyController {
     @OpenApi(
         summary = "List of keyIds",
         operationId = "listKeys",
-        tags = ["key"],
+        tags = ["Key Management"],
         responses = [
             OpenApiResponse("200", [OpenApiContent(Array<String>::class)]),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
@@ -62,7 +62,7 @@ object KeyController {
     @OpenApi(
         summary = "Import key",
         operationId = "importKey",
-        tags = ["key"],
+        tags = ["Key Management"],
         requestBody = OpenApiRequestBody(
             [OpenApiContent(ImportKeyRequest::class)],
             true,
@@ -80,7 +80,7 @@ object KeyController {
     @OpenApi(
         summary = "Export key",
         operationId = "exportKey",
-        tags = ["key"],
+        tags = ["Key Management"],
         requestBody = OpenApiRequestBody(
             [OpenApiContent(ExportKeyRequest::class)],
             true,
