@@ -7,6 +7,7 @@ import kotlinx.serialization.json.jsonObject
 import mu.KotlinLogging
 import org.letstrust.model.*
 import org.letstrust.services.essif.mock.AuthorizationApi
+import org.letstrust.services.essif.mock.DidRegistry
 import org.letstrust.services.jwt.JwtService
 import java.io.File
 import java.net.URLDecoder
@@ -19,6 +20,21 @@ object UserWalletService {
 //    val didUrlUser by lazy {
 //        DidService.create(DidMethod.web)
 //    }
+
+    fun createDid(): String {
+        val did = EnterpriseWalletService.didGeneration()
+        log.debug { "did: $did" }
+
+        val verifiableAuthorization = EnterpriseWalletService.requestVerifiableAuthorization(did)
+        log.debug { "verifiableAuthorization: $verifiableAuthorization" }
+
+        val unsignedTransaction = DidRegistry.insertDidDocument()
+        println("16. [EWallet] 200 <unsigned transaction>")
+        println("17. [EWallet] Generate <signed transaction>")
+        val signedTransaction = ""
+        DidRegistry.signedTransaction(signedTransaction)
+        return did
+    }
 
     fun oidcAuthResponse(oidcAuthReq: String): Boolean {
         println("8. [UWallet] OIDC Validation")

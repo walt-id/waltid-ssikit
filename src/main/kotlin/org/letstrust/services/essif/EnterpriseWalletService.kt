@@ -13,18 +13,7 @@ object EnterpriseWalletService {
 //    }
 
     fun createDid(): String {
-        val did = didGeneration()
-        log.debug { "did: $did" }
-
-        val verifiableAuthorization = requestVerifiableAuthorization(did)
-        log.debug { "verifiableAuthorization: $verifiableAuthorization" }
-
-        val unsignedTransaction = DidRegistry.insertDidDocument()
-        println("16. [EWallet] 200 <unsigned transaction>")
-        println("17. [EWallet] Generate <signed transaction>")
-        val signedTransaction = ""
-        DidRegistry.signedTransaction(signedTransaction)
-        return did
+        return UserWalletService.createDid()
     }
 
     // https://besu.hyperledger.org/en/stable/HowTo/Send-Transactions/Account-Management/
@@ -83,7 +72,6 @@ object EnterpriseWalletService {
         println("3. [EWallet] Generate <DID-Auth Request>")
         return readEssif("onboarding-did-ownership-req")
     }
-
 
     fun token(oidcAuthResp: String): Boolean {
         println("13. [EWallet] /token <Authentication Response>")

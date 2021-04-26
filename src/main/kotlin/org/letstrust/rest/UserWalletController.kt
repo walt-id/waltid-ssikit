@@ -13,10 +13,28 @@ import org.letstrust.services.essif.UserWalletService
 
 object UserWalletController {
 
+    @OpenApi(
+        summary = "Creates and registers DID on the EBSI Blockchain",
+        operationId = "createDid",
+        tags = ["ESSIF Enterprise Wallet"],
+        requestBody = OpenApiRequestBody(
+            [OpenApiContent(String::class)],
+            true,
+            "Verifiable Authorization"
+        ),
+        responses = [
+            OpenApiResponse("200", [OpenApiContent(String::class)], "Created DID"),
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
+        ]
+    )
+    fun createDid(ctx: Context) {
+        ctx.json("todo")
+        UserWalletService.createDid()
+    }
+
     /**
      * By providing a Verifiable Authorization the protocols 'DID Auth' and 'Authenticated Key Exchange Protocol' are executed and if successful, the JWT Access Token for accessing the EBSI services is returned
      */
-
     @OpenApi(
         summary = "Returns the JWT Access Token for accessing the protected EBSI services.",
         operationId = "requestAccessToken",
@@ -33,6 +51,7 @@ object UserWalletController {
     )
     fun requestAccessToken(ctx: Context) {
         ctx.json("todo")
+        ctx.result(UserWalletService.requestAccessToken(ctx.body()))
     }
 
     @OpenApi(

@@ -177,6 +177,7 @@ object RestAPI {
                     }
                     path("user") {
                         path("wallet") {
+                            post("createDid", UserWalletController::createDid)
                             post("requestAccessToken", UserWalletController::requestAccessToken)
                             post("validateDidAuthRequest", UserWalletController::validateDidAuthRequest)
                             post("didAuthResponse", UserWalletController::didAuthResponse)
@@ -188,9 +189,9 @@ object RestAPI {
                         path("wallet") {
                             post("createDid", EnterpriseWalletController::createDid)
                             post("requestVerifiableAuthorization", EnterpriseWalletController::requestVerifiableAuthorization)
-                            post("requestVerifiableCredential", EnterpriseWalletController::requestVerifiableAuthorization)
+                            post("requestVerifiableCredential", EnterpriseWalletController::requestVerifiableCredential)
                             post("generateDidAuthRequest", EnterpriseWalletController::generateDidAuthRequest)
-                            post("onboardTrustedIssuer", EnterpriseWalletController::onboardTrustedIssuer)
+                            // post("onboardTrustedIssuer", EnterpriseWalletController::onboardTrustedIssuer) not supported yet
                             post("validateDidAuthResponse", EnterpriseWalletController::validateDidAuthResponse)
                             get("getVerifiableCredential", EnterpriseWalletController::getVerifiableCredential)
                             post("token", EnterpriseWalletController::token)

@@ -25,21 +25,22 @@ EnterpriseWalletService.getVerifiableCredential("", "")
 object EnterpriseWalletController {
 
     @OpenApi(
-        summary = "TODO",
+        summary = "Creates and registers DID on the EBSI Blockchain",
         operationId = "createDid",
         tags = ["ESSIF Enterprise Wallet"],
         requestBody = OpenApiRequestBody(
             [OpenApiContent(String::class)],
             true,
-            "todo"
+            "Verifiable Authorization"
         ),
         responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
+            OpenApiResponse("200", [OpenApiContent(String::class)], "Created DID"),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
         ]
     )
     fun createDid(ctx: Context) {
         ctx.json("todo")
+        EnterpriseWalletService.createDid()
     }
 
     @OpenApi(
@@ -57,38 +58,34 @@ object EnterpriseWalletController {
         ]
     )
     fun onboardTrustedIssuer(ctx: Context) {
+        EnterpriseWalletService.onboardTrustedIssuer("scanQrUri")
         ctx.json("todo")
     }
 
     @OpenApi(
-        summary = "TODO",
+        summary = "Generates a DID Auth Request",
         operationId = "generateDidAuthRequest",
         tags = ["ESSIF Enterprise Wallet"],
-        requestBody = OpenApiRequestBody(
-            [OpenApiContent(String::class)],
-            true,
-            "todo"
-        ),
         responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
+            OpenApiResponse("200", [OpenApiContent(String::class)], "DID Auth Reqeust"),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
         ]
     )
     fun generateDidAuthRequest(ctx: Context) {
-        ctx.json("todo")
+        ctx.json(EnterpriseWalletService.generateDidAuthRequest())
     }
 
     @OpenApi(
-        summary = "TODO",
+        summary = "Validates a DID Auth response",
         operationId = "validateDidAuthResponse",
         tags = ["ESSIF Enterprise Wallet"],
         requestBody = OpenApiRequestBody(
             [OpenApiContent(String::class)],
             true,
-            "todo"
+            "DID Auth Response"
         ),
         responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
+            OpenApiResponse("200", [OpenApiContent(Boolean::class)], "True, if response could be validated"),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
         ]
     )
@@ -97,31 +94,31 @@ object EnterpriseWalletController {
     }
 
     @OpenApi(
-        summary = "TODO",
+        summary = "Performs DID Auth in order to obtain a Verifiable Authorization",
         operationId = "requestVerifiableAuthorization",
         tags = ["ESSIF Enterprise Wallet"],
         requestBody = OpenApiRequestBody(
             [OpenApiContent(String::class)],
             true,
-            "todo"
+            "Access Token"
         ),
         responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
+            OpenApiResponse("200", [OpenApiContent(String::class)], "Verifiable Authorization"),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
         ]
     )
     fun requestVerifiableAuthorization(ctx: Context) {
-        ctx.json("todo")
+        ctx.json(EnterpriseWalletService.requestVerifiableAuthorization("token"))
     }
 
     @OpenApi(
-        summary = "TODO",
+        summary = "Request credential",
         operationId = "requestVerifiableCredential",
         tags = ["ESSIF Enterprise Wallet"],
         requestBody = OpenApiRequestBody(
             [OpenApiContent(String::class)],
             true,
-            "todo"
+            "URI"
         ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
@@ -129,17 +126,17 @@ object EnterpriseWalletController {
         ]
     )
     fun requestVerifiableCredential(ctx: Context) {
-        ctx.json("todo")
+        ctx.json(EnterpriseWalletService.requestVerifiableCredential("uri"))
     }
 
     @OpenApi(
-        summary = "TODO",
+        summary = "Returns the requested credential",
         operationId = "getVerifiableCredential",
         tags = ["ESSIF Enterprise Wallet"],
         requestBody = OpenApiRequestBody(
             [OpenApiContent(String::class)],
             true,
-            "todo"
+            "access token"
         ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
@@ -147,17 +144,17 @@ object EnterpriseWalletController {
         ]
     )
     fun getVerifiableCredential(ctx: Context) {
-        ctx.json("todo")
+        ctx.json(EnterpriseWalletService.getVerifiableCredential("didOwnershipReq", "didOfLegalEntity"))
     }
 
     @OpenApi(
-        summary = "TODO",
+        summary = "OIDC Token endpoint",
         operationId = "token",
         tags = ["ESSIF Enterprise Wallet"],
         requestBody = OpenApiRequestBody(
             [OpenApiContent(String::class)],
             true,
-            "todo"
+            "oidcAuthResp"
         ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
@@ -165,6 +162,6 @@ object EnterpriseWalletController {
         ]
     )
     fun token(ctx: Context) {
-        ctx.json("todo")
+        ctx.json(EnterpriseWalletService.token("oidcAuthResp"))
     }
 }

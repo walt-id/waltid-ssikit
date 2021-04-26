@@ -24,21 +24,21 @@ EosService.signedChallenge("")
 object EosController {
 
     @OpenApi(
-        summary = "todo",
+        summary = "Returns the EBSI onboarding response",
         operationId = "onboards",
         tags = ["ESSIF Onboarding Service"],
         requestBody = OpenApiRequestBody(
             [OpenApiContent(String::class)],
             true,
-            "todo"
+            "access token"
         ),
         responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "todo"),
+            OpenApiResponse("200", [OpenApiContent(String::class)], "Onboarding Response"),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
         ]
     )
     fun onboards(ctx: Context) {
-        ctx.json("todo")
+        ctx.json(EosService.onboards())
 
     }
 
@@ -79,49 +79,39 @@ object EosController {
     }
 
     @OpenApi(
-        summary = "todo",
+        summary = "Returns DID Auth Request",
         operationId = "getCredential",
         tags = ["ESSIF Trusted Issuer"],
-        requestBody = OpenApiRequestBody(
-            [OpenApiContent(String::class)],
-            true,
-            "todo"
-        ),
         responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "todo"),
+            OpenApiResponse("200", [OpenApiContent(String::class)], "DID Auth Request"),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
         ]
     )
     fun getCredential(ctx: Context) {
-        ctx.json("todo")
+        ctx.json(EosService.getCredentials(false))
     }
 
     @OpenApi(
-        summary = "todo",
+        summary = "Returns the credential Request URI",
         operationId = "requestVerifiableCredential",
         tags = ["ESSIF Trusted Issuer"],
-        requestBody = OpenApiRequestBody(
-            [OpenApiContent(String::class)],
-            true,
-            "todo"
-        ),
         responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "todo"),
+            OpenApiResponse("200", [OpenApiContent(String::class)], "Credential Request URI"),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
         ]
     )
     fun requestVerifiableCredential(ctx: Context) {
-        ctx.json("todo")
+        ctx.json(EosService.requestVerifiableCredential("credentialRequestUri"))
     }
 
     @OpenApi(
-        summary = "todo",
+        summary = "Processes the signed challenge in the scope of DID Auth",
         operationId = "signedChallenge",
         tags = ["ESSIF Trusted Issuer"],
         requestBody = OpenApiRequestBody(
             [OpenApiContent(String::class)],
             true,
-            "todo"
+            "signedChallenge"
         ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(String::class)], "todo"),
@@ -129,6 +119,6 @@ object EosController {
         ]
     )
     fun signedChallenge(ctx: Context) {
-        ctx.json("todo")
+        ctx.json(EosService.signedChallenge("signedChallenge"))
     }
 }
