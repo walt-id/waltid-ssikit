@@ -6,7 +6,6 @@ import cc.vileda.openapi.dsl.info
 import cc.vileda.openapi.dsl.securityScheme
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
-import io.javalin.apibuilder.*
 import io.javalin.core.util.RouteOverviewPlugin
 import io.javalin.plugin.openapi.InitialConfigurationCreator
 import io.javalin.plugin.openapi.OpenApiOptions
@@ -32,7 +31,7 @@ object RestAPI {
         coreApi = Javalin.create {
 
             it.apply {
-                registerPlugin(RouteOverviewPlugin("/v1/api-routes"))
+                registerPlugin(RouteOverviewPlugin("/api-routes"))
 
                 registerPlugin(OpenApiPlugin(OpenApiOptions(InitialConfigurationCreator {
                     OpenAPI().apply {
@@ -47,91 +46,8 @@ object RestAPI {
                             version = "1.0"
                         }
                         servers = listOf(
-                            Server().description("Let's Trust").url("https://core-api.letstrust.io"),
-                            Server().description("Local testing server").url("http://localhost:7000")
-                        )
-                        externalDocs {
-                            description = "Let's Trust Docs"
-                            url = "https://docs.letstrust.io/api"
-                        }
-
-                        components {
-                            securityScheme {
-                                name = "bearerAuth"
-                                type = SecurityScheme.Type.HTTP
-                                scheme = "bearer"
-                                `in` = SecurityScheme.In.HEADER
-                                description = "HTTP Bearer Token authentication"
-                                bearerFormat = "JWT"
-                            }
-                        }
-                    }
-                }).apply {
-                    path("/api-documentation")
-                    swagger(SwaggerOptions("/swagger").title("Let's Trust API"))
-                    reDoc(ReDocOptions("/redoc").title("Let's Trust API"))
-//                defaultDocumentation { doc ->
-//                    doc.json("5XX", ErrorResponse::class.java)
-//                }
-                }))
-
-                //addStaticFiles("/static")
-            }
-
-            it.enableCorsForAllOrigins()
-
-            it.enableDevLogging()
-        }.routes {
-            path("v1") {
-                get("health", HealthController::health)
-                path("key") {
-                    post("gen", KeyController::gen)
-                    get("list", KeyController::list)
-                    post("import", KeyController::import)
-                    post("export", KeyController::export)
-                }
-                path("did") {
-                    post("create", DidController::create)
-                    post("resolve", DidController::resolve)
-                    get("list", DidController::list)
-                }
-                path("vc") {
-                    post("create", VcController::create)
-                    post("present", VcController::present)
-                    post("verify", VcController::verify)
-                    get("list", VcController::list)
-                }
-            }
-
-        }.exception(IllegalArgumentException::class.java) { e, ctx ->
-            log.error(e.stackTraceToString())
-            ctx.status(400)
-        }.exception(Exception::class.java) { e, ctx ->
-            log.error(e.stackTraceToString())
-            ctx.status(500)
-        }.start(7000)
-
-
-        essifApi = Javalin.create {
-
-            it.apply {
-                registerPlugin(RouteOverviewPlugin("/v1/api-routes"))
-
-                registerPlugin(OpenApiPlugin(OpenApiOptions(InitialConfigurationCreator {
-                    OpenAPI().apply {
-                        info {
-                            title = "Let's Trust ESSIF API"
-                            description = "The Let's Trust public API documentation"
-                            contact = Contact().apply {
-                                name = "SSI Fabric GmbH"
-                                url = "https://letstrust.id"
-                                email = "office@letstrust.id"
-                            }
-                            version = "1.0"
-                        }
-                        servers = listOf(
-                            Server().description("Let's Trust").url("https://core-api.letstrust.io"),
-                            Server().description("Local testing server").url("http://localhost:7000")
+                            Server().description("Local testing server").url("http://localhost:7000"),
+                            Server().description("Let's Trust").url("https://core-api.letstrust.io")
                         )
                         externalDocs {
                             description = "Let's Trust Docs"
@@ -165,6 +81,92 @@ object RestAPI {
 
             it.enableDevLogging()
         }.routes {
+            get("", RootController::rootCoreApi)
+            get("health", RootController::health)
+            path("v1") {
+                path("key") {
+                    post("gen", KeyController::gen)
+                    get("list", KeyController::list)
+                    post("import", KeyController::import)
+                    post("export", KeyController::export)
+                }
+                path("did") {
+                    post("create", DidController::create)
+                    post("resolve", DidController::resolve)
+                    get("list", DidController::list)
+                }
+                path("vc") {
+                    post("create", VcController::create)
+                    post("present", VcController::present)
+                    post("verify", VcController::verify)
+                    get("list", VcController::list)
+                }
+            }
+
+        }.exception(IllegalArgumentException::class.java) { e, ctx ->
+            log.error(e.stackTraceToString())
+            ctx.status(400)
+        }.exception(Exception::class.java) { e, ctx ->
+            log.error(e.stackTraceToString())
+            ctx.status(500)
+        }.start(7000)
+
+
+        essifApi = Javalin.create {
+
+            it.apply {
+                registerPlugin(RouteOverviewPlugin("/api-routes"))
+
+                registerPlugin(OpenApiPlugin(OpenApiOptions(InitialConfigurationCreator {
+                    OpenAPI().apply {
+                        info {
+                            title = "Let's Trust ESSIF API"
+                            description = "The Let's Trust public API documentation"
+                            contact = Contact().apply {
+                                name = "SSI Fabric GmbH"
+                                url = "https://letstrust.id"
+                                email = "office@letstrust.id"
+                            }
+                            version = "1.0"
+                        }
+                        servers = listOf(
+                            Server().description("Local testing server").url("http://localhost:7000"),
+                            Server().description("Let's Trust").url("https://core-api.letstrust.io")
+                        )
+                        externalDocs {
+                            description = "Let's Trust Docs"
+                            url = "https://docs.letstrust.io/api"
+                        }
+
+                        components {
+                            securityScheme {
+                                name = "bearerAuth"
+                                type = SecurityScheme.Type.HTTP
+                                scheme = "bearer"
+                                `in` = SecurityScheme.In.HEADER
+                                description = "HTTP Bearer Token authentication"
+                                bearerFormat = "JWT"
+                            }
+                        }
+                    }
+                }).apply {
+                    path("/v1/api-documentation")
+                    swagger(SwaggerOptions("/v1/swagger").title("Let's Trust API"))
+                    reDoc(ReDocOptions("/v1/redoc").title("Let's Trust API"))
+//                defaultDocumentation { doc ->
+//                    doc.json("5XX", ErrorResponse::class.java)
+//                }
+                }))
+
+                //addStaticFiles("/static")
+            }
+
+            it.enableCorsForAllOrigins()
+
+            it.enableDevLogging()
+        }.routes {
+            get("", RootController::rootEssifApi)
+            get("health", RootController::health)
             path("v1") {
                 path("essif") {
                     path("ti") {
