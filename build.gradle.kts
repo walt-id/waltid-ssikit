@@ -90,7 +90,7 @@ val fatJar = task("fatJar", type = Jar::class) {
 }
 
 application {
-    mainClass.set("org.letstrust.MainKt")
+    mainClass.set("org.letstrust.MainCliKt")
 }
 
 publishing {
