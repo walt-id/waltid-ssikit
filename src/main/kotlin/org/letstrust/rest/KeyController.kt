@@ -5,7 +5,6 @@ import io.javalin.plugin.openapi.annotations.OpenApi
 import io.javalin.plugin.openapi.annotations.OpenApiContent
 import io.javalin.plugin.openapi.annotations.OpenApiRequestBody
 import io.javalin.plugin.openapi.annotations.OpenApiResponse
-import org.letstrust.crypto.Key
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.services.key.KeyManagementService
 
@@ -35,13 +34,12 @@ object KeyController {
             "the desired key algorithm and other parameters"
         ),
         responses = [
-            OpenApiResponse("200", [OpenApiContent(SuccessResponse::class)], "successful"),
+            OpenApiResponse("200", [OpenApiContent(String::class)], "Key ID"),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
         ]
     )
     fun gen(ctx: Context) {
-        KeyManagementService.generate(KeyAlgorithm.EdDSA_Ed25519)
-        ctx.json("todo")
+        ctx.json(KeyManagementService.generate(KeyAlgorithm.EdDSA_Ed25519).id)
     }
 
     @OpenApi(
@@ -92,6 +90,6 @@ object KeyController {
         ]
     )
     fun export(ctx: Context) {
-        ctx.json( KeyManagementService.export(ctx.pathParam("keyAlias")))
+        ctx.json(KeyManagementService.export(ctx.pathParam("keyAlias")))
     }
 }
