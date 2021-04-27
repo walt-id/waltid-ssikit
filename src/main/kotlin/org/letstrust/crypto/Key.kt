@@ -6,6 +6,7 @@ import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.jwk.KeyUse
 import com.nimbusds.jose.jwk.OctetKeyPair
 import com.nimbusds.jose.util.Base64URL
+import kotlinx.serialization.Serializable
 import org.bouncycastle.asn1.ASN1BitString
 import org.bouncycastle.asn1.ASN1Sequence
 import org.letstrust.CryptoProvider
@@ -14,7 +15,8 @@ import java.security.KeyPair
 import java.security.PublicKey
 import java.security.interfaces.ECPublicKey
 
-inline class KeyId(val id: String) {}
+@Serializable
+data class KeyId(val id: String) {}
 
 data class Key(val keyId: KeyId, val algorithm: KeyAlgorithm, val cryptoProvider: CryptoProvider) {
     fun getPublicKey(): PublicKey {

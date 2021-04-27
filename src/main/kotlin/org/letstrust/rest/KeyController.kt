@@ -1,25 +1,27 @@
 package org.letstrust.rest
 
 import io.javalin.http.Context
-import io.javalin.plugin.openapi.annotations.OpenApi
-import io.javalin.plugin.openapi.annotations.OpenApiContent
-import io.javalin.plugin.openapi.annotations.OpenApiRequestBody
-import io.javalin.plugin.openapi.annotations.OpenApiResponse
+import io.javalin.plugin.openapi.annotations.*
+import kotlinx.serialization.Serializable
 import org.letstrust.crypto.KeyAlgorithm
+import org.letstrust.crypto.KeyId
 import org.letstrust.services.key.KeyManagementService
 
+@Serializable
 data class GenKeyRequest(
     val keyAlgorithm: KeyAlgorithm,
 )
 
+@Serializable
 data class ImportKeyRequest(
     val keyId: String,
     val jwkKey: String,
 )
 
+@Serializable
 data class ExportKeyRequest(
-    val keyId: String,
-    val keyAlgorithm: KeyAlgorithm,
+    val keyAlias: String,
+    val format: String? = "JWK",
 )
 
 object KeyController {
@@ -34,16 +36,35 @@ object KeyController {
             "the desired key algorithm and other parameters"
         ),
         responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "Key ID"),
+            OpenApiResponse("200", [OpenApiContent(KeyId::class)], "Key ID"),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
         ]
     )
     fun gen(ctx: Context) {
-        ctx.json(KeyManagementService.generate(KeyAlgorithm.EdDSA_Ed25519).id)
+        ctx.json(KeyManagementService.generate(KeyAlgorithm.EdDSA_Ed25519))
     }
 
     @OpenApi(
-        summary = "List of keyIds",
+        summary = "Exports key",
+        operationId = "exportKey",
+        tags = ["Key Management"],
+        //pathParams = [OpenApiParam("keyId", String::class, "The key ID")],
+        requestBody = OpenApiRequestBody(
+            [OpenApiContent(ExportKeyRequest::class)],
+            true,
+            "Exports the key (currently only support JWK format)"
+        ),
+        responses = [
+            OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
+        ]
+    )
+    fun export(ctx: Context) {
+        ctx.json(KeyManagementService.export(ctx.bodyAsClass(ExportKeyRequest::class.java).keyAlias))
+    }
+
+    @OpenApi(
+        summary = "List of key IDs",
         operationId = "listKeys",
         tags = ["Key Management"],
         responses = [
@@ -64,7 +85,7 @@ object KeyController {
         requestBody = OpenApiRequestBody(
             [OpenApiContent(ImportKeyRequest::class)],
             true,
-            "Imports the key in JWK format"
+            "Imports the key (JWK format) to the key store"
         ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
@@ -75,21 +96,4 @@ object KeyController {
         ctx.json("todo")
     }
 
-    @OpenApi(
-        summary = "Export key",
-        operationId = "exportKey",
-        tags = ["Key Management"],
-        requestBody = OpenApiRequestBody(
-            [OpenApiContent(ExportKeyRequest::class)],
-            true,
-            "Exports the key in JWK format"
-        ),
-        responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
-        ]
-    )
-    fun export(ctx: Context) {
-        ctx.json(KeyManagementService.export(ctx.pathParam("keyAlias")))
-    }
 }
