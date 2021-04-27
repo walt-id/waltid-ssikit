@@ -23,13 +23,16 @@ object RestAPI {
 
     private val log = KotlinLogging.logger {}
 
+    var coreApi: Javalin? = null
+    var essifApi: Javalin? = null
+
     fun start() {
         println("Starting Let's Trust API App...\n")
 
-        Javalin.create {
+        coreApi = Javalin.create {
 
             it.apply {
-                registerPlugin(RouteOverviewPlugin("/api-routes"))
+                registerPlugin(RouteOverviewPlugin("/v1/api-routes"))
 
                 registerPlugin(OpenApiPlugin(OpenApiOptions(InitialConfigurationCreator {
                     OpenAPI().apply {
@@ -80,6 +83,7 @@ object RestAPI {
             it.enableDevLogging()
         }.routes {
             path("v1") {
+                get("health", HealthController::health)
                 path("key") {
                     post("gen", KeyController::gen)
                     get("list", KeyController::list)
@@ -108,10 +112,10 @@ object RestAPI {
         }.start(7000)
 
 
-        Javalin.create {
+        essifApi = Javalin.create {
 
             it.apply {
-                registerPlugin(RouteOverviewPlugin("/api-routes"))
+                registerPlugin(RouteOverviewPlugin("/v1/api-routes"))
 
                 registerPlugin(OpenApiPlugin(OpenApiOptions(InitialConfigurationCreator {
                     OpenAPI().apply {
@@ -146,9 +150,9 @@ object RestAPI {
                         }
                     }
                 }).apply {
-                    path("/api-documentation")
-                    swagger(SwaggerOptions("/swagger").title("Let's Trust API"))
-                    reDoc(ReDocOptions("/redoc").title("Let's Trust API"))
+                    path("/v1/api-documentation")
+                    swagger(SwaggerOptions("/v1/swagger").title("Let's Trust API"))
+                    reDoc(ReDocOptions("/v1/redoc").title("Let's Trust API"))
 //                defaultDocumentation { doc ->
 //                    doc.json("5XX", ErrorResponse::class.java)
 //                }
@@ -207,5 +211,10 @@ object RestAPI {
             log.error(e.stackTraceToString())
             ctx.status(500)
         }.start(7001)
+    }
+
+    fun stop() {
+        coreApi?.stop()
+        essifApi?.stop()
     }
 }
