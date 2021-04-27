@@ -42,7 +42,7 @@ object DidService {
     }
 
     private fun resolveAndStore(didUrl: String) {
-        val destFile = File("data/did/created/$didUrl.json")
+        val destFile = File("data/did/created/${didUrl.replace(":","-")}.json")
         destFile.writeText(resolve(didUrl).encodePretty())
     }
 

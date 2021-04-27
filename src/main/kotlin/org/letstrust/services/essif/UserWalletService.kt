@@ -170,7 +170,7 @@ object UserWalletService {
 
     private fun siopSessionsRequest(authReq: AuthenticationRequestPayload, verifiableAuthorization: String): AccessTokenResponse? {
 
-        val verifiableAuthorization = File("src/test/resources/ebsi/verifiable-authorization.json").readText()
+        // val verifiableAuthorization = File("src/test/resources/ebsi/verifiable-authorization.json").readText()
 
         println("Loading Verifiable Authorization:\n$verifiableAuthorization\n")
 
