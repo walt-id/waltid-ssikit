@@ -33,7 +33,7 @@ object KeyController {
         requestBody = OpenApiRequestBody(
             [OpenApiContent(GenKeyRequest::class)],
             true,
-            "the desired key algorithm and other parameters"
+            "The desired key algorithm and other parameters"
         ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(KeyId::class)], "Key ID"),

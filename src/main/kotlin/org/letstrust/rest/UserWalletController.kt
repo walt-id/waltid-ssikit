@@ -16,7 +16,7 @@ object UserWalletController {
     @OpenApi(
         summary = "Creates and registers DID on the EBSI Blockchain",
         operationId = "createDid",
-        tags = ["ESSIF Enterprise Wallet"],
+        tags = ["ESSIF User Wallet"],
         requestBody = OpenApiRequestBody(
             [OpenApiContent(String::class)],
             true,

@@ -5,21 +5,25 @@ import io.javalin.plugin.openapi.annotations.OpenApi
 import io.javalin.plugin.openapi.annotations.OpenApiContent
 import io.javalin.plugin.openapi.annotations.OpenApiRequestBody
 import io.javalin.plugin.openapi.annotations.OpenApiResponse
+import kotlinx.serialization.Serializable
 import org.letstrust.crypto.Key
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.model.DidMethod
 import org.letstrust.services.did.DidService
 import org.letstrust.services.key.KeyManagementService
 
+@Serializable
 data class CreateDidRequest(
     val method: DidMethod,
-    val keyId: String?
+    val keyAlias: String?
 )
 
+@Serializable
 data class ResolveDidRequest(
     val did: String
 )
 
+@Serializable
 data class ListDidRequest(
     val keyId: String,
     val keyAlgorithm: KeyAlgorithm,
@@ -34,16 +38,16 @@ object DidController {
         requestBody = OpenApiRequestBody(
             [OpenApiContent(CreateDidRequest::class)],
             true,
-            "the desired key algorithm and other parameters"
+            "Defines the DID method and optionally the key to be used"
         ),
         responses = [
-            OpenApiResponse("200", [OpenApiContent(SuccessResponse::class)], "successful"),
+            OpenApiResponse("200", [OpenApiContent(String::class)], "Identifier of the created DID"),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
         ]
     )
     fun create(ctx: Context) {
-        DidService.create(DidMethod.key)
-        ctx.json("todo")
+        val createDidReq = ctx.bodyAsClass(CreateDidRequest::class.java)
+        ctx.json(DidService.create(createDidReq.method, createDidReq.keyAlias))
     }
 
     @OpenApi(
@@ -53,15 +57,15 @@ object DidController {
         requestBody = OpenApiRequestBody(
             [OpenApiContent(ResolveDidRequest::class)],
             true,
-            "Resolve DID"
+            "Identifier to be resolved"
         ),
         responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
+            OpenApiResponse("200", [OpenApiContent(String::class)], "DID document of the resolved DID"),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
         ]
     )
     fun resolve(ctx: Context) {
-        ctx.json("todo")
+        ctx.json(DidService.resolve(ctx.bodyAsClass(ResolveDidRequest::class.java).did))
     }
 
     @OpenApi(
