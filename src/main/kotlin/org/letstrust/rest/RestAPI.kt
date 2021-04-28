@@ -25,8 +25,8 @@ object RestAPI {
     var coreApi: Javalin? = null
     var essifApi: Javalin? = null
 
-    fun start() {
-        println("Starting Let's Trust API App...\n")
+    fun startCoreApi() {
+        log.info("Starting Let's Trust Core API ...\n")
 
         coreApi = Javalin.create {
 
@@ -110,6 +110,11 @@ object RestAPI {
             log.error(e.stackTraceToString())
             ctx.status(500)
         }.start(7000)
+    }
+
+    fun startEssifApi() {
+
+        log.info("Starting Let's Trust Essif API ...\n")
 
         essifApi = Javalin.create {
 
@@ -169,9 +174,9 @@ object RestAPI {
             path("v1") {
                 path("essif") {
                     path("ti") {
-                        path("credentials"){
-                            get("",  EosController::getCredential)
-                            get(":credentialId",  EosController::getCredential)
+                        path("credentials") {
+                            get("", EosController::getCredential)
+                            get(":credentialId", EosController::getCredential)
                         }
                         get("requestCredentialUri", EosController::requestCredentialUri)
                         post("requestVerifiableCredential", EosController::requestVerifiableCredential)
@@ -215,8 +220,16 @@ object RestAPI {
         }.start(7001)
     }
 
+    fun start() {
+        startCoreApi()
+        startEssifApi()
+    }
+
+    fun stopCoreApi() = coreApi?.stop()
+    fun stopEssifApi() = essifApi?.stop()
+
     fun stop() {
-        coreApi?.stop()
-        essifApi?.stop()
+        stopCoreApi()
+        stopEssifApi()
     }
 }

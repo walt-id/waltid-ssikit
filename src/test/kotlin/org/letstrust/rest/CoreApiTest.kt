@@ -62,14 +62,13 @@ class CoreApiTest {
         @BeforeClass
         @JvmStatic
         fun startServer() {
-            println("start")
-            RestAPI.start()
+            RestAPI.startCoreApi()
         }
 
         @AfterClass
         @JvmStatic
         fun teardown() {
-            RestAPI.stop()
+            RestAPI.stopCoreApi()
         }
     }
 
