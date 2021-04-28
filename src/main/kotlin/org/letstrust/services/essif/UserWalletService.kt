@@ -50,11 +50,10 @@ object UserWalletService {
         //this.didAuthResponse(didAuthRequest)
     }
 
-    fun vcAuthResponse(vcExchangeRequest: String) {
+    fun vcAuthResponse(vcExchangeRequest: String): String {
         println("10. [UWallet] Validate request")
 
-        this.didAuthResponse(vcExchangeRequest)
-
+        return this.didAuthResponse(vcExchangeRequest)
     }
 
     fun didAuthResponse(didAuthRequest: String): String {
@@ -102,7 +101,7 @@ object UserWalletService {
 
         log.debug { "OidcReqUri: $oidcReqUri" }
 
-        if (false){//!JwtService.verify(oidcReqUri.request)) {
+        if (false) {//!JwtService.verify(oidcReqUri.request)) {
             log.error { "Could not verify Authentication Request Token signature: " + oidcReqUri.request }
             throw Exception("Could not verify Authentication Request Token signature: " + oidcReqUri.request)
         } else {

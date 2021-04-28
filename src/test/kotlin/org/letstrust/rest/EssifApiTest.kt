@@ -11,6 +11,8 @@ import kotlinx.coroutines.runBlocking
 import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.junit.Test
+import org.letstrust.services.essif.UserWalletService
+import org.letstrust.services.essif.mock.RelyingParty
 import kotlin.test.assertEquals
 
 class EssifApiTest {
@@ -134,4 +136,22 @@ class EssifApiTest {
         println(credential)
     }
 
+    @Test
+    fun testVcExchange() = runBlocking {
+        println("ESSIF Verifiable Credential Exchange from an Natural Person (Holder) to a Legal Entity")
+
+        val vcExchangeRequest = RelyingParty.signOn()
+
+        val vcToken = client.post<String>("$ESSIF_API_URL/v1/essif/user/wallet/vcAuthResponse") {
+            contentType(ContentType.Application.Json)
+            body = vcExchangeRequest
+        }
+        println(vcToken)
+
+//        UserWalletService.vcAuthResponse(vcExchangeRequest)
+//        println("15. Credentials share successfully")
+//
+//        RelyingParty.getSession("sessionId")
+//        println("18. Process completed successfully")
+    }
 }

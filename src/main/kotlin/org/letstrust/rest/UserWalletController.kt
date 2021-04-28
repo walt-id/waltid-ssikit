@@ -97,15 +97,16 @@ object UserWalletController {
         requestBody = OpenApiRequestBody(
             [OpenApiContent(String::class)],
             true,
-            "todo"
+            "VC Exchange Request"
         ),
         responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "VC Auth response"),
+            OpenApiResponse("200", [OpenApiContent(String::class)], "VC token"),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
         ]
     )
     fun vcAuthResponse(ctx: Context) {
-        ctx.json("todo")
+        val vcToken = UserWalletService.vcAuthResponse("vcExchangeRequest")
+        ctx.result(vcToken)
     }
 
     @OpenApi(
