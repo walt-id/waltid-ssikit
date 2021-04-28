@@ -107,4 +107,31 @@ class EssifApiTest {
         //UserWalletService.accessProtectedResource(accessToken) // e.g updateDID, revoke VC
     }
 
+    @Test
+    fun testVcIssuance() = runBlocking {
+        println("Credential issuance from a Legal Entity (EOS/Trusted Issuer) to a Natural Person.")
+
+        val didAuthRequest = client.post<String>("$ESSIF_API_URL/v1/essif/ti/credentials")
+
+        println(didAuthRequest)
+
+        val resp = client.post<HttpResponse>("$ESSIF_API_URL/v1/essif/user/wallet/validateDidAuthRequest") {
+            contentType(ContentType.Application.Json)
+            body = didAuthRequest
+        }
+        assertEquals(200, resp.status.value)
+
+        val vcToken = client.post<String>("$ESSIF_API_URL/v1/essif/user/wallet/didAuthResponse") {
+            contentType(ContentType.Application.Json)
+            body = didAuthRequest
+        }
+        println(vcToken)
+
+        val credential = client.post<String>("$ESSIF_API_URL/v1/essif/ti/credentials") {
+            contentType(ContentType.Application.Json)
+            body = didAuthRequest
+        }
+        println(credential)
+    }
+
 }

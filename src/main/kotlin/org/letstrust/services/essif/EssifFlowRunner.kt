@@ -192,30 +192,30 @@ object EssifFlowRunner {
 
     // https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/VC-Issuance+Flow
     fun vcIssuance() {
-        println("Credential issuance from an Legal Entity (EOS/Trusted Issuer) to a Natural Person.")
+        println("Credential issuance from a Legal Entity (EOS/Trusted Issuer) to a Natural Person.")
 
         ///////////////////////////////////////////////////////////////////////////
         // Prerequisite: The Natural Person (NP) must be authenticated and authorized by the
-        // classical method of the Trusted Issuer before triggering the credential issuance flow
+        // classical method of the Trusted Issuer before triggering the credential issuance flow.
         ///////////////////////////////////////////////////////////////////////////
 
         println("1 Request VC (Manually)")
 
         ///////////////////////////////////////////////////////////////////////////
-        // The ESSIF Onboarding Service / Trusted Issuer generates the DI-Auth Request.
+        // The ESSIF Onboarding Service / Trusted Issuer generates the DID Auth Request.
         // The request looks as follows:
         //
         // {
         //    "uri": "openid://?response_type=id_token&client_id=https%3A%2F%2Frp.example.com%2Fcb&scope=openid%20did_authn&request=<authentication-request-JWS>",
         //    "callback": "https://ti.example.com/callback"
         //}
-        // whereas the JWT rew header contains the DID key of the issuer:
+        // whereas the JWT header contains the DID key of the issuer:
         // {
         //  "alg": "ES256K",
         //  "typ": "JWT",
         //  "jwk": "{DID key of the issuer}",
         // }
-        // and the JWT body is the following structure:
+        // and the JWT body has the following structure:
         // {
         //  "scope": "openid did_authn",
         //  "iss": "did:ebsi:0x416e6e6162656c2e4c65652e452d412d506f652e",
@@ -251,7 +251,7 @@ object EssifFlowRunner {
         println("12. Consent")
 
         ///////////////////////////////////////////////////////////////////////////
-        // The User Wallet generates furthermore the DID-Auth response:
+        // The User Wallet generates furthermore the DID Auth response:
         // Header:
         // {
         //  "alg": "ES256K",
@@ -278,6 +278,7 @@ object EssifFlowRunner {
         println(didAuthResp)
         println("17 VC requested successfully")
         println("20 Process completed successfully")
+
         ///////////////////////////////////////////////////////////////////////////
         // Finally the mutual authenticated session is established and the VC may be
         // obtained.

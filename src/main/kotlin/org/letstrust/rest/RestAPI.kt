@@ -175,12 +175,11 @@ object RestAPI {
                 path("essif") {
                     path("ti") {
                         path("credentials") {
-                            get("", EosController::getCredential)
+                            post("", EosController::getCredential)
                             get(":credentialId", EosController::getCredential)
                         }
                         get("requestCredentialUri", EosController::requestCredentialUri)
                         post("requestVerifiableCredential", EosController::requestVerifiableCredential)
-                        post("signedChallenge", EosController::signedChallenge)
                     }
                     path("eos") {
                         post("onboard", EosController::onboards)
