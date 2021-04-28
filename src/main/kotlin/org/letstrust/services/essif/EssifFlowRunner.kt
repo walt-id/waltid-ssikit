@@ -9,6 +9,7 @@ object EssifFlowRunner {
 
     // https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/2.+Main+Flow%3A+VC-Request+-+Onboarding+Flow
     fun onboard() {
+
         ///////////////////////////////////////////////////////////////////////////
         // Prerequisite: The LE must be authenticated and authorized by the classical
         // way before triggering the ESSIF onboarding flow.
@@ -31,7 +32,7 @@ object EssifFlowRunner {
         val didOwnershipReq = EnterpriseWalletService.requestVerifiableCredential(credentialRequestUri)
 
         ///////////////////////////////////////////////////////////////////////////
-        // The DID ownership request is a JWT, which must be verified bey the public key of the EOS.
+        // The DID ownership request is a JWT, which is verified by the public key of the EOS.
         //
         // Header:
         // {
@@ -67,7 +68,7 @@ object EssifFlowRunner {
         val didOfLegalEntity = EnterpriseWalletService.createDid()
 
         ///////////////////////////////////////////////////////////////////////////
-        // Once the DID is created, the DID ownership response composed and set to the EOS
+        // Once the DID is created, the DID ownership response is composed and sent to the EOS.
         //
         // The DID of the Legal Entity is placed in the header:
         // {
@@ -93,7 +94,7 @@ object EssifFlowRunner {
         val verifiableId = EnterpriseWalletService.getVerifiableCredential(didOwnershipReq, didOfLegalEntity)
 
         ///////////////////////////////////////////////////////////////////////////
-        // The requested V.ID is returned and should look like the following::
+        // The requested V.ID is returned and should look like the following:
         // {
         //   "@context": [
         //     "https://www.w3.org/2018/credentials/v1",
@@ -180,7 +181,7 @@ object EssifFlowRunner {
         // and receive JWT Access Token.
         ///////////////////////////////////////////////////////////////////////////
 
-        val accessToken =  UserWalletService.requestAccessToken(verifiableAuthorization)
+        val accessToken = UserWalletService.requestAccessToken(verifiableAuthorization)
 
         ///////////////////////////////////////////////////////////////////////////
         // Protected resource can now be accessed

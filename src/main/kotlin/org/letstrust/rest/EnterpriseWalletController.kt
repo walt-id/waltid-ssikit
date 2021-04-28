@@ -131,7 +131,7 @@ object EnterpriseWalletController {
         ]
     )
     fun requestVerifiableAuthorization(ctx: Context) {
-        ctx.json(EnterpriseWalletService.requestVerifiableAuthorization("token"))
+        ctx.result(EnterpriseWalletService.requestVerifiableAuthorization("token"))
     }
 
     @OpenApi(
