@@ -90,7 +90,6 @@ object EssifFlowRunner {
         //  }
         //}
         ///////////////////////////////////////////////////////////////////////////
-
         val verifiableId = EnterpriseWalletService.getVerifiableCredential(didOwnershipReq, didOfLegalEntity)
 
         ///////////////////////////////////////////////////////////////////////////
@@ -275,7 +274,7 @@ object EssifFlowRunner {
         //  }
         //}
         val didAuthResp = UserWalletService.didAuthResponse(didAuthRequest)
-
+        println(didAuthResp)
         println("17 VC requested successfully")
         println("20 Process completed successfully")
         ///////////////////////////////////////////////////////////////////////////
@@ -283,6 +282,7 @@ object EssifFlowRunner {
         // obtained.
         ///////////////////////////////////////////////////////////////////////////
         val credential = EosService.getCredentials(true) // user is authenticated (VC token is received); TODO: Align with spec, as the request goes to the EWallet there
+        println(credential)
         println("21 Credential received")
     }
 

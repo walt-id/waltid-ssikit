@@ -11,8 +11,6 @@ import kotlinx.coroutines.runBlocking
 import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.junit.Test
-import org.letstrust.services.essif.EnterpriseWalletService
-import org.letstrust.services.essif.EosService
 import kotlin.test.assertEquals
 
 class EssifApiTest {
@@ -23,17 +21,6 @@ class EssifApiTest {
         install(JsonFeature) {
             serializer = KotlinxSerializer()
         }
-    }
-
-    fun get(path: String): HttpResponse = runBlocking {
-        val response: HttpResponse = client.get("$ESSIF_API_URL$path") {
-            headers {
-                append(HttpHeaders.Accept, "text/html")
-                append(HttpHeaders.Authorization, "token")
-            }
-        }
-        assertEquals(200, response.status.value)
-        return@runBlocking response
     }
 
     companion object {
@@ -52,7 +39,7 @@ class EssifApiTest {
 
     @Test
     fun testHealth() = runBlocking {
-        val response = get("/health")
+        val response = client.get<HttpResponse>("$ESSIF_API_URL/health")
         assertEquals("OK", response.readText())
     }
 
@@ -60,12 +47,23 @@ class EssifApiTest {
     fun testOnboarding() = runBlocking {
         println("ESSIF onboarding of a Legal Entity by requesting a Verifiable ID")
 
-        val credentialRequestUri = EosService.requestCredentialUri()
+        val credentialRequestUri = client.get<String>("$ESSIF_API_URL/v1/essif/ti/requestCredentialUri")
+        println(credentialRequestUri)
 
-        val didOwnershipReq = EnterpriseWalletService.requestVerifiableCredential(credentialRequestUri)
+        val didOwnershipReq = client.post<String>("$ESSIF_API_URL/v1/essif/ti/requestVerifiableCredential") {
+            contentType(ContentType.Application.Json)
+        }
+        println(didOwnershipReq)
 
-        val didOfLegalEntity = EnterpriseWalletService.createDid()
+        val didOfLegalEntity = client.post<String>("$ESSIF_API_URL/v1/essif/enterprise/wallet/createDid") {
+            contentType(ContentType.Application.Json)
+        }
+        println(didOfLegalEntity)
 
-        val verifiableId = EnterpriseWalletService.getVerifiableCredential(didOwnershipReq, didOfLegalEntity)
+        val verifiableId = client.post<String>("$ESSIF_API_URL/v1/essif/enterprise/wallet/getVerifiableCredential") {
+            contentType(ContentType.Application.Json)
+            body = GetVcRequest("did:ebsi:234567", "did-ownership-req")
+        }
+        println(verifiableId)
     }
 }

@@ -204,7 +204,7 @@ object RestAPI {
                             post("generateDidAuthRequest", EnterpriseWalletController::generateDidAuthRequest)
                             // post("onboardTrustedIssuer", EnterpriseWalletController::onboardTrustedIssuer) not supported yet
                             post("validateDidAuthResponse", EnterpriseWalletController::validateDidAuthResponse)
-                            get("getVerifiableCredential", EnterpriseWalletController::getVerifiableCredential)
+                            post("getVerifiableCredential", EnterpriseWalletController::getVerifiableCredential)
                             post("token", EnterpriseWalletController::token)
                         }
                     }

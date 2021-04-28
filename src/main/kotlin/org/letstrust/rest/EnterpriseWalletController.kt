@@ -5,6 +5,7 @@ import io.javalin.plugin.openapi.annotations.OpenApi
 import io.javalin.plugin.openapi.annotations.OpenApiContent
 import io.javalin.plugin.openapi.annotations.OpenApiRequestBody
 import io.javalin.plugin.openapi.annotations.OpenApiResponse
+import kotlinx.serialization.Serializable
 import org.letstrust.services.essif.EnterpriseWalletService
 import org.letstrust.services.essif.EosService
 import org.letstrust.services.essif.UserWalletService
@@ -22,6 +23,10 @@ EnterpriseWalletService.requestVerifiableAuthorization("")
 EnterpriseWalletService.requestVerifiableCredential("")
 EnterpriseWalletService.getVerifiableCredential("", "")
  **/
+
+@Serializable
+data class GetVcRequest(val did: String, val didOwnershipReq: String)
+
 object EnterpriseWalletController {
 
     @OpenApi(
@@ -43,21 +48,22 @@ object EnterpriseWalletController {
     }
 
     @OpenApi(
-        summary = "Returns the requested credential",
+        summary = "Generates the DID ownership response and fetches the requested credential.",
         operationId = "getVerifiableCredential",
         tags = ["ESSIF Enterprise Wallet"],
         requestBody = OpenApiRequestBody(
-            [OpenApiContent(String::class)],
+            [OpenApiContent(GetVcRequest::class)],
             true,
             "DID ownership request"
         ),
         responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
+            OpenApiResponse("200", [OpenApiContent(String::class)], "Verifiable Credential"),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
         ]
     )
     fun getVerifiableCredential(ctx: Context) {
-        ctx.json(EnterpriseWalletService.getVerifiableCredential("didOwnershipReq", "didOfLegalEntity"))
+        val getVcReq = ctx.bodyAsClass(GetVcRequest::class.java)
+        ctx.json(EnterpriseWalletService.getVerifiableCredential(getVcReq.didOwnershipReq, getVcReq.did))
     }
 
 //    @OpenApi(
