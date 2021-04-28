@@ -25,7 +25,7 @@ object RestAPI {
     var coreApi: Javalin? = null
     var essifApi: Javalin? = null
 
-    fun startCoreApi() {
+    fun startCoreApi(port: Int = 7000) {
         log.info("Starting Let's Trust Core API ...\n")
 
         coreApi = Javalin.create {
@@ -46,7 +46,7 @@ object RestAPI {
                             version = "1.0"
                         }
                         servers = listOf(
-                            Server().description("Local testing server").url("http://localhost:7000"),
+                            Server().description("Local testing server").url("http://localhost:$port"),
                             Server().description("Let's Trust").url("https://core-api.letstrust.io")
                         )
                         externalDocs {
@@ -109,10 +109,10 @@ object RestAPI {
         }.exception(Exception::class.java) { e, ctx ->
             log.error(e.stackTraceToString())
             ctx.status(500)
-        }.start(7000)
+        }.start(port)
     }
 
-    fun startEssifApi() {
+    fun startEssifApi(port: Int = 7001) {
 
         log.info("Starting Let's Trust Essif API ...\n")
 
@@ -134,8 +134,8 @@ object RestAPI {
                             version = "1.0"
                         }
                         servers = listOf(
-                            Server().description("Local testing server").url("http://localhost:7000"),
-                            Server().description("Let's Trust").url("https://core-api.letstrust.io")
+                            Server().description("Local testing server").url("http://localhost:$port"),
+                            Server().description("Let's Trust").url("https://essif-api.letstrust.io")
                         )
                         externalDocs {
                             description = "Let's Trust Docs"
@@ -217,7 +217,7 @@ object RestAPI {
         }.exception(Exception::class.java) { e, ctx ->
             log.error(e.stackTraceToString())
             ctx.status(500)
-        }.start(7001)
+        }.start(port)
     }
 
     fun start() {

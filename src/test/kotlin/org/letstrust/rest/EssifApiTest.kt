@@ -11,11 +11,13 @@ import kotlinx.coroutines.runBlocking
 import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.junit.Test
+import org.letstrust.services.essif.EnterpriseWalletService
+import org.letstrust.services.essif.EosService
 import kotlin.test.assertEquals
 
 class EssifApiTest {
 
-    val ESSIF_API_URL = "http://localhost:7001"
+    val ESSIF_API_URL = "http://localhost:7002"
 
     val client = HttpClient(CIO) {
         install(JsonFeature) {
@@ -38,7 +40,7 @@ class EssifApiTest {
         @BeforeClass
         @JvmStatic
         fun startServer() {
-            RestAPI.startEssifApi()
+            RestAPI.startEssifApi(7002)
         }
 
         @AfterClass
@@ -52,5 +54,18 @@ class EssifApiTest {
     fun testHealth() = runBlocking {
         val response = get("/health")
         assertEquals("OK", response.readText())
+    }
+
+    @Test
+    fun testOnboarding() = runBlocking {
+        println("ESSIF onboarding of a Legal Entity by requesting a Verifiable ID")
+
+        val credentialRequestUri = EosService.requestCredentialUri()
+
+        val didOwnershipReq = EnterpriseWalletService.requestVerifiableCredential(credentialRequestUri)
+
+        val didOfLegalEntity = EnterpriseWalletService.createDid()
+
+        val verifiableId = EnterpriseWalletService.getVerifiableCredential(didOwnershipReq, didOfLegalEntity)
     }
 }
