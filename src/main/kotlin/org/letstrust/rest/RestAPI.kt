@@ -111,7 +111,6 @@ object RestAPI {
             ctx.status(500)
         }.start(7000)
 
-
         essifApi = Javalin.create {
 
             it.apply {
@@ -174,12 +173,13 @@ object RestAPI {
                             get("",  EosController::getCredential)
                             get(":credentialId",  EosController::getCredential)
                         }
-                        post("requestCredentialUri", EosController::requestCredentialUri)
+                        get("requestCredentialUri", EosController::requestCredentialUri)
                         post("requestVerifiableCredential", EosController::requestVerifiableCredential)
                         post("signedChallenge", EosController::signedChallenge)
                     }
                     path("eos") {
                         post("onboard", EosController::onboards)
+                        post("signedChallenge", EosController::signedChallenge)
                     }
                     path("user") {
                         path("wallet") {

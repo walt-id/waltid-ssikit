@@ -39,28 +39,45 @@ object EnterpriseWalletController {
         ]
     )
     fun createDid(ctx: Context) {
-        ctx.json("todo")
-        EnterpriseWalletService.createDid()
+        ctx.json(EnterpriseWalletService.createDid())
     }
 
     @OpenApi(
-        summary = "TODO",
-        operationId = "onboardTrustedIssuer",
+        summary = "Returns the requested credential",
+        operationId = "getVerifiableCredential",
         tags = ["ESSIF Enterprise Wallet"],
         requestBody = OpenApiRequestBody(
             [OpenApiContent(String::class)],
             true,
-            "todo"
+            "DID ownership request"
         ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
         ]
     )
-    fun onboardTrustedIssuer(ctx: Context) {
-        EnterpriseWalletService.onboardTrustedIssuer("scanQrUri")
-        ctx.json("todo")
+    fun getVerifiableCredential(ctx: Context) {
+        ctx.json(EnterpriseWalletService.getVerifiableCredential("didOwnershipReq", "didOfLegalEntity"))
     }
+
+//    @OpenApi(
+//        summary = "TODO",
+//        operationId = "onboardTrustedIssuer",
+//        tags = ["ESSIF Enterprise Wallet"],
+//        requestBody = OpenApiRequestBody(
+//            [OpenApiContent(String::class)],
+//            true,
+//            "todo"
+//        ),
+//        responses = [
+//            OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
+//            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
+//        ]
+//    )
+//    fun onboardTrustedIssuer(ctx: Context) {
+//        EnterpriseWalletService.onboardTrustedIssuer("scanQrUri")
+//        ctx.json("todo")
+//    }
 
     @OpenApi(
         summary = "Generates a DID Auth Request",
@@ -118,33 +135,15 @@ object EnterpriseWalletController {
         requestBody = OpenApiRequestBody(
             [OpenApiContent(String::class)],
             true,
-            "URI"
+            "Credential Request URI"
         ),
         responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
+            OpenApiResponse("200", [OpenApiContent(String::class)], "DID ownership response"),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
         ]
     )
     fun requestVerifiableCredential(ctx: Context) {
         ctx.json(EnterpriseWalletService.requestVerifiableCredential("uri"))
-    }
-
-    @OpenApi(
-        summary = "Returns the requested credential",
-        operationId = "getVerifiableCredential",
-        tags = ["ESSIF Enterprise Wallet"],
-        requestBody = OpenApiRequestBody(
-            [OpenApiContent(String::class)],
-            true,
-            "access token"
-        ),
-        responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
-        ]
-    )
-    fun getVerifiableCredential(ctx: Context) {
-        ctx.json(EnterpriseWalletService.getVerifiableCredential("didOwnershipReq", "didOfLegalEntity"))
     }
 
     @OpenApi(

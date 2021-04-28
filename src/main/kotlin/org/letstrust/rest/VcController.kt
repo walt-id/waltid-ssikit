@@ -5,18 +5,27 @@ import io.javalin.plugin.openapi.annotations.OpenApi
 import io.javalin.plugin.openapi.annotations.OpenApiContent
 import io.javalin.plugin.openapi.annotations.OpenApiRequestBody
 import io.javalin.plugin.openapi.annotations.OpenApiResponse
+import kotlinx.serialization.Serializable
 import org.letstrust.services.vc.CredentialService
 
-
+@Serializable
 data class CreateVcRequest(
-    val subjectDid: String,
-    val issuerDid: String?
+    val issuerDid: String?,
+    val subjectDid: String?,
+    val templateId: String?,
+    val credentialOffer: String?,
+    val domain: String?,
+    val nonce: String?,
 )
 
+@Serializable
 data class PresentVcRequest(
-    val vcId: String
+    val vcId: String,
+    val domain: String?,
+    val challenge: String?
 )
 
+@Serializable
 data class VerifyVcRequest(
     val vcOrVp: String
 )
@@ -24,22 +33,23 @@ data class VerifyVcRequest(
 object VcController {
 
     @OpenApi(
-        summary = "Create VC",
+        summary = "Create VC based",
         operationId = "createVc",
         tags = ["Verifiable Credentials"],
         requestBody = OpenApiRequestBody(
             [OpenApiContent(CreateVcRequest::class)],
             true,
-            "Create a Verifiable Credential"
+            "Defines the credential issuer, holder and optionally a credential template"
         ),
         responses = [
-            OpenApiResponse("200", [OpenApiContent(SuccessResponse::class)], "successful"),
+            OpenApiResponse("200", [OpenApiContent(String::class)], "The signed credential"),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
         ]
     )
     fun create(ctx: Context) {
-        CredentialService.sign("issuer", "", "", "")
-        ctx.json("todo")
+        val createVcReq = ctx.bodyAsClass(CreateVcRequest::class.java)
+        // TODO build credential based on the request e.g. load template, substitute values
+        ctx.json(CredentialService.sign(createVcReq.issuerDid!!, createVcReq.credentialOffer!!, createVcReq.domain!!, createVcReq.nonce!!))
     }
 
     @OpenApi(
@@ -49,7 +59,7 @@ object VcController {
         requestBody = OpenApiRequestBody(
             [OpenApiContent(PresentVcRequest::class)],
             true,
-            "Resolve DID"
+            "Defines the VC to be presented"
         ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
@@ -57,6 +67,8 @@ object VcController {
         ]
     )
     fun present(ctx: Context) {
+        val presentVcReq = ctx.bodyAsClass(PresentVcRequest::class.java)
+        CredentialService.present(presentVcReq.vcId, presentVcReq.domain, presentVcReq.challenge)
         ctx.json("todo")
     }
 
@@ -67,7 +79,7 @@ object VcController {
         requestBody = OpenApiRequestBody(
             [OpenApiContent(VerifyVcRequest::class)],
             true,
-            "Resolve DID"
+            "VC to be verified"
         ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),

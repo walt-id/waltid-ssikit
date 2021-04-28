@@ -36,7 +36,7 @@ object UserWalletController {
      * By providing a Verifiable Authorization the protocols 'DID Auth' and 'Authenticated Key Exchange Protocol' are executed and if successful, the JWT Access Token for accessing the EBSI services is returned
      */
     @OpenApi(
-        summary = "Returns the JWT Access Token for accessing the protected EBSI services.",
+        summary = "Runs the authentication-protocol and returns the JWT Access Token for accessing the protected EBSI services.",
         operationId = "requestAccessToken",
         tags = ["ESSIF User Wallet"],
         requestBody = OpenApiRequestBody(
@@ -55,21 +55,21 @@ object UserWalletController {
     }
 
     @OpenApi(
-        summary = "Generates a DID Auth Response message.",
+        summary = "Generates and sends the DID Auth Response message.",
         operationId = "didAuthResponse",
         tags = ["ESSIF User Wallet"],
         requestBody = OpenApiRequestBody(
             [OpenApiContent(String::class)],
             true,
-            "todo"
+            "DID Auth Request"
         ),
         responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "DID Auth response"),
+            OpenApiResponse("200", [OpenApiContent(String::class)], "VC Token"),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
         ]
     )
     fun didAuthResponse(ctx: Context) {
-        ctx.json("todo")
+        ctx.json(UserWalletService.didAuthResponse(ctx.body()))
     }
 
     @OpenApi(
@@ -115,7 +115,7 @@ object UserWalletController {
         requestBody = OpenApiRequestBody(
             [OpenApiContent(String::class)],
             true,
-            "todo"
+            "DID Auth request"
         ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(Boolean::class)], "True, in case the request could be validated."),
@@ -123,6 +123,7 @@ object UserWalletController {
         ]
     )
     fun validateDidAuthRequest(ctx: Context) {
+        UserWalletService.validateDidAuthRequest(ctx.body())
         ctx.json("todo")
     }
 }
