@@ -1,10 +1,10 @@
 package org.letstrust.services.vc
 
+import com.danubetech.keyformats.crypto.provider.Ed25519Provider
+import com.danubetech.keyformats.crypto.provider.impl.TinkEd25519Provider
 import foundation.identity.jsonld.ConfigurableDocumentLoader
 import foundation.identity.jsonld.JsonLDObject
 import info.weboftrust.ldsignatures.LdProof
-import info.weboftrust.ldsignatures.crypto.provider.Ed25519Provider
-import info.weboftrust.ldsignatures.crypto.provider.impl.TinkEd25519Provider
 import info.weboftrust.ldsignatures.jsonld.LDSecurityContexts
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
