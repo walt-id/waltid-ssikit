@@ -20,12 +20,15 @@ import mu.KotlinLogging
 
 object RestAPI {
 
+    val CORE_API_PORT = 7000
+    val ESSIF_API_PORT = 7001
+
     private val log = KotlinLogging.logger {}
 
     var coreApi: Javalin? = null
     var essifApi: Javalin? = null
 
-    fun startCoreApi(port: Int = 7000) {
+    fun startCoreApi(port: Int = CORE_API_PORT) {
         log.info("Starting Let's Trust Core API ...\n")
 
         coreApi = Javalin.create {
@@ -112,7 +115,7 @@ object RestAPI {
         }.start(port)
     }
 
-    fun startEssifApi(port: Int = 7001) {
+    fun startEssifApi(port: Int = ESSIF_API_PORT) {
 
         log.info("Starting Let's Trust Essif API ...\n")
 

@@ -105,7 +105,8 @@ object LetsTrustCLI {
                         EssifTirCommand(),
                         EssifTaorCommand(),
                         EssifTsrCommand()
-                    )
+                    ),
+                    RunCommand()
                 )
                 //.org.letstrust.examples.org.letstrust.examples.org.letstrust.examples.main(arrayOf("-v", "-c", "mykey=myval", "vc", "-h"))
                 //.org.letstrust.examples.org.letstrust.examples.org.letstrust.examples.main(arrayOf("vc", "verify", "vc.json"))
