@@ -77,7 +77,7 @@ alternatively unpack the archive and run the start-up script:
     ./letstrust.sh
 ### Run CLI tool via Docker:
 
-    docker run -it $(pwd)/data:/opt/data letstrust
+    docker run -itv $(pwd)/data:/opt/data letstrust
 
 ### For getting help, add "-h" to each command or sub-command e.g.:
     ./letstrust.sh did create -h
@@ -114,19 +114,21 @@ alternatively unpack the archive and run the start-up script:
 
     ./letstrust.sh vc verify -p data/vc/presented/vp-1614291892489.json
 
-### Examples Docker
-    docker run -it -v $(pwd)/data:/opt/data letstrust key gen --algorithm Ed25519
+### Examples Docker / Podman
+    docker run -itv $(pwd)/data:/opt/data letstrust key gen --algorithm Ed25519
 
-    docker run -it -v $(pwd)/data:/opt/data letstrust key list
+    docker run -itv $(pwd)/data:/opt/data letstrust key list
 
-    docker run -it -v $(pwd)/data:/opt/data letstrust did create -m web
+    docker run -itv $(pwd)/data:/opt/data letstrust did create -m web
 
-    docker run -it -v $(pwd)/data:/opt/data letstrust did resolve --did did:web:mattr.global
+    docker run -itv $(pwd)/data:/opt/data letstrust did resolve --did did:web:mattr.global
 
-    docker run -it -v $(pwd)/data:/opt/data letstrust -v vc issue --issuer-did did:key:z6MkmNMF2... --subject-did did:key:zjkl2sd...
+    docker run -itv $(pwd)/data:/opt/data letstrust -v vc issue --issuer-did did:key:z6MkmNMF2... --subject-did did:key:zjkl2sd...
 
-    docker run -it -v $(pwd)/data:/opt/data letstrust vc verify data/vc/created/vc-1614291790088-default.json
+    docker run -itv $(pwd)/data:/opt/data letstrust vc verify data/vc/created/vc-1614291790088-default.json
 
-    docker run -it -v $(pwd)/data:/opt/data letstrust -v vc present data/vc/created/vc-1614291790088-default.json
+    docker run -itv $(pwd)/data:/opt/data letstrust -v vc present data/vc/created/vc-1614291790088-default.json
 
-    docker run -it -v $(pwd)/data:/opt/data letstrust vc verify -p data/vc/presented/vp-1614291892489.json
+    docker run -itv $(pwd)/data:/opt/data letstrust vc verify -p data/vc/presented/vp-1614291892489.json
+
+    podman run -itv $(pwd)/data:/opt/data -p 7000-7001:7000-7001 letstrust run

@@ -29,7 +29,7 @@ class LetsTrust : CliktCommand(
         
         ./letstrust key gen --algorithm Secp256k1
 
-        docker run -it -v ${'$'}(pwd)/data:/opt/data letstrust did create -m web
+        docker run -itv ${'$'}(pwd)/data:/opt/data letstrust did create -m web
         
         """
 ) {
