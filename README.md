@@ -9,13 +9,17 @@ The core services are in the scope of:
 
 ## :hammer: Build
 
-Building the application
+Building the application:
 
     gradle clean assemble
 
-optionally building the Docker container afterwards
+Optionally building the Docker container afterwards:
 
     docker build -t letstrust .
+
+Also works with rootless podman:
+
+    podman build -t letstrust .
 
 ## :page_facing_up:  Configuration
 
@@ -126,5 +130,3 @@ alternatively unpack the archive and run the start-up script:
     docker run -it -v $(pwd)/data:/opt/data letstrust -v vc present data/vc/created/vc-1614291790088-default.json
 
     docker run -it -v $(pwd)/data:/opt/data letstrust vc verify -p data/vc/presented/vp-1614291892489.json
-
-
