@@ -67,15 +67,19 @@ object LetsTrustServices {
 
     init {
         val javaVersion = System.getProperty("java.runtime.version")
-        println("LetsTrust services started (Java version: $javaVersion)")
-        if (javaVersion.substring(0,1).equals("15")) {
-            log.error { "Java version must be 15" }
+        println("LetsTrust services starting (Java version: $javaVersion)...")
+
+        if (Runtime.version().feature() < 15) {
+            log.error { "Java version 15+ is required!" }
         }
+
         // BC is required for
         // - secp256k1 curve
         Security.addProvider(BouncyCastleProvider())
 
         TinkConfig.register()
+
+        println("LetsTrust services started.")
     }
 
     inline fun <reified T> load(): T {

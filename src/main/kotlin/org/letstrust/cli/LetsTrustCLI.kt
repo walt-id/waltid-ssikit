@@ -27,7 +27,7 @@ class LetsTrust : CliktCommand(
         
         Example commands are:
         
-        ./letstrust.sh key gen --algorithm Secp256k1
+        ./letstrust key gen --algorithm Secp256k1
 
         docker run -it -v ${'$'}(pwd)/data:/opt/data letstrust did create -m web
         
@@ -51,14 +51,12 @@ class LetsTrust : CliktCommand(
     override fun run() {
         val config = CliConfig("data", HashMap(), verbose)
 
-        this.cliConfig.forEach { (k, v) ->
-            config.properties[k] = v
-        }
+        config.properties.putAll(this.cliConfig)
 
         currentContext.obj = config
 
         if (config.verbose) {
-            log.debug { "Config loaded: ${config}" }
+            log.debug { "Config loaded: $config" }
         }
     }
 }
@@ -69,7 +67,7 @@ object LetsTrustCLI {
 
         try {
 
-            log.debug { "Let's Trust CLI started" }
+            log.debug { "Let's Trust CLI starting..." }
 
             args.forEach {
                 if (it.contains("-v") || it.contains("--verbose")) {
@@ -111,6 +109,8 @@ object LetsTrustCLI {
                 //.org.letstrust.examples.org.letstrust.examples.org.letstrust.examples.main(arrayOf("-v", "-c", "mykey=myval", "vc", "-h"))
                 //.org.letstrust.examples.org.letstrust.examples.org.letstrust.examples.main(arrayOf("vc", "verify", "vc.json"))
                 .main(args)
+
+            log.debug { "Let's Trust CLI started." }
         } catch (e: Exception) {
             TermUi.echo(e.message)
             log.debug { e.printStackTrace() }
