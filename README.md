@@ -70,7 +70,7 @@ e.g.:
 
     ./letstrust-ssi-core
 
-alternatively unpack the archive and run the start-up script:
+alternatively, unpack the archive and run the start-up script:
 
     tar xf build/distributions/letstrust-ssi-core-1.0-SNAPSHOT.tar -C build/distributions/
 
@@ -132,3 +132,12 @@ alternatively unpack the archive and run the start-up script:
     docker run -itv $(pwd)/data:/opt/data letstrust vc verify -p data/vc/presented/vp-1614291892489.json
 
     podman run -itv $(pwd)/data:/opt/data -p 7000-7001:7000-7001 letstrust run
+
+### letstrust-ssi-core wrapper script
+
+Usage:
+    
+    ./letstrust.sh {build|extract|execute (default)}
+
+Use "execute" to execute letstrust-ssi-core with no arguments.
+If you don't supply any arguments of {build|extract|execute}, letstrust-ssi-core will be executed with the provided arguments.
