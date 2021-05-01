@@ -5,10 +5,13 @@ import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
 import com.nimbusds.jwt.SignedJWT
-import khttp.post
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.request.*
+import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.JsonObject
 
 class AuthCommand : CliktCommand(
-
     help = """Authentication.
 
         Opens and closes an authenticated session with the LetsTrust backend."""
@@ -35,16 +38,19 @@ class AuthCommand : CliktCommand(
         println(config)
         */
 
-        val token = post(
-            "https://api.letstrust.io/users/auth/login",
-            json = mapOf("email" to email, "password" to password)
-        ).jsonObject["token"].toString()
+        runBlocking {
+            val client = HttpClient(CIO)
+            val token = client.post<JsonObject>("https://api.letstrust.io/users/auth/login") {
+                body = mapOf("email" to email, "password" to password)
+            }["token"].toString()
 
-        println(token)
+            println(token)
 
-        val jwt = SignedJWT.parse(token)
+            val jwt = SignedJWT.parse(token)
 
-        val claimsMap = jwt.jwtClaimsSet.claims
-        claimsMap.iterator().forEach { println(it) }
+            val claimsMap = jwt.jwtClaimsSet.claims
+            claimsMap.iterator().forEach { println(it) }
+
+        }
     }
 }

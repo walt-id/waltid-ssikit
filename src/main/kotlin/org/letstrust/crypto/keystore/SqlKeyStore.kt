@@ -49,7 +49,7 @@ object SqlKeyStore : KeyStore {
         log.debug { "Loading key \"${alias}\"." }
         var key: Key? = null
 
-        var keyId = getKeyId(alias) ?: alias
+        val keyId = getKeyId(alias) ?: alias
 
         SqlDbManager.getConnection().use { con ->
             con.prepareStatement("select * from lt_key where name = ?").use { stmt ->

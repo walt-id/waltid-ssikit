@@ -12,7 +12,7 @@ version = "1.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
-    jcenter()
+    //jcenter()
     maven("https://jitpack.io")
     maven("https://repo.danubetech.com/repository/maven-snapshots/")
 }
@@ -21,7 +21,7 @@ dependencies {
     // Crypto
     implementation("com.google.crypto.tink:tink:1.5.0")
     implementation("info.weboftrust:ld-signatures-java:0.4-SNAPSHOT")
-    implementation("com.goterl.lazycode:lazysodium-java:4.3.2")
+    implementation("com.goterl:lazysodium-java:5.0.1")
     implementation("com.github.multiformats:java-multibase:v1.1.0")
 
     implementation("com.google.guava:guava:30.1.1-jre")
@@ -42,7 +42,6 @@ dependencies {
     implementation("commons-io:commons-io:2.6")
 
     // HTTP
-    implementation("khttp:khttp:1.0.0")
     implementation("io.ktor:ktor-client-core:1.5.2")
     implementation("io.ktor:ktor-client-cio:1.5.2")
     implementation("io.ktor:ktor-client-serialization:1.5.2")

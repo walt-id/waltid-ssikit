@@ -24,8 +24,8 @@ private val log = KotlinLogging.logger {}
  */
 object DidService {
 
-    private val crypto = LetsTrustServices.load<CryptoService>()
-    private val ks: KeyStore = LetsTrustServices.load<KeyStore>()
+    private val cryptoService = LetsTrustServices.load<CryptoService>()
+    private val keyStore = LetsTrustServices.load<KeyStore>()
 
     // Public methods
 
@@ -55,22 +55,14 @@ object DidService {
         }
     }
 
-
     // Private methods
 
     private fun createDidKey(keyAlias: String?): String {
+        val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(EdDSA_Ed25519)
+        val key = keyStore.load(keyId.id)
 
-        var keyId = keyAlias?.let { KeyId(it) }
-        val key = if (keyId != null) {
-            ks.load(keyId.id)
-        } else {
-            keyId = crypto.generateKey(EdDSA_Ed25519)
-            ks.load(keyId.id)
-        }
-
-        if (key.algorithm != EdDSA_Ed25519) {
+        if (key.algorithm != EdDSA_Ed25519)
             throw Exception("DID KEY can only be created with an EdDSA Ed25519 key.")
-        }
 
         val pubPrim = ASN1Sequence.fromByteArray(key.getPublicKey().encoded) as ASN1Sequence
         val x = (pubPrim.getObjectAt(1) as ASN1BitString).octets
@@ -78,14 +70,14 @@ object DidService {
         val identifier = convertEd25519PublicKeyToMultiBase58Btc(x)
         val didUrl = "did:key:$identifier"
 
-        ks.addAlias(keyId, didUrl)
+        keyStore.addAlias(keyId, didUrl)
 
         return didUrl
     }
 
     private fun createDidWeb(keyAlias: String?): String {
-        val keyId = crypto.generateKey(ECDSA_Secp256k1)
-        val key = ks.load(keyId.id)
+        val keyId = cryptoService.generateKey(ECDSA_Secp256k1)
+        val key = keyStore.load(keyId.id)
 
         val domain = "letstrust.org"
         val username = UUID.randomUUID().toString().replace("-", "")
@@ -93,7 +85,7 @@ object DidService {
 
         val didUrl = DidUrl("web", "" + domain + path)
 
-        ks.addAlias(keyId, didUrl.did)
+        keyStore.addAlias(keyId, didUrl.did)
 
         return didUrl.did
     }
@@ -104,7 +96,6 @@ object DidService {
     }
 
     private fun ed25519Did(didUrl: DidUrl, pubKey: ByteArray): Did {
-
         val dhKey = convertPublicKeyEd25519ToCurve25519(pubKey)
 
         val dhKeyMb = convertX25519PublicKeyToMultiBase58Btc(dhKey)
@@ -134,8 +125,8 @@ object DidService {
 
     private fun resolveDidWebDummy(didUrl: DidUrl): Did {
         log.warn { "DID WEB implementation is not finalized yet. Use it only for demo purpose." }
-        ks.getKeyId(didUrl.did).let {
-            ks.load(it!!).let {
+        keyStore.getKeyId(didUrl.did).let {
+            keyStore.load(it!!).let {
                 val pubKeyId = didUrl.identifier + "#key-1"
                 val verificationMethods = listOf(
                     VerificationMethod(
@@ -175,13 +166,13 @@ object DidService {
 
 
     internal fun resolveDidWeb(didUrl: DidUrl): DidWeb {
-        var domain = didUrl.identifier
-        var didUrl = "https://${domain}/.well-known/did.json"
+        val domain = didUrl.identifier
+        val didUrl = "https://${domain}/.well-known/did.json" // FIXME: didUrl argument is ignored?
         log.debug { "Resolving did:web for domain $domain at: $didUrl" }
-        var didWebStr = URL(didUrl).readText()
+        val didWebStr = URL(didUrl).readText()
         log.debug { "did:web resolved:\n$didWebStr" }
         print(didWebStr)
-        var did = Json.decodeFromString<DidWeb>(didWebStr)
+        val did = Json.decodeFromString<DidWeb>(didWebStr)
         log.debug { "did:web decoded:\n$did" }
         return did
     }
@@ -197,7 +188,7 @@ object DidService {
 //        return when (didMethod) {
 //            "key" -> createDidKey(didKey)
 //            "web" -> createDidWeb(didKey)
-//            else -> TODO("did creation by method $didMethod not supported yet")
+//            else -> T//ODO("did creation by method $didMethod not supported yet")
 //        }
 //    }
 
@@ -229,8 +220,8 @@ object DidService {
         // File("data").walkTopDown().filter {  it -> Files.isRegularFile(it)  }
 
         return Files.walk(Path.of("data/did/created"))
-            .filter { it -> Files.isRegularFile(it) }
-            .filter { it -> it.toString().endsWith(".json") }
+            .filter { Files.isRegularFile(it) }
+            .filter { it.toString().endsWith(".json") }
             .map { it.fileName.toString().substringBefore(".json").replace("-", ":") }.toList()
     }
 

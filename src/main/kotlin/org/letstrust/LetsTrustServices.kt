@@ -67,7 +67,7 @@ object LetsTrustServices {
 
     init {
         val javaVersion = System.getProperty("java.runtime.version")
-        println("LetsTrust services starting (Java version: $javaVersion)...")
+        println("Let's Trust SSI Core ${Values.version} (running on Java $javaVersion)")
 
         if (Runtime.version().feature() < 15) {
             log.error { "Java version 15+ is required!" }
@@ -78,8 +78,6 @@ object LetsTrustServices {
         Security.addProvider(BouncyCastleProvider())
 
         TinkConfig.register()
-
-        println("LetsTrust services started.")
     }
 
     inline fun <reified T> load(): T {

@@ -16,16 +16,13 @@ import java.security.PublicKey
 import java.security.interfaces.ECPublicKey
 
 @Serializable
-data class KeyId(val id: String) {}
+data class KeyId(val id: String) // todo: when stable (proposed for Kotlin 1.5), convert to inline/value class
 
 data class Key(val keyId: KeyId, val algorithm: KeyAlgorithm, val cryptoProvider: CryptoProvider) {
-    fun getPublicKey(): PublicKey {
-        if (this.keyPair != null){
-            return this.keyPair!!.public
-        } else if (this.keysetHandle != null) {
-            return TinkKeyStore.loadPublicKey(this) as ECPublicKey
-        }
-        throw Exception("No public key for $keyId")
+    fun getPublicKey(): PublicKey = when {
+        keyPair != null -> keyPair!!.public
+        keysetHandle != null -> TinkKeyStore.loadPublicKey(this) as ECPublicKey
+        else -> throw Exception("No public key for $keyId")
     }
 
     constructor(keyId: KeyId, algorithm: KeyAlgorithm, cryptoProvider: CryptoProvider, keyPair: KeyPair) : this(keyId, algorithm, cryptoProvider) {
@@ -45,6 +42,7 @@ data class Key(val keyId: KeyId, val algorithm: KeyAlgorithm, val cryptoProvider
         val keyCurve = Curve.parse("Ed25519")
         val pubPrim = ASN1Sequence.fromByteArray(this.getPublicKey().encoded) as ASN1Sequence
         val x = (pubPrim.getObjectAt(1) as ASN1BitString).octets
+
         return OctetKeyPair.Builder(keyCurve, Base64URL.encode(x))
             .keyUse(keyUse)
             .algorithm(keyAlg)
