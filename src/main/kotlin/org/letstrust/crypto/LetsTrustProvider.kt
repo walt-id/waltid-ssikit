@@ -1,9 +1,10 @@
 package org.letstrust.crypto
 
+import org.letstrust.Values
 import java.security.Provider
 
 class LetsTrustProvider : Provider(
-    "LetsTrust", "1.0",
+    "LetsTrust", Values.version,
     "LetsTrust Security Provider, supporting signatures with following algorithms [ES256k, Ed25519]"
 ) {
     init {

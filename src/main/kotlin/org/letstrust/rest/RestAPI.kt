@@ -17,6 +17,7 @@ import io.swagger.v3.oas.models.info.Contact
 import io.swagger.v3.oas.models.security.SecurityScheme
 import io.swagger.v3.oas.models.servers.Server
 import mu.KotlinLogging
+import org.letstrust.Values
 
 object RestAPI {
 
@@ -46,7 +47,7 @@ object RestAPI {
                                 url = "https://letstrust.id"
                                 email = "office@letstrust.id"
                             }
-                            version = "1.0"
+                            version = Values.version
                         }
                         servers = listOf(
                             Server().description("Local testing server").url("http://localhost:$port"),
@@ -134,7 +135,7 @@ object RestAPI {
                                 url = "https://letstrust.id"
                                 email = "office@letstrust.id"
                             }
-                            version = "1.0"
+                            version = Values.version
                         }
                         servers = listOf(
                             Server().description("Local testing server").url("http://localhost:$port"),

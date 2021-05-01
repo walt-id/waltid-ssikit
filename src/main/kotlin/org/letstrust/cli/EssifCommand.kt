@@ -1,6 +1,7 @@
 package org.letstrust.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
+import org.letstrust.Values
 import org.letstrust.services.essif.EssifFlowRunner
 
 // TODO: Support following commands
@@ -78,9 +79,7 @@ class EssifDidCommand : CliktCommand(
 
         ESSIF DID operations."""
 ) {
-    override fun run() {
-        echo("TODO")
-    }
+    override fun run() = TODO("The \"ESSIF-DID\" operation has not yet been implemented in this Let's Trust snapshot (currently running ${Values.version}).")
 }
 
 class EssifTirCommand : CliktCommand(
@@ -89,7 +88,7 @@ class EssifTirCommand : CliktCommand(
 
         ESSIF DID operations."""
 ) {
-    override fun run() {}
+    override fun run() = TODO("The \"ESSIF-TIR\" operation has not yet been implemented in this Let's Trust snapshot (currently running ${Values.version}).")
 }
 
 class EssifTaorCommand : CliktCommand(
@@ -98,7 +97,7 @@ class EssifTaorCommand : CliktCommand(
 
         ESSIF Trusted Accreditation Organization operations."""
 ) {
-    override fun run() {}
+    override fun run() = TODO("The \"ESSIF-TAOR\" operation has not yet been implemented in this Let's Trust snapshot (currently running ${Values.version}).")
 }
 
 class EssifTsrCommand : CliktCommand(
@@ -107,5 +106,5 @@ class EssifTsrCommand : CliktCommand(
 
         ESSIF Trusted Schema Registry operations."""
 ) {
-    override fun run() {}
+    override fun run() = TODO("The \"ESSIF-TSR\" operation has not yet been implemented in this Let's Trust snapshot (currently running ${Values.version}).")
 }
