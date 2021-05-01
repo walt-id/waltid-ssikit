@@ -61,5 +61,3 @@ data class Key(val keyId: KeyId, val algorithm: KeyAlgorithm, val cryptoProvider
             .build()
     }
 }
-
-data class KeyMetaData(val algorithm: KeyAlgorithm, val cryptoProvider: CryptoProvider)
