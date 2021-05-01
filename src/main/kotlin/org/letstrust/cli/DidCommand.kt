@@ -64,7 +64,7 @@ class CreateDidCommand : CliktCommand(
         echo("DID document (below, JSON):\n\n$didDocEnc")
 
         dest?.let {
-            echo("\nSaving DID to destination file: ${it.absolutePath}")
+            echo("\nSaving DID to file: ${it.absolutePath}")
             it.writeText(didDocEnc)
         }
     }
@@ -80,18 +80,20 @@ class ResolveDidCommand : CliktCommand(
     val config: CliConfig by requireObject()
 
     override fun run() {
-        echo("Resolving $did ...")
+        echo("Resolving DID \"$did\"...")
 
-        var encodedDid = when (did.contains("mattr")) {
+        val encodedDid = when (did.contains("mattr")) {
             true -> DidService.resolveDidWeb(toDidUrl(did)).encodePretty()
             else -> DidService.resolve(did).encodePretty()
         }
 
-        echo("\nResult:\n ${encodedDid}")
+        echo("\nResult:\n")
+
+        echo(encodedDid)
 
         val didFileName = "${did.replace(":", "-").replace(".", "_")}.json"
         val destFile = File(config.dataDir + "/did/resolved/" + didFileName)
-        echo("Saving DID to file: ${destFile.absolutePath}")
+        echo("\nSaving DID to file: ${destFile.absolutePath}")
         destFile.writeText(encodedDid)
     }
 }
