@@ -9,15 +9,33 @@ The core services are in the scope of:
 
 ## :hammer: Build
 
-Building the application:
+### Gradle build
+
+#### Building the application:
+
+    letstrust.sh build
+
+#### Manually:
 
     gradle clean assemble
 
-Optionally building the Docker container afterwards:
+### Docker build
+
+#### Optionally building the Docker container afterwards:
+
+    letstrust.sh build-docker
+
+#### Manually (required Gradle build):
 
     docker build -t letstrust .
 
-Also works with rootless podman:
+### Podman build
+
+#### Also works with rootless podman:
+
+    letstrust.sh build-podman
+
+#### Manually (required Gradle build):
 
     podman build -t letstrust .
 
@@ -59,6 +77,12 @@ In order to overwrite these values, simply place a yaml-based config-file named 
 
 ### Running CLI tool directly (requires Java 15):
 
+#### Letstrust wrapper
+
+    letstrust.sh [arguments...]
+
+#### Manually (requires Gradle build)
+
 In `build/distributions/` you have two archives, a .tar, and a .zip.  
 Extract either one of them, and execute `letstrust-ssi-core-1.0-SNAPSHOT/bin/letstrust-ssi-core`.
 
@@ -70,11 +94,6 @@ e.g.:
 
     ./letstrust-ssi-core
 
-alternatively, unpack the archive and run the start-up script:
-
-    tar xf build/distributions/letstrust-ssi-core-1.0-SNAPSHOT.tar -C build/distributions/
-
-    ./letstrust.sh
 ### Run CLI tool via Docker:
 
     docker run -itv $(pwd)/data:/opt/data letstrust
@@ -137,7 +156,8 @@ alternatively, unpack the archive and run the start-up script:
 
 Usage:
     
-    ./letstrust.sh {build|extract|execute (default)}
+    ./letstrust.sh {build|build-docker|build-podman|extract|execute (default)}
 
-Use "execute" to execute letstrust-ssi-core with no arguments.
-If you don't supply any arguments of {build|extract|execute}, letstrust-ssi-core will be executed with the provided arguments.
+Use "execute" to execute letstrust-ssi-core with no arguments. If you don't supply any
+arguments of {build|build-docker|build-podman|extract|execute}, letstrust-ssi-core will
+be executed with the provided arguments.

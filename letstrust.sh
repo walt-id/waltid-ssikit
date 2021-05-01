@@ -7,7 +7,6 @@ function header() {
 }
 
 function build() {
-  echo
   echo "Building Let's Trust build files..."
 
   if ./gradlew clean assemble; then
@@ -19,7 +18,36 @@ function build() {
   else
     echo
     echo "Build was unsuccessful. Will not extract the build files."
+    exit
     echo
+  fi
+}
+
+function build_docker() {
+  build
+  if docker build -t letstrust .; then
+    echo
+    echo "Docker container build was successful."
+    echo
+  else
+    echo
+    echo "Docker container build was unsuccessful."
+    echo
+    exit
+  fi
+}
+
+function build_podman() {
+  build
+  if podman build -t letstrust .; then
+    echo
+    echo "Podman container build was successful."
+    echo
+  else
+    echo
+    echo "Podman container build was unsuccessful."
+    echo
+    exit
   fi
 }
 
@@ -60,14 +88,24 @@ function execute() {
     build/distributions/letstrust-ssi-core-1.0-SNAPSHOT/bin/letstrust-ssi-core "$@"
   else
     echo "Cannot run Let's Trust: Runscript does not exist."
+    echo "Have you built and extracted the buildfiles? ($0 build)"
+    echo
+    echo -n "Do you want to build ($0 build)? [y/n]: "
+    read -r ans
+
+    if [[ $ans != "n" ]]; then
+      build
+      execute "$@"
+    fi
   fi
 }
 
 function help() {
-  echo "Usage: $0 {build|extract|execute (default)}"
+  echo "Usage: $0 {build|build-docker|build-podman|extract|execute (default)}"
   echo
   echo "Use \"execute\" to execute letstrust-ssi-core with no arguments. If you don't supply any"
-  echo "arguments of {build|extract|execute}, letstrust-ssi-core will be executed with the provided arguments."
+  echo "arguments of {build|build-docker|build-podman|extract|execute}, letstrust-ssi-core will"
+  echo "be executed with the provided arguments."
 }
 
 if [[ $# -eq 0 ]]; then
@@ -78,6 +116,14 @@ else
   build | rebuild)
     header
     build
+    ;;
+  build-docker | rebuild-docker)
+    header
+    build_docker
+    ;;
+  build-podman | rebuild-podman)
+    header
+    build_podman
     ;;
   extract)
     header
