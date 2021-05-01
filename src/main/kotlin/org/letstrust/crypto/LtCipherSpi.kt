@@ -22,54 +22,36 @@ open class LtCipherSpi(val algorithm: String) : CipherSpi() {
     var authData: ByteArray? = null
     var plainText: ByteArray? = null
 
-    override fun engineSetMode(p0: String?) {
+    override fun engineSetMode(mode: String?) = TODO("Not yet implemented")
+
+    override fun engineSetPadding(padding: String?) = TODO("Not yet implemented")
+
+    override fun engineGetBlockSize(): Int = c.blockSize
+
+    override fun engineGetOutputSize(inputLen: Int): Int = TODO("Not yet implemented")
+
+    override fun engineGetIV(): ByteArray = TODO("Not yet implemented")
+
+    override fun engineGetParameters(): AlgorithmParameters = c.parameters
+
+    override fun engineInit(opmode: Int, key: Key?, random: SecureRandom?) = TODO("Not yet implemented")
+
+    override fun engineInit(opmode: Int, key: Key?, params: AlgorithmParameterSpec?, random: SecureRandom?) {
+        if (opmode == 2) isEncryptionMode = false
+        iv = (params as GCMParameterSpec).iv
+        c.init(opmode, key, params, random)
+    }
+
+    override fun engineInit(opmode: Int, key: Key?, params: AlgorithmParameters?, random: SecureRandom?) =
         TODO("Not yet implemented")
-    }
 
-    override fun engineSetPadding(p0: String?) {
+    override fun engineUpdate(input: ByteArray?, inputOffset: Int, inputLen: Int): ByteArray = TODO("Not yet implemented")
+
+    override fun engineUpdate(input: ByteArray?, inputOffset: Int, inputLen: Int, output: ByteArray?, outputOffset: Int): Int =
         TODO("Not yet implemented")
-    }
 
-    override fun engineGetBlockSize(): Int {
-        return c.blockSize
-    }
-
-    override fun engineGetOutputSize(p0: Int): Int {
-        TODO("Not yet implemented")
-    }
-
-    override fun engineGetIV(): ByteArray {
-        TODO("Not yet implemented")
-    }
-
-    override fun engineGetParameters(): AlgorithmParameters {
-        return c.parameters
-    }
-
-    override fun engineInit(p0: Int, p1: Key?, p2: SecureRandom?) {
-        TODO("Not yet implemented")
-    }
-
-    override fun engineInit(p0: Int, p1: Key?, p2: AlgorithmParameterSpec?, p3: SecureRandom?) {
-        if (p0 == 2) isEncryptionMode = false
-        iv = (p2 as GCMParameterSpec).iv
-        c.init(p0, p1, p2, p3)
-    }
-
-    override fun engineInit(p0: Int, p1: Key?, p2: AlgorithmParameters?, p3: SecureRandom?) {
-        TODO("Not yet implemented")
-    }
-
-    override fun engineUpdate(p0: ByteArray?, p1: Int, p2: Int): ByteArray {
-        TODO("Not yet implemented")
-    }
-
-    override fun engineUpdate(p0: ByteArray?, p1: Int, p2: Int, p3: ByteArray?, p4: Int): Int {
-        TODO("Not yet implemented")
-    }
-
-    override fun engineDoFinal(p0: ByteArray?, p1: Int, p2: Int): ByteArray {
-        plainText = p0
+    override fun engineDoFinal(input: ByteArray?, inputOffset: Int, inputLen: Int): ByteArray {
+        plainText = input
         if (isEncryptionMode) {
             return cryptoService.encrypt(KeyId("123"), algorithm, plainText!!, authData, iv)
         }
@@ -78,9 +60,8 @@ open class LtCipherSpi(val algorithm: String) : CipherSpi() {
         //    return c.doFinal(p0, p1, p2)
     }
 
-    override fun engineDoFinal(p0: ByteArray?, p1: Int, p2: Int, p3: ByteArray?, p4: Int): Int {
+    override fun engineDoFinal(input: ByteArray?, inputOffset: Int, inputLen: Int, output: ByteArray?, outputOffset: Int): Int =
         TODO("Not yet implemented")
-    }
 
     override fun engineUpdateAAD(src: ByteArray?, offset: Int, len: Int) {
         c.updateAAD(src, offset, len)
