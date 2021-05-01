@@ -16,7 +16,9 @@ import java.security.PublicKey
 import java.security.interfaces.ECPublicKey
 
 @Serializable
-data class KeyId(val id: String) // todo: when stable (proposed for Kotlin 1.5), convert to inline/value class
+data class KeyId(val id: String) {
+    override fun toString() = id
+}
 
 data class Key(val keyId: KeyId, val algorithm: KeyAlgorithm, val cryptoProvider: CryptoProvider) {
     fun getPublicKey(): PublicKey = when {
@@ -25,11 +27,20 @@ data class Key(val keyId: KeyId, val algorithm: KeyAlgorithm, val cryptoProvider
         else -> throw Exception("No public key for $keyId")
     }
 
-    constructor(keyId: KeyId, algorithm: KeyAlgorithm, cryptoProvider: CryptoProvider, keyPair: KeyPair) : this(keyId, algorithm, cryptoProvider) {
+    constructor(keyId: KeyId, algorithm: KeyAlgorithm, cryptoProvider: CryptoProvider, keyPair: KeyPair) : this(
+        keyId,
+        algorithm,
+        cryptoProvider
+    ) {
         this.keyPair = keyPair
     }
 
-    constructor(keyId: KeyId, algorithm: KeyAlgorithm, cryptoProvider: CryptoProvider, keysetHandle: KeysetHandle) : this(keyId, algorithm, cryptoProvider) {
+    constructor(
+        keyId: KeyId,
+        algorithm: KeyAlgorithm,
+        cryptoProvider: CryptoProvider,
+        keysetHandle: KeysetHandle
+    ) : this(keyId, algorithm, cryptoProvider) {
         this.keysetHandle = keysetHandle
     }
 

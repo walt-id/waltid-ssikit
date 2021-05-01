@@ -36,14 +36,14 @@ class GenCommand : CliktCommand(
     ).default("Ed25519")
 
     override fun run() {
-        echo("Generating $algorithm key pair")
+        echo("Generating $algorithm key pair...")
         val keyId = when (algorithm) {
             "Ed25519" -> KeyManagementService.generate(KeyAlgorithm.EdDSA_Ed25519)
             "Secp256k1" -> KeyManagementService.generate(KeyAlgorithm.ECDSA_Secp256k1)
             // TODO add RSA: "RSA" -> KeyManagementService.generateRsaKeyPair()
-            else -> IllegalArgumentException("Algorithm not supported")
+            else -> throw IllegalArgumentException("Algorithm not supported")
         }
-        echo("Key \"$keyId\" generated")
+        echo("Key \"$keyId\" generated.")
     }
 }
 
