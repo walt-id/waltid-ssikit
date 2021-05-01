@@ -7,18 +7,18 @@ open class LtMessageDigestSpi(val algorithm: String) : MessageDigestSpi() {
 
     val md: MessageDigest = MessageDigest.getInstance(algorithm)
 
-    class SHA256 : LtMessageDigestSpi("SHA-256") {}
+    class SHA256 : LtMessageDigestSpi("SHA-256")
 
     override fun engineGetDigestLength(): Int {
         return md.digestLength
     }
 
-    override fun engineUpdate(p0: Byte) {
-        md.update(p0)
+    override fun engineUpdate(input: Byte) {
+        md.update(input)
     }
 
-    override fun engineUpdate(p0: ByteArray?, p1: Int, p2: Int) {
-        md.update(p0, p1, p2)
+    override fun engineUpdate(input: ByteArray?, offset: Int, len: Int) {
+        md.update(input, offset, len)
     }
 
     override fun engineDigest(): ByteArray {
