@@ -10,7 +10,6 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.file
-import org.letstrust.cli.CliConfig
 import org.letstrust.model.DidMethod
 import org.letstrust.model.encodePretty
 import org.letstrust.model.toDidUrl
@@ -50,7 +49,7 @@ class CreateDidCommand : CliktCommand(
 
     override fun run() {
 
-        echo("Registering did:${method} (key: ${keyAlias}) ...")
+        echo("Registering did:${method} (key: ${keyAlias})...")
 
         val keyId = if (keyAlias == "default") null else keyAlias
 
@@ -62,13 +61,12 @@ class CreateDidCommand : CliktCommand(
         val didDoc = didService.resolve(did)
 
         val didDocEnc = didDoc.encodePretty()
-        echo("\ndid document:\n$didDocEnc")
+        echo("DID document (below, JSON):\n\n$didDocEnc")
 
         dest?.let {
-            echo("Saving DID to DEST file: ${it.absolutePath}")
+            echo("\nSaving DID to destination file: ${it.absolutePath}")
             it.writeText(didDocEnc)
         }
-        
     }
 }
 
@@ -105,8 +103,10 @@ class ListDidsCommand : CliktCommand(
         List all created DIDs."""
 ) {
     override fun run() {
-        echo("List DIDs ...")
+        echo("Listing DIDs...")
 
-        DidService.listDids().forEach { it -> echo("- $it") }
+        echo("\nResults:\n")
+
+        DidService.listDids().forEachIndexed { index, did -> echo("- ${index + 1}: $did") }
     }
 }
