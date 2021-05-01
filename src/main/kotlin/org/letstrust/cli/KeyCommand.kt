@@ -57,8 +57,11 @@ class ExportKeyCommand : CliktCommand(
     val keyId: String by option(help = "Key ID or key alias").required()
 
     override fun run() {
-        echo("Exporting key $keyId")
+        echo("Exporting key \"$keyId\"...")
         val jwk = KeyManagementService.export(keyId)
+
+        println("\nResults:\n")
+
         println(jwk)
     }
 }
@@ -71,10 +74,12 @@ class ListKeysCommand : CliktCommand(
 ) {
 
     override fun run() {
-        echo("List keys ...")
+        echo("Listing keys...")
 
-        KeyManagementService.listKeys().forEach {
-            println("- $it")
+        echo("\nResults:\n")
+
+        KeyManagementService.listKeys().forEachIndexed { index, key ->
+            echo("- ${index + 1}: \"${key.keyId}\" (Algorithm: \"${key.algorithm.name}\", provided by \"${key.cryptoProvider.name}\")")
         }
     }
 }
