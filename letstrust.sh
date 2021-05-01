@@ -87,6 +87,7 @@ function execute() {
   if [[ -f build/distributions/letstrust-ssi-core-1.0-SNAPSHOT/bin/letstrust-ssi-core ]]; then
     build/distributions/letstrust-ssi-core-1.0-SNAPSHOT/bin/letstrust-ssi-core "$@"
   else
+    header
     echo "Cannot run Let's Trust: Runscript does not exist."
     echo "Have you built and extracted the buildfiles? ($0 build)"
     echo
