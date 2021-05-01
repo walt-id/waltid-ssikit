@@ -6,10 +6,8 @@ import org.letstrust.LetsTrustServices
 import java.sql.Connection
 import java.sql.Statement
 
-private val log = KotlinLogging.logger() {}
-
 object SqlDbManager {
-
+    private val log = KotlinLogging.logger {}
 
 //    val JDBC_URL = "jdbc:sqlite:data/letstrust.db"
 //    val JDBC_URL = "jdbc:sqlite::memory:"
