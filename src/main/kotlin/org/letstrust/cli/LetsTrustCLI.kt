@@ -8,8 +8,9 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.versionOption
 import mu.KotlinLogging
-import org.letstrust.LetsTrustServices
 import org.apache.logging.log4j.Level
+import org.letstrust.LetsTrustServices
+import org.letstrust.Values
 
 
 data class CliConfig(var dataDir: String, val properties: MutableMap<String, String>, var verbose: Boolean)
@@ -34,7 +35,11 @@ class LetsTrust : CliktCommand(
         """
 ) {
     init {
-        versionOption("1.0")
+        versionOption(Values.version, message = { """
+            Let's Trust: $it${if (Values.isSnapshot) " - SNAPSHOT VERSION, use only for demo and testing purposes)" else " - stable release"}
+            Environment: ${System.getProperty("java.runtime.name")} of ${System.getProperty("java.vm.name")} (${System.getProperty("java.version.date")})
+            OS version:  ${System.getProperty("os.name")} ${System.getProperty("os.version")}
+        """.trimIndent() })
     }
 
 //    val dataDir: String by option("-d", "--data-dir", help = "Set data directory [./data].")
@@ -69,10 +74,8 @@ object LetsTrustCLI {
 
             log.debug { "Let's Trust CLI starting..." }
 
-            args.forEach {
-                if (it.contains("-v") || it.contains("--verbose")) {
-                    LetsTrustServices.setLogLevel(Level.TRACE)
-                }
+            if (args.any { it == "--verbose" || it == "-v" }) {
+                LetsTrustServices.setLogLevel(Level.TRACE)
             }
 
             LetsTrust()

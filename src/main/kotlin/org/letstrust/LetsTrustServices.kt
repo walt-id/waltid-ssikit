@@ -78,6 +78,8 @@ object LetsTrustServices {
         Security.addProvider(BouncyCastleProvider())
 
         TinkConfig.register()
+
+        println()
     }
 
     inline fun <reified T> load(): T {
@@ -133,7 +135,7 @@ object LetsTrustServices {
         throw Exception("No custom keystore configured")
     }
 
-    fun loadConfig(): LetsTrustConfig = ConfigLoader.Builder()
+    fun loadConfig() = ConfigLoader.Builder()
         .addFileExtensionMapping("yaml", YamlParser())
         .addSource(PropertySource.file(File("letstrust.yaml"), optional = true))
         .addSource(PropertySource.resource("/letstrust-default.yaml"))
