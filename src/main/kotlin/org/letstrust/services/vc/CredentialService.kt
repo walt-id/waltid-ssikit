@@ -174,12 +174,18 @@ object CredentialService {
         return JSONObject(signedCredMap).toString()
     }
 
-    fun verify(vcOrVp: String): Boolean {
-        if (vcOrVp.contains("VerifiablePresentation")) {
-            return verifyVp(vcOrVp)
+    enum class VerificationType {
+        VERIFIABLE_CREDENTIAL,
+        VERIFIABLE_PRESENTATION
+    }
+    data class VerificationResult(val verified: Boolean, val verificationType: VerificationType)
+
+    fun verify(vcOrVp: String): VerificationResult {
+        return when { // TODO: replace the raw contains call
+            vcOrVp.contains("VerifiablePresentation") -> VerificationResult(verifyVp(vcOrVp), VerificationType.VERIFIABLE_PRESENTATION)
+            else -> VerificationResult(verifyVc(vcOrVp), VerificationType.VERIFIABLE_CREDENTIAL)
         }
 
-        return CredentialService.verifyVc(vcOrVp)
     }
 
 
@@ -212,7 +218,7 @@ object CredentialService {
         val vpVerified = verifyVc(issuer, vp)
         log.debug { "Verification of VP-Proof returned: $vpVerified" }
 
-        val vc = vpObj.verifiableCredential.get(0)
+        val vc = vpObj.verifiableCredential[0]
         val vcStr = vc.encodePretty()
         log.debug { "Verifying VC:\n$vcStr" }
         val vcVerified = verifyVc(vc.issuer, vcStr)

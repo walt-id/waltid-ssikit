@@ -12,11 +12,11 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import mu.KotlinLogging
-import org.letstrust.cli.CliConfig
 import org.letstrust.model.VerifiableCredential
 import org.letstrust.model.VerifiablePresentation
 import org.letstrust.model.encodePretty
 import org.letstrust.services.vc.CredentialService
+import org.letstrust.services.vc.CredentialService.VerificationType
 import java.io.File
 import java.sql.Timestamp
 import java.time.LocalDateTime
@@ -61,7 +61,7 @@ class IssueVcCommand : CliktCommand(
     val subjectDid: String? by option("-s", "--subject-did", help = "DID of the VC subject (receiver of VC)").required()
 
     override fun run() {
-        echo("Issuing & saving cred ...")
+        echo("Issuing and saving verifiable credential (using template ${template.absolutePath})...")
 
         // Loading VC template
         log.debug { "Loading credential template: ${template.absolutePath}" }
@@ -90,22 +90,25 @@ class IssueVcCommand : CliktCommand(
 
         log.debug { "Credential request:\n$vcReqEnc" }
 
+        echo("\nResults:\n")
+
         // Signing VC
         val vcStr = CredentialService.sign(vcReq.issuer, vcReqEnc)
 
-        echo("Credential generated:\n$vcStr")
+
+        echo("Generated Credential:\n\n$vcStr")
 
         // Saving VC to file
         val vcFileName = "data/vc/created/vc-" + vcId + template.name.substringAfterLast("vc-template")
 
         log.debug { "Writing VC to file $vcFileName" }
         File(vcFileName).writeText(vcStr)
-        echo("\nSaving credential to credential store $vcFileName")
+        echo("\nSaved credential to credential store \"$vcFileName\".")
 
         dest?.run {
             log.debug { "Writing VC to DEST file $dest" }
             dest!!.writeText(vcStr)
-            echo("\nSaving credential to DEST file: $dest")
+            echo("\nSaved credential to file: $dest")
         }
     }
 }
@@ -123,7 +126,7 @@ class PresentVcCommand : CliktCommand(
     // val holderDid: String? by option("-i", "--holder-did", help = "DID of the holder (owner of the VC)")
 
     override fun run() {
-        echo("Create VP form file $src ...")
+        echo("Creating verifiable presentation form file \"$src\"...")
 
         if (!src.exists()) {
             log.error("Could not load VC $src")
@@ -135,17 +138,20 @@ class PresentVcCommand : CliktCommand(
 
         log.debug { "Presentation created (ld-signature):\n$vp" }
 
+        echo("\nResults:\n")
+
         // FIX: This is required to filter out "type" : [ "Ed25519Signature2018" ] in the proof, which is s bug from signature.ld
         val vpStr =
             Json.decodeFromString<VerifiablePresentation>(vp).let { Json { prettyPrint = true }.encodeToString(it) }
 
-        echo("Presentation created:\n$vpStr")
+        echo("Presentation created:\n")
+        echo(vpStr)
 
         // Storing VP
         val vpFileName = "data/vc/presented/vp-${Timestamp.valueOf(LocalDateTime.now()).time}.json"
         log.debug { "Writing VP to file $vpFileName" }
         File(vpFileName).writeText(vpStr)
-        echo("\nSaving presentation to: $vpFileName")
+        echo("\nSaved verifiable presentation to: \"$vpFileName\"")
     }
 }
 
@@ -160,17 +166,26 @@ class VerifyVcCommand : CliktCommand(
     //val isPresentation: Boolean by option("-p", "--is-presentation", help = "In case a VP is verified.").flag()
 
     override fun run() {
-        echo("Verify VC form file $src ...\n")
+        echo("Verifying form file $src ...\n")
 
         if (!src.exists()) {
             log.error("Could not load file $src")
             throw Exception("Could not load file $src")
         }
 
+        val verificationResult = CredentialService.verify(src.readText())
+
+        echo("\nResults:\n")
+
+        val type = when (verificationResult.verificationType) {
+            VerificationType.VERIFIABLE_PRESENTATION -> "verifiable presentation"
+            VerificationType.VERIFIABLE_CREDENTIAL -> "verifiable credential"
+        }
+
         echo(
-            when (CredentialService.verify(src.readText())) {
-                true -> "Presentation verified successfully"
-                else -> "Presentation not valid"
+            when (verificationResult.verified) {
+                true -> "The $type was verified successfully."
+                false -> "The $type is not valid or could not be verified."
             }
         )
     }
@@ -184,9 +199,11 @@ class ListVcCommand : CliktCommand(
 ) {
 
     override fun run() {
-        echo("\nList VCs ...")
+        echo("\nListing verifiable credentials...")
 
-        CredentialService.listVCs().forEach { echo(" - $it") }
+        echo("\nResults:\n")
+
+        CredentialService.listVCs().forEachIndexed { index, vc -> echo("- ${index + 1}: $vc") }
     }
 }
 
