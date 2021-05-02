@@ -155,7 +155,9 @@ e.g.:
 
     docker run -itv $(pwd)/data:/opt/data letstrust vc verify -p data/vc/presented/vp-1614291892489.json
 
-    podman run -itv $(pwd)/data:/opt/data -p 7000-7001:7000-7001 letstrust run
+    docker run -itv $(pwd)/data:/opt/data -p 7000-7001:7000-7001 letstrust serve
+
+    podman run -itv $(pwd)/data:/opt/data -p 7000-7001:7000-7001 letstrust serve
 
 ### letstrust-ssi-core wrapper script
 
