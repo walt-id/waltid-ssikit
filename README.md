@@ -94,6 +94,11 @@ e.g.:
 
     ./letstrust-ssi-core
 
+### Run CLI tool via Podman:
+    mkdir data  # directory where the data is stored needs do be created manually
+
+    podman run -itv $(pwd)/data:/opt/data letstrust
+
 ### Run CLI tool via Docker:
 
     docker run -itv $(pwd)/data:/opt/data letstrust
