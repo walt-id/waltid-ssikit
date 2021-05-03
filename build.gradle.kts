@@ -5,6 +5,7 @@ plugins {
     kotlin("jvm") version "1.4.32"
     kotlin("plugin.serialization") version "1.4.30"
     id("com.github.kkdad.dependency-license-report") version "1.16.6"
+    id("org.owasp.dependencycheck") version "6.1.6"
     application
     `maven-publish`
 }
@@ -53,7 +54,6 @@ dependencies {
 
     // Logging
     implementation("org.slf4j:slf4j-api:2.0.0-alpha1")
-
     implementation("org.apache.logging.log4j:log4j-core:2.14.1")
     implementation("org.apache.logging.log4j:log4j-api:2.14.1")
     implementation("org.apache.logging.log4j:log4j-slf4j18-impl:2.14.1")
@@ -123,3 +123,5 @@ licenseReport {
     renderers = arrayOf<com.github.jk1.license.render.ReportRenderer>(com.github.jk1.license.render.InventoryHtmlReportRenderer("report.html", "Backend"))
     filters = arrayOf<com.github.jk1.license.filter.DependencyFilter>(com.github.jk1.license.filter.LicenseBundleNormalizer())
 }
+
+
