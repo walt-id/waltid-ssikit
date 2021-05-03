@@ -1,21 +1,56 @@
 # LetsTrust SSI Core
 
-Kotlin/Java library & dockerized CLI tool for SSI core services, with primary focus on the European EBSI/ESSIF ecosystem.
+SSI core services, with primarily focus on the European EBSI/ESSIF ecosystem.
 
 The core services are in the scope of:
- - **Key Management**
- - **Decentralized Identifier (DID) operations (register, update, deactivate)**
- - **Verifiable Credential (VC) operations (issue, present, verify)**
- - **ESSIF/EBSI related Use Cases (onboarding, VC exchange, etc.)**
+ - **Key Management** generation, import/export
+ - **Decentralized Identifier (DID)** operations (register, update, deactivate)
+ - **Verifiable Credential (VC)** operations (issue, present, verify)
+ - **ESSIF/EBSI** related Use Cases (onboarding, VC exchange, etc.)
+
+
+The **Kotlin/Java based library** can be directly integrated in Java apps. Alternatively the library or the additional **Docker container** can be run as RESTful webservice.
+
+The **CLI tool** conveniently allows running all included functions manually. 
 
 ## :unlock: Usage
 
-The simplest way of using _LetsTrust SSI Core_ library is by pulling the Docker Container an running it via **Docker** or **Podman**. See [Running LetsTrust Container](#running-letstrust-container) below.
+### LetsTrust Container
 
-Alternatively the LetsTrust wrapper script **letstrust.sh** is a convenient way for building and using the library. In this case the build tool Gradle as well as a Java 15 dev-env needs to be available. See [Running LetsTrust Wrapper](#running-letstrust-wrapper).
+The simplest way of using _LetsTrust SSI Core_ library is by pulling the Docker Container an running it via **Docker** or **Podman**. 
 
+Login to Container Registry:
+
+    export CR_PAT=<token-read-packages>
+    docker login
+
+Pull & tag Container
+
+    docker pull ghcr.io/letstrustid/letstrust:0.1
+    docker tag ghcr.io/letstrustid/letstrust:0.1 letstrust
+
+Run via Docker:
+
+    docker run -itv $(pwd)/data:/opt/data letstrust -h
+
+Run via Podman:
+
+    mkdir data  # directory where the data is stored needs do be created manually
+    podman run -itv $(pwd)/data:/opt/data letstrust
+
+### LetsTrust Wrapper
+
+Alternatively the LetsTrust wrapper script **letstrust.sh** is a convenient way for building and using the library. This requires [building](#hammer-build) (see below) the project and a Java 15 runtime environment.
+
+    letstrust.sh [arguments...]
+
+### Code-level integration
+
+For directly integrating the library as Java dependency, please refer to project _LetsTrust Examples_ which contains a project configuration for Gradle and Maven es well es several examples how the library can be used.
 
 ## :hammer: Build
+
+For building the project the build tool Gradle as well as a Java 15 dev-env needs to be available.
 
 ### Gradle build
 
@@ -26,6 +61,15 @@ Alternatively the LetsTrust wrapper script **letstrust.sh** is a convenient way 
 #### Manually:
 
     gradle clean assemble
+
+After the Gradel build the program can be run as follows: In `build/distributions/` you have two archives, a .tar, and a .zip.  
+Extract either one of them, and execute `letstrust-ssi-core-1.0-SNAPSHOT/bin/letstrust-ssi-core`.
+
+    cd build/distributions
+    tar xf letstrust-ssi-core-1.0-SNAPSHOT.tar    # or unzip for the .zip
+    cd letstrust-ssi-core-1.0-SNAPSHOT/bin
+
+    ./letstrust-ssi-core
 
 ### Docker build
 
@@ -81,35 +125,7 @@ hikariDataSource:
 In order to overwrite these values, simply place a yaml-based config-file named `letstrust.yaml` in the root folder with the desired values.
 
 
-## :gear: Running LetsTrust Wrapper
-
-### Running CLI tool directly (requires Java 15):
-
-#### LetsTrust wrapper
-
-    letstrust.sh [arguments...]
-
-#### Manually (requires Gradle build)
-
-In `build/distributions/` you have two archives, a .tar, and a .zip.  
-Extract either one of them, and execute `letstrust-ssi-core-1.0-SNAPSHOT/bin/letstrust-ssi-core`.
-
-e.g.:
-
-    cd build/distributions
-    tar xf letstrust-ssi-core-1.0-SNAPSHOT.tar    # or unzip for the .zip
-    cd letstrust-ssi-core-1.0-SNAPSHOT/bin
-
-    ./letstrust-ssi-core
-
-### Run CLI tool via Podman:
-    mkdir data  # directory where the data is stored needs do be created manually
-
-    podman run -itv $(pwd)/data:/opt/data letstrust
-
-### Run CLI tool via Docker:
-
-    docker run -itv $(pwd)/data:/opt/data letstrust
+## :bulb: Example Commands
 
 ### For getting help, add "-h" to each command or sub-command e.g.:
     ./letstrust.sh did create -h
@@ -128,7 +144,7 @@ e.g.:
     When using Docker, the following command will do the trick:
     docker run -it $(pwd)/data:/opt/data -v $(pwd)/letstrust.yaml:/letstrust.yaml letstrust -v did create
 
-### Examples Startup-Scrip 
+### LetsTrust wrapper commands
 
     ./letstrust.sh key gen --algorithm Ed25519
 
@@ -146,7 +162,7 @@ e.g.:
 
     ./letstrust.sh vc verify -p data/vc/presented/vp-1614291892489.json
 
-### Examples Docker / Podman
+### LetsTrust Docker / Podman commands
     docker run -itv $(pwd)/data:/opt/data letstrust key gen --algorithm Ed25519
 
     docker run -itv $(pwd)/data:/opt/data letstrust key list
@@ -167,9 +183,7 @@ e.g.:
 
     podman run -itv $(pwd)/data:/opt/data -p 7000-7001:7000-7001 letstrust serve
 
-### letstrust-ssi-core wrapper script
-
-# [Running LetsTrust Container]
+## letstrust-ssi-core wrapper script
 
 Usage:
     
@@ -179,14 +193,16 @@ Use "execute" to execute letstrust-ssi-core with no arguments. If you don't supp
 arguments of {build|build-docker|build-podman|extract|execute}, letstrust-ssi-core will
 be executed with the provided arguments.
 
-# Docker Deploy
-push
+#Docker PUSH / PULL
+**push**
+
 export CR_PAT=<token-write-packages>
 echo $CR_PAT | docker login ghcr.io -u <username> --password-stdin
 docker tag letstrust ghcr.io/letstrustid/letstrust:0.1
 docker push ghcr.io/letstrustid/letstrust:0.1
 
-pull
+**pull**
+
 export CR_PAT=<token-read-packages>
 docker pull ghcr.io/letstrustid/letstrust:0.1
 docker tag ghcr.io/letstrustid/letstrust:0.1 letstrust
