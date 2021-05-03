@@ -6,6 +6,14 @@ The core services are in the scope of:
  - **Key Management**
  - **Decentralized Identifier (DID) operations (register, update, deactivate)**
  - **Verifiable Credential (VC) operations (issue, present, verify)**
+ - **ESSIF/EBSI related Use Cases (onboarding, VC exchange, etc.)**
+
+## :unlock: Usage
+
+The simplest way of using _LetsTrust SSI Core_ library is by pulling the Docker Container an running it via **Docker** or **Podman**. See [Running LetsTrust Container](#running-letstrust-container) below.
+
+Alternatively the LetsTrust wrapper script **letstrust.sh** is a convenient way for building and using the library. In this case the build tool Gradle as well as a Java 15 dev-env needs to be available. See [Running LetsTrust Wrapper](#running-letstrust-wrapper).
+
 
 ## :hammer: Build
 
@@ -73,11 +81,11 @@ hikariDataSource:
 In order to overwrite these values, simply place a yaml-based config-file named `letstrust.yaml` in the root folder with the desired values.
 
 
-## :gear: Run
+## :gear: Running LetsTrust Wrapper
 
 ### Running CLI tool directly (requires Java 15):
 
-#### Letstrust wrapper
+#### LetsTrust wrapper
 
     letstrust.sh [arguments...]
 
@@ -161,6 +169,8 @@ e.g.:
 
 ### letstrust-ssi-core wrapper script
 
+[Running LetsTrust Container]
+
 Usage:
     
     ./letstrust.sh {build|build-docker|build-podman|extract|execute (default)}
@@ -168,3 +178,21 @@ Usage:
 Use "execute" to execute letstrust-ssi-core with no arguments. If you don't supply any
 arguments of {build|build-docker|build-podman|extract|execute}, letstrust-ssi-core will
 be executed with the provided arguments.
+
+# Docker Deploy
+push
+export CR_PAT=<token-write-packages>
+echo $CR_PAT | docker login ghcr.io -u <username> --password-stdin
+docker tag letstrust ghcr.io/letstrustid/letstrust:0.1
+docker push ghcr.io/letstrustid/letstrust:0.1
+
+pull
+export CR_PAT=<token-read-packages>
+docker pull ghcr.io/letstrustid/letstrust:0.1
+docker tag ghcr.io/letstrustid/letstrust:0.1 letstrust
+docker run letstrust
+
+
+podman pull ghcr.io/letstrustid/letstrust:0.1
+podman tag ghcr.io/letstrustid/letstrust:0.1 letstrust
+podman run letstrust
