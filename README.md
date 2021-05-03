@@ -42,7 +42,9 @@ Run via Podman:
 
 Alternatively the LetsTrust wrapper script **letstrust.sh** is a convenient way for building and using the library. This requires [building](#hammer-build) (see below) the project and a Java 15 runtime environment.
 
-    letstrust.sh [arguments...]
+    ./letstrust.sh {build|build-docker|build-podman|extract|execute (default)}
+
+Use "execute" to execute letstrust-ssi-core with no arguments. If you don't supply any arguments of {build|build-docker|build-podman|extract|execute}, letstrust-ssi-core will be executed with the provided arguments.
 
 ### Code-level integration
 
@@ -183,32 +185,23 @@ In order to overwrite these values, simply place a yaml-based config-file named 
 
     podman run -itv $(pwd)/data:/opt/data -p 7000-7001:7000-7001 letstrust serve
 
-## letstrust-ssi-core wrapper script
 
-Usage:
-    
-    ./letstrust.sh {build|build-docker|build-podman|extract|execute (default)}
-
-Use "execute" to execute letstrust-ssi-core with no arguments. If you don't supply any
-arguments of {build|build-docker|build-podman|extract|execute}, letstrust-ssi-core will
-be executed with the provided arguments.
-
-#Docker PUSH / PULL
+# Docker PUSH / PULL
 **push**
 
-export CR_PAT=<token-write-packages>
-echo $CR_PAT | docker login ghcr.io -u <username> --password-stdin
-docker tag letstrust ghcr.io/letstrustid/letstrust:0.1
-docker push ghcr.io/letstrustid/letstrust:0.1
+    export CR_PAT=<token-write-packages>
+    echo $CR_PAT | docker login ghcr.io -u <username> --password-stdin
+    docker tag letstrust ghcr.io/letstrustid/letstrust:0.1
+    docker push ghcr.io/letstrustid/letstrust:0.1
 
 **pull**
 
-export CR_PAT=<token-read-packages>
-docker pull ghcr.io/letstrustid/letstrust:0.1
-docker tag ghcr.io/letstrustid/letstrust:0.1 letstrust
-docker run letstrust
-
-
-podman pull ghcr.io/letstrustid/letstrust:0.1
-podman tag ghcr.io/letstrustid/letstrust:0.1 letstrust
-podman run letstrust
+    export CR_PAT=<token-read-packages>
+    docker pull ghcr.io/letstrustid/letstrust:0.1
+    docker tag ghcr.io/letstrustid/letstrust:0.1 letstrust
+    docker run letstrust
+    
+    
+    podman pull ghcr.io/letstrustid/letstrust:0.1
+    podman tag ghcr.io/letstrustid/letstrust:0.1 letstrust
+    podman run letstrust
