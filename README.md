@@ -169,7 +169,7 @@ e.g.:
 
 ### letstrust-ssi-core wrapper script
 
-[Running LetsTrust Container]
+# [Running LetsTrust Container]
 
 Usage:
     
