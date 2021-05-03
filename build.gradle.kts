@@ -1,8 +1,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+
 plugins {
     kotlin("jvm") version "1.4.32"
     kotlin("plugin.serialization") version "1.4.30"
+    id("com.github.kkdad.dependency-license-report") version "1.16.6"
     application
     `maven-publish`
 }
@@ -115,4 +117,9 @@ publishing {
             }
         }
     }
+}
+
+licenseReport {
+    renderers = arrayOf<com.github.jk1.license.render.ReportRenderer>(com.github.jk1.license.render.InventoryHtmlReportRenderer("report.html", "Backend"))
+    filters = arrayOf<com.github.jk1.license.filter.DependencyFilter>(com.github.jk1.license.filter.LicenseBundleNormalizer())
 }
