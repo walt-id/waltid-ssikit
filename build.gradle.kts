@@ -6,6 +6,8 @@ plugins {
     kotlin("plugin.serialization") version "1.4.30"
     id("com.github.kkdad.dependency-license-report") version "1.16.6"
     id("org.owasp.dependencycheck") version "6.1.6"
+    //id("org.sonatype.gradle.plugins.scan") version "2.0.9"
+    //id("org.sonarqube") version "3.2.0"
     application
     `maven-publish`
 }
