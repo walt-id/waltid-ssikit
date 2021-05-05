@@ -2,6 +2,7 @@ package org.letstrust.rest
 
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.features.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.request.*
@@ -12,6 +13,8 @@ import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.junit.Test
 import org.letstrust.crypto.KeyId
+import org.letstrust.model.DidMethod
+import org.letstrust.model.toDidUrl
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -99,5 +102,33 @@ class CoreApiTest {
             body = ExportKeyRequest(keyId.id, "JWK")
         }
         assertTrue(key.length > 180)
+    }
+
+    @Test
+    fun testDidCreateKey() = runBlocking {
+        val did = client.post<String>("$CORE_API_URL/v1/did/create") {
+            contentType(ContentType.Application.Json)
+            body = CreateDidRequest(DidMethod.key)
+        }
+        val didUrl = toDidUrl(did)
+        assertEquals(DidMethod.key.name, didUrl.method)
+    }
+
+    @Test
+    fun testDidCreateWeb() = runBlocking {
+        val did = client.post<String>("$CORE_API_URL/v1/did/create") {
+            contentType(ContentType.Application.Json)
+            body = CreateDidRequest(DidMethod.web)
+        }
+        val didUrl = toDidUrl(did)
+        assertEquals(DidMethod.web.name, didUrl.method)
+    }
+
+    @Test(expected = ClientRequestException::class)
+    fun testDidCreateMethodNotSupported() = runBlocking {
+        val error = client.post<HttpResponse>("$CORE_API_URL/v1/did/create") {
+            contentType(ContentType.Application.Json)
+            body = CreateDidRequest(DidMethod.ebsi)
+        }
     }
 }

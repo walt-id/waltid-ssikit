@@ -6,16 +6,14 @@ import io.javalin.plugin.openapi.annotations.OpenApiContent
 import io.javalin.plugin.openapi.annotations.OpenApiRequestBody
 import io.javalin.plugin.openapi.annotations.OpenApiResponse
 import kotlinx.serialization.Serializable
-import org.letstrust.crypto.Key
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.model.DidMethod
 import org.letstrust.services.did.DidService
-import org.letstrust.services.key.KeyManagementService
 
 @Serializable
 data class CreateDidRequest(
     val method: DidMethod,
-    val keyAlias: String?
+    val keyAlias: String? = null
 )
 
 @Serializable
@@ -42,12 +40,19 @@ object DidController {
         ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(String::class)], "Identifier of the created DID"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request"),
+            OpenApiResponse("404", [OpenApiContent(ErrorResponse::class)], " DID method not supported")
         ]
     )
     fun create(ctx: Context) {
         val createDidReq = ctx.bodyAsClass(CreateDidRequest::class.java)
-        ctx.json(DidService.create(createDidReq.method, createDidReq.keyAlias))
+
+        if (createDidReq.method.equals(DidMethod.ebsi)) {
+            ctx.status(404)
+            ctx.json(ErrorResponse("DID method EBSI not supported", 404))
+        } else {
+            ctx.result(DidService.create(createDidReq.method, createDidReq.keyAlias))
+        }
     }
 
     @OpenApi(
