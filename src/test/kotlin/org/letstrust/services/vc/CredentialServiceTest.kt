@@ -67,6 +67,23 @@ class CredentialServiceTest {
     }
 
     @Test
+    fun signEuropassCredentialTest() {
+
+        val credOffer = readCredOffer("VerifiableAttestation-Europass")
+
+        val issuerDid = DidService.create(DidMethod.key) // DID key uses an EdDSA Ed25519k1 key
+        val domain = "example.com"
+        val nonce: String? = null
+
+        val vc = CredentialService.sign(issuerDid, credOffer, domain, nonce)
+        assertNotNull(vc)
+        println("Credential generated: $vc")
+
+        val vcVerified = CredentialService.verifyVc(issuerDid, vc)
+        assertTrue(vcVerified)
+    }
+
+    @Test
     fun signCredentialWrongValidationKeyTest() {
 
         val credOffer = readCredOffer("WorkHistory")
