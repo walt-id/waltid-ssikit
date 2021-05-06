@@ -9,6 +9,7 @@ import kotlinx.serialization.Serializable
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.model.DidMethod
 import org.letstrust.services.did.DidService
+import java.lang.IllegalArgumentException
 
 @Serializable
 data class CreateDidRequest(
@@ -40,16 +41,15 @@ object DidController {
         ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(String::class)], "Identifier of the created DID"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request"),
-            OpenApiResponse("404", [OpenApiContent(ErrorResponse::class)], " DID method not supported")
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
     fun create(ctx: Context) {
         val createDidReq = ctx.bodyAsClass(CreateDidRequest::class.java)
 
         if (createDidReq.method.equals(DidMethod.ebsi)) {
-            ctx.status(404)
-            ctx.json(ErrorResponse("DID method EBSI not supported", 404))
+            throw IllegalArgumentException("DID method EBSI not supported")
         } else {
             ctx.result(DidService.create(createDidReq.method, createDidReq.keyAlias))
         }

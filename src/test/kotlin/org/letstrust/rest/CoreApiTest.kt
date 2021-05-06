@@ -26,6 +26,7 @@ class CoreApiTest {
         install(JsonFeature) {
             serializer = KotlinxSerializer()
         }
+        expectSuccess = false
     }
 
     fun get(path: String): HttpResponse = runBlocking {
@@ -124,11 +125,30 @@ class CoreApiTest {
         assertEquals(DidMethod.web.name, didUrl.method)
     }
 
-    @Test(expected = ClientRequestException::class)
+    @Test
     fun testDidCreateMethodNotSupported() = runBlocking {
-        val error = client.post<HttpResponse>("$CORE_API_URL/v1/did/create") {
+        val errorResp = client.post<HttpResponse>("$CORE_API_URL/v1/did/create") {
             contentType(ContentType.Application.Json)
             body = CreateDidRequest(DidMethod.ebsi)
         }
+        assertEquals(400, errorResp.status.value)
+        assertEquals("{\"message\":\"DID method EBSI not supported\",\"status\":400}" ,errorResp.readText())
     }
+
+    //@Test
+//    fun testDidCreateVc() = runBlocking {
+//        val didHolder = client.post<String>("$CORE_API_URL/v1/vc/create") {
+//            contentType(ContentType.Application.Json)
+//            body = CreateDidRequest(DidMethod.web)
+//        }
+//        val didIssuer = client.post<String>("$CORE_API_URL/v1/vc/create") {
+//            contentType(ContentType.Application.Json)
+//            body = CreateDidRequest(DidMethod.web)
+//        }
+//        val vc = client.post<String>("$CORE_API_URL/v1/vc/create") {
+//            contentType(ContentType.Application.Json)
+//            body = CreateDidRequest(DidMethod.web)
+//        }
+//
+//    }
 }

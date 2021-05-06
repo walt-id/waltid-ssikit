@@ -6,13 +6,12 @@ import org.letstrust.common.SqlDbManager
 import org.letstrust.crypto.Key
 import org.letstrust.crypto.KeyId
 import org.letstrust.crypto.toBase64
+import java.lang.IllegalArgumentException
 import java.sql.Statement.RETURN_GENERATED_KEYS
 
 private val log = KotlinLogging.logger() {}
 
 object SqlKeyStore : KeyStore {
-
-    private val db = SqlDbManager
 
     init {
         SqlDbManager.start()
@@ -62,7 +61,7 @@ object SqlKeyStore : KeyStore {
                 con.commit()
             }
         }
-        return key ?: throw Exception("Could not load $keyId")
+        return key ?: throw IllegalArgumentException("Could not load key: $keyId")
     }
 
 

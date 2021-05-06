@@ -109,9 +109,11 @@ object RestAPI {
 
         }.exception(IllegalArgumentException::class.java) { e, ctx ->
             log.error(e.stackTraceToString())
+            ctx.json(ErrorResponse(e.message?:" Unknown application error", 400))
             ctx.status(400)
         }.exception(Exception::class.java) { e, ctx ->
             log.error(e.stackTraceToString())
+            ctx.json(ErrorResponse(e.message?:" Unknown server error", 500))
             ctx.status(500)
         }.start(port)
     }
@@ -216,9 +218,11 @@ object RestAPI {
 
         }.exception(IllegalArgumentException::class.java) { e, ctx ->
             log.error(e.stackTraceToString())
+            ctx.json(ErrorResponse(e.message?:" Illegal argument exception", 400))
             ctx.status(400)
         }.exception(Exception::class.java) { e, ctx ->
             log.error(e.stackTraceToString())
+            ctx.json(ErrorResponse(e.message?:" Unknown application error", 500))
             ctx.status(500)
         }.start(port)
     }
