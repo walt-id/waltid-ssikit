@@ -34,7 +34,8 @@ object EosController {
         ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(String::class)], "Request DID ownership"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
     fun onboards(ctx: Context) {
@@ -52,7 +53,8 @@ object EosController {
         ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(String::class)], "Verifiable Authorization"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
     fun signedChallenge(ctx: Context) {
@@ -65,7 +67,8 @@ object EosController {
         tags = ["ESSIF Trusted Issuer"],
         responses = [
             OpenApiResponse("200", [OpenApiContent(String::class)], "OIDC Authentication Request URI"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
     fun requestCredentialUri(ctx: Context) {
@@ -83,7 +86,8 @@ object EosController {
         ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(String::class)], "DID ownership request"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
     fun requestVerifiableCredential(ctx: Context) {
@@ -119,7 +123,8 @@ object EosController {
         ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(String::class)], "DID Auth Request"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
     fun getCredential(ctx: Context) {
