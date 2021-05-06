@@ -5,6 +5,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.Test
 import org.letstrust.model.DidWeb
+import org.letstrust.test.readDid
 import java.io.File
 import kotlin.test.assertEquals
 
@@ -14,14 +15,13 @@ class JsonSerializeDidsTest {
     val format = Json { prettyPrint = true; ignoreUnknownKeys = true }
 
 
-    fun serializeDidWeb(didWebFile: File) {
-        val expected = didWebFile.readText()
-        // println(expected)
-        val obj = Json.decodeFromString<DidWeb>(expected)
+    fun serializeDidWeb(didWeb: String) {
+
+        val obj = Json.decodeFromString<DidWeb>(didWeb)
         // println(obj)
         val encoded = format.encodeToString(obj)
         // println(encoded)
-        assertEquals(expected.replace("\\s".toRegex(), ""), encoded.replace("\\s".toRegex(), ""))
+        assertEquals(didWeb.replace("\\s".toRegex(), ""), encoded.replace("\\s".toRegex(), ""))
     }
 
     @Test
@@ -64,34 +64,35 @@ class JsonSerializeDidsTest {
 
     @Test
     fun serializeUniResDidWeb() {
-        serializeDidWeb(File("src/test/resources/dids/web/did-web-unires.json"))
+        serializeDidWeb(readDid("web/did-web-unires"))
     }
 
     @Test
     fun serializeMattrDidWeb() {
-        serializeDidWeb(File("src/test/resources/dids/web/did-web-mattr.json"))
+        serializeDidWeb(readDid("web/did-web-mattr"))
     }
 
     // @Test
     fun serializeTransumuteDidWeb() {
-        serializeDidWeb(File("src/test/resources/dids/web/did-web-transmute.json"))
+        serializeDidWeb(readDid("web/did-web-transmute"))
     }
 
     // @Test
     fun serializeExample1DidWeb() {
-        serializeDidWeb(File("src/test/resources/dids/web/did-web-example1.json"))
+        serializeDidWeb(readDid("web/did-web-example1"))
     }
 
+    fun serializeDidEbsi() {
+
+    }
 
     //TODO: NOT WORKING @Test
-    fun serializeAllDidWebExamples() {
-        File("src/test/resources/dids/web").walkTopDown()
-            .filter { it.toString().endsWith(".json") }
-            .forEach {
-                println("serializing: $it")
-                serializeDidWeb(it)
-            }
-
-
-    }
+//    fun serializeAllDidWebExamples() {
+//        File("src/test/resources/dids/web").walkTopDown()
+//            .filter { it.toString().endsWith(".json") }
+//            .forEach {
+//                println("serializing: $it")
+//                serializeDidWeb(it)
+//            }
+//    }
 }

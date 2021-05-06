@@ -1,56 +1,43 @@
 {
-  "@context": "https://w3.org/ns/did/v1",
-  "id": "did:ebsi:00001111",
+  "@context": [
+    "https://w3.org/ns/did/v1",
+    "https://ebsi.org/ns/did/v1"
+  ],
+  "id": "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d472afcff8",
   "verificationMethod": [
     {
-      "id": "did:ebsi:00001111#key-1",
+      "id": "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d472a#key-1",
       "type": "Ed25519VerificationKey2018",
-      "controller": "did:ebsi:00001111",
+      "controller": "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d472afcff8",
       "publicKeyBase58": "5F5Q1qJbbvcyhnStAmkjF5rUBKe1XnHJHt2Tj49tTDpW"
     },
     {
-      "id": "did:ebsi:00001111#key-2",
+      "id": "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d473b#key-2",
       "type": "X25519KeyAgreementKey2019",
-      "controller": "did:ebsi:00001111",
+      "controller": "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d472afcff8",
       "publicKeyBase58": "GnxxE5rAFYoRS6af7XArmzh7gNS68XTAKjhNDRsfhrFJ"
-    }
-  ],
-  "authentication": [
-    "did:ebsi:00001111#key-1"
-  ],
-  "assertionMethod": [
-    "did:ebsi:00001111#key-1"
-  ],
-  "keyAgreement": [
-    "did:ebsi:00001111#key-2"
-  ]
-}
-
-
-
-
-
-{
-  "@context": [
-    "https://www.w3.org/ns/did/v1",
-    "https://identity.foundation/EcdsaSecp256k1RecoverySignature2020/lds-ecdsa-secp256k1-recovery2020-0.0.jsonld"
-  ],
-  "id": "did:ethr:0x26bf14321004e770e7a8b080b7a526d8eed8b388",
-  "verificationMethod": [
-    {
-      "id": "did:ethr:0x26bf14321004e770e7a8b080b7a526d8eed8b388#controller",
-      "type": "EcdsaSecp256k1RecoveryMethod2020",
-      "controller": "did:ethr:0x26bf14321004e770e7a8b080b7a526d8eed8b388",
-      "blockchainAccountId": "0x26bF14321004e770E7A8b080b7a526d8eed8b388@eip155:1"
     },
     {
-      "id": "did:ethr:0x26bf14321004e770e7a8b080b7a526d8eed8b388#delegate-1",
-      "type": "EcdsaSecp256k1VerificationKey2019",
-      "controller": "did:ethr:0x26bf14321004e770e7a8b080b7a526d8eed8b388",
-      "publicKeyHex": "04808f0530d0f39b3f71e9258c555666f63d839bb8aa06beb77dbb2b5d81ed7e59ed4507188a89f231bb36fe85918c9b8b3bd1bcd105163604e6e288f1ccdd72d3"
+      "id": "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d474c#key-3",
+      "type": "EidasVerificationKey2021",
+      "controller": "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d472afcff8",
+      "publicKeyPem": "-----BEGIN.."
     }
   ],
   "authentication": [
-    "did:ethr:0x26bf14321004e770e7a8b080b7a526d8eed8b388#controller"
-  ]
+    "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d474c#key-3"
+  ],
+  "assertionMethod": [
+    "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d472a#key-1"
+  ],
+  "keyAgreement": [
+    "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d473b#key-2"
+  ],
+  "proof": {
+    "type": "Ed25519Signature2018",
+    "created": "2019-06-22T14:11:44Z",
+    "proofPurpose": "assertionMethod",
+    "verificationMethod": "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d472a#key-1",
+    "jws": "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk"
+  }
 }

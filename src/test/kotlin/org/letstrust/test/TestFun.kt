@@ -9,3 +9,6 @@ fun readCredOffer(fileName: String) =
 
 fun readVerifiableCredential(fileName: String) =
     File("$RESOURCES_PATH/verifiable-credentials/${fileName}.json").readText(Charsets.UTF_8)
+
+fun readDid(fileName: String) =
+    File("$RESOURCES_PATH/dids/${fileName}.json").readText(Charsets.UTF_8)

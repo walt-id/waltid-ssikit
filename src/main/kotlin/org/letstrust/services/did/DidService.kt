@@ -7,7 +7,8 @@ import org.bouncycastle.asn1.ASN1BitString
 import org.bouncycastle.asn1.ASN1Sequence
 import org.letstrust.LetsTrustServices
 import org.letstrust.crypto.*
-import org.letstrust.crypto.KeyAlgorithm.*
+import org.letstrust.crypto.KeyAlgorithm.ECDSA_Secp256k1
+import org.letstrust.crypto.KeyAlgorithm.EdDSA_Ed25519
 import org.letstrust.crypto.keystore.KeyStore
 import org.letstrust.model.*
 import java.io.File
@@ -33,6 +34,7 @@ object DidService {
         val didUrl = when (method) {
             DidMethod.key -> createDidKey(keyAlias)
             DidMethod.web -> createDidWeb(keyAlias)
+            DidMethod.ebsi -> createDidEbsi(keyAlias)
             else -> throw Exception("DID method $method not supported")
         }
 
@@ -42,7 +44,7 @@ object DidService {
     }
 
     private fun resolveAndStore(didUrl: String) {
-        val destFile = File("data/did/created/${didUrl.replace(":","-")}.json")
+        val destFile = File("data/did/created/${didUrl.replace(":", "-")}.json")
         destFile.writeText(resolve(didUrl).encodePretty())
     }
 
@@ -50,6 +52,7 @@ object DidService {
     fun resolve(didUrl: DidUrl): Did {
         return when (didUrl.method) {
             DidMethod.key.name -> resolveDidKey(didUrl)
+            DidMethod.ebsi.name -> resolveDidKey(didUrl)
             DidMethod.web.name -> resolveDidWebDummy(didUrl)
             else -> TODO("did:${didUrl.method} not implemented yet")
         }
@@ -88,6 +91,24 @@ object DidService {
         keyStore.addAlias(keyId, didUrl.did)
 
         return didUrl.did
+    }
+
+    private fun createDidEbsi(keyAlias: String?): String {
+        val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(EdDSA_Ed25519)
+        val key = keyStore.load(keyId.id)
+
+        if (key.algorithm != EdDSA_Ed25519)
+            throw Exception("DID EBSI can only be created with an EdDSA Ed25519 key.")
+
+        val pubPrim = ASN1Sequence.fromByteArray(key.getPublicKey().encoded) as ASN1Sequence
+        val x = (pubPrim.getObjectAt(1) as ASN1BitString).octets
+
+        val identifier = convertEd25519PublicKeyToMultiBase58Btc(x)
+        val didUrl = "did:ebsi:$identifier"
+
+        keyStore.addAlias(keyId, didUrl)
+
+        return didUrl
     }
 
     private fun resolveDidKey(didUrl: DidUrl): Did {

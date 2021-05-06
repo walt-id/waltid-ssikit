@@ -63,6 +63,22 @@ class DidServiceTest {
     }
 
     @Test
+    fun createResolveDidEbsiTest() {
+
+        // Create
+        val did = ds.create(DidMethod.ebsi)
+        val didUrl = toDidUrl(did)
+        assertEquals(did, didUrl.did)
+        assertEquals("ebsi", didUrl.method)
+        print(did)
+
+        // Resolve
+        val resolvedDid = ds.resolve(did)
+        val encoded = Json { prettyPrint = true }.encodeToString(resolvedDid)
+        println(encoded)
+    }
+
+    @Test
     fun listDidsTest() {
 
         ds.create(DidMethod.key)
