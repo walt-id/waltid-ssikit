@@ -93,6 +93,17 @@ class JsonSerializeDidsTest {
         assertEquals(didEbsi.replace("\\s".toRegex(), ""), encoded.replace("\\s".toRegex(), ""))
     }
 
+    // TODO: NOT WORKING (creator not supported) @Test
+    fun serializeDidEbsiLT() {
+        val didEbsi = readDid("did-ebsi-lt")
+
+        val obj = Json.decodeFromString<DidEbsi>(didEbsi)
+        // println(obj)
+        val encoded = format.encodeToString(obj)
+        // println(encoded)
+        assertEquals(didEbsi.replace("\\s".toRegex(), ""), encoded.replace("\\s".toRegex(), ""))
+    }
+
     //TODO: NOT WORKING @Test
 //    fun serializeAllDidWebExamples() {
 //        File("src/test/resources/dids/web").walkTopDown()

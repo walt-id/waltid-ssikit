@@ -1,6 +1,7 @@
 package org.letstrust.services.did
 
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import org.bouncycastle.asn1.ASN1BitString
@@ -11,6 +12,7 @@ import org.letstrust.crypto.KeyAlgorithm.ECDSA_Secp256k1
 import org.letstrust.crypto.KeyAlgorithm.EdDSA_Ed25519
 import org.letstrust.crypto.keystore.KeyStore
 import org.letstrust.model.*
+import org.letstrust.services.vc.CredentialService
 import java.io.File
 import java.net.URL
 import java.nio.file.Files
@@ -38,14 +40,7 @@ object DidService {
             else -> throw Exception("DID method $method not supported")
         }
 
-        resolveAndStore(didUrl)
-
         return didUrl
-    }
-
-    private fun resolveAndStore(didUrl: String) {
-        val destFile = File("data/did/created/${didUrl.replace(":", "-")}.json")
-        destFile.writeText(resolve(didUrl).encodePretty())
     }
 
     fun resolve(did: String): Did = resolve(toDidUrl(did))
@@ -59,6 +54,36 @@ object DidService {
     }
 
     // Private methods
+
+    private fun createDidEbsi(keyAlias: String?): String {
+        val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(EdDSA_Ed25519)
+        val key = keyStore.load(keyId.id)
+
+        if (key.algorithm != EdDSA_Ed25519)
+            throw Exception("DID EBSI can only be created with an EdDSA Ed25519 key.")
+
+        // Created identifier
+        val pubKeyBytes = key.getPublicKey().encoded
+        val pubPrim = ASN1Sequence.fromByteArray(pubKeyBytes) as ASN1Sequence
+        val edPublicKey = (pubPrim.getObjectAt(1) as ASN1BitString).octets
+
+        val identifier = convertEd25519PublicKeyToMultiBase58Btc(edPublicKey)
+        val didUrlStr = "did:ebsi:$identifier"
+        keyStore.addAlias(keyId, didUrlStr)
+
+        // Create doc
+        val ebsiDidBody = ed25519Did(toDidUrl(didUrlStr), edPublicKey) //TODO: change to (once context is available): ebsiDid(toDidUrl(didUrlStr), edPublicKey)
+        val ebsiDidBodyStr = Json.encodeToString(ebsiDidBody)
+
+        // Create proof
+        val verificationMethod = ebsiDidBody.verificationMethod?.get(0)?.id
+        val ebsiDid = signDid(didUrlStr, verificationMethod!!, ebsiDidBodyStr)
+
+        // Store DID
+        storeDid(didUrlStr, ebsiDid)
+
+        return didUrlStr
+    }
 
     private fun createDidKey(keyAlias: String?): String {
         val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(EdDSA_Ed25519)
@@ -75,6 +100,8 @@ object DidService {
 
         keyStore.addAlias(keyId, didUrl)
 
+        resolveAndStore(didUrl)
+
         return didUrl
     }
 
@@ -90,25 +117,14 @@ object DidService {
 
         keyStore.addAlias(keyId, didUrl.did)
 
+        resolveAndStore(didUrl.did)
+
         return didUrl.did
     }
 
-    private fun createDidEbsi(keyAlias: String?): String {
-        val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(EdDSA_Ed25519)
-        val key = keyStore.load(keyId.id)
-
-        if (key.algorithm != EdDSA_Ed25519)
-            throw Exception("DID EBSI can only be created with an EdDSA Ed25519 key.")
-
-        val pubPrim = ASN1Sequence.fromByteArray(key.getPublicKey().encoded) as ASN1Sequence
-        val x = (pubPrim.getObjectAt(1) as ASN1BitString).octets
-
-        val identifier = convertEd25519PublicKeyToMultiBase58Btc(x)
-        val didUrl = "did:ebsi:$identifier"
-
-        keyStore.addAlias(keyId, didUrl)
-
-        return didUrl
+    private fun signDid(issuerDid: String, verificationMethod: String, edDidStr: String): String {
+        val signedDid = CredentialService.sign(issuerDid, edDidStr, null, null, verificationMethod)
+        return signedDid
     }
 
     private fun resolveDidKey(didUrl: DidUrl): Did {
@@ -116,7 +132,42 @@ object DidService {
         return ed25519Did(didUrl, pubKey)
     }
 
+    private fun ebsiDid(didUrl: DidUrl, pubKey: ByteArray): DidEbsi {
+        val (dhKeyId, verificationMethods, keyRef) = generateEdParams(pubKey, didUrl)
+
+        return DidEbsi(
+            listOf("https://w3.org/ns/did/v1", "https://ebsi.org/ns/did/v1"),
+            didUrl.did,
+            verificationMethods,
+            keyRef,
+            keyRef,
+            keyRef,
+            keyRef,
+            listOf(dhKeyId),
+            null
+        )
+    }
+
     private fun ed25519Did(didUrl: DidUrl, pubKey: ByteArray): Did {
+        val (dhKeyId, verificationMethods, keyRef) = generateEdParams(pubKey, didUrl)
+
+        return Did(
+            DID_CONTEXT_URL,
+            didUrl.did,
+            verificationMethods,
+            keyRef,
+            keyRef,
+            keyRef,
+            keyRef,
+            listOf(dhKeyId),
+            null
+        )
+    }
+
+    private fun generateEdParams(
+        pubKey: ByteArray,
+        didUrl: DidUrl
+    ): Triple<String, List<VerificationMethod>, List<String>> {
         val dhKey = convertPublicKeyEd25519ToCurve25519(pubKey)
 
         val dhKeyMb = convertX25519PublicKeyToMultiBase58Btc(dhKey)
@@ -130,18 +181,7 @@ object DidService {
         )
 
         val keyRef = listOf(pubKeyId)
-
-        return Did(
-            DID_CONTEXT_URL,
-            didUrl.did,
-            verificationMethods,
-            keyRef,
-            keyRef,
-            keyRef,
-            keyRef,
-            listOf(dhKeyId),
-            null
-        )
+        return Triple(dhKeyId, verificationMethods, keyRef)
     }
 
     private fun resolveDidWebDummy(didUrl: DidUrl): Did {
@@ -171,6 +211,11 @@ object DidService {
             }
         }
     }
+
+    private fun resolveAndStore(didUrl: String) = storeDid(didUrl, resolve(didUrl).encodePretty())
+
+    private fun storeDid(didUrlStr: String, didDoc: String) =
+        File(LetsTrustServices.dataDir + "/did/created/${didUrlStr.replace(":", "-")}.json").writeText(didDoc)
 
 
     // TODO: consider the methods below. They might be deprecated!

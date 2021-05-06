@@ -43,7 +43,8 @@ object CredentialService {
         issuerDid: String,
         jsonCred: String,
         domain: String? = null,
-        nonce: String? = null
+        nonce: String? = null,
+        verificationMethod: String? = null
     ): String {
 
         log.debug { "Signing jsonLd object with: issuerDid ($issuerDid), domain ($domain), nonce ($nonce)" }
@@ -69,6 +70,7 @@ object CredentialService {
         signer.created = Date() // Use the current date
         signer.domain = domain
         signer.nonce = nonce
+        verificationMethod?.let { signer.verificationMethod = URI.create(verificationMethod) }
 
         val proof = signer.sign(jsonLdObject)
 
