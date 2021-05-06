@@ -32,11 +32,27 @@ fun Did.encodePretty() = Json { prettyPrint = true }.encodeToString(this)
 fun String.decode() = Json.decodeFromString<Did>(this)
 
 @Serializable
+data class DidEbsi(
+    @SerialName("@context")
+    val context: List<String>,
+    var id: String? = null,
+    val verificationMethod: List<VerificationMethod>? = null,
+    val authentication: List<String>? = null,
+    val assertionMethod: List<String>? = null,
+    val capabilityDelegation: List<String>? = null,
+    val capabilityInvocation: List<String>? = null,
+    val keyAgreement: List<String>? = null,
+    val serviceEndpoint: List<VerificationMethod>? = null,
+    var proof: Proof? = null,
+)
+
+@Serializable
 data class VerificationMethod(
     val id: String,
     val type: String,
     val controller: String,
-    val publicKeyBase58: String
+    val publicKeyBase58: String? = null,
+    val publicKeyPem: String? = null
 )
 
 @Serializable

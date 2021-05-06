@@ -4,9 +4,9 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.Test
+import org.letstrust.model.DidEbsi
 import org.letstrust.model.DidWeb
 import org.letstrust.test.readDid
-import java.io.File
 import kotlin.test.assertEquals
 
 
@@ -82,8 +82,15 @@ class JsonSerializeDidsTest {
         serializeDidWeb(readDid("web/did-web-example1"))
     }
 
+    @Test
     fun serializeDidEbsi() {
+        val didEbsi = readDid("did-ebsi")
 
+        val obj = Json.decodeFromString<DidEbsi>(didEbsi)
+        // println(obj)
+        val encoded = format.encodeToString(obj)
+        // println(encoded)
+        assertEquals(didEbsi.replace("\\s".toRegex(), ""), encoded.replace("\\s".toRegex(), ""))
     }
 
     //TODO: NOT WORKING @Test
