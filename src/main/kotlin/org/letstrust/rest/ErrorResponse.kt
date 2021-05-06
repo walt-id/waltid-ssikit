@@ -7,6 +7,6 @@ import kotlinx.serialization.Serializable
 data class ErrorResponse(
     val title: String,
     val status: Int,
-    val type: String = "https://letstrust.org/todo-point-to-error-doc",
+    val type: String?, //"https://letstrust.org/todo-point-to-error-doc",
     val details: Array<String> = emptyArray()
 )

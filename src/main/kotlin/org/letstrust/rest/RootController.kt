@@ -46,7 +46,8 @@ object RootController {
         operationId = "health",
         responses = [
             OpenApiResponse("200", [OpenApiContent(String::class)], "successful request"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
     fun health(ctx: Context) {

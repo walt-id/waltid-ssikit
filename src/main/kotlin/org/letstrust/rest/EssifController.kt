@@ -27,7 +27,8 @@ object EssifController {
         ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(SuccessResponse::class)], "successful"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
     fun todo(ctx: Context) {

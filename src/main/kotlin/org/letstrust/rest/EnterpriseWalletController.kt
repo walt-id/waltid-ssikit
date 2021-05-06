@@ -40,7 +40,8 @@ object EnterpriseWalletController {
         ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(String::class)], "Created DID"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
     fun createDid(ctx: Context) {
@@ -58,7 +59,8 @@ object EnterpriseWalletController {
         ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(String::class)], "Verifiable Credential"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
     fun getVerifiableCredential(ctx: Context) {
@@ -91,7 +93,8 @@ object EnterpriseWalletController {
         tags = ["ESSIF Enterprise Wallet"],
         responses = [
             OpenApiResponse("200", [OpenApiContent(String::class)], "DID Auth Reqeust"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
     fun generateDidAuthRequest(ctx: Context) {
@@ -109,7 +112,8 @@ object EnterpriseWalletController {
         ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(Boolean::class)], "True, if response could be validated"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
     fun validateDidAuthResponse(ctx: Context) {
@@ -127,7 +131,8 @@ object EnterpriseWalletController {
         ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(String::class)], "Verifiable Authorization"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
     fun requestVerifiableAuthorization(ctx: Context) {
@@ -145,7 +150,8 @@ object EnterpriseWalletController {
         ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(String::class)], "DID ownership response"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
     fun requestVerifiableCredential(ctx: Context) {
@@ -163,7 +169,8 @@ object EnterpriseWalletController {
         ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
     fun token(ctx: Context) {

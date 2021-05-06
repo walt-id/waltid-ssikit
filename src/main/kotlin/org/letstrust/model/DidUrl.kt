@@ -18,9 +18,13 @@ data class DidUrl(
 }
 
 fun toDidUrl(url: String): DidUrl {
-    val matchResult = "^did:([a-z]+):(.+)".toRegex().find(url)!!
-    val path = matchResult.groups[2]!!.value
-    val fragmentStr = path.substringAfter('#')
-    val identifierStr = path.substringBefore('#')
-    return DidUrl(matchResult.groups[1]!!.value, identifierStr, fragmentStr)
+    val didUrl = try {
+        val matchResult = "^did:([a-z]+):(.+)".toRegex().find(url)!!
+        val path = matchResult.groups[2]!!.value
+        val fragmentStr = path.substringAfter('#')
+        val identifierStr = path.substringBefore('#')
+        return DidUrl(matchResult.groups[1]!!.value, identifierStr, fragmentStr)
+    } catch (e: Exception) {
+        throw IllegalArgumentException("DID has wrong format.")
+    }
 }
