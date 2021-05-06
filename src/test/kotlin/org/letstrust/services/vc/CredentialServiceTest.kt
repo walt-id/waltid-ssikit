@@ -11,7 +11,7 @@ import org.letstrust.model.VerifiablePresentation
 import org.letstrust.model.encodePretty
 import org.letstrust.services.did.DidService
 import org.letstrust.test.readCredOffer
-import java.sql.Timestamp
+import java.io.File
 import java.time.LocalDateTime
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
@@ -113,25 +113,26 @@ class CredentialServiceTest {
 
         val credOffer = Json.decodeFromString<VerifiableCredential>(readCredOffer("vc-offer-simple-example"))
         val issuerDid = DidService.create(DidMethod.web)
-        val subjectDid = DidService.create(DidMethod.key)
+//        val subjectDid = DidService.create(DidMethod.key)
+//
+//        credOffer.id = Timestamp.valueOf(LocalDateTime.now()).time.toString()
+//        credOffer.issuer = issuerDid
+//        credOffer.credentialSubject.id = subjectDid
+//
+//        credOffer.issuanceDate = LocalDateTime.now()
+//
+//        val vcReqEnc = Json { prettyPrint = true }.encodeToString(credOffer)
+//
+//        println("Credential request:\n$vcReqEnc")
+//
+//        val vcStr = CredentialService.sign(issuerDid, vcReqEnc)
+//        val vc = Json.decodeFromString<VerifiableCredential>(vcStr)
+//        println("Credential generated: ${vc.encodePretty()}")
+//
+//        val vpIn = VerifiablePresentation(listOf("https://www.w3.org/2018/credentials/v1"), "id", listOf("VerifiablePresentation"), listOf(vc), null)
+//        val vpInputStr = Json { prettyPrint = true }.encodeToString(vpIn)
 
-        credOffer.id = Timestamp.valueOf(LocalDateTime.now()).time.toString()
-        credOffer.issuer = issuerDid
-        credOffer.credentialSubject.id = subjectDid
-
-        credOffer.issuanceDate = LocalDateTime.now()
-
-        val vcReqEnc = Json { prettyPrint = true }.encodeToString(credOffer)
-
-        println("Credential request:\n$vcReqEnc")
-
-        val vcStr = CredentialService.sign(issuerDid, vcReqEnc)
-        val vc = Json.decodeFromString<VerifiableCredential>(vcStr)
-        println("Credential generated: ${vc.encodePretty()}")
-
-        val vpIn = VerifiablePresentation(listOf("https://www.w3.org/2018/credentials/v1"), "id", listOf("VerifiablePresentation"), listOf(vc), null)
-        val vpInputStr = Json { prettyPrint = true }.encodeToString(vpIn)
-
+        val vpInputStr = File("vcreq.txt").readText()
         print(vpInputStr)
 
         val domain = "example.com"

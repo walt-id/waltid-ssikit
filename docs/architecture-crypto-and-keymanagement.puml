@@ -40,7 +40,7 @@ LetsTrustServices ..> KeyStore
 
 interface Crypto  {
 gen(algorithm): KeyId
-sign(keyId, sig, data): bytes
+sign(keyId, data): bytes
 addAlias(keyId, alias): boolean
 encrypt(keyId, data): bytes
 decrypt(keyId, data): bytes

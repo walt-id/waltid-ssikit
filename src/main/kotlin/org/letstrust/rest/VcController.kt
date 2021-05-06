@@ -1,6 +1,5 @@
 package org.letstrust.rest
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import io.javalin.http.Context
 import io.javalin.plugin.openapi.annotations.OpenApi
 import io.javalin.plugin.openapi.annotations.OpenApiContent
@@ -72,6 +71,7 @@ object VcController {
     fun present(ctx: Context) {
         val presentVcReq = ctx.bodyAsClass(PresentVcRequest::class.java)
         ctx.result(CredentialService.present(presentVcReq.vc, presentVcReq.domain, presentVcReq.challenge))
+
     }
 
     @OpenApi(

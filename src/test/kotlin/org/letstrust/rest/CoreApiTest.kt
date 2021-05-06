@@ -9,7 +9,9 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import org.apache.commons.lang3.StringUtils.countMatches
 import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.junit.Test
@@ -18,7 +20,11 @@ import org.letstrust.model.DidMethod
 import org.letstrust.model.VerifiableCredential
 import org.letstrust.model.encodePretty
 import org.letstrust.model.toDidUrl
+import org.letstrust.services.did.DidService
+import org.letstrust.services.vc.CredentialService
 import org.letstrust.test.readCredOffer
+import java.sql.Timestamp
+import java.time.LocalDateTime
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -162,4 +168,35 @@ class CoreApiTest {
         val vcEncoded = vcDecoded.encodePretty()
         println("Credential encoded: ${vcEncoded}")
     }
+
+    @Test
+    fun testPresentVC() = runBlocking {
+        val credOffer = Json.decodeFromString<VerifiableCredential>(readCredOffer("vc-template-default"))
+        val issuerDid = DidService.create(DidMethod.web)
+        val subjectDid = DidService.create(DidMethod.key)
+
+        credOffer.id = Timestamp.valueOf(LocalDateTime.now()).time.toString()
+        credOffer.issuer = issuerDid
+        credOffer.credentialSubject.id = subjectDid
+
+        credOffer.issuanceDate = LocalDateTime.now()
+
+        val vcReqEnc = Json { prettyPrint = true }.encodeToString(credOffer)
+
+        println("Credential request:\n$vcReqEnc")
+
+        val vcStr = CredentialService.sign(issuerDid, vcReqEnc)
+        val vc = Json.decodeFromString<VerifiableCredential>(vcStr)
+        println("Credential generated: ${vc.encodePretty()}")
+
+//        val vpInputStr = File("vcreq.txt").readText()
+//        print(vpInputStr)
+
+        val vp = client.post<String>("$CORE_API_URL/v1/vc/present") {
+            contentType(ContentType.Application.Json)
+            body = PresentVcRequest(vcStr, "domain.com", "nonce")
+        }
+        assertEquals(2, countMatches(vp, "proof"))
+    }
+
 }
