@@ -2,19 +2,23 @@ package org.letstrust.rest
 
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
-import io.ktor.client.features.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.junit.Test
 import org.letstrust.crypto.KeyId
 import org.letstrust.model.DidMethod
+import org.letstrust.model.VerifiableCredential
+import org.letstrust.model.encodePretty
 import org.letstrust.model.toDidUrl
+import org.letstrust.test.readCredOffer
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -132,23 +136,30 @@ class CoreApiTest {
             body = CreateDidRequest(DidMethod.ebsi)
         }
         assertEquals(400, errorResp.status.value)
-        assertEquals("{\"message\":\"DID method EBSI not supported\",\"status\":400}" ,errorResp.readText())
+        assertEquals("{\"message\":\"DID method EBSI not supported\",\"status\":400}", errorResp.readText())
     }
 
-    //@Test
-//    fun testDidCreateVc() = runBlocking {
-//        val didHolder = client.post<String>("$CORE_API_URL/v1/vc/create") {
-//            contentType(ContentType.Application.Json)
-//            body = CreateDidRequest(DidMethod.web)
-//        }
-//        val didIssuer = client.post<String>("$CORE_API_URL/v1/vc/create") {
-//            contentType(ContentType.Application.Json)
-//            body = CreateDidRequest(DidMethod.web)
-//        }
-//        val vc = client.post<String>("$CORE_API_URL/v1/vc/create") {
-//            contentType(ContentType.Application.Json)
-//            body = CreateDidRequest(DidMethod.web)
-//        }
-//
-//    }
+    @Test
+    fun testDidCreateVc() = runBlocking {
+        val didHolder = client.post<String>("$CORE_API_URL/v1/did/create") {
+            contentType(ContentType.Application.Json)
+            body = CreateDidRequest(DidMethod.web)
+        }
+        val didIssuer = client.post<String>("$CORE_API_URL/v1/did/create") {
+            contentType(ContentType.Application.Json)
+            body = CreateDidRequest(DidMethod.web)
+        }
+
+        val credOffer = readCredOffer("vc-offer-simple-example")
+
+        val vc = client.post<String>("$CORE_API_URL/v1/vc/create") {
+            contentType(ContentType.Application.Json)
+            body = CreateVcRequest(didIssuer, didHolder, credOffer)
+        }
+        println("Credential received: ${vc}")
+        val vcDecoded = Json.decodeFromString<VerifiableCredential>(vc)
+        println("Credential decoded: ${vcDecoded}")
+        val vcEncoded = vcDecoded.encodePretty()
+        println("Credential encoded: ${vcEncoded}")
+    }
 }

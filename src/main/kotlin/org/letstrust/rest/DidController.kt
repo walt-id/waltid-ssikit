@@ -66,7 +66,8 @@ object DidController {
         ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(String::class)], "DID document of the resolved DID"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
     fun resolve(ctx: Context) {
@@ -79,7 +80,8 @@ object DidController {
         tags = ["Decentralized Identifiers"],
         responses = [
             OpenApiResponse("200", [OpenApiContent(Array<String>::class)]),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
     fun list(ctx: Context) {

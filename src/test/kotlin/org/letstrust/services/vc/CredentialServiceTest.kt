@@ -10,22 +10,14 @@ import org.letstrust.model.VerifiableCredential
 import org.letstrust.model.VerifiablePresentation
 import org.letstrust.model.encodePretty
 import org.letstrust.services.did.DidService
-import java.io.File
+import org.letstrust.test.readCredOffer
 import java.sql.Timestamp
 import java.time.LocalDateTime
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
-import kotlin.test.assertFalse
 
 class CredentialServiceTest {
-
-    private val RESOURCES_PATH: String = "src/test/resources"
-
-    fun readCredOffer(fileName: String) =
-        File("$RESOURCES_PATH/verifiable-credentials/${fileName}.json").readText(Charsets.UTF_8)
-
-    fun readVerifiableCredential(fileName: String) =
-        File("$RESOURCES_PATH/verifiable-credentials/${fileName}.json").readText(Charsets.UTF_8)
 
     @Before
     fun setup() {

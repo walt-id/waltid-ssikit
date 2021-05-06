@@ -1,5 +1,6 @@
 package org.letstrust.rest
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import io.javalin.http.Context
 import io.javalin.plugin.openapi.annotations.OpenApi
 import io.javalin.plugin.openapi.annotations.OpenApiContent
@@ -12,15 +13,15 @@ import org.letstrust.services.vc.CredentialService
 data class CreateVcRequest(
     val issuerDid: String?,
     val subjectDid: String?,
-    val templateId: String?,
     val credentialOffer: String?,
-    val domain: String?,
-    val nonce: String?,
+    val templateId: String? = null,
+    val domain: String? = null,
+    val nonce: String? = null,
 )
 
 @Serializable
 data class PresentVcRequest(
-    val vcId: String,
+    val vc: String,
     val domain: String?,
     val challenge: String?
 )
@@ -39,17 +40,18 @@ object VcController {
         requestBody = OpenApiRequestBody(
             [OpenApiContent(CreateVcRequest::class)],
             true,
-            "Defines the credential issuer, holder and optionally a credential template"
+            "Defines the credential issuer, holder and optionally a credential template  -  TODO: build credential based on the request e.g. load template, substitute values"
         ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(String::class)], "The signed credential"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
     fun create(ctx: Context) {
         val createVcReq = ctx.bodyAsClass(CreateVcRequest::class.java)
         // TODO build credential based on the request e.g. load template, substitute values
-        ctx.json(CredentialService.sign(createVcReq.issuerDid!!, createVcReq.credentialOffer!!, createVcReq.domain!!, createVcReq.nonce!!))
+        ctx.result(CredentialService.sign(createVcReq.issuerDid!!, createVcReq.credentialOffer!!, createVcReq.domain, createVcReq.nonce))
     }
 
     @OpenApi(
@@ -62,14 +64,14 @@ object VcController {
             "Defines the VC to be presented"
         ),
         responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
+            OpenApiResponse("200", [OpenApiContent(String::class)], "The signed presentation"),
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
     fun present(ctx: Context) {
         val presentVcReq = ctx.bodyAsClass(PresentVcRequest::class.java)
-        CredentialService.present(presentVcReq.vcId, presentVcReq.domain, presentVcReq.challenge)
-        ctx.json("todo")
+        ctx.result(CredentialService.present(presentVcReq.vc, presentVcReq.domain, presentVcReq.challenge))
     }
 
     @OpenApi(
@@ -83,7 +85,8 @@ object VcController {
         ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
     fun verify(ctx: Context) {
@@ -96,7 +99,8 @@ object VcController {
         tags = ["Verifiable Credentials"],
         responses = [
             OpenApiResponse("200", [OpenApiContent(Array<String>::class)]),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
     fun list(ctx: Context) {
