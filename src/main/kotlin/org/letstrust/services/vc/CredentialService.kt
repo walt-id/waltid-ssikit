@@ -6,6 +6,7 @@ import foundation.identity.jsonld.ConfigurableDocumentLoader
 import foundation.identity.jsonld.JsonLDObject
 import info.weboftrust.ldsignatures.LdProof
 import info.weboftrust.ldsignatures.jsonld.LDSecurityContexts
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -178,6 +179,8 @@ object CredentialService {
         VERIFIABLE_CREDENTIAL,
         VERIFIABLE_PRESENTATION
     }
+
+    @Serializable
     data class VerificationResult(val verified: Boolean, val verificationType: VerificationType)
 
     fun verify(vcOrVp: String): VerificationResult {

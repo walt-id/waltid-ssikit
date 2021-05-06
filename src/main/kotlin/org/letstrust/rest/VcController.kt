@@ -84,13 +84,14 @@ object VcController {
             "VC to be verified"
         ),
         responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
+            OpenApiResponse("200", [OpenApiContent(CredentialService.VerificationResult::class)], "Verification result object"),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
             OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
     fun verify(ctx: Context) {
-        ctx.json("todo")
+        val verifyVcReq = ctx.bodyAsClass(VerifyVcRequest::class.java)
+        ctx.json(CredentialService.verify(verifyVcReq.vcOrVp))
     }
 
     @OpenApi(

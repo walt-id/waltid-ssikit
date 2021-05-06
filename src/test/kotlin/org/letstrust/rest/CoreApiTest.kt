@@ -170,7 +170,7 @@ class CoreApiTest {
     }
 
     @Test
-    fun testPresentVC() = runBlocking {
+    fun testPresentVerifyVC() = runBlocking {
         val credOffer = Json.decodeFromString<VerifiableCredential>(readCredOffer("vc-template-default"))
         val issuerDid = DidService.create(DidMethod.web)
         val subjectDid = DidService.create(DidMethod.key)
@@ -189,14 +189,18 @@ class CoreApiTest {
         val vc = Json.decodeFromString<VerifiableCredential>(vcStr)
         println("Credential generated: ${vc.encodePretty()}")
 
-//        val vpInputStr = File("vcreq.txt").readText()
-//        print(vpInputStr)
-
         val vp = client.post<String>("$CORE_API_URL/v1/vc/present") {
             contentType(ContentType.Application.Json)
             body = PresentVcRequest(vcStr, "domain.com", "nonce")
         }
         assertEquals(2, countMatches(vp, "proof"))
+
+        val result = client.post<CredentialService.VerificationResult>("$CORE_API_URL/v1/vc/verify") {
+            contentType(ContentType.Application.Json)
+            body = VerifyVcRequest(vp)
+        }
+        assertEquals(true, result.verified)
+        assertEquals(CredentialService.VerificationType.VERIFIABLE_PRESENTATION, result.verificationType)
     }
 
 }
