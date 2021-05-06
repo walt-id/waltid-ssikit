@@ -11,10 +11,12 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 import org.apache.commons.lang3.StringUtils.countMatches
 import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.junit.Test
+import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.KeyId
 import org.letstrust.model.DidMethod
 import org.letstrust.model.VerifiableCredential
@@ -93,10 +95,38 @@ class CoreApiTest {
     }
 
     @Test
-    fun testGenKey() = runBlocking {
-        val keyId = post<KeyId>("/v1/key/gen")
+    fun testGenKeyEd25519() = runBlocking {
+
+        val keyId = client.post<KeyId>("$CORE_API_URL/v1/key/gen") {
+            contentType(ContentType.Application.Json)
+            body = GenKeyRequest(KeyAlgorithm.EdDSA_Ed25519)
+        }
+
         assertTrue(keyId.id.length > 45)
     }
+
+    @Test
+    fun testGenKeySecp256k1() = runBlocking {
+        val keyId = client.post<KeyId>("$CORE_API_URL/v1/key/gen") {
+            contentType(ContentType.Application.Json)
+            body = GenKeyRequest(KeyAlgorithm.ECDSA_Secp256k1)
+        }
+
+        assertTrue(keyId.id.length > 45)
+    }
+
+    @Test
+    fun testGenKeyWrongParam() = runBlocking {
+        val errorResp = client.post<HttpResponse>("$CORE_API_URL/v1/key/gen") {
+            contentType(ContentType.Application.Json)
+            body = mapOf("keyAlgorithm" to "ECDSA_Secp256k1-asdf")
+        }
+        println(errorResp.readText())
+        val error = Json.decodeFromString<ErrorResponse>(errorResp.readText())
+        assertEquals(400, error.status)
+        assertEquals("Couldn't deserialize body to GenKeyRequest", error.title)
+    }
+
 
     @Test
     fun testListKey() = runBlocking {
@@ -106,7 +136,10 @@ class CoreApiTest {
 
     @Test
     fun testExportKey() = runBlocking {
-        val keyId = post<KeyId>("/v1/key/gen")
+        val keyId = client.post<KeyId>("$CORE_API_URL/v1/key/gen") {
+            contentType(ContentType.Application.Json)
+            body = GenKeyRequest(KeyAlgorithm.ECDSA_Secp256k1)
+        }
 
         val key = client.post<String>("$CORE_API_URL/v1/key/export") {
             contentType(ContentType.Application.Json)
@@ -142,7 +175,9 @@ class CoreApiTest {
             body = CreateDidRequest(DidMethod.ebsi)
         }
         assertEquals(400, errorResp.status.value)
-        assertEquals("{\"message\":\"DID method EBSI not supported\",\"status\":400}", errorResp.readText())
+        val error = Json.decodeFromString<ErrorResponse>(errorResp.readText())
+        assertEquals(400, error.status)
+        assertEquals("DID method EBSI not supported", error.title)
     }
 
     @Test

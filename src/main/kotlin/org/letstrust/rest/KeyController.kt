@@ -37,11 +37,13 @@ object KeyController {
         ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(KeyId::class)], "Key ID"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
     fun gen(ctx: Context) {
-        ctx.json(KeyManagementService.generate(KeyAlgorithm.EdDSA_Ed25519))
+        val genKeyReq = ctx.bodyAsClass(GenKeyRequest::class.java)
+        ctx.json(KeyManagementService.generate(genKeyReq.keyAlgorithm))
     }
 
     @OpenApi(
@@ -56,7 +58,8 @@ object KeyController {
         ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
     fun export(ctx: Context) {
@@ -69,7 +72,8 @@ object KeyController {
         tags = ["Key Management"],
         responses = [
             OpenApiResponse("200", [OpenApiContent(Array<String>::class)]),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
     fun list(ctx: Context) {
@@ -89,7 +93,8 @@ object KeyController {
         ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "invalid request")
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
     fun import(ctx: Context) {
