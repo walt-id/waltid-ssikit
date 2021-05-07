@@ -1,8 +1,8 @@
 
-cryptoProvider: SUN # allowed values: 'SUN'; 'TINK' will be supported in future
+cryptoProvider: SUN # allowed values: SUN, CUSTOM, TINK (will be supported in future)
 
 keystore:
-  type: database # allowed values: 'file', 'database', 'AzureKeyVault', or 'custom';  'tink' will be supported in future
+  type: DATABASE # allowed values: FILE, DATABASE, CUSTOM, TINK (supported in future), AZURE_KEY_VAULT (supported in future)
 
 essif:
   essifApiBaseUrl: "https://api.ebsi.xyz"

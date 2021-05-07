@@ -26,10 +26,10 @@ import java.nio.file.Path
 import java.security.Security
 import java.util.*
 
-enum class CryptoProvider { SUN, TINK }
+enum class CryptoProvider { SUN, TINK, CUSTOM }
 inline class Port(val value: Int)
 inline class Host(val value: String)
-enum class KeystoreType { file, database, tink, custom }
+enum class KeystoreType { FILE, DATABASE, TINK, AZURE_KEY_VAULT, CUSTOM }
 data class Keystore(val type: KeystoreType)
 data class Server(val host: Host, val port: Port)
 
@@ -112,16 +112,28 @@ object LetsTrustServices {
     }
 
     fun loadKeyStore(conf: LetsTrustConfig) = when (conf.keystore.type) {
-        KeystoreType.custom -> loadCustomKeyStore()
-        KeystoreType.tink -> TinkKeyStore
-        KeystoreType.file -> FileSystemKeyStore
-        KeystoreType.database -> SqlKeyStore
+        KeystoreType.CUSTOM -> loadCustomKeyStore()
+        KeystoreType.TINK -> TinkKeyStore
+        KeystoreType.FILE -> FileSystemKeyStore
+        KeystoreType.DATABASE -> SqlKeyStore
         else -> throw Exception("No Keystore implementation defined.")
     }
 
     fun loadCrypto(conf: LetsTrustConfig) = when (conf.cryptoProvider) {
         CryptoProvider.TINK -> TinkCryptoService
+        CryptoProvider.CUSTOM -> loadCustomCryptoService()
         else -> SunCryptoService
+    }
+
+    private fun loadCustomCryptoService(): CryptoService {
+        println("Loading Custom CryptService")
+        val loader = ServiceLoader.load(CryptoService::class.java)
+        if (loader.iterator().hasNext()) {
+            val customCryptoService = loader.iterator().next()
+            println("Loaded custom CryptoService: $customCryptoService")
+            return customCryptoService
+        }
+        throw Exception("No custom crypto-service configured")
     }
 
     private fun loadCustomKeyStore(): KeyStore {
