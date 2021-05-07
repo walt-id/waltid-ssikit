@@ -73,6 +73,7 @@ object DidService {
 
         // Create doc
         val ebsiDidBody = ed25519Did(toDidUrl(didUrlStr), edPublicKey) //TODO: change to (once context is available): ebsiDid(toDidUrl(didUrlStr), edPublicKey)
+
         val ebsiDidBodyStr = Json.encodeToString(ebsiDidBody)
 
         // Create proof
@@ -135,8 +136,19 @@ object DidService {
     private fun ebsiDid(didUrl: DidUrl, pubKey: ByteArray): DidEbsi {
         val (dhKeyId, verificationMethods, keyRef) = generateEdParams(pubKey, didUrl)
 
+        // TODO Replace EIDAS dummy certificate with real one
+//        {
+//            "id": "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d474c#key-3",
+//            "type": "EidasVerificationKey2021",
+//            "controller": "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d472afcff8",
+//            "publicKeyPem": "-----BEGIN.."
+//        }
+
+        val eidasKeyId = didUrl.identifier + "#" + UUID.randomUUID().toString().replace("-", "")
+        verificationMethods.add(VerificationMethod(eidasKeyId, "EidasVerificationKey2021", "publicKeyPem", "-----BEGIN.."))
+
         return DidEbsi(
-            listOf("https://w3.org/ns/did/v1", "https://ebsi.org/ns/did/v1"),
+            listOf("https://w3.org/ns/did/v1"), // TODO Context not working "https://ebsi.org/ns/did/v1"
             didUrl.did,
             verificationMethods,
             keyRef,
@@ -167,7 +179,7 @@ object DidService {
     private fun generateEdParams(
         pubKey: ByteArray,
         didUrl: DidUrl
-    ): Triple<String, List<VerificationMethod>, List<String>> {
+    ): Triple<String, MutableList<VerificationMethod>, List<String>> {
         val dhKey = convertPublicKeyEd25519ToCurve25519(pubKey)
 
         val dhKeyMb = convertX25519PublicKeyToMultiBase58Btc(dhKey)
@@ -175,7 +187,7 @@ object DidService {
         val pubKeyId = didUrl.identifier + "#" + didUrl.identifier
         val dhKeyId = didUrl.identifier + "#" + dhKeyMb
 
-        val verificationMethods = listOf(
+        val verificationMethods = mutableListOf(
             VerificationMethod(pubKeyId, "Ed25519VerificationKey2018", didUrl.did, pubKey.encodeBase58()),
             VerificationMethod(dhKeyId, "X25519KeyAgreementKey2019", didUrl.did, dhKey.encodeBase58())
         )
