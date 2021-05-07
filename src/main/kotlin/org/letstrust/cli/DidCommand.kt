@@ -58,16 +58,20 @@ class CreateDidCommand : CliktCommand(
         echo("\nResults:\n")
         echo("DID created: $did")
 
-        val didDoc = didService.resolve(did)
-
-        val didDocEnc = didDoc.encodePretty()
-        echo("DID document (below, JSON):\n\n$didDocEnc")
+        val encodedDid = resolveDidHelper(did)
+        echo("DID document (below, JSON):\n\n$encodedDid")
 
         dest?.let {
             echo("\nSaving DID to file: ${it.absolutePath}")
-            it.writeText(didDocEnc)
+            it.writeText(encodedDid)
         }
     }
+}
+
+fun resolveDidHelper(did: String) = when {
+    did.contains("mattr") -> DidService.resolveDidWeb(toDidUrl(did)).encodePretty()
+    did.contains("ebsi") -> DidService.resolveDidEbsi(did).encodePretty()
+    else -> DidService.resolve(did).encodePretty()
 }
 
 class ResolveDidCommand : CliktCommand(
@@ -82,10 +86,7 @@ class ResolveDidCommand : CliktCommand(
     override fun run() {
         echo("Resolving DID \"$did\"...")
 
-        val encodedDid = when (did.contains("mattr")) {
-            true -> DidService.resolveDidWeb(toDidUrl(did)).encodePretty()
-            else -> DidService.resolve(did).encodePretty()
-        }
+        val encodedDid = resolveDidHelper(did)
 
         echo("\nResult:\n")
 

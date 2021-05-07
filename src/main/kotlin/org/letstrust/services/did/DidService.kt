@@ -53,6 +53,11 @@ object DidService {
         }
     }
 
+    fun resolveDidEbsi(did: String): DidEbsi = resolveDidEbsi(toDidUrl(did))
+    fun resolveDidEbsi(didUrl: DidUrl): DidEbsi {
+        log.warn { "DID EBSI is not resolved correctly yet. It is read from directory." }
+        return Json.decodeFromString<DidEbsi>(loadDid(didUrl.did))
+    }
     // Private methods
 
     private fun createDidEbsi(keyAlias: String?): String {
@@ -72,7 +77,7 @@ object DidService {
         keyStore.addAlias(keyId, didUrlStr)
 
         // Create doc
-        val ebsiDidBody = ed25519Did(toDidUrl(didUrlStr), edPublicKey) //TODO: change to (once context is available): ebsiDid(toDidUrl(didUrlStr), edPublicKey)
+        val ebsiDidBody = ebsiDid(toDidUrl(didUrlStr), edPublicKey)
 
         val ebsiDidBodyStr = Json.encodeToString(ebsiDidBody)
 
@@ -228,6 +233,9 @@ object DidService {
 
     private fun storeDid(didUrlStr: String, didDoc: String) =
         File(LetsTrustServices.dataDir + "/did/created/${didUrlStr.replace(":", "-")}.json").writeText(didDoc)
+
+    private fun loadDid(didUrlStr: String) =
+        File(LetsTrustServices.dataDir + "/did/created/${didUrlStr.replace(":", "-")}.json").readText(Charsets.UTF_8)
 
 
     // TODO: consider the methods below. They might be deprecated!
