@@ -24,8 +24,8 @@ EnterpriseWalletService.requestVerifiableCredential("")
 EnterpriseWalletService.getVerifiableCredential("", "")
  **/
 
-@Serializable
-data class GetVcRequest(val did: String, val didOwnershipReq: String)
+//@Serializable
+//data class GetVcRequest(val did: String, val didOwnershipReq: String)
 
 object EnterpriseWalletController {
 
@@ -53,7 +53,8 @@ object EnterpriseWalletController {
         operationId = "getVerifiableCredential",
         tags = ["ESSIF Enterprise Wallet"],
         requestBody = OpenApiRequestBody(
-            [OpenApiContent(GetVcRequest::class)],
+            [OpenApiContent(String::class)],
+            //[OpenApiContent(GetVcRequest::class)],
             true,
             "DID ownership request"
         ),
@@ -64,8 +65,9 @@ object EnterpriseWalletController {
         ]
     )
     fun getVerifiableCredential(ctx: Context) {
-        val getVcReq = ctx.bodyAsClass(GetVcRequest::class.java)
-        ctx.json(EnterpriseWalletService.getVerifiableCredential(getVcReq.didOwnershipReq, getVcReq.did))
+        //TODO: implement
+        val getVcReq = ""//ctx.bodyAsClass(GetVcRequest::class.java)
+        ctx.json(EnterpriseWalletService.getVerifiableCredential("getVcReq.didOwnershipReq", "getVcReq.did"))
     }
 
 //    @OpenApi(

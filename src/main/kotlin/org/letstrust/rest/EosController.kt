@@ -26,7 +26,7 @@ object EosController {
     @OpenApi(
         summary = "Request Verifiable Authorization. Returns the DID ownership request.",
         operationId = "onboards",
-        tags = ["ESSIF Onboarding Service"],
+        tags = ["ESSIF Enterprise Wallet"],
         requestBody = OpenApiRequestBody(
             [OpenApiContent(String::class)],
             true,
@@ -45,7 +45,7 @@ object EosController {
     @OpenApi(
         summary = "Processes the signed challenge in the scope of DID Auth and if successful, returns the Verifiable Authorization",
         operationId = "signedChallenge",
-        tags = ["ESSIF Trusted Issuer"],
+        tags = ["ESSIF Enterprise Wallet"],
         requestBody = OpenApiRequestBody(
             [OpenApiContent(String::class)],
             true,
@@ -64,7 +64,7 @@ object EosController {
     @OpenApi(
         summary = "Creates an OIDC authentication request URI",
         operationId = "requestCredentialUri",
-        tags = ["ESSIF Trusted Issuer"],
+        tags = ["ESSIF Enterprise Wallet"],
         responses = [
             OpenApiResponse("200", [OpenApiContent(String::class)], "OIDC Authentication Request URI"),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
@@ -78,7 +78,7 @@ object EosController {
     @OpenApi(
         summary = "Returns the DID ownership request",
         operationId = "requestVerifiableCredential",
-        tags = ["ESSIF Trusted Issuer"],
+        tags = ["ESSIF Enterprise Wallet"],
         requestBody = OpenApiRequestBody(
             [OpenApiContent(String::class)],
             true,
@@ -97,7 +97,7 @@ object EosController {
 //    @OpenApi(
 //        summary = "todo",
 //        operationId = "didOwnershipResponse",
-//        tags = ["ESSIF Trusted Issuer"],
+//        tags = ["ESSIF Enterprise Wallet"],
 //        requestBody = OpenApiRequestBody(
 //            [OpenApiContent(String::class)],
 //            true,
@@ -115,7 +115,7 @@ object EosController {
     @OpenApi(
         summary = "Returns DID Auth Request or the requested credential if a VC Token is presented",
         operationId = "getCredential",
-        tags = ["ESSIF Trusted Issuer"],
+        tags = ["ESSIF Enterprise Wallet"],
         requestBody = OpenApiRequestBody(
             [OpenApiContent(String::class)],
             false,

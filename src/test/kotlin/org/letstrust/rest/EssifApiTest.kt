@@ -64,7 +64,7 @@ class EssifApiTest {
 
         val verifiableId = client.post<String>("$ESSIF_API_URL/v1/essif/enterprise/wallet/getVerifiableCredential") {
             contentType(ContentType.Application.Json)
-            body = GetVcRequest("did:ebsi:234567", "did-ownership-req")
+           // body = GetVcRequest("did:ebsi:234567", "did-ownership-req")
         }
         println(verifiableId)
     }

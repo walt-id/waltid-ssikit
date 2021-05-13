@@ -109,11 +109,11 @@ object RestAPI {
 
         }.exception(IllegalArgumentException::class.java) { e, ctx ->
             log.error(e.stackTraceToString())
-            ctx.json(ErrorResponse(e.message?:" Unknown application error", 400))
+            ctx.json(ErrorResponse(e.message ?: " Unknown application error", 400))
             ctx.status(400)
         }.exception(Exception::class.java) { e, ctx ->
             log.error(e.stackTraceToString())
-            ctx.json(ErrorResponse(e.message?:" Unknown server error", 500))
+            ctx.json(ErrorResponse(e.message ?: " Unknown server error", 500))
             ctx.status(500)
         }.start(port)
     }
@@ -130,7 +130,7 @@ object RestAPI {
                 registerPlugin(OpenApiPlugin(OpenApiOptions(InitialConfigurationCreator {
                     OpenAPI().apply {
                         info {
-                            title = "Let's Trust ESSIF API"
+                            title = "Let's Trust ESSIF Connector"
                             description = "The Let's Trust public API documentation"
                             contact = Contact().apply {
                                 name = "SSI Fabric GmbH"
@@ -178,51 +178,50 @@ object RestAPI {
             get("", RootController::rootEssifApi)
             get("health", RootController::health)
             path("v1") {
-                path("essif") {
-                    path("ti") {
-                        path("credentials") {
-                            post("", EosController::getCredential)
-                            get(":credentialId", EosController::getCredential)
-                        }
-                        get("requestCredentialUri", EosController::requestCredentialUri)
-                        post("requestVerifiableCredential", EosController::requestVerifiableCredential)
+                path("user") {
+                    path("wallet") {
+                        post("createDid", UserWalletController::createDid)
+                        post("requestAccessToken", UserWalletController::requestAccessToken)
+                        post("validateDidAuthRequest", UserWalletController::validateDidAuthRequest)
+                        post("didAuthResponse", UserWalletController::didAuthResponse)
+                        post("vcAuthResponse", UserWalletController::vcAuthResponse)
+                        post("oidcAuthResponse", UserWalletController::oidcAuthResponse)
                     }
-                    path("eos") {
-                        post("onboard", EosController::onboards)
-                        post("signedChallenge", EosController::signedChallenge)
+                }
+                path("ti") {
+                    path("credentials") {
+                        post("", EosController::getCredential)
+                        get(":credentialId", EosController::getCredential)
                     }
-                    path("user") {
-                        path("wallet") {
-                            post("createDid", UserWalletController::createDid)
-                            post("requestAccessToken", UserWalletController::requestAccessToken)
-                            post("validateDidAuthRequest", UserWalletController::validateDidAuthRequest)
-                            post("didAuthResponse", UserWalletController::didAuthResponse)
-                            post("vcAuthResponse", UserWalletController::vcAuthResponse)
-                            post("oidcAuthResponse", UserWalletController::oidcAuthResponse)
-                        }
+                    get("requestCredentialUri", EosController::requestCredentialUri)
+                    post("requestVerifiableCredential", EosController::requestVerifiableCredential)
+                }
+                path("eos") {
+                    post("onboard", EosController::onboards)
+                    post("signedChallenge", EosController::signedChallenge)
+                }
+                path("enterprise") {
+                    path("wallet") {
+                        post("createDid", EnterpriseWalletController::createDid)
+                        post("requestVerifiableAuthorization", EnterpriseWalletController::requestVerifiableAuthorization)
+                        post("requestVerifiableCredential", EnterpriseWalletController::requestVerifiableCredential)
+                        post("generateDidAuthRequest", EnterpriseWalletController::generateDidAuthRequest)
+                        // post("onboardTrustedIssuer", EnterpriseWalletController::onboardTrustedIssuer) not supported yet
+                        post("validateDidAuthResponse", EnterpriseWalletController::validateDidAuthResponse)
+                        post("getVerifiableCredential", EnterpriseWalletController::getVerifiableCredential)
+                        post("token", EnterpriseWalletController::token)
                     }
-                    path("enterprise") {
-                        path("wallet") {
-                            post("createDid", EnterpriseWalletController::createDid)
-                            post("requestVerifiableAuthorization", EnterpriseWalletController::requestVerifiableAuthorization)
-                            post("requestVerifiableCredential", EnterpriseWalletController::requestVerifiableCredential)
-                            post("generateDidAuthRequest", EnterpriseWalletController::generateDidAuthRequest)
-                            // post("onboardTrustedIssuer", EnterpriseWalletController::onboardTrustedIssuer) not supported yet
-                            post("validateDidAuthResponse", EnterpriseWalletController::validateDidAuthResponse)
-                            post("getVerifiableCredential", EnterpriseWalletController::getVerifiableCredential)
-                            post("token", EnterpriseWalletController::token)
-                        }
-                    }
+
                 }
             }
 
         }.exception(IllegalArgumentException::class.java) { e, ctx ->
             log.error(e.stackTraceToString())
-            ctx.json(ErrorResponse(e.message?:" Illegal argument exception", 400))
+            ctx.json(ErrorResponse(e.message ?: " Illegal argument exception", 400))
             ctx.status(400)
         }.exception(Exception::class.java) { e, ctx ->
             log.error(e.stackTraceToString())
-            ctx.json(ErrorResponse(e.message?:" Unknown application error", 500))
+            ctx.json(ErrorResponse(e.message ?: " Unknown application error", 500))
             ctx.status(500)
         }.start(port)
     }

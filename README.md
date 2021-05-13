@@ -197,9 +197,10 @@ In order to overwrite these values, simply place a yaml-based config-file named 
 **pull**
 
     export CR_PAT=<token-read-packages>
+    echo $CR_PAT | docker login ghcr.io -u <username> --password-stdin
     docker pull ghcr.io/letstrustid/letstrust:0.1
     docker tag ghcr.io/letstrustid/letstrust:0.1 letstrust
-    docker run letstrust
+    docker run -itv $(pwd)/data:/opt/data -p 7000-7001:7000-7001 letstrust serve
     
     
     podman pull ghcr.io/letstrustid/letstrust:0.1
