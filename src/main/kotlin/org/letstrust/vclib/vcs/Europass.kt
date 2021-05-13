@@ -8,10 +8,10 @@ import org.letstrust.vclib.VCMetadata
 data class Europass(
     @SerialName("@context")
     override val context: List<String>,
-    val id: String?, // did:ebsi-eth:00000001/credentials/1872
+    var id: String?, // did:ebsi-eth:00000001/credentials/1872
     override val type: List<String>,
-    val issuer: String?, // did:ebsi:00000001
-    val issuanceDate: String?, // 2019-06-22T14:11:44Z
+    var issuer: String?, // did:ebsi:00000001
+    var issuanceDate: String?, // 2019-06-22T14:11:44Z
     val credentialSubject: CredentialSubject?,
     val learningAchievement: LearningAchievement?,
     val learningSpecificationReferences: LearningSpecificationReferences?,
@@ -20,18 +20,18 @@ data class Europass(
     val credentialStatus: CredentialStatus?,
     val credentialSchema: CredentialSchema?,
     val evidence: Evidence?,
-    val proof: Proof?
+    val proof: Proof? = null
 ) : VC {
 
     companion object : VCMetadata {
         override val metadataContext = "https://essif.europa.eu/schemas/vc/2020/v1"
-        override val metadataType = "VerifiableAttestation"
+        override val metadataType = "Europass"
     }
 
     @Serializable
     data class CredentialSubject(
         @SerialName("@id")
-        val id: String?, // did:essif:123121
+        var id: String?, // did:essif:123121
         val currentFamilyName: String?, // Skywalker
         val currentGivenName: String?, // Lea
         val dateOfBirth: String?, // 2021-02-15

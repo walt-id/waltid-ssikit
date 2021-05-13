@@ -17,7 +17,11 @@ import org.letstrust.model.VerifiablePresentation
 import org.letstrust.model.encodePretty
 import org.letstrust.services.vc.CredentialService
 import org.letstrust.services.vc.CredentialService.VerificationType
+import org.letstrust.vclib.VcLibManager
+import org.letstrust.vclib.vcs.Europass
+import org.letstrust.vclib.vcs.PermanentResidentCard
 import java.io.File
+import java.lang.IllegalArgumentException
 import java.sql.Timestamp
 import java.time.LocalDateTime
 
@@ -53,12 +57,12 @@ class IssueVcCommand : CliktCommand(
         "--template",
         help = "VC template [data/vc/templates/vc-template-default.json]"
     ).file().default(File("data/vc/templates/vc-template-default.json"))
-    val issuerDid: String? by option(
+    val issuerDid: String by option(
         "-i",
         "--issuer-did",
         help = "DID of the issuer (associated with signing key)"
     ).required()
-    val subjectDid: String? by option("-s", "--subject-did", help = "DID of the VC subject (receiver of VC)").required()
+    val subjectDid: String by option("-s", "--subject-did", help = "DID of the VC subject (receiver of VC)").required()
 
     override fun run() {
         echo("Issuing and saving verifiable credential (using template ${template.absolutePath})...")
@@ -74,26 +78,39 @@ class IssueVcCommand : CliktCommand(
             template.writeText(CredentialService.defaultVcTemplate().encodePretty())
         }
 
-        val vcReq = Json.decodeFromString<VerifiableCredential>(template.readText())
-
         // Populating VC with data
         val vcId = Timestamp.valueOf(LocalDateTime.now()).time
-        vcReq.id = vcId.toString()
-        issuerDid?.let { vcReq.issuer = it }
-        subjectDid?.let { vcReq.credentialSubject.id = it }
 
-        // TODO: we could create a did:key for issuing a self-signed VC at this point
-
-        vcReq.issuanceDate = LocalDateTime.now()
-
-        val vcReqEnc = Json { prettyPrint = true }.encodeToString(vcReq)
+        val vcReqEnc = try {
+            val vcReq = VcLibManager.getVerifiableCredential(template.readText())
+            when (vcReq) {
+                is Europass -> {
+                    val vcEuropass: Europass = vcReq
+                    vcEuropass.id = vcId.toString()
+                    vcEuropass.issuer = issuerDid
+                    vcEuropass.credentialSubject?.id = subjectDid
+                    vcEuropass.issuanceDate = LocalDateTime.now().toString()
+                    Json { prettyPrint = true }.encodeToString(vcEuropass)
+                }
+                is PermanentResidentCard -> "todo"
+                else -> throw IllegalArgumentException()
+            }
+        } catch (e: IllegalArgumentException) {
+            // TODO: get rid of legacy code
+            val vcReq = Json.decodeFromString<VerifiableCredential>(template.readText())
+            vcReq.id = vcId.toString()
+            vcReq.issuer = issuerDid
+            vcReq.credentialSubject.id = subjectDid
+            vcReq.issuanceDate = LocalDateTime.now()
+            Json { prettyPrint = true }.encodeToString(vcReq)
+        }
 
         log.debug { "Credential request:\n$vcReqEnc" }
 
         echo("\nResults:\n")
 
         // Signing VC
-        val vcStr = CredentialService.sign(vcReq.issuer, vcReqEnc)
+        val vcStr = CredentialService.sign(issuerDid, vcReqEnc)
 
 
         echo("Generated Credential:\n\n$vcStr")

@@ -53,13 +53,13 @@ object VcLibManager {
         val searchedContexts = contexts.minus(defaultContexts)
         val searchedTypes = types.minus(defaultTypes)
 
-        if (searchedContexts.isEmpty() || searchedTypes.isEmpty())
+        if (searchedContexts.isEmpty() && searchedTypes.isEmpty())
             throw IllegalArgumentException("Too broadly specified credential")
 
         vcTypes.forEach {
             val metadata = it.companionObjectInstance as VCMetadata
 
-            if (metadata.metadataContext in searchedContexts && metadata.metadataType in searchedTypes) {
+            if (metadata.metadataContext in searchedContexts || metadata.metadataType in searchedTypes) {
                 return it
             }
         }
