@@ -9,6 +9,15 @@ import io.swagger.v3.oas.annotations.Hidden
 object RootController {
 
     @Hidden
+    @OpenApi(
+        summary = "HTML page with links to the API doc",
+        operationId = "rootCoreApi",
+        responses = [
+            OpenApiResponse("200"),
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
+        ]
+    )
     fun rootCoreApi(ctx: Context) {
         ctx.html(
             " <!DOCTYPE html>\n" +
@@ -24,7 +33,17 @@ object RootController {
                     "</html> "
         )
     }
+
     @Hidden
+    @OpenApi(
+        summary = "HTML page with links to the API doc",
+        operationId = "rootCoreApi",
+        responses = [
+            OpenApiResponse("200"),
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
+        ]
+    )
     fun rootEssifApi(ctx: Context) {
         ctx.html(
             " <!DOCTYPE html>\n" +
