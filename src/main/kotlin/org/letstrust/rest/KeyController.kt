@@ -47,7 +47,47 @@ object KeyController {
     }
 
     @OpenApi(
-        summary = "Exports key",
+        summary = "Load public key",
+        operationId = "loadKey",
+        tags = ["Key Management"],
+        //pathParams = [OpenApiParam("keyId", String::class, "The key ID")],
+        requestBody = OpenApiRequestBody(
+            [OpenApiContent(String::class)],
+            true,
+            "ID of key to be loaded"
+        ),
+        responses = [
+            OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
+        ]
+    )
+    fun load(ctx: Context) {
+        ctx.json(KeyManagementService.export(ctx.bodyAsClass(ExportKeyRequest::class.java).keyAlias))
+    }
+
+    @OpenApi(
+        summary = "Delete key",
+        operationId = "deleteKey",
+        tags = ["Key Management"],
+        //pathParams = [OpenApiParam("keyId", String::class, "The key ID")],
+        requestBody = OpenApiRequestBody(
+            [OpenApiContent(String::class)],
+            true,
+            "ID of key to be deleted"
+        ),
+        responses = [
+            OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
+        ]
+    )
+    fun delete(ctx: Context) {
+        ctx.json("todo")
+    }
+
+    @OpenApi(
+        summary = "Exports public and private key part (if supported by underlying keystore)",
         operationId = "exportKey",
         tags = ["Key Management"],
         //pathParams = [OpenApiParam("keyId", String::class, "The key ID")],

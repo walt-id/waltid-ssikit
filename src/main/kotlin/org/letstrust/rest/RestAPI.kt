@@ -30,7 +30,7 @@ object RestAPI {
     var essifApi: Javalin? = null
 
     fun startCoreApi(port: Int = CORE_API_PORT) {
-        log.info("Starting Let's Trust Core API ...\n")
+        log.info("Starting LetTrust Wallet API ...\n")
 
         coreApi = Javalin.create {
 
@@ -40,22 +40,22 @@ object RestAPI {
                 registerPlugin(OpenApiPlugin(OpenApiOptions(InitialConfigurationCreator {
                     OpenAPI().apply {
                         info {
-                            title = "Let's Trust Core API"
-                            description = "The Let's Trust public API documentation"
+                            title = "LetsTrust Wallet API"
+                            description = "The LetsTrust public API documentation"
                             contact = Contact().apply {
                                 name = "SSI Fabric GmbH"
-                                url = "https://letstrust.id"
-                                email = "office@letstrust.id"
+                                url = "https://letstrust.org"
+                                email = "office@letstrust.org"
                             }
                             version = Values.version
                         }
                         servers = listOf(
                             Server().description("Local testing server").url("http://localhost:$port"),
-                            Server().description("Let's Trust").url("https://core-api.letstrust.io")
+                            Server().description("LetsTrust").url("https://wallet-api.letstrust.org")
                         )
                         externalDocs {
-                            description = "Let's Trust Docs"
-                            url = "https://docs.letstrust.io/api"
+                            description = "LetsTrust Docs"
+                            url = "https://docs.letstrust.org/api"
                         }
 
                         components {
@@ -71,8 +71,8 @@ object RestAPI {
                     }
                 }).apply {
                     path("/v1/api-documentation")
-                    swagger(SwaggerOptions("/v1/swagger").title("Let's Trust API"))
-                    reDoc(ReDocOptions("/v1/redoc").title("Let's Trust API"))
+                    swagger(SwaggerOptions("/v1/swagger").title("LetsTrust API"))
+                    reDoc(ReDocOptions("/v1/redoc").title("LetsTrust API"))
 //                defaultDocumentation { doc ->
 //                    doc.json("5XX", ErrorResponse::class.java)
 //                }
@@ -89,21 +89,29 @@ object RestAPI {
             get("health", RootController::health)
             path("v1") {
                 path("key") {
+                    get("", KeyController::list)
+                    get(":id", KeyController::load)
+                    delete(":id", KeyController::delete)
                     post("gen", KeyController::gen)
-                    get("list", KeyController::list)
                     post("import", KeyController::import)
                     post("export", KeyController::export)
                 }
                 path("did") {
+                    get("", DidController::list)
+                    get(":id", DidController::load)
+                    delete(":id", DidController::delete)
                     post("create", DidController::create)
                     post("resolve", DidController::resolve)
-                    get("list", DidController::list)
+                    post("import", DidController::import)
                 }
                 path("vc") {
+                    get("", VcController::list)
+                    get(":id", VcController::load)
+                    delete(":id", VcController::delete)
                     post("create", VcController::create)
                     post("present", VcController::present)
                     post("verify", VcController::verify)
-                    get("list", VcController::list)
+                    post("import", VcController::import)
                 }
             }
 
@@ -120,7 +128,7 @@ object RestAPI {
 
     fun startEssifApi(port: Int = ESSIF_API_PORT) {
 
-        log.info("Starting Let's Trust Essif API ...\n")
+        log.info("Starting LetsTrust Essif API ...\n")
 
         essifApi = Javalin.create {
 
@@ -130,22 +138,22 @@ object RestAPI {
                 registerPlugin(OpenApiPlugin(OpenApiOptions(InitialConfigurationCreator {
                     OpenAPI().apply {
                         info {
-                            title = "Let's Trust ESSIF Connector"
-                            description = "The Let's Trust public API documentation"
+                            title = "LetsTrust ESSIF Connector"
+                            description = "The LetsTrust public API documentation"
                             contact = Contact().apply {
                                 name = "SSI Fabric GmbH"
-                                url = "https://letstrust.id"
-                                email = "office@letstrust.id"
+                                url = "https://letstrust.org"
+                                email = "office@letstrust.org"
                             }
                             version = Values.version
                         }
                         servers = listOf(
                             Server().description("Local testing server").url("http://localhost:$port"),
-                            Server().description("Let's Trust").url("https://essif-api.letstrust.io")
+                            Server().description("LetsTrust").url("https://essif-connector-api.letstrust.org")
                         )
                         externalDocs {
-                            description = "Let's Trust Docs"
-                            url = "https://docs.letstrust.io/api"
+                            description = "LetsTrust Docs"
+                            url = "https://docs.letstrust.org/api"
                         }
 
                         components {
@@ -161,8 +169,8 @@ object RestAPI {
                     }
                 }).apply {
                     path("/v1/api-documentation")
-                    swagger(SwaggerOptions("/v1/swagger").title("Let's Trust API"))
-                    reDoc(ReDocOptions("/v1/redoc").title("Let's Trust API"))
+                    swagger(SwaggerOptions("/v1/swagger").title("LetsTrust API"))
+                    reDoc(ReDocOptions("/v1/redoc").title("LetsTrust API"))
 //                defaultDocumentation { doc ->
 //                    doc.json("5XX", ErrorResponse::class.java)
 //                }

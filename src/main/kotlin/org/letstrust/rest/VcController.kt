@@ -33,7 +33,46 @@ data class VerifyVcRequest(
 object VcController {
 
     @OpenApi(
-        summary = "Create VC based",
+        summary = "Load VC",
+        operationId = "loadVc",
+        tags = ["Verifiable Credentials"],
+        requestBody = OpenApiRequestBody(
+            [OpenApiContent(String::class)],
+            true,
+            "ID of the DID to be loaded"
+        ),
+        responses = [
+            OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
+        ]
+    )
+    fun load(ctx: Context) {
+        ctx.json("todo")
+    }
+
+    @OpenApi(
+        summary = "Delete VC",
+        operationId = "deleteVc",
+        tags = ["Verifiable Credentials"],
+        //pathParams = [OpenApiParam("keyId", String::class, "The key ID")],
+        requestBody = OpenApiRequestBody(
+            [OpenApiContent(String::class)],
+            true,
+            "ID of VC to be deleted"
+        ),
+        responses = [
+            OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
+        ]
+    )
+    fun delete(ctx: Context) {
+        ctx.json("todo")
+    }
+
+    @OpenApi(
+        summary = "Create VC",
         operationId = "createVc",
         tags = ["Verifiable Credentials"],
         requestBody = OpenApiRequestBody(
@@ -106,6 +145,25 @@ object VcController {
     )
     fun list(ctx: Context) {
         ctx.json(CredentialService.listVCs())
+    }
+
+    @OpenApi(
+        summary = "Import VC",
+        operationId = "importVc",
+        tags = ["Verifiable Credentials"],
+        requestBody = OpenApiRequestBody(
+            [OpenApiContent(String::class)],
+            true,
+            "Imports the DID to the underlying data store"
+        ),
+        responses = [
+            OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
+        ]
+    )
+    fun import(ctx: Context) {
+        ctx.json("todo")
     }
 
 }

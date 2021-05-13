@@ -9,7 +9,6 @@ import kotlinx.serialization.Serializable
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.model.DidMethod
 import org.letstrust.services.did.DidService
-import java.lang.IllegalArgumentException
 
 @Serializable
 data class CreateDidRequest(
@@ -29,6 +28,60 @@ data class ListDidRequest(
 )
 
 object DidController {
+
+
+    @OpenApi(
+        summary = "List DIDs",
+        operationId = "listDids",
+        tags = ["Decentralized Identifiers"],
+        responses = [
+            OpenApiResponse("200", [OpenApiContent(Array<String>::class)]),
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
+        ]
+    )
+    fun list(ctx: Context) {
+        ctx.json(DidService.listDids())
+    }
+
+    @OpenApi(
+        summary = "Load DID",
+        operationId = "loadDid",
+        tags = ["Decentralized Identifiers"],
+        requestBody = OpenApiRequestBody(
+            [OpenApiContent(String::class)],
+            true,
+            "ID of the DID to be loaded"
+        ),
+        responses = [
+            OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
+        ]
+    )
+    fun load(ctx: Context) {
+        ctx.json("todo")
+    }
+
+    @OpenApi(
+        summary = "Delete DID",
+        operationId = "deleteDid",
+        tags = ["Decentralized Identifiers"],
+        //pathParams = [OpenApiParam("keyId", String::class, "The key ID")],
+        requestBody = OpenApiRequestBody(
+            [OpenApiContent(String::class)],
+            true,
+            "ID of DID to be deleted"
+        ),
+        responses = [
+            OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
+        ]
+    )
+    fun delete(ctx: Context) {
+        ctx.json("todo")
+    }
 
     @OpenApi(
         summary = "Create DID",
@@ -74,18 +127,25 @@ object DidController {
         ctx.json(DidService.resolve(ctx.bodyAsClass(ResolveDidRequest::class.java).did))
     }
 
+
     @OpenApi(
-        summary = "List DIDs",
-        operationId = "listDids",
+        summary = "Import DID",
+        operationId = "importDid",
         tags = ["Decentralized Identifiers"],
+        requestBody = OpenApiRequestBody(
+            [OpenApiContent(String::class)],
+            true,
+            "Imports the DID to the underlying data store"
+        ),
         responses = [
-            OpenApiResponse("200", [OpenApiContent(Array<String>::class)]),
+            OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
             OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
-    fun list(ctx: Context) {
-        ctx.json(DidService.listDids())
+    fun import(ctx: Context) {
+        ctx.json("todo")
     }
+
 
 }
