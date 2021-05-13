@@ -24,8 +24,8 @@ data class Europass(
 ) : VC {
 
     companion object : VCMetadata {
-        override val metadataContext = "todo"
-        override val metadataType = "todo"
+        override val metadataContext = "https://essif.europa.eu/schemas/vc/2020/v1"
+        override val metadataType = "VerifiableAttestation"
     }
 
     @Serializable

@@ -39,11 +39,12 @@ fun main() {
 */
 
 fun main() {
-    val residentCard = File("src/test/resources/verifiable-credentials/PermanentResidentCard.json").readText()
-    println(residentCard)
+    //val json = File("src/test/resources/verifiable-credentials/PermanentResidentCard.json").readText()
+    val json = File("src/test/resources/verifiable-credentials/VerifiableAttestation-Europass.json").readText()
+    println(json)
 
     println("Getting VC:")
-    val vc = VcLibManager.getVerifiableCredential(residentCard)
+    val vc = VcLibManager.getVerifiableCredential(json)
 
     if (vc is Europass) {
         println("! VC should not be Europass?")
