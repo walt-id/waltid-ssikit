@@ -43,7 +43,7 @@ object RestAPI {
                             title = "LetsTrust Wallet API"
                             description = "The LetsTrust public API documentation"
                             contact = Contact().apply {
-                                name = "SSI Fabric GmbH"
+                                name = "LetsTrust"
                                 url = "https://letstrust.org"
                                 email = "office@letstrust.org"
                             }
@@ -108,7 +108,7 @@ object RestAPI {
                     get("", VcController::list)
                     get(":id", VcController::load)
                     delete(":id", VcController::delete)
-                    post("create", VcController::create)
+                   // post("create", VcController::create)
                     post("present", VcController::present)
                     post("verify", VcController::verify)
                     post("import", VcController::import)
@@ -141,7 +141,7 @@ object RestAPI {
                             title = "LetsTrust ESSIF Connector"
                             description = "The LetsTrust public API documentation"
                             contact = Contact().apply {
-                                name = "SSI Fabric GmbH"
+                                name = "LetsTrust"
                                 url = "https://letstrust.org"
                                 email = "office@letstrust.org"
                             }
