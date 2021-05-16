@@ -94,7 +94,10 @@ object LetsTrustCLI {
                         IssueVcCommand(),
                         PresentVcCommand(),
                         VerifyVcCommand(),
-                        ListVcCommand()
+                        ListVcCommand(),
+                        VcTemplatesCommand().subcommands(
+                            ListVcTemplateCommand()
+                        )
                     ),
                     //AuthCommand(),
                     EssifCommand().subcommands(

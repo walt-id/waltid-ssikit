@@ -224,3 +224,46 @@ class ListVcCommand : CliktCommand(
     }
 }
 
+class VcTemplatesCommand : CliktCommand(
+    name = "templates",
+    help = """VC Templates.
+
+        VC templates related operations e.g.: list & export.
+
+        """
+) {
+
+    override fun run() {
+
+    }
+}
+
+class ListVcTemplateCommand : CliktCommand(
+    name = "list",
+    help = """List VC Templates.
+
+        """
+) {
+
+    override fun run() {
+        echo("\nListing VC templates ...")
+
+        echo("\nResults:\n")
+
+        // TODO CredentialService.listVCTemplates().forEachIndexed { index, vc -> echo("- ${index + 1}: $vc") }
+    }
+}
+
+class ExportVcTemplateCommand : CliktCommand(
+    name = "export",
+    help = """Export VC Template.
+
+        """
+) {
+
+    override fun run() {
+        echo("\nExporting VC template ...")
+
+        // TODO CredentialService.exportTemplate(id).forEachIndexed { index, vc -> echo("- ${index + 1}: $vc") }
+    }
+}
