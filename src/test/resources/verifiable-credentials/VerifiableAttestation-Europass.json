@@ -1,12 +1,12 @@
 {
   "@context": [
-    "https://www.w3.org/2018/credentials/v1",
-    "https://essif.europa.eu/schemas/vc/2020/v1"
+    "https://www.w3.org/2018/credentials/v1"
   ],
   "id": "did:ebsi-eth:00000001/credentials/1872",
   "type": [
     "VerifiableCredential",
-    "VerifiableAttestation"
+    "VerifiableAttestation",
+    "Europass"
   ],
   "issuer": "did:ebsi:00000001",
   "issuanceDate": "2019-06-22T14:11:44Z",
@@ -89,16 +89,5 @@
       "Passport",
       "Assessment"
     ]
-  },
-  "proof": {
-    "type": "EcdsaSecp256k1Signature2019",
-    "created": "2019-06-22T14:11:44Z",
-    "proofPurpose": "assertionMethod",
-    "verificationMethod": {
-      "type": "EidasCertificate2019",
-      "CertSerial": "1088321447"
-    },
-    "jws": "eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..TCYt5X",
-    "proofValue": "BD21J4fdlnBvBA+y6D...fnC8Y="
   }
 }

@@ -58,7 +58,7 @@ class CredentialServiceTest {
         assertTrue(vcVerified)
     }
 
-    // TODO: @Test
+    @Test
     fun signEuropassCredentialTest() {
 
         val credOffer = readCredOffer("VerifiableAttestation-Europass")
