@@ -18,6 +18,10 @@ import org.letstrust.crypto.SignatureType
 import org.letstrust.crypto.LdSigner
 import org.letstrust.model.*
 import org.letstrust.crypto.keystore.KeyStore
+import org.letstrust.vclib.VcLibManager
+import org.letstrust.vclib.vcs.Europass
+import org.letstrust.vclib.vcs.PermanentResidentCard
+import java.lang.IllegalArgumentException
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
@@ -216,17 +220,24 @@ object CredentialService {
         log.trace { "VC decoded: $vpObj" }
 
         val signatureType = SignatureType.valueOf(vpObj.proof!!.type)
-        val issuer = vpObj.proof.creator!!
-        log.debug { "Issuer: $issuer" }
+        val presenter = vpObj.proof.creator!!
+        log.debug { "Presenter: $presenter" }
         log.debug { "Signature type: $signatureType" }
 
-        val vpVerified = verifyVc(issuer, vp)
+        val vpVerified = verifyVc(presenter, vp)
         log.debug { "Verification of VP-Proof returned: $vpVerified" }
 
-        val vc = vpObj.verifiableCredential[0]
-        val vcStr = vc.encodePretty()
+        // TODO remove legacy verifiableCredential
+        val (vcStr, issuer) = if (vpObj.verifiableCredential != null) {
+            val vc = vpObj.verifiableCredential.get(0)
+            Pair(vc.encodePretty(), vc.issuer)
+        } else {
+            val vc = vpObj.vc!!.get(0)
+            Pair(Json.encodeToString(vc), vc.issuer!!)
+        }
+
         log.debug { "Verifying VC:\n$vcStr" }
-        val vcVerified = verifyVc(vc.issuer, vcStr)
+        val vcVerified = verifyVc(issuer, vcStr)
 
         log.debug { "Verification of VC-Proof returned: $vpVerified" }
 
@@ -266,16 +277,22 @@ object CredentialService {
 
     fun present(vc: String, domain: String?, challenge: String?): String {
         log.debug { "Creating a presentation for VC:\n$vc" }
-        val vcObj = Json.decodeFromString<VerifiableCredential>(vc)
-        log.trace { "Decoded VC $vcObj" }
 
-        val holderDid = vcObj.credentialSubject.id ?: vcObj.credentialSubject.did ?: throw Exception("Could not determine holder DID for $vcObj")
+        val (vpReqStr, holderDid) = try {
+            val eurpass = VcLibManager.getVerifiableCredential(vc) as Europass
+            val vpReq = VerifiablePresentation(listOf("https://www.w3.org/2018/credentials/v1"), "id", listOf("VerifiablePresentation"), null, listOf(eurpass), null)
+            val vpReqStr = Json { prettyPrint = true }.encodeToString(vpReq)
+            Pair(vpReqStr, eurpass.credentialSubject!!.id!!)
+        } catch (e: IllegalArgumentException) {
+            // TODO: get rid of legacy code
+            val vc = Json.decodeFromString<VerifiableCredential>(vc)
+            val vpReq = VerifiablePresentation(listOf("https://www.w3.org/2018/credentials/v1"), "id", listOf("VerifiablePresentation"), listOf(vc), null)
+            val vpReqStr = Json { prettyPrint = true }.encodeToString(vpReq)
+            log.trace { "VP request:\n$vpReq" }
+            Pair(vpReqStr, (vc.credentialSubject.id ?: vc.credentialSubject.did)!!)
+        }
 
-        log.debug { "Holder DID: $holderDid" }
-
-        val vpReq = VerifiablePresentation(listOf("https://www.w3.org/2018/credentials/v1"), "id", listOf("VerifiablePresentation"), listOf(vcObj), null)
-        val vpReqStr = Json { prettyPrint = true }.encodeToString(vpReq)
-        log.trace { "VP request:\n$vpReq" }
+        log.trace { "VP request:\n$vpReqStr" }
 
 //        val holderKeys = KeyManagementService.loadKeys(holderDid!!)
 //        if (holderKeys == null) {

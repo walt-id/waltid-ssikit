@@ -182,10 +182,11 @@ data class Europass(
     data class Proof(
         val type: String?, // EcdsaSecp256k1Signature2019
         val created: String?, // 2019-06-22T14:11:44Z
-        val proofPurpose: String?, // assertionMethod
-        val verificationMethod: VerificationMethod?,
+        val creator: String? = null,
+        val proofPurpose: String? = null, // assertionMethod
+        val verificationMethod: VerificationMethod? = null,
         val jws: String?, // eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..TCYt5X
-        val proofValue: String? // BD21J4fdlnBvBA+y6D...fnC8Y=
+        val proofValue: String? = null // BD21J4fdlnBvBA+y6D...fnC8Y=
     ) {
         @Serializable
         data class VerificationMethod(

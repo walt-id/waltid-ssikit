@@ -11,6 +11,8 @@ import org.letstrust.model.VerifiablePresentation
 import org.letstrust.model.encodePretty
 import org.letstrust.services.did.DidService
 import org.letstrust.test.readCredOffer
+import org.letstrust.vclib.VcLibManager
+import org.letstrust.vclib.vcs.Europass
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import kotlin.test.assertFalse
@@ -73,6 +75,29 @@ class CredentialServiceTest {
 
         val vcVerified = CredentialService.verifyVc(issuerDid, vc)
         assertTrue(vcVerified)
+    }
+
+    @Test
+    fun presentEuropassCredentialTest() {
+
+        val issuerDid = DidService.create(DidMethod.ebsi)
+        val subjectDid = DidService.create(DidMethod.key)
+        val domain = "example.com"
+        val challenge: String? = "asdf"
+
+        val europass = VcLibManager.getVerifiableCredential(readCredOffer("VerifiableAttestation-Europass")) as Europass
+
+        europass.issuer = issuerDid
+        europass.credentialSubject!!.id = subjectDid
+
+        val vc = CredentialService.sign(issuerDid, Json.encodeToString(europass))
+
+        val vp= CredentialService.present(vc, domain, challenge)
+        println("Presentation generated: $vc")
+
+        val vpVerified = CredentialService.verifyVp(vp)
+        assertTrue(vpVerified)
+
     }
 
     @Test
