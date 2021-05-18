@@ -8,7 +8,6 @@ import org.letstrust.model.DidUrl
 import org.letstrust.model.toDidUrl
 import java.io.File
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class DidServiceTest {
@@ -60,6 +59,14 @@ class DidServiceTest {
         val resolvedDid = ds.resolve(did)
         val encoded = Json { prettyPrint = true }.encodeToString(resolvedDid)
         println(encoded)
+    }
+
+    @Test
+    fun createDidEbsiV2Identifier() {
+        val didUrl = DidUrl.generateDidEbsiV2DidUrl()
+        val did = didUrl.did
+        assertEquals("did:ebsi:", did.substring(0, 9))
+        assertEquals(44, didUrl.identifier.length)
     }
 
     @Test

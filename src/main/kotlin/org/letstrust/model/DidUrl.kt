@@ -1,5 +1,8 @@
 package org.letstrust.model
 
+import org.letstrust.crypto.encodeBase58
+import kotlin.random.Random
+
 
 /**
 scheme did:, a method identifier, and a unique, method-specific identifier
@@ -15,16 +18,25 @@ data class DidUrl(
 ) {
     val did = "did:${method}:${identifier}"
     val url = did + if (fragment != null) "#${fragment}" else ""
-}
 
-fun toDidUrl(url: String): DidUrl {
-    val didUrl = try {
-        val matchResult = "^did:([a-z]+):(.+)".toRegex().find(url)!!
-        val path = matchResult.groups[2]!!.value
-        val fragmentStr = path.substringAfter('#')
-        val identifierStr = path.substringBefore('#')
-        return DidUrl(matchResult.groups[1]!!.value, identifierStr, fragmentStr)
-    } catch (e: Exception) {
-        throw IllegalArgumentException("DID has wrong format.")
+    companion object {
+        fun from(url: String): DidUrl {
+            val didUrl = try {
+                val matchResult = "^did:([a-z]+):(.+)".toRegex().find(url)!!
+                val path = matchResult.groups[2]!!.value
+                val fragmentStr = path.substringAfter('#')
+                val identifierStr = path.substringBefore('#')
+                return DidUrl(matchResult.groups[1]!!.value, identifierStr, fragmentStr)
+            } catch (e: Exception) {
+                throw IllegalArgumentException("DID has wrong format.")
+            }
+        }
+
+        fun generateDidEbsiV2DidUrl() = DidUrl(DidMethod.ebsi.name, "2" + Random.nextBytes(44).encodeBase58().substring(0,43))
     }
 }
+
+
+
+
+

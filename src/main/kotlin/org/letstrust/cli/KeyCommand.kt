@@ -47,6 +47,25 @@ class GenCommand : CliktCommand(
     }
 }
 
+class ImportKeyCommand : CliktCommand(
+    name = "import",
+    help = """Import keys.
+
+        Import key in JWK format."""
+) {
+
+    val keyId: String by option(help = "Key ID or key alias").required()
+
+    override fun run() {
+        echo("Importing key \"$keyId\"...")
+        //val jwk = KeyManagementService.import ...
+
+        println("\nResults:\n")
+
+        println("todo")
+    }
+}
+
 class ExportKeyCommand : CliktCommand(
     name = "export",
     help = """Export keys.
@@ -74,7 +93,7 @@ class ListKeysCommand : CliktCommand(
 ) {
 
     override fun run() {
-        echo("Listing keys...")
+        echo("Listing keys ...")
 
         echo("\nResults:\n")
 

@@ -43,7 +43,7 @@ object DidService {
         return didUrl
     }
 
-    fun resolve(did: String): Did = resolve(toDidUrl(did))
+    fun resolve(did: String): Did = resolve(DidUrl.from(did))
     fun resolve(didUrl: DidUrl): Did {
         return when (didUrl.method) {
             DidMethod.key.name -> resolveDidKey(didUrl)
@@ -53,7 +53,7 @@ object DidService {
         }
     }
 
-    fun resolveDidEbsi(did: String): DidEbsi = resolveDidEbsi(toDidUrl(did))
+    fun resolveDidEbsi(did: String): DidEbsi = resolveDidEbsi(DidUrl.from(did))
     fun resolveDidEbsi(didUrl: DidUrl): DidEbsi {
         log.warn { "DID EBSI is not resolved correctly yet. It is read from directory." }
         return Json.decodeFromString<DidEbsi>(loadDid(didUrl.did))
@@ -64,8 +64,11 @@ object DidService {
         val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(EdDSA_Ed25519)
         val key = keyStore.load(keyId.id)
 
-        if (key.algorithm != EdDSA_Ed25519)
-            throw Exception("DID EBSI can only be created with an EdDSA Ed25519 key.")
+        if (key.algorithm != EdDSA_Ed25519) {
+
+        } else  {
+
+        }
 
         // Created identifier
         val pubKeyBytes = key.getPublicKey().encoded
@@ -77,7 +80,7 @@ object DidService {
         keyStore.addAlias(keyId, didUrlStr)
 
         // Create doc
-        val ebsiDidBody = ebsiDid(toDidUrl(didUrlStr), edPublicKey)
+        val ebsiDidBody = ebsiDid(DidUrl.from(didUrlStr), edPublicKey)
 
         val ebsiDidBodyStr = Json.encodeToString(ebsiDidBody)
 
@@ -240,7 +243,7 @@ object DidService {
 
     // TODO: consider the methods below. They might be deprecated!
 
-//    fun resolveDid(did: String): Did = resolveDid(did.toDidUrl())
+//    fun resolveDid(did: String): Did = resolveDid(did.DidUrl.toDidUrl())
 //
 //    fun resolveDid(didUrl: DidUrl): Did {
 //        return when (didUrl.method) {

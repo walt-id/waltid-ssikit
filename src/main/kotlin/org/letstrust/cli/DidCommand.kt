@@ -11,8 +11,8 @@ import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.file
 import org.letstrust.model.DidMethod
+import org.letstrust.model.DidUrl
 import org.letstrust.model.encodePretty
-import org.letstrust.model.toDidUrl
 import org.letstrust.services.did.DidService
 import java.io.File
 
@@ -69,7 +69,7 @@ class CreateDidCommand : CliktCommand(
 }
 
 fun resolveDidHelper(did: String) = when {
-    did.contains("mattr") -> DidService.resolveDidWeb(toDidUrl(did)).encodePretty()
+    did.contains("mattr") -> DidService.resolveDidWeb(DidUrl.from(did)).encodePretty()
     did.contains("ebsi") -> DidService.resolveDidEbsi(did).encodePretty()
     else -> DidService.resolve(did).encodePretty()
 }

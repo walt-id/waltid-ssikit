@@ -83,6 +83,7 @@ object LetsTrustCLI {
                     KeyCommand().subcommands(
                         GenCommand(),
                         ListKeysCommand(),
+                        ImportKeyCommand(),
                         ExportKeyCommand()
                     ),
                     DidCommand().subcommands(
