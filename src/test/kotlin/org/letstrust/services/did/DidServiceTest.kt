@@ -3,9 +3,10 @@ package org.letstrust.services.did
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.Test
+import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.model.DidMethod
 import org.letstrust.model.DidUrl
-import org.letstrust.model.toDidUrl
+import org.letstrust.services.key.KeyManagementService
 import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -25,7 +26,7 @@ class DidServiceTest {
         val didUrl = DidUrl("method", "identifier", "key1")
         assertEquals("did:method:identifier#key1", didUrl.url)
 
-        val obj: DidUrl = toDidUrl(didUrl.url)
+        val obj: DidUrl = DidUrl.from(didUrl.url)
         assertEquals(didUrl, obj)
     }
 
@@ -34,7 +35,7 @@ class DidServiceTest {
 
         // Create
         val did = ds.create(DidMethod.key)
-        val didUrl = toDidUrl(did)
+        val didUrl = DidUrl.from(did)
         assertEquals(did, didUrl.did)
         assertEquals("key", didUrl.method)
         print(did)
@@ -50,7 +51,7 @@ class DidServiceTest {
 
         // Create
         val did = ds.create(DidMethod.web)
-        val didUrl = toDidUrl(did)
+        val didUrl = DidUrl.from(did)
         assertEquals(did, didUrl.did)
         assertEquals("web", didUrl.method)
         print(did)
@@ -66,21 +67,23 @@ class DidServiceTest {
         val didUrl = DidUrl.generateDidEbsiV2DidUrl()
         val did = didUrl.did
         assertEquals("did:ebsi:", did.substring(0, 9))
-        assertEquals(44, didUrl.identifier.length)
+        assertEquals(47, didUrl.identifier.length)
     }
 
     @Test
     fun createResolveDidEbsiTest() {
 
         // Create
-        val did = ds.create(DidMethod.ebsi)
-        val didUrl = toDidUrl(did)
+        val keyId= KeyManagementService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val did = ds.create(DidMethod.ebsi, keyId.id)
+        println(did)
+        val didUrl = DidUrl.from(did)
         assertEquals(did, didUrl.did)
         assertEquals("ebsi", didUrl.method)
         print(did)
 
         // Resolve
-        val resolvedDid = ds.resolve(did)
+        val resolvedDid = ds.resolveDidEbsi(did)
         val encoded = Json { prettyPrint = true }.encodeToString(resolvedDid)
         println(encoded)
     }
@@ -94,7 +97,7 @@ class DidServiceTest {
 
         assertTrue(dids.size > 0)
 
-        dids.forEach { s -> assertEquals(s, toDidUrl(s).did) }
+        dids.forEach { s -> assertEquals(s, DidUrl.from(s).did) }
     }
 
 }

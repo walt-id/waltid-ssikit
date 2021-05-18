@@ -6,7 +6,6 @@ import org.junit.Test
 import org.letstrust.model.Did
 import org.letstrust.model.DidMethod
 import org.letstrust.model.DidUrl
-import org.letstrust.model.toDidUrl
 import org.letstrust.services.did.DidService
 import java.io.File
 import java.nio.file.Files
@@ -37,7 +36,7 @@ class DidServiceTest {
 
         assertEquals("did:method:identifier#key1", didUrl.url)
 
-        val obj: DidUrl = toDidUrl(didUrl.url)
+        val obj: DidUrl = DidUrl.from(didUrl.url)
 
         assertEquals(didUrl, obj)
     }
@@ -80,7 +79,7 @@ class DidServiceTest {
     @Test
     fun didWebResolution() {
         val identifier = "did:web:mattr.global"
-        val didUrl:  DidUrl= toDidUrl(identifier)
+        val didUrl:  DidUrl= DidUrl.from(identifier)
         val didWeb = DidService.resolveDidWeb(didUrl)
         assertNotNull(didWeb)
         // assertEquals("https://w3id.org/did/v1", didWeb.context)

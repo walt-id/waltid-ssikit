@@ -64,29 +64,33 @@ object DidService {
         val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(EdDSA_Ed25519)
         val key = keyStore.load(keyId.id)
 
-        if (key.algorithm != EdDSA_Ed25519) {
-
-        } else  {
-
-        }
-
         // Created identifier
-        val pubKeyBytes = key.getPublicKey().encoded
-        val pubPrim = ASN1Sequence.fromByteArray(pubKeyBytes) as ASN1Sequence
-        val edPublicKey = (pubPrim.getObjectAt(1) as ASN1BitString).octets
-
-        val identifier = convertEd25519PublicKeyToMultiBase58Btc(edPublicKey)
-        val didUrlStr = "did:ebsi:$identifier"
+        val didUrlStr = DidUrl.generateDidEbsiV2DidUrl().did
         keyStore.addAlias(keyId, didUrlStr)
 
-        // Create doc
-        val ebsiDidBody = ebsiDid(DidUrl.from(didUrlStr), edPublicKey)
+        val ebsiDid = if (key.algorithm == EdDSA_Ed25519) {
+            val pubKeyBytes = key.getPublicKey().encoded
+            val pubPrim = ASN1Sequence.fromByteArray(pubKeyBytes) as ASN1Sequence
+            val edPublicKey = (pubPrim.getObjectAt(1) as ASN1BitString).octets
+            // Create doc
+            val ebsiDidBody = ebsiDid(DidUrl.from(didUrlStr), edPublicKey)
 
-        val ebsiDidBodyStr = Json.encodeToString(ebsiDidBody)
+            val ebsiDidBodyStr = Json.encodeToString(ebsiDidBody)
 
-        // Create proof
-        val verificationMethod = ebsiDidBody.verificationMethod?.get(0)?.id
-        val ebsiDid = signDid(didUrlStr, verificationMethod!!, ebsiDidBodyStr)
+            // Create proof
+            val verificationMethod = ebsiDidBody.verificationMethod?.get(0)?.id
+            signDid(didUrlStr, verificationMethod!!, ebsiDidBodyStr)
+        } else  {
+            val verificationMethods = mutableListOf(
+                VerificationMethod(didUrlStr + "#keys-1", "Secp256k1VerificationKey2018", didUrlStr, null, key.getPublicKey().toPEM()),
+            )
+
+            val did = DidEbsi(
+                listOf("https://w3.org/ns/did/v1"), // TODO Context not working "https://ebsi.org/ns/did/v1"
+                didUrlStr,
+                verificationMethods)
+               Json.encodeToString(did)
+        }
 
         // Store DID
         storeDid(didUrlStr, ebsiDid)

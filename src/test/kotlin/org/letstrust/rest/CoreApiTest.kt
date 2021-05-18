@@ -11,7 +11,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
 import org.apache.commons.lang3.StringUtils.countMatches
 import org.junit.AfterClass
 import org.junit.BeforeClass
@@ -19,9 +18,9 @@ import org.junit.Test
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.KeyId
 import org.letstrust.model.DidMethod
+import org.letstrust.model.DidUrl
 import org.letstrust.model.VerifiableCredential
 import org.letstrust.model.encodePretty
-import org.letstrust.model.toDidUrl
 import org.letstrust.services.did.DidService
 import org.letstrust.services.vc.CredentialService
 import org.letstrust.test.readCredOffer
@@ -154,7 +153,7 @@ class CoreApiTest {
             contentType(ContentType.Application.Json)
             body = CreateDidRequest(DidMethod.key)
         }
-        val didUrl = toDidUrl(did)
+        val didUrl = DidUrl.from(did)
         assertEquals(DidMethod.key.name, didUrl.method)
     }
 
@@ -164,7 +163,7 @@ class CoreApiTest {
             contentType(ContentType.Application.Json)
             body = CreateDidRequest(DidMethod.web)
         }
-        val didUrl = toDidUrl(did)
+        val didUrl = DidUrl.from(did)
         assertEquals(DidMethod.web.name, didUrl.method)
     }
 
