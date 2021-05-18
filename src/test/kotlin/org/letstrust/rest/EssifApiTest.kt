@@ -49,20 +49,20 @@ class EssifApiTest {
     fun testOnboarding() = runBlocking {
         println("ESSIF onboarding of a Legal Entity by requesting a Verifiable ID")
 
-        val credentialRequestUri = client.get<String>("$ESSIF_API_URL/v1/essif/ti/requestCredentialUri")
+        val credentialRequestUri = client.get<String>("$ESSIF_API_URL/v1/ti/requestCredentialUri")
         println(credentialRequestUri)
 
-        val didOwnershipReq = client.post<String>("$ESSIF_API_URL/v1/essif/ti/requestVerifiableCredential") {
+        val didOwnershipReq = client.post<String>("$ESSIF_API_URL/v1/ti/requestVerifiableCredential") {
             contentType(ContentType.Application.Json)
         }
         println(didOwnershipReq)
 
-        val didOfLegalEntity = client.post<String>("$ESSIF_API_URL/v1/essif/enterprise/wallet/createDid") {
+        val didOfLegalEntity = client.post<String>("$ESSIF_API_URL/v1/enterprise/wallet/createDid") {
             contentType(ContentType.Application.Json)
         }
         println(didOfLegalEntity)
 
-        val verifiableId = client.post<String>("$ESSIF_API_URL/v1/essif/enterprise/wallet/getVerifiableCredential") {
+        val verifiableId = client.post<String>("$ESSIF_API_URL/v1/enterprise/wallet/getVerifiableCredential") {
             contentType(ContentType.Application.Json)
            // body = GetVcRequest("did:ebsi:234567", "did-ownership-req")
         }
@@ -99,7 +99,7 @@ class EssifApiTest {
                 "  }\n" +
                 "}\n"
 
-        val accessToken = client.post<String>("$ESSIF_API_URL/v1/essif/user/wallet/requestAccessToken") {
+        val accessToken = client.post<String>("$ESSIF_API_URL/v1/user/wallet/requestAccessToken") {
             contentType(ContentType.Application.Json)
             body = verifiableAuthorization
         }
@@ -113,23 +113,23 @@ class EssifApiTest {
     fun testVcIssuance() = runBlocking {
         println("Credential issuance from a Legal Entity (EOS/Trusted Issuer) to a Natural Person.")
 
-        val didAuthRequest = client.post<String>("$ESSIF_API_URL/v1/essif/ti/credentials")
+        val didAuthRequest = client.post<String>("$ESSIF_API_URL/v1/ti/credentials")
 
         println(didAuthRequest)
 
-        val resp = client.post<HttpResponse>("$ESSIF_API_URL/v1/essif/user/wallet/validateDidAuthRequest") {
+        val resp = client.post<HttpResponse>("$ESSIF_API_URL/v1/user/wallet/validateDidAuthRequest") {
             contentType(ContentType.Application.Json)
             body = didAuthRequest
         }
         assertEquals(200, resp.status.value)
 
-        val vcToken = client.post<String>("$ESSIF_API_URL/v1/essif/user/wallet/didAuthResponse") {
+        val vcToken = client.post<String>("$ESSIF_API_URL/v1/user/wallet/didAuthResponse") {
             contentType(ContentType.Application.Json)
             body = didAuthRequest
         }
         println(vcToken)
 
-        val credential = client.post<String>("$ESSIF_API_URL/v1/essif/ti/credentials") {
+        val credential = client.post<String>("$ESSIF_API_URL/v1/ti/credentials") {
             contentType(ContentType.Application.Json)
             body = didAuthRequest
         }
@@ -142,7 +142,7 @@ class EssifApiTest {
 
         val vcExchangeRequest = RelyingParty.signOn()
 
-        val vcToken = client.post<String>("$ESSIF_API_URL/v1/essif/user/wallet/vcAuthResponse") {
+        val vcToken = client.post<String>("$ESSIF_API_URL/v1/user/wallet/vcAuthResponse") {
             contentType(ContentType.Application.Json)
             body = vcExchangeRequest
         }

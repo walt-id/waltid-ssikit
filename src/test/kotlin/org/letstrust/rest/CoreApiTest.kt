@@ -32,7 +32,7 @@ import kotlin.test.assertTrue
 
 class CoreApiTest {
 
-    val CORE_API_URL = "http://localhost:7000"
+    val CORE_API_URL = "http://localhost:7003"
 
     val client = HttpClient(CIO) {
         install(JsonFeature) {
@@ -78,7 +78,7 @@ class CoreApiTest {
         @BeforeClass
         @JvmStatic
         fun startServer() {
-            RestAPI.startCoreApi()
+            RestAPI.startCoreApi(7003)
         }
 
         @AfterClass
@@ -130,7 +130,7 @@ class CoreApiTest {
 
     @Test
     fun testListKey() = runBlocking {
-        val keyIds = client.get<List<String>>("$CORE_API_URL/v1/key/list")
+        val keyIds = client.get<List<String>>("$CORE_API_URL/v1/key")
         keyIds.forEach { keyId -> assertTrue(keyId.length > 45) }
     }
 

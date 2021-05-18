@@ -108,7 +108,7 @@ object RestAPI {
                     get("", VcController::list)
                     get(":id", VcController::load)
                     delete(":id", VcController::delete)
-                   // post("create", VcController::create)
+                    post("create", VcController::create)
                     post("present", VcController::present)
                     post("verify", VcController::verify)
                     post("import", VcController::import)
