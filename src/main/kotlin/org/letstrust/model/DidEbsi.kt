@@ -12,7 +12,7 @@ data class DidEbsi(
     var id: String? = null,
     val verificationMethod: List<VerificationMethod>? = null,
     val authentication: List<String>? = null,
-    val assertionMethod: List<String>? = null,
+    var assertionMethod: List<String>? = null,
     val capabilityDelegation: List<String>? = null,
     val capabilityInvocation: List<String>? = null,
     val keyAgreement: List<String>? = null,

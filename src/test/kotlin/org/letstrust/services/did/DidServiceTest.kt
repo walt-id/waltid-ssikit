@@ -74,7 +74,7 @@ class DidServiceTest {
     fun createResolveDidEbsiTest() {
 
         // Create
-        val keyId= KeyManagementService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val keyId = KeyManagementService.generate(KeyAlgorithm.ECDSA_Secp256k1)
         val did = ds.create(DidMethod.ebsi, keyId.id)
         println(did)
         val didUrl = DidUrl.from(did)
@@ -86,6 +86,12 @@ class DidServiceTest {
         val resolvedDid = ds.resolveDidEbsi(did)
         val encoded = Json { prettyPrint = true }.encodeToString(resolvedDid)
         println(encoded)
+
+        // Update
+        resolvedDid.assertionMethod = listOf(resolvedDid.verificationMethod!!.get(0).id)
+        ds.updateDidEbsi(resolvedDid)
+        val encodedUpd = Json { prettyPrint = true }.encodeToString(resolvedDid)
+        println(encodedUpd)
     }
 
     @Test

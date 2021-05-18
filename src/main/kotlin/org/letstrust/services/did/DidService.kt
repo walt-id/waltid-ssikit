@@ -58,6 +58,7 @@ object DidService {
         log.warn { "DID EBSI is not resolved correctly yet. It is read from directory." }
         return Json.decodeFromString<DidEbsi>(loadDid(didUrl.did))
     }
+    fun updateDidEbsi(did: DidEbsi) = storeDid(did.id!!, Json.encodeToString(did))
     // Private methods
 
     private fun createDidEbsi(keyAlias: String?): String {
@@ -88,7 +89,8 @@ object DidService {
             val did = DidEbsi(
                 listOf("https://w3.org/ns/did/v1"), // TODO Context not working "https://ebsi.org/ns/did/v1"
                 didUrlStr,
-                verificationMethods)
+                verificationMethods,
+                listOf(didUrlStr + "#keys-1"))
                Json.encodeToString(did)
         }
 
