@@ -12,16 +12,15 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import org.json.JSONObject
-import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.LetsTrustServices
-import org.letstrust.crypto.SignatureType
+import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.LdSigner
-import org.letstrust.model.*
+import org.letstrust.crypto.SignatureType
 import org.letstrust.crypto.keystore.KeyStore
+import org.letstrust.model.*
 import org.letstrust.vclib.VcLibManager
 import org.letstrust.vclib.vcs.Europass
-import org.letstrust.vclib.vcs.PermanentResidentCard
-import java.lang.IllegalArgumentException
+import java.io.File
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
@@ -327,4 +326,13 @@ object CredentialService {
             CredentialSchema("https://essif.europa.eu/tsr/education/CSR1224.json", "JsonSchemaValidator2018")
         )
     }
+
+    fun listTemplates(): List<String> {
+        return Files.walk(Path.of("templates"))
+            .filter { it -> Files.isRegularFile(it) }
+            .filter { it -> it.toString().endsWith(".json") }
+            .map { it.fileName.toString().replace("vc-template-", "").replace(".json", "") }.toList()
+    }
+
+    fun loadTemplate(name: String): String = File("templates/vc-template-$name.json").readText()
 }

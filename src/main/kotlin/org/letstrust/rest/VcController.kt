@@ -1,10 +1,7 @@
 package org.letstrust.rest
 
 import io.javalin.http.Context
-import io.javalin.plugin.openapi.annotations.OpenApi
-import io.javalin.plugin.openapi.annotations.OpenApiContent
-import io.javalin.plugin.openapi.annotations.OpenApiRequestBody
-import io.javalin.plugin.openapi.annotations.OpenApiResponse
+import io.javalin.plugin.openapi.annotations.*
 import kotlinx.serialization.Serializable
 import org.letstrust.services.vc.CredentialService
 
@@ -48,7 +45,7 @@ object VcController {
         ]
     )
     fun load(ctx: Context) {
-        ctx.json("todo")
+        ctx.json("todo - load")
     }
 
     @OpenApi(
@@ -68,7 +65,7 @@ object VcController {
         ]
     )
     fun delete(ctx: Context) {
-        ctx.json("todo")
+        ctx.json("todo - delete")
     }
 
     @OpenApi(
@@ -163,7 +160,37 @@ object VcController {
         ]
     )
     fun import(ctx: Context) {
-        ctx.json("todo")
+        ctx.json("todo - import")
     }
 
+    @OpenApi(
+        summary = "List VC templates",
+        operationId = "templatesList",
+        tags = ["Verifiable Credentials"],
+        responses = [
+            OpenApiResponse("200", content = [OpenApiContent(from = String::class, isArray = true, type = "application/json")]),
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
+        ]
+    )
+    fun listTemplates(ctx: Context) {
+        ctx.json(CredentialService.listTemplates())
+    }
+
+    @OpenApi(
+        summary = "Loads a VC template",
+        operationId = "templateLoad",
+        tags = ["Verifiable Credentials"],
+        pathParams = [
+            OpenApiParam(name = "id", description = "Retrieves a single VC template form the data store")
+        ],
+        responses = [
+            OpenApiResponse("200", content = [OpenApiContent(from = String::class, type = "application/json")]),
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
+        ]
+    )
+    fun loadTemplate(ctx: Context) {
+        ctx.json(CredentialService.loadTemplate(ctx.pathParam("id")))
+    }
 }

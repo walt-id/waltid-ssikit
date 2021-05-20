@@ -105,6 +105,10 @@ object RestAPI {
                     post("import", DidController::import)
                 }
                 path("vc") {
+                    path("templates") {
+                        get("", VcController::listTemplates)
+                        get(":id", VcController::loadTemplate)
+                    }
                     get("", VcController::list)
                     get(":id", VcController::load)
                     delete(":id", VcController::delete)

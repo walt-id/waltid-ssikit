@@ -250,7 +250,7 @@ class ListVcTemplateCommand : CliktCommand(
 
         echo("\nResults:\n")
 
-        // TODO CredentialService.listVCTemplates().forEachIndexed { index, vc -> echo("- ${index + 1}: $vc") }
+        CredentialService.listTemplates().forEachIndexed { index, vc -> echo("- ${index + 1}: $vc") }
     }
 }
 
@@ -261,9 +261,11 @@ class ExportVcTemplateCommand : CliktCommand(
         """
 ) {
 
+    val templateName: String by option("-n", "--template-name", help = "Name of the template to being exported").required()
+
     override fun run() {
         echo("\nExporting VC template ...")
 
-        // TODO CredentialService.exportTemplate(id).forEachIndexed { index, vc -> echo("- ${index + 1}: $vc") }
+        echo(CredentialService.loadTemplate(templateName))
     }
 }

@@ -8,8 +8,8 @@ import io.swagger.v3.oas.annotations.Hidden
 
 object RootController {
 
-    @Hidden
     @OpenApi(
+        ignore = true, // Hide this endpoint in the documentation
         summary = "HTML page with links to the API doc",
         operationId = "rootCoreApi",
         responses = [
@@ -34,8 +34,8 @@ object RootController {
         )
     }
 
-    @Hidden
     @OpenApi(
+        ignore = true, // Hide this endpoint in the documentation
         summary = "HTML page with links to the API doc",
         operationId = "rootCoreApi",
         responses = [

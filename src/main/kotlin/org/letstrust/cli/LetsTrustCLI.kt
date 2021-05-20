@@ -35,11 +35,13 @@ class LetsTrust : CliktCommand(
         """
 ) {
     init {
-        versionOption(Values.version, message = { """
+        versionOption(Values.version, message = {
+            """
             Let's Trust: $it${if (Values.isSnapshot) " - SNAPSHOT VERSION, use only for demo and testing purposes)" else " - stable release"}
             Environment: ${System.getProperty("java.runtime.name")} of ${System.getProperty("java.vm.name")} (${System.getProperty("java.version.date")})
             OS version:  ${System.getProperty("os.name")} ${System.getProperty("os.version")}
-        """.trimIndent() })
+        """.trimIndent()
+        })
     }
 
 //    val dataDir: String by option("-d", "--data-dir", help = "Set data directory [./data].")
@@ -97,7 +99,8 @@ object LetsTrustCLI {
                         VerifyVcCommand(),
                         ListVcCommand(),
                         VcTemplatesCommand().subcommands(
-                            ListVcTemplateCommand()
+                            ListVcTemplateCommand(),
+                            ExportVcTemplateCommand()
                         )
                     ),
                     //AuthCommand(),
