@@ -9,18 +9,13 @@ open class LetstrustVCService : VCService() {
     override fun export() = println("VC Export")
 }
 
-class VCServiceWrapper : VCService() {
-    override fun import() = implementation.import()
-    override fun export() = implementation.export()
-}
-
 abstract class VCService : LetstrustService() {
     override val implementation get() = LetstrustServiceRegistry.getService<VCService>()
 
-    abstract fun import()
-    abstract fun export()
+    open fun import(): Unit = implementation.import()
+    open fun export(): Unit = implementation.export()
 
     companion object : LetstrustServiceProvider {
-        override fun getService() = VCServiceWrapper()
+        override fun getService() = object : VCService() {}
     }
 }
