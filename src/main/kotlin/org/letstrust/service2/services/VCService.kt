@@ -15,8 +15,7 @@ class VCServiceWrapper : VCService() {
 }
 
 abstract class VCService : LetstrustService() {
-    override val implementation: VCService
-        get() = LetstrustServiceRegistry.getService<VCService>() as VCService
+    override val implementation get() = LetstrustServiceRegistry.getService<VCService>()
 
     abstract fun import()
     abstract fun export()

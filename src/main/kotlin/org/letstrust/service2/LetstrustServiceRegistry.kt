@@ -9,5 +9,5 @@ object LetstrustServiceRegistry {
         services[T::class] = serviceImplementation
     }
 
-    inline fun <reified T : LetstrustService> getService() = services[T::class]!!
+    inline fun <reified Service : LetstrustService> getService(): Service = (services[Service::class] as Service)
 }
