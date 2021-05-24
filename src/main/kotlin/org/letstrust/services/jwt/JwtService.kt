@@ -99,13 +99,13 @@ object JwtService {
 
         val jwt = when (issuerKey.algorithm) {
             KeyAlgorithm.EdDSA_Ed25519 -> {
-                var jwt = SignedJWT(JWSHeader.Builder(JWSAlgorithm.EdDSA).keyID(keyAlias).build(), claimsSet)
+                var jwt = SignedJWT(JWSHeader.Builder(JWSAlgorithm.EdDSA).keyID(keyAlias).type(JOSEObjectType.JWT).build(), claimsSet)
                 //jwt.sign(Ed25519Signer(issuerKey.toOctetKeyPair()))
                 jwt.sign(LdSigner.JwsLtSigner(issuerKey.keyId))
                 jwt
             }
             KeyAlgorithm.ECDSA_Secp256k1 -> {
-                val jwt = SignedJWT(JWSHeader.Builder(JWSAlgorithm.ES256K).keyID(keyAlias).build(), claimsSet)
+                val jwt = SignedJWT(JWSHeader.Builder(JWSAlgorithm.ES256K).keyID(keyAlias).type(JOSEObjectType.JWT).build(), claimsSet)
                 val jwsSigner = ECDSASigner(PrivateKeyHandle(issuerKey.keyId), Curve.SECP256K1)
                 jwsSigner.jcaContext.provider = LetsTrustProvider()
                 jwt.sign(jwsSigner)

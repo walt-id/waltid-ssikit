@@ -67,7 +67,7 @@ class DidServiceTest {
         val didUrl = DidUrl.generateDidEbsiV2DidUrl()
         val did = didUrl.did
         assertEquals("did:ebsi:", did.substring(0, 9))
-        assertEquals(47, didUrl.identifier.length)
+        assertEquals(48, didUrl.identifier.length)
     }
 
     @Test

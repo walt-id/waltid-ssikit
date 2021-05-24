@@ -1,10 +1,15 @@
 package org.letstrust.services.key
 
 import com.google.crypto.tink.subtle.X25519
+import com.nimbusds.jose.jwk.Curve
+import com.nimbusds.jose.jwk.ECKey
+import com.nimbusds.jose.jwk.KeyUse
+import com.nimbusds.jose.jwk.gen.ECKeyGenerator
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.junit.Before
 import org.junit.Test
 import org.letstrust.crypto.KeyAlgorithm
+import org.letstrust.crypto.keyPairGeneratorSecp256k1
 import java.security.*
 import java.security.spec.*
 import java.util.*
@@ -64,9 +69,40 @@ class KeyManagementServiceTest {
         assertNotNull(keysLoaded?.keyPair)
         assertNotNull(keysLoaded?.keyPair?.private)
         assertNotNull(keysLoaded?.keyPair?.public)
-       // assertTrue(keysLoaded?.getMultiBase58PublicKey(keyId).length > 32)
+        // assertTrue(keysLoaded?.getMultiBase58PublicKey(keyId).length > 32)
         kms.delete(keyId.id)
     }
+
+    // TODO complete following two tests
+    @Test
+    fun generateJwkNimbus() {
+        // Generate EC key pair in JWK format
+        val jwk: ECKey = ECKeyGenerator(Curve.P_256)
+            .keyUse(KeyUse.SIGNATURE) // indicate the intended use of the key
+            .keyIDFromThumbprint(true)
+            .generate()
+
+        // Output the private and public EC JWK parameters
+        System.out.println(jwk)
+
+        // Output the public EC JWK parameters only
+        System.out.println(jwk.toPublicJWK())
+    }
+
+    @Test
+    fun generateJwkJava() {
+        // Generate EC key pair in JWK format
+        // val kp = keyPairGeneratorSecp256k1().generateKeyPair()
+
+        // val jwk = KeyUtil.make(kp)
+
+        // Output the private and public EC JWK parameters
+        // System.out.println(jwk)
+
+        // Output the public EC JWK parameters only
+        // System.out.println(jwk.toPublicJWK())
+    }
+
 //
 //    @Test
 //    fun generateRsaKeyPairTest() {

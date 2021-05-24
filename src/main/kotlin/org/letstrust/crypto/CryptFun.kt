@@ -29,7 +29,7 @@ enum class SignatureType {
     Ed25519Signature2020
 }
 
-fun newKeyId(): KeyId = KeyId("LetsTrust-Key-${UUID.randomUUID().toString().replace("-", "")}")
+fun newKeyId(): KeyId = KeyId(UUID.randomUUID().toString().replace("-", ""))
 
 // EdECPrivateKeySpec(ED25519, this.encoded
 fun PrivateKey.toPEM(): String =

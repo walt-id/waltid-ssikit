@@ -101,7 +101,7 @@ class CoreApiTest {
             body = GenKeyRequest(KeyAlgorithm.EdDSA_Ed25519)
         }
 
-        assertTrue(keyId.id.length > 45)
+        assertTrue(keyId.id.length == 32)
     }
 
     @Test
@@ -111,7 +111,7 @@ class CoreApiTest {
             body = GenKeyRequest(KeyAlgorithm.ECDSA_Secp256k1)
         }
 
-        assertTrue(keyId.id.length > 45)
+        assertTrue(keyId.id.length == 32)
     }
 
     @Test
@@ -130,7 +130,7 @@ class CoreApiTest {
     @Test
     fun testListKey() = runBlocking {
         val keyIds = client.get<List<String>>("$CORE_API_URL/v1/key")
-        keyIds.forEach { keyId -> assertTrue(keyId.length > 45) }
+        keyIds.forEach { keyId -> assertTrue(keyId.length >= 32) }
     }
 
     @Test
