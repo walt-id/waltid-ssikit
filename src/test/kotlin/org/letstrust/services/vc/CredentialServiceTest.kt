@@ -12,7 +12,10 @@ import org.letstrust.model.encodePretty
 import org.letstrust.services.did.DidService
 import org.letstrust.test.readCredOffer
 import org.letstrust.vclib.VcLibManager
+import org.letstrust.vclib.vcs.EbsiVerifiableAttestation
 import org.letstrust.vclib.vcs.Europass
+import org.letstrust.vclib.vcs.VC
+import java.io.File
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import kotlin.test.assertFalse
@@ -26,6 +29,37 @@ class CredentialServiceTest {
 
     }
 
+    fun getTemplate( name: String): VC = VcLibManager.getVerifiableCredential(File("templates/vc-template-$name.json").readText())
+
+    fun genericSignVerify(issuerDid: String, credOffer: String) {
+
+        val vc = CredentialService.sign(issuerDid, credOffer, "domain.com", "nonce")
+        println("Credential generated: $vc")
+
+        val signedVc = VcLibManager.getVerifiableCredential(vc)
+
+        println(signedVc)
+
+        val vcVerified = CredentialService.verifyVc(issuerDid, vc)
+        assertTrue(vcVerified)
+    }
+
+    @Test
+    fun signEbsiVerifiableAttestation() {
+        val template = getTemplate("ebsi-attestation") as EbsiVerifiableAttestation
+
+        val issuerDid = DidService.create(DidMethod.web)
+
+        template.issuer = issuerDid
+        template.credentialSubject!!.id = issuerDid // self signed
+
+        val credOffer = Json.encodeToString(template)
+
+        genericSignVerify(issuerDid, credOffer)
+
+    }
+
+    // TODO: consider methods below, as old data-model might be used
     @Test
     fun signCredentialECDSASecp256k1Test() {
 
@@ -36,7 +70,6 @@ class CredentialServiceTest {
         val nonce: String? = null
 
         val vc = CredentialService.sign(issuerDid, credOffer, domain, nonce)
-        assertNotNull(vc)
         println("Credential generated: $vc")
 
         val vcVerified = CredentialService.verifyVc(issuerDid, vc)
