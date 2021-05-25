@@ -17,11 +17,10 @@ import org.letstrust.model.VerifiablePresentation
 import org.letstrust.model.encodePretty
 import org.letstrust.services.vc.CredentialService
 import org.letstrust.services.vc.CredentialService.VerificationType
-import org.letstrust.vclib.VcLibManager
 import org.letstrust.vclib.vcs.Europass
 import org.letstrust.vclib.vcs.PermanentResidentCard
+import org.letstrust.vclib.vcs.VC
 import java.io.File
-import java.lang.IllegalArgumentException
 import java.sql.Timestamp
 import java.time.LocalDateTime
 
@@ -82,7 +81,7 @@ class IssueVcCommand : CliktCommand(
         val vcId = Timestamp.valueOf(LocalDateTime.now()).time
 
         val vcReqEnc = try {
-            val vcReq = VcLibManager.getVerifiableCredential(template.readText())
+            val vcReq = VC.from(template.readText())
             when (vcReq) {
                 is Europass -> {
                     val vcEuropass: Europass = vcReq

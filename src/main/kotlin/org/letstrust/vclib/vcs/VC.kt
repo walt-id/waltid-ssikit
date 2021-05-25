@@ -2,11 +2,16 @@ package org.letstrust.vclib.vcs
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.letstrust.vclib.VcLibManager
 
 interface VC {
     @SerialName("@context")
     val context: List<String>
     val type: List<String>
+
+    companion object {
+        fun from(json: String): VC = VcLibManager.getVerifiableCredential(json)
+    }
 }
 
 

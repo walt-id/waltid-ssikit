@@ -12,10 +12,10 @@ import org.letstrust.model.encodePretty
 import org.letstrust.services.did.DidService
 import org.letstrust.test.getTemplate
 import org.letstrust.test.readCredOffer
-import org.letstrust.vclib.VcLibManager
 import org.letstrust.vclib.vcs.EbsiVerifiableAttestation
 import org.letstrust.vclib.vcs.Europass
 import org.letstrust.vclib.vcs.PermanentResidentCard
+import org.letstrust.vclib.vcs.VC
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import kotlin.test.assertFalse
@@ -34,7 +34,7 @@ class CredentialServiceTest {
         val vc = CredentialService.sign(issuerDid, credOffer, "domain.com", "nonce")
         println("Credential generated: $vc")
 
-        val signedVc = VcLibManager.getVerifiableCredential(vc)
+        val signedVc = VC.from(vc)
 
         println(signedVc)
 
@@ -146,7 +146,7 @@ class CredentialServiceTest {
         val domain = "example.com"
         val challenge: String? = "asdf"
 
-        val europass = VcLibManager.getVerifiableCredential(readCredOffer("VerifiableAttestation-Europass")) as Europass
+        val europass = VC.from(readCredOffer("VerifiableAttestation-Europass")) as Europass
 
         europass.issuer = issuerDid
         europass.credentialSubject!!.id = subjectDid

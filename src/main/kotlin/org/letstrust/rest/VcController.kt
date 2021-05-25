@@ -185,8 +185,9 @@ object VcController {
             OpenApiParam(name = "id", description = "Retrieves a single VC template form the data store")
         ],
         responses = [
-            //TODO: fix as following is not working: OpenApiResponse("200", [OpenApiContent(VerifiableCredential::class)], "Verifiable credential template"),
-            OpenApiResponse("200", [OpenApiContent(String::class)], "Verifiable credential template"),
+            //TODO: FIX:  Cannot invoke "io.swagger.v3.oas.models.media.Schema.getName()" because "subtypeModel" is null
+            // OpenApiResponse("200", [OpenApiContent(VerifiableCredential::class, type = "application/json")], "Verifiable credential template"),
+            OpenApiResponse("200", [OpenApiContent(String::class, type = "application/json")], "Verifiable credential template"),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
             OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]

@@ -26,7 +26,9 @@ import org.letstrust.services.did.DidService
 import org.letstrust.services.vc.CredentialService
 import org.letstrust.test.getTemplate
 import org.letstrust.test.readCredOffer
+import org.letstrust.vclib.vcs.EbsiVerifiableAttestation
 import org.letstrust.vclib.vcs.Europass
+import org.letstrust.vclib.vcs.VC
 import java.io.File
 import java.sql.Timestamp
 import java.time.LocalDateTime
@@ -42,6 +44,20 @@ class CoreApiTest {
             serializer = KotlinxSerializer()
         }
         expectSuccess = false
+    }
+
+    companion object {
+        @BeforeClass
+        @JvmStatic
+        fun startServer() {
+            RestAPI.startCoreApi(7003)
+        }
+
+        @AfterClass
+        @JvmStatic
+        fun teardown() {
+            RestAPI.stopCoreApi()
+        }
     }
 
     fun get(path: String): HttpResponse = runBlocking {
@@ -75,20 +91,6 @@ class CoreApiTest {
         }
         //assertEquals(200, response.status.value)
         return@runBlocking response
-    }
-
-    companion object {
-        @BeforeClass
-        @JvmStatic
-        fun startServer() {
-            RestAPI.startCoreApi(7003)
-        }
-
-        @AfterClass
-        @JvmStatic
-        fun teardown() {
-            RestAPI.stopCoreApi()
-        }
     }
 
     @Test
@@ -200,10 +202,9 @@ class CoreApiTest {
             contentType(ContentType.Application.Json)
         }
         val input = File("templates/vc-template-default.json").readText().replace("\\s".toRegex(), "")
-        val vc = Json.decodeFromString<VerifiableCredential>(defaultTemplate)
-        println(vc)
-        val enc = Json.encodeToString(vc)
-        println(enc)
+
+        val vc = VC.from(input)
+        val enc = Json.encodeToString(vc as EbsiVerifiableAttestation)
         assertEquals(input, enc)
 
     }

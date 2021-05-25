@@ -18,8 +18,8 @@ import org.letstrust.crypto.LdSigner
 import org.letstrust.crypto.SignatureType
 import org.letstrust.crypto.keystore.KeyStore
 import org.letstrust.model.*
-import org.letstrust.vclib.VcLibManager
 import org.letstrust.vclib.vcs.Europass
+import org.letstrust.vclib.vcs.VC
 import java.io.File
 import java.net.URI
 import java.nio.file.Files
@@ -278,7 +278,7 @@ object CredentialService {
         log.debug { "Creating a presentation for VC:\n$vc" }
 
         val (vpReqStr, holderDid) = try {
-            val eurpass = VcLibManager.getVerifiableCredential(vc) as Europass
+            val eurpass = VC.from(vc) as Europass
             val vpReq = VerifiablePresentation(listOf("https://www.w3.org/2018/credentials/v1"), "id", listOf("VerifiablePresentation"), null, listOf(eurpass), null)
             val vpReqStr = Json { prettyPrint = true }.encodeToString(vpReq)
             Pair(vpReqStr, eurpass.credentialSubject!!.id!!)

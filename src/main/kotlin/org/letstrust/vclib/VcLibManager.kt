@@ -12,7 +12,7 @@ import kotlin.reflect.jvm.jvmName
 object VcLibManager {
 
     @OptIn(InternalSerializationApi::class)
-    fun getVerifiableCredential(json: String): VC {
+    internal fun getVerifiableCredential(json: String): VC {
         val vcTypeClass = getCredentialType(json)
 
         println("Got type: ${vcTypeClass.qualifiedName} (is ${vcTypeClass.jvmName})")
@@ -30,8 +30,7 @@ object VcLibManager {
         return decodedVC
     }
 
-
-    fun getCredentialType(json: String): KClass<out VC> {
+    private fun getCredentialType(json: String): KClass<out VC> {
         val minVc = Json { ignoreUnknownKeys = true }.decodeFromString<MinVC>(json)
 
         val contexts = minVc.context
@@ -44,7 +43,7 @@ object VcLibManager {
     private val defaultTypes = listOf("VerifiableCredential")
 
     @OptIn(InternalSerializationApi::class)
-    fun getCredentialType(contexts: List<String>, types: List<String>): KClass<out VC> {
+    private fun getCredentialType(contexts: List<String>, types: List<String>): KClass<out VC> {
         val vcTypes = listOf(PermanentResidentCard::class, Europass::class, EbsiVerifiableAttestation::class)
 
         val searchedContexts = contexts.minus(defaultContexts)
