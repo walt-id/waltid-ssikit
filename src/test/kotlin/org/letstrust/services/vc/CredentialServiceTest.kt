@@ -13,10 +13,8 @@ import org.letstrust.services.did.DidService
 import org.letstrust.test.readCredOffer
 import org.letstrust.vclib.VcLibManager
 import org.letstrust.vclib.vcs.Europass
-import java.io.File
 import java.sql.Timestamp
 import java.time.LocalDateTime
-import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -26,17 +24,6 @@ class CredentialServiceTest {
     @Before
     fun setup() {
 
-    }
-
-    @Test
-    fun loadDefaultTemplateTest() {
-        val input = File("templates/vc-template-default.json").readText().replace("\\s".toRegex(), "")
-        val vcStr = CredentialService.loadTemplate("default")
-        val vc = Json.decodeFromString<VerifiableCredential>(vcStr)
-        println(vc)
-        val enc = Json.encodeToString(vc)
-        println(enc)
-        assertEquals(input, enc)
     }
 
     @Test

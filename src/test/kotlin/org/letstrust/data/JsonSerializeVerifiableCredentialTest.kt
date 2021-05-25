@@ -27,14 +27,21 @@ class JsonSerializeVerifiableCredentialTest {
             .forEach {
                 println("serializing: $it")
 
-                val vc = VcLibManager.getVerifiableCredential(it.readText())
+                val input = File("templates/vc-template-default.json").readText().replace("\\s".toRegex(), "")
+                val vc = VcLibManager.getVerifiableCredential(input)
 
                 if (vc is Europass) {
                     println("\t => Europass serialized")
+                    val enc = Json.encodeToString(vc)
+                    assertEquals(input, enc)
                 } else if (vc is PermanentResidentCard) {
                     println("\t => PermanentResidentCard serialized")
+                    val enc = Json.encodeToString(vc)
+                    assertEquals(input, enc)
                 } else if (vc is EbsiVerifiableAttestation) {
                     println("\t => EbsiVerifiableAttestation serialized")
+                    val enc = Json.encodeToString(vc)
+                    assertEquals(input, enc)
                 } else {
                     assertTrue(false, "VC type not supported")
                 }
