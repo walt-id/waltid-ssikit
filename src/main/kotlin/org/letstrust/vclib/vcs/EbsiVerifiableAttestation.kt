@@ -9,10 +9,10 @@ import org.letstrust.vclib.VCMetadata
 data class EbsiVerifiableAttestation(
     @SerialName("@context")
     override val context: List<String>,
-    val id: String?,
+    var id: String?,
     override val type: List<String>,
     var issuer: String?,
-    val issuanceDate: String?, // 2020-04-22T10:37:22Z
+    var issuanceDate: String?, // 2020-04-22T10:37:22Z
     val credentialSubject: CredentialSubject?,
     val credentialStatus: CredentialStatus?,
     val credentialSchema: CredentialSchema?,
@@ -25,13 +25,13 @@ data class EbsiVerifiableAttestation(
     )
     @Serializable
     data class CredentialStatus(
-        val id: String?,
-        val type: String?
+        var id: String?,
+        var type: String?
     )
     @Serializable
     data class CredentialSchema(
-        val id: String?,
-        val type: String?
+        var id: String?,
+        var type: String?
     )
 
     companion object : VCMetadata {

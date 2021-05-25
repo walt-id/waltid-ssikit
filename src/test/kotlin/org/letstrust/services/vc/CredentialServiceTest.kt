@@ -14,6 +14,7 @@ import org.letstrust.test.readCredOffer
 import org.letstrust.vclib.VcLibManager
 import org.letstrust.vclib.vcs.EbsiVerifiableAttestation
 import org.letstrust.vclib.vcs.Europass
+import org.letstrust.vclib.vcs.PermanentResidentCard
 import org.letstrust.vclib.vcs.VC
 import java.io.File
 import java.sql.Timestamp
@@ -66,6 +67,22 @@ class CredentialServiceTest {
 
         template.issuer = issuerDid
         template.credentialSubject!!.id = issuerDid // self signed
+        template.learningAchievement!!.title!!.text!!.text = "Some Europass specific title"
+
+        val credOffer = Json.encodeToString(template)
+
+        genericSignVerify(issuerDid, credOffer)
+    }
+
+    @Test
+    fun signPermanentResitentCard() {
+        val template = getTemplate("permanent-resident-card") as PermanentResidentCard
+
+        val issuerDid = DidService.create(DidMethod.key)
+
+        template.issuer = issuerDid
+        template.credentialSubject!!.id = issuerDid // self signed
+        template.identifier = "some-prc-specific-id"
 
         val credOffer = Json.encodeToString(template)
 

@@ -48,7 +48,7 @@ data class Europass(
     data class LearningAchievement(
         @SerialName("@id")
         val id: String?, // urn:epass:learningAchievement:1
-        val title: Title?,
+        var title: Title?,
         val specifiedBy: SpecifiedBy?
     ) {
         @Serializable
@@ -62,7 +62,7 @@ data class Europass(
                 @SerialName("@lang")
                 val lang: String?, // en
                 @SerialName("#text")
-                val text: String? // Degree in Biology
+                var text: String? // Degree in Biology
             )
         }
 
