@@ -9,6 +9,11 @@ import java.security.*
 import java.security.spec.ECGenParameterSpec
 import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 // Supported key algorithms
@@ -155,3 +160,10 @@ fun keyPairGeneratorEd25519(): KeyPairGenerator {
     return KeyPairGenerator.getInstance("Ed25519")
 }
 
+fun localTimeSecondsUtc(): String {
+    val inDateTime = ZonedDateTime.of(LocalDateTime.now(), ZoneOffset.UTC)
+
+    val inDateEpochSeconds = Instant.ofEpochSecond(inDateTime.toEpochSecond())
+
+    return DateTimeFormatter.ISO_INSTANT.format(inDateEpochSeconds)
+}

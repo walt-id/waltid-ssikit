@@ -10,13 +10,12 @@ import org.letstrust.model.VerifiableCredential
 import org.letstrust.model.VerifiablePresentation
 import org.letstrust.model.encodePretty
 import org.letstrust.services.did.DidService
+import org.letstrust.test.getTemplate
 import org.letstrust.test.readCredOffer
 import org.letstrust.vclib.VcLibManager
 import org.letstrust.vclib.vcs.EbsiVerifiableAttestation
 import org.letstrust.vclib.vcs.Europass
 import org.letstrust.vclib.vcs.PermanentResidentCard
-import org.letstrust.vclib.vcs.VC
-import java.io.File
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import kotlin.test.assertFalse
@@ -29,8 +28,6 @@ class CredentialServiceTest {
     fun setup() {
 
     }
-
-    fun getTemplate( name: String): VC = VcLibManager.getVerifiableCredential(File("templates/vc-template-$name.json").readText())
 
     fun genericSignVerify(issuerDid: String, credOffer: String) {
 
