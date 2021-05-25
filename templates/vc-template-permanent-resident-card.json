@@ -8,7 +8,7 @@
     "PermanentResidentCard"
   ],
   "credentialSubject": {
-    "id": "did:example:123",
+    "id": "did:key:z6Mkte9e5E2GRozAgYyhktX7eTt9woCR4yJLnaqC88FQCSyY",
     "type": [
       "PermanentResident",
       "Person"
@@ -24,16 +24,9 @@
     "birthCountry": "Bahamas",
     "birthDate": "1958-08-17"
   },
-  "issuer": "did:example:456",
+  "issuer": "did:sov:staging:PiEVD2uU2qKEQ5oxx1BJ6A",
   "issuanceDate": "2020-04-22T10:37:22Z",
   "identifier": "83627465",
   "name": "Permanent Resident Card",
-  "description": "Government of Example Permanent Resident Card.",
-  "proof": {
-    "type": "Ed25519Signature2018",
-    "created": "2020-04-22T10:37:22Z",
-    "proofPurpose": "assertionMethod",
-    "verificationMethod": "did:example:456#key-1",
-    "jws": "eyJjcml0IjpbImI2NCJdLCJiNjQiOmZhbHNlLCJhbGciOiJFZERTQSJ9..BhWew0x-txcroGjgdtK-yBCqoetg9DD9SgV4245TmXJi-PmqFzux6Cwaph0r-mbqzlE17yLebjfqbRT275U1AA"
-  }
+  "description": "Government of Example Permanent Resident Card."
 }

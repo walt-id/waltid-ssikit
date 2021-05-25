@@ -4,10 +4,7 @@ import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
-import org.letstrust.vclib.vcs.Europass
-import org.letstrust.vclib.vcs.MinVC
-import org.letstrust.vclib.vcs.PermanentResidentCard
-import org.letstrust.vclib.vcs.VC
+import org.letstrust.vclib.vcs.*
 import kotlin.reflect.KClass
 import kotlin.reflect.full.companionObjectInstance
 import kotlin.reflect.jvm.jvmName
@@ -48,7 +45,7 @@ object VcLibManager {
 
     @OptIn(InternalSerializationApi::class)
     fun getCredentialType(contexts: List<String>, types: List<String>): KClass<out VC> {
-        val vcTypes = listOf(PermanentResidentCard::class, Europass::class)
+        val vcTypes = listOf(PermanentResidentCard::class, Europass::class, EbsiVerifiableAttestation::class)
 
         val searchedContexts = contexts.minus(defaultContexts)
         val searchedTypes = types.minus(defaultTypes)
