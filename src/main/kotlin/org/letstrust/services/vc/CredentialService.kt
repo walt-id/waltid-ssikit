@@ -334,5 +334,6 @@ object CredentialService {
             .map { it.fileName.toString().replace("vc-template-", "").replace(".json", "") }.toList()
     }
 
+    //TODO: fix typed response: fun loadTemplate(name: String): VerifiableCredential = Json.decodeFromString(File("templates/vc-template-$name.json").readText())
     fun loadTemplate(name: String): String = File("templates/vc-template-$name.json").readText()
 }

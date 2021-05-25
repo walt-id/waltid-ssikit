@@ -24,6 +24,7 @@ import org.letstrust.model.encodePretty
 import org.letstrust.services.did.DidService
 import org.letstrust.services.vc.CredentialService
 import org.letstrust.test.readCredOffer
+import java.io.File
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import kotlin.test.assertEquals
@@ -126,7 +127,6 @@ class CoreApiTest {
         assertEquals("Couldn't deserialize body to GenKeyRequest", error.title)
     }
 
-
     @Test
     fun testListKey() = runBlocking {
         val keyIds = client.get<List<String>>("$CORE_API_URL/v1/key")
@@ -177,6 +177,32 @@ class CoreApiTest {
         val error = Json.decodeFromString<ErrorResponse>(errorResp.readText())
         assertEquals(400, error.status)
         assertEquals("DID method EBSI not supported", error.title)
+    }
+
+    @Test
+    fun testListVcTemplates() = runBlocking {
+
+        val templates = client.get<List<String>>("$CORE_API_URL/v1/vc/templates") {
+            contentType(ContentType.Application.Json)
+        }
+        var foundDefaultTemplate = false
+        templates.forEach { if (it == "default") foundDefaultTemplate = true }
+        assertTrue(foundDefaultTemplate)
+    }
+
+    @Test
+    fun testGetVcDefaultTemplate() = runBlocking {
+
+        val defaultTemplate = client.get<String>("$CORE_API_URL/v1/vc/templates/default") {
+            contentType(ContentType.Application.Json)
+        }
+        val input = File("templates/vc-template-default.json").readText().replace("\\s".toRegex(), "")
+        val vc = Json.decodeFromString<VerifiableCredential>(defaultTemplate)
+        println(vc)
+        val enc = Json.encodeToString(vc)
+        println(enc)
+        assertEquals(input, enc)
+
     }
 
     @Test

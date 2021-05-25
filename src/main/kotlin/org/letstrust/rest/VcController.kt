@@ -165,7 +165,7 @@ object VcController {
 
     @OpenApi(
         summary = "List VC templates",
-        operationId = "templatesList",
+        operationId = "listTemplates",
         tags = ["Verifiable Credentials"],
         responses = [
             OpenApiResponse("200", content = [OpenApiContent(from = String::class, isArray = true, type = "application/json")]),
@@ -179,18 +179,19 @@ object VcController {
 
     @OpenApi(
         summary = "Loads a VC template",
-        operationId = "templateLoad",
+        operationId = "loadTemplate",
         tags = ["Verifiable Credentials"],
         pathParams = [
             OpenApiParam(name = "id", description = "Retrieves a single VC template form the data store")
         ],
         responses = [
-            OpenApiResponse("200", content = [OpenApiContent(from = String::class, type = "application/json")]),
+            //TODO: fix as following is not working: OpenApiResponse("200", [OpenApiContent(VerifiableCredential::class)], "Verifiable credential template"),
+            OpenApiResponse("200", [OpenApiContent(String::class)], "Verifiable credential template"),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
             OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
     fun loadTemplate(ctx: Context) {
-        ctx.json(CredentialService.loadTemplate(ctx.pathParam("id")))
+        ctx.result(CredentialService.loadTemplate(ctx.pathParam("id")))
     }
 }
