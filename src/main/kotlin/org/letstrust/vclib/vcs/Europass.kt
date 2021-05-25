@@ -178,21 +178,21 @@ data class Europass(
         val evidenceDocument: List<String?>?
     )
 
-    @Serializable
-    data class Proof(
-        val type: String?, // EcdsaSecp256k1Signature2019
-        val created: String?, // 2019-06-22T14:11:44Z
-        val creator: String? = null,
-        val proofPurpose: String? = null, // assertionMethod
-        val verificationMethod: VerificationMethod? = null,
-        val jws: String?, // eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..TCYt5X
-        val proofValue: String? = null // BD21J4fdlnBvBA+y6D...fnC8Y=
-    ) {
-        @Serializable
-        data class VerificationMethod(
-            val type: String?, // EidasCertificate2019
-            @SerialName("CertSerial")
-            val certSerial: String? // 1088321447
-        )
-    }
+//    @Serializable
+//    data class Proof(
+//        val type: String?, // EcdsaSecp256k1Signature2019
+//        val created: String?, // 2019-06-22T14:11:44Z
+//        val creator: String? = null,
+//        val proofPurpose: String? = null, // assertionMethod
+//        val verificationMethod: VerificationMethod? = null,
+//        val jws: String?, // eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..TCYt5X
+//        val proofValue: String? = null // BD21J4fdlnBvBA+y6D...fnC8Y=
+//    ) {
+//        @Serializable
+//        data class VerificationMethod(
+//            val type: String?, // EidasCertificate2019
+//            @SerialName("CertSerial")
+//            val certSerial: String? // 1088321447
+//        )
+//    }
 }

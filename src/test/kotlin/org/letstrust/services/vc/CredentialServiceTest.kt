@@ -56,8 +56,22 @@ class CredentialServiceTest {
         val credOffer = Json.encodeToString(template)
 
         genericSignVerify(issuerDid, credOffer)
-
     }
+
+    @Test
+    fun signEuropass() {
+        val template = getTemplate("europass") as Europass
+
+        val issuerDid = DidService.create(DidMethod.key)
+
+        template.issuer = issuerDid
+        template.credentialSubject!!.id = issuerDid // self signed
+
+        val credOffer = Json.encodeToString(template)
+
+        genericSignVerify(issuerDid, credOffer)
+    }
+
 
     // TODO: consider methods below, as old data-model might be used
     @Test
