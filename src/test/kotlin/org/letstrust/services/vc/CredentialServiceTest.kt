@@ -12,10 +12,7 @@ import org.letstrust.model.encodePretty
 import org.letstrust.services.did.DidService
 import org.letstrust.test.getTemplate
 import org.letstrust.test.readCredOffer
-import org.letstrust.vclib.vcs.EbsiVerifiableAttestation
-import org.letstrust.vclib.vcs.Europass
-import org.letstrust.vclib.vcs.PermanentResidentCard
-import org.letstrust.vclib.vcs.VC
+import org.letstrust.vclib.vcs.*
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import kotlin.test.assertFalse
@@ -34,7 +31,7 @@ class CredentialServiceTest {
         val vc = CredentialService.sign(issuerDid, credOffer, "domain.com", "nonce")
         println("Credential generated: $vc")
 
-        val signedVc = VC.from(vc)
+        val signedVc = VC.decode(vc)
 
         println(signedVc)
 
@@ -84,6 +81,30 @@ class CredentialServiceTest {
         val credOffer = Json.encodeToString(template)
 
         genericSignVerify(issuerDid, credOffer)
+    }
+
+    @Test
+    fun presentEuropassTest() {
+
+        val issuerDid = DidService.create(DidMethod.ebsi)
+        val subjectDid = DidService.create(DidMethod.key)
+        val domain = "example.com"
+        val challenge: String? = "asdf"
+
+        val template = getTemplate("europass") as Europass
+
+        template.issuer = issuerDid
+        template.credentialSubject!!.id = subjectDid
+        template.learningAchievement!!.title!!.text!!.text = "Some Europass specific title"
+
+        val vc = CredentialService.sign(issuerDid, template.encode())
+
+        val vp = CredentialService.present(vc, domain, challenge)
+        println("Presentation generated: $vc")
+
+        val vpVerified = CredentialService.verifyVp(vp)
+        assertTrue(vpVerified)
+
     }
 
 
@@ -138,28 +159,7 @@ class CredentialServiceTest {
         assertTrue(vcVerified)
     }
 
-    @Test
-    fun presentEuropassCredentialTest() {
 
-        val issuerDid = DidService.create(DidMethod.ebsi)
-        val subjectDid = DidService.create(DidMethod.key)
-        val domain = "example.com"
-        val challenge: String? = "asdf"
-
-        val europass = VC.from(readCredOffer("VerifiableAttestation-Europass")) as Europass
-
-        europass.issuer = issuerDid
-        europass.credentialSubject!!.id = subjectDid
-
-        val vc = CredentialService.sign(issuerDid, Json.encodeToString(europass))
-
-        val vp = CredentialService.present(vc, domain, challenge)
-        println("Presentation generated: $vc")
-
-        val vpVerified = CredentialService.verifyVp(vp)
-        assertTrue(vpVerified)
-
-    }
 
     @Test
     fun signCredentialWrongValidationKeyTest() {

@@ -203,7 +203,7 @@ class CoreApiTest {
         }
         val input = File("templates/vc-template-default.json").readText().replace("\\s".toRegex(), "")
 
-        val vc = VC.from(input)
+        val vc = VC.decode(input)
         val enc = Json.encodeToString(vc as EbsiVerifiableAttestation)
         assertEquals(input, enc)
 

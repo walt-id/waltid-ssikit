@@ -27,7 +27,7 @@ class JsonSerializeVerifiableCredentialTest {
                 println("serializing: $it")
 
                 val input = File("templates/vc-template-default.json").readText().replace("\\s".toRegex(), "")
-                val vc = VC.from(input)
+                val vc = VC.decode(input)
 
                 if (vc is Europass) {
                     println("\t => Europass serialized")

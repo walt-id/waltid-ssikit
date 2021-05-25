@@ -3,6 +3,8 @@ package org.letstrust.vclib.vcs
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.letstrust.vclib.VCMetadata
 
 @Serializable
@@ -39,3 +41,6 @@ data class PermanentResidentCard(
         override val metadataType = "PermanentResidentCard"
     }
 }
+
+fun PermanentResidentCard.encode() = Json.encodeToString(this)
+fun PermanentResidentCard.encodePretty() = Json { prettyPrint = true }.encodeToString(this)

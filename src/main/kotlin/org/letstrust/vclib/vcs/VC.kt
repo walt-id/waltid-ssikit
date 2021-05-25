@@ -10,10 +10,9 @@ interface VC {
     val type: List<String>
 
     companion object {
-        fun from(json: String): VC = VcLibManager.getVerifiableCredential(json)
+        fun decode(json: String): VC = VcLibManager.getVerifiableCredential(json)
     }
 }
-
 
 @Serializable
 data class Proof(

@@ -2,6 +2,8 @@ package org.letstrust.vclib.vcs
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.letstrust.vclib.VCMetadata
 
 @Serializable
@@ -196,3 +198,6 @@ data class Europass(
 //        )
 //    }
 }
+
+fun Europass.encode() = Json.encodeToString(this)
+fun Europass.encodePretty() = Json { prettyPrint = true }.encodeToString(this)

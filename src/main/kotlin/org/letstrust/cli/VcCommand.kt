@@ -81,7 +81,7 @@ class IssueVcCommand : CliktCommand(
         val vcId = Timestamp.valueOf(LocalDateTime.now()).time
 
         val vcReqEnc = try {
-            val vcReq = VC.from(template.readText())
+            val vcReq = VC.decode(template.readText())
             when (vcReq) {
                 is Europass -> {
                     val vcEuropass: Europass = vcReq

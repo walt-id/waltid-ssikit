@@ -278,7 +278,7 @@ object CredentialService {
         log.debug { "Creating a presentation for VC:\n$vc" }
 
         val (vpReqStr, holderDid) = try {
-            val eurpass = VC.from(vc) as Europass
+            val eurpass = VC.decode(vc) as Europass
             val vpReq = VerifiablePresentation(listOf("https://www.w3.org/2018/credentials/v1"), "id", listOf("VerifiablePresentation"), null, listOf(eurpass), null)
             val vpReqStr = Json { prettyPrint = true }.encodeToString(vpReq)
             Pair(vpReqStr, eurpass.credentialSubject!!.id!!)

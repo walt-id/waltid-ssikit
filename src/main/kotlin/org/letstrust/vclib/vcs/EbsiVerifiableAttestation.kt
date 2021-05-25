@@ -3,6 +3,8 @@ package org.letstrust.vclib.vcs
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.letstrust.vclib.VCMetadata
 
 @Serializable
@@ -23,11 +25,13 @@ data class EbsiVerifiableAttestation(
         var id: String?,
         val authorizationClaims: List<String>?
     )
+
     @Serializable
     data class CredentialStatus(
         var id: String?,
         var type: String?
     )
+
     @Serializable
     data class CredentialSchema(
         var id: String?,
@@ -39,3 +43,6 @@ data class EbsiVerifiableAttestation(
         override val metadataType = "VerifiableAttestation"
     }
 }
+
+fun EbsiVerifiableAttestation.encode() = Json.encodeToString(this)
+fun EbsiVerifiableAttestation.encodePretty() = Json { prettyPrint = true }.encodeToString(this)
