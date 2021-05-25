@@ -2,6 +2,7 @@ package org.letstrust.vclib
 
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.descriptors.elementNames
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
 import org.letstrust.vclib.vcs.*
@@ -22,8 +23,8 @@ object VcLibManager {
 
         val serializer = vcTypeClass.serializer()
 
-        // println("Serializer descriptor: " + serializer.descriptor.serialName)
-        // serializer.descriptor.elementNames.forEach { println("Element: $it") }
+        println("Serializer descriptor: " + serializer.descriptor.serialName)
+        serializer.descriptor.elementNames.forEach { println("Element: $it") }
 
         val decodedVC = Json /*{ ignoreUnknownKeys = true }*/.decodeFromString(serializer, json)
 
@@ -44,7 +45,7 @@ object VcLibManager {
 
     @OptIn(InternalSerializationApi::class)
     private fun getCredentialType(contexts: List<String>, types: List<String>): KClass<out VC> {
-        val vcTypes = listOf(PermanentResidentCard::class, Europass::class, EbsiVerifiableAttestation::class)
+        val vcTypes = listOf(VP::class, PermanentResidentCard::class, Europass::class, EbsiVerifiableAttestation::class)
 
         val searchedContexts = contexts.minus(defaultContexts)
         val searchedTypes = types.minus(defaultTypes)

@@ -15,6 +15,7 @@ import org.letstrust.test.readCredOffer
 import org.letstrust.vclib.vcs.*
 import java.sql.Timestamp
 import java.time.LocalDateTime
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
@@ -28,15 +29,26 @@ class CredentialServiceTest {
 
     fun genericSignVerify(issuerDid: String, credOffer: String) {
 
-        val vc = CredentialService.sign(issuerDid, credOffer, "domain.com", "nonce")
-        println("Credential generated: $vc")
+        val vcStr = CredentialService.sign(issuerDid, credOffer)
+        println("Credential generated: $vcStr")
 
-        val signedVc = VC.decode(vc)
+        val vc = VC.decode(vcStr)
+        println(vc)
 
-        println(signedVc)
-
-        val vcVerified = CredentialService.verifyVc(issuerDid, vc)
+        val vcVerified = CredentialService.verifyVc(issuerDid, vcStr)
         assertTrue(vcVerified)
+
+        val vpStr = CredentialService.present(vcStr, "domain.com", "nonce")
+        println("Presentation generated: $vpStr")
+
+        // TODO FIX
+//        val vp = VC.decode(vpStr) as VP
+//        println(vp)
+//        assertEquals("domain.com", vp.proof?.domain)
+//        assertEquals("nonce", vp.proof?.nonce)
+
+        val vpVerified = CredentialService.verifyVp(vpStr)
+        assertTrue(vpVerified)
     }
 
     @Test
@@ -99,8 +111,12 @@ class CredentialServiceTest {
 
         val vc = CredentialService.sign(issuerDid, template.encode())
 
+        val vcSigned = VC.decode(vc)
+        println(vcSigned)
+
         val vp = CredentialService.present(vc, domain, challenge)
-        println("Presentation generated: $vc")
+        println("Presentation generated: $vp")
+
 
         val vpVerified = CredentialService.verifyVp(vp)
         assertTrue(vpVerified)

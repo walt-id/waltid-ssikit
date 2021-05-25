@@ -1,5 +1,6 @@
 package org.letstrust.vclib.vcs
 
+import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -24,6 +25,10 @@ data class Europass(
     val evidence: Evidence?,
     val proof: Proof? = null
 ) : VC {
+
+    override fun issuer(): String = issuer!!
+
+    override fun holder(): String = credentialSubject!!.id!!
 
     companion object : VCMetadata {
         override val metadataContext = "https://essif.europa.eu/schemas/vc/2020/v1"
@@ -201,3 +206,27 @@ data class Europass(
 
 fun Europass.encode() = Json.encodeToString(this)
 fun Europass.encodePretty() = Json { prettyPrint = true }.encodeToString(this)
+
+
+@Serializable
+data class EuropassVP(
+    @SerialName("@context")
+    override val context: List<String>,
+    override val type: List<String>,
+    val id: String? = null,
+    val vc: List<Europass>?,
+    val proof: org.letstrust.model.Proof? = null
+) : VC {
+
+    override fun issuer(): String = proof!!.creator!!
+
+    override fun holder(): String = proof!!.creator!!
+
+    companion object : VCMetadata {
+        override val metadataContext = ""
+        override val metadataType = "VerifiablePresentation"
+    }
+}
+
+fun EuropassVP.encode() = Json.encodeToString(this)
+fun EuropassVP.encodePretty() = Json { prettyPrint = true }.encodeToString(this)
