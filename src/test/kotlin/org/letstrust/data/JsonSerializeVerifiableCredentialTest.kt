@@ -45,6 +45,13 @@ class JsonSerializeVerifiableCredentialTest {
             }
     }
 
+    @Test
+    fun serializeSignedVc() {
+        val signedEuropassStr = File("src/test/resources/verifiable-credentials/vc-1622016634947-europass.json").readText()
+        println(signedEuropassStr)
+        val vc = VC.decode(signedEuropassStr)
+    }
+
     // TODO: remove / replace functions below as they are using the old data model
     @Test
     fun serializeExample37() {

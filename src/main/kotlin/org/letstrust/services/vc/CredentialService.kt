@@ -201,14 +201,15 @@ object CredentialService {
     fun verifyVc(vc: String): Boolean {
         log.debug { "Verifying VC:\n$vc" }
 
-        val vcObj = Json.decodeFromString<VerifiableCredential>(vc)
+        //val vcObj = Json.decodeFromString<VerifiableCredential>(vc)
+        val vcObj = VC.decode(vc)
         log.trace { "VC decoded: $vcObj" }
 
-        val signatureType = SignatureType.valueOf(vcObj.proof!!.type)
-        log.debug { "Issuer: ${vcObj.issuer}" }
-        log.debug { "Signature type: $signatureType" }
+//        val signatureType = SignatureType.valueOf(vcObj.proof!!.type)
+//        log.debug { "Issuer: ${vcObj.issuer}" }
+//        log.debug { "Signature type: $signatureType" }
 
-        val vcVerified = verifyVc(vcObj.issuer, vc)
+        val vcVerified = verifyVc(vcObj.issuer(), vc)
         log.debug { "Verification of LD-Proof returned: $vcVerified" }
         return vcVerified
     }

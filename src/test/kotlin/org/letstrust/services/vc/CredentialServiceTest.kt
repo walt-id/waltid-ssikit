@@ -35,8 +35,9 @@ class CredentialServiceTest {
         val vc = VC.decode(vcStr)
         println(vc)
 
-        val vcVerified = CredentialService.verifyVc(issuerDid, vcStr)
-        assertTrue(vcVerified)
+        val vcVerified = CredentialService.verify(vcStr)
+        assertTrue(vcVerified.verified)
+        assertEquals(CredentialService.VerificationType.VERIFIABLE_CREDENTIAL,vcVerified.verificationType)
 
         val vpStr = CredentialService.present(vcStr, "domain.com", "nonce")
         println("Presentation generated: $vpStr")
@@ -47,8 +48,9 @@ class CredentialServiceTest {
 //        assertEquals("domain.com", vp.proof?.domain)
 //        assertEquals("nonce", vp.proof?.nonce)
 
-        val vpVerified = CredentialService.verifyVp(vpStr)
-        assertTrue(vpVerified)
+        val vpVerified = CredentialService.verify(vpStr)
+        assertTrue(vpVerified.verified)
+        assertEquals(CredentialService.VerificationType.VERIFIABLE_PRESENTATION, vpVerified.verificationType)
     }
 
     @Test
