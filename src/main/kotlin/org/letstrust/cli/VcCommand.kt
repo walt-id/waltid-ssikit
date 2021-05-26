@@ -8,12 +8,12 @@ import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
+import io.ktor.util.date.*
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import org.letstrust.model.VerifiableCredential
-import org.letstrust.model.VerifiablePresentation
 import org.letstrust.model.encodePretty
 import org.letstrust.services.vc.CredentialService
 import org.letstrust.services.vc.CredentialService.VerificationType
@@ -68,10 +68,10 @@ class IssueVcCommand : CliktCommand(
 
         // Loading VC template
         log.debug { "Loading credential template: ${template.absolutePath}" }
-        if (!template.name.contains("vc-template")) {
-            log.error { "Template-file name must start with \"vc-template\"" }
-            return
-        }
+//        if (!template.name.contains("vc-template")) {
+//            log.error { "Template-file name must start with \"vc-template\"" }
+//            return
+//        }
 
         if (!template.exists()) {
             template.writeText(CredentialService.defaultVcTemplate().encodePretty())
@@ -157,16 +157,16 @@ class PresentVcCommand : CliktCommand(
         echo("\nResults:\n")
 
         // FIX: This is required to filter out "type" : [ "Ed25519Signature2018" ] in the proof, which is s bug from signature.ld
-        val vpStr =
-            Json.decodeFromString<VerifiablePresentation>(vp).let { Json { prettyPrint = true }.encodeToString(it) }
+//        val vpStr =
+//            Json.decodeFromString<VerifiablePresentation>(vp).let { Json { prettyPrint = true }.encodeToString(it) }
 
         echo("Presentation created:\n")
-        echo(vpStr)
+        echo(vp)
 
         // Storing VP
         val vpFileName = "data/vc/presented/vp-${Timestamp.valueOf(LocalDateTime.now()).time}.json"
         log.debug { "Writing VP to file $vpFileName" }
-        File(vpFileName).writeText(vpStr)
+        File(vpFileName).writeText(vp)
         echo("\nSaved verifiable presentation to: \"$vpFileName\"")
     }
 }
@@ -265,6 +265,6 @@ class ExportVcTemplateCommand : CliktCommand(
     override fun run() {
         echo("\nExporting VC template ...")
 
-        echo(CredentialService.loadTemplate(templateName))
+        File("vc-template $templateName-${getTimeMillis()}.json").writeText(CredentialService.loadTemplate(templateName))
     }
 }

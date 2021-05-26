@@ -17,7 +17,7 @@ object VcLibManager {
         var vcTypeClass = getCredentialType(json)
 
         // TODO: FIX hack
-        if ( json.contains("VerifiablePresentation")) {
+        if (json.contains("VerifiablePresentation")) {
             vcTypeClass = when {
                 json.contains("Europass") -> EuropassVP::class
                 json.contains("VerifiableAttestation") -> EbsiVerifiableAttestationVP::class
@@ -26,15 +26,15 @@ object VcLibManager {
             }
         }
 
-        println("Got type: ${vcTypeClass.qualifiedName} (is ${vcTypeClass.jvmName})")
+        //  println("Got type: ${vcTypeClass.qualifiedName} (is ${vcTypeClass.jvmName})")
 
         val metadata = vcTypeClass.companionObjectInstance as VCMetadata
-        println("Meta: ${metadata.metadataContext} ${metadata.metadataType}")
+        // println("Meta: ${metadata.metadataContext} ${metadata.metadataType}")
 
         val serializer = vcTypeClass.serializer()
 
-        println("Serializer descriptor: " + serializer.descriptor.serialName)
-        serializer.descriptor.elementNames.forEach { println("Element: $it") }
+//        println("Serializer descriptor: " + serializer.descriptor.serialName)
+//        serializer.descriptor.elementNames.forEach { println("Element: $it") }
 
         val decodedVC = Json /*{ ignoreUnknownKeys = true }*/.decodeFromString(serializer, json)
 
