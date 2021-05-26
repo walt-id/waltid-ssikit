@@ -14,7 +14,17 @@ object VcLibManager {
 
     @OptIn(InternalSerializationApi::class)
     internal fun getVerifiableCredential(json: String): VC {
-        val vcTypeClass = getCredentialType(json)
+        var vcTypeClass = getCredentialType(json)
+
+        // TODO: FIX hack
+        if ( json.contains("VerifiablePresentation")) {
+            vcTypeClass = when {
+                json.contains("Europass") -> EuropassVP::class
+                json.contains("VerifiableAttestation") -> EbsiVerifiableAttestationVP::class
+                json.contains("PermanentResidentCard") -> PermanentResidentCardVP::class
+                else -> throw IllegalArgumentException("No valid VP type")
+            }
+        }
 
         println("Got type: ${vcTypeClass.qualifiedName} (is ${vcTypeClass.jvmName})")
 
