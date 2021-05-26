@@ -103,7 +103,7 @@ object KeyController {
         ]
     )
     fun export(ctx: Context) {
-        ctx.json(KeyManagementService.export(ctx.bodyAsClass(ExportKeyRequest::class.java).keyAlias))
+        ctx.result(KeyManagementService.export(ctx.bodyAsClass(ExportKeyRequest::class.java).keyAlias))
     }
 
     @OpenApi(

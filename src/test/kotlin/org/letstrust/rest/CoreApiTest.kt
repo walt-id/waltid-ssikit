@@ -233,7 +233,7 @@ class CoreApiTest {
         println("Credential encoded: ${vcEncoded}")
     }
 
-    // TODO FIX @Test
+    @Test
     fun testPresentVerifyVC() = runBlocking {
         val credOffer = getTemplate("europass") as Europass
         val issuerDid = DidService.create(DidMethod.web)
@@ -250,8 +250,9 @@ class CoreApiTest {
         println("Credential request:\n$vcReqEnc")
 
         val vcStr = CredentialService.sign(issuerDid, vcReqEnc)
-        val vc = Json.decodeFromString<VerifiableCredential>(vcStr)
-        println("Credential generated: ${vc.encodePretty()}")
+        val vc = VC.decode(vcStr)
+
+        println("Credential generated: ${vc}")
 
         val vp = client.post<String>("$CORE_API_URL/v1/vc/present") {
             contentType(ContentType.Application.Json)
