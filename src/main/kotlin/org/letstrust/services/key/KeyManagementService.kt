@@ -2,15 +2,23 @@ package org.letstrust.services.key
 
 //import org.bouncycastle.jce.ECNamedCurveTable
 //import org.bouncycastle.jce.provider.BouncyCastleProvider
+import com.nimbusds.jose.JWSAlgorithm
+import com.nimbusds.jose.jwk.Curve
+import com.nimbusds.jose.jwk.ECKey
+import com.nimbusds.jose.jwk.KeyUse
+import com.nimbusds.jose.jwk.OctetKeyPair
+import com.nimbusds.jose.util.Base64URL
+import org.bouncycastle.asn1.ASN1BitString
+import org.bouncycastle.asn1.ASN1Sequence
 import org.bouncycastle.jce.ECNamedCurveTable
-import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.LetsTrustServices
 import org.letstrust.crypto.CryptoService
 import org.letstrust.crypto.Key
+import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.KeyId
 import org.letstrust.crypto.keystore.KeyStore
+import java.security.interfaces.ECPublicKey
 import java.util.*
-import kotlin.collections.ArrayList
 
 object KeyManagementService {
 
@@ -26,7 +34,39 @@ object KeyManagementService {
 
     fun load(keyAlias: String) = ks.load(keyAlias)
 
-    fun export(keyAlias: String): String = ks.load(keyAlias).let { it.toJwk().toJSONString() }
+    fun export(keyAlias: String): String {
+        ks.load(keyAlias).let {
+            return when (it.algorithm) {
+                KeyAlgorithm.EdDSA_Ed25519 -> toEd25519Jwk(it).toJSONString()
+                KeyAlgorithm.ECDSA_Secp256k1 -> toSecp256Jwk(it).toJSONString()
+                else -> throw IllegalArgumentException("Algorithm not supported")
+            }
+        }
+
+        throw IllegalArgumentException("No key by alias $keyAlias")
+    }
+
+    fun toSecp256Jwk(key: Key): ECKey {
+        return ECKey.Builder(Curve.SECP256K1, key.keyPair!!.public as ECPublicKey)
+            .privateKey(key.keyPair!!.private)
+            .keyUse(KeyUse.SIGNATURE)
+            .algorithm(JWSAlgorithm.ES256K)
+            .keyID(key.keyId.id).build()
+    }
+
+    fun toEd25519Jwk(key: Key): OctetKeyPair {
+        val keyUse = KeyUse.parse("sig")
+        val keyAlg = JWSAlgorithm.parse("EdDSA")
+        val keyCurve = Curve.parse("Ed25519")
+        val pubPrim = ASN1Sequence.fromByteArray(key.getPublicKey().encoded) as ASN1Sequence
+        val x = (pubPrim.getObjectAt(1) as ASN1BitString).octets
+
+        return OctetKeyPair.Builder(keyCurve, Base64URL.encode(x))
+            .keyUse(keyUse)
+            .algorithm(keyAlg)
+            .keyID(key.keyId.id)
+            .build()
+    }
 
     fun listKeys(): List<Key> = ks.listKeys()
 

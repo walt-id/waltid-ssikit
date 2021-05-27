@@ -135,7 +135,7 @@ object JwtService {
         }
 
         val res = when (verifierKey.algorithm) {
-            KeyAlgorithm.EdDSA_Ed25519 -> jwt.verify(Ed25519Verifier(verifierKey.toJwk()))
+            KeyAlgorithm.EdDSA_Ed25519 -> jwt.verify(Ed25519Verifier(KeyManagementService.toEd25519Jwk(verifierKey)))
             KeyAlgorithm.ECDSA_Secp256k1 -> jwt.verify(ECDSAVerifier(verifierKey.getPublicKey() as ECPublicKey))
             else -> {
                 log.error { "Algorithm ${verifierKey.algorithm} not supported" }

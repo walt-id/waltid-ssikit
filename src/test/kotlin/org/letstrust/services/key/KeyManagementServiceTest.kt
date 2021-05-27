@@ -1,16 +1,22 @@
 package org.letstrust.services.key
 
 import com.google.crypto.tink.subtle.X25519
+import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.jwk.KeyUse
+import com.nimbusds.jose.jwk.OctetKeyPair
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator
+import com.nimbusds.jose.util.Base64URL
+import org.bouncycastle.asn1.ASN1BitString
+import org.bouncycastle.asn1.ASN1Sequence
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.junit.Before
 import org.junit.Test
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.keyPairGeneratorSecp256k1
 import java.security.*
+import java.security.interfaces.ECPublicKey
 import java.security.spec.*
 import java.util.*
 import javax.crypto.KeyAgreement
@@ -50,27 +56,50 @@ class KeyManagementServiceTest {
     fun generateSecp256k1KeyPairTest() {
         val kms = KeyManagementService
         val keyId = kms.generate(KeyAlgorithm.ECDSA_Secp256k1)
-        val keysLoaded = kms.load(keyId.id)
-        assertEquals(keyId, keysLoaded?.keyId)
-        assertNotNull(keysLoaded?.keyPair)
-        assertNotNull(keysLoaded?.keyPair?.private)
-        assertNotNull(keysLoaded?.keyPair?.public)
-        assertEquals("ECDSA", keysLoaded?.keyPair?.private?.algorithm)
+        val key = kms.load(keyId.id)
+        assertEquals(keyId, key?.keyId)
+        assertEquals(KeyAlgorithm.ECDSA_Secp256k1, key?.algorithm)
+        assertNotNull(key?.keyPair)
+        assertNotNull(key?.keyPair?.private)
+        assertNotNull(key?.keyPair?.public)
+        assertEquals("ECDSA", key?.keyPair?.private?.algorithm)
         kms.delete(keyId.id)
     }
-
 
     @Test
     fun generateEd25519KeyPairTest() {
         val kms = KeyManagementService
         val keyId = kms.generate(KeyAlgorithm.EdDSA_Ed25519)
-        val keysLoaded = kms.load(keyId.id)
-        assertEquals(keyId, keysLoaded?.keyId)
-        assertNotNull(keysLoaded?.keyPair)
-        assertNotNull(keysLoaded?.keyPair?.private)
-        assertNotNull(keysLoaded?.keyPair?.public)
-        // assertTrue(keysLoaded?.getMultiBase58PublicKey(keyId).length > 32)
+        val key = kms.load(keyId.id)
+        assertEquals(keyId, key?.keyId)
+        assertEquals(KeyAlgorithm.EdDSA_Ed25519, key?.algorithm)
+        assertNotNull(key?.keyPair)
+        assertNotNull(key?.keyPair?.private)
+        assertNotNull(key?.keyPair?.public)
+        // assertTrue(key?.getMultiBase58PublicKey(keyId).length > 32)
         kms.delete(keyId.id)
+    }
+
+    @Test
+    fun generateEd25519JwkTest() {
+        val kms = KeyManagementService
+        val keyId = kms.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val key = kms.load(keyId.id)
+
+        val jwk = kms.toEd25519Jwk(key)
+        assertEquals("EdDSA", jwk.algorithm.name)
+        assertEquals("Ed25519", jwk.curve.name)
+    }
+
+    @Test
+    fun generateSecp256k1JwkTest() {
+        val kms = KeyManagementService
+        val keyId = kms.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val key = kms.load(keyId.id)
+
+        val jwk =  KeyManagementService.toSecp256Jwk(key)
+        assertEquals("ES256K", jwk.algorithm.name)
+        assertEquals("secp256k1", jwk.curve.name)
     }
 
     // TODO complete following two tests
@@ -109,12 +138,12 @@ class KeyManagementServiceTest {
 //        val kms = KeyManagementService
 //        val ks = FileSystemKeyStore
 //        val keyId = kms.generateKeyPair("RSA")
-//        val keysLoaded = kms.loadKeys(keyId)
-//        assertEquals(keyId, keysLoaded?.keyId)
-//        assertNotNull(keysLoaded?.pair)
-//        assertNotNull(keysLoaded?.pair?.private)
-//        assertNotNull(keysLoaded?.pair?.public)
-//        assertEquals("RSA", keysLoaded?.pair?.private?.algorithm)
+//        val key = kms.loadKeys(keyId)
+//        assertEquals(keyId, key?.keyId)
+//        assertNotNull(key?.pair)
+//        assertNotNull(key?.pair?.private)
+//        assertNotNull(key?.pair?.public)
+//        assertEquals("RSA", key?.pair?.private?.algorithm)
 //        kms.delete(keyId)
 //    }
 

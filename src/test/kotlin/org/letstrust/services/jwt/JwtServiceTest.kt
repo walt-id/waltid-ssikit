@@ -6,9 +6,9 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.Test
-import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.LetsTrustServices
 import org.letstrust.crypto.CryptoService
+import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.model.*
 import org.letstrust.services.did.DidService
 import org.letstrust.services.key.KeyManagementService
@@ -21,6 +21,7 @@ import kotlin.test.assertTrue
 class JwtServiceTest {
 
     val cs = LetsTrustServices.load<CryptoService>()
+
 
     @Test
     fun parseClaimsTest() {
@@ -166,7 +167,7 @@ class JwtServiceTest {
 
         // encrypted payload ake1_enc_payload
         val received_ake1_enc_payload = JwtService.decrypt(received_access_token_response.ake1_enc_payload)
-        val received_ake1_enc_payload_obj  = Json.decodeFromString<Ake1EncPayload>(received_ake1_enc_payload)
+        val received_ake1_enc_payload_obj = Json.decodeFromString<Ake1EncPayload>(received_ake1_enc_payload)
         val received_access_token = received_ake1_enc_payload_obj.access_token
 
         assertEquals(accessToken, received_access_token)
