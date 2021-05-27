@@ -18,7 +18,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 
-class KeyManagementServiceTest {
+class KeyServiceTest {
 
     @Before
     fun setup() {
@@ -80,8 +80,12 @@ class KeyManagementServiceTest {
         val key = kms.load(keyId.id)
 
         val jwk = kms.toEd25519Jwk(key)
+        println(jwk)
         assertEquals("EdDSA", jwk.algorithm.name)
         assertEquals("Ed25519", jwk.curve.name)
+
+        val jwk2 = KeyService.toJwk(key.keyId.id)
+        assertEquals(keyId.id, jwk2.keyID)
     }
 
     @Test
@@ -91,8 +95,12 @@ class KeyManagementServiceTest {
         val key = kms.load(keyId.id)
 
         val jwk =  KeyService.toSecp256Jwk(key)
+        println(jwk)
         assertEquals("ES256K", jwk.algorithm.name)
         assertEquals("secp256k1", jwk.curve.name)
+
+        val jwk2 = KeyService.toJwk(key.keyId.id)
+        assertEquals(keyId.id, jwk2.keyID)
     }
 
     // TODO complete following two tests

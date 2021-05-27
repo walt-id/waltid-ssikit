@@ -3,12 +3,10 @@ package org.letstrust.services.key
 //import org.bouncycastle.jce.ECNamedCurveTable
 //import org.bouncycastle.jce.provider.BouncyCastleProvider
 import com.nimbusds.jose.JWSAlgorithm
-import com.nimbusds.jose.jwk.Curve
-import com.nimbusds.jose.jwk.ECKey
-import com.nimbusds.jose.jwk.KeyUse
-import com.nimbusds.jose.jwk.OctetKeyPair
+import com.nimbusds.jose.jwk.*
 import com.nimbusds.jose.util.Base64URL
 import org.bouncycastle.asn1.ASN1BitString
+import org.bouncycastle.asn1.ASN1OctetString
 import org.bouncycastle.asn1.ASN1Sequence
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.letstrust.LetsTrustServices
@@ -34,11 +32,13 @@ object KeyService {
 
     fun load(keyAlias: String) = ks.load(keyAlias)
 
-    fun export(keyAlias: String): String {
+    fun export(keyAlias: String): String = toJwk(keyAlias).toJSONString()
+
+    fun toJwk(keyAlias: String): JWK {
         ks.load(keyAlias).let {
             return when (it.algorithm) {
-                KeyAlgorithm.EdDSA_Ed25519 -> toEd25519Jwk(it).toJSONString()
-                KeyAlgorithm.ECDSA_Secp256k1 -> toSecp256Jwk(it).toJSONString()
+                KeyAlgorithm.EdDSA_Ed25519 -> toEd25519Jwk(it)
+                KeyAlgorithm.ECDSA_Secp256k1 -> toSecp256Jwk(it)
                 else -> throw IllegalArgumentException("Algorithm not supported")
             }
         }
@@ -47,11 +47,16 @@ object KeyService {
     }
 
     fun toSecp256Jwk(key: Key): ECKey {
-        return ECKey.Builder(Curve.SECP256K1, key.keyPair!!.public as ECPublicKey)
-            .privateKey(key.keyPair!!.private)
+        val builder = ECKey.Builder(Curve.SECP256K1, key.keyPair!!.public as ECPublicKey)
             .keyUse(KeyUse.SIGNATURE)
             .algorithm(JWSAlgorithm.ES256K)
-            .keyID(key.keyId.id).build()
+            .keyID(key.keyId.id)
+
+        key.keyPair!!.private?.let {
+            builder.privateKey(key.keyPair!!.private)
+        }
+
+        return builder.build()
     }
 
     fun toEd25519Jwk(key: Key): OctetKeyPair {
@@ -61,11 +66,18 @@ object KeyService {
         val pubPrim = ASN1Sequence.fromByteArray(key.getPublicKey().encoded) as ASN1Sequence
         val x = (pubPrim.getObjectAt(1) as ASN1BitString).octets
 
-        return OctetKeyPair.Builder(keyCurve, Base64URL.encode(x))
+        val builder = OctetKeyPair.Builder(keyCurve, Base64URL.encode(x))
             .keyUse(keyUse)
             .algorithm(keyAlg)
             .keyID(key.keyId.id)
-            .build()
+
+        key.keyPair!!.private?.let {
+            val privPrim = ASN1Sequence.fromByteArray(key.keyPair!!.private.encoded) as ASN1Sequence
+            var d = (privPrim.getObjectAt(2) as ASN1OctetString).octets
+            builder.d(Base64URL.encode(d))
+        }
+
+        return builder.build()
     }
 
     fun listKeys(): List<Key> = ks.listKeys()
