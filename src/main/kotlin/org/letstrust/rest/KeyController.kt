@@ -5,7 +5,7 @@ import io.javalin.plugin.openapi.annotations.*
 import kotlinx.serialization.Serializable
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.KeyId
-import org.letstrust.services.key.KeyManagementService
+import org.letstrust.services.key.KeyService
 
 @Serializable
 data class GenKeyRequest(
@@ -43,7 +43,7 @@ object KeyController {
     )
     fun gen(ctx: Context) {
         val genKeyReq = ctx.bodyAsClass(GenKeyRequest::class.java)
-        ctx.json(KeyManagementService.generate(genKeyReq.keyAlgorithm))
+        ctx.json(KeyService.generate(genKeyReq.keyAlgorithm))
     }
 
     @OpenApi(
@@ -63,7 +63,7 @@ object KeyController {
         ]
     )
     fun load(ctx: Context) {
-        ctx.json(KeyManagementService.export(ctx.bodyAsClass(ExportKeyRequest::class.java).keyAlias))
+        ctx.json(KeyService.export(ctx.bodyAsClass(ExportKeyRequest::class.java).keyAlias))
     }
 
     @OpenApi(
@@ -103,7 +103,7 @@ object KeyController {
         ]
     )
     fun export(ctx: Context) {
-        ctx.result(KeyManagementService.export(ctx.bodyAsClass(ExportKeyRequest::class.java).keyAlias))
+        ctx.result(KeyService.export(ctx.bodyAsClass(ExportKeyRequest::class.java).keyAlias))
     }
 
     @OpenApi(
@@ -118,7 +118,7 @@ object KeyController {
     )
     fun list(ctx: Context) {
         val keyIds = ArrayList<String>()
-        KeyManagementService.listKeys().forEach { key -> keyIds.add(key.keyId.id) }
+        KeyService.listKeys().forEach { key -> keyIds.add(key.keyId.id) }
         ctx.json(keyIds)
     }
 

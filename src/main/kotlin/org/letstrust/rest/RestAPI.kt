@@ -233,6 +233,9 @@ object RestAPI {
                     }
 
                 }
+                path("dummy") {
+                    post("authentication-requests", EosController::authReq)
+                }
             }
 
             JavalinJson.toJsonMapper = object : ToJsonMapper {

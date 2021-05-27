@@ -12,7 +12,7 @@ import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.LdSigner
 import org.letstrust.crypto.LetsTrustProvider
 import org.letstrust.crypto.PrivateKeyHandle
-import org.letstrust.services.key.KeyManagementService
+import org.letstrust.services.key.KeyService
 import java.security.interfaces.ECPublicKey
 import java.util.*
 
@@ -91,7 +91,7 @@ object JwtService {
             .expirationTime(Date(Date().getTime() + 60 * 1000))
             .build()
 
-        val issuerKey = KeyManagementService.load(keyAlias)
+        val issuerKey = KeyService.load(keyAlias)
         if (issuerKey == null) {
             log.error { "Could not load signing key for $keyAlias" }
             throw Exception("Could not load signing key for $keyAlias")
@@ -128,14 +128,14 @@ object JwtService {
 
         //TODO: key might also be entirely extracted out of the header",
         // Maybe resolve DID (verification method)
-        val verifierKey = KeyManagementService.load(jwt.header.keyID)
+        val verifierKey = KeyService.load(jwt.header.keyID)
         if (verifierKey == null) {
             log.error { "Could not load verifying key for $jwt.header.keyID" }
             throw Exception("Could not load verifying key for $jwt.header.keyID")
         }
 
         val res = when (verifierKey.algorithm) {
-            KeyAlgorithm.EdDSA_Ed25519 -> jwt.verify(Ed25519Verifier(KeyManagementService.toEd25519Jwk(verifierKey)))
+            KeyAlgorithm.EdDSA_Ed25519 -> jwt.verify(Ed25519Verifier(KeyService.toEd25519Jwk(verifierKey)))
             KeyAlgorithm.ECDSA_Secp256k1 -> jwt.verify(ECDSAVerifier(verifierKey.getPublicKey() as ECPublicKey))
             else -> {
                 log.error { "Algorithm ${verifierKey.algorithm} not supported" }

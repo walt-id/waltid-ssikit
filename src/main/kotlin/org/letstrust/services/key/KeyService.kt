@@ -20,7 +20,7 @@ import org.letstrust.crypto.keystore.KeyStore
 import java.security.interfaces.ECPublicKey
 import java.util.*
 
-object KeyManagementService {
+object KeyService {
 
     private const val RSA_KEY_SIZE = 4096
 
@@ -73,7 +73,7 @@ object KeyManagementService {
     fun delete(alias: String) = ks.delete(alias)
 
     internal fun setKeyStore(ks: KeyStore) {
-        KeyManagementService.ks = ks
+        KeyService.ks = ks
     }
 
 

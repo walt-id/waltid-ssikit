@@ -11,7 +11,7 @@ import org.letstrust.crypto.CryptoService
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.model.*
 import org.letstrust.services.did.DidService
-import org.letstrust.services.key.KeyManagementService
+import org.letstrust.services.key.KeyService
 import org.letstrust.services.vc.CredentialService
 import java.io.File
 import java.util.*
@@ -75,7 +75,7 @@ class JwtServiceTest {
 
         val arp = Json.decodeFromString<AuthenticationRequestPayload>(payload)
 
-        val keyId = KeyManagementService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val keyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
 
         val jwt = JwtService.sign(keyId.id, Json.encodeToString(arp))
 
@@ -111,7 +111,7 @@ class JwtServiceTest {
 
         println(Json { prettyPrint = true }.encodeToString(arp))
 
-        val keyId = KeyManagementService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val keyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
 
         val jwt = JwtService.sign(keyId.id, Json.encodeToString(arp))
 

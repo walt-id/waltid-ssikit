@@ -6,7 +6,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
 import org.letstrust.crypto.KeyAlgorithm
-import org.letstrust.services.key.KeyManagementService
+import org.letstrust.services.key.KeyService
 
 
 class KeyCommand : CliktCommand(
@@ -38,8 +38,8 @@ class GenCommand : CliktCommand(
     override fun run() {
         echo("Generating $algorithm key pair...")
         val keyId = when (algorithm) {
-            "Ed25519" -> KeyManagementService.generate(KeyAlgorithm.EdDSA_Ed25519)
-            "Secp256k1" -> KeyManagementService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+            "Ed25519" -> KeyService.generate(KeyAlgorithm.EdDSA_Ed25519)
+            "Secp256k1" -> KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
             // TODO add RSA: "RSA" -> KeyManagementService.generateRsaKeyPair()
             else -> throw IllegalArgumentException("Algorithm not supported")
         }
@@ -77,7 +77,7 @@ class ExportKeyCommand : CliktCommand(
 
     override fun run() {
         echo("Exporting key \"$keyId\"...")
-        val jwk = KeyManagementService.export(keyId)
+        val jwk = KeyService.export(keyId)
 
         println("\nResults:\n")
 
@@ -97,7 +97,7 @@ class ListKeysCommand : CliktCommand(
 
         echo("\nResults:\n")
 
-        KeyManagementService.listKeys().forEachIndexed { index, key ->
+        KeyService.listKeys().forEachIndexed { index, key ->
             echo("- ${index + 1}: \"${key.keyId}\" (Algorithm: \"${key.algorithm.name}\", provided by \"${key.cryptoProvider.name}\")")
         }
     }
