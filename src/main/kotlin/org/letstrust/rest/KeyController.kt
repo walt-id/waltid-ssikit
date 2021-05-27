@@ -5,6 +5,7 @@ import io.javalin.plugin.openapi.annotations.*
 import kotlinx.serialization.Serializable
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.KeyId
+import org.letstrust.services.key.KeyFormat
 import org.letstrust.services.key.KeyService
 
 @Serializable
@@ -21,7 +22,7 @@ data class ImportKeyRequest(
 @Serializable
 data class ExportKeyRequest(
     val keyAlias: String,
-    val format: String? = "JWK",
+    val format: KeyFormat = KeyFormat.JWK,
 )
 
 object KeyController {
@@ -50,12 +51,6 @@ object KeyController {
         summary = "Load public key",
         operationId = "loadKey",
         tags = ["Key Management"],
-        //pathParams = [OpenApiParam("keyId", String::class, "The key ID")],
-        requestBody = OpenApiRequestBody(
-            [OpenApiContent(String::class)],
-            true,
-            "ID of key to be loaded"
-        ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
@@ -63,7 +58,7 @@ object KeyController {
         ]
     )
     fun load(ctx: Context) {
-        ctx.json(KeyService.export(ctx.bodyAsClass(ExportKeyRequest::class.java).keyAlias))
+        ctx.json(KeyService.export(ctx.pathParam("id")))
     }
 
     @OpenApi(
@@ -90,20 +85,20 @@ object KeyController {
         summary = "Exports public and private key part (if supported by underlying keystore)",
         operationId = "exportKey",
         tags = ["Key Management"],
-        //pathParams = [OpenApiParam("keyId", String::class, "The key ID")],
         requestBody = OpenApiRequestBody(
             [OpenApiContent(ExportKeyRequest::class)],
             true,
-            "Exports the key (currently only support JWK format)"
+            "Exports the key in JWK or PEM format"
         ),
         responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
+            OpenApiResponse("200", [OpenApiContent(String::class)], "The key in the desired formant"),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
             OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
     fun export(ctx: Context) {
-        ctx.result(KeyService.export(ctx.bodyAsClass(ExportKeyRequest::class.java).keyAlias))
+        val req = ctx.bodyAsClass(ExportKeyRequest::class.java)
+        ctx.result(KeyService.export(req.keyAlias, req.format))
     }
 
     @OpenApi(

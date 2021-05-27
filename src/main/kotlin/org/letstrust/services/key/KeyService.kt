@@ -10,13 +10,15 @@ import org.bouncycastle.asn1.ASN1OctetString
 import org.bouncycastle.asn1.ASN1Sequence
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.letstrust.LetsTrustServices
-import org.letstrust.crypto.CryptoService
-import org.letstrust.crypto.Key
-import org.letstrust.crypto.KeyAlgorithm
-import org.letstrust.crypto.KeyId
+import org.letstrust.crypto.*
 import org.letstrust.crypto.keystore.KeyStore
 import java.security.interfaces.ECPublicKey
 import java.util.*
+
+enum class KeyFormat {
+    JWK,
+    PEM
+}
 
 object KeyService {
 
@@ -32,15 +34,30 @@ object KeyService {
 
     fun load(keyAlias: String) = ks.load(keyAlias)
 
-    fun export(keyAlias: String): String = toJwk(keyAlias).toJSONString()
+    fun export(keyAlias: String, format: KeyFormat = KeyFormat.JWK): String =
+        if (format == KeyFormat.JWK)
+            toJwk(keyAlias).toJSONString()
+        else
+            toPem(keyAlias)
 
     fun toJwk(keyAlias: String): JWK {
-        ks.load(keyAlias).let {
-            return when (it.algorithm) {
+        return ks.load(keyAlias).let {
+            when (it.algorithm) {
                 KeyAlgorithm.EdDSA_Ed25519 -> toEd25519Jwk(it)
                 KeyAlgorithm.ECDSA_Secp256k1 -> toSecp256Jwk(it)
                 else -> throw IllegalArgumentException("Algorithm not supported")
             }
+        }
+
+        throw IllegalArgumentException("No key by alias $keyAlias")
+    }
+
+    fun toPem(keyAlias: String): String {
+        return ks.load(keyAlias).let {
+            it.keyPair!!.private.let {
+                it.toPEM()
+            }
+            it.keyPair!!.public.toPEM()
         }
 
         throw IllegalArgumentException("No key by alias $keyAlias")
