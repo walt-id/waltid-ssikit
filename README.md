@@ -26,8 +26,8 @@ Login to Container Registry:
 
 Pull & tag Container
 
-    docker pull ghcr.io/letstrustid/letstrust:0.1
-    docker tag ghcr.io/letstrustid/letstrust:0.1 letstrust
+    docker pull ghcr.io/letstrustid/letstrust:test
+    docker tag ghcr.io/letstrustid/letstrust:test letstrust
 
 Run via Docker:
 
@@ -37,6 +37,12 @@ Run via Podman:
 
     mkdir data  # directory where the data is stored needs do be created manually
     podman run -itv $(pwd)/data:/app/data letstrust
+
+Run as RESTful service via Docker Compose:
+
+    docker-compose build
+    docker-compose up
+
 
 ### LetsTrust Wrapper
 
@@ -188,36 +194,22 @@ In order to overwrite these values, simply place a yaml-based config-file named 
 
 # Docker PUSH / PULL
 **push**
-LT write: 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
-LT packagers: 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
-    export CR_PAT=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
-    echo $CR_PAT | docker login ghcr.io -u philpotisk --password-stdin
-    docker tag letstrust ghcr.io/letstrustid/letstrust:0.1
-    docker push ghcr.io/letstrustid/letstrust:0.1
+
+    export CR_PAT=<gh-token-with-package-write-permissions>
+    echo $CR_PAT | docker login ghcr.io -u <YOUR-USER-NAME> --password-stdin
+    docker tag letstrust ghcr.io/letstrustid/letstrust:test
+    docker push ghcr.io/letstrustid/letstrust:test
 
 **pull**
 
-    export CR_PAT=<token-read-packages>
+    export CR_PAT=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
     echo $CR_PAT | docker login ghcr.io -u <username> --password-stdin
-    docker pull ghcr.io/letstrustid/letstrust:0.1
-    docker tag ghcr.io/letstrustid/letstrust:0.1 letstrust
+    docker pull ghcr.io/letstrustid/letstrust:test
+    docker tag ghcr.io/letstrustid/letstrust:test letstrust
     docker run -itv $(pwd)/data:/app/data -p 7000-7001:7000-7001 letstrust serve
     
-    
-    podman pull ghcr.io/letstrustid/letstrust:0.1
-    podman tag ghcr.io/letstrustid/letstrust:0.1 letstrust
+    podman pull ghcr.io/letstrustid/letstrust:test
+    podman tag ghcr.io/letstrustid/letstrust:test letstrust
     podman run letstrust
 
 
-export CR_PAT=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
-echo $CR_PAT | docker login ghcr.io -u philpotisk --password-stdin
-docker push ghcr.io/letstrustid/letstrust:0.2
-
-LT read-packages
-export CR_PAT=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
-echo $CR_PAT | docker login ghcr.io -u philpotisk --password-stdin
-docker pull ghcr.io/letstrustid/letstrust:0.2
-docker tag ghcr.io/letstrustid/letstrust:0.2 letstrust
-docker run -itv $(pwd)/data:/app/data letstrust -h
-docker run -itv $(pwd)/data:/app/data letstrust key list
-docker run -itv $(pwd)/data:/app/data -p 7000-7001:7000-7001 letstrust serve
