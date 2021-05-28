@@ -69,15 +69,15 @@ fun decodePrivKeyBase64(base64: String, kf: KeyFactory): PrivateKey = kf.generat
 
 fun decodePrivKeyPem(pem: String, kf: KeyFactory): PrivateKey = decodePrivKeyBase64(pemToBase64(pem), kf)
 
-fun buildKey(keyId: String, algorithm: String, provider: String, publicPart: String, privatePart: String, format: KeyFormat = KeyFormat.PEM): Key {
+fun buildKey(keyId: String, algorithm: String, provider: String, publicPart: String, privatePart: String?, format: KeyFormat = KeyFormat.PEM): Key {
 
     val kf = when (KeyAlgorithm.valueOf(algorithm)) {
         KeyAlgorithm.ECDSA_Secp256k1 -> KeyFactory.getInstance("ECDSA")
         KeyAlgorithm.EdDSA_Ed25519 -> KeyFactory.getInstance("Ed25519")
     }
     val kp = when (format) {
-        KeyFormat.PEM -> Pair(decodePubKeyPem(publicPart, kf), decodePrivKeyPem(privatePart, kf))
-        KeyFormat.BASE64 -> Pair(decodePubKeyBase64(publicPart, kf), decodePrivKeyPem(privatePart, kf))
+        KeyFormat.PEM -> Pair(decodePubKeyPem(publicPart, kf), privatePart?.let { decodePrivKeyPem(privatePart, kf) })
+        KeyFormat.BASE64 -> Pair(decodePubKeyBase64(publicPart, kf), privatePart?.let { decodePrivKeyPem(privatePart, kf) })
     }
 
     return Key(KeyId(keyId), KeyAlgorithm.valueOf(algorithm), CryptoProvider.valueOf(provider), KeyPair(kp.first, kp.second))

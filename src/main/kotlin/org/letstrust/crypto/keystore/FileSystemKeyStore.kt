@@ -42,7 +42,7 @@ object FileSystemKeyStore : KeyStore {
         return keys
     }
 
-    override fun load(alias: String): Key {
+    override fun load(alias: String, loadPrivate: Boolean): Key {
         log.debug { "Loading key \"${alias}\"." }
 
         var keyId = getKeyId(alias) ?: alias
@@ -51,7 +51,7 @@ object FileSystemKeyStore : KeyStore {
         val algorithm = metaData.substringBefore(delimiter = ";")
         val provider = metaData.substringAfter(delimiter = ";")
         val publicPart = File("$KEY_DIR_PATH/$keyId.enc-pubkey").readText()
-        val privatePart = File("$KEY_DIR_PATH/$keyId.enc-privkey").readText()
+        val privatePart = if (loadPrivate) File("$KEY_DIR_PATH/$keyId.enc-privkey").readText() else null
 
         return buildKey(keyId, algorithm, provider, publicPart, privatePart, KEY_FORMAT)
     }

@@ -65,7 +65,7 @@ object SunCryptoService : CryptoService {
     }
 
     override fun sign(keyId: KeyId, data: ByteArray): ByteArray {
-        val key = ks.load(keyId.id)
+        val key = ks.load(keyId.id, true)
         val sig = when (key.algorithm) {
             KeyAlgorithm.ECDSA_Secp256k1 -> Signature.getInstance("SHA256withECDSA")
             KeyAlgorithm.EdDSA_Ed25519 -> Signature.getInstance("Ed25519")

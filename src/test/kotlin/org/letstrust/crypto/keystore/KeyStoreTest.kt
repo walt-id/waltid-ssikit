@@ -37,9 +37,9 @@ open class KeyStoreTest {
         val keyId = kms.generate(KeyAlgorithm.EdDSA_Ed25519)
         val testAlias = UUID.randomUUID().toString()
         kms.addAlias(keyId, testAlias)
-        val k1 = kms.load(testAlias)
+        val k1 = kms.load(testAlias, true)
         assertNotNull(k1)
-        val k2 = kms.load(keyId.id)
+        val k2 = kms.load(keyId.id, true)
         assertNotNull(k2)
         assertEquals(k2.getPublicKey().encoded.contentToString(), k1.getPublicKey().encoded.contentToString())
     }
@@ -47,14 +47,14 @@ open class KeyStoreTest {
     @Test
     open fun saveLoadEd25519KeysTest() {
         val keyId = kms.generate(KeyAlgorithm.EdDSA_Ed25519)
-        val key = kms.load(keyId.id)!!
+        val key = kms.load(keyId.id, true)!!
         assertEquals(48, key.keyPair!!.private.encoded.size)
     }
 
     @Test
     open fun saveLoadSecp256k1KeysTest() {
         val keyId = kms.generate(KeyAlgorithm.ECDSA_Secp256k1)
-        val key = kms.load(keyId.id)!!
+        val key = kms.load(keyId.id, true)!!
         assertEquals(88, key.keyPair!!.public.encoded.size)
         assertEquals(144, key.keyPair!!.private.encoded.size)
     }
@@ -70,8 +70,8 @@ open class KeyStoreTest {
     @Test
     open fun deleteKeysTest() {
         val keyId = kms.generate(KeyAlgorithm.EdDSA_Ed25519)
-        var key = kms.load(keyId.id)
+        var key = kms.load(keyId.id, true)
         kms.delete(key.keyId.id)
-        assertFailsWith(Exception::class, "Key was not deleted correctly", block = { kms.load(keyId.id) })
+        assertFailsWith(Exception::class, "Key was not deleted correctly", block = { kms.load(keyId.id, true) })
     }
 }

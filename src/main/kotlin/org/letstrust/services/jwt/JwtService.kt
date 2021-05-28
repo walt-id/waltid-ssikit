@@ -91,7 +91,7 @@ object JwtService {
             .expirationTime(Date(Date().getTime() + 60 * 1000))
             .build()
 
-        val issuerKey = KeyService.load(keyAlias)
+        val issuerKey = KeyService.load(keyAlias, true)
         if (issuerKey == null) {
             log.error { "Could not load signing key for $keyAlias" }
             throw Exception("Could not load signing key for $keyAlias")
