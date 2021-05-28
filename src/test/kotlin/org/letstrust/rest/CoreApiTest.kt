@@ -23,6 +23,7 @@ import org.letstrust.model.DidUrl
 import org.letstrust.model.VerifiableCredential
 import org.letstrust.model.encodePretty
 import org.letstrust.services.did.DidService
+import org.letstrust.services.key.KeyFormat
 import org.letstrust.services.vc.CredentialService
 import org.letstrust.test.getTemplate
 import org.letstrust.test.readCredOffer
@@ -147,7 +148,7 @@ class CoreApiTest {
 
         val key = client.post<String>("$CORE_API_URL/v1/key/export") {
             contentType(ContentType.Application.Json)
-            body = ExportKeyRequest(keyId.id, "JWK")
+            body = ExportKeyRequest(keyId.id, KeyFormat.JWK)
         }
         assertTrue(key.length > 180)
     }
