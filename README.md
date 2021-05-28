@@ -31,12 +31,12 @@ Pull & tag Container
 
 Run via Docker:
 
-    docker run -itv $(pwd)/data:/opt/data letstrust -h
+    docker run -itv $(pwd)/data:/app/data letstrust -h
 
 Run via Podman:
 
     mkdir data  # directory where the data is stored needs do be created manually
-    podman run -itv $(pwd)/data:/opt/data letstrust
+    podman run -itv $(pwd)/data:/app/data letstrust
 
 ### LetsTrust Wrapper
 
@@ -132,19 +132,19 @@ In order to overwrite these values, simply place a yaml-based config-file named 
 ### For getting help, add "-h" to each command or sub-command e.g.:
     ./letstrust.sh did create -h
     or
-    docker run -it -v $(pwd)/data:/opt/data letstrust did create -h
+    docker run -it -v $(pwd)/data:/app/data letstrust did create -h
 
 ### For debug infos add "-v" e.g.:
 
     ./letstrust.sh -v
     or
-    docker run -it -v $(pwd)/data:/opt/data letstrust -v did create
+    docker run -it -v $(pwd)/data:/app/data letstrust -v did create
 
 ### Overwriting the default config:
     Simply add a file named _lestrust.yaml_ in the root folder and run ./letstrust.sh
 
     When using Docker, the following command will do the trick:
-    docker run -it $(pwd)/data:/opt/data -v $(pwd)/letstrust.yaml:/letstrust.yaml letstrust -v did create
+    docker run -it $(pwd)/data:/app/data -v $(pwd)/letstrust.yaml:/letstrust.yaml letstrust -v did create
 
 ### LetsTrust wrapper commands
 
@@ -165,32 +165,33 @@ In order to overwrite these values, simply place a yaml-based config-file named 
     ./letstrust.sh vc verify -p data/vc/presented/vp-1614291892489.json
 
 ### LetsTrust Docker / Podman commands
-    docker run -itv $(pwd)/data:/opt/data letstrust key gen --algorithm Ed25519
+    docker run -itv $(pwd)/data:/app/data letstrust key gen --algorithm Ed25519
 
-    docker run -itv $(pwd)/data:/opt/data letstrust key list
+    docker run -itv $(pwd)/data:/app/data letstrust key list
 
-    docker run -itv $(pwd)/data:/opt/data letstrust did create -m web
+    docker run -itv $(pwd)/data:/app/data letstrust did create -m web
 
-    docker run -itv $(pwd)/data:/opt/data letstrust did resolve --did did:web:mattr.global
+    docker run -itv $(pwd)/data:/app/data letstrust did resolve --did did:web:mattr.global
 
-    docker run -itv $(pwd)/data:/opt/data letstrust -v vc issue --issuer-did did:key:z6MkmNMF2... --subject-did did:key:zjkl2sd...
+    docker run -itv $(pwd)/data:/app/data letstrust -v vc issue --issuer-did did:key:z6MkmNMF2... --subject-did did:key:zjkl2sd...
 
-    docker run -itv $(pwd)/data:/opt/data letstrust vc verify data/vc/created/vc-1614291790088-default.json
+    docker run -itv $(pwd)/data:/app/data letstrust vc verify data/vc/created/vc-1614291790088-default.json
 
-    docker run -itv $(pwd)/data:/opt/data letstrust -v vc present data/vc/created/vc-1614291790088-default.json
+    docker run -itv $(pwd)/data:/app/data letstrust -v vc present data/vc/created/vc-1614291790088-default.json
 
-    docker run -itv $(pwd)/data:/opt/data letstrust vc verify -p data/vc/presented/vp-1614291892489.json
+    docker run -itv $(pwd)/data:/app/data letstrust vc verify -p data/vc/presented/vp-1614291892489.json
 
-    docker run -itv $(pwd)/data:/opt/data -p 7000-7001:7000-7001 letstrust serve
+    docker run -itv $(pwd)/data:/app/data -p 7000-7001:7000-7001 letstrust serve
 
-    podman run -itv $(pwd)/data:/opt/data -p 7000-7001:7000-7001 letstrust serve
+    podman run -itv $(pwd)/data:/app/data -p 7000-7001:7000-7001 letstrust serve
 
 
 # Docker PUSH / PULL
 **push**
-
-    export CR_PAT=<token-write-packages>
-    echo $CR_PAT | docker login ghcr.io -u <username> --password-stdin
+LT write: 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
+LT packagers: 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
+    export CR_PAT=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
+    echo $CR_PAT | docker login ghcr.io -u philpotisk --password-stdin
     docker tag letstrust ghcr.io/letstrustid/letstrust:0.1
     docker push ghcr.io/letstrustid/letstrust:0.1
 
@@ -200,9 +201,23 @@ In order to overwrite these values, simply place a yaml-based config-file named 
     echo $CR_PAT | docker login ghcr.io -u <username> --password-stdin
     docker pull ghcr.io/letstrustid/letstrust:0.1
     docker tag ghcr.io/letstrustid/letstrust:0.1 letstrust
-    docker run -itv $(pwd)/data:/opt/data -p 7000-7001:7000-7001 letstrust serve
+    docker run -itv $(pwd)/data:/app/data -p 7000-7001:7000-7001 letstrust serve
     
     
     podman pull ghcr.io/letstrustid/letstrust:0.1
     podman tag ghcr.io/letstrustid/letstrust:0.1 letstrust
     podman run letstrust
+
+
+export CR_PAT=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
+echo $CR_PAT | docker login ghcr.io -u philpotisk --password-stdin
+docker push ghcr.io/letstrustid/letstrust:0.2
+
+LT read-packages
+export CR_PAT=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
+echo $CR_PAT | docker login ghcr.io -u philpotisk --password-stdin
+docker pull ghcr.io/letstrustid/letstrust:0.2
+docker tag ghcr.io/letstrustid/letstrust:0.2 letstrust
+docker run -itv $(pwd)/data:/app/data letstrust -h
+docker run -itv $(pwd)/data:/app/data letstrust key list
+docker run -itv $(pwd)/data:/app/data -p 7000-7001:7000-7001 letstrust serve
