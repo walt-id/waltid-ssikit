@@ -49,7 +49,7 @@ class KeyServiceTest {
     fun generateSecp256k1KeyPairTest() {
         val kms = KeyService
         val keyId = kms.generate(KeyAlgorithm.ECDSA_Secp256k1)
-        val key = kms.load(keyId.id)
+        val key = kms.load(keyId.id, true)
         assertEquals(keyId, key?.keyId)
         assertEquals(KeyAlgorithm.ECDSA_Secp256k1, key?.algorithm)
         assertNotNull(key?.keyPair)
@@ -63,7 +63,7 @@ class KeyServiceTest {
     fun generateEd25519KeyPairTest() {
         val kms = KeyService
         val keyId = kms.generate(KeyAlgorithm.EdDSA_Ed25519)
-        val key = kms.load(keyId.id)
+        val key = kms.load(keyId.id, true)
         assertEquals(keyId, key?.keyId)
         assertEquals(KeyAlgorithm.EdDSA_Ed25519, key?.algorithm)
         assertNotNull(key?.keyPair)
@@ -77,7 +77,7 @@ class KeyServiceTest {
     fun generateEd25519JwkTest() {
         val kms = KeyService
         val keyId = kms.generate(KeyAlgorithm.ECDSA_Secp256k1)
-        val key = kms.load(keyId.id)
+        val key = kms.load(keyId.id, true)
 
         val jwk = kms.toEd25519Jwk(key)
         println(jwk)
@@ -92,7 +92,7 @@ class KeyServiceTest {
     fun generateSecp256k1JwkTest() {
         val kms = KeyService
         val keyId = kms.generate(KeyAlgorithm.ECDSA_Secp256k1)
-        val key = kms.load(keyId.id)
+        val key = kms.load(keyId.id, true)
 
         val jwk =  KeyService.toSecp256Jwk(key)
         println(jwk)

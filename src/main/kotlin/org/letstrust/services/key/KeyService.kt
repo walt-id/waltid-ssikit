@@ -32,7 +32,7 @@ object KeyService {
 
     fun addAlias(keyId: KeyId, alias: String) = ks.addAlias(keyId, alias)
 
-    fun load(keyAlias: String) = ks.load(keyAlias)
+    fun load(keyAlias: String, loadPrivate: Boolean = false) = ks.load(keyAlias, loadPrivate)
 
     fun export(keyAlias: String, format: KeyFormat = KeyFormat.JWK): String =
         if (format == KeyFormat.JWK)
