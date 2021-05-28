@@ -9,6 +9,7 @@ import info.weboftrust.ldsignatures.suites.Ed25519Signature2018SignatureSuite
 import info.weboftrust.ldsignatures.suites.SignatureSuites
 import info.weboftrust.ldsignatures.util.JWSUtil
 import info.weboftrust.ldsignatures.verifier.LdVerifier
+import org.letstrust.services.key.KeyService
 import java.security.PublicKey
 import java.security.interfaces.ECPublicKey
 
@@ -31,7 +32,7 @@ class LdVerifier {
         override fun verify(signingInput: ByteArray, ldProof: LdProof): Boolean {
             val detachedJwsObject = JWSObject.parse(ldProof.jws)
             val jwsSigningInput = JWSUtil.getJwsSigningInput(detachedJwsObject.header, signingInput)
-            val jwsVerifier = Ed25519Verifier(publicKey.toJwk())
+            val jwsVerifier = Ed25519Verifier(KeyService.toEd25519Jwk(publicKey))
             return jwsVerifier.verify(detachedJwsObject.header, jwsSigningInput, detachedJwsObject.signature)
         }
     }

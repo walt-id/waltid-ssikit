@@ -5,7 +5,8 @@ import io.javalin.plugin.openapi.annotations.*
 import kotlinx.serialization.Serializable
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.KeyId
-import org.letstrust.services.key.KeyManagementService
+import org.letstrust.services.key.KeyFormat
+import org.letstrust.services.key.KeyService
 
 @Serializable
 data class GenKeyRequest(
@@ -21,7 +22,7 @@ data class ImportKeyRequest(
 @Serializable
 data class ExportKeyRequest(
     val keyAlias: String,
-    val format: String? = "JWK",
+    val format: KeyFormat = KeyFormat.JWK,
 )
 
 object KeyController {
@@ -43,19 +44,13 @@ object KeyController {
     )
     fun gen(ctx: Context) {
         val genKeyReq = ctx.bodyAsClass(GenKeyRequest::class.java)
-        ctx.json(KeyManagementService.generate(genKeyReq.keyAlgorithm))
+        ctx.json(KeyService.generate(genKeyReq.keyAlgorithm))
     }
 
     @OpenApi(
         summary = "Load public key",
         operationId = "loadKey",
         tags = ["Key Management"],
-        //pathParams = [OpenApiParam("keyId", String::class, "The key ID")],
-        requestBody = OpenApiRequestBody(
-            [OpenApiContent(String::class)],
-            true,
-            "ID of key to be loaded"
-        ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
@@ -63,7 +58,7 @@ object KeyController {
         ]
     )
     fun load(ctx: Context) {
-        ctx.json(KeyManagementService.export(ctx.bodyAsClass(ExportKeyRequest::class.java).keyAlias))
+        ctx.json(KeyService.export(ctx.pathParam("id")))
     }
 
     @OpenApi(
@@ -90,20 +85,20 @@ object KeyController {
         summary = "Exports public and private key part (if supported by underlying keystore)",
         operationId = "exportKey",
         tags = ["Key Management"],
-        //pathParams = [OpenApiParam("keyId", String::class, "The key ID")],
         requestBody = OpenApiRequestBody(
             [OpenApiContent(ExportKeyRequest::class)],
             true,
-            "Exports the key (currently only support JWK format)"
+            "Exports the key in JWK or PEM format"
         ),
         responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
+            OpenApiResponse("200", [OpenApiContent(String::class)], "The key in the desired formant"),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
             OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
     fun export(ctx: Context) {
-        ctx.json(KeyManagementService.export(ctx.bodyAsClass(ExportKeyRequest::class.java).keyAlias))
+        val req = ctx.bodyAsClass(ExportKeyRequest::class.java)
+        ctx.result(KeyService.export(req.keyAlias, req.format))
     }
 
     @OpenApi(
@@ -118,7 +113,7 @@ object KeyController {
     )
     fun list(ctx: Context) {
         val keyIds = ArrayList<String>()
-        KeyManagementService.listKeys().forEach { key -> keyIds.add(key.keyId.id) }
+        KeyService.listKeys().forEach { key -> keyIds.add(key.keyId.id) }
         ctx.json(keyIds)
     }
 

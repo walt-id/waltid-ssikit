@@ -2,17 +2,25 @@ package org.letstrust.services.key
 
 //import org.bouncycastle.jce.ECNamedCurveTable
 //import org.bouncycastle.jce.provider.BouncyCastleProvider
+import com.nimbusds.jose.JWSAlgorithm
+import com.nimbusds.jose.jwk.*
+import com.nimbusds.jose.util.Base64URL
+import org.bouncycastle.asn1.ASN1BitString
+import org.bouncycastle.asn1.ASN1OctetString
+import org.bouncycastle.asn1.ASN1Sequence
 import org.bouncycastle.jce.ECNamedCurveTable
-import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.LetsTrustServices
-import org.letstrust.crypto.CryptoService
-import org.letstrust.crypto.Key
-import org.letstrust.crypto.KeyId
+import org.letstrust.crypto.*
 import org.letstrust.crypto.keystore.KeyStore
+import java.security.interfaces.ECPublicKey
 import java.util.*
-import kotlin.collections.ArrayList
 
-object KeyManagementService {
+enum class KeyFormat {
+    JWK,
+    PEM
+}
+
+object KeyService {
 
     private const val RSA_KEY_SIZE = 4096
 
@@ -26,14 +34,75 @@ object KeyManagementService {
 
     fun load(keyAlias: String) = ks.load(keyAlias)
 
-    fun export(keyAlias: String): String = ks.load(keyAlias).let { it.toJwk().toJSONString() }
+    fun export(keyAlias: String, format: KeyFormat = KeyFormat.JWK): String =
+        if (format == KeyFormat.JWK)
+            toJwk(keyAlias).toJSONString()
+        else
+            toPem(keyAlias)
+
+    fun toJwk(keyAlias: String): JWK {
+        return ks.load(keyAlias).let {
+            when (it.algorithm) {
+                KeyAlgorithm.EdDSA_Ed25519 -> toEd25519Jwk(it)
+                KeyAlgorithm.ECDSA_Secp256k1 -> toSecp256Jwk(it)
+                else -> throw IllegalArgumentException("Algorithm not supported")
+            }
+        }
+
+        throw IllegalArgumentException("No key by alias $keyAlias")
+    }
+
+    fun toPem(keyAlias: String): String {
+        return ks.load(keyAlias).let {
+            it.keyPair!!.private.let {
+                it.toPEM()
+            }
+            it.keyPair!!.public.toPEM()
+        }
+
+        throw IllegalArgumentException("No key by alias $keyAlias")
+    }
+
+    fun toSecp256Jwk(key: Key): ECKey {
+        val builder = ECKey.Builder(Curve.SECP256K1, key.keyPair!!.public as ECPublicKey)
+            .keyUse(KeyUse.SIGNATURE)
+            .algorithm(JWSAlgorithm.ES256K)
+            .keyID(key.keyId.id)
+
+        key.keyPair!!.private?.let {
+            builder.privateKey(key.keyPair!!.private)
+        }
+
+        return builder.build()
+    }
+
+    fun toEd25519Jwk(key: Key): OctetKeyPair {
+        val keyUse = KeyUse.parse("sig")
+        val keyAlg = JWSAlgorithm.parse("EdDSA")
+        val keyCurve = Curve.parse("Ed25519")
+        val pubPrim = ASN1Sequence.fromByteArray(key.getPublicKey().encoded) as ASN1Sequence
+        val x = (pubPrim.getObjectAt(1) as ASN1BitString).octets
+
+        val builder = OctetKeyPair.Builder(keyCurve, Base64URL.encode(x))
+            .keyUse(keyUse)
+            .algorithm(keyAlg)
+            .keyID(key.keyId.id)
+
+        key.keyPair!!.private?.let {
+            val privPrim = ASN1Sequence.fromByteArray(key.keyPair!!.private.encoded) as ASN1Sequence
+            var d = (privPrim.getObjectAt(2) as ASN1OctetString).octets
+            builder.d(Base64URL.encode(d))
+        }
+
+        return builder.build()
+    }
 
     fun listKeys(): List<Key> = ks.listKeys()
 
     fun delete(alias: String) = ks.delete(alias)
 
     internal fun setKeyStore(ks: KeyStore) {
-        KeyManagementService.ks = ks
+        KeyService.ks = ks
     }
 
 

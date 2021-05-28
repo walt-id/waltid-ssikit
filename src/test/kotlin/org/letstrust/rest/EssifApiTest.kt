@@ -11,7 +11,6 @@ import kotlinx.coroutines.runBlocking
 import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.junit.Test
-import org.letstrust.services.essif.UserWalletService
 import org.letstrust.services.essif.mock.RelyingParty
 import kotlin.test.assertEquals
 
@@ -45,6 +44,19 @@ class EssifApiTest {
         assertEquals("OK", response.readText())
     }
 
+
+    @Test
+    fun testRealEbsi() = runBlocking {
+        var authResp = client.post<AuthResponse>("$ESSIF_API_URL/v1/dummy/authentication-requests") {
+            contentType(ContentType.Application.Json)
+            headers {
+                append(HttpHeaders.Accept, "application/json")
+            }
+            body = mapOf("scope" to "ebsi users onboarding")
+        }
+        println(authResp)
+    }
+
     @Test
     fun testOnboarding() = runBlocking {
         println("ESSIF onboarding of a Legal Entity by requesting a Verifiable ID")
@@ -64,7 +76,7 @@ class EssifApiTest {
 
         val verifiableId = client.post<String>("$ESSIF_API_URL/v1/enterprise/wallet/getVerifiableCredential") {
             contentType(ContentType.Application.Json)
-           // body = GetVcRequest("did:ebsi:234567", "did-ownership-req")
+            // body = GetVcRequest("did:ebsi:234567", "did-ownership-req")
         }
         println(verifiableId)
     }

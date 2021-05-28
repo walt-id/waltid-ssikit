@@ -6,7 +6,7 @@ import org.junit.Test
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.model.DidMethod
 import org.letstrust.model.DidUrl
-import org.letstrust.services.key.KeyManagementService
+import org.letstrust.services.key.KeyService
 import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -74,7 +74,7 @@ class DidServiceTest {
     fun createResolveDidEbsiTest() {
 
         // Create
-        val keyId = KeyManagementService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val keyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
         val did = ds.create(DidMethod.ebsi, keyId.id)
         println(did)
         val didUrl = DidUrl.from(did)

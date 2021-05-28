@@ -23,6 +23,7 @@ import org.letstrust.model.DidUrl
 import org.letstrust.model.VerifiableCredential
 import org.letstrust.model.encodePretty
 import org.letstrust.services.did.DidService
+import org.letstrust.services.key.KeyFormat
 import org.letstrust.services.vc.CredentialService
 import org.letstrust.test.getTemplate
 import org.letstrust.test.readCredOffer
@@ -147,7 +148,7 @@ class CoreApiTest {
 
         val key = client.post<String>("$CORE_API_URL/v1/key/export") {
             contentType(ContentType.Application.Json)
-            body = ExportKeyRequest(keyId.id, "JWK")
+            body = ExportKeyRequest(keyId.id, KeyFormat.JWK)
         }
         assertTrue(key.length > 180)
     }
@@ -233,7 +234,7 @@ class CoreApiTest {
         println("Credential encoded: ${vcEncoded}")
     }
 
-    // TODO FIX @Test
+    @Test
     fun testPresentVerifyVC() = runBlocking {
         val credOffer = getTemplate("europass") as Europass
         val issuerDid = DidService.create(DidMethod.web)
@@ -250,8 +251,9 @@ class CoreApiTest {
         println("Credential request:\n$vcReqEnc")
 
         val vcStr = CredentialService.sign(issuerDid, vcReqEnc)
-        val vc = Json.decodeFromString<VerifiableCredential>(vcStr)
-        println("Credential generated: ${vc.encodePretty()}")
+        val vc = VC.decode(vcStr)
+
+        println("Credential generated: ${vc}")
 
         val vp = client.post<String>("$CORE_API_URL/v1/vc/present") {
             contentType(ContentType.Application.Json)

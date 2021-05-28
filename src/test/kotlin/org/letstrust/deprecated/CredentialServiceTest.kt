@@ -21,7 +21,7 @@ import org.letstrust.model.DidMethod
 import org.letstrust.model.VerifiableCredential
 import org.letstrust.model.VerifiablePresentation
 import org.letstrust.services.did.DidService
-import org.letstrust.services.key.KeyManagementService
+import org.letstrust.services.key.KeyService
 import org.letstrust.services.vc.CredentialService
 import java.io.File
 import java.net.URI
@@ -132,7 +132,7 @@ class CredentialServiceTest {
 
         val vcVerified = CredentialService.verifyVc(issuerDid, vc)
         assertTrue(vcVerified)
-        KeyManagementService.delete(issuerDid)
+        KeyService.delete(issuerDid)
     }
 
     @Test
@@ -150,7 +150,7 @@ class CredentialServiceTest {
 
         val vcVerified = CredentialService.verifyVc(issuerDid, vc)
         assertTrue(vcVerified)
-        KeyManagementService.delete(issuerDid)
+        KeyService.delete(issuerDid)
     }
 
     @Test
@@ -175,7 +175,7 @@ class CredentialServiceTest {
 
         val credOffer = readCredOffer("PermanentResidentCard")
 
-        val keyId = KeyManagementService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val keyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
         val domain = "example.com"
         val nonce: String? = null
 
@@ -185,7 +185,7 @@ class CredentialServiceTest {
 
         val vcVerified = CredentialService.verifyVc(keyId.id, vc)
         assertTrue(vcVerified)
-        KeyManagementService.delete(keyId.id)
+        KeyService.delete(keyId.id)
     }
 
     @Test

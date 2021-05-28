@@ -85,7 +85,6 @@ object VcController {
     )
     fun create(ctx: Context) {
         val createVcReq = ctx.bodyAsClass(CreateVcRequest::class.java)
-        // TODO build credential based on the request e.g. load template, substitute values
         ctx.result(CredentialService.sign(createVcReq.issuerDid!!, createVcReq.credentialOffer!!, createVcReq.domain, createVcReq.nonce))
     }
 

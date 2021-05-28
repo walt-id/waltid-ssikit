@@ -1,8 +1,6 @@
 package org.letstrust.deprecated
 
 import com.nimbusds.jose.*
-import com.nimbusds.jose.JWSAlgorithm
-import com.nimbusds.jose.JWSHeader
 import com.nimbusds.jose.crypto.*
 import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.jwk.KeyUse
@@ -12,7 +10,9 @@ import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.junit.Test
+import java.security.Security
 import java.util.*
 
 
@@ -67,8 +67,9 @@ class JwtTest {
         assertTrue(Date().before(signedJWT.jwtClaimsSet.expirationTime))
     }
 
-    //@Test
+    // @Test
     fun jwtSpec256k1() {
+        Security.addProvider(BouncyCastleProvider())
         // Generate EC key pair on the secp256k1 curve
         val ecJWK = ECKeyGenerator(Curve.SECP256K1)
             .keyUse(KeyUse.SIGNATURE)
@@ -119,7 +120,7 @@ class JwtTest {
     }
 
     // https://github.com/felx/nimbus-jose-jwt/blob/master/src/test/java/com/nimbusds/jose/crypto/ECDHCryptoTest.java
-   // @Test
+    // @Test
     fun signAndEncryptedJwtP_256() {
         // check: invalid curev attack
         // ecdh-es x
@@ -175,7 +176,7 @@ class JwtTest {
         assertTrue(jwt2.verify(ECDSAVerifier(senderJWK)))
     }
 
-   // @Test
+    // @Test
     fun signAndEncryptedJwtEd25519() {
 
         // setup
@@ -230,6 +231,6 @@ class JwtTest {
         val jwt2 = jwe2.payload.toSignedJWT()
 
         // Verify the Ed25519 signature with the public EC key
-       assertTrue(jwt2.verify(Ed25519Verifier(senderPublicJWK)))
+        assertTrue(jwt2.verify(Ed25519Verifier(senderPublicJWK)))
     }
 }

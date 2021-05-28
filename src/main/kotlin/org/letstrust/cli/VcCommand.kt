@@ -265,6 +265,6 @@ class ExportVcTemplateCommand : CliktCommand(
     override fun run() {
         echo("\nExporting VC template ...")
 
-        File("vc-template $templateName-${getTimeMillis()}.json").writeText(CredentialService.loadTemplate(templateName))
+        File("vc-template-$templateName-${getTimeMillis()}.json").writeText(CredentialService.loadTemplate(templateName))
     }
 }
