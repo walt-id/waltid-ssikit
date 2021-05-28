@@ -34,14 +34,14 @@ object KeyService {
 
     fun load(keyAlias: String, loadPrivate: Boolean = false) = ks.load(keyAlias, loadPrivate)
 
-    fun export(keyAlias: String, format: KeyFormat = KeyFormat.JWK): String =
-        if (format == KeyFormat.JWK)
-            toJwk(keyAlias).toJSONString()
-        else
-            toPem(keyAlias)
+    fun export(keyAlias: String, format: KeyFormat = KeyFormat.JWK, exportPrivate: Boolean = false): String =
+        when (format) {
+            KeyFormat.JWK -> toJwk(keyAlias, exportPrivate).toJSONString()
+            else -> toPem(keyAlias, exportPrivate)
+        }
 
-    fun toJwk(keyAlias: String): JWK {
-        return ks.load(keyAlias).let {
+    fun toJwk(keyAlias: String, loadPrivate: Boolean = false): JWK {
+        return ks.load(keyAlias, loadPrivate).let {
             when (it.algorithm) {
                 KeyAlgorithm.EdDSA_Ed25519 -> toEd25519Jwk(it)
                 KeyAlgorithm.ECDSA_Secp256k1 -> toSecp256Jwk(it)
@@ -52,12 +52,9 @@ object KeyService {
         throw IllegalArgumentException("No key by alias $keyAlias")
     }
 
-    fun toPem(keyAlias: String): String {
-        return ks.load(keyAlias).let {
-            it.keyPair!!.private.let {
-                it.toPEM()
-            }
-            it.keyPair!!.public.toPEM()
+    fun toPem(keyAlias: String, loadPrivate: Boolean = false): String =
+        ks.load(keyAlias, loadPrivate).keyPair!!.run {
+            (if (loadPrivate) private else public).toPEM()
         }
 
         throw IllegalArgumentException("No key by alias $keyAlias")

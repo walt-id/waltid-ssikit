@@ -2,10 +2,13 @@ package org.letstrust.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
+import com.github.ajalt.clikt.parameters.types.enum
 import org.letstrust.crypto.KeyAlgorithm
+import org.letstrust.services.key.KeyFormat
 import org.letstrust.services.key.KeyService
 
 
@@ -73,11 +76,13 @@ class ExportKeyCommand : CliktCommand(
         Export key in JWK format."""
 ) {
 
-    val keyId: String by option(help = "Key ID or key alias").required()
+    val keyId: String by option("-k", "--key-id", help = "Key ID or key alias").required()
+    val keyFormat: KeyFormat by option("-f", "--key-format", help = "Key format of exported key").enum<KeyFormat>().default(KeyFormat.JWK)
+    val exportPrivate by option("--priv", help = "Export public or private key").flag("--pub", default = false)
 
     override fun run() {
-        echo("Exporting key \"$keyId\"...")
-        val jwk = KeyService.export(keyId)
+        echo("Exporting $exportPrivate key \"$keyId\"...")
+        val jwk = KeyService.export(keyId, keyFormat, exportPrivate)
 
         println("\nResults:\n")
 
