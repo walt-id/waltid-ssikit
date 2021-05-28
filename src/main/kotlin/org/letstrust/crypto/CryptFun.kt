@@ -47,6 +47,12 @@ fun PrivateKey.toPEM(): String =
 
 fun PrivateKey.toBase64(): String = String(Base64.getEncoder().encode(PKCS8EncodedKeySpec(this.encoded).encoded))
 
+fun java.security.Key.toPEM(): String = when {
+    this is PublicKey -> this.toPEM()
+    this is PrivateKey -> this.toPEM()
+    else -> throw IllegalArgumentException()
+}
+
 fun PublicKey.toPEM(): String = "-----BEGIN PUBLIC KEY-----\n" +
         String(
             Base64.getMimeEncoder(64, "\n".toByteArray()).encode(X509EncodedKeySpec(this.encoded).encoded)

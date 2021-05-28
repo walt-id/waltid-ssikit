@@ -48,17 +48,12 @@ object KeyService {
                 else -> throw IllegalArgumentException("Algorithm not supported")
             }
         }
-
-        throw IllegalArgumentException("No key by alias $keyAlias")
     }
 
     fun toPem(keyAlias: String, loadPrivate: Boolean = false): String =
         ks.load(keyAlias, loadPrivate).keyPair!!.run {
             (if (loadPrivate) private else public).toPEM()
         }
-
-        throw IllegalArgumentException("No key by alias $keyAlias")
-    }
 
     fun toSecp256Jwk(key: Key): ECKey {
         val builder = ECKey.Builder(Curve.SECP256K1, key.keyPair!!.public as ECPublicKey)
