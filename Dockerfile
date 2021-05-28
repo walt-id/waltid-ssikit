@@ -1,4 +1,4 @@
-FROM docker.io/openjdk:15-slim-buster
+FROM docker.io/openjdk:15-slim-buster AS openjdk-gradle
 
 ENV GRADLE_HOME /opt/gradle
 
@@ -47,11 +47,10 @@ RUN set -o errexit -o nounset \
     && echo "Testing Gradle installation" \
     && gradle --version
 
-
 RUN /bin/bash -c "source $HOME/.bashrc"
 
+FROM openjdk-gradle AS letstrust-build
 COPY ./ /opt
-
 RUN gradle clean assemble
 RUN tar xf /opt/build/distributions/letstrust-ssi-core-1.0-SNAPSHOT.tar -C /opt
 
@@ -61,4 +60,4 @@ RUN rm -r /opt/*
 
 WORKDIR /app
 
-#ENTRYPOINT ["/app/bin/letstrust-ssi-core"]
+ENTRYPOINT ["/app/bin/letstrust-ssi-core"]
