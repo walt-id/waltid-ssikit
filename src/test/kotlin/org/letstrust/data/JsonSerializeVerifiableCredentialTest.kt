@@ -17,6 +17,8 @@ import kotlin.test.assertTrue
 
 class JsonSerializeVerifiableCredentialTest {
 
+    val VC_PATH = "src/test/resources/verifiable-credentials"
+
     val format = Json { prettyPrint = true }
 
     @Test
@@ -47,7 +49,7 @@ class JsonSerializeVerifiableCredentialTest {
 
     @Test
     fun serializeSignedVc() {
-        val signedEuropassStr = File("src/test/resources/verifiable-credentials/vc-1622016634947-europass.json").readText()
+        val signedEuropassStr = File("$VC_PATH/vc-europass-signed.json").readText()
         println(signedEuropassStr)
         val vc = VC.decode(signedEuropassStr)
     }
@@ -55,7 +57,7 @@ class JsonSerializeVerifiableCredentialTest {
     // TODO: remove / replace functions below as they are using the old data model
     @Test
     fun serializeExample37() {
-        val expected = File("src/test/resources/verifiable-credentials/vc-example37.json").readText()
+        val expected = File("$VC_PATH/vc-example37.json").readText()
         // println(expected)
         val obj = Json.decodeFromString<VerifiableCredentialPRC>(expected)
         // println(obj)
@@ -124,7 +126,7 @@ class JsonSerializeVerifiableCredentialTest {
 
     //TODO not all files working yet @Test
     fun vcExamplesTest() {
-        File("src/test/resources/verifiable-credentials/").walkTopDown()
+        File(VC_PATH).walkTopDown()
             .filter { it.toString().endsWith(".json") }
             .forEach {
                 println("serializing: $it")

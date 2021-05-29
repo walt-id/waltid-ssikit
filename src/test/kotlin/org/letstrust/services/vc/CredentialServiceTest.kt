@@ -13,6 +13,7 @@ import org.letstrust.services.did.DidService
 import org.letstrust.test.getTemplate
 import org.letstrust.test.readCredOffer
 import org.letstrust.vclib.vcs.*
+import java.io.File
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import kotlin.test.assertEquals
@@ -33,7 +34,7 @@ class CredentialServiceTest {
         println("Credential generated: $vcStr")
 
         val vc = VC.decode(vcStr)
-        println(vc)
+        println("Credential decoded: $vc")
 
         val vcVerified = CredentialService.verify(vcStr)
         assertTrue(vcVerified.verified)
