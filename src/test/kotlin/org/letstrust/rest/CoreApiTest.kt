@@ -1,5 +1,6 @@
 package org.letstrust.rest
 
+import com.nimbusds.jose.jwk.JWK
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.json.*
@@ -34,6 +35,7 @@ import java.io.File
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class CoreApiTest {
@@ -140,7 +142,7 @@ class CoreApiTest {
     }
 
     @Test
-    fun testExportKey() = runBlocking {
+    fun testExportPublicKey() = runBlocking {
         val keyId = client.post<KeyId>("$CORE_API_URL/v1/key/gen") {
             contentType(ContentType.Application.Json)
             body = GenKeyRequest(KeyAlgorithm.ECDSA_Secp256k1)
@@ -150,7 +152,21 @@ class CoreApiTest {
             contentType(ContentType.Application.Json)
             body = ExportKeyRequest(keyId.id, KeyFormat.JWK)
         }
-        assertTrue(key.length > 180)
+        assertFalse(JWK.parse(key).isPrivate)
+    }
+
+    @Test
+    fun testExportPrivateKey() = runBlocking {
+        val keyId = client.post<KeyId>("$CORE_API_URL/v1/key/gen") {
+            contentType(ContentType.Application.Json)
+            body = GenKeyRequest(KeyAlgorithm.EdDSA_Ed25519)
+        }
+
+        val key = client.post<String>("$CORE_API_URL/v1/key/export") {
+            contentType(ContentType.Application.Json)
+            body = ExportKeyRequest(keyId.id, KeyFormat.JWK, true)
+        }
+        assertTrue(JWK.parse(key).isPrivate)
     }
 
     @Test

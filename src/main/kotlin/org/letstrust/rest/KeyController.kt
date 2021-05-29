@@ -23,6 +23,7 @@ data class ImportKeyRequest(
 data class ExportKeyRequest(
     val keyAlias: String,
     val format: KeyFormat = KeyFormat.JWK,
+    val exportPrivate: Boolean = false
 )
 
 object KeyController {
@@ -98,7 +99,7 @@ object KeyController {
     )
     fun export(ctx: Context) {
         val req = ctx.bodyAsClass(ExportKeyRequest::class.java)
-        ctx.result(KeyService.export(req.keyAlias, req.format))
+        ctx.result(KeyService.export(req.keyAlias, req.format, req.exportPrivate))
     }
 
     @OpenApi(
