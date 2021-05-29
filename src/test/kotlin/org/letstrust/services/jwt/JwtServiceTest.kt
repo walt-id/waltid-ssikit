@@ -1,6 +1,8 @@
 package org.letstrust.services.jwt
 
+import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.shaded.json.JSONObject
+import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -14,6 +16,7 @@ import org.letstrust.services.did.DidService
 import org.letstrust.services.key.KeyService
 import org.letstrust.services.vc.CredentialService
 import java.io.File
+import java.time.Instant
 import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -52,6 +55,31 @@ class JwtServiceTest {
 
         val res1 = JwtService.verify(jwt)
         assertTrue(res1, "JWT verification failed")
+    }
+
+    @Test
+    fun genJwtCustomPayload() {
+        val key = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1).run { KeyService.toJwk(id) as ECKey }
+        val thumbprint = key.computeThumbprint().toString()
+
+        val payload = JWTClaimsSet.Builder()
+            .issuer("https://self-issued.me")
+            .audience("redirectUri")
+            .subject(thumbprint)
+            .issueTime(Date.from(Instant.now()))
+            .expirationTime(Date.from(Instant.now().plusSeconds(120)))
+            .claim("nonce", "nonce")
+            .claim("sub_jwk", key.toJSONObject())
+            .build().toString()
+
+        val jwtStr = JwtService.sign(key.keyID, payload)
+        val jwt = SignedJWT.parse(jwtStr)
+        assertEquals("ES256K", jwt.header.algorithm.name)
+        assertEquals(key.keyID, jwt.header.keyID)
+        assertEquals("https://self-issued.me", jwt.jwtClaimsSet.claims["iss"])
+        assertEquals(thumbprint, jwt.jwtClaimsSet.claims["sub"])
+
+        assertTrue(JwtService.verify(jwtStr), "JWT verification failed")
     }
 
     @Test
