@@ -1,7 +1,6 @@
 package org.letstrust.vclib.vcs
 
 
-import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -16,6 +15,7 @@ data class EbsiVerifiableAttestation(
     override val type: List<String>,
     var issuer: String?,
     var issuanceDate: String?, // 2020-04-22T10:37:22Z
+    var expirationDate: String?, // 2022-04-22T10:37:22Z
     val credentialSubject: CredentialSubject?,
     val credentialStatus: CredentialStatus?,
     val credentialSchema: CredentialSchema?,
