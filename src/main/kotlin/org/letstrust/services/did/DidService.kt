@@ -12,6 +12,7 @@ import org.letstrust.crypto.KeyAlgorithm.ECDSA_Secp256k1
 import org.letstrust.crypto.KeyAlgorithm.EdDSA_Ed25519
 import org.letstrust.crypto.keystore.KeyStore
 import org.letstrust.model.*
+import org.letstrust.services.key.KeyService
 import org.letstrust.services.vc.CredentialService
 import java.io.File
 import java.net.URL
@@ -58,6 +59,7 @@ object DidService {
         log.warn { "DID EBSI is not resolved correctly yet. It is read from directory." }
         return Json.decodeFromString<DidEbsi>(loadDid(didUrl.did))
     }
+
     fun updateDidEbsi(did: DidEbsi) = storeDid(did.id!!, Json.encodeToString(did))
     // Private methods
 
@@ -78,20 +80,25 @@ object DidService {
 
             val ebsiDidBodyStr = Json.encodeToString(ebsiDidBody)
 
+            keyStore.addAlias(keyId, ebsiDidBody.verificationMethod!!.get(0)!!.id)
+
             // Create proof
             val verificationMethod = ebsiDidBody.verificationMethod?.get(0)?.id
             signDid(didUrlStr, verificationMethod!!, ebsiDidBodyStr)
-        } else  {
+        } else {
+            val kid = "$didUrlStr#key-1"
+            keyStore.addAlias(keyId, kid)
             val verificationMethods = mutableListOf(
-                VerificationMethod(didUrlStr + "#keys-1", "Secp256k1VerificationKey2018", didUrlStr, null, key.getPublicKey().toPEM()),
+                VerificationMethod(kid, "Secp256k1VerificationKey2018", didUrlStr, null, KeyService.toPem(kid)),
             )
 
             val did = DidEbsi(
                 listOf("https://w3.org/ns/did/v1"), // TODO Context not working "https://ebsi.org/ns/did/v1"
                 didUrlStr,
                 verificationMethods,
-                listOf(didUrlStr + "#keys-1"))
-               Json.encodeToString(did)
+                listOf(didUrlStr + "#keys-1")
+            )
+            Json.encodeToString(did)
         }
 
         // Store DID

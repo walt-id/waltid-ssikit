@@ -40,11 +40,11 @@ object KeyService {
             else -> toPem(keyAlias, exportPrivate)
         }
 
-    fun toJwk(keyAlias: String, loadPrivate: Boolean = false): JWK {
+    fun toJwk(keyAlias: String, loadPrivate: Boolean = false, jwkKeyId: String? = null): JWK {
         return ks.load(keyAlias, loadPrivate).let {
             when (it.algorithm) {
-                KeyAlgorithm.EdDSA_Ed25519 -> toEd25519Jwk(it)
-                KeyAlgorithm.ECDSA_Secp256k1 -> toSecp256Jwk(it)
+                KeyAlgorithm.EdDSA_Ed25519 -> toEd25519Jwk(it, jwkKeyId)
+                KeyAlgorithm.ECDSA_Secp256k1 -> toSecp256Jwk(it, jwkKeyId)
                 else -> throw IllegalArgumentException("Algorithm not supported")
             }
         }
@@ -55,11 +55,11 @@ object KeyService {
             (if (loadPrivate) private else public).toPEM()
         }
 
-    fun toSecp256Jwk(key: Key): ECKey {
+    fun toSecp256Jwk(key: Key, jwkKeyId: String? = null): ECKey {
         val builder = ECKey.Builder(Curve.SECP256K1, key.keyPair!!.public as ECPublicKey)
             .keyUse(KeyUse.SIGNATURE)
             .algorithm(JWSAlgorithm.ES256K)
-            .keyID(key.keyId.id)
+            .keyID(jwkKeyId ?: key.keyId.id)
 
         key.keyPair!!.private?.let {
             builder.privateKey(key.keyPair!!.private)
@@ -68,7 +68,7 @@ object KeyService {
         return builder.build()
     }
 
-    fun toEd25519Jwk(key: Key): OctetKeyPair {
+    fun toEd25519Jwk(key: Key, jwkKeyId: String? = null): OctetKeyPair {
         val keyUse = KeyUse.parse("sig")
         val keyAlg = JWSAlgorithm.parse("EdDSA")
         val keyCurve = Curve.parse("Ed25519")
@@ -78,7 +78,7 @@ object KeyService {
         val builder = OctetKeyPair.Builder(keyCurve, Base64URL.encode(x))
             .keyUse(keyUse)
             .algorithm(keyAlg)
-            .keyID(key.keyId.id)
+            .keyID(jwkKeyId ?: key.keyId.id)
 
         key.keyPair!!.private?.let {
             val privPrim = ASN1Sequence.fromByteArray(key.keyPair!!.private.encoded) as ASN1Sequence

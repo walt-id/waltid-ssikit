@@ -59,7 +59,9 @@ class JwtServiceTest {
 
     @Test
     fun genJwtCustomPayload() {
-        val key = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1).run { KeyService.toJwk(id) as ECKey }
+        val did = DidService.create(DidMethod.ebsi, KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1).id)
+        val kid = "$did#key-1"
+        val key = KeyService.toJwk(did, false, kid) as ECKey
         val thumbprint = key.computeThumbprint().toString()
 
         val payload = JWTClaimsSet.Builder()
@@ -72,10 +74,10 @@ class JwtServiceTest {
             .claim("sub_jwk", key.toJSONObject())
             .build().toString()
 
-        val jwtStr = JwtService.sign(key.keyID, payload)
+        val jwtStr = JwtService.sign(kid, payload)
         val jwt = SignedJWT.parse(jwtStr)
         assertEquals("ES256K", jwt.header.algorithm.name)
-        assertEquals(key.keyID, jwt.header.keyID)
+        assertEquals(kid, jwt.header.keyID)
         assertEquals("https://self-issued.me", jwt.jwtClaimsSet.claims["iss"])
         assertEquals(thumbprint, jwt.jwtClaimsSet.claims["sub"])
 
