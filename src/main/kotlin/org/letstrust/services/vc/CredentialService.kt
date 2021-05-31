@@ -278,7 +278,7 @@ object CredentialService {
 //        return verifier.verify(jsonLdObject)
 //    }
 
-    fun present(vcStr: String, domain: String?, challenge: String?): String {
+    fun present(vcStr: String, domain: String? = null, challenge: String? = null): String {
         log.debug { "Creating a presentation for VC:\n$vcStr" }
 
 //        val (vpReqStr, holderDid) = try {

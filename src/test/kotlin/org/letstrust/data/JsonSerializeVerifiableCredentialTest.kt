@@ -28,7 +28,8 @@ class JsonSerializeVerifiableCredentialTest {
             .forEach {
                 println("serializing: $it")
 
-                val input = File("templates/vc-template-default.json").readText().replace("\\s".toRegex(), "")
+                val input = File(it.toURI()).readText().replace("\\s".toRegex(), "")
+
                 val vc = VC.decode(input)
 
                 if (vc is Europass) {
@@ -48,11 +49,19 @@ class JsonSerializeVerifiableCredentialTest {
     }
 
     @Test
+    fun serializeEbsiVerifiableAuthorization() {
+        val va = File("$VC_PATH/vc-ebsi-verifiable-authorization.json").readText()
+        println(va)
+        val vc = VC.decode(va)
+    }
+
+    @Test
     fun serializeSignedVc() {
         val signedEuropassStr = File("$VC_PATH/vc-europass-signed.json").readText()
         println(signedEuropassStr)
         val vc = VC.decode(signedEuropassStr)
     }
+
 
     // TODO: remove / replace functions below as they are using the old data model
     @Test

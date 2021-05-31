@@ -22,6 +22,8 @@ interface VC {
 data class Proof(
     val type: String?, // EcdsaSecp256k1Signature2019
     val created: String?, // 2019-06-22T14:11:44Z
+    val proofPurpose: String? = null, // e.g. assertionMethod
+    val verificationMethod: String? = null, // e.g. "did:ebsi:4jPxcigvfifZyVwym5zjxaKXGJTt7YwFtpg6AXtsR4d5#keys-1",
     val creator: String? = null,
     val domain: String? = null,
     val nonce: String? = null,

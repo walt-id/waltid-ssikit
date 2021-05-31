@@ -7,17 +7,19 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.letstrust.vclib.VCMetadata
 
+
 @Serializable
-data class EbsiVerifiableAttestation(
+data class EbsiVerifiableAuthorisation(
     @SerialName("@context")
     override val context: List<String>,
     var id: String?,
     override val type: List<String>,
     var issuer: String?,
+    val validFrom: String?,// 2021-05-31T12:29:47Z
     var issuanceDate: String?, // 2020-04-22T10:37:22Z
     var expirationDate: String? = null, // 2022-04-22T10:37:22Z
     val credentialSubject: CredentialSubject?,
-    val credentialStatus: CredentialStatus?,
+    // val credentialStatus: CredentialStatus?,
     val credentialSchema: CredentialSchema?,
     val proof: Proof? = null
 ) : VC {
@@ -28,15 +30,14 @@ data class EbsiVerifiableAttestation(
 
     @Serializable
     data class CredentialSubject(
-        var id: String?,
-        val authorizationClaims: List<String>?
+        var id: String?
     )
 
-    @Serializable
-    data class CredentialStatus(
-        var id: String?,
-        var type: String?
-    )
+//    @Serializable
+//    data class CredentialStatus(
+//        var id: String?,
+//        var type: String?
+//    )
 
     @Serializable
     data class CredentialSchema(
@@ -45,16 +46,16 @@ data class EbsiVerifiableAttestation(
     )
 
     companion object : VCMetadata {
-        override val metadataContext = ""
-        override val metadataType = "VerifiableAttestation"
+        override val metadataContext = "https://w3c-ccg.github.io/lds-jws2020/contexts/lds-jws2020-v1.json"
+        override val metadataType = "VerifiableAuthorisation"
     }
 }
 
-fun EbsiVerifiableAttestation.encode() = Json.encodeToString(this)
-fun EbsiVerifiableAttestation.encodePretty() = Json { prettyPrint = true }.encodeToString(this)
+fun EbsiVerifiableAuthorisation.encode() = Json.encodeToString(this)
+fun EbsiVerifiableAuthorisation.encodePretty() = Json { prettyPrint = true }.encodeToString(this)
 
 @Serializable
-data class EbsiVerifiableAttestationVP(
+data class EbsiVerifiableAuthorisationVP(
     @SerialName("@context")
     override val context: List<String>,
     override val type: List<String>,
@@ -73,5 +74,5 @@ data class EbsiVerifiableAttestationVP(
     }
 }
 
-fun EbsiVerifiableAttestationVP.encode() = Json.encodeToString(this)
-fun EbsiVerifiableAttestationVP.encodePretty() = Json { prettyPrint = true }.encodeToString(this)
+fun EbsiVerifiableAuthorisationVP.encode() = Json.encodeToString(this)
+fun EbsiVerifiableAuthorisationVP.encodePretty() = Json { prettyPrint = true }.encodeToString(this)
