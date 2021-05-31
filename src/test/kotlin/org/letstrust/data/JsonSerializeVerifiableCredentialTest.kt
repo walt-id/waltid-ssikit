@@ -50,8 +50,7 @@ class JsonSerializeVerifiableCredentialTest {
 
     @Test
     fun serializeEbsiVerifiableAuthorization() {
-        val va = File("$VC_PATH/vc-ebsi-verifiable-authorization.json").readText()
-        println(va)
+        val va = File("$VC_PATH/vc-ebsi-verifiable-authorisation.json").readText()
         val vc = VC.decode(va)
     }
 

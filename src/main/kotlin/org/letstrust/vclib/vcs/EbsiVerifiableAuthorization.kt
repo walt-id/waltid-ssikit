@@ -60,7 +60,7 @@ data class EbsiVerifiableAuthorisationVP(
     override val context: List<String>,
     override val type: List<String>,
     val id: String? = null,
-    val vc: List<EbsiVerifiableAttestation>?,
+    val vc: List<EbsiVerifiableAuthorisation>?,
     val proof: org.letstrust.model.Proof? = null
 ) : VC {
 

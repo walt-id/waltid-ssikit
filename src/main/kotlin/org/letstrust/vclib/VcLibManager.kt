@@ -21,6 +21,7 @@ object VcLibManager {
             vcTypeClass = when {
                 json.contains("Europass") -> EuropassVP::class
                 json.contains("VerifiableAttestation") -> EbsiVerifiableAttestationVP::class
+                json.contains("VerifiableAuthorisation") -> EbsiVerifiableAuthorisationVP::class
                 json.contains("PermanentResidentCard") -> PermanentResidentCardVP::class
                 else -> throw IllegalArgumentException("No valid VP type")
             }

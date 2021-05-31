@@ -1,5 +1,6 @@
 package org.letstrust.services.vc
 
+import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -22,6 +23,9 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class CredentialServiceTest {
+
+
+    val VC_PATH = "src/test/resources/verifiable-credentials"
 
     @Before
     fun setup() {
@@ -98,6 +102,14 @@ class CredentialServiceTest {
         genericSignVerify(issuerDid, credOffer)
     }
 
+    @Test
+    fun presentVa() {
+        val vaStr = File("$VC_PATH/vc-ebsi-verifiable-authorisation.json").readText()
+
+        val vp = CredentialService.present(vaStr, null, null)
+
+        println(vp)
+    }
     @Test
     fun presentEuropassTest() {
 

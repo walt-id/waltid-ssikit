@@ -320,6 +320,13 @@ object CredentialService {
                 listOf(vc),
                 null
             ).encode()
+            vc is EbsiVerifiableAuthorisation -> EbsiVerifiableAuthorisationVP(
+                listOf("https://www.w3.org/2018/credentials/v1"),
+                listOf("VerifiablePresentation"),
+                null,
+                listOf(vc),
+                null
+            ).encode()
             else -> throw IllegalArgumentException("VC type not supported")
         }
 
