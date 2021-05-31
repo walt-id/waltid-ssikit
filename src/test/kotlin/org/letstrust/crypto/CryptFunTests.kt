@@ -38,6 +38,15 @@ class CryptFunTests {
     }
 
     @Test
+    fun base64EncodingTest() {
+        val input = "Hello World!"
+        val encoded = encBase64Str(input)
+        assertEquals("SGVsbG8gV29ybGQh", encoded)
+        val decoded = decBase64Str(encoded)
+        assertEquals(input, decoded)
+    }
+
+    @Test
     fun base58EncodingTest() {
         val input = "Hello World!"
         val encoded = input.toByteArray().encodeBase58()
