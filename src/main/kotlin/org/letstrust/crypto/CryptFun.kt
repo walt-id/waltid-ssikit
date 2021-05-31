@@ -1,5 +1,10 @@
 package org.letstrust.crypto
 
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.json.JsonMapper
+import com.fasterxml.jackson.databind.node.JsonNodeFactory
+import com.fasterxml.jackson.databind.node.ObjectNode
 import com.goterl.lazysodium.LazySodiumJava
 import com.goterl.lazysodium.SodiumJava
 import io.ipfs.multibase.Base58
@@ -173,3 +178,15 @@ fun localTimeSecondsUtc(): String {
 
     return DateTimeFormatter.ISO_INSTANT.format(inDateEpochSeconds)
 }
+
+class SortingNodeFactory : JsonNodeFactory() {
+    override fun objectNode(): ObjectNode =
+        ObjectNode(this, TreeMap<String, JsonNode>())
+}
+
+val mapper: ObjectMapper = JsonMapper.builder()
+    .nodeFactory(SortingNodeFactory())
+    .build()
+
+fun canonicalize(json: String): String =
+    mapper.writeValueAsString(mapper.readTree(json))
