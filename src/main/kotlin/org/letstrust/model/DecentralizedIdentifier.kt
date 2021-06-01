@@ -13,6 +13,7 @@ enum class DidMethod {
     web,
     ebsi
 }
+
 @Serializable
 data class Did(
     @SerialName("@context")
@@ -37,7 +38,16 @@ data class VerificationMethod(
     val type: String,
     val controller: String,
     val publicKeyBase58: String? = null,
-    val publicKeyPem: String? = null
+    val publicKeyPem: String? = null,
+    val publicKeyJwk: Jwk? = null
+)
+
+@Serializable
+data class Jwk(
+    val kty: String, // "EC",
+    val crv: String, // "secp256k1",
+    val x: String, // "Ou6y1zrJBeVnpV739kcTyez7RmQZFYg3F9bWGm6V5dQ",
+    val y: String // "jOq6B8CsOxoXj-WXAGY28PH0Ype1x6bnOB6_YOo3lK0"
 )
 
 @Serializable
