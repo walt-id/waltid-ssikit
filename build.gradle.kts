@@ -78,6 +78,12 @@ tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "13"
 }
 
+tasks.named<CreateStartScripts>("startScripts") {
+    doLast {
+        windowsScript.writeText(windowsScript.readText().replace(Regex("set CLASSPATH=.*"), "set CLASSPATH=%APP_HOME%\\\\lib\\\\*"))
+    }
+}
+
 val fatJar = task("fatJar", type = Jar::class) {
     group = "build"
 
