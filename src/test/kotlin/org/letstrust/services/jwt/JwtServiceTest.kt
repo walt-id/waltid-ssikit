@@ -357,10 +357,11 @@ class JwtServiceTest {
 
     }
 
-    @Test
+    // @Test
     fun ake1DecryptPayload() {
         val ebsiDid = Json.decodeFromString<DidEbsi>(File("src/test/resources/ebsi/ake1-did.json").readText())
         val jwkStr = Json.encodeToString(ebsiDid.verificationMethod!![0].publicKeyJwk)
+        println(jwkStr)
         val publicKey = JWK.parse(jwkStr) as ECKey
         print(publicKey)
 

@@ -102,7 +102,7 @@ class CredentialServiceTest {
         genericSignVerify(issuerDid, credOffer)
     }
 
-    @Test
+    // TODO: create DID for holder @Test
     fun presentVa() {
         val vaStr = File("$VC_PATH/vc-ebsi-verifiable-authorisation.json").readText()
 
