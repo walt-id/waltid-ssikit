@@ -210,6 +210,6 @@ In order to overwrite these values, simply place a yaml-based config-file named 
     
     podman pull ghcr.io/letstrustid/letstrust:test
     podman tag ghcr.io/letstrustid/letstrust:test letstrust
-    podman run letstrust
+    podman run -itv $(pwd)/data:/app/data -itv $(pwd)/templates:/app/templates -p 7000-7001:7000-7001 letstrust serve
 
 
