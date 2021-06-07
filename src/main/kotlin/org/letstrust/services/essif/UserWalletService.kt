@@ -5,6 +5,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import mu.KotlinLogging
+import org.letstrust.common.toParamMap
 import org.letstrust.model.*
 import org.letstrust.services.essif.mock.AuthorizationApi
 import org.letstrust.services.essif.mock.DidRegistry
@@ -139,15 +140,6 @@ object UserWalletService {
             throw e
         }
     }
-
-    private fun toParamMap(paramString: String): Map<String, String> {
-        val paramMap = HashMap<String, String>()
-        val pairs = paramString.split("&")
-
-        pairs.forEach { paramMap[it.substringBefore("=")] = URLDecoder.decode(it.substringAfter("="), StandardCharsets.UTF_8) }
-        return paramMap
-    }
-
 
     private fun validateAuthenticationRequest(authReq: AuthenticationRequestPayload) {
 

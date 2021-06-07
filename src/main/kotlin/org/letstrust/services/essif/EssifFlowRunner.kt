@@ -1,35 +1,80 @@
 package org.letstrust.services.essif
 
+import com.nimbusds.jose.jwk.ECKey
+import com.nimbusds.jwt.JWTClaimsSet
+import com.nimbusds.jwt.SignedJWT
 import mu.KotlinLogging
+import org.letstrust.LetsTrustServices
+import org.letstrust.common.toParamMap
 import org.letstrust.services.essif.mock.RelyingParty
+import org.letstrust.services.jwt.JwtService
+import org.letstrust.services.key.KeyService
+import java.io.File
+import java.time.Instant
+import java.util.*
 
 private val log = KotlinLogging.logger {}
 
 object EssifFlowRunner {
 
+    // https://app.preprod.ebsi.eu/users-onboarding
+    val token =
+        "eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QifQ.eyJpYXQiOjE2MjIxMDg1OTgsImlzcyI6ImRpZDplYnNpOjRqUHhjaWd2ZmlmWnlWd3ltNXpqeGFLWEdKVHQ3WXdGdHBnNkFYdHNSNGQ1Iiwib25ib2FyZGluZyI6InJlY2FwdGNoYSIsInZhbGlkYXRlZEluZm8iOnsiYWN0aW9uIjoibG9naW4iLCJjaGFsbGVuZ2VfdHMiOiIyMDIxLTA1LTI3VDA5OjQzOjEzWiIsImhvc3RuYW1lIjoiYXBwLnByZXByb2QuZWJzaS5ldSIsInNjb3JlIjowLjksInN1Y2Nlc3MiOnRydWV9fQ.G8tJ8P6-7uEx2KcDDodsf9ekHiZUNFR1fFx7hVw7SIUzj4GZDJiUudKvWlMjuHKsYy7yl3rvtUsE1jbnCEFwqQ"
+
+    val bearerTokenFile = File("${LetsTrustServices.ebsiDir}bearer-token.txt")
+    val verifiableAuthorizationFile = File("${LetsTrustServices.ebsiDir}verifiable-authorization.json")
+
     // https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/2.+Main+Flow%3A+VC-Request+-+Onboarding+Flow
     fun onboard() {
+
+        log.debug { "Running ESSIF onboarding flow ..." }
 
         ///////////////////////////////////////////////////////////////////////////
         // Prerequisite: The LE must be authenticated and authorized by the classical
         // way before triggering the ESSIF onboarding flow.
         ///////////////////////////////////////////////////////////////////////////
 
-        println("ESSIF onboarding of a Legal Entity by requesting a Verifiable ID")
+        val bearerToken = when (bearerTokenFile.exists()) {
+            true -> bearerTokenFile.readText()
+            else -> throw Exception("The bearer token must be placed in file ${bearerTokenFile.absolutePath}. Visit https://app.preprod.ebsi.eu/users-onboarding for requesting a token.")
+        }
+
+        log.debug { "Loaded bearer token from ${bearerTokenFile.absolutePath}." }
 
         ///////////////////////////////////////////////////////////////////////////
         // LE requests the credential URI from the ESSIF Onboarding Service (EOS)
         ///////////////////////////////////////////////////////////////////////////
-        println("1 Request V.ID (manually)")
-        val credentialRequestUri = EosService.requestCredentialUri()
-        log.debug { "credentialRequest: $credentialRequestUri" }
+        log.debug { "Requesting a Verifiable ID from ESSIF Onboarding Service (EOS)" }
+
+        val authRequestResponse = LegalEntityClient.eos.authenticationRequests()
+
+        log.debug { "AuthRequestResponse:\n$authRequestResponse" }
+
+        val didAuthRequest = parseDidAuthRequest(authRequestResponse)
+
+        log.debug { "DidAuthRequest:\n$didAuthRequest" }
+
+        return //TODO to be continued here ...
+
+        val did = "did:ebsi:2LEi74mCZpgC8EqcngLCzUCL5d8W3dxfdjiy9XhaVoDyi259"
+
+        val idToken = constructAuthResponseJwt(did, didAuthRequest.client_id, didAuthRequest.nonce)
+
+        val verifiableAuthorization = LegalEntityClient.eos.authenticationResponse(idToken, bearerToken)
+
+        log.debug { "Verifiable Authorization received:\n${verifiableAuthorizationFile.absolutePath}" }
+
+        log.debug { "Writing Verifiable Authorization to file: ${verifiableAuthorizationFile.absolutePath}" }
+
+        verifiableAuthorizationFile.writeText(verifiableAuthorization)
+
 
         ///////////////////////////////////////////////////////////////////////////
         // The EnterpriseWalletService processes the credentialRequestUri and forwards
         // the credential request ([POST] /credentials with and empty body) to the EOS
         ///////////////////////////////////////////////////////////////////////////
-        println("3 Trigger Wallet")
-        val didOwnershipReq = EnterpriseWalletService.requestVerifiableCredential(credentialRequestUri)
+//        println("3 Trigger Wallet")
+//        val didOwnershipReq = EnterpriseWalletService.requestVerifiableCredential(authResponse)
 
         ///////////////////////////////////////////////////////////////////////////
         // The DID ownership request is a JWT, which is verified by the public key of the EOS.
@@ -58,11 +103,11 @@ object EssifFlowRunner {
         //  }
         //}
         ///////////////////////////////////////////////////////////////////////////
-        log.debug { "didOwnershipReq: $didOwnershipReq" }
-        println("6. Notify DID ownership request")
-        println("7. Create a new DID")
-
-        ///////////////////////////////////////////////////////////////////////////
+//        log.debug { "didOwnershipReq: $didOwnershipReq" }
+//        println("6. Notify DID ownership request")
+//        println("7. Create a new DID")
+//
+//        ///////////////////////////////////////////////////////////////////////////
         // Creation of DID sub-flow (see: 04_main-essif-register-did.kt)
         ///////////////////////////////////////////////////////////////////////////
         val didOfLegalEntity = EnterpriseWalletService.createDid()
@@ -91,7 +136,7 @@ object EssifFlowRunner {
         //  }
         //}
         ///////////////////////////////////////////////////////////////////////////
-        val verifiableId = EnterpriseWalletService.getVerifiableCredential(didOwnershipReq, didOfLegalEntity)
+        //      val verifiableId = EnterpriseWalletService.getVerifiableCredential(didOwnershipReq, didOfLegalEntity)
 
         ///////////////////////////////////////////////////////////////////////////
         // The requested V.ID is returned and should look like the following:
@@ -139,10 +184,48 @@ object EssifFlowRunner {
         //   }
         //}
         ///////////////////////////////////////////////////////////////////////////
+//
+//        log.debug { "verifiableId: $verifiableId" }
+//        println("14. Successful process")
 
-        log.debug { "verifiableId: $verifiableId" }
-        println("14. Successful process")
+    }
 
+    fun constructAuthResponseJwt(did: String, redirectUri: String, nonce: String): String {
+
+        val kid = "$did#key-1"
+        val key = KeyService.toJwk(did, false, kid) as ECKey
+        val thumbprint = key.computeThumbprint().toString()
+
+        //TODO: set DID to JWK-key: set "did:ebsi:2LkrbaNRBVu9hXFSk5fyJUGkcKvh57vn2GnCzRzU8Ft4 #key-1" in the header as well
+        val payload = JWTClaimsSet.Builder()
+            .issuer("https://self-issued.me")
+            .audience(redirectUri)
+            .subject(thumbprint)
+            .issueTime(Date.from(Instant.now()))
+            .expirationTime(Date.from(Instant.now().plusSeconds(300)))
+            .claim("nonce", nonce)
+            .claim("sub_jwk", key.toJSONObject())
+            .build().toString()
+
+        val jwt = JwtService.sign(kid, payload)
+
+        println(jwt)
+
+        val jwtToVerify = SignedJWT.parse(jwt)
+        println(jwtToVerify.header)
+        println(jwtToVerify.payload)
+
+        JwtService.verify(jwt).let { if (!it) throw IllegalStateException("Generated JWK not valid") }
+
+        val authResponseJwt = "$redirectUri#id_token=$jwt"
+        println("authResponseJwt: $authResponseJwt")
+        return authResponseJwt
+    }
+
+    fun parseDidAuthRequest(authResp: AuthRequestResponse): DidAuthRequest {
+        val paramString = authResp.session_token.substringAfter("openid://?")
+        val pm = toParamMap(paramString)
+        return DidAuthRequest(pm["response_type"]!!, pm["client_id"]!!, pm["scope"]!!, pm["nonce"]!!, pm["request"]!!)
     }
 
     // https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/2.+Authorization+API

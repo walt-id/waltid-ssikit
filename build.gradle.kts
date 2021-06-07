@@ -50,6 +50,7 @@ dependencies {
     implementation("io.ktor:ktor-client-core:1.5.2")
     implementation("io.ktor:ktor-client-cio:1.5.2")
     implementation("io.ktor:ktor-client-serialization:1.5.2")
+    implementation("io.ktor:ktor-client-logging:1.5.2")
 
     // REST
     implementation("io.javalin:javalin-bundle:3.13.6")

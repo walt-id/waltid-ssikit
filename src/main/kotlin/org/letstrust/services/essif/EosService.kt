@@ -1,12 +1,46 @@
 package org.letstrust.services.essif
 
+import io.ktor.client.request.*
+import io.ktor.http.*
+import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
+import org.letstrust.LetsTrustServices
 import org.letstrust.common.readEssif
 import org.letstrust.services.essif.mock.DidRegistry
 
 private val log = KotlinLogging.logger {}
 
 object EosService {
+
+    val domain = "https://api.preprod.ebsi.eu"
+    //val domain = "https://api.test.intebsi.xyz"
+
+    val authorisation = "$domain/authorisation/v1"
+    val onboarding = "$domain/users-onboarding/v1"
+
+    fun authenticationRequests(): AuthRequestResponse = runBlocking {
+        return@runBlocking LetsTrustServices.http.post<AuthRequestResponse>("$onboarding/authentication-requests") {
+            contentType(ContentType.Application.Json)
+            headers {
+                append(HttpHeaders.Accept, "application/json")
+            }
+            body = mapOf("scope" to "ebsi users onboarding")
+        }
+    }
+
+    fun authenticationResponse(idToken: String, bearerToken: String): String = runBlocking {
+        return@runBlocking LetsTrustServices.http.post<String>("$onboarding/authentication-responses") {
+            contentType(ContentType.Application.Json)
+            headers {
+                append(HttpHeaders.Accept, "application/json")
+                append(HttpHeaders.Authorization, "Bearer $bearerToken")
+            }
+            body = mapOf("id_token" to idToken)
+        }
+    }
+
+
+    //TODO: the methods below are stubbed - to be considered
 
     // POST /onboards
     // returns DID ownership

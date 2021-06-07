@@ -47,7 +47,7 @@ class EssifApiTest {
 
     @Test
     fun testRealEbsi() = runBlocking {
-        var authResp = client.post<AuthResponse>("$ESSIF_API_URL/v1/dummy/authentication-requests") {
+        var authResp = client.post<AuthRequestResponse>("$ESSIF_API_URL/v1/dummy/authentication-requests") {
             contentType(ContentType.Application.Json)
             headers {
                 append(HttpHeaders.Accept, "application/json")
