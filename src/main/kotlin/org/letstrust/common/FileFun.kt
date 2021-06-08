@@ -6,8 +6,8 @@ import java.io.File
 fun readEssif(fileName: String) = ClassLoader.getSystemResource("essif/${fileName}.json").readText(Charsets.UTF_8)
 
 fun readWhenContent(file: File, errorMessage: String? = null) = when {
-    (file.length() > 0) -> EssifFlowRunner.verifiableAuthorizationFile.readText()
-    else -> throw Exception(errorMessage ?: "Expecting file with content at: ${EssifFlowRunner.verifiableAuthorizationFile.absolutePath}")
+    (file.length() > 0) -> file.readText()
+    else -> throw Exception(errorMessage ?: "Expecting file with content at: ${file.absolutePath}")
 }
 
 fun readEssifBearerToken(): String = readWhenContent(
