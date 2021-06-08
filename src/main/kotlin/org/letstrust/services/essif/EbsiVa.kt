@@ -56,6 +56,7 @@ data class EbsiVaVp(
     val type: List<String>,
     val id: String? = null,
     val verifiableCredential: List<EbsiVa>?,
+    val holder: String,  // "holder": "did:ebsi:yMe3d2JDquN27rMPqoYjFVZhs8BcwVWbpgY1qHZy8zG",
     val proof: Proof? = null
 )
 

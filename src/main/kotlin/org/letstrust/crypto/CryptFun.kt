@@ -14,7 +14,10 @@ import io.ipfs.multibase.Base58
 import io.ipfs.multibase.Multibase
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.math.ec.ECPoint
+import org.bouncycastle.util.encoders.Hex
 import org.letstrust.CryptoProvider
+import org.letstrust.model.EncryptedAke1Payload
+import org.web3j.utils.Numeric
 import java.security.*
 import java.security.spec.ECGenParameterSpec
 import java.security.spec.PKCS8EncodedKeySpec
@@ -207,4 +210,26 @@ fun uncompressSecp256k1(compKey: ByteArray?): ECKey? {
     val y: ByteArray = point.getYCoord().getEncoded()
 
     return ECKey.Builder(Curve.SECP256K1, Base64URL.encode(x), Base64URL.encode(y)).build()
+}
+
+fun parseEncryptedAke1Payload(encryptedPayload: String): EncryptedAke1Payload {
+    val bytes = Numeric.hexStringToByteArray(encryptedPayload)
+    // https://bitcoinj.org/javadoc/0.15.10/org/bitcoinj/core/ECKey.html#decompress--
+    val hexKey = org.bitcoinj.core.ECKey.fromPublicOnly(bytes.sliceArray(16..48)).decompress().publicKeyAsHex
+    val jwkKey = uncompressSecp256k1(Hex.decode(hexKey))
+
+    return EncryptedAke1Payload(
+        bytes.sliceArray(0..15),
+        jwkKey!!,
+       bytes.sliceArray(49..80),
+       bytes.sliceArray(81 until bytes.size)
+    )
+
+//    return EncryptedPayload(
+//        Hex.toHexString(bytes.sliceArray(0..15)),
+//        // https://bitcoinj.org/javadoc/0.15.10/org/bitcoinj/core/ECKey.html#decompress--
+//        org.bitcoinj.core.ECKey.fromPublicOnly(bytes.sliceArray(16..48)).decompress().publicKeyAsHex,
+//        Hex.toHexString(bytes.sliceArray(49..80)),
+//        Hex.toHexString(bytes.sliceArray(81 until bytes.size))
+//    )
 }
