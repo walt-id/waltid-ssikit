@@ -52,7 +52,7 @@ object EssifFlowRunner {
 
         log.debug { "AuthRequestResponse:\n$authRequestResponse" }
 
-        val didAuthRequest = parseDidAuthRequest(authRequestResponse)
+        val didAuthRequest = EnterpriseWalletService.parseDidAuthRequest(authRequestResponse)
 
         log.debug { "DidAuthRequest:\n$didAuthRequest" }
 
@@ -60,7 +60,7 @@ object EssifFlowRunner {
         // Constructing and returning the DID Auth Response
         ///////////////////////////////////////////////////////////////////////////
 
-        val idToken = constructAuthResponseJwt(did, didAuthRequest.client_id, didAuthRequest.nonce)
+        val idToken = EnterpriseWalletService.constructAuthResponseJwt(did, didAuthRequest.client_id, didAuthRequest.nonce)
 
         val verifiableAuthorization = LegalEntityClient.eos.authenticationResponse(idToken, bearerToken)
 
@@ -194,43 +194,6 @@ object EssifFlowRunner {
 //        log.debug { "verifiableId: $verifiableId" }
 //        println("14. Successful process")
 
-    }
-
-    fun constructAuthResponseJwt(did: String, redirectUri: String, nonce: String): String {
-
-        val kid = "$did#key-1"
-        val key = KeyService.toJwk(did, false, kid) as ECKey
-        val thumbprint = key.computeThumbprint().toString()
-
-        val payload = JWTClaimsSet.Builder()
-            .issuer("https://self-issued.me")
-            .audience(redirectUri)
-            .subject(thumbprint)
-            .issueTime(Date.from(Instant.now()))
-            .expirationTime(Date.from(Instant.now().plusSeconds(300)))
-            .claim("nonce", nonce)
-            .claim("sub_jwk", key.toJSONObject())
-            .build().toString()
-
-        val jwt = JwtService.sign(kid, payload)
-
-        log.debug { "JWT: $jwt" }
-
-        val jwtToVerify = SignedJWT.parse(jwt)
-        log.debug { jwtToVerify.header }
-        log.debug { jwtToVerify.payload }
-
-        JwtService.verify(jwt).let { if (!it) throw IllegalStateException("Generated JWK not valid") }
-
-        val authResponseJwt = "$redirectUri#id_token=$jwt"
-        log.debug { "AuthResponse JWT: $authResponseJwt" }
-        return authResponseJwt
-    }
-
-    fun parseDidAuthRequest(authResp: AuthRequestResponse): DidAuthRequest {
-        val paramString = authResp.session_token.substringAfter("openid://?")
-        val pm = toParamMap(paramString)
-        return DidAuthRequest(pm["response_type"]!!, pm["client_id"]!!, pm["scope"]!!, pm["nonce"]!!, pm["request"]!!)
     }
 
     // https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/2.+Authorization+API

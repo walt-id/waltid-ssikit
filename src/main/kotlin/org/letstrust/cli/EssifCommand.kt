@@ -80,7 +80,12 @@ class EssifAuthCommand : CliktCommand(
 
         ESSIF Authorization flow"""
 ) {
-    override fun run() = EssifFlowRunner.authApi()
+    override fun run() {
+
+        echo("Running ESSIF Authentication API flow ...\n")
+
+        EssifFlowRunner.authApi()
+    }
 }
 
 class EssifVcIssuanceCommand : CliktCommand(
