@@ -211,8 +211,18 @@ data class AuthenticationResponseVerifiedClaims(
 @Serializable
 data class AccessTokenResponse(
     val ake1_enc_payload: String,
+    val ake1_sig_payload: AkeSigPayload,
     val ake1_jws_detached: String,
     val did: String
+)
+
+@Serializable
+data class AkeSigPayload(
+    val iss: String,
+    val iat: Long,
+    val exp: Long,
+    val ake1_nonce: String,
+    val ake1_enc_payload: String
 )
 
 @Serializable

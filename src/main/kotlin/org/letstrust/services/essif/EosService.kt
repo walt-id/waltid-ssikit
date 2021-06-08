@@ -39,6 +39,17 @@ object EosService {
         }
     }
 
+    fun siopSession(idToken: String, bearerToken: String): String = runBlocking {
+        return@runBlocking LetsTrustServices.http.post<String>("$authorisation/siop-sessions") {
+            contentType(ContentType.Application.Json)
+            headers {
+                append(HttpHeaders.Accept, "application/json")
+                append(HttpHeaders.Authorization, "Bearer $bearerToken")
+            }
+            body = mapOf("id_token" to idToken)
+        }
+    }
+
 
     //TODO: the methods below are stubbed - to be considered
 

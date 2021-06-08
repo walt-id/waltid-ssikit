@@ -80,11 +80,14 @@ class EssifAuthCommand : CliktCommand(
 
         ESSIF Authorization flow"""
 ) {
+
+    val did: String by option("-d", "--did", help = "DID to be onboarded").default("did:ebsi:26wnek36z4djq1fdCgTZLTuRCe9gMf5Cr6FG8chyuaEBR4fT")
+
     override fun run() {
 
         echo("Running ESSIF Authentication API flow ...\n")
 
-        EssifFlowRunner.authApi()
+        EssifFlowRunner.authApi(did)
     }
 }
 

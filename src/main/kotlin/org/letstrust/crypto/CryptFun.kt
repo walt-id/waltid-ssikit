@@ -7,8 +7,13 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.goterl.lazysodium.LazySodiumJava
 import com.goterl.lazysodium.SodiumJava
+import com.nimbusds.jose.jwk.Curve
+import com.nimbusds.jose.jwk.ECKey
+import com.nimbusds.jose.util.Base64URL
 import io.ipfs.multibase.Base58
 import io.ipfs.multibase.Multibase
+import org.bouncycastle.jce.ECNamedCurveTable
+import org.bouncycastle.math.ec.ECPoint
 import org.letstrust.CryptoProvider
 import java.security.*
 import java.security.spec.ECGenParameterSpec
@@ -194,3 +199,12 @@ val mapper: ObjectMapper = JsonMapper.builder()
 
 fun canonicalize(json: String): String =
     mapper.writeValueAsString(mapper.readTree(json))
+
+fun uncompressSecp256k1(compKey: ByteArray?): ECKey? {
+    val point: ECPoint = ECNamedCurveTable.getParameterSpec(Curve.SECP256K1.name).getCurve().decodePoint(compKey)
+
+    val x: ByteArray = point.getXCoord().getEncoded()
+    val y: ByteArray = point.getYCoord().getEncoded()
+
+    return ECKey.Builder(Curve.SECP256K1, Base64URL.encode(x), Base64URL.encode(y)).build()
+}

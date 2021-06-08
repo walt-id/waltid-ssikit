@@ -1,24 +1,23 @@
 package org.letstrust.services.essif
 
-import com.nimbusds.jose.jwk.ECKey
-import com.nimbusds.jwt.JWTClaimsSet
-import com.nimbusds.jwt.SignedJWT
 import mu.KotlinLogging
 import org.letstrust.LetsTrustServices
-import org.letstrust.common.toParamMap
+import org.letstrust.common.readEssifBearerToken
+import org.letstrust.common.readWhenContent
 import org.letstrust.services.essif.mock.RelyingParty
-import org.letstrust.services.jwt.JwtService
-import org.letstrust.services.key.KeyService
 import java.io.File
-import java.time.Instant
-import java.util.*
 
 private val log = KotlinLogging.logger {}
+
+fun main() {
+    println(EssifFlowRunner.verifiableAuthorizationFile.length())
+}
 
 object EssifFlowRunner {
 
     val bearerTokenFile = File("${LetsTrustServices.ebsiDir}bearer-token.txt")
     val verifiableAuthorizationFile = File("${LetsTrustServices.ebsiDir}verifiable-authorization.json")
+    val ake1EncFile = File("${LetsTrustServices.ebsiDir}ake1_enc.json")
 
     // https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/2.+Main+Flow%3A+VC-Request+-+Onboarding+Flow
     fun onboard(did: String) {
@@ -31,14 +30,7 @@ object EssifFlowRunner {
         // must be copied in file: bearer-token.txt
         ///////////////////////////////////////////////////////////////////////////
 
-        val bearerToken = when (bearerTokenFile.exists()) {
-            true -> bearerTokenFile.readText()
-            else -> throw Exception("The bearer token must be placed in file ${bearerTokenFile.absolutePath}. Visit https://app.preprod.ebsi.eu/users-onboarding for requesting a token.")
-        }.replace("\n", "").apply {
-            when {
-                isEmpty() -> log.throwing(Exception("No bearer token in file ${bearerTokenFile.absolutePath}"))
-            }
-        }
+        val bearerToken = readEssifBearerToken()
 
         log.debug { "Loaded bearer token from ${bearerTokenFile.absolutePath}." }
 
@@ -197,48 +189,40 @@ object EssifFlowRunner {
     }
 
     // https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/2.+Authorization+API
-    fun authApi() {
+    fun authApi(did: String) {
 
         println("ESSIF Authorization API")
 
-        // Verifiable Authorization must be previously installed via ESSIF onboarding flow (DID registration)
-        val verifiableAuthorization = "{\n" +
-                "  \"@context\": [\n" +
-                "    \"https://www.w3.org/2018/credentials/v1\"\n" +
-                "  ],\n" +
-                "  \"id\": \"did:ebsi-eth:00000001/credentials/1872\",\n" +
-                "  \"type\": [\n" +
-                "    \"VerifiableCredential\",\n" +
-                "    \"VerifiableAuthorization\"\n" +
-                "  ],\n" +
-                "  \"issuer\": \"did:ebsi:000001234\",\n" +
-                "  \"issuanceDate\": \"2020-08-24T14:13:44Z\",\n" +
-                "  \"expirationDate\": \"2020-08-25T14:13:44Z\",\n" +
-                "  \"credentialSubject\": {\n" +
-                "    \"id\": \"did:key:z6MksTeZpzyCdeRHuvk6kAAfQQCas3NPTRtxnB5a68mDrps5\",\n" +
-                "    \"hash\": \"e96e3fecdbdf2126ea62e7c6...04de0f177e5971c27dedd0d17bc649a626ac\"\n" +
-                "  },\n" +
-                "  \"proof\": {\n" +
-                "    \"type\": \"EcdsaSecp256k1Signature2019\",\n" +
-                "    \"created\": \"2020-08-24T14:13:44Z\",\n" +
-                "    \"proofPurpose\": \"assertionMethod\",\n" +
-                "    \"verificationMethod\": \"did:ebsi-eth:000001234#key-1\",\n" +
-                "    \"jws\": \"eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..TCYt5X\"\n" +
-                "  }\n" +
-                "}\n"
+//        ///////////////////////////////////////////////////////////////////////////
+//        // Prerequisite:
+//        // - Bearer token must be available
+//        // - Verifiable Authorization must be previously installed by running
+//        //   ESSIF onboarding flow (DID registration)
+//        ///////////////////////////////////////////////////////////////////////////
+//
+//        log.debug { "Loading Verifiable Authorization from file: ${verifiableAuthorizationFile.absolutePath}." }
+//
+//        val verifiableAuthorization = readWhenContent(verifiableAuthorizationFile)
+//
+//        val bearerToken = readBearerToken()
+//
+//        log.debug { "Loaded bearer token from ${bearerTokenFile.absolutePath}." }
+//
+//        UserWalletService.siopSession(did, verifiableAuthorization, bearerToken)
+
 
         ///////////////////////////////////////////////////////////////////////////
         // Run authentication protocol (DID Auth + Authenticated Key Exchange Protocol)
         // and receive JWT Access Token.
         ///////////////////////////////////////////////////////////////////////////
 
-        val accessToken = UserWalletService.requestAccessToken(verifiableAuthorization)
+        val accessToken = UserWalletService.requestAccessToken(did)
 
         ///////////////////////////////////////////////////////////////////////////
         // Protected resource can now be accessed
         ///////////////////////////////////////////////////////////////////////////
 
-        UserWalletService.accessProtectedResource(accessToken) // e.g updateDID, revoke VC
+        //UserWalletService.accessProtectedResource(accessToken) // e.g updateDID, revoke VC
     }
 
     // https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/VC-Issuance+Flow
