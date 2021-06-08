@@ -43,8 +43,9 @@ object EssifFlowRunner {
         log.debug { "Loaded bearer token from ${bearerTokenFile.absolutePath}." }
 
         ///////////////////////////////////////////////////////////////////////////
-        // LE requests the credential URI from the ESSIF Onboarding Service (EOS)
+        // Requesting the DID Auth Request from the ESSIF Onboarding Service (EOS)
         ///////////////////////////////////////////////////////////////////////////
+
         log.debug { "Requesting a Verifiable ID from ESSIF Onboarding Service (EOS)" }
 
         val authRequestResponse = LegalEntityClient.eos.authenticationRequests()
@@ -55,9 +56,17 @@ object EssifFlowRunner {
 
         log.debug { "DidAuthRequest:\n$didAuthRequest" }
 
+        ///////////////////////////////////////////////////////////////////////////
+        // Constructing and returning the DID Auth Response
+        ///////////////////////////////////////////////////////////////////////////
+
         val idToken = constructAuthResponseJwt(did, didAuthRequest.client_id, didAuthRequest.nonce)
 
         val verifiableAuthorization = LegalEntityClient.eos.authenticationResponse(idToken, bearerToken)
+
+        ///////////////////////////////////////////////////////////////////////////
+        // Storing the received Verifiable Authorization
+        ///////////////////////////////////////////////////////////////////////////
 
         log.debug { "Verifiable Authorization received:\n${verifiableAuthorizationFile.absolutePath}" }
 
@@ -107,7 +116,7 @@ object EssifFlowRunner {
 //        ///////////////////////////////////////////////////////////////////////////
         // Creation of DID sub-flow (see: 04_main-essif-register-did.kt)
         ///////////////////////////////////////////////////////////////////////////
-        val didOfLegalEntity = EnterpriseWalletService.createDid()
+        //val didOfLegalEntity = EnterpriseWalletService.createDid()
 
         ///////////////////////////////////////////////////////////////////////////
         // Once the DID is created, the DID ownership response is composed and sent to the EOS.

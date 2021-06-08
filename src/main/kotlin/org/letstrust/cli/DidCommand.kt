@@ -80,7 +80,7 @@ class ResolveDidCommand : CliktCommand(
 
         Constructs the DID Document."""
 ) {
-    val did: String by option(help = "DID to be resolved").required()
+    val did: String by option("-d", "--did", help = "DID to be resolved").required()
     val config: CliConfig by requireObject()
 
     override fun run() {

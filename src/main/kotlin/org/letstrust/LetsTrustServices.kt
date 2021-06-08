@@ -69,15 +69,18 @@ object LetsTrustServices {
     const val keyDir = "$dataDir/key/"
     const val ebsiDir = "$dataDir/ebsi/"
 
+    val httpLogging = false
     val log = KotlinLogging.logger {}
 
     val http = HttpClient(CIO) {
         install(JsonFeature) {
             serializer = KotlinxSerializer()
         }
-        install(Logging) {
-            logger = Logger.SIMPLE
-            level = LogLevel.HEADERS
+        if (httpLogging) {
+            install(Logging) {
+                logger = Logger.SIMPLE
+                level = LogLevel.HEADERS
+            }
         }
     }
 
