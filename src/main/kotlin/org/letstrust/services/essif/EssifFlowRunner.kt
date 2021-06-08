@@ -33,6 +33,7 @@ object EssifFlowRunner {
         val bearerToken = readEssifBearerToken()
 
         log.debug { "Loaded bearer token from ${bearerTokenFile.absolutePath}." }
+        log.debug { "Loaded bearer token $bearerToken." }
 
         ///////////////////////////////////////////////////////////////////////////
         // Requesting the DID Auth Request from the ESSIF Onboarding Service (EOS)
