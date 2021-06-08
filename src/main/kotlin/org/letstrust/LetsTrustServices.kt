@@ -65,7 +65,7 @@ data class LetsTrustConfig(
 
 object LetsTrustServices {
 
-    const val dataDir = "./data"
+    const val dataDir = "data"
     const val keyDir = "$dataDir/key/"
     const val ebsiDir = "$dataDir/ebsi/"
 

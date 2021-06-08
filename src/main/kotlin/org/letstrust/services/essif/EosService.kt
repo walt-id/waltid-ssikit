@@ -10,6 +10,10 @@ import org.letstrust.services.essif.mock.DidRegistry
 
 private val log = KotlinLogging.logger {}
 
+fun main() {
+    EosService.authenticationResponse("asdf", "eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QifQ.eyJpYXQiOjE2MjMxMzM0NjksImlzcyI6ImRpZDplYnNpOjRqUHhjaWd2ZmlmWnlWd3ltNXpqeGFLWEdKVHQ3WXdGdHBnNkFYdHNSNGQ1Iiwib25ib2FyZGluZyI6InJlY2FwdGNoYSIsInZhbGlkYXRlZEluZm8iOnsiYWN0aW9uIjoibG9naW4iLCJjaGFsbGVuZ2VfdHMiOiIyMDIxLTA2LTA4VDA2OjI0OjI3WiIsImhvc3RuYW1lIjoiYXBwLnByZXByb2QuZWJzaS5ldSIsInNjb3JlIjowLjksInN1Y2Nlc3MiOnRydWV9fQ.Z5tCRCQ50akaOyRQczcFgF_cOESa4Aad0Y2XHQra3DYaytH2BGilP7co-6X9YfDxN5QAIX0vVUYZ-zcoXipYng\n")
+}
+
 object EosService {
 
     val domain = "https://api.preprod.ebsi.eu"
@@ -27,6 +31,8 @@ object EosService {
             body = mapOf("scope" to "ebsi users onboarding")
         }
     }
+
+
 
     fun authenticationResponse(idToken: String, bearerToken: String): String = runBlocking {
         return@runBlocking LetsTrustServices.http.post<String>("$onboarding/authentication-responses") {

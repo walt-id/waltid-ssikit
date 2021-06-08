@@ -96,7 +96,7 @@ object DidService {
                 listOf("https://w3.org/ns/did/v1"), // TODO Context not working "https://ebsi.org/ns/did/v1"
                 didUrlStr,
                 verificationMethods,
-                listOf(didUrlStr + "#keys-1")
+                listOf("$didUrlStr#key-1")
             )
             Json.encodeToString(did)
         }

@@ -2,6 +2,8 @@ package org.letstrust.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
 import org.letstrust.Values
+import org.letstrust.crypto.KeyAlgorithm
+import org.letstrust.crypto.buildKey
 import org.letstrust.services.essif.EssifFlowRunner
 
 // TODO: Support following commands
@@ -43,7 +45,18 @@ class EssifOnboardingCommand : CliktCommand(
 
         ESSIF onboarding flow"""
 ) {
-    override fun run() = EssifFlowRunner.onboard()
+    override fun run() {
+        val did = "did:ebsi:26wnek36z4djq1fdCgTZLTuRCe9gMf5Cr6FG8chyuaEBR4fT"
+        // {"kty":"EC","use":"sig","crv":"secp256k1","kid":"0ec07d2f853c4b00bd701a6124f1e4c3","x":"Cyb12xp1x7LfaulXdDkDovXXiAJtR4xPjGQiH9B6lcw","y":"nNV-RFkLeFefO5dM2lOybYebr8qFCi3grdV7fTQTKgo","alg":"ES256K"}
+        val priv = "MIGNAgEAMBAGByqGSM49AgEGBSuBBAAKBHYwdAIBAQQgNMQgxHfsmrHkxXTqj1kh" +
+                "T61DmhEFMHYfdLxwxLhh0OygBwYFK4EEAAqhRANCAAQLJvXbGnXHst9q6Vd0OQOi" +
+                "9deIAm1HjE+MZCIf0HqVzJzVfkRZC3hXnzuXTNpTsm2Hm6/KhQot4K3Ve300EyoK"
+        val pub = "MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAECyb12xp1x7LfaulXdDkDovXXiAJtR4xP" +
+                "jGQiH9B6lcyc1X5EWQt4V587l0zaU7Jth5uvyoUKLeCt1Xt9NBMqCg"
+        val key = buildKey("0ec07d2f853c4b00bd701a6124f1e4c3", KeyAlgorithm.ECDSA_Secp256k1.name, "SUN", pub, priv)
+        println(key)
+        EssifFlowRunner.onboard(did)
+    }
 }
 
 class EssifAuthCommand : CliktCommand(

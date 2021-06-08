@@ -17,26 +17,27 @@ private val log = KotlinLogging.logger {}
 
 object EssifFlowRunner {
 
-    // https://app.preprod.ebsi.eu/users-onboarding
-    val token =
-        "eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QifQ.eyJpYXQiOjE2MjIxMDg1OTgsImlzcyI6ImRpZDplYnNpOjRqUHhjaWd2ZmlmWnlWd3ltNXpqeGFLWEdKVHQ3WXdGdHBnNkFYdHNSNGQ1Iiwib25ib2FyZGluZyI6InJlY2FwdGNoYSIsInZhbGlkYXRlZEluZm8iOnsiYWN0aW9uIjoibG9naW4iLCJjaGFsbGVuZ2VfdHMiOiIyMDIxLTA1LTI3VDA5OjQzOjEzWiIsImhvc3RuYW1lIjoiYXBwLnByZXByb2QuZWJzaS5ldSIsInNjb3JlIjowLjksInN1Y2Nlc3MiOnRydWV9fQ.G8tJ8P6-7uEx2KcDDodsf9ekHiZUNFR1fFx7hVw7SIUzj4GZDJiUudKvWlMjuHKsYy7yl3rvtUsE1jbnCEFwqQ"
-
     val bearerTokenFile = File("${LetsTrustServices.ebsiDir}bearer-token.txt")
     val verifiableAuthorizationFile = File("${LetsTrustServices.ebsiDir}verifiable-authorization.json")
 
     // https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/2.+Main+Flow%3A+VC-Request+-+Onboarding+Flow
-    fun onboard() {
+    fun onboard(did: String) {
 
         log.debug { "Running ESSIF onboarding flow ..." }
 
         ///////////////////////////////////////////////////////////////////////////
-        // Prerequisite: The LE must be authenticated and authorized by the classical
-        // way before triggering the ESSIF onboarding flow.
+        // Prerequisite: The Legal Entity (LE) or the Natural Person (NP) the must be authenticated and authorized
+        // by the classical way before triggering the ESSIF onboarding flow. The received bearer token
+        // must be copied in file: bearer-token.txt
         ///////////////////////////////////////////////////////////////////////////
 
         val bearerToken = when (bearerTokenFile.exists()) {
             true -> bearerTokenFile.readText()
             else -> throw Exception("The bearer token must be placed in file ${bearerTokenFile.absolutePath}. Visit https://app.preprod.ebsi.eu/users-onboarding for requesting a token.")
+        }.replace("\n", "").apply {
+            when {
+                isEmpty() -> log.throwing(Exception("No bearer token in file ${bearerTokenFile.absolutePath}"))
+            }
         }
 
         log.debug { "Loaded bearer token from ${bearerTokenFile.absolutePath}." }
@@ -53,10 +54,6 @@ object EssifFlowRunner {
         val didAuthRequest = parseDidAuthRequest(authRequestResponse)
 
         log.debug { "DidAuthRequest:\n$didAuthRequest" }
-
-        return //TODO to be continued here ...
-
-        val did = "did:ebsi:2LEi74mCZpgC8EqcngLCzUCL5d8W3dxfdjiy9XhaVoDyi259"
 
         val idToken = constructAuthResponseJwt(did, didAuthRequest.client_id, didAuthRequest.nonce)
 
@@ -196,7 +193,6 @@ object EssifFlowRunner {
         val key = KeyService.toJwk(did, false, kid) as ECKey
         val thumbprint = key.computeThumbprint().toString()
 
-        //TODO: set DID to JWK-key: set "did:ebsi:2LkrbaNRBVu9hXFSk5fyJUGkcKvh57vn2GnCzRzU8Ft4 #key-1" in the header as well
         val payload = JWTClaimsSet.Builder()
             .issuer("https://self-issued.me")
             .audience(redirectUri)
@@ -209,16 +205,16 @@ object EssifFlowRunner {
 
         val jwt = JwtService.sign(kid, payload)
 
-        println(jwt)
+        log.debug { "JWT: $jwt" }
 
         val jwtToVerify = SignedJWT.parse(jwt)
-        println(jwtToVerify.header)
-        println(jwtToVerify.payload)
+        log.debug { jwtToVerify.header }
+        log.debug { jwtToVerify.payload }
 
         JwtService.verify(jwt).let { if (!it) throw IllegalStateException("Generated JWK not valid") }
 
         val authResponseJwt = "$redirectUri#id_token=$jwt"
-        println("authResponseJwt: $authResponseJwt")
+        log.debug { "AuthResponse JWT: $authResponseJwt" }
         return authResponseJwt
     }
 
