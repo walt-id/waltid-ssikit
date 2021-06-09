@@ -3,11 +3,7 @@ package org.letstrust.cli
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.clikt.parameters.options.required
 import org.letstrust.Values
-import org.letstrust.crypto.KeyAlgorithm
-import org.letstrust.crypto.buildKey
-import org.letstrust.services.essif.EosService
 import org.letstrust.services.essif.EssifFlowRunner
 
 // TODO: Support following commands
@@ -116,6 +112,18 @@ class EssifDidCommand : CliktCommand(
         ESSIF DID operations."""
 ) {
     override fun run() = TODO("The \"ESSIF-DID\" operation has not yet been implemented in this Let's Trust snapshot (currently running ${Values.version}).")
+}
+
+class EssifDidRegisterCommand : CliktCommand(
+    name = "register",
+    help = """Register ESSIF DID.
+
+        Registers a previously created DID with the EBSI ledger."""
+) {
+
+    val did: String by option("-d", "--did", help = "DID to be onboarded").default("did:ebsi:26wnek36z4djq1fdCgTZLTuRCe9gMf5Cr6FG8chyuaEBR4fT")
+
+    override fun run() = EssifFlowRunner.registerDid(did)
 }
 
 class EssifTirCommand : CliktCommand(

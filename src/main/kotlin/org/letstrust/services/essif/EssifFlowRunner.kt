@@ -3,7 +3,6 @@ package org.letstrust.services.essif
 import mu.KotlinLogging
 import org.letstrust.LetsTrustServices
 import org.letstrust.common.readEssifBearerToken
-import org.letstrust.common.readWhenContent
 import org.letstrust.services.essif.mock.RelyingParty
 import java.io.File
 
@@ -18,6 +17,7 @@ object EssifFlowRunner {
     val bearerTokenFile = File("${LetsTrustServices.ebsiDir}bearer-token.txt")
     val verifiableAuthorizationFile = File("${LetsTrustServices.ebsiDir}verifiable-authorization.json")
     val ake1EncFile = File("${LetsTrustServices.ebsiDir}ake1_enc.json")
+    val ebsiAccessTokenFile = File("${LetsTrustServices.ebsiDir}ebsi_access_token.json")
 
     // https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/2.+Main+Flow%3A+VC-Request+-+Onboarding+Flow
     fun onboard(did: String) {
@@ -219,6 +219,8 @@ object EssifFlowRunner {
 
         val accessToken = UserWalletService.requestAccessToken(did)
 
+        ebsiAccessTokenFile.writeText(accessToken)
+
         ///////////////////////////////////////////////////////////////////////////
         // Protected resource can now be accessed
         ///////////////////////////////////////////////////////////////////////////
@@ -413,5 +415,9 @@ object EssifFlowRunner {
         RelyingParty.getSession("sessionId")
         println("18. Process completed successfully")
 
+    }
+
+    fun registerDid(did: String) {
+        DidEbsiService.registerDid(did)
     }
 }
