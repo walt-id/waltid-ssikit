@@ -221,8 +221,8 @@ fun parseEncryptedAke1Payload(encryptedPayload: String): EncryptedAke1Payload {
     return EncryptedAke1Payload(
         bytes.sliceArray(0..15),
         jwkKey!!,
-       bytes.sliceArray(49..80),
-       bytes.sliceArray(81 until bytes.size)
+        bytes.sliceArray(49..80),
+        bytes.sliceArray(81 until bytes.size)
     )
 
 //    return EncryptedPayload(
@@ -232,4 +232,12 @@ fun parseEncryptedAke1Payload(encryptedPayload: String): EncryptedAke1Payload {
 //        Hex.toHexString(bytes.sliceArray(49..80)),
 //        Hex.toHexString(bytes.sliceArray(81 until bytes.size))
 //    )
+}
+
+// Returns the index of first match of the predicate or the full size of the array
+inline fun ByteArray.findFirst(predicate: (Byte) -> Boolean): Int {
+    for ((index, element) in this.withIndex()) {
+        if (predicate(element)) return index
+    }
+    return size
 }

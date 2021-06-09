@@ -15,6 +15,7 @@ import org.letstrust.common.readWhenContent
 import org.letstrust.common.toParamMap
 import org.letstrust.crypto.canonicalize
 import org.letstrust.crypto.encBase64Str
+import org.letstrust.crypto.findFirst
 import org.letstrust.crypto.parseEncryptedAke1Payload
 import org.letstrust.model.*
 import org.letstrust.services.essif.EssifFlowRunner.ake1EncFile
@@ -33,14 +34,6 @@ import javax.crypto.spec.SecretKeySpec
 
 private val log = KotlinLogging.logger {}
 
-
-fun main() {
-
-    val accessTokenResponse = Json.decodeFromString<AccessTokenResponse>(ake1EncFile.readText())
-
-    //TODO parse resp
-
-}
 
 object UserWalletService {
 
@@ -232,19 +225,6 @@ object UserWalletService {
 
         val encryptionKey = SecretKeySpec(encryptionKeyBytes, "AES");
 
-
-//        val iv = Hex.decode("aeae1220d76e84cedf3d8baacc8f1714")
-//
-//        val mac = Hex.decode("43bee9ed827fbcdb6339bc9c50a9226aa6e0be6cead8a306538d446d30249f1b")
-//
-//        val payload = Hex.decode(
-//            "bad07c7fd77371cc1eb59630d7d8f918032bbc53e70d6e19a8758f7924b252bcfa9d5c8c100a5977dbbd4d2980985705785ebec0cbd832a9da5b24a801b7e37e4774fb3fc2efe7deaeb4fa12a76744130cc8ad5a3bcdc5ea1fc3ffa792d472aa50c3c8efd236b6362701e705688d6059c9feee96e10e816ddfb9e8d1444da731d459d43af71cb5556a5bcf7d20d9d9521e3668282952ebeed295bbf10fffa5e4dc8a26283e3efa9befcaef2b8bdccc39169924217b9d446c1bc033d15f12b96a257cbd46e25d65f870a38e19b17cbe9801e7f44f30d4e61a6e5298702054347731cd9763743679c05a769d72238f9abad773b8f2254de9ac6c8644c9198d6f136388920c6492fe77ffdb6327134dcbc36615f6cd58c5f9630547b31dcb925d72f7b0a173896a87d4564ab72dcfa51ecd0806d6f3dcdfb113a6bb7d11aa80cdded9387371d2bcb9ef07f527a5deb7b9a144e987bf246780ac5e3b7d5c3cb7ad34ca74328a68f6a5faed643a3320742046b5ea7ae17582fc0e7fdc08f9380afc512f18975c0b6280c900f2d9e2e5b354b273d8cbbae0a1787c5741a5f8b114623a2496294c3658c1ec1c7f1c04ea9626ec88f4cb05ead350cc4a9f1f8cd9545a55372bfc7a1d90917dcd8fe7bef3d9bac07d990e2eabdb1db2c652bdc1c2a301420d9d49635d655d0762ef7f8fde1ad18efff8e91bb062f451d1ad9921f77604cf0c0d51b36ff99e17cf568f47cd96a4bd62c0eaf867e6176175381e393c804b0187fb781a0df72cabb260189e07429d6214c047ad05b83d2576006a7965c81dcbe7956196b2623df255542ccc192bbe2e71b43433b7c63392a3d2a0ed00c5bdc4ed08fcc891665742d9aedda44176cccc47eb2abd6ac486b9b47d2726d932a9d14ee22d1da27322d797d837909b49d315cd7f2980cd3fc138693f3259355927c05c718b89a0b15c0e0ce258997c6a187622de7a6d93e0d3acf9e24c13dc26c720af9e51db74d7b55f87db3e267bb53641edc2f8d6a29a351bba334d370a481ca17bbae89083823604a98eaa38117a57724a35f7921845f754b0fbd81fd8c56aef44a34a0f6097cf3c04dd05aaa3b64c7cba"
-//        )
-//
-//        val ciphertext = Hex.decode(
-//            "853e6e3ad8f62c83946b74bb63b59ee74467579e4f0bdc0731517ed75eebf254c7cffe68f52b1c7f9d2f176061ea0ab1426d1f4a3c33727d91d3d7366e5c276730601a115e41060ad1b23ea98e457f14770053084263bd08e908124187f706aa3c06d3a9bea9f2c58045ea544d066ce53c3b95de0e5547dc464891066ba742ce6602f68afa66316d73eeed09056a99c543691c1cb3c3ffd24eed688a5b285981727bf64ffc77e8a7c7ecc472dfab30b3b8f2e726dbf6344890fc78574a3fc25af2a77c12d03e2d1aba402c85345ce3ebf62aeeac4a92ee3af78f4949ea4f842fd9c033c1b3cc38324b09b0db5ee054ccb423dc750c95bd0943cbd2313d8477a60616860e72e1062b7a8ac59b77b64f7e925b278540d5fb793b6d7c495d79c4b08e82725cf1fe7b84bc22cafd52437968106277276a0bdc07da7381e7f2ac3c015d737eefd000436cf8b11f234c09790097d49a61808c64b5c37bf20c7af08b7e7345e6d336e7698dda8a1be93e124df5f8f85742edc38cecd6b2b50402325743f547879bbfe4f6823529dd452afdede6995c8a880c8bab736f8ef3fc5492460e4a2c7f381e3ad7ba89aff955809bf8f07cbcdc50e49e6676138b1ef05e924c084383510d7561eed7b8a35f46c9ff2dbb9d38db3dc4182bb190f984d4c788d0f68590bc4693a2bed7fe8be5479f9149aa63476d4caae36603e30f14f142c7901e490cb497f85b3c36a7408cbb4a59a6a310084216e4665c09b4746ae7db78ff3338193fb523c4c6e4bc3b2c66976d0e87b7f84ac5e91ec582d2da2d5d21faa5d641e5192073817ca58ca0d2eced1a9c6e8177c7af28303d226438a6d7116ba5a16e2655868c111da273483828969b808937951cdcccd90974e00e7a192e94e5746d6241573fabc602a60b7b03a79ea286a56c86686ebdd24cbe5ed9fa5e6f18be16fe156e7f63abda6d41fa6c8d5e0c332eab7b2bdd6988bddb7bc51dd70e5afb"
-//        )
-
         val c = Cipher.getInstance("AES/CBC/NoPadding", BouncyCastleProvider())
 
         //c.init(Cipher.DECRYPT_MODE, sharedKey, GCMParameterSpec(AESGCM.AUTH_TAG_BIT_LENGTH, iv))
@@ -252,15 +232,7 @@ object UserWalletService {
         //c.updateAAD(mac)
         val accessTokenBytes = c.doFinal(encryptedPayload.cipherText)
 
-        var endInx = 0
-        accessTokenBytes.forEachIndexed { index, byte ->
-            // print(byte.toString() + ", ")
-            if (byte.toInt() == 5 && endInx == 0) {
-                endInx = index
-            }
-        }
-
-        if (endInx == 0) endInx = accessTokenBytes.size
+        var endInx = accessTokenBytes.findFirst { b -> (b.toInt() == 5) }
 
         val accessTokenRespStr = String(accessTokenBytes.slice(0..(endInx!! - 1)).toByteArray())
 
@@ -269,9 +241,9 @@ object UserWalletService {
         if (nonce != decAccesTokenResp.nonce) throw Exception("Nonce in Access Token response not valid")
 
         // TODO compare DID of EOS
-//        if (didEOS != decAccesTokenResp.did) {
-//            println("Wrong DID in Access Token response")
-//        }
+        if (accessTokenResponse.did != decAccesTokenResp.did) {
+            println("Decrypted DID does not match the DID of the siop response")
+        }
 
         return decAccesTokenResp.access_token
     }
