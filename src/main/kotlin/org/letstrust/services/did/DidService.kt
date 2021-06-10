@@ -1,5 +1,7 @@
 package org.letstrust.services.did
 
+import io.ktor.client.request.*
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -48,17 +50,40 @@ object DidService {
     fun resolve(didUrl: DidUrl): Did {
         return when (didUrl.method) {
             DidMethod.key.name -> resolveDidKey(didUrl)
-            DidMethod.ebsi.name -> resolveDidKey(didUrl)
             DidMethod.web.name -> resolveDidWebDummy(didUrl)
             else -> TODO("did:${didUrl.method} not implemented yet")
         }
     }
 
+    fun load(did: String): Did = load(DidUrl.from(did))
+    fun load(didUrl: DidUrl): Did {
+        return when (didUrl.method) {
+            DidMethod.key.name -> resolveDidKey(didUrl)
+            DidMethod.web.name -> resolveDidWebDummy(didUrl)
+            else -> TODO("did:${didUrl.method} not implemented yet")
+        }
+    }
+
+    fun resolveDidEbsiRaw(did: String): String = runBlocking {
+        log.debug { "Resolving DID $did" }
+
+        val didDoc = LetsTrustServices.http.get<String>("https://api.preprod.ebsi.eu/did-registry/v2/identifiers/$did")
+
+        log.debug { didDoc }
+
+        return@runBlocking didDoc
+    }
+
     fun resolveDidEbsi(did: String): DidEbsi = resolveDidEbsi(DidUrl.from(did))
-    fun resolveDidEbsi(didUrl: DidUrl): DidEbsi {
-        // TODO: resolve correctly
-        log.warn { "DID EBSI is not resolved correctly yet. It is read from directory." }
-        return loadDidEbsi(didUrl)
+    fun resolveDidEbsi(didUrl: DidUrl): DidEbsi = runBlocking {
+
+        log.debug { "Resolving DID $didUrl" }
+
+        val didDoc = LetsTrustServices.http.get<String>("https://api.preprod.ebsi.eu/did-registry/v2/identifiers/${didUrl.did}")
+
+        log.debug { didDoc }
+
+        return@runBlocking Json.decodeFromString<DidEbsi>(didDoc)
     }
 
     fun loadDidEbsi(did: String): DidEbsi = loadDidEbsi(DidUrl.from(did))
@@ -79,7 +104,7 @@ object DidService {
 
         val kid = "$didUrlStr#key-1"
         keyStore.addAlias(keyId, kid)
-        val keyType = when(key.algorithm) {
+        val keyType = when (key.algorithm) {
             EdDSA_Ed25519 -> "Ed25519VerificationKey2018"
             ECDSA_Secp256k1 -> "Secp256k1VerificationKey2018"
         }
@@ -352,6 +377,5 @@ object DidService {
             .filter { it.toString().endsWith(".json") }
             .map { it.fileName.toString().substringBefore(".json").replace("-", ":") }.toList()
     }
-
 
 }
