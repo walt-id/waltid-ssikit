@@ -3,6 +3,7 @@ package org.letstrust.cli
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.options.required
 import org.letstrust.Values
 import org.letstrust.services.essif.EssifFlowRunner
 
@@ -47,7 +48,7 @@ class EssifOnboardingCommand : CliktCommand(
 ) {
 
     val keyId: String by option("-k", "--key-id", help = "Key ID or key alias").default("0ec07d2f853c4b00bd701a6124f1e4c3")
-    val did: String by option("-d", "--did", help = "DID to be onboarded").default("did:ebsi:26wnek36z4djq1fdCgTZLTuRCe9gMf5Cr6FG8chyuaEBR4fT")
+    val did: String by option("-d", "--did", help = "DID to be onboarded").required()
 
     override fun run() {
 
@@ -77,7 +78,7 @@ class EssifAuthCommand : CliktCommand(
         ESSIF Authorization flow"""
 ) {
 
-    val did: String by option("-d", "--did", help = "DID to be onboarded").default("did:ebsi:26wnek36z4djq1fdCgTZLTuRCe9gMf5Cr6FG8chyuaEBR4fT")
+    val did: String by option("-d", "--did", help = "DID to be onboarded").required()
 
     override fun run() {
 
