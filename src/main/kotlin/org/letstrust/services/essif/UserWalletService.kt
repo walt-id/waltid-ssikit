@@ -13,18 +13,15 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.letstrust.common.readEssifBearerToken
 import org.letstrust.common.readWhenContent
 import org.letstrust.common.toParamMap
-import org.letstrust.crypto.canonicalize
-import org.letstrust.crypto.encBase64Str
-import org.letstrust.crypto.findFirst
-import org.letstrust.crypto.parseEncryptedAke1Payload
+import org.letstrust.crypto.*
 import org.letstrust.model.*
 import org.letstrust.services.essif.EssifFlowRunner.ake1EncFile
+import org.letstrust.services.essif.EssifFlowRunner.verifiablePresentationFile
 import org.letstrust.services.essif.mock.AuthorizationApi
 import org.letstrust.services.essif.mock.DidRegistry
 import org.letstrust.services.jwt.JwtService
 import org.letstrust.services.key.KeyService
 import org.letstrust.services.vc.CredentialService
-import java.io.File
 import java.security.MessageDigest
 import java.time.Instant
 import java.util.*
@@ -193,13 +190,22 @@ object UserWalletService {
     }
 
     fun siopSession(did: String, va: String): String {
+
+        ///////////////////////////////////////////////////////////////////////////
+        // Construct SIOP Request
+        ///////////////////////////////////////////////////////////////////////////
+
         // Create Verifiable Presentation with VA
         val verifiedClaims = createVerifiedClaims(did, va)
 
         // Build SIOP response token
         val nonce = UUID.randomUUID().toString()
 
-        val idToken = constructSiopResponseJwt(did, verifiedClaims, nonce)
+        // TODO: make switching key-store possible
+        val emphPrivKeyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val emphPrivKey = KeyService.toJwk(emphPrivKeyId.id, true) as ECKey
+
+        val idToken = constructSiopResponseJwt(emphPrivKey, did, verifiedClaims, nonce)
 
         val siopResponse = LegalEntityClient.eos.siopSession(idToken, readEssifBearerToken())
 
@@ -207,7 +213,9 @@ object UserWalletService {
 
         ake1EncFile.writeText(siopResponse)
 
-        // Decrypt token
+        ///////////////////////////////////////////////////////////////////////////
+        // Decrypt Access Token
+        ///////////////////////////////////////////////////////////////////////////
 
         val accessTokenResponse = Json.decodeFromString<AccessTokenResponse>(ake1EncFile.readText())
 
@@ -217,7 +225,8 @@ object UserWalletService {
 //        throw Exception("Key from EOS DID != key from AKE1 Payload")
 //    }
 
-        val clientKey = KeyService.toJwk(did, true) as ECKey
+        val clientKey = emphPrivKey
+        // val clientKey = KeyService.toJwk(did, true) as ECKey
 
         val sharedSecret = ECDH.deriveSharedSecret(encryptedPayload.ephemPublicKey!!.toECPublicKey(), clientKey.toECPrivateKey(), BouncyCastleProvider())
 
@@ -227,9 +236,8 @@ object UserWalletService {
 
         val c = Cipher.getInstance("AES/CBC/NoPadding", BouncyCastleProvider())
 
-        //c.init(Cipher.DECRYPT_MODE, sharedKey, GCMParameterSpec(AESGCM.AUTH_TAG_BIT_LENGTH, iv))
         c.init(Cipher.DECRYPT_MODE, encryptionKey, IvParameterSpec(encryptedPayload.iv))
-        //c.updateAAD(mac)
+
         val accessTokenBytes = c.doFinal(encryptedPayload.cipherText)
 
         var endInx = accessTokenBytes.findFirst { b -> (b.toInt() == 5) }
@@ -238,12 +246,23 @@ object UserWalletService {
 
         val decAccesTokenResp = Json.decodeFromString<DecryptedAccessTokenResponse>(accessTokenRespStr)
 
+        ///////////////////////////////////////////////////////////////////////////
+        // Validate received Access Token
+        ///////////////////////////////////////////////////////////////////////////
+
+        // Validated nonce
         if (nonce != decAccesTokenResp.nonce) throw Exception("Nonce in Access Token response not valid")
 
-        // TODO compare DID of EOS
-        if (accessTokenResponse.did != decAccesTokenResp.did) {
-            println("Decrypted DID does not match the DID of the siop response")
-        }
+        // Compare DID of EOS
+        if (accessTokenResponse.did != decAccesTokenResp.did) throw Exception("Decrypted DID does not match the DID of the siop response")
+
+        // TODO load MAC + validate payload
+
+        // TODO validate signature
+
+        // TODO validate response (decAccesTokenResp) signature
+
+        // TODO validate JWT signature
 
         return decAccesTokenResp.access_token
     }
@@ -270,19 +289,20 @@ object UserWalletService {
 
         val vp = CredentialService.sign(did, vpReq.encode(), null, null, "$did#key-1", "assertionMethod")
 
-        log.debug { "Verifiable Presentation:\n$vp" }
+        log.debug { "Verifiable Presentation generated:\n$vp" }
 
-        File("vp.json").writeText(vp)
+        verifiablePresentationFile.writeText(vp)
 
         val vpCan = canonicalize(vp)
 
         return encBase64Str(vpCan)
     }
 
-    fun constructSiopResponseJwt(did: String, verifiedClaims: String, nonce: String): String {
+    fun constructSiopResponseJwt(emphPrivKey: ECKey, did: String, verifiedClaims: String, nonce: String): String {
 
         val kid = "$did#key-1"
-        val key = KeyService.toJwk(did, false, kid) as ECKey
+        val key = emphPrivKey
+        //val key = KeyService.toJwk(did, false, kid) as ECKey
         val thumbprint = key.computeThumbprint().toString()
 
 
@@ -315,16 +335,12 @@ object UserWalletService {
 
         val jwtToVerify = SignedJWT.parse(jwt)
 
-        println(jwtToVerify.header)
-        println(jwtToVerify.payload)
+//        println(jwtToVerify.header)
+//        println(jwtToVerify.payload)
 
         JwtService.verify(jwt).let { if (!it) throw IllegalStateException("Generated JWK not valid") }
 
         return jwt
-    }
-
-    fun accessProtectedResource(accessToken: String) {
-
     }
 
 

@@ -6,16 +6,16 @@ import org.letstrust.common.readEssifBearerToken
 import org.letstrust.services.essif.mock.RelyingParty
 import java.io.File
 
-private val log = KotlinLogging.logger {}
 
-fun main() {
-    println(EssifFlowRunner.verifiableAuthorizationFile.length())
-}
+
 
 object EssifFlowRunner {
 
+    private val log = KotlinLogging.logger {}
+
     val bearerTokenFile = File("${LetsTrustServices.ebsiDir}bearer-token.txt")
     val verifiableAuthorizationFile = File("${LetsTrustServices.ebsiDir}verifiable-authorization.json")
+    val verifiablePresentationFile = File("${LetsTrustServices.ebsiDir}verifiable-presentation.json")
     val ake1EncFile = File("${LetsTrustServices.ebsiDir}ake1_enc.json")
     val ebsiAccessTokenFile = File("${LetsTrustServices.ebsiDir}ebsi_access_token.json")
 
@@ -25,9 +25,10 @@ object EssifFlowRunner {
         log.debug { "Running ESSIF onboarding flow ..." }
 
         ///////////////////////////////////////////////////////////////////////////
-        // Prerequisite: The Legal Entity (LE) or the Natural Person (NP) the must be authenticated and authorized
-        // by the classical way before triggering the ESSIF onboarding flow. The received bearer token
-        // must be copied in file: bearer-token.txt
+        // Prerequisite: The Legal Entity (LE) or the Natural Person (NP) the must
+        // be authenticated and authorized by the classical way before triggering
+        // the ESSIF onboarding flow. The received bearer token must be copied in
+        // file: bearer-token.txt
         ///////////////////////////////////////////////////////////////////////////
 
         val bearerToken = readEssifBearerToken()
@@ -61,11 +62,13 @@ object EssifFlowRunner {
         // Storing the received Verifiable Authorization
         ///////////////////////////////////////////////////////////////////////////
 
-        log.debug { "Verifiable Authorization received:\n${verifiableAuthorizationFile.absolutePath}" }
+        log.debug { "Verifiable Authorization received:\n${verifiableAuthorization}" }
 
         log.debug { "Writing Verifiable Authorization to file: ${verifiableAuthorizationFile.absolutePath}" }
 
         verifiableAuthorizationFile.writeText(verifiableAuthorization)
+
+
 
 
         ///////////////////////////////////////////////////////////////////////////
@@ -192,7 +195,7 @@ object EssifFlowRunner {
     // https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/2.+Authorization+API
     fun authApi(did: String) {
 
-        println("ESSIF Authorization API")
+        log.debug {"ESSIF Authorization API flow started" }
 
 //        ///////////////////////////////////////////////////////////////////////////
 //        // Prerequisite:
@@ -219,6 +222,14 @@ object EssifFlowRunner {
 
         val accessToken = UserWalletService.requestAccessToken(did)
 
+        ///////////////////////////////////////////////////////////////////////////
+        // Storing the received Access Token
+        ///////////////////////////////////////////////////////////////////////////
+
+        log.debug { "EBSI Access Token received:\n${accessToken}" }
+
+        log.debug { "Writing EBSI Access Token to file: ${ebsiAccessTokenFile.absolutePath}" }
+
         ebsiAccessTokenFile.writeText(accessToken)
 
         ///////////////////////////////////////////////////////////////////////////
@@ -226,6 +237,10 @@ object EssifFlowRunner {
         ///////////////////////////////////////////////////////////////////////////
 
         //UserWalletService.accessProtectedResource(accessToken) // e.g updateDID, revoke VC
+    }
+
+    fun registerDid(did: String) {
+        DidEbsiService.registerDid(did)
     }
 
     // https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/VC-Issuance+Flow
@@ -417,7 +432,4 @@ object EssifFlowRunner {
 
     }
 
-    fun registerDid(did: String) {
-        DidEbsiService.registerDid(did)
-    }
 }

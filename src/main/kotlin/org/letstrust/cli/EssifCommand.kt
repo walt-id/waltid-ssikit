@@ -81,9 +81,39 @@ class EssifAuthCommand : CliktCommand(
 
     override fun run() {
 
-        echo("Running ESSIF Authentication API flow ...\n")
+        echo("Running EBSI Authentication API flow ...\n")
 
         EssifFlowRunner.authApi(did)
+
+        echo("EBSI Authorization flow was performed successfully.")
+        echo("The EBSI Access Token can be accessed in file: ${EssifFlowRunner.ebsiAccessTokenFile.absolutePath}.")
+    }
+}
+
+class EssifDidCommand : CliktCommand(
+    name = "did",
+    help = """ESSIF DID operations.
+
+        ESSIF DID operations."""
+) {
+    override fun run() {}
+}
+
+class EssifDidRegisterCommand : CliktCommand(
+    name = "register",
+    help = """Register ESSIF DID.
+
+        Registers a previously created DID with the EBSI ledger."""
+) {
+    val did: String by option("-d", "--did", help = "DID to be onboarded").default("did:ebsi:26wnek36z4djq1fdCgTZLTuRCe9gMf5Cr6FG8chyuaEBR4fT")
+
+    override fun run() {
+
+        echo("Registering DID $did on the EBSI ledger ...\n")
+
+        EssifFlowRunner.registerDid(did)
+
+        echo("DID registration was performed successfully. Call command: 'did resolve --did $did' in order to retrieve the DID document from the EBSI ledger.")
     }
 }
 
@@ -103,27 +133,6 @@ class EssifVcExchangeCommand : CliktCommand(
         ESSIF VC exchange flow"""
 ) {
     override fun run() = EssifFlowRunner.vcExchange()
-}
-
-class EssifDidCommand : CliktCommand(
-    name = "did",
-    help = """ESSIF DID operations.
-
-        ESSIF DID operations."""
-) {
-    override fun run() = TODO("The \"ESSIF-DID\" operation has not yet been implemented in this Let's Trust snapshot (currently running ${Values.version}).")
-}
-
-class EssifDidRegisterCommand : CliktCommand(
-    name = "register",
-    help = """Register ESSIF DID.
-
-        Registers a previously created DID with the EBSI ledger."""
-) {
-
-    val did: String by option("-d", "--did", help = "DID to be onboarded").default("did:ebsi:26wnek36z4djq1fdCgTZLTuRCe9gMf5Cr6FG8chyuaEBR4fT")
-
-    override fun run() = EssifFlowRunner.registerDid(did)
 }
 
 class EssifTirCommand : CliktCommand(
