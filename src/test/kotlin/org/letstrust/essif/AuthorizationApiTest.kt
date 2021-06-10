@@ -6,8 +6,8 @@ import org.letstrust.services.essif.UserWalletService
 
 class AuthorizationApiTest {
 
-    @Test
-    fun testAuthApiFlow() {
-       EssifFlowRunner.authApi()
-    }
+   //TODO @Test
+//    fun testAuthApiFlow() {
+//       EssifFlowRunner.authApi()
+//    }
 }

@@ -7,9 +7,17 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.goterl.lazysodium.LazySodiumJava
 import com.goterl.lazysodium.SodiumJava
+import com.nimbusds.jose.jwk.Curve
+import com.nimbusds.jose.jwk.ECKey
+import com.nimbusds.jose.util.Base64URL
 import io.ipfs.multibase.Base58
 import io.ipfs.multibase.Multibase
+import org.bouncycastle.jce.ECNamedCurveTable
+import org.bouncycastle.math.ec.ECPoint
+import org.bouncycastle.util.encoders.Hex
 import org.letstrust.CryptoProvider
+import org.letstrust.model.EncryptedAke1Payload
+import org.web3j.utils.Numeric
 import java.security.*
 import java.security.spec.ECGenParameterSpec
 import java.security.spec.PKCS8EncodedKeySpec
@@ -194,3 +202,42 @@ val mapper: ObjectMapper = JsonMapper.builder()
 
 fun canonicalize(json: String): String =
     mapper.writeValueAsString(mapper.readTree(json))
+
+fun uncompressSecp256k1(compKey: ByteArray?): ECKey? {
+    val point: ECPoint = ECNamedCurveTable.getParameterSpec(Curve.SECP256K1.name).getCurve().decodePoint(compKey)
+
+    val x: ByteArray = point.getXCoord().getEncoded()
+    val y: ByteArray = point.getYCoord().getEncoded()
+
+    return ECKey.Builder(Curve.SECP256K1, Base64URL.encode(x), Base64URL.encode(y)).build()
+}
+
+fun parseEncryptedAke1Payload(encryptedPayload: String): EncryptedAke1Payload {
+    val bytes = Numeric.hexStringToByteArray(encryptedPayload)
+    // https://bitcoinj.org/javadoc/0.15.10/org/bitcoinj/core/ECKey.html#decompress--
+    val hexKey = org.bitcoinj.core.ECKey.fromPublicOnly(bytes.sliceArray(16..48)).decompress().publicKeyAsHex
+    val jwkKey = uncompressSecp256k1(Hex.decode(hexKey))
+
+    return EncryptedAke1Payload(
+        bytes.sliceArray(0..15),
+        jwkKey!!,
+        bytes.sliceArray(49..80),
+        bytes.sliceArray(81 until bytes.size)
+    )
+
+//    return EncryptedPayload(
+//        Hex.toHexString(bytes.sliceArray(0..15)),
+//        // https://bitcoinj.org/javadoc/0.15.10/org/bitcoinj/core/ECKey.html#decompress--
+//        org.bitcoinj.core.ECKey.fromPublicOnly(bytes.sliceArray(16..48)).decompress().publicKeyAsHex,
+//        Hex.toHexString(bytes.sliceArray(49..80)),
+//        Hex.toHexString(bytes.sliceArray(81 until bytes.size))
+//    )
+}
+
+// Returns the index of first match of the predicate or the full size of the array
+inline fun ByteArray.findFirst(predicate: (Byte) -> Boolean): Int {
+    for ((index, element) in this.withIndex()) {
+        if (predicate(element)) return index
+    }
+    return size
+}

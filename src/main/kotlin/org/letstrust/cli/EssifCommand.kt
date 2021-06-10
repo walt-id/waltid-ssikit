@@ -1,6 +1,9 @@
 package org.letstrust.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.option
+import com.github.ajalt.clikt.parameters.options.required
 import org.letstrust.Values
 import org.letstrust.services.essif.EssifFlowRunner
 
@@ -43,7 +46,29 @@ class EssifOnboardingCommand : CliktCommand(
 
         ESSIF onboarding flow"""
 ) {
-    override fun run() = EssifFlowRunner.onboard()
+
+    val keyId: String by option("-k", "--key-id", help = "Key ID or key alias").default("0ec07d2f853c4b00bd701a6124f1e4c3")
+    val did: String by option("-d", "--did", help = "DID to be onboarded").required()
+
+    override fun run() {
+
+        echo("ESSIF onboarding of DID $did ...\n")
+
+        // Use following key for testing
+        // {"kty":"EC","use":"sig","crv":"secp256k1","kid":"0ec07d2f853c4b00bd701a6124f1e4c3","x":"Cyb12xp1x7LfaulXdDkDovXXiAJtR4xPjGQiH9B6lcw","y":"nNV-RFkLeFefO5dM2lOybYebr8qFCi3grdV7fTQTKgo","alg":"ES256K"}
+//        val priv = "MIGNAgEAMBAGByqGSM49AgEGBSuBBAAKBHYwdAIBAQQgNMQgxHfsmrHkxXTqj1kh" +
+//                "T61DmhEFMHYfdLxwxLhh0OygBwYFK4EEAAqhRANCAAQLJvXbGnXHst9q6Vd0OQOi" +
+//                "9deIAm1HjE+MZCIf0HqVzJzVfkRZC3hXnzuXTNpTsm2Hm6/KhQot4K3Ve300EyoK"
+//        val pub = "MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAECyb12xp1x7LfaulXdDkDovXXiAJtR4xP" +
+//                "jGQiH9B6lcyc1X5EWQt4V587l0zaU7Jth5uvyoUKLeCt1Xt9NBMqCg"
+//        val key = buildKey("0ec07d2f853c4b00bd701a6124f1e4c3", KeyAlgorithm.ECDSA_Secp256k1.name, "SUN", pub, priv)
+
+
+        EssifFlowRunner.onboard(did)
+
+        echo("ESSIF onboarding for DID $did was performed successfully.")
+        echo("The Verifiable Authorization can be accessed in file: ${EssifFlowRunner.verifiableAuthorizationFile.absolutePath}.")
+    }
 }
 
 class EssifAuthCommand : CliktCommand(
@@ -52,7 +77,45 @@ class EssifAuthCommand : CliktCommand(
 
         ESSIF Authorization flow"""
 ) {
-    override fun run() = EssifFlowRunner.authApi()
+
+    val did: String by option("-d", "--did", help = "DID to be onboarded").required()
+
+    override fun run() {
+
+        echo("Running EBSI Authentication API flow ...\n")
+
+        EssifFlowRunner.authApi(did)
+
+        echo("EBSI Authorization flow was performed successfully.")
+        echo("The EBSI Access Token can be accessed in file: ${EssifFlowRunner.ebsiAccessTokenFile.absolutePath}.")
+    }
+}
+
+class EssifDidCommand : CliktCommand(
+    name = "did",
+    help = """ESSIF DID operations.
+
+        ESSIF DID operations."""
+) {
+    override fun run() {}
+}
+
+class EssifDidRegisterCommand : CliktCommand(
+    name = "register",
+    help = """Register ESSIF DID.
+
+        Registers a previously created DID with the EBSI ledger."""
+) {
+    val did: String by option("-d", "--did", help = "DID to be onboarded").default("did:ebsi:26wnek36z4djq1fdCgTZLTuRCe9gMf5Cr6FG8chyuaEBR4fT")
+
+    override fun run() {
+
+        echo("Registering DID $did on the EBSI ledger ...\n")
+
+        EssifFlowRunner.registerDid(did)
+
+        echo("DID registration was performed successfully. Call command: 'did resolve --did $did' in order to retrieve the DID document from the EBSI ledger.")
+    }
 }
 
 class EssifVcIssuanceCommand : CliktCommand(
@@ -71,15 +134,6 @@ class EssifVcExchangeCommand : CliktCommand(
         ESSIF VC exchange flow"""
 ) {
     override fun run() = EssifFlowRunner.vcExchange()
-}
-
-class EssifDidCommand : CliktCommand(
-    name = "did",
-    help = """ESSIF DID operations.
-
-        ESSIF DID operations."""
-) {
-    override fun run() = TODO("The \"ESSIF-DID\" operation has not yet been implemented in this Let's Trust snapshot (currently running ${Values.version}).")
 }
 
 class EssifTirCommand : CliktCommand(

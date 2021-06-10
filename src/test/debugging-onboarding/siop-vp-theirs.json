@@ -1,0 +1,46 @@
+{
+  @context: [
+    "https://www.w3.org/2018/credentials/v1"
+  ],
+  "holder": "did:ebsi:yMe3d2JDquN27rMPqoYjFVZhs8BcwVWbpgY1qHZy8zG",
+  "proof": {
+    "created": "2021-06-08T12:55:20Z",
+    "jws": "eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QiLCJraWQiOiJodHRwczovL2FwaS5wcmVwcm9kLmVic2kuZXUvZGlkLXJlZ2lzdHJ5L3YyL2lkZW50aWZpZXJzL2RpZDplYnNpOnlNZTNkMkpEcXVOMjdyTVBxb1lqRlZaaHM4QmN3VldicGdZMXFIWnk4ekcja2V5cy0xIn0..x4r_1f7yZtBBKOGIo95HLTbA4PvWrtZuE3pMLevhbqJZSkt7RbM-OeQQf_kflaQ-ze1CQWyVd6RTl1GC53Tsqg",
+    "proofPurpose": "assertionMethod",
+    "type": "EcdsaSecp256k1Signature2019",
+    "verificationMethod": "did:ebsi:yMe3d2JDquN27rMPqoYjFVZhs8BcwVWbpgY1qHZy8zG#keys-1"
+  },
+  "type": "VerifiablePresentation",
+  "verifiableCredential": [
+    {
+      "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        "https://www.w3.org/2018/credentials/examples/v1",
+        "https://w3c-ccg.github.io/lds-jws2020/contexts/lds-jws2020-v1.json"
+      ],
+      "credentialSchema": {
+        "id": "https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0x312e332e362e312e342e312e313636342e31302e3138372e312e322e322e3333",
+        "type": "OID"
+      },
+      "credentialSubject": {
+        "id": "did:ebsi:yMe3d2JDquN27rMPqoYjFVZhs8BcwVWbpgY1qHZy8zG"
+      },
+      "expirationDate": "2021-12-07T12:55:19Z",
+      "id": "vc:ebsi:authentication#3c7497fc-d35d-4512-92a9-f837cc6c97e2",
+      "issuanceDate": "2021-06-08T12:55:19Z",
+      "issuer": "did:ebsi:4jPxcigvfifZyVwym5zjxaKXGJTt7YwFtpg6AXtsR4d5",
+      "proof": {
+        "created": "2021-06-08T12:55:19Z",
+        "jws": "eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QifQ..O1GWc_0moxYO0Oz0tDr5GpdBT9GhH12L-hRBJu3GnQHxKSX3a5wTQAxrCvxENzvaOUGK9Yde4wgcJLKZHTvPKQ",
+        "proofPurpose": "assertionMethod",
+        "type": "EcdsaSecp256k1Signature2019",
+        "verificationMethod": "did:ebsi:4jPxcigvfifZyVwym5zjxaKXGJTt7YwFtpg6AXtsR4d5#keys-1"
+      },
+      "type": [
+        "VerifiableCredential",
+        "VerifiableAuthorisation"
+      ],
+      "validFrom": "2021-06-08T12:55:19Z"
+    }
+  ]
+}

@@ -6,6 +6,7 @@ import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.optional
 import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
@@ -37,7 +38,6 @@ class CreateDidCommand : CliktCommand(
         
         """
 ) {
-    val didService = DidService
     val config: CliConfig by requireObject()
     val dest: File? by argument().file().optional()
     val method: String by option("-m", "--did-method", help = "Specify DID method [key]").choice(
@@ -53,12 +53,12 @@ class CreateDidCommand : CliktCommand(
 
         val keyId = if (keyAlias == "default") null else keyAlias
 
-        val did = didService.create(DidMethod.valueOf(method), keyId)
+        val did = DidService.create(DidMethod.valueOf(method), keyId)
 
         echo("\nResults:\n")
         echo("DID created: $did")
 
-        val encodedDid = resolveDidHelper(did)
+        val encodedDid = loadDidHelper(did)
         echo("DID document (below, JSON):\n\n$encodedDid")
 
         dest?.let {
@@ -68,9 +68,18 @@ class CreateDidCommand : CliktCommand(
     }
 }
 
-fun resolveDidHelper(did: String) = when {
-    did.contains("mattr") -> DidService.resolveDidWeb(DidUrl.from(did)).encodePretty()
-    did.contains("ebsi") -> DidService.resolveDidEbsi(did).encodePretty()
+fun loadDidHelper(did: String) = when {
+    did.contains("web") -> DidService.resolveDidWeb(DidUrl.from(did)).encodePretty()
+    did.contains("ebsi") -> DidService.loadDidEbsi(did).encodePretty()
+    else -> DidService.load(did).encodePretty()
+}
+
+fun resolveDidHelper(did: String, raw: Boolean) = when {
+    did.contains("web") -> DidService.resolveDidWeb(DidUrl.from(did)).encodePretty()
+    did.contains("ebsi") -> when (raw) {
+        true -> DidService.resolveDidEbsiRaw(did)
+        else -> DidService.resolveDidEbsi(did).encodePretty()
+    }
     else -> DidService.resolve(did).encodePretty()
 }
 
@@ -78,15 +87,16 @@ class ResolveDidCommand : CliktCommand(
     name = "resolve",
     help = """Resolve DID.
 
-        Constructs the DID Document."""
+        Resolves the DID document. Use option RAW to disable type checking."""
 ) {
-    val did: String by option(help = "DID to be resolved").required()
+    val did: String by option("-d", "--did", help = "DID to be resolved").required()
+    val raw by option("--raw", "-r").flag("--typed", "-t", default = false)
     val config: CliConfig by requireObject()
 
     override fun run() {
         echo("Resolving DID \"$did\"...")
 
-        val encodedDid = resolveDidHelper(did)
+        val encodedDid = resolveDidHelper(did, raw)
 
         echo("\nResult:\n")
 

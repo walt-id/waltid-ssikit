@@ -3,12 +3,17 @@ package org.letstrust.services.key
 import com.google.crypto.tink.subtle.X25519
 import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.jwk.ECKey
+import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jose.jwk.KeyUse
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.junit.Before
 import org.junit.Test
 import org.letstrust.crypto.KeyAlgorithm
+import org.letstrust.model.Jwk
 import java.security.*
 import java.security.spec.*
 import java.util.*
@@ -69,27 +74,29 @@ class KeyServiceTest {
         assertNotNull(key?.keyPair)
         assertNotNull(key?.keyPair?.private)
         assertNotNull(key?.keyPair?.public)
-        // assertTrue(key?.getMultiBase58PublicKey(keyId).length > 32)
+
         kms.delete(keyId.id)
     }
 
     @Test
     fun generateEd25519JwkTest() {
-        val kms = KeyService
-        val keyId = kms.generate(KeyAlgorithm.ECDSA_Secp256k1)
-        val key = kms.load(keyId.id, true)
+        val keyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val key = KeyService.load(keyId.id, true)
 
-        val jwk = kms.toEd25519Jwk(key)
+        val jwk = KeyService.toEd25519Jwk(key)
         println(jwk)
         assertEquals("EdDSA", jwk.algorithm.name)
         assertEquals("Ed25519", jwk.curve.name)
 
         val jwk2 = KeyService.toJwk(key.keyId.id)
         assertEquals(keyId.id, jwk2.keyID)
+
+        KeyService.delete(keyId.id)
     }
 
     @Test
     fun generateSecp256k1JwkTest() {
+        // Test generation
         val kms = KeyService
         val keyId = kms.generate(KeyAlgorithm.ECDSA_Secp256k1)
         val key = kms.load(keyId.id, true)
@@ -101,6 +108,40 @@ class KeyServiceTest {
 
         val jwk2 = KeyService.toJwk(key.keyId.id)
         assertEquals(keyId.id, jwk2.keyID)
+
+        kms.delete(keyId.id)
+    }
+
+    @Test
+    fun serizalizeEd25519k1JwkTest() {
+        val keyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val key = KeyService.load(keyId.id, true)
+        val jwk =  KeyService.toEd25519Jwk(key)
+
+        val serializedJwk = Json.decodeFromString<Jwk>(jwk.toString())
+        assertEquals("EdDSA", serializedJwk.alg)
+
+        val jwkFromSerialzed = JWK.parse(Json.encodeToString(serializedJwk))
+
+        assertEquals(jwk, jwkFromSerialzed)
+
+        KeyService.delete(keyId.id)
+    }
+
+    @Test
+    fun serizalizeSecp256k1JwkTest() {
+        val keyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val key = KeyService.load(keyId.id, true)
+        val jwk =  KeyService.toSecp256Jwk(key)
+
+        val serializedJwk = Json.decodeFromString<Jwk>(jwk.toString())
+        assertEquals("ES256K", serializedJwk.alg)
+
+        val jwkFromSerialzed = JWK.parse(Json.encodeToString(serializedJwk))
+
+        assertEquals(jwk, jwkFromSerialzed)
+
+        KeyService.delete(keyId.id)
     }
 
     // TODO complete following two tests

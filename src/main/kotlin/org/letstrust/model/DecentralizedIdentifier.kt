@@ -44,10 +44,14 @@ data class VerificationMethod(
 
 @Serializable
 data class Jwk(
-    val kty: String, // "EC",
-    val crv: String, // "secp256k1",
-    val x: String, // "Ou6y1zrJBeVnpV739kcTyez7RmQZFYg3F9bWGm6V5dQ",
-    val y: String // "jOq6B8CsOxoXj-WXAGY28PH0Ype1x6bnOB6_YOo3lK0"
+    val kid: String? = null, // "6a838696803b4140974a3d09b74ee6ec"
+    val kty: String? = null, // "EC",
+    val alg: String? = null, // "ES256K"
+    val crv: String? = null, // "secp256k1",
+    val use: String? = null, // "sig"
+    val x: String? = null, // "Ou6y1zrJBeVnpV739kcTyez7RmQZFYg3F9bWGm6V5dQ",
+    val y: String? = null, // "jOq6B8CsOxoXj-WXAGY28PH0Ype1x6bnOB6_YOo3lK0"
+    val d: String? = null // HQCAQEEILZCiMcEeFuVLrciYxycmvTXffR
 )
 
 @Serializable

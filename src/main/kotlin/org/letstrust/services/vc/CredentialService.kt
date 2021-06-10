@@ -15,13 +15,11 @@ import org.json.JSONObject
 import org.letstrust.LetsTrustServices
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.LdSigner
-import org.letstrust.crypto.SignatureType
 import org.letstrust.crypto.keystore.KeyStore
 import org.letstrust.model.*
 import org.letstrust.model.Proof
 import org.letstrust.vclib.vcs.*
 import java.io.File
-import java.lang.IllegalArgumentException
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
@@ -48,7 +46,8 @@ object CredentialService {
         jsonCred: String,
         domain: String? = null,
         nonce: String? = null,
-        verificationMethod: String? = null
+        verificationMethod: String? = null,
+        proofPurpose: String? = null
     ): String {
 
         log.debug { "Signing jsonLd object with: issuerDid ($issuerDid), domain ($domain), nonce ($nonce)" }
@@ -75,6 +74,8 @@ object CredentialService {
         signer.domain = domain
         signer.nonce = nonce
         verificationMethod?.let { signer.verificationMethod = URI.create(verificationMethod) }
+        signer.proofPurpose = proofPurpose
+
 
         val proof = signer.sign(jsonLdObject)
 

@@ -29,6 +29,10 @@ dependencies {
     implementation("com.goterl:lazysodium-java:5.0.1")
     implementation("com.github.multiformats:java-multibase:v1.1.0")
 
+    // Ethereum
+    implementation("org.web3j:core:4.8.4")
+    implementation("org.web3j:crypto:4.8.4")
+
     implementation("com.google.guava:guava:30.1.1-jre")
 
     // JSON
@@ -50,6 +54,7 @@ dependencies {
     implementation("io.ktor:ktor-client-core:1.5.2")
     implementation("io.ktor:ktor-client-cio:1.5.2")
     implementation("io.ktor:ktor-client-serialization:1.5.2")
+    implementation("io.ktor:ktor-client-logging:1.5.2")
 
     // REST
     implementation("io.javalin:javalin-bundle:3.13.6")

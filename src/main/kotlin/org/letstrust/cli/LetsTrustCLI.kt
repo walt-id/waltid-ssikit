@@ -109,7 +109,9 @@ object LetsTrustCLI {
                         EssifAuthCommand(),
                         EssifVcIssuanceCommand(),
                         EssifVcExchangeCommand(),
-                        EssifDidCommand(),
+                        EssifDidCommand().subcommands(
+                            EssifDidRegisterCommand()
+                        ),
                         EssifTirCommand(),
                         EssifTaorCommand(),
                         EssifTsrCommand()
