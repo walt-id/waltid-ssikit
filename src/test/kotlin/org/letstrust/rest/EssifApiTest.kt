@@ -11,6 +11,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.junit.Test
+import org.letstrust.services.essif.AuthRequestResponse
 import org.letstrust.services.essif.mock.RelyingParty
 import kotlin.test.assertEquals
 
@@ -81,45 +82,45 @@ class EssifApiTest {
         println(verifiableId)
     }
 
-    @Test
-    fun testAuthApi() = runBlocking {
-        println("ESSIF Authorization API")
-
-        // Verifiable Authorization must be previously installed via ESSIF onboarding flow (DID registration)
-        val verifiableAuthorization = "{\n" +
-                "  \"@context\": [\n" +
-                "    \"https://www.w3.org/2018/credentials/v1\"\n" +
-                "  ],\n" +
-                "  \"id\": \"did:ebsi-eth:00000001/credentials/1872\",\n" +
-                "  \"type\": [\n" +
-                "    \"VerifiableCredential\",\n" +
-                "    \"VerifiableAuthorization\"\n" +
-                "  ],\n" +
-                "  \"issuer\": \"did:ebsi:000001234\",\n" +
-                "  \"issuanceDate\": \"2020-08-24T14:13:44Z\",\n" +
-                "  \"expirationDate\": \"2020-08-25T14:13:44Z\",\n" +
-                "  \"credentialSubject\": {\n" +
-                "    \"id\": \"did:key:z6MksTeZpzyCdeRHuvk6kAAfQQCas3NPTRtxnB5a68mDrps5\",\n" +
-                "    \"hash\": \"e96e3fecdbdf2126ea62e7c6...04de0f177e5971c27dedd0d17bc649a626ac\"\n" +
-                "  },\n" +
-                "  \"proof\": {\n" +
-                "    \"type\": \"EcdsaSecp256k1Signature2019\",\n" +
-                "    \"created\": \"2020-08-24T14:13:44Z\",\n" +
-                "    \"proofPurpose\": \"assertionMethod\",\n" +
-                "    \"verificationMethod\": \"did:ebsi-eth:000001234#key-1\",\n" +
-                "    \"jws\": \"eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..TCYt5X\"\n" +
-                "  }\n" +
-                "}\n"
-
-        val accessToken = client.post<String>("$ESSIF_API_URL/v1/user/wallet/requestAccessToken") {
-            contentType(ContentType.Application.Json)
-            body = verifiableAuthorization
-        }
-
-        println(accessToken)
-
-        //UserWalletService.accessProtectedResource(accessToken) // e.g updateDID, revoke VC
-    }
+//   //TODO @Test
+//    fun testAuthApi() = runBlocking {
+//        println("ESSIF Authorization API")
+//
+//        // Verifiable Authorization must be previously installed via ESSIF onboarding flow (DID registration)
+//        val verifiableAuthorization = "{\n" +
+//                "  \"@context\": [\n" +
+//                "    \"https://www.w3.org/2018/credentials/v1\"\n" +
+//                "  ],\n" +
+//                "  \"id\": \"did:ebsi-eth:00000001/credentials/1872\",\n" +
+//                "  \"type\": [\n" +
+//                "    \"VerifiableCredential\",\n" +
+//                "    \"VerifiableAuthorization\"\n" +
+//                "  ],\n" +
+//                "  \"issuer\": \"did:ebsi:000001234\",\n" +
+//                "  \"issuanceDate\": \"2020-08-24T14:13:44Z\",\n" +
+//                "  \"expirationDate\": \"2020-08-25T14:13:44Z\",\n" +
+//                "  \"credentialSubject\": {\n" +
+//                "    \"id\": \"did:key:z6MksTeZpzyCdeRHuvk6kAAfQQCas3NPTRtxnB5a68mDrps5\",\n" +
+//                "    \"hash\": \"e96e3fecdbdf2126ea62e7c6...04de0f177e5971c27dedd0d17bc649a626ac\"\n" +
+//                "  },\n" +
+//                "  \"proof\": {\n" +
+//                "    \"type\": \"EcdsaSecp256k1Signature2019\",\n" +
+//                "    \"created\": \"2020-08-24T14:13:44Z\",\n" +
+//                "    \"proofPurpose\": \"assertionMethod\",\n" +
+//                "    \"verificationMethod\": \"did:ebsi-eth:000001234#key-1\",\n" +
+//                "    \"jws\": \"eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..TCYt5X\"\n" +
+//                "  }\n" +
+//                "}\n"
+//
+//        val accessToken = client.post<String>("$ESSIF_API_URL/v1/user/wallet/requestAccessToken") {
+//            contentType(ContentType.Application.Json)
+//            body = verifiableAuthorization
+//        }
+//
+//        println(accessToken)
+//
+//        //UserWalletService.accessProtectedResource(accessToken) // e.g updateDID, revoke VC
+//    }
 
     @Test
     fun testVcIssuance() = runBlocking {

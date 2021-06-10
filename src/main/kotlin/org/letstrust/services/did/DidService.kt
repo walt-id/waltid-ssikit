@@ -56,8 +56,14 @@ object DidService {
 
     fun resolveDidEbsi(did: String): DidEbsi = resolveDidEbsi(DidUrl.from(did))
     fun resolveDidEbsi(didUrl: DidUrl): DidEbsi {
+        // TODO: resolve correctly
         log.warn { "DID EBSI is not resolved correctly yet. It is read from directory." }
-        return Json.decodeFromString<DidEbsi>(loadDid(didUrl.did))
+        return loadDidEbsi(didUrl)
+    }
+
+    fun loadDidEbsi(did: String): DidEbsi = loadDidEbsi(DidUrl.from(did))
+    fun loadDidEbsi(didUrl: DidUrl): DidEbsi {
+        return Json.decodeFromString(loadDid(didUrl.did))
     }
 
     fun updateDidEbsi(did: DidEbsi) = storeDid(did.id!!, Json.encodeToString(did))
@@ -71,35 +77,55 @@ object DidService {
         val didUrlStr = DidUrl.generateDidEbsiV2DidUrl().did
         keyStore.addAlias(keyId, didUrlStr)
 
-        val ebsiDid = if (key.algorithm == EdDSA_Ed25519) {
-            val pubKeyBytes = key.getPublicKey().encoded
-            val pubPrim = ASN1Sequence.fromByteArray(pubKeyBytes) as ASN1Sequence
-            val edPublicKey = (pubPrim.getObjectAt(1) as ASN1BitString).octets
-            // Create doc
-            val ebsiDidBody = ebsiDid(DidUrl.from(didUrlStr), edPublicKey)
-
-            val ebsiDidBodyStr = Json.encodeToString(ebsiDidBody)
-
-            keyStore.addAlias(keyId, ebsiDidBody.verificationMethod!!.get(0)!!.id)
-
-            // Create proof
-            val verificationMethod = ebsiDidBody.verificationMethod?.get(0)?.id
-            signDid(didUrlStr, verificationMethod!!, ebsiDidBodyStr)
-        } else {
-            val kid = "$didUrlStr#key-1"
-            keyStore.addAlias(keyId, kid)
-            val verificationMethods = mutableListOf(
-                VerificationMethod(kid, "Secp256k1VerificationKey2018", didUrlStr, null, KeyService.toPem(kid)),
-            )
-
-            val did = DidEbsi(
-                listOf("https://w3.org/ns/did/v1"), // TODO Context not working "https://ebsi.org/ns/did/v1"
-                didUrlStr,
-                verificationMethods,
-                listOf("$didUrlStr#key-1")
-            )
-            Json.encodeToString(did)
+        val kid = "$didUrlStr#key-1"
+        keyStore.addAlias(keyId, kid)
+        val keyType = when(key.algorithm) {
+            EdDSA_Ed25519 -> "Ed25519VerificationKey2018"
+            ECDSA_Secp256k1 -> "Secp256k1VerificationKey2018"
         }
+        val publicKeyJwk = Json.decodeFromString<Jwk>(KeyService.toJwk(kid).toPublicJWK().toString())
+        val verificationMethods = mutableListOf(
+            VerificationMethod(kid, keyType, didUrlStr, null, null, publicKeyJwk),
+        )
+
+        val did = DidEbsi(
+            listOf("https://w3.org/ns/did/v1"), // TODO Context not working "https://ebsi.org/ns/did/v1"
+            didUrlStr,
+            verificationMethods,
+            listOf("$didUrlStr#key-1")
+        )
+        val ebsiDid = Json.encodeToString(did)
+
+//        val ebsiDid = if (key.algorithm == EdDSA_Ed25519) {
+//            val pubKeyBytes = key.getPublicKey().encoded
+//            val pubPrim = ASN1Sequence.fromByteArray(pubKeyBytes) as ASN1Sequence
+//            val edPublicKey = (pubPrim.getObjectAt(1) as ASN1BitString).octets
+//            // Create doc
+//            val ebsiDidBody = ebsiDid(DidUrl.from(didUrlStr), edPublicKey)
+//
+//            val ebsiDidBodyStr = Json.encodeToString(ebsiDidBody)
+//
+//            keyStore.addAlias(keyId, ebsiDidBody.verificationMethod!!.get(0)!!.id)
+//
+//            // Create proof
+//            val verificationMethod = ebsiDidBody.verificationMethod?.get(0)?.id
+//            signDid(didUrlStr, verificationMethod!!, ebsiDidBodyStr)
+//        } else {
+//            val kid = "$didUrlStr#key-1"
+//            keyStore.addAlias(keyId, kid)
+//            val publicKeyJwk = Json.decodeFromString<Jwk>(KeyService.toJwk(kid).toPublicJWK().toString())
+//            val verificationMethods = mutableListOf(
+//                VerificationMethod(kid, "Secp256k1VerificationKey2018", didUrlStr, null, null, publicKeyJwk),
+//            )
+//
+//            val did = DidEbsi(
+//                listOf("https://w3.org/ns/did/v1"), // TODO Context not working "https://ebsi.org/ns/did/v1"
+//                didUrlStr,
+//                verificationMethods,
+//                listOf("$didUrlStr#key-1")
+//            )
+//            Json.encodeToString(did)
+//        }
 
         // Store DID
         storeDid(didUrlStr, ebsiDid)

@@ -97,7 +97,7 @@ object DidEbsiService {
 
         // Insert DID document request
         val address = Numeric.prependHexPrefix(Keys.getAddress(ecKeyPair))
-        val didDocument = DidService.resolveDidEbsi(did)
+        val didDocument = DidService.loadDidEbsi(did)
         val insertDocumentParams = buildInsertDocumentParams(address, didDocument)
         log.debug { insertDocumentParams }
 

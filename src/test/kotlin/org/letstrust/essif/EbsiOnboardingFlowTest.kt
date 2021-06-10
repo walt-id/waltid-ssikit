@@ -9,10 +9,10 @@ import org.letstrust.services.essif.EssifFlowRunner
 
 class EbsiOnboardingFlowTest {
     private val log = KotlinLogging.logger {}
-    @Test
-    fun testEbsiVCRequestOnboardingFlow() {
-
-        EssifFlowRunner.onboard()
-
-    }
+    // TODO @Test
+//    fun testEbsiVCRequestOnboardingFlow() {
+//
+//        EssifFlowRunner.onboard()
+//
+//    }
 }
