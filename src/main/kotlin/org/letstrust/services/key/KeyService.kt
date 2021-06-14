@@ -9,6 +9,8 @@ import org.bouncycastle.asn1.ASN1BitString
 import org.bouncycastle.asn1.ASN1OctetString
 import org.bouncycastle.asn1.ASN1Sequence
 import org.bouncycastle.jce.ECNamedCurveTable
+import org.bouncycastle.jce.provider.BouncyCastleProvider
+import org.letstrust.CryptoProvider
 import org.letstrust.LetsTrustServices
 import org.letstrust.crypto.*
 import org.letstrust.crypto.keystore.KeyStore
@@ -87,6 +89,17 @@ object KeyService {
         }
 
         return builder.build()
+    }
+
+    fun import(json: String, provider: CryptoProvider): Key {
+        val jwk = JWK.parse(json)
+        val key = when (jwk.keyType) {
+            KeyType.EC -> Key(KeyId(jwk.keyID), KeyAlgorithm.ECDSA_Secp256k1, provider, jwk.toECKey().toKeyPair(BouncyCastleProvider()))
+            // FIXME: KeyType.OKP -> jwk.toOctetKeyPair().toKeyPair()
+            else -> throw IllegalArgumentException("Key type not supported.")
+        }
+        ks.store(key)
+        return key
     }
 
     fun listKeys(): List<Key> = ks.listKeys()
