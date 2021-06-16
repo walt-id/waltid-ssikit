@@ -13,5 +13,9 @@ object ServiceRegistry {
         services[T::class] = serviceImplementation
     }
 
+    fun registerService(serviceImplementation: BaseService, serviceType: KClass<out BaseService>) {
+        services[serviceType] = serviceImplementation
+    }
+
     inline fun <reified Service : BaseService> getService(): Service = (services[Service::class] as Service)
 }

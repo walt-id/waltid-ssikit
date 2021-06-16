@@ -4,8 +4,11 @@ import org.letstrust.service2.services.*
 
 fun main() {
     println("Registering services...")
-    ServiceRegistry.registerService<VCService>(VcServiceInternal())
-    ServiceRegistry.registerService<DidService>(DidServiceInternal())
+
+    ServiceMatrix("service-matrix.properties")
+
+    //ServiceRegistry.registerService<VCService>(VcServiceInternal())
+    //ServiceRegistry.registerService<DidService>(DidServiceInternal())
 
     println("Getting service...")
     val vcService = VCService.getService()
@@ -15,8 +18,12 @@ fun main() {
     vcService.import()
     vcService.export()
 
-    println("Setting other class...")
-    ServiceRegistry.registerService<VCService>(CustomVCService())
+    //println("Setting other class...")
+    //ServiceRegistry.registerService<VCService>(CustomVCService())
+
+    //val instance: BaseService = Class.forName("org.letstrust.service2.services.CustomVCService").getDeclaredConstructor().newInstance() as BaseService
+    //val service: Class<BaseService> = Class.forName("org.letstrust.service2.services.VCService") as Class<BaseService>
+    //ServiceRegistry.registerService(instance, service.kotlin)
 
     println("VC Import...")
     vcService.import()
