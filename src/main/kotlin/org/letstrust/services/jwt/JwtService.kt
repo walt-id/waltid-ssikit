@@ -8,10 +8,7 @@ import com.nimbusds.jose.jwk.gen.OctetKeyPairGenerator
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import mu.KotlinLogging
-import org.letstrust.crypto.KeyAlgorithm
-import org.letstrust.crypto.LdSigner
-import org.letstrust.crypto.LetsTrustProvider
-import org.letstrust.crypto.PrivateKeyHandle
+import org.letstrust.crypto.*
 import org.letstrust.services.key.KeyService
 import java.security.interfaces.ECPublicKey
 import java.util.*
@@ -136,7 +133,11 @@ object JwtService {
 
         val res = when (verifierKey.algorithm) {
             KeyAlgorithm.EdDSA_Ed25519 -> jwt.verify(Ed25519Verifier(KeyService.toEd25519Jwk(verifierKey)))
-            KeyAlgorithm.ECDSA_Secp256k1 -> jwt.verify(ECDSAVerifier(verifierKey.getPublicKey() as ECPublicKey))
+            KeyAlgorithm.ECDSA_Secp256k1 -> {
+                val verifier = ECDSAVerifier(PublicKeyHandle(verifierKey.keyId, verifierKey.getPublicKey() as ECPublicKey))
+                verifier.jcaContext.provider = LetsTrustProvider()
+                jwt.verify(verifier)
+            }
             else -> {
                 log.error { "Algorithm ${verifierKey.algorithm} not supported" }
                 throw Exception("Algorithm ${verifierKey.algorithm} not supported")
