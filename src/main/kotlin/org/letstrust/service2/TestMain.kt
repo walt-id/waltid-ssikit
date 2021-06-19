@@ -3,18 +3,18 @@ package org.letstrust.service2
 import org.letstrust.service2.services.*
 
 fun main() {
-    println("Registering services...")
+    println("> Registering services...")
 
-    ServiceMatrix("service-matrix.properties")
+    val serviceMatrix = ServiceMatrix("service-matrix.properties")
 
-    //ServiceRegistry.registerService<VCService>(VcServiceInternal())
-    //ServiceRegistry.registerService<DidService>(DidServiceInternal())
+    //ServiceRegistry.registerService<VCService>(VcServiceDefault())
+    //ServiceRegistry.registerService<DidService>(DidServiceDefault())
 
-    println("Getting service...")
+    println("> Getting service...")
     val vcService = VCService.getService()
     val didService = DidService.getService()
 
-    println("Functions...")
+    println("> VC Functions:")
     vcService.import()
     vcService.export()
 
@@ -25,11 +25,11 @@ fun main() {
     //val service: Class<BaseService> = Class.forName("org.letstrust.service2.services.VCService") as Class<BaseService>
     //ServiceRegistry.registerService(instance, service.kotlin)
 
-    println("VC Import...")
+    println("> VC Functions:")
     vcService.import()
     vcService.export()
 
-    println("DID Import...")
+    println("> DID Functions:")
     didService.import()
     didService.export()
 }

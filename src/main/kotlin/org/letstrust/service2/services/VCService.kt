@@ -4,18 +4,18 @@ import org.letstrust.service2.BaseService
 import org.letstrust.service2.ServiceProvider
 import org.letstrust.service2.ServiceRegistry
 
-open class DidServiceInternal : DidService() {
-    override fun import() = println("DID Import")
-    override fun export() = println("DID Export")
+open class VcServiceDefault : VCService() {
+    override fun import() = println("VC Import")
+    override fun export() = println("VC Export")
 }
 
-abstract class DidService : BaseService() {
-    override val implementation get() = ServiceRegistry.getService<DidService>()
+abstract class VCService : BaseService() {
+    override val implementation get() = ServiceRegistry.getService<VCService>()
 
     open fun import(): Unit = implementation.import()
     open fun export(): Unit = implementation.export()
 
     companion object : ServiceProvider {
-        override fun getService() = object : DidService() {}
+        override fun getService() = object : VCService() {}
     }
 }
