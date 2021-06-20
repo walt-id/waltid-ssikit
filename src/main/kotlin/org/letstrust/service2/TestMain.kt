@@ -1,35 +1,43 @@
 package org.letstrust.service2
 
-import org.letstrust.service2.services.*
+import org.letstrust.services.vc.CustomVCService
+import org.letstrust.services.vc.VCService
 
 fun main() {
     println("> Registering services...")
 
-    val serviceMatrix = ServiceMatrix("service-matrix.properties")
+    //val serviceMatrix = ServiceMatrix("service-matrix.properties")
 
-    //ServiceRegistry.registerService<VCService>(VcServiceDefault())
-    //ServiceRegistry.registerService<DidService>(DidServiceDefault())
+    ServiceRegistry.registerService<VCService>(CustomVCService())
+    /*ServiceRegistry.registerService<VCService>(LetstrustVCService())
+    ServiceRegistry.registerService<DidService>(DidServiceDefault())*/
 
     println("> Getting service...")
     val vcService = VCService.getService()
-    val didService = DidService.getService()
 
-    println("> VC Functions:")
+    println("Listing templates")
+    vcService.listTemplates().forEach {
+        println(it)
+    }
+
+    /*val didService = DidService.getService()*/
+
+    /*println("> VC Functions:")
     vcService.import()
-    vcService.export()
+    vcService.export()*/
 
-    //println("Setting other class...")
-    //ServiceRegistry.registerService<VCService>(CustomVCService())
+    /*println("Setting other class...")
+    ServiceRegistry.registerService<VCService>(CustomLetstrustVCService())*/
 
-    //val instance: BaseService = Class.forName("org.letstrust.service2.services.CustomVCService").getDeclaredConstructor().newInstance() as BaseService
+    //val instance: BaseService = Class.forName("org.letstrust.services.CustomLetstrustVCService").getDeclaredConstructor().newInstance() as BaseService
     //val service: Class<BaseService> = Class.forName("org.letstrust.service2.services.VCService") as Class<BaseService>
     //ServiceRegistry.registerService(instance, service.kotlin)
 
-    println("> VC Functions:")
+    /*println("> VC Functions:")
     vcService.import()
     vcService.export()
 
     println("> DID Functions:")
     didService.import()
-    didService.export()
+    didService.export()*/
 }
