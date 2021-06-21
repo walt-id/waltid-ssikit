@@ -101,16 +101,12 @@ object KeyService {
             }
         }
 
-    private fun calculateEthereumAddress(key: ECKey): String =
-        ByteArray(key.x.decode().size + key.y.decode().size).let { publicKeyInBytes ->
-            System.arraycopy(key.x.decode(), 0, publicKeyInBytes, 0, 32)
-            System.arraycopy(key.y.decode(), 0, publicKeyInBytes, 32, 32)
-            String(Hex.encode(Keccak.Digest256().digest(publicKeyInBytes))).let { sha3_256hex ->
-                Keys.toChecksumAddress(
-                    StringUtils.leftPad(sha3_256hex.substring(sha3_256hex.length - 40), 40, "0")
-                )
-            }
+    private fun calculateEthereumAddress(key: ECKey): String {
+        val digest = Keccak.Digest256().digest(key.x.decode().copyOfRange(0, 32) + key.y.decode().copyOfRange(0, 32))
+        return String(Hex.encode(digest)).let { sha3_256hex ->
+            Keys.toChecksumAddress(sha3_256hex.substring(sha3_256hex.length - 40))
         }
+    }
 
     fun listKeys(): List<Key> = ks.listKeys()
 
@@ -136,140 +132,140 @@ object KeyService {
         return ecNames
     }
 
-//    @Deprecated(message = "outdated")
-//    fun generateEcKeyPair(ecCurveName: String): String {
-//        val generator = KeyPairGenerator.getInstance("ECDSA", "BC")
-//        generator.initialize(ECNamedCurveTable.getParameterSpec(ecCurveName), SecureRandom())
-//        val keys = Keys(generateKeyId(), generator.generateKeyPair(), "BC")
-//        ks.saveKeyPair(keys)
-//        return keys.keyId
-//    }
+    //    @Deprecated(message = "outdated")
+    //    fun generateEcKeyPair(ecCurveName: String): String {
+    //        val generator = KeyPairGenerator.getInstance("ECDSA", "BC")
+    //        generator.initialize(ECNamedCurveTable.getParameterSpec(ecCurveName), SecureRandom())
+    //        val keys = Keys(generateKeyId(), generator.generateKeyPair(), "BC")
+    //        ks.saveKeyPair(keys)
+    //        return keys.keyId
+    //    }
 
-//    @Deprecated(message = "outdated")
-//    fun generateKeyPair(algorithm: String): String {
-//        val keys = when (algorithm) {
-//            "Ed25519" -> {
-//                HybridConfig.register()
-//                val keyPair = Ed25519Sign.KeyPair.newKeyPair()
-//                val publicKey = BytePublicKey(keyPair.publicKey, "Ed25519")
-//                val privateKey = BytePrivateKey(keyPair.privateKey, "Ed25519")
-//                Keys(generateKeyId(), KeyPair(publicKey, privateKey), "Tink")
-//            }
-//            "Secp256k1" -> {
-//                val key = ECKey(SecureRandom())
-//                val publicKey = BytePublicKey(key.pubKey, "Secp256k1")
-//                val privateKey = BytePrivateKey(key.privKeyBytes, "Secp256k1")
-//                Keys(generateKeyId(), KeyPair(publicKey, privateKey), "bitcoinj")
-//            }
-//            else -> {
-//                val generator = KeyPairGenerator.getInstance("RSA", "BC")
-//                generator.initialize(RSA_KEY_SIZE)
-//                Keys(generateKeyId(), generator.generateKeyPair(), "BC")
-//            }
-//        }
-//        ks.saveKeyPair(keys)
-//        return keys.keyId
-//    }
-//
-//    @Deprecated(message = "outdated")
-//    fun generateEd25519KeyPair(): String {
-//        HybridConfig.register()
-//
-//        val keyPair = Ed25519Sign.KeyPair.newKeyPair()
-//        val publicKey = BytePublicKey(keyPair.publicKey, "Ed25519")
-//        val privateKey = BytePrivateKey(keyPair.privateKey, "Ed25519")
-//        val keys = Keys(generateKeyId(), KeyPair(publicKey, privateKey), "Tink")
-//        ks.saveKeyPair(keys)
-//        return keys.keyId
-//    }
-//
-//    @Deprecated(message = "outdated")
-//    fun generateEd25519KeyPairNimbus(): String {
-//
-//        val keyUse = KeyUse.parse("sig")
-//        val keyAlg = JWSAlgorithm.parse("EdDSA")
-//        val keyCurve = Curve.parse("Ed25519")
-//
-//        val kp = KeyPairGenerator.getInstance("Ed25519").generateKeyPair()
-//
-//        val keys = Keys(generateKeyId(), kp, "SunEC")
-//        ks.saveKeyPair(keys)
-//
-//        val jwk = KeyUtil.make(kp, keyCurve, keyUse, keyAlg, keys.keyId)
-//        if (jwk != null) {
-//            println("generateEd25519KeyPairNimbus: " + jwk.toJSONString())
-//        }
-//
-//        return keys.keyId
-//
-//    }
-//
-//    @Deprecated(message = "outdated")
-//    fun generateSecp256k1KeyPairBitcoinj(): String {
-//        val key = ECKey(SecureRandom())
-//        val publicKey = BytePublicKey(key.pubKey, "Secp256k1")
-//        val privateKey = BytePrivateKey(key.privKeyBytes, "Secp256k1")
-//        val keys = Keys(generateKeyId(), KeyPair(publicKey, privateKey), "bitcoinj")
-//        ks.saveKeyPair(keys)
-//        return keys.keyId
-//    }
-//
-//    @Deprecated(message = "outdated")
-//    fun generateSecp256k1KeyPairSun(): String {
-//        val keyUse = KeyUse.parse("sig");
-//        val keyAlg = JWSAlgorithm.parse("ES256K")
-//        val keyCurve = Curve.parse("secp256k1")
-//        val ecSpec: ECParameterSpec = keyCurve.toECParameterSpec();
-//
-//        val generator = KeyPairGenerator.getInstance("EC")
-//        generator.initialize(ecSpec)
-//
-//        val kp = generator.generateKeyPair()
-//
-//        val pub = kp.getPublic() as ECPublicKey
-//        val priv = kp.getPrivate() as ECPrivateKey
-//
-//        println(priv.format)
-//        val keys = Keys(generateKeyId(), kp, "SunEC")
-//        ks.saveKeyPair(keys)
-//
-//        val ecKey = com.nimbusds.jose.jwk.ECKey.Builder(keyCurve, pub)
-//            .privateKey(priv)
-//            .keyID(keys.keyId)
-//            .algorithm(keyAlg)
-//            .keyUse(keyUse)
-//            .build()
-//
-//        println(ecKey.toJSONString())
-//
-//        return keys.keyId
-//    }
-//
-//    @Deprecated(message = "outdated")
-//    fun generateRsaKeyPair(): String {
-//        val generator = KeyPairGenerator.getInstance("RSA", "BC")
-//        generator.initialize(RSA_KEY_SIZE)
-//        val keys = Keys(generateKeyId(), generator.generateKeyPair(), "BC")
-//        ks.saveKeyPair(keys)
-//        return keys.keyId
-//    }
+    //    @Deprecated(message = "outdated")
+    //    fun generateKeyPair(algorithm: String): String {
+    //        val keys = when (algorithm) {
+    //            "Ed25519" -> {
+    //                HybridConfig.register()
+    //                val keyPair = Ed25519Sign.KeyPair.newKeyPair()
+    //                val publicKey = BytePublicKey(keyPair.publicKey, "Ed25519")
+    //                val privateKey = BytePrivateKey(keyPair.privateKey, "Ed25519")
+    //                Keys(generateKeyId(), KeyPair(publicKey, privateKey), "Tink")
+    //            }
+    //            "Secp256k1" -> {
+    //                val key = ECKey(SecureRandom())
+    //                val publicKey = BytePublicKey(key.pubKey, "Secp256k1")
+    //                val privateKey = BytePrivateKey(key.privKeyBytes, "Secp256k1")
+    //                Keys(generateKeyId(), KeyPair(publicKey, privateKey), "bitcoinj")
+    //            }
+    //            else -> {
+    //                val generator = KeyPairGenerator.getInstance("RSA", "BC")
+    //                generator.initialize(RSA_KEY_SIZE)
+    //                Keys(generateKeyId(), generator.generateKeyPair(), "BC")
+    //            }
+    //        }
+    //        ks.saveKeyPair(keys)
+    //        return keys.keyId
+    //    }
+    //
+    //    @Deprecated(message = "outdated")
+    //    fun generateEd25519KeyPair(): String {
+    //        HybridConfig.register()
+    //
+    //        val keyPair = Ed25519Sign.KeyPair.newKeyPair()
+    //        val publicKey = BytePublicKey(keyPair.publicKey, "Ed25519")
+    //        val privateKey = BytePrivateKey(keyPair.privateKey, "Ed25519")
+    //        val keys = Keys(generateKeyId(), KeyPair(publicKey, privateKey), "Tink")
+    //        ks.saveKeyPair(keys)
+    //        return keys.keyId
+    //    }
+    //
+    //    @Deprecated(message = "outdated")
+    //    fun generateEd25519KeyPairNimbus(): String {
+    //
+    //        val keyUse = KeyUse.parse("sig")
+    //        val keyAlg = JWSAlgorithm.parse("EdDSA")
+    //        val keyCurve = Curve.parse("Ed25519")
+    //
+    //        val kp = KeyPairGenerator.getInstance("Ed25519").generateKeyPair()
+    //
+    //        val keys = Keys(generateKeyId(), kp, "SunEC")
+    //        ks.saveKeyPair(keys)
+    //
+    //        val jwk = KeyUtil.make(kp, keyCurve, keyUse, keyAlg, keys.keyId)
+    //        if (jwk != null) {
+    //            println("generateEd25519KeyPairNimbus: " + jwk.toJSONString())
+    //        }
+    //
+    //        return keys.keyId
+    //
+    //    }
+    //
+    //    @Deprecated(message = "outdated")
+    //    fun generateSecp256k1KeyPairBitcoinj(): String {
+    //        val key = ECKey(SecureRandom())
+    //        val publicKey = BytePublicKey(key.pubKey, "Secp256k1")
+    //        val privateKey = BytePrivateKey(key.privKeyBytes, "Secp256k1")
+    //        val keys = Keys(generateKeyId(), KeyPair(publicKey, privateKey), "bitcoinj")
+    //        ks.saveKeyPair(keys)
+    //        return keys.keyId
+    //    }
+    //
+    //    @Deprecated(message = "outdated")
+    //    fun generateSecp256k1KeyPairSun(): String {
+    //        val keyUse = KeyUse.parse("sig");
+    //        val keyAlg = JWSAlgorithm.parse("ES256K")
+    //        val keyCurve = Curve.parse("secp256k1")
+    //        val ecSpec: ECParameterSpec = keyCurve.toECParameterSpec();
+    //
+    //        val generator = KeyPairGenerator.getInstance("EC")
+    //        generator.initialize(ecSpec)
+    //
+    //        val kp = generator.generateKeyPair()
+    //
+    //        val pub = kp.getPublic() as ECPublicKey
+    //        val priv = kp.getPrivate() as ECPrivateKey
+    //
+    //        println(priv.format)
+    //        val keys = Keys(generateKeyId(), kp, "SunEC")
+    //        ks.saveKeyPair(keys)
+    //
+    //        val ecKey = com.nimbusds.jose.jwk.ECKey.Builder(keyCurve, pub)
+    //            .privateKey(priv)
+    //            .keyID(keys.keyId)
+    //            .algorithm(keyAlg)
+    //            .keyUse(keyUse)
+    //            .build()
+    //
+    //        println(ecKey.toJSONString())
+    //
+    //        return keys.keyId
+    //    }
+    //
+    //    @Deprecated(message = "outdated")
+    //    fun generateRsaKeyPair(): String {
+    //        val generator = KeyPairGenerator.getInstance("RSA", "BC")
+    //        generator.initialize(RSA_KEY_SIZE)
+    //        val keys = Keys(generateKeyId(), generator.generateKeyPair(), "BC")
+    //        ks.saveKeyPair(keys)
+    //        return keys.keyId
+    //    }
 
-//    @Deprecated(message = "outdated")
-//    fun loadKeys(keyId: String): Keys? {
-//        return ks.getKeyId(keyId)?.let { it -> ks.loadKeyPair(it) }
-//    }
-//
-//    @Deprecated(message = "outdated")
-//    fun getMultiBase58PublicKey(keyId: String): String {
-//        return ks.loadKeyPair(keyId).let {
-//            Multibase.encode(Multibase.Base.Base58BTC, it!!.getPubKey())
-//        }
-//    }
-//
-//    @Deprecated(message = "outdated")
-//    fun getBase58PublicKey(keyId: String): String? {
-//        return ks.loadKeyPair(keyId)?.getPubKey()?.encodeBase58()
-//    }
+    //    @Deprecated(message = "outdated")
+    //    fun loadKeys(keyId: String): Keys? {
+    //        return ks.getKeyId(keyId)?.let { it -> ks.loadKeyPair(it) }
+    //    }
+    //
+    //    @Deprecated(message = "outdated")
+    //    fun getMultiBase58PublicKey(keyId: String): String {
+    //        return ks.loadKeyPair(keyId).let {
+    //            Multibase.encode(Multibase.Base.Base58BTC, it!!.getPubKey())
+    //        }
+    //    }
+    //
+    //    @Deprecated(message = "outdated")
+    //    fun getBase58PublicKey(keyId: String): String? {
+    //        return ks.loadKeyPair(keyId)?.getPubKey()?.encodeBase58()
+    //    }
 
 
 }
