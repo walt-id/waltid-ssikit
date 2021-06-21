@@ -5,13 +5,17 @@ package org.letstrust.services.key
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.jwk.*
 import com.nimbusds.jose.util.Base64URL
+import org.apache.commons.lang3.StringUtils
 import org.bouncycastle.asn1.ASN1BitString
 import org.bouncycastle.asn1.ASN1OctetString
 import org.bouncycastle.asn1.ASN1Sequence
+import org.bouncycastle.jcajce.provider.digest.Keccak
 import org.bouncycastle.jce.ECNamedCurveTable
+import org.bouncycastle.util.encoders.Hex
 import org.letstrust.LetsTrustServices
 import org.letstrust.crypto.*
 import org.letstrust.crypto.keystore.KeyStore
+import org.web3j.crypto.Keys
 import java.security.interfaces.ECPublicKey
 import java.util.*
 
@@ -88,6 +92,25 @@ object KeyService {
 
         return builder.build()
     }
+
+    fun getEthereumAddress(keyAlias: String): String =
+        ks.load(keyAlias).let {
+            when (it.algorithm) {
+                KeyAlgorithm.ECDSA_Secp256k1 -> calculateEthereumAddress(toSecp256Jwk(it))
+                else -> throw IllegalArgumentException("Algorithm not supported")
+            }
+        }
+
+    private fun calculateEthereumAddress(key: ECKey): String =
+        ByteArray(key.x.decode().size + key.y.decode().size).let { publicKeyInBytes ->
+            System.arraycopy(key.x.decode(), 0, publicKeyInBytes, 0, 32)
+            System.arraycopy(key.y.decode(), 0, publicKeyInBytes, 32, 32)
+            String(Hex.encode(Keccak.Digest256().digest(publicKeyInBytes))).let { sha3_256hex ->
+                return Keys.toChecksumAddress(
+                    StringUtils.leftPad(sha3_256hex.substring(sha3_256hex.length - 40), 40, "0")
+                )
+            }
+        }
 
     fun listKeys(): List<Key> = ks.listKeys()
 

@@ -14,6 +14,8 @@ import org.junit.Before
 import org.junit.Test
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.model.Jwk
+import org.web3j.crypto.ECKeyPair
+import org.web3j.crypto.Keys
 import java.security.*
 import java.security.spec.*
 import java.util.*
@@ -267,5 +269,20 @@ class KeyServiceTest {
         if (!Arrays.equals(secret, secret3)) {
             throw RuntimeException("Arrays not equal")
         }
+    }
+
+    @Test
+    fun testGetEthereumAddress() {
+        val keyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val calculatedAddress = KeyService.getEthereumAddress(keyId.id)
+        val addressFromKeyPair =
+            Keys.toChecksumAddress(Keys.getAddress(ECKeyPair.create(KeyService.load(keyId.id, true).keyPair)))
+        assertEquals(addressFromKeyPair, calculatedAddress)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testGetEthereumAddressWithBadKeyAlgorithm() {
+        val keyId = KeyService.generate(KeyAlgorithm.EdDSA_Ed25519)
+        KeyService.getEthereumAddress(keyId.id)
     }
 }

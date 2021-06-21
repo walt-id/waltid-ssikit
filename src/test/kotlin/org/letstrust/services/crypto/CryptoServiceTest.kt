@@ -3,6 +3,9 @@ package org.letstrust.services.crypto
 import org.junit.Test
 import org.letstrust.LetsTrustServices
 import org.letstrust.crypto.*
+import org.letstrust.services.key.KeyService
+import org.web3j.crypto.ECKeyPair
+import org.web3j.crypto.Keys
 import java.security.KeyStore
 import java.security.Provider
 import java.security.Security
@@ -14,8 +17,22 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-
 class CryptoServiceTest {
+
+    @Test
+    fun testGetEthereumAddress() {
+        val keyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val calculatedAddress = KeyService.getEthereumAddress(keyId.id)
+        val addressFromKeyPair =
+            Keys.toChecksumAddress(Keys.getAddress(ECKeyPair.create(KeyService.load(keyId.id, true).keyPair)))
+        assertEquals(addressFromKeyPair, calculatedAddress)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testGetEthereumAddressWithBadKeyAlgorithm() {
+        val keyId = KeyService.generate(KeyAlgorithm.EdDSA_Ed25519)
+        KeyService.getEthereumAddress(keyId.id)
+    }
 
     @Test
     fun testGenSecp256k1Sun() {
@@ -49,7 +66,10 @@ class CryptoServiceTest {
         Security.addProvider(LetsTrustProvider());
 
         println("SupportedCurves")
-        println("SupportedCurves: -> SunEC: " + Security.getProvider("SunEC").getProperty("AlgorithmParameters.EC SupportedCurves"))
+        println(
+            "SupportedCurves: -> SunEC: " + Security.getProvider("SunEC")
+                .getProperty("AlgorithmParameters.EC SupportedCurves")
+        )
 
 
         var letsTrustProviderFound = false
@@ -91,7 +111,7 @@ class CryptoServiceTest {
         val enc = encCipher.doFinal(data.toByteArray())
 
         val encodedKey = encBase64(encKey.encoded)
-//        val ap = encCipher.parameters // IV
+        //        val ap = encCipher.parameters // IV
         val decKey = SecretKeySpec(decBase64(encodedKey), "AES")
         val decCipher = Cipher.getInstance("AES/ECB/PKCS5Padding")
         decCipher.init(Cipher.DECRYPT_MODE, decKey)
