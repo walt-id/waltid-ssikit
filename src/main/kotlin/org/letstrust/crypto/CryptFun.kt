@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.goterl.lazysodium.LazySodiumJava
 import com.goterl.lazysodium.SodiumJava
+import com.nimbusds.jose.JWSAlgorithm
+import com.nimbusds.jose.crypto.impl.ECDSA
 import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.util.Base64URL
@@ -17,7 +19,9 @@ import org.bouncycastle.math.ec.ECPoint
 import org.bouncycastle.util.encoders.Hex
 import org.letstrust.CryptoProvider
 import org.letstrust.model.EncryptedAke1Payload
+import org.web3j.crypto.ECDSASignature
 import org.web3j.utils.Numeric
+import java.math.BigInteger
 import java.security.*
 import java.security.spec.ECGenParameterSpec
 import java.security.spec.PKCS8EncodedKeySpec
@@ -240,4 +244,12 @@ inline fun ByteArray.findFirst(predicate: (Byte) -> Boolean): Int {
         if (predicate(element)) return index
     }
     return size
+}
+
+fun toECDSASignature(jcaSignature: ByteArray, algorithm: JWSAlgorithm): ECDSASignature {
+    val rsSignature = ECDSA.transcodeSignatureToConcat(jcaSignature, ECDSA.getSignatureByteArrayLength(algorithm))
+    return ECDSASignature(
+        BigInteger(1, rsSignature.copyOfRange(0, rsSignature.size / 2)),
+        BigInteger(1, rsSignature.copyOfRange(rsSignature.size / 2, rsSignature.size))
+    ).toCanonicalised()
 }
