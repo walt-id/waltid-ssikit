@@ -273,11 +273,13 @@ class KeyServiceTest {
 
     @Test
     fun testGetEthereumAddress() {
-        val keyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
-        val calculatedAddress = KeyService.getEthereumAddress(keyId.id)
-        val addressFromKeyPair =
-            Keys.toChecksumAddress(Keys.getAddress(ECKeyPair.create(KeyService.load(keyId.id, true).keyPair)))
-        assertEquals(addressFromKeyPair, calculatedAddress)
+        KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1).let { keyId ->
+            KeyService.load(keyId.id, true).keyPair.let { keyPair ->
+                val addressFromKeyPair = Keys.toChecksumAddress(Keys.getAddress(ECKeyPair.create(keyPair)))
+                val calculatedAddress = KeyService.getEthereumAddress(keyId.id)
+                assertEquals(addressFromKeyPair, calculatedAddress)
+            }
+        }
     }
 
     @Test(expected = IllegalArgumentException::class)

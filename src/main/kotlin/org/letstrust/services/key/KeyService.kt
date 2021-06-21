@@ -106,7 +106,7 @@ object KeyService {
             System.arraycopy(key.x.decode(), 0, publicKeyInBytes, 0, 32)
             System.arraycopy(key.y.decode(), 0, publicKeyInBytes, 32, 32)
             String(Hex.encode(Keccak.Digest256().digest(publicKeyInBytes))).let { sha3_256hex ->
-                return Keys.toChecksumAddress(
+                Keys.toChecksumAddress(
                     StringUtils.leftPad(sha3_256hex.substring(sha3_256hex.length - 40), 40, "0")
                 )
             }
