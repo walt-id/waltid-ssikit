@@ -104,7 +104,7 @@ object KeyService {
     private fun calculateEthereumAddress(key: ECKey): String {
         val digest = Keccak.Digest256().digest(key.x.decode().copyOfRange(0, 32) + key.y.decode().copyOfRange(0, 32))
         return String(Hex.encode(digest)).let { sha3_256hex ->
-            Keys.toChecksumAddress(sha3_256hex.substring(sha3_256hex.length - 40))
+            Keys.toChecksumAddress(sha3_256hex.substring(sha3_256hex.length - 40)).toLowerCase()
         }
     }
 
