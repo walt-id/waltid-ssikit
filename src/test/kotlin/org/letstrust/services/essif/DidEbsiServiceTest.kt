@@ -68,9 +68,8 @@ class DidEbsiServiceTest {
 
     @Test
     fun testSignTransaction() {
-        val ecKeyPair = ECKeyPair.create(KeyService.load(KEY_ID.id, true).keyPair)
         val unsignedTransaction = getUnsignedTx()
-        val signedTx = DidEbsiService.signTransaction(ecKeyPair, unsignedTransaction)
+        val signedTx = DidEbsiService.signTransaction(DID, unsignedTransaction)
         assertEquals("0x33ba924eaca0b6f3b0e21de371c15d0f2851432a536432bc2d3160ad17d78b83", signedTx.r)
         assertEquals("0x4466ed2ebb95a22025c110f37b647583b68e229b33b939c625434c6707e09466", signedTx.s)
         assertEquals("0x3063", signedTx.v)

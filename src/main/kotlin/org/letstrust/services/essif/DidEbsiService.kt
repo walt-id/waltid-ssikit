@@ -80,8 +80,6 @@ object DidEbsiService {
         //TODO re-run auth-flow, if token is expired -> io.ktor.client.features.ClientRequestException: Client request(https://api.preprod.ebsi.eu/did-registry/v2/jsonrpc) invalid: 401 Unauthorized. Text: "{"title":"Unauthorized","status":401,"type":"about:blank","detail":"Invalid JWT: JWT has expired: exp: 1623244001 < now: 1623245358"}"
         val token = readWhenContent(EssifFlowRunner.ebsiAccessTokenFile)
 
-        val ecKeyPair = ECKeyPair.create(KeyService.load(did, true).keyPair)
-
         // Insert DID document request
         val insertDocumentParams = buildInsertDocumentParams(did)
         log.debug { insertDocumentParams }
@@ -92,7 +90,7 @@ object DidEbsiService {
         log.debug { unsignedTx }
 
         // Sign the raw transaction
-        val signedTx = signTransaction(ecKeyPair, unsignedTx)
+        val signedTx = signTransaction(did, unsignedTx)
         log.debug { signedTx }
 
         // Signed transaction request
@@ -124,7 +122,11 @@ object DidEbsiService {
         )
     }
 
-    fun signTransaction(ecKeyPair: ECKeyPair, unsignedTransaction: UnsignedTransaction): SignedTransaction {
+    fun signTransaction(did: String, unsignedTransaction: UnsignedTransaction): SignedTransaction {
+        // FIXME: remove true and eckeypair
+        val key = KeyService.load(did, true)
+        val ecKeyPair = ECKeyPair.create(key.keyPair)
+
         val chainId = BigInteger(Numeric.hexStringToByteArray(unsignedTransaction.chainId))
         val rawTransaction = RawTransaction.createTransaction(
             BigInteger(Numeric.hexStringToByteArray(unsignedTransaction.nonce)),
@@ -145,7 +147,7 @@ object DidEbsiService {
 //            KeyId("keyId"), hash
 //        )
         val v = BigInteger
-            .valueOf(getRecoveryId(ecKeyPair, hash, sig).toLong())
+            .valueOf(getRecoveryId(did, hash, sig).toLong())
             .add(chainId.multiply(BigInteger.TWO))
             .add(BigInteger.valueOf(35L))
 
@@ -160,14 +162,14 @@ object DidEbsiService {
         )
     }
 
-    fun getRecoveryId(ecKeyPair: ECKeyPair, hash: ByteArray, sig: ECDSASignature): Int {
+    fun getRecoveryId(did: String, hash: ByteArray, sig: ECDSASignature): Int {
         for (i in 0..3) {
             val k = Sign.recoverFromSignature(i, sig, hash)
             if (k != null) {
                 val addressFromPublicKey = Keys
                     .toChecksumAddress(Numeric.prependHexPrefix(Keys.getAddress(k)))
                     .toLowerCase()
-                val address = Numeric.prependHexPrefix(Keys.getAddress(ecKeyPair))
+                val address = Numeric.prependHexPrefix(KeyService.getEthereumAddress(did))
                 if (addressFromPublicKey == address) return i
             }
         }
