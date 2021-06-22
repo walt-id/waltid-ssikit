@@ -262,7 +262,6 @@ object SqlKeyStore : KeyStore {
                 stmt.setString(1, alias)
                 stmt.executeQuery().use { rs ->
                     while (rs.next()) {
-                        println("Deleting aliases with key_id \"${rs.getString("id")}\".")
                         con.prepareStatement("delete from lt_key_alias where key_id = ?").use { stmt ->
                             stmt.setString(1, rs.getString("id"))
                             stmt.executeUpdate()
