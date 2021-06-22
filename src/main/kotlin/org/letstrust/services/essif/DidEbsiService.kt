@@ -136,8 +136,7 @@ object DidEbsiService {
         )
 
         var signatureData = SignatureData(chainId.toByteArray(), ByteArray(0), ByteArray(0))
-        var values = TransactionEncoder.asRlpValues(rawTransaction, signatureData)
-        var rlpList = RlpList(values)
+        var rlpList = RlpList(TransactionEncoder.asRlpValues(rawTransaction, signatureData))
 
         val hash = Hash.sha3(RlpEncoder.encode(rlpList))
         val sig = ecKeyPair.sign(hash)
@@ -145,15 +144,13 @@ object DidEbsiService {
 //        val sig = LetsTrustServices.load<CryptoService>().sign(
 //            KeyId("keyId"), hash
 //        )
-        val recId = getRecoveryId(ecKeyPair, hash, sig)
         val v = BigInteger
-            .valueOf(recId.toLong())
+            .valueOf(getRecoveryId(ecKeyPair, hash, sig).toLong())
             .add(chainId.multiply(BigInteger.TWO))
             .add(BigInteger.valueOf(35L))
 
         signatureData = SignatureData(v.toByteArray(), sig.r.toByteArray(), sig.s.toByteArray())
-        values = TransactionEncoder.asRlpValues(rawTransaction, signatureData)
-        rlpList = RlpList(values)
+        rlpList = RlpList(TransactionEncoder.asRlpValues(rawTransaction, signatureData))
 
         return SignedTransaction(
             Numeric.toHexString(signatureData.r),
