@@ -1,25 +1,81 @@
 package org.letstrust.services.essif
 
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
 import org.letstrust.LetsTrustServices
-import org.letstrust.crypto.KeyAlgorithm
-import org.letstrust.crypto.buildKey
-import org.letstrust.crypto.toPEM
+import org.letstrust.crypto.*
+import org.letstrust.crypto.keystore.KeyStore
+import org.letstrust.services.did.DidService
 import org.letstrust.services.key.KeyService
 import org.web3j.crypto.ECKeyPair
-import java.security.KeyPair
-import java.security.PublicKey
+import org.web3j.crypto.Keys
+import org.web3j.utils.Numeric
+import java.nio.file.Files
+import java.nio.file.Path
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 class DidEbsiServiceTest {
-    init {
-        // For BouncyCastle
-        LetsTrustServices
+
+    companion object {
+        private val KEY_ID = KeyId("DidEbsiServiceTest_key")
+        private const val DID = "did:ebsi:23R3YwWEc7J1chejmwjh5JDaRjqvvf6ogHnxJNHUvaep4f98"
+        private val DID_FILENAME = DID.replace(":", "-") + ".json"
+
+    }
+
+    private val ks = LetsTrustServices.load<KeyStore>()
+    private val key = buildKey(
+        KEY_ID.id,
+        KeyAlgorithm.ECDSA_Secp256k1.name,
+        "SUN",
+        "MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEnCOwfFKyIsS4Tu/BrEUac9XskbPVHY+gyvROBtd/mAFA3XJ8zhmLyLhVCZb1x5r+cE/ukHB9xk2tUrx8Gc2RQA==",
+        "MIGNAgEAMBAGByqGSM49AgEGBSuBBAAKBHYwdAIBAQQgQlg6QdheWjyyF1OSE8qjYkBQqS3NTji0t5RY5WFXd4+gBwYFK4EEAAqhRANCAAScI7B8UrIixLhO78GsRRpz1eyRs9Udj6DK9E4G13+YAUDdcnzOGYvIuFUJlvXHmv5wT+6QcH3GTa1SvHwZzZFA"
+    )
+
+    @Before
+    fun setup() {
+        Files.copy(
+            Path.of("src", "test", "resources", "ebsi", DID_FILENAME),
+            Path.of("data", "did", "created", DID_FILENAME)
+        )
+        ks.store(key)
+        // TODO when clean up key_alias is implemented: ks.addAlias(KEY_ID, DID)
+    }
+
+    @After
+    fun clean() {
+        Files.delete(Path.of("data", "did", "created", DID_FILENAME))
+        ks.delete(KEY_ID.id)
+    }
+
+    @Test
+    fun testBuildInsertDocumentParams() {
+        val key = KeyService.load(KEY_ID.id, true)
+        val from = Numeric.prependHexPrefix(Keys.getAddress(ECKeyPair.create(key.keyPair)))
+        val did = DidService.loadDidEbsi(DID)
+
+        val params = DidEbsiService.buildInsertDocumentParams(from, did)[0]
+
+        assertEquals("0x7bfa7efe33fd22aae73be80ec9901755f55065c2", params.from)
+        assertEquals(
+            "0x6469643a656273693a323352335977574563374a316368656a6d776a68354a4461526a71767666366f67486e784a4e48557661657034663938",
+            params.identifier
+        )
+        assertEquals(1, params.hashAlgorithmId)
+        assertEquals("0x1761d3a6bc3eca2d4460e04ec65e5b4fdd490114ba690f0832e0d245ac7a5612", params.hashValue)
+        assertEquals(
+            "0x7b2240636f6e74657874223a5b2268747470733a2f2f77332e6f72672f6e732f6469642f7631225d2c226964223a226469643a656273693a323352335977574563374a316368656a6d776a68354a4461526a71767666366f67486e784a4e48557661657034663938222c22766572696669636174696f6e4d6574686f64223a5b7b226964223a226469643a656273693a323352335977574563374a316368656a6d776a68354a4461526a71767666366f67486e784a4e48557661657034663938236b65792d31222c2274797065223a22536563703235366b31566572696669636174696f6e4b657932303138222c22636f6e74726f6c6c6572223a226469643a656273693a323352335977574563374a316368656a6d776a68354a4461526a71767666366f67486e784a4e48557661657034663938222c227075626c69634b65794a776b223a7b226b6964223a224469644562736953657276696365546573745f6b6579222c226b7479223a224543222c22616c67223a2245533235364b222c22637276223a22736563703235366b31222c22757365223a22736967222c2278223a226e434f7766464b794973533454755f4272455561633958736b62505648592d677976524f4274645f6d4145222c2279223a22514e3179664d345a6938693456516d57396365615f6e42503770427766635a4e72564b3866426e4e6b5541227d7d5d2c2261757468656e7469636174696f6e223a5b226469643a656273693a323352335977574563374a316368656a6d776a68354a4461526a71767666366f67486e784a4e48557661657034663938236b65792d31225d7d",
+            params.didVersionInfo
+        )
+        assertEquals("0x7b2264617461223a2274657374227d", params.timestampData)
+        assertTrue(152 == params.didVersionMetadata.length)
     }
 
     @Test
     fun testSignTransaction() {
-        val ecKeyPair = getKeyPair()
+        val ecKeyPair = ECKeyPair.create(KeyService.load(KEY_ID.id, true).keyPair)
         val unsignedTransaction = getUnsignedTx()
         val signedTx = DidEbsiService.signTransaction(ecKeyPair, unsignedTransaction)
         assertEquals("0x33ba924eaca0b6f3b0e21de371c15d0f2851432a536432bc2d3160ad17d78b83", signedTx.r)
@@ -30,17 +86,6 @@ class DidEbsiServiceTest {
             signedTx.signedRawTransaction
         )
     }
-
-    private fun getKeyPair(): ECKeyPair =
-        ECKeyPair.create(
-            buildKey(
-                "2552e2fbdc65464bba0348ea6d528ec1",
-                KeyAlgorithm.ECDSA_Secp256k1.name,
-                "SUN",
-                "MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEnCOwfFKyIsS4Tu/BrEUac9XskbPVHY+gyvROBtd/mAFA3XJ8zhmLyLhVCZb1x5r+cE/ukHB9xk2tUrx8Gc2RQA==",
-                "MIGNAgEAMBAGByqGSM49AgEGBSuBBAAKBHYwdAIBAQQgQlg6QdheWjyyF1OSE8qjYkBQqS3NTji0t5RY5WFXd4+gBwYFK4EEAAqhRANCAAScI7B8UrIixLhO78GsRRpz1eyRs9Udj6DK9E4G13+YAUDdcnzOGYvIuFUJlvXHmv5wT+6QcH3GTa1SvHwZzZFA"
-            ).keyPair
-        )
 
     private fun getUnsignedTx(): UnsignedTransaction =
         UnsignedTransaction(
