@@ -6,11 +6,8 @@ import org.junit.Test
 import org.letstrust.LetsTrustServices
 import org.letstrust.crypto.*
 import org.letstrust.crypto.keystore.KeyStore
-import org.letstrust.services.did.DidService
 import org.letstrust.services.key.KeyService
 import org.web3j.crypto.ECKeyPair
-import org.web3j.crypto.Keys
-import org.web3j.utils.Numeric
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.test.assertEquals
@@ -22,7 +19,6 @@ class DidEbsiServiceTest {
         private val KEY_ID = KeyId("DidEbsiServiceTest_key")
         private const val DID = "did:ebsi:23R3YwWEc7J1chejmwjh5JDaRjqvvf6ogHnxJNHUvaep4f98"
         private val DID_FILENAME = DID.replace(":", "-") + ".json"
-
     }
 
     private val ks = LetsTrustServices.load<KeyStore>()
@@ -41,7 +37,8 @@ class DidEbsiServiceTest {
             Path.of("data", "did", "created", DID_FILENAME)
         )
         ks.store(key)
-        // TODO when clean up key_alias is implemented: ks.addAlias(KEY_ID, DID)
+        ks.addAlias(KEY_ID, DID)
+        ks.addAlias(KEY_ID, "$DID#key-1")
     }
 
     @After
@@ -52,11 +49,7 @@ class DidEbsiServiceTest {
 
     @Test
     fun testBuildInsertDocumentParams() {
-        val key = KeyService.load(KEY_ID.id, true)
-        val from = Numeric.prependHexPrefix(Keys.getAddress(ECKeyPair.create(key.keyPair)))
-        val did = DidService.loadDidEbsi(DID)
-
-        val params = DidEbsiService.buildInsertDocumentParams(from, did)[0]
+        val params = DidEbsiService.buildInsertDocumentParams(DID)[0]
 
         assertEquals("0x7bfa7efe33fd22aae73be80ec9901755f55065c2", params.from)
         assertEquals(

@@ -10,7 +10,6 @@ import mu.KotlinLogging
 import org.letstrust.LetsTrustServices
 import org.letstrust.common.readWhenContent
 import org.letstrust.crypto.canonicalize
-import org.letstrust.model.DidEbsi
 import org.letstrust.services.did.DidService
 import org.letstrust.services.key.KeyService
 import org.web3j.crypto.*
@@ -77,18 +76,6 @@ object DidEbsiService {
 
     fun registerDid(did: String) = runBlocking {
         log.debug { "Running EBSI DID registration ... " }
-
-        // Generate once and set below:
-        //        val keyId = KeyManagementService.generate(KeyAlgorithm.ECDSA_Secp256k1)
-        //        log.debug{keyId)
-        //        val did = DidService.create(DidMethod.ebsi, keyId.id)
-        //        log.debug{did)
-        //        val token = // TODO: implement EBSI on-boarding
-//        val keyId = "96c128ca032e4ea88aef41c0d90ff4cf"
-//        val did = "did:ebsi:2VrSjVYT81DMDijubiWDr8ATAzADqyZGDu41i1QPJvKemvdJ"
-//        val token =
-//            "eyJ0eXAiOiJKV1QiLCJhbGciOiJFUzI1NksiLCJraWQiOiJodHRwczovL2FwaS5wcmVwcm9kLmVic2kuZXUvdHJ1c3RlZC1hcHBzLXJlZ2lzdHJ5L3YyL2FwcHMvMHgwOGMyNTg1NmZiY2JkZDA3NmM5YzM5NTEyYWJlZjYzMDk3NDk5MTBhMTEwZDlkMWE5YzlhN2QyYjI3N2I2ZDIwIn0.eyJpYXQiOjE2MjIxOTU5NDgsImV4cCI6MTYyMjE5Njg0OCwic3ViIjoiZGlkOmVic2k6QzdZOUw0RzNpeGVORUw1UkFoTUdTQkxnZlRQdm02b1ZObm00Q21tWU1admoiLCJhdWQiOiJlYnNpLWNvcmUtc2VydmljZXMiLCJub25jZSI6IjJmOGZlMjQ2LTJkOGYtNDdhNS04ZWE5LTE3MGNiMTdhYjM2MCIsImxvZ2luX2hpbnQiOiJkaWRfc2lvcCIsImlzcyI6ImRpZDplYnNpOkhDOXRtaWl0VzRTOWZZQWFqNlJZc29xYlQzczdUY3d5aHlyc2JTaXpuc2RaIn0.fi3HCy_jXpTOwkuiefPc9W01X7e_s1rqxa0guNPCJ7AZzfeSQOe_0jKDjmrNRxcD3Wd6wqadWZ3VBQM4AZa4kA"
-
         //TODO run auth-flow, if file is not present
         //TODO re-run auth-flow, if token is expired -> io.ktor.client.features.ClientRequestException: Client request(https://api.preprod.ebsi.eu/did-registry/v2/jsonrpc) invalid: 401 Unauthorized. Text: "{"title":"Unauthorized","status":401,"type":"about:blank","detail":"Invalid JWT: JWT has expired: exp: 1623244001 < now: 1623245358"}"
         val token = readWhenContent(EssifFlowRunner.ebsiAccessTokenFile)
@@ -96,9 +83,7 @@ object DidEbsiService {
         val ecKeyPair = ECKeyPair.create(KeyService.load(did, true).keyPair)
 
         // Insert DID document request
-        val address = Numeric.prependHexPrefix(Keys.getAddress(ecKeyPair))
-        val didDocument = DidService.loadDidEbsi(did)
-        val insertDocumentParams = buildInsertDocumentParams(address, didDocument)
+        val insertDocumentParams = buildInsertDocumentParams(did)
         log.debug { insertDocumentParams }
 
         val unsignedTx = didRegistryJsonRpc<InsertDidDocumentResponse>(
@@ -123,10 +108,11 @@ object DidEbsiService {
     }
 
     // TODO: Verify all params are properly defined according to EBSI expectations => https://ec.europa.eu/cefdigital/wiki/pages/viewpage.action?spaceKey=EBP&title=DID+Registry+Smart+Contract
-    fun buildInsertDocumentParams(from: String, didDocument: DidEbsi): List<InsertDidDocumentParams> {
-        val didDocumentString = Json.encodeToString(didDocument)
+    fun buildInsertDocumentParams(did: String): List<InsertDidDocumentParams> {
+        val didDocumentString = Json.encodeToString(DidService.loadDidEbsi(did))
 
-        val identifier = Numeric.toHexString(didDocument.id!!.toByteArray())
+        val from = KeyService.getEthereumAddress(did)
+        val identifier = Numeric.toHexString(did.toByteArray())
         val hashValue = Numeric.toHexString(Hash.sha256(canonicalize(didDocumentString).toByteArray()))
         val didVersionInfo = Numeric.toHexString(didDocumentString.toByteArray())
         val timestampData = Numeric.toHexString("{\"data\":\"test\"}".toByteArray()) // TODO: check what data needs to be put here
