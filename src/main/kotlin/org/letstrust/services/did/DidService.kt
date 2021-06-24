@@ -190,7 +190,8 @@ object DidService {
 
         keyStore.addAlias(keyId, didUrl.did)
 
-        resolveAndStore(didUrl.did)
+        //resolveAndStore(didUrl.did)
+        storeDid(didUrl.did, resolveDidWebDummy(didUrl).toString())
 
         return didUrl.did
     }
@@ -268,7 +269,7 @@ object DidService {
         return Triple(dhKeyId, verificationMethods, keyRef)
     }
 
-    private fun resolveDidWebDummy(didUrl: DidUrl): Did {
+    public fun resolveDidWebDummy(didUrl: DidUrl): Did {
         log.warn { "DID WEB implementation is not finalized yet. Use it only for demo purpose." }
         keyStore.getKeyId(didUrl.did).let {
             keyStore.load(it!!).let {
@@ -317,18 +318,18 @@ object DidService {
 //        }
 //    }
 
-
-    internal fun resolveDidWeb(didUrl: DidUrl): DidWeb {
-        val domain = didUrl.identifier
-        val didUrl = "https://${domain}/.well-known/did.json" // FIXME: didUrl argument is ignored?
-        log.debug { "Resolving did:web for domain $domain at: $didUrl" }
-        val didWebStr = URL(didUrl).readText()
-        log.debug { "did:web resolved:\n$didWebStr" }
-        print(didWebStr)
-        val did = Json.decodeFromString<DidWeb>(didWebStr)
-        log.debug { "did:web decoded:\n$did" }
-        return did
-    }
+// TODO: include once working
+//    internal fun resolveDidWeb(didUrl: DidUrl): DidWeb {
+//        val domain = didUrl.identifier
+//        val didUrl = "https://${domain}/.well-known/did.json" // FIXME: didUrl argument is ignored?
+//        log.debug { "Resolving did:web for domain $domain at: $didUrl" }
+//        val didWebStr = URL(didUrl).readText()
+//        log.debug { "did:web resolved:\n$didWebStr" }
+//        print(didWebStr)
+//        val did = Json.decodeFromString<DidWeb>(didWebStr)
+//        log.debug { "did:web decoded:\n$did" }
+//        return did
+//    }
 
 //    @Deprecated(message ="use create()")
 //    fun createDid(didMethod: String, keys: Keys? = null): String {
