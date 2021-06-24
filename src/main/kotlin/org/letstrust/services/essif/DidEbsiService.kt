@@ -1,5 +1,6 @@
 package org.letstrust.services.essif
 
+import com.nimbusds.jose.JWSAlgorithm
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
@@ -9,7 +10,10 @@ import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import org.letstrust.LetsTrustServices
 import org.letstrust.common.readWhenContent
+import org.letstrust.crypto.CryptoService
 import org.letstrust.crypto.canonicalize
+import org.letstrust.crypto.toECDSASignature
+import org.letstrust.crypto.toECDSASignatureAlt
 import org.letstrust.services.did.DidService
 import org.letstrust.services.key.KeyService
 import org.web3j.crypto.*
@@ -72,7 +76,7 @@ data class SignedTransaction(val r: String, val s: String, val v: String, val si
 object DidEbsiService {
 
     private val log = KotlinLogging.logger {}
-
+    private val cs = LetsTrustServices.load<CryptoService>()
 
     fun registerDid(did: String) = runBlocking {
         log.debug { "Running EBSI DID registration ... " }
@@ -97,12 +101,14 @@ object DidEbsiService {
         val signedTransactionParams = buildSignedTransactionParams(unsignedTx, signedTx)
         log.debug { signedTransactionParams }
 
-        val sendTransactionResponse = didRegistryJsonRpc<SignedTransactionResponse>(
-            token, "signedTransaction", signedTransactionParams
-        ).result
-        log.debug { sendTransactionResponse }
+        log.debug { "EBSI DID registration incomplete; this is a testing version " }
 
-        log.debug { "EBSI DID registration completed successfully" }
+//        val sendTransactionResponse = didRegistryJsonRpc<SignedTransactionResponse>(
+//            token, "signedTransaction", signedTransactionParams
+//        ).result
+//        log.debug { sendTransactionResponse }
+//
+//        log.debug { "EBSI DID registration completed successfully" }
     }
 
     // TODO: Verify all params are properly defined according to EBSI expectations => https://ec.europa.eu/cefdigital/wiki/pages/viewpage.action?spaceKey=EBP&title=DID+Registry+Smart+Contract
@@ -123,10 +129,6 @@ object DidEbsiService {
     }
 
     fun signTransaction(did: String, unsignedTransaction: UnsignedTransaction): SignedTransaction {
-        // FIXME: remove true and eckeypair
-        val key = KeyService.load(did, true)
-        val ecKeyPair = ECKeyPair.create(key.keyPair)
-
         val chainId = BigInteger(Numeric.hexStringToByteArray(unsignedTransaction.chainId))
         val rawTransaction = RawTransaction.createTransaction(
             BigInteger(Numeric.hexStringToByteArray(unsignedTransaction.nonce)),
@@ -141,11 +143,16 @@ object DidEbsiService {
         var rlpList = RlpList(TransactionEncoder.asRlpValues(rawTransaction, signatureData))
 
         val hash = Hash.sha3(RlpEncoder.encode(rlpList))
-        val sig = ecKeyPair.sign(hash)
-//TODO:
-//        val sig = LetsTrustServices.load<CryptoService>().sign(
-//            KeyId("keyId"), hash
-//        )
+//        val sig = ECKeyPair.create(KeyService.load(did, true).keyPair).sign(hash)
+        val signature = cs.sign(KeyService.load(did).keyId, hash)
+        val sig = toECDSASignature(signature, JWSAlgorithm.ES256K)
+        val sigAlt = toECDSASignatureAlt(signature)
+
+        println("r (nimbus) : ${sig.r}")
+        println("r (decoded): ${sigAlt.r}")
+        println("s (nimbus) : ${sig.s}")
+        println("s (decoded): ${sigAlt.s}")
+
         val v = BigInteger
             .valueOf(getRecoveryId(did, hash, sig).toLong())
             .add(chainId.multiply(BigInteger.TWO))
@@ -163,15 +170,11 @@ object DidEbsiService {
     }
 
     fun getRecoveryId(did: String, hash: ByteArray, sig: ECDSASignature): Int {
+        val address = Numeric.prependHexPrefix(KeyService.getEthereumAddress(did))
         for (i in 0..3) {
             val k = Sign.recoverFromSignature(i, sig, hash)
-            if (k != null) {
-                val addressFromPublicKey = Keys
-                    .toChecksumAddress(Numeric.prependHexPrefix(Keys.getAddress(k)))
-                    .toLowerCase()
-                val address = Numeric.prependHexPrefix(KeyService.getEthereumAddress(did))
-                if (addressFromPublicKey == address) return i
-            }
+            if (k != null && address == Keys.toChecksumAddress(Numeric.prependHexPrefix(Keys.getAddress(k))).toLowerCase())
+                return i
         }
         throw RuntimeException("Could not construct a recoverable key. This should never happen.")
     }
