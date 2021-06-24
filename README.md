@@ -187,6 +187,8 @@ In order to overwrite these values, simply place a yaml-based config-file named 
 
     docker run -itv $(pwd)/data:/app/data letstrust vc verify -p data/vc/presented/vp-1614291892489.json
 
+    docker run -itv $(pwd)/templates:/app/templates -v $(pwd)/data:/app/data letstrust vc templates list
+
     docker run -itv $(pwd)/data:/app/data -p 7000-7001:7000-7001 letstrust serve
 
     podman run -itv $(pwd)/data:/app/data -p 7000-7001:7000-7001 letstrust serve
