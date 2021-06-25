@@ -46,7 +46,7 @@ Run as RESTful service via Docker Compose:
 
 ### LetsTrust Wrapper
 
-Alternatively the LetsTrust wrapper script **letstrust.sh** is a convenient way for building and using the library. This requires [building](#hammer-build) (see below) the project and a Java 15 runtime environment.
+Alternatively the LetsTrust wrapper script **letstrust.sh** is a convenient way for building and using the library on **Linux**. This requires [building](#hammer-build) (see below) the project and a Java 15 runtime environment.
 
     ./letstrust.sh {build|build-docker|build-podman|extract|execute (default)}
 
@@ -62,6 +62,8 @@ For building the project the build tool Gradle as well as a Java 15 dev-env need
 
 ### Gradle build
 
+For building the project JDK 15 or above is required.
+
 #### Building the application:
 
     letstrust.sh build
@@ -70,7 +72,7 @@ For building the project the build tool Gradle as well as a Java 15 dev-env need
 
     gradle clean assemble
 
-After the Gradel build the program can be run as follows: In `build/distributions/` you have two archives, a .tar, and a .zip.  
+After the Gradle build the program can be run as follows: In `build/distributions/` you have two archives, a .tar, and a .zip.  
 Extract either one of them, and execute `letstrust-ssi-core-1.0-SNAPSHOT/bin/letstrust-ssi-core`.
 
     cd build/distributions
@@ -192,6 +194,17 @@ In order to overwrite these values, simply place a yaml-based config-file named 
     docker run -itv $(pwd)/data:/app/data -p 7000-7001:7000-7001 letstrust serve
 
     podman run -itv $(pwd)/data:/app/data -p 7000-7001:7000-7001 letstrust serve
+
+
+### EBSI DID Registration
+Create a directory for the generated data (if not present already)
+
+    mkdir -p data/ebsi
+Paste your bearer token from https://app.preprod.ebsi.eu/users-onboarding/authentication
+
+    cat > data/ebsi/bearer-token.txt 
+
+
 
 
 # Docker PUSH / PULL
