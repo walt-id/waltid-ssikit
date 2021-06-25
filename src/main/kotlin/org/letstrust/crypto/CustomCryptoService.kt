@@ -1,5 +1,7 @@
 package org.letstrust.crypto
 
+import org.web3j.crypto.ECDSASignature
+
 class CustomCryptoService : CryptoService {
     override fun generateKey(algorithm: KeyAlgorithm): KeyId {
         TODO("Not yet implemented")
@@ -18,6 +20,10 @@ class CustomCryptoService : CryptoService {
     }
 
     override fun decrypt(keyId: KeyId, algorithm: String, plainText: ByteArray, authData: ByteArray?, iv: ByteArray?): ByteArray {
+        TODO("Not yet implemented")
+    }
+
+    override fun signWithECDSA(keyId: KeyId, data: ByteArray): ECDSASignature {
         TODO("Not yet implemented")
     }
 }

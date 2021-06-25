@@ -205,7 +205,7 @@ class CryptFunTests {
     fun toECDSASignature() {
         val actual = toECDSASignature(
             Hex.decode("3046022100c638bbfe76516c7e61a55c47f74ce93496119925b25c17c901c19aa5aa3a96770221008c47712a0291bbebe2bd82fce85d8ac4850546096503dabc28bf599ba4a435da"),
-            JWSAlgorithm.ES256K
+            KeyAlgorithm.ECDSA_Secp256k1
         )
         val expected = ECDSASignature(
             BigInteger("89658184941967983938858979071000288788759949065333276282917577796385005803127"),

@@ -246,55 +246,15 @@ inline fun ByteArray.findFirst(predicate: (Byte) -> Boolean): Int {
     return size
 }
 
-fun toECDSASignature(jcaSignature: ByteArray, algorithm: JWSAlgorithm): ECDSASignature {
-    val rsSignature = ECDSA.transcodeSignatureToConcat(jcaSignature, ECDSA.getSignatureByteArrayLength(algorithm))
-    return ECDSASignature(
-        BigInteger(1, rsSignature.copyOfRange(0, rsSignature.size / 2)),
-        BigInteger(1, rsSignature.copyOfRange(rsSignature.size / 2, rsSignature.size))
-    ).toCanonicalised()
+fun toECDSASignature(jcaSignature: ByteArray, keyAlgorithm: KeyAlgorithm): ECDSASignature {
+    val rsSignatureLength = when (keyAlgorithm) {
+        KeyAlgorithm.ECDSA_Secp256k1 -> ECDSA.getSignatureByteArrayLength(JWSAlgorithm.ES256K)
+        else -> throw IllegalArgumentException("Does not support $keyAlgorithm algorithm.")
+    }
+    return ECDSA.transcodeSignatureToConcat(jcaSignature, rsSignatureLength).let {
+        ECDSASignature(
+            BigInteger(1, it.copyOfRange(0, it.size / 2)),
+            BigInteger(1, it.copyOfRange(it.size / 2, it.size))
+        ).toCanonicalised()
+    }
 }
-
-fun toECDSASignatureAlt(jcaSignature: ByteArray): ECDSASignature {
-    val rLength = jcaSignature[3].toInt()
-    val sLength = jcaSignature[4 + rLength + 1].toInt()
-    return ECDSASignature(
-        BigInteger(1, jcaSignature.copyOfRange(4, 4 + rLength)),
-        BigInteger(1, jcaSignature.copyOfRange(4 + rLength + 2, 4 + rLength + 2 + sLength))
-    ).toCanonicalised()
-}
-
-////    print("jcaSignature as bytes: ");jcaSignature.forEach { print("\"$it\" ") }; println()
-////    println("jcaSignature as hex  : ${Numeric.toHexStringNoPrefix(jcaSignature)}")
-//    val rsSignature = ECDSA.transcodeSignatureToConcat(jcaSignature, ECDSA.getSignatureByteArrayLength(algorithm))
-//
-//    val r = ByteArray(rsSignature.size / 2)
-//    val s = ByteArray(rsSignature.size / 2)
-//    System.arraycopy(rsSignature, 0, r, 0, rsSignature.size / 2)
-//    System.arraycopy(rsSignature, rsSignature.size / 2, s, 0, rsSignature.size / 2)
-//
-//    return ECDSASignature(
-//        BigInteger(1, r),
-//        BigInteger(1, s)
-//    ).toCanonicalised()
-//          32                                                                  33
-//    304502202adce0c348a461fcd0af4b5d3f9d8db335381d1f56fe01646a3f338f8e9dff9e022100f5bbdc9a3f4a6958e3377a12f60939bfaf6e5941ad68f28a6b23147479f86ab4
-//    304402206878b5690514437a2342405029426cc2b25b4a03fc396fef845d656cf62bad2c022018610a8d37e3384245176ab49ddbdbe8da4133f661bf5ea7ad4e3d2b912d856f01
-
-
-//    new BigInteger(s,16)
-//    println("jcaSignature:")
-//    println("30: ${String.format("%02x", jcaSignature[0])}")
-//    println("length z: ${String.format("%02x", jcaSignature[1])}")
-//    println("02: ${String.format("%02x", jcaSignature[2])}")
-//    println("length r: ${String.format("%02x", jcaSignature[3])}")
-//    println("02: ${String.format("%02x", jcaSignature[3 + Integer.parseInt(String.format("%02x", jcaSignature[3])) + 1])}")
-//    println("length s: ${String.format("%02x", jcaSignature[3 + Integer.parseInt(String.format("%02x", jcaSignature[3])) + 2])}")
-//    jcaSignature.forEach { print(String.format("%02x", it)) }; println()
-//    println(Numeric.toHexStringNoPrefix(jcaSignature).slice(8..72))
-//    304402206878b5690514437a2342405029426cc2b25b4a03fc396fef845d656cf62bad2c022018610a8d37e3384245176ab49ddbdbe8da4133f661bf5ea7ad4e3d2b912d856f01
-//    304502203ce24f0798a42a9a1e7957e158b5ddc92c9d2cc2a377b9242c8aeec1bde690f3022100bceda98084dc3718514757cb82a48a176b5c280f2894210a21312b4592be577f
-//    3046022100cf22fe5816239f756369b1884ed8da2e4190cc1a1afa62dc8a12cd56b7156951022100def4d7040ba158407d121ab19bad2a1bc7bf2a70b7561a15faec9aadbf5e2d40
-//    print("r (old) = "); r.forEach { print(it) }; println()
-//    print("r (new) = "); jcaSignature.copyOfRange(4, 4+32+1).forEach { print(it) }; println()
-//    print("s (old) = "); s.forEach { print(it) }; println()
-//    print("s (new) = "); jcaSignature.copyOfRange(4+32+1, 4+32+1+32+1).forEach { print(it) }; println()

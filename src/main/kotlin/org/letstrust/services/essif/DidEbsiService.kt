@@ -1,6 +1,5 @@
 package org.letstrust.services.essif
 
-import com.nimbusds.jose.JWSAlgorithm
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
@@ -13,7 +12,6 @@ import org.letstrust.common.readWhenContent
 import org.letstrust.crypto.CryptoService
 import org.letstrust.crypto.canonicalize
 import org.letstrust.crypto.toECDSASignature
-import org.letstrust.crypto.toECDSASignatureAlt
 import org.letstrust.services.did.DidService
 import org.letstrust.services.key.KeyService
 import org.web3j.crypto.*
@@ -142,19 +140,12 @@ object DidEbsiService {
         var signatureData = SignatureData(chainId.toByteArray(), ByteArray(0), ByteArray(0))
         var rlpList = RlpList(TransactionEncoder.asRlpValues(rawTransaction, signatureData))
 
-        val hash = Hash.sha3(RlpEncoder.encode(rlpList))
-//        val sig = ECKeyPair.create(KeyService.load(did, true).keyPair).sign(hash)
-        val signature = cs.sign(KeyService.load(did).keyId, hash)
-        val sig = toECDSASignature(signature, JWSAlgorithm.ES256K)
-        val sigAlt = toECDSASignatureAlt(signature)
-
-        println("r (nimbus) : ${sig.r}")
-        println("r (decoded): ${sigAlt.r}")
-        println("s (nimbus) : ${sig.s}")
-        println("s (decoded): ${sigAlt.s}")
-
+        val encodedTx = RlpEncoder.encode(rlpList)
+        val key = KeyService.load(did)
+        val sig = cs.signWithECDSA(key.keyId, encodedTx)!!
+//        val sig = toECDSASignature(cs.sign(key.keyId, encodedTx), key.algorithm)
         val v = BigInteger
-            .valueOf(getRecoveryId(did, hash, sig).toLong())
+            .valueOf(KeyService.getRecoveryId(did, encodedTx, sig).toLong())
             .add(chainId.multiply(BigInteger.TWO))
             .add(BigInteger.valueOf(35L))
 
@@ -167,16 +158,6 @@ object DidEbsiService {
             Numeric.toHexString(signatureData.v),
             Numeric.toHexString(RlpEncoder.encode(rlpList))
         )
-    }
-
-    fun getRecoveryId(did: String, hash: ByteArray, sig: ECDSASignature): Int {
-        val address = Numeric.prependHexPrefix(KeyService.getEthereumAddress(did))
-        for (i in 0..3) {
-            val k = Sign.recoverFromSignature(i, sig, hash)
-            if (k != null && address == Keys.toChecksumAddress(Numeric.prependHexPrefix(Keys.getAddress(k))).toLowerCase())
-                return i
-        }
-        throw RuntimeException("Could not construct a recoverable key. This should never happen.")
     }
 
     fun buildSignedTransactionParams(unsignedTransaction: UnsignedTransaction, signedTransaction: SignedTransaction):

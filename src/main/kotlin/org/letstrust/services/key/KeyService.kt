@@ -15,7 +15,12 @@ import org.bouncycastle.util.encoders.Hex
 import org.letstrust.LetsTrustServices
 import org.letstrust.crypto.*
 import org.letstrust.crypto.keystore.KeyStore
+import org.web3j.crypto.ECDSASignature
+import org.web3j.crypto.Hash
 import org.web3j.crypto.Keys
+import org.web3j.crypto.Sign
+import org.web3j.utils.Numeric
+import java.lang.IllegalStateException
 import java.security.interfaces.ECPublicKey
 import java.util.*
 
@@ -93,7 +98,7 @@ object KeyService {
         return builder.build()
     }
 
-    fun getEthereumAddress(keyAlias: String): String =
+    fun getEthereumAddress(keyAlias: String): String  =
         ks.load(keyAlias).let {
             when (it.algorithm) {
                 KeyAlgorithm.ECDSA_Secp256k1 -> calculateEthereumAddress(toSecp256Jwk(it))
@@ -104,8 +109,19 @@ object KeyService {
     private fun calculateEthereumAddress(key: ECKey): String {
         val digest = Keccak.Digest256().digest(key.x.decode().copyOfRange(0, 32) + key.y.decode().copyOfRange(0, 32))
         return String(Hex.encode(digest)).let { sha3_256hex ->
-            Keys.toChecksumAddress(sha3_256hex.substring(sha3_256hex.length - 40)).toLowerCase()
+            Keys.toChecksumAddress(sha3_256hex.substring(sha3_256hex.length - 40)) //.toLowerCase()
         }
+    }
+
+    fun getRecoveryId(keyAlias: String, data: ByteArray, sig: ECDSASignature): Int {
+        for (i in 0..3) {
+            Sign.recoverFromSignature(i, sig, Hash.sha256(data))?.let {
+                val address = Numeric.prependHexPrefix(getEthereumAddress(keyAlias))
+                val recoveredAddress = Keys.toChecksumAddress(Numeric.prependHexPrefix(Keys.getAddress(it)))
+                if (address == recoveredAddress) return i
+            }
+        }
+        throw IllegalStateException("Could not construct a recoverable key. This should never happen.")
     }
 
     fun listKeys(): List<Key> = ks.listKeys()
