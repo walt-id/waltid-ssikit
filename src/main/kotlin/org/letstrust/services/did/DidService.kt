@@ -12,7 +12,7 @@ import org.letstrust.crypto.KeyAlgorithm.ECDSA_Secp256k1
 import org.letstrust.crypto.KeyAlgorithm.EdDSA_Ed25519
 import org.letstrust.crypto.keystore.KeyStore
 import org.letstrust.model.*
-import org.letstrust.services.vc.CredentialService
+import org.letstrust.services.vc.VCService
 import java.io.File
 import java.net.URL
 import java.nio.file.Files
@@ -27,6 +27,7 @@ private val log = KotlinLogging.logger {}
  */
 object DidService {
 
+    private val credentialService = VCService.getService()
     private val cryptoService = LetsTrustServices.load<CryptoService>()
     private val keyStore = LetsTrustServices.load<KeyStore>()
 
@@ -58,6 +59,7 @@ object DidService {
         log.warn { "DID EBSI is not resolved correctly yet. It is read from directory." }
         return Json.decodeFromString<DidEbsi>(loadDid(didUrl.did))
     }
+
     fun updateDidEbsi(did: DidEbsi) = storeDid(did.id!!, Json.encodeToString(did))
     // Private methods
 
@@ -81,17 +83,24 @@ object DidService {
             // Create proof
             val verificationMethod = ebsiDidBody.verificationMethod?.get(0)?.id
             signDid(didUrlStr, verificationMethod!!, ebsiDidBodyStr)
-        } else  {
+        } else {
             val verificationMethods = mutableListOf(
-                VerificationMethod(didUrlStr + "#keys-1", "Secp256k1VerificationKey2018", didUrlStr, null, key.getPublicKey().toPEM()),
+                VerificationMethod(
+                    didUrlStr + "#keys-1",
+                    "Secp256k1VerificationKey2018",
+                    didUrlStr,
+                    null,
+                    key.getPublicKey().toPEM()
+                ),
             )
 
             val did = DidEbsi(
                 listOf("https://w3.org/ns/did/v1"), // TODO Context not working "https://ebsi.org/ns/did/v1"
                 didUrlStr,
                 verificationMethods,
-                listOf(didUrlStr + "#keys-1"))
-               Json.encodeToString(did)
+                listOf(didUrlStr + "#keys-1")
+            )
+            Json.encodeToString(did)
         }
 
         // Store DID
@@ -138,7 +147,7 @@ object DidService {
     }
 
     private fun signDid(issuerDid: String, verificationMethod: String, edDidStr: String): String {
-        val signedDid = CredentialService.sign(issuerDid, edDidStr, null, null, verificationMethod)
+        val signedDid = credentialService.sign(issuerDid, edDidStr, null, null, verificationMethod)
         return signedDid
     }
 
@@ -159,7 +168,14 @@ object DidService {
 //        }
 
         val eidasKeyId = didUrl.identifier + "#" + UUID.randomUUID().toString().replace("-", "")
-        verificationMethods.add(VerificationMethod(eidasKeyId, "EidasVerificationKey2021", "publicKeyPem", "-----BEGIN.."))
+        verificationMethods.add(
+            VerificationMethod(
+                eidasKeyId,
+                "EidasVerificationKey2021",
+                "publicKeyPem",
+                "-----BEGIN.."
+            )
+        )
 
         return DidEbsi(
             listOf("https://w3.org/ns/did/v1"), // TODO Context not working "https://ebsi.org/ns/did/v1"

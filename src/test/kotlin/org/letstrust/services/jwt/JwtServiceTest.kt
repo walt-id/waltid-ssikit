@@ -12,7 +12,7 @@ import org.letstrust.crypto.CryptoService
 import org.letstrust.model.*
 import org.letstrust.services.did.DidService
 import org.letstrust.services.key.KeyManagementService
-import org.letstrust.services.vc.CredentialService
+import org.letstrust.services.vc.VCService
 import java.io.File
 import java.util.*
 import kotlin.test.assertEquals
@@ -20,7 +20,8 @@ import kotlin.test.assertTrue
 
 class JwtServiceTest {
 
-    val cs = LetsTrustServices.load<CryptoService>()
+    val credentialService = VCService.getService()
+    val cryptoService = LetsTrustServices.load<CryptoService>()
 
     @Test
     fun parseClaimsTest() {
@@ -40,7 +41,7 @@ class JwtServiceTest {
 
     @Test
     fun genJwtSecp256k1() {
-        val keyId = cs.generateKey(KeyAlgorithm.ECDSA_Secp256k1)
+        val keyId = cryptoService.generateKey(KeyAlgorithm.ECDSA_Secp256k1)
 
         val jwt = JwtService.sign(keyId.id)
 
@@ -55,7 +56,7 @@ class JwtServiceTest {
 
     @Test
     fun genJwtEd25519() {
-        val keyId = cs.generateKey(KeyAlgorithm.EdDSA_Ed25519)
+        val keyId = cryptoService.generateKey(KeyAlgorithm.EdDSA_Ed25519)
 
         val jwt = JwtService.sign(keyId.id)
 
@@ -94,7 +95,7 @@ class JwtServiceTest {
     fun signAuthenticationResponseTest() {
         val verifiableAuthorization = File("src/test/resources/ebsi/verifiable-authorization2.json").readText()
 
-        val vp = CredentialService.present(verifiableAuthorization, "api.ebsi.xyz", null)
+        val vp = credentialService.present(verifiableAuthorization, "api.ebsi.xyz", null)
 
         val arp = AuthenticationResponsePayload(
             "did:ebsi:0x123abc",
@@ -126,7 +127,7 @@ class JwtServiceTest {
 
         assertEquals(vp, childClaims["verified_claims"])
 
-        val resVP = CredentialService.verifyVp(vp)
+        val resVP = credentialService.verifyVp(vp)
 
         assertTrue(resVP, "LD-Proof verification failed")
 

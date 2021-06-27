@@ -3,7 +3,8 @@ package org.letstrust.rest
 import io.javalin.http.Context
 import io.javalin.plugin.openapi.annotations.*
 import kotlinx.serialization.Serializable
-import org.letstrust.services.vc.CredentialService
+import org.letstrust.services.vc.VCService
+import org.letstrust.services.vc.VerificationResult
 
 @Serializable
 data class CreateVcRequest(
@@ -28,6 +29,8 @@ data class VerifyVcRequest(
 )
 
 object VcController {
+
+    val credentialService = VCService.getService()
 
     @OpenApi(
         summary = "Load VC",
@@ -86,7 +89,14 @@ object VcController {
     fun create(ctx: Context) {
         val createVcReq = ctx.bodyAsClass(CreateVcRequest::class.java)
         // TODO build credential based on the request e.g. load template, substitute values
-        ctx.result(CredentialService.sign(createVcReq.issuerDid!!, createVcReq.credentialOffer!!, createVcReq.domain, createVcReq.nonce))
+        ctx.result(
+            credentialService.sign(
+                createVcReq.issuerDid!!,
+                createVcReq.credentialOffer!!,
+                createVcReq.domain,
+                createVcReq.nonce
+            )
+        )
     }
 
     @OpenApi(
@@ -106,7 +116,7 @@ object VcController {
     )
     fun present(ctx: Context) {
         val presentVcReq = ctx.bodyAsClass(PresentVcRequest::class.java)
-        ctx.result(CredentialService.present(presentVcReq.vc, presentVcReq.domain, presentVcReq.challenge))
+        ctx.result(credentialService.present(presentVcReq.vc, presentVcReq.domain, presentVcReq.challenge))
 
     }
 
@@ -120,14 +130,18 @@ object VcController {
             "VC to be verified"
         ),
         responses = [
-            OpenApiResponse("200", [OpenApiContent(CredentialService.VerificationResult::class)], "Verification result object"),
+            OpenApiResponse(
+                "200",
+                [OpenApiContent(VerificationResult::class)],
+                "Verification result object"
+            ),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
             OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
     fun verify(ctx: Context) {
         val verifyVcReq = ctx.bodyAsClass(VerifyVcRequest::class.java)
-        ctx.json(CredentialService.verify(verifyVcReq.vcOrVp))
+        ctx.json(credentialService.verify(verifyVcReq.vcOrVp))
     }
 
     @OpenApi(
@@ -141,7 +155,7 @@ object VcController {
         ]
     )
     fun list(ctx: Context) {
-        ctx.json(CredentialService.listVCs())
+        ctx.json(credentialService.listVCs())
     }
 
     @OpenApi(
@@ -168,13 +182,16 @@ object VcController {
         operationId = "templatesList",
         tags = ["Verifiable Credentials"],
         responses = [
-            OpenApiResponse("200", content = [OpenApiContent(from = String::class, isArray = true, type = "application/json")]),
+            OpenApiResponse(
+                "200",
+                content = [OpenApiContent(from = String::class, isArray = true, type = "application/json")]
+            ),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
             OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
     fun listTemplates(ctx: Context) {
-        ctx.json(CredentialService.listTemplates())
+        ctx.json(credentialService.listTemplates())
     }
 
     @OpenApi(
@@ -191,6 +208,6 @@ object VcController {
         ]
     )
     fun loadTemplate(ctx: Context) {
-        ctx.json(CredentialService.loadTemplate(ctx.pathParam("id")))
+        ctx.json(credentialService.loadTemplate(ctx.pathParam("id")))
     }
 }

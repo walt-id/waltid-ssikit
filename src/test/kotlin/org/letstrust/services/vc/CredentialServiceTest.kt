@@ -21,6 +21,8 @@ import kotlin.test.assertTrue
 
 class CredentialServiceTest {
 
+    private val credentialService = VCService.getService()
+    
     @Before
     fun setup() {
 
@@ -34,12 +36,12 @@ class CredentialServiceTest {
         val issuerDid = DidService.create(DidMethod.web) // DID web uses an ECDSA Secp256k1
         val domain = "example.com"
         val nonce: String? = null
-
-        val vc = CredentialService.sign(issuerDid, credOffer, domain, nonce)
+        
+        val vc = credentialService.sign(issuerDid, credOffer, domain, nonce)
         assertNotNull(vc)
         println("Credential generated: $vc")
 
-        val vcVerified = CredentialService.verifyVc(issuerDid, vc)
+        val vcVerified = credentialService.verifyVc(issuerDid, vc)
         assertTrue(vcVerified)
     }
 
@@ -52,11 +54,11 @@ class CredentialServiceTest {
         val domain = "example.com"
         val nonce: String? = null
 
-        val vc = CredentialService.sign(issuerDid, credOffer, domain, nonce)
+        val vc = credentialService.sign(issuerDid, credOffer, domain, nonce)
         assertNotNull(vc)
         println("Credential generated: $vc")
 
-        val vcVerified = CredentialService.verifyVc(issuerDid, vc)
+        val vcVerified = credentialService.verifyVc(issuerDid, vc)
         assertTrue(vcVerified)
     }
 
@@ -69,11 +71,11 @@ class CredentialServiceTest {
         val domain = "example.com"
         val nonce: String? = null
 
-        val vc = CredentialService.sign(issuerDid, credOffer, domain, nonce)
+        val vc = credentialService.sign(issuerDid, credOffer, domain, nonce)
         assertNotNull(vc)
         println("Credential generated: $vc")
 
-        val vcVerified = CredentialService.verifyVc(issuerDid, vc)
+        val vcVerified = credentialService.verifyVc(issuerDid, vc)
         assertTrue(vcVerified)
     }
 
@@ -90,12 +92,12 @@ class CredentialServiceTest {
         europass.issuer = issuerDid
         europass.credentialSubject!!.id = subjectDid
 
-        val vc = CredentialService.sign(issuerDid, Json.encodeToString(europass))
+        val vc = credentialService.sign(issuerDid, Json.encodeToString(europass))
 
-        val vp= CredentialService.present(vc, domain, challenge)
+        val vp= credentialService.present(vc, domain, challenge)
         println("Presentation generated: $vc")
 
-        val vpVerified = CredentialService.verifyVp(vp)
+        val vpVerified = credentialService.verifyVp(vp)
         assertTrue(vpVerified)
 
     }
@@ -108,11 +110,11 @@ class CredentialServiceTest {
         val issuerDid = DidService.create(DidMethod.key)
         val anotherDid = DidService.create(DidMethod.key)
 
-        val vc = CredentialService.sign(issuerDid, credOffer)
+        val vc = credentialService.sign(issuerDid, credOffer)
         assertNotNull(vc)
         println("Credential generated: $vc")
 
-        val vcVerified = CredentialService.verifyVc(anotherDid, vc)
+        val vcVerified = credentialService.verifyVc(anotherDid, vc)
         assertFalse(vcVerified)
     }
 
@@ -122,14 +124,14 @@ class CredentialServiceTest {
         val credOffer = readCredOffer("vc-offer-simple-example")
         val issuerDid = DidService.create(DidMethod.key)
 
-        val vcStr = CredentialService.sign(issuerDid, credOffer)
+        val vcStr = credentialService.sign(issuerDid, credOffer)
         println("Credential generated: $vcStr")
         val vcInvalid = Json.decodeFromString<VerifiableCredential>(vcStr)
         vcInvalid.id = "INVALID ID"
         val vcInvalidStr = vcInvalid.encodePretty()
         println("Credential generated: ${vcInvalidStr}")
 
-        val vcVerified = CredentialService.verifyVc(issuerDid, vcInvalidStr)
+        val vcVerified = credentialService.verifyVc(issuerDid, vcInvalidStr)
         assertFalse(vcVerified)
     }
 
@@ -150,7 +152,7 @@ class CredentialServiceTest {
 
         println("Credential request:\n$vcReqEnc")
 
-        val vcStr = CredentialService.sign(issuerDid, vcReqEnc)
+        val vcStr = credentialService.sign(issuerDid, vcReqEnc)
         val vc = Json.decodeFromString<VerifiableCredential>(vcStr)
         println("Credential generated: ${vc.encodePretty()}")
 
@@ -159,11 +161,11 @@ class CredentialServiceTest {
 
         val domain = "example.com"
         val nonce: String? = "asdf"
-        val vp = CredentialService.sign(issuerDid, vpInputStr, domain, nonce)
+        val vp = credentialService.sign(issuerDid, vpInputStr, domain, nonce)
         assertNotNull(vp)
         println("Verifiable Presentation generated: $vp")
 
-        var ret = CredentialService.verifyVp(vp)
+        var ret = credentialService.verifyVp(vp)
         assertTrue { ret }
     }
 
@@ -184,17 +186,17 @@ class CredentialServiceTest {
 
         println("Credential request:\n$vcReqEnc")
 
-        val vcStr = CredentialService.sign(issuerDid, vcReqEnc)
+        val vcStr = credentialService.sign(issuerDid, vcReqEnc)
         println("Credential generated: $vcStr")
         val vcInvalid = Json.decodeFromString<VerifiableCredential>(vcStr)
         vcInvalid.credentialSubject.id = "INVALID ID"
         val vcInvalidStr = vcInvalid.encodePretty()
         println("Credential generated: ${vcInvalidStr}")
 
-        val vcValid = CredentialService.verifyVc(issuerDid, vcInvalidStr)
+        val vcValid = credentialService.verifyVc(issuerDid, vcInvalidStr)
         assertFalse(vcValid)
 
-        val vcVerified = CredentialService.verifyVc(issuerDid, vcInvalidStr)
+        val vcVerified = credentialService.verifyVc(issuerDid, vcInvalidStr)
 
         val vpIn = VerifiablePresentation(listOf("https://www.w3.org/2018/credentials/v1"), "id", listOf("VerifiablePresentation"), listOf(vcInvalid), null)
         val vpInputStr = Json { prettyPrint = true }.encodeToString(vpIn)
@@ -203,11 +205,11 @@ class CredentialServiceTest {
 
         val domain = "example.com"
         val nonce: String? = "asdf"
-        val vp = CredentialService.sign(issuerDid, vpInputStr, domain, nonce)
+        val vp = credentialService.sign(issuerDid, vpInputStr, domain, nonce)
         assertNotNull(vp)
         println("Verifiable Presentation generated: $vp")
 
-        var ret = CredentialService.verifyVp(vp)
+        var ret = credentialService.verifyVp(vp)
         assertFalse(ret)
     }
 }

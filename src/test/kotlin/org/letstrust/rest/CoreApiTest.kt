@@ -22,7 +22,9 @@ import org.letstrust.model.DidUrl
 import org.letstrust.model.VerifiableCredential
 import org.letstrust.model.encodePretty
 import org.letstrust.services.did.DidService
-import org.letstrust.services.vc.CredentialService
+import org.letstrust.services.vc.VCService
+import org.letstrust.services.vc.VerificationResult
+import org.letstrust.services.vc.VerificationType
 import org.letstrust.test.readCredOffer
 import java.sql.Timestamp
 import java.time.LocalDateTime
@@ -31,6 +33,7 @@ import kotlin.test.assertTrue
 
 class CoreApiTest {
 
+    val credentialService = VCService.getService()
     val CORE_API_URL = "http://localhost:7003"
 
     val client = HttpClient(CIO) {
@@ -219,7 +222,7 @@ class CoreApiTest {
 
         println("Credential request:\n$vcReqEnc")
 
-        val vcStr = CredentialService.sign(issuerDid, vcReqEnc)
+        val vcStr = credentialService.sign(issuerDid, vcReqEnc)
         val vc = Json.decodeFromString<VerifiableCredential>(vcStr)
         println("Credential generated: ${vc.encodePretty()}")
 
@@ -229,12 +232,12 @@ class CoreApiTest {
         }
         assertEquals(2, countMatches(vp, "proof"))
 
-        val result = client.post<CredentialService.VerificationResult>("$CORE_API_URL/v1/vc/verify") {
+        val result = client.post<VerificationResult>("$CORE_API_URL/v1/vc/verify") {
             contentType(ContentType.Application.Json)
             body = VerifyVcRequest(vp)
         }
         assertEquals(true, result.verified)
-        assertEquals(CredentialService.VerificationType.VERIFIABLE_PRESENTATION, result.verificationType)
+        assertEquals(VerificationType.VERIFIABLE_PRESENTATION, result.verificationType)
     }
 
 }
