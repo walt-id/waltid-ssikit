@@ -19,6 +19,7 @@ gradle-app.setting
 !gradle-wrapper.jar
 .gradletasknamecache
 **/build/
+gradle.properties
 
 # LetsTrust
 keys/
