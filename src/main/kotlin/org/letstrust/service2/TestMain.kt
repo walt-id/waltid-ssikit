@@ -1,43 +1,39 @@
 package org.letstrust.service2
 
 import org.letstrust.services.vc.CustomVCService
+import org.letstrust.services.vc.LetstrustVCService
 import org.letstrust.services.vc.VCService
 
 fun main() {
     println("> Registering services...")
 
-    //val serviceMatrix = ServiceMatrix("service-matrix.properties")
+    ServiceMatrix("service-matrix.properties")
 
-    ServiceRegistry.registerService<VCService>(CustomVCService())
+    //ServiceRegistry.registerService<VCService>(LetstrustVCService())
     /*ServiceRegistry.registerService<VCService>(LetstrustVCService())
     ServiceRegistry.registerService<DidService>(DidServiceDefault())*/
 
     println("> Getting service...")
     val vcService = VCService.getService()
 
-    println("Listing templates")
-    vcService.listTemplates().forEach {
-        println(it)
-    }
-
     /*val didService = DidService.getService()*/
 
-    /*println("> VC Functions:")
-    vcService.import()
-    vcService.export()*/
+    println("> VC Functions:")
+    vcService.listTemplates().forEach { println(it) }
+    vcService.listVCs().forEach { println(it) }
 
-    /*println("Setting other class...")
-    ServiceRegistry.registerService<VCService>(CustomLetstrustVCService())*/
+    println("Setting other class...")
+    ServiceRegistry.registerService<VCService>(CustomVCService())
 
     //val instance: BaseService = Class.forName("org.letstrust.services.CustomLetstrustVCService").getDeclaredConstructor().newInstance() as BaseService
     //val service: Class<BaseService> = Class.forName("org.letstrust.service2.services.VCService") as Class<BaseService>
     //ServiceRegistry.registerService(instance, service.kotlin)
 
-    /*println("> VC Functions:")
-    vcService.import()
-    vcService.export()
+    println("> VC Functions:")
+    vcService.listTemplates().forEach { println(it) }
+    vcService.listVCs().forEach { println(it) }
 
-    println("> DID Functions:")
+    /*println("> DID Functions:")
     didService.import()
     didService.export()*/
 }
