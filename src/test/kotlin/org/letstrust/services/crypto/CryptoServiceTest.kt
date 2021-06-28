@@ -83,6 +83,19 @@ class CryptoServiceTest {
     }
 
     @Test
+    fun testSignVerifySun() {
+        val data = "Sign Me!".toByteArray()
+
+        val keyId = SunCryptoService.generateKey(KeyAlgorithm.ECDSA_Secp256k1)
+
+        for (i in 1..10) {
+            var signature = SunCryptoService.sign(keyId, data)
+            val verify = SunCryptoService.verify(keyId, signature, data)
+            assertTrue(verify)
+        }
+    }
+
+    @Test
     fun testEncWithAes() {
         val data = "Encrypt Me!"
         val encKey = KeyGenerator.getInstance("AES").generateKey()

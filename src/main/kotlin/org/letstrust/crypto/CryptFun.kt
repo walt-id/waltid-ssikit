@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import com.fasterxml.jackson.databind.node.ObjectNode
 import com.goterl.lazysodium.LazySodiumJava
 import com.goterl.lazysodium.SodiumJava
+import com.nimbusds.jose.JWSAlgorithm
+import com.nimbusds.jose.crypto.impl.ECDSA
 import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.util.Base64URL
@@ -17,7 +19,9 @@ import org.bouncycastle.math.ec.ECPoint
 import org.bouncycastle.util.encoders.Hex
 import org.letstrust.CryptoProvider
 import org.letstrust.model.EncryptedAke1Payload
+import org.web3j.crypto.ECDSASignature
 import org.web3j.utils.Numeric
+import java.math.BigInteger
 import java.security.*
 import java.security.spec.ECGenParameterSpec
 import java.security.spec.PKCS8EncodedKeySpec
@@ -240,4 +244,17 @@ inline fun ByteArray.findFirst(predicate: (Byte) -> Boolean): Int {
         if (predicate(element)) return index
     }
     return size
+}
+
+fun toECDSASignature(jcaSignature: ByteArray, keyAlgorithm: KeyAlgorithm): ECDSASignature {
+    val rsSignatureLength = when (keyAlgorithm) {
+        KeyAlgorithm.ECDSA_Secp256k1 -> ECDSA.getSignatureByteArrayLength(JWSAlgorithm.ES256K)
+        else -> throw IllegalArgumentException("Does not support $keyAlgorithm algorithm.")
+    }
+    return ECDSA.transcodeSignatureToConcat(jcaSignature, rsSignatureLength).let {
+        ECDSASignature(
+            BigInteger(1, it.copyOfRange(0, it.size / 2)),
+            BigInteger(1, it.copyOfRange(it.size / 2, it.size))
+        ).toCanonicalised()
+    }
 }
