@@ -66,6 +66,7 @@ class DidEbsiServiceTest {
         assertTrue(152 == params.didVersionMetadata.length)
     }
 
+    // TODO: fix: replace SHA3 with SHA256
     @Test
     fun testSignTransaction() {
         val unsignedTransaction = getUnsignedTx()
