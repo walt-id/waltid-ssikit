@@ -200,11 +200,29 @@ In order to overwrite these values, simply place a yaml-based config-file named 
 Create a directory for the generated data (if not present already)
 
     mkdir -p data/ebsi
-Paste your bearer token from https://app.preprod.ebsi.eu/users-onboarding/authentication
+Paste your bearer token from https://app.preprod.ebsi.eu/users-onboarding/authentication in file *data/ebsi/bearer-token.txt*
 
     cat > data/ebsi/bearer-token.txt 
 
+Create the DID controlling key and the ETH signing key. Note, that if a Secp256k1 DID controlling key is used, then the same key will be used for signing the ETH transaction automatically.
 
+    ./letstrust.sh key gen -a Secp256k1
+
+Create the DID document
+
+    ./letstrust.sh did -m ebsi -k <keyId>
+
+Run the onboarding flow in order to receive the Verifiable Authentication, which is valid for 6 months
+
+    ./letstrust.sh essif onboard -d <did-ebsi>
+
+Run the auth-api flow for getting a short lived (15min) access token for write access to the ledger
+
+    ./letstrust.sh essif auth-api -d <did-ebsi>
+
+Register the DID on the ledger. Optionally the key for signing the ETH transaction can be specified (parameter *k*), if it is another key then the DID controlling key
+
+    ./letstrust.sh -v essif did register -d <did-ebsi> -k 5a86344a7fc546aca4eee065d85da5b9
 
 
 # Docker PUSH / PULL
