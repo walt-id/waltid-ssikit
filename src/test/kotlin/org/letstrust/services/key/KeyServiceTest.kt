@@ -12,8 +12,14 @@ import kotlinx.serialization.json.Json
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.junit.Before
 import org.junit.Test
+import org.letstrust.LetsTrustServices
+import org.letstrust.crypto.CryptoService
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.model.Jwk
+import org.web3j.crypto.ECDSASignature
+import org.web3j.crypto.ECKeyPair
+import org.web3j.crypto.Keys
+import java.math.BigInteger
 import java.security.*
 import java.security.spec.*
 import java.util.*
@@ -24,6 +30,8 @@ import kotlin.test.assertTrue
 
 
 class KeyServiceTest {
+
+    private val cs = LetsTrustServices.load<CryptoService>()
 
     @Before
     fun setup() {
@@ -101,7 +109,7 @@ class KeyServiceTest {
         val keyId = kms.generate(KeyAlgorithm.ECDSA_Secp256k1)
         val key = kms.load(keyId.id, true)
 
-        val jwk =  KeyService.toSecp256Jwk(key)
+        val jwk = KeyService.toSecp256Jwk(key)
         println(jwk)
         assertEquals("ES256K", jwk.algorithm.name)
         assertEquals("secp256k1", jwk.curve.name)
@@ -116,7 +124,7 @@ class KeyServiceTest {
     fun serizalizeEd25519k1JwkTest() {
         val keyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
         val key = KeyService.load(keyId.id, true)
-        val jwk =  KeyService.toEd25519Jwk(key)
+        val jwk = KeyService.toEd25519Jwk(key)
 
         val serializedJwk = Json.decodeFromString<Jwk>(jwk.toString())
         assertEquals("EdDSA", serializedJwk.alg)
@@ -132,7 +140,7 @@ class KeyServiceTest {
     fun serizalizeSecp256k1JwkTest() {
         val keyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
         val key = KeyService.load(keyId.id, true)
-        val jwk =  KeyService.toSecp256Jwk(key)
+        val jwk = KeyService.toSecp256Jwk(key)
 
         val serializedJwk = Json.decodeFromString<Jwk>(jwk.toString())
         assertEquals("ES256K", serializedJwk.alg)
@@ -267,5 +275,57 @@ class KeyServiceTest {
         if (!Arrays.equals(secret, secret3)) {
             throw RuntimeException("Arrays not equal")
         }
+    }
+
+    @Test
+    fun testGetEthereumAddress() {
+        KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1).let { keyId ->
+            KeyService.load(keyId.id, true).keyPair.let { keyPair ->
+                val addressFromKeyPair = Keys.toChecksumAddress(Keys.getAddress(ECKeyPair.create(keyPair)))
+                val calculatedAddress = KeyService.getEthereumAddress(keyId.id)
+                assertEquals(addressFromKeyPair, calculatedAddress)
+            }
+        }
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testGetEthereumAddressWithBadKeyAlgorithm() {
+        val keyId = KeyService.generate(KeyAlgorithm.EdDSA_Ed25519)
+        KeyService.getEthereumAddress(keyId.id)
+    }
+
+    @Test
+    fun testGetRecoveryId() {
+        val keyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val data = "Test data".toByteArray()
+        val signature = cs.signEthTransaction(keyId, data)!!
+        val recoveryId = KeyService.getRecoveryId(keyId.id, data, signature)
+        assert(arrayOf(0, 1, 2, 3).contains(recoveryId))
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun testGetRecoveryIdFailsWithBadKey() {
+        val keyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val badKeyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val data = "Test data".toByteArray()
+        val signature = cs.signEthTransaction(keyId, data)!!
+        KeyService.getRecoveryId(badKeyId.id, data, signature)
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun testGetRecoveryIdFailsWithBadSignature() {
+        val keyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val badSignature = ECDSASignature(
+            BigInteger("999"),
+            BigInteger("5390839579382847000243128974640652114050572986153482093796582175013638805313")
+        )
+        KeyService.getRecoveryId(keyId.id, "Test data".toByteArray(), badSignature)
+    }
+
+    @Test(expected = IllegalStateException::class)
+    fun testGetRecoveryIdFailsWithBadData() {
+        val keyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val signature = cs.signEthTransaction(keyId, "Test data".toByteArray())!!
+        KeyService.getRecoveryId(keyId.id, "Bad data".toByteArray(), signature)
     }
 }
