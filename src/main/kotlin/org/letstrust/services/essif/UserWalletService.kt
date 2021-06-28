@@ -1,7 +1,10 @@
 package org.letstrust.services.essif
 
+import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.crypto.impl.ECDH
+import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.jwk.ECKey
+import com.nimbusds.jose.jwk.KeyUse
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import kotlinx.serialization.decodeFromString
@@ -22,7 +25,11 @@ import org.letstrust.services.essif.mock.DidRegistry
 import org.letstrust.services.jwt.JwtService
 import org.letstrust.services.key.KeyService
 import org.letstrust.services.vc.CredentialService
+import java.security.KeyPairGenerator
 import java.security.MessageDigest
+import java.security.SecureRandom
+import java.security.interfaces.ECPublicKey
+import java.security.spec.ECGenParameterSpec
 import java.time.Instant
 import java.util.*
 import javax.crypto.Cipher
@@ -202,8 +209,19 @@ object UserWalletService {
         val nonce = UUID.randomUUID().toString()
 
         // TODO: make switching key-store possible
-        val emphPrivKeyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
-        val emphPrivKey = KeyService.toJwk(emphPrivKeyId.id, true) as ECKey
+        //        val emphPrivKeyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        //        val emphPrivKey = KeyService.toJwk(emphPrivKeyId.id, true) as ECKey
+        // FIXME: Remove the hack below with TODO above
+        val kg = KeyPairGenerator.getInstance("EC", "BC")
+        kg.initialize(ECGenParameterSpec("secp256k1"), SecureRandom())
+        val emphPrivKey = kg.generateKeyPair().let {
+            ECKey.Builder(Curve.SECP256K1, it.public as ECPublicKey)
+                .keyUse(KeyUse.SIGNATURE)
+                .algorithm(JWSAlgorithm.ES256K)
+                .keyID(newKeyId().id)
+                .privateKey(it.private)
+                .build()
+        }
 
         val idToken = constructSiopResponseJwt(emphPrivKey, did, verifiedClaims, nonce)
 

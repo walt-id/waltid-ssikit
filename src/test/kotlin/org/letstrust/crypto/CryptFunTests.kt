@@ -1,7 +1,14 @@
 package org.letstrust.crypto
 
+import com.nimbusds.jose.JWSAlgorithm
+import org.bouncycastle.util.encoders.Hex
 import org.junit.Test
 import org.letstrust.LetsTrustServices
+import org.letstrust.services.key.KeyService
+import org.web3j.crypto.ECDSASignature
+import org.web3j.crypto.ECKeyPair
+import org.web3j.crypto.Hash
+import java.math.BigInteger
 import java.security.KeyFactory
 import java.security.KeyPairGenerator
 import java.security.SecureRandom
@@ -194,5 +201,18 @@ class CryptFunTests {
 //        println("again p=(dec)" + (p2.getCurve().getField() as ECFieldFp).p)
     }
 
+    @Test
+    fun toECDSASignature() {
+        val actual = toECDSASignature(
+            Hex.decode("3046022100c638bbfe76516c7e61a55c47f74ce93496119925b25c17c901c19aa5aa3a96770221008c47712a0291bbebe2bd82fce85d8ac4850546096503dabc28bf599ba4a435da"),
+            KeyAlgorithm.ECDSA_Secp256k1
+        )
+        val expected = ECDSASignature(
+            BigInteger("89658184941967983938858979071000288788759949065333276282917577796385005803127"),
+            BigInteger("63450025973182083115333495879828484637440221913248412008596464222239711311322")
+        ).toCanonicalised()
+        assertEquals(expected.r, actual.r)
+        assertEquals(expected.s, actual.s)
+    }
 }
 

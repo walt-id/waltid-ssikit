@@ -258,12 +258,22 @@ object SqlKeyStore : KeyStore {
     override fun delete(alias: String) {
         log.debug { "Deleting key \"${alias}\"." }
         SqlDbManager.getConnection().use { con ->
+            con.prepareStatement("select id from lt_key where name = ?").use { stmt ->
+                stmt.setString(1, alias)
+                stmt.executeQuery().use { rs ->
+                    while (rs.next()) {
+                        con.prepareStatement("delete from lt_key_alias where key_id = ?").use { stmt ->
+                            stmt.setString(1, rs.getString("id"))
+                            stmt.executeUpdate()
+                        }
+                    }
+                }
+            }
             con.prepareStatement("delete from lt_key where name = ?")
                 .use { stmt ->
                     stmt.setString(1, alias)
                     stmt.executeUpdate()
                 }
-            // TODO clean up key_alias
             con.commit()
         }
     }
