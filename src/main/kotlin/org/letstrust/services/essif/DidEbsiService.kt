@@ -99,14 +99,12 @@ object DidEbsiService {
         val signedTransactionParams = buildSignedTransactionParams(unsignedTx, signedTx)
         log.debug { signedTransactionParams }
 
-        log.debug { "EBSI DID registration incomplete; this is a testing version " }
+        val sendTransactionResponse = didRegistryJsonRpc<SignedTransactionResponse>(
+            token, "signedTransaction", signedTransactionParams
+        ).result
+        log.debug { sendTransactionResponse }
 
-//        val sendTransactionResponse = didRegistryJsonRpc<SignedTransactionResponse>(
-//            token, "signedTransaction", signedTransactionParams
-//        ).result
-//        log.debug { sendTransactionResponse }
-//
-//        log.debug { "EBSI DID registration completed successfully" }
+        log.debug { "EBSI DID registration completed successfully" }
     }
 
     // TODO: Verify all params are properly defined according to EBSI expectations => https://ec.europa.eu/cefdigital/wiki/pages/viewpage.action?spaceKey=EBP&title=DID+Registry+Smart+Contract

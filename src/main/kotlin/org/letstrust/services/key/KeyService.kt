@@ -115,7 +115,7 @@ object KeyService {
 
     fun getRecoveryId(keyAlias: String, data: ByteArray, sig: ECDSASignature): Int {
         for (i in 0..3) {
-            Sign.recoverFromSignature(i, sig, Hash.sha256(data))?.let {
+            Sign.recoverFromSignature(i, sig, Hash.sha3(data))?.let {
                 val address = Numeric.prependHexPrefix(getEthereumAddress(keyAlias))
                 val recoveredAddress = Keys.toChecksumAddress(Numeric.prependHexPrefix(Keys.getAddress(it)))
                 if (address == recoveredAddress) return i
