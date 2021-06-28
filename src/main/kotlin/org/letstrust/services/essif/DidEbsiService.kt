@@ -109,10 +109,10 @@ object DidEbsiService {
     }
 
     // TODO: Verify all params are properly defined according to EBSI expectations => https://ec.europa.eu/cefdigital/wiki/pages/viewpage.action?spaceKey=EBP&title=DID+Registry+Smart+Contract
-    fun buildInsertDocumentParams(did: String, ethKeyAlias: String): List<InsertDidDocumentParams> {
+    fun buildInsertDocumentParams(did: String, ethKeyAlias: String? = null): List<InsertDidDocumentParams> {
         val didDocumentString = Json.encodeToString(DidService.loadDidEbsi(did))
 
-        val from = KeyService.getEthereumAddress(ethKeyAlias)
+        val from = KeyService.getEthereumAddress(ethKeyAlias?:did)
         val identifier = Numeric.toHexString(did.toByteArray())
         val hashValue = Numeric.toHexString(Hash.sha256(canonicalize(didDocumentString).toByteArray()))
         val didVersionInfo = Numeric.toHexString(didDocumentString.toByteArray())
