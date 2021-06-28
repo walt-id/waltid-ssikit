@@ -77,14 +77,14 @@ object DidEbsiService {
     private val log = KotlinLogging.logger {}
     private val cs = LetsTrustServices.load<CryptoService>()
 
-    fun registerDid(did: String) = runBlocking {
+    fun registerDid(did: String, ethKeyAlias: String) = runBlocking {
         log.debug { "Running EBSI DID registration ... " }
         //TODO run auth-flow, if file is not present
         //TODO re-run auth-flow, if token is expired -> io.ktor.client.features.ClientRequestException: Client request(https://api.preprod.ebsi.eu/did-registry/v2/jsonrpc) invalid: 401 Unauthorized. Text: "{"title":"Unauthorized","status":401,"type":"about:blank","detail":"Invalid JWT: JWT has expired: exp: 1623244001 < now: 1623245358"}"
         val token = readWhenContent(EssifFlowRunner.ebsiAccessTokenFile)
 
         // Insert DID document request
-        val insertDocumentParams = buildInsertDocumentParams(did)
+        val insertDocumentParams = buildInsertDocumentParams(did, ethKeyAlias)
         log.debug { insertDocumentParams }
 
         val unsignedTx = didRegistryJsonRpc<InsertDidDocumentResponse>(
@@ -93,7 +93,7 @@ object DidEbsiService {
         log.debug { unsignedTx }
 
         // Sign the raw transaction
-        val signedTx = signTransaction(did, unsignedTx)
+        val signedTx = signTransaction(ethKeyAlias, unsignedTx)
         log.debug { signedTx }
 
         // Signed transaction request
@@ -109,10 +109,10 @@ object DidEbsiService {
     }
 
     // TODO: Verify all params are properly defined according to EBSI expectations => https://ec.europa.eu/cefdigital/wiki/pages/viewpage.action?spaceKey=EBP&title=DID+Registry+Smart+Contract
-    fun buildInsertDocumentParams(did: String): List<InsertDidDocumentParams> {
+    fun buildInsertDocumentParams(did: String, ethKeyAlias: String): List<InsertDidDocumentParams> {
         val didDocumentString = Json.encodeToString(DidService.loadDidEbsi(did))
 
-        val from = KeyService.getEthereumAddress(did)
+        val from = KeyService.getEthereumAddress(ethKeyAlias)
         val identifier = Numeric.toHexString(did.toByteArray())
         val hashValue = Numeric.toHexString(Hash.sha256(canonicalize(didDocumentString).toByteArray()))
         val didVersionInfo = Numeric.toHexString(didDocumentString.toByteArray())
@@ -125,7 +125,7 @@ object DidEbsiService {
         )
     }
 
-    fun signTransaction(did: String, unsignedTransaction: UnsignedTransaction): SignedTransaction {
+    fun signTransaction(ethKeyAlias: String, unsignedTransaction: UnsignedTransaction): SignedTransaction {
         val chainId = BigInteger(Numeric.hexStringToByteArray(unsignedTransaction.chainId))
         val rawTransaction = RawTransaction.createTransaction(
             BigInteger(Numeric.hexStringToByteArray(unsignedTransaction.nonce)),
@@ -140,11 +140,11 @@ object DidEbsiService {
         var rlpList = RlpList(TransactionEncoder.asRlpValues(rawTransaction, signatureData))
 
         val encodedTx = RlpEncoder.encode(rlpList)
-        val key = KeyService.load(did)
+        val key = KeyService.load(ethKeyAlias)
         val sig = cs.signEthTransaction(key.keyId, encodedTx)!!
 //        val sig = toECDSASignature(cs.sign(key.keyId, encodedTx), key.algorithm)
         val v = BigInteger
-            .valueOf(KeyService.getRecoveryId(did, encodedTx, sig).toLong())
+            .valueOf(KeyService.getRecoveryId(ethKeyAlias, encodedTx, sig).toLong())
             .add(chainId.multiply(BigInteger.TWO))
             .add(BigInteger.valueOf(35L))
 

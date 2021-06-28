@@ -239,8 +239,8 @@ object EssifFlowRunner {
         //UserWalletService.accessProtectedResource(accessToken) // e.g updateDID, revoke VC
     }
 
-    fun registerDid(did: String) {
-        DidEbsiService.registerDid(did)
+    fun registerDid(did: String, ethKeyAlias: String) {
+        DidEbsiService.registerDid(did, ethKeyAlias)
     }
 
     // https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/VC-Issuance+Flow
