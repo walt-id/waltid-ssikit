@@ -24,7 +24,7 @@ object EnterpriseWalletService {
     fun constructAuthResponseJwt(did: String, redirectUri: String, nonce: String): String {
 
         val kid = "$did#key-1"
-        val key = KeyService.toJwk(did, false, kid) as ECKey
+        val key = KeyService.toJwk(did, false, kid)
         val thumbprint = key.computeThumbprint().toString()
 
         val payload = JWTClaimsSet.Builder()
