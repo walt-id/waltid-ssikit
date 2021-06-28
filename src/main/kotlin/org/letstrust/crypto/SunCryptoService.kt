@@ -110,10 +110,10 @@ object SunCryptoService : CryptoService {
         return c.doFinal(plainText)
     }
 
-    override fun signWithECDSA(keyId: KeyId, data: ByteArray): ECDSASignature {
+    override fun signEthTransaction(keyId: KeyId, encodedTx: ByteArray): ECDSASignature {
         val key = ks.load(keyId.id, true)
         when (key.algorithm) {
-            KeyAlgorithm.ECDSA_Secp256k1 -> return ECKeyPair.create(key.keyPair).sign(Hash.sha3(data))
+            KeyAlgorithm.ECDSA_Secp256k1 -> return ECKeyPair.create(key.keyPair).sign(Hash.sha3(encodedTx))
             else -> throw IllegalArgumentException("Wrong key algorithm: secp256k1 is required.")
         }
     }

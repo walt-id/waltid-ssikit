@@ -11,11 +11,12 @@ import org.letstrust.LetsTrustServices
 import org.letstrust.common.readWhenContent
 import org.letstrust.crypto.CryptoService
 import org.letstrust.crypto.canonicalize
-import org.letstrust.crypto.toECDSASignature
 import org.letstrust.services.did.DidService
 import org.letstrust.services.key.KeyService
-import org.web3j.crypto.*
+import org.web3j.crypto.Hash
+import org.web3j.crypto.RawTransaction
 import org.web3j.crypto.Sign.SignatureData
+import org.web3j.crypto.TransactionEncoder
 import org.web3j.rlp.RlpEncoder
 import org.web3j.rlp.RlpList
 import org.web3j.utils.Numeric
@@ -140,7 +141,7 @@ object DidEbsiService {
 
         val encodedTx = RlpEncoder.encode(rlpList)
         val key = KeyService.load(did)
-        val sig = cs.signWithECDSA(key.keyId, encodedTx)!!
+        val sig = cs.signEthTransaction(key.keyId, encodedTx)!!
 //        val sig = toECDSASignature(cs.sign(key.keyId, encodedTx), key.algorithm)
         val v = BigInteger
             .valueOf(KeyService.getRecoveryId(did, encodedTx, sig).toLong())

@@ -23,7 +23,7 @@ class CustomCryptoService : CryptoService {
         TODO("Not yet implemented")
     }
 
-    override fun signWithECDSA(keyId: KeyId, data: ByteArray): ECDSASignature {
+    override fun signEthTransaction(keyId: KeyId, encodedTx: ByteArray): ECDSASignature {
         TODO("Not yet implemented")
     }
 }
