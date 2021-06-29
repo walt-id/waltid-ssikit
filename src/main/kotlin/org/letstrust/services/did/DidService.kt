@@ -221,7 +221,7 @@ object DidService {
         verificationMethods.add(VerificationMethod(eidasKeyId, "EidasVerificationKey2021", "publicKeyPem", "-----BEGIN.."))
 
         return DidEbsi(
-            listOf("https://w3.org/ns/did/v1"), // TODO Context not working "https://ebsi.org/ns/did/v1"
+            listOf("https://w3id.org./did/v1"), // TODO Context not working "https://ebsi.org/ns/did/v1"
             didUrl.did,
             verificationMethods,
             keyRef,
