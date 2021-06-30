@@ -18,6 +18,8 @@ class VcIssuanceFlowTest {
     fun validateDidAuthRequest() {
         val didAuthReq = readEssif("onboarding-did-ownership-req")
 
+        // TODO validate data structure
+
         println(didAuthReq)
     }
 
