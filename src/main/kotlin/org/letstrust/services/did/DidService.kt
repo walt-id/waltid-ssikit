@@ -102,8 +102,9 @@ object DidService {
         val didUrlStr = DidUrl.generateDidEbsiV2DidUrl().did
         keyStore.addAlias(keyId, didUrlStr)
 
-        val kid = "$didUrlStr#key-1"
+        val kid = didUrlStr + "#" + key.keyId
         keyStore.addAlias(keyId, kid)
+
         val keyType = when (key.algorithm) {
             EdDSA_Ed25519 -> "Ed25519VerificationKey2018"
             ECDSA_Secp256k1 -> "Secp256k1VerificationKey2018"
@@ -117,7 +118,7 @@ object DidService {
             listOf("https://w3.org/ns/did/v1"), // TODO Context not working "https://ebsi.org/ns/did/v1"
             didUrlStr,
             verificationMethods,
-            listOf("$didUrlStr#key-1")
+            listOf(kid)
         )
         val ebsiDid = Json.encodeToString(did)
 
