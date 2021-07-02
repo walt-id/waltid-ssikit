@@ -1,7 +1,8 @@
 package org.letstrust.service2
 
+import id.walt.servicematrix.ServiceMatrix
+import id.walt.servicematrix.ServiceRegistry
 import org.letstrust.services.vc.CustomVCService
-import org.letstrust.services.vc.LetstrustVCService
 import org.letstrust.services.vc.VCService
 
 fun main() {

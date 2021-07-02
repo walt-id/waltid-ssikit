@@ -19,6 +19,14 @@ repositories {
     //jcenter()
     maven("https://jitpack.io")
     maven("https://repo.danubetech.com/repository/maven-snapshots/")
+    maven {
+        url = uri("https://maven.letstrust.io/repository/waltid/")
+
+        credentials {
+            username = "letstrust-build"
+            password = "naidohTeiraG9ouzoo0"
+        }
+    }
 }
 
 dependencies {
@@ -64,6 +72,9 @@ dependencies {
     implementation("com.sksamuel.hoplite:hoplite-core:1.4.0")
     implementation("com.sksamuel.hoplite:hoplite-yaml:1.4.0")
     implementation("com.sksamuel.hoplite:hoplite-hikaricp:1.4.0")
+
+    // Service-Matrix
+    implementation("id.walt.servicematrix:WaltID-ServiceMatrix:1.0-SNAPSHOT")
 
     // Testing
     testImplementation(kotlin("test-junit"))
