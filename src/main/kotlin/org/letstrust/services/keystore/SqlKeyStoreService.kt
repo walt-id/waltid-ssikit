@@ -1,4 +1,4 @@
-package org.letstrust.crypto.keystore
+package org.letstrust.services.keystore
 
 import mu.KotlinLogging
 import org.letstrust.common.SqlDbManager
@@ -10,7 +10,7 @@ import java.sql.Statement.RETURN_GENERATED_KEYS
 
 private val log = KotlinLogging.logger {}
 
-object SqlKeyStore : KeyStore {
+open class SqlKeyStoreService : KeyStoreService() {
 
     init {
         SqlDbManager.start()

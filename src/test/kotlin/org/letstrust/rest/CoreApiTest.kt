@@ -1,5 +1,6 @@
 package org.letstrust.rest
 
+import id.walt.servicematrix.ServiceMatrix
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.json.*
@@ -32,6 +33,10 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class CoreApiTest {
+
+    init {
+        ServiceMatrix("service-matrix.properties")
+    }
 
     val credentialService = VCService.getService()
     val CORE_API_URL = "http://localhost:7003"

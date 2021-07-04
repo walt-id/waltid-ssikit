@@ -10,7 +10,7 @@ import org.letstrust.LetsTrustServices
 import org.letstrust.crypto.*
 import org.letstrust.crypto.KeyAlgorithm.ECDSA_Secp256k1
 import org.letstrust.crypto.KeyAlgorithm.EdDSA_Ed25519
-import org.letstrust.crypto.keystore.KeyStore
+import org.letstrust.services.keystore.KeyStoreService
 import org.letstrust.model.*
 import org.letstrust.services.crypto.CryptoService
 import org.letstrust.services.vc.VCService
@@ -30,7 +30,7 @@ object DidService {
 
     private val credentialService = VCService.getService()
     private val cryptoService = CryptoService.getService()
-    private val keyStore = LetsTrustServices.load<KeyStore>()
+    private val keyStore = KeyStoreService.getService()
 
     // Public methods
 

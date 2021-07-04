@@ -1,22 +1,23 @@
-package org.letstrust.crypto.keystore
+package org.letstrust.services.keystore
 
 import com.google.crypto.tink.config.TinkConfig
 import org.junit.Test
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.services.crypto.TinkCryptoService
 
-class TinkKeyStoreTest {
+class TinkKeyStoreServiceTest {
 
     init {
         TinkConfig.register()
     }
 
     val tinkCryptoService = TinkCryptoService()
+    val tinkKeyStoreService = TinkKeyStoreService()
 
     @Test
     fun storeTest() {
         val keyId = tinkCryptoService.generateKey(KeyAlgorithm.ECDSA_Secp256k1)
-        val key = TinkKeyStore.load(keyId.id)
+        val key = tinkKeyStoreService.load(keyId.id)
 
         println(key)
     }

@@ -7,7 +7,7 @@ import org.letstrust.LetsTrustServices
 import org.letstrust.crypto.Key
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.KeyId
-import org.letstrust.crypto.keystore.KeyStore
+import org.letstrust.services.keystore.KeyStoreService
 import org.letstrust.services.crypto.CryptoService
 import java.util.*
 
@@ -17,7 +17,7 @@ object KeyManagementService {
 
     private var cs: CryptoService = CryptoService.getService()
 
-    private var ks: KeyStore = LetsTrustServices.load<KeyStore>()
+    private var ks: KeyStoreService = KeyStoreService.getService()
 
     fun generate(keyAlgorithm: KeyAlgorithm) = cs.generateKey(keyAlgorithm)
 
@@ -31,7 +31,7 @@ object KeyManagementService {
 
     fun delete(alias: String) = ks.delete(alias)
 
-    internal fun setKeyStore(ks: KeyStore) {
+    internal fun setKeyStore(ks: KeyStoreService) {
         KeyManagementService.ks = ks
     }
 

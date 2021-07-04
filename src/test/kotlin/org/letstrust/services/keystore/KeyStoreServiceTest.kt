@@ -1,4 +1,4 @@
-package org.letstrust.crypto.keystore
+package org.letstrust.services.keystore
 
 import id.walt.servicematrix.ServiceMatrix
 import org.bouncycastle.jce.provider.BouncyCastleProvider
@@ -12,7 +12,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 
-open class KeyStoreTest {
+open class KeyStoreServiceTest {
 
     val kms = KeyManagementService
 
@@ -23,14 +23,14 @@ open class KeyStoreTest {
 
     @Test
     fun serviceLoaderTest() {
-        val loader = ServiceLoader.load(KeyStore::class.java)
+        val loader = ServiceLoader.load(KeyStoreService::class.java)
         val ksServiceLoader = loader.iterator().next()
         println(ksServiceLoader)
 
-        val ksKClass = Class.forName("org.letstrust.crypto.keystore.CustomKeyStore").kotlin.createInstance()
+        val ksKClass = Class.forName("org.letstrust.services.keystore.CustomKeyStoreService").kotlin.createInstance()
         println(ksKClass)
 
-        val ksObject = FileSystemKeyStore
+        val ksObject = FileSystemKeyStoreService
         println(ksObject)
     }
 

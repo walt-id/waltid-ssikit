@@ -13,11 +13,8 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.core.config.LoggerConfig
 import org.bouncycastle.jce.provider.BouncyCastleProvider
-import org.letstrust.crypto.keystore.FileSystemKeyStore
-import org.letstrust.crypto.keystore.KeyStore
-import org.letstrust.crypto.keystore.SqlKeyStore
-import org.letstrust.crypto.keystore.TinkKeyStore
 import org.letstrust.services.crypto.CryptoService
+import org.letstrust.services.keystore.KeyStoreService
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
@@ -88,7 +85,7 @@ object LetsTrustServices {
         val conf = this.loadConfig()
 
         val service = when (T::class) {
-            KeyStore::class -> loadKeyStore(conf)
+            //KeyStoreService::class -> loadKeyStore(conf)
             //CryptoService::class -> loadCrypto(conf)
             HikariDataSource::class -> conf.hikariDataSource as T
             else -> throw Exception("Service " + T::class + " not registered")
@@ -109,13 +106,13 @@ object LetsTrustServices {
         Files.createDirectories(Path.of("${dataDir}/ebsi/"))
     }
 
-    fun loadKeyStore(conf: LetsTrustConfig) = when (conf.keystore.type) {
-        KeystoreType.CUSTOM -> loadCustomKeyStore()
-        KeystoreType.TINK -> TinkKeyStore
-        KeystoreType.FILE -> FileSystemKeyStore
-        KeystoreType.DATABASE -> SqlKeyStore
-        else -> throw Exception("No Keystore implementation defined.")
-    }
+    /* fun loadKeyStore(conf: LetsTrustConfig) = when (conf.keystore.type) {
+         KeystoreType.CUSTOM -> loadCustomKeyStore()
+         KeystoreType.TINK -> TinkKeyStoreService
+         KeystoreType.FILE -> FileSystemKeyStoreService
+         KeystoreType.DATABASE -> SqlKeyStoreService
+         else -> throw Exception("No Keystore implementation defined.")
+     }*/
 
     /*
     fun loadCrypto(conf: LetsTrustConfig) = when (conf.cryptoProvider) {
@@ -135,12 +132,12 @@ object LetsTrustServices {
         throw Exception("No custom crypto-service configured")
     }
 
-    private fun loadCustomKeyStore(): KeyStore {
-        println("Loading Custom KeyStore")
-        val loader = ServiceLoader.load(KeyStore::class.java)
+    private fun loadCustomKeyStore(): KeyStoreService {
+        println("Loading Custom KeyStoreService")
+        val loader = ServiceLoader.load(KeyStoreService::class.java)
         if (loader.iterator().hasNext()) {
             val customKeyStore = loader.iterator().next()
-            println("Loaded custom KeyStore: $customKeyStore")
+            println("Loaded custom KeyStoreService: $customKeyStore")
             return customKeyStore
         }
         throw Exception("No custom keystore configured")

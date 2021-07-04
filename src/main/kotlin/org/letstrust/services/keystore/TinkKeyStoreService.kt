@@ -1,4 +1,4 @@
-package org.letstrust.crypto.keystore
+package org.letstrust.services.keystore
 
 import com.google.common.collect.ImmutableSet
 import com.google.crypto.tink.CleartextKeysetHandle
@@ -23,7 +23,7 @@ import java.security.PublicKey
 import java.security.spec.InvalidKeySpecException
 
 
-object TinkKeyStore : KeyStore {
+open class TinkKeyStoreService : KeyStoreService() {
 
 
     override fun listKeys(): List<Key> = TODO("Not yet implemented")
@@ -146,13 +146,13 @@ object TinkKeyStore : KeyStore {
 
 
     override fun addAlias(keyId: KeyId, alias: String) {
-        //TODO remove dependency to FileSystemKeyStore
-        FileSystemKeyStore.addAlias(keyId, alias)
+        //TODO remove dependency to FileSystemKeyStoreService
+        FileSystemKeyStoreService().addAlias(keyId, alias)
     }
 
     override fun getKeyId(keyId: String): String? {
-        //TODO remove dependency to FileSystemKeyStore
-        return FileSystemKeyStore.getKeyId(keyId)
+        //TODO remove dependency to FileSystemKeyStoreService
+        return FileSystemKeyStoreService().getKeyId(keyId)
     }
 
 }

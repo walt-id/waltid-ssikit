@@ -15,7 +15,7 @@ import org.letstrust.LetsTrustServices
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.LdSigner
 import org.letstrust.crypto.SignatureType
-import org.letstrust.crypto.keystore.KeyStore
+import org.letstrust.services.keystore.KeyStoreService
 import org.letstrust.model.*
 import org.letstrust.vclib.VcLibManager
 import org.letstrust.vclib.vcs.Europass
@@ -32,7 +32,7 @@ private val log = KotlinLogging.logger {}
 
 open class LetstrustVCService : VCService() {
 
-    private var ks: KeyStore = LetsTrustServices.load<KeyStore>()
+    private var ks: KeyStoreService = KeyStoreService.getService()
 
     init {
         Ed25519Provider.set(TinkEd25519Provider())

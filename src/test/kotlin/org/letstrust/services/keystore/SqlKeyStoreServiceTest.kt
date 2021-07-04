@@ -1,4 +1,4 @@
-package org.letstrust.crypto.keystore
+package org.letstrust.services.keystore
 
 import org.junit.Test
 import org.letstrust.crypto.KeyAlgorithm
@@ -7,22 +7,24 @@ import kotlin.test.BeforeTest
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-class SqlKeyStoreTest : KeyStoreTest() {
+class SqlKeyStoreServiceTest : KeyStoreServiceTest() {
+
+    val sqlKeyStoreService = SqlKeyStoreService()
 
     @BeforeTest
     fun setUp() {
-        kms.setKeyStore(SqlKeyStore)
+        kms.setKeyStore(sqlKeyStoreService)
     }
 
     @Test
     fun addAliasSqlApiTest() {
         val keyId = kms.generate(KeyAlgorithm.EdDSA_Ed25519)
         val alias = UUID.randomUUID().toString()
-        SqlKeyStore.addAlias(keyId, alias)
-        val k1 = SqlKeyStore.getKeyId(alias)
+        sqlKeyStoreService.addAlias(keyId, alias)
+        val k1 = sqlKeyStoreService.getKeyId(alias)
         assertNotNull(k1)
         assertEquals(keyId.id, k1)
-        val k2 = SqlKeyStore.load(keyId.id)
+        val k2 = sqlKeyStoreService.load(keyId.id)
         assertNotNull(k2)
         assertEquals(k1, k2.keyId.id)
     }
@@ -34,8 +36,8 @@ class SqlKeyStoreTest : KeyStoreTest() {
 //        val priv = BytePrivateKey("priv".toByteArray(), "alg")
 //        val pub = BytePublicKey("pub".toByteArray(), "alg")
 //        val keys = Keys(UUID.randomUUID().toString(), KeyPair(pub, priv), "dummy")
-//        SqlKeyStore.saveKeyPair(keys)
-//        val keysLoaded = SqlKeyStore.load(keys.keyId)
+//        SqlKeyStoreService.saveKeyPair(keys)
+//        val keysLoaded = SqlKeyStoreService.load(keys.keyId)
 //        assertNotNull(keysLoaded)
 //        assertEquals(keys.keyId, keysLoaded.keyId)
 //        assertEquals("priv", String(keysLoaded.pair.private.encoded))

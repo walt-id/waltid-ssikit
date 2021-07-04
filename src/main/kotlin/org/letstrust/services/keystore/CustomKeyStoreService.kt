@@ -1,4 +1,4 @@
-package org.letstrust.crypto.keystore
+package org.letstrust.services.keystore
 
 import org.letstrust.CryptoProvider
 import org.letstrust.crypto.Key
@@ -9,7 +9,7 @@ import java.security.KeyPair
 import java.security.PublicKey
 
 
-class CustomKeyStore : KeyStore {
+class CustomKeyStoreService : KeyStoreService() {
 
     fun generate() = Unit
 

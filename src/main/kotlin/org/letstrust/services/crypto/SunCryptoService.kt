@@ -5,7 +5,7 @@ import com.nimbusds.jose.jwk.ECKey
 import org.letstrust.CryptoProvider
 import org.letstrust.LetsTrustServices
 import org.letstrust.crypto.*
-import org.letstrust.crypto.keystore.KeyStore
+import org.letstrust.services.keystore.KeyStoreService
 import java.security.SecureRandom
 import java.security.Signature
 import javax.crypto.Cipher
@@ -15,11 +15,11 @@ import javax.crypto.spec.GCMParameterSpec
 
 open class SunCryptoService : CryptoService() {
 
-    private var keyStore: KeyStore = LetsTrustServices.load<KeyStore>()
+    private var keyStore: KeyStoreService = KeyStoreService.getService()
 
     var ecJWK: ECKey? = null
 
-    fun setKeyStore(newKeyStore: KeyStore) {
+    fun setKeyStore(newKeyStore: KeyStoreService) {
         keyStore = newKeyStore
     }
 

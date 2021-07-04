@@ -9,13 +9,13 @@ import org.letstrust.CryptoProvider
 import org.letstrust.crypto.Key
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.KeyId
-import org.letstrust.crypto.keystore.KeyStore
-import org.letstrust.crypto.keystore.TinkKeyStore
+import org.letstrust.services.keystore.KeyStoreService
+import org.letstrust.services.keystore.TinkKeyStoreService
 import org.letstrust.crypto.newKeyId
 
 
 open class TinkCryptoService : CryptoService() {
-    private var keyStore: KeyStore = TinkKeyStore //LetsTrustServices.load<KeyStore>()
+    private var keyStore: KeyStoreService = TinkKeyStoreService() //KeyStoreService.getService()
     override fun generateKey(algorithm: KeyAlgorithm): KeyId {
 //        EcdsaSignKeyManager.createKeyTemplate(
 //            HashType.SHA256,

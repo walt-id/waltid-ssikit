@@ -1,6 +1,7 @@
 package org.letstrust.services.key
 
 import com.google.crypto.tink.subtle.X25519
+import id.walt.servicematrix.ServiceMatrix
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.junit.Before
 import org.junit.Test
@@ -18,6 +19,7 @@ class KeyManagementServiceTest {
 
     @Before
     fun setup() {
+        ServiceMatrix("service-matrix.properties")
         Security.addProvider(BouncyCastleProvider())
     }
 
@@ -71,7 +73,7 @@ class KeyManagementServiceTest {
 //    @Test
 //    fun generateRsaKeyPairTest() {
 //        val kms = KeyManagementService
-//        val ks = FileSystemKeyStore
+//        val ks = FileSystemKeyStoreService
 //        val keyId = kms.generateKeyPair("RSA")
 //        val keysLoaded = kms.loadKeys(keyId)
 //        assertEquals(keyId, keysLoaded?.keyId)

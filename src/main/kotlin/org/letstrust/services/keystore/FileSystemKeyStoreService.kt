@@ -1,4 +1,4 @@
-package org.letstrust.crypto.keystore
+package org.letstrust.services.keystore
 
 import mu.KotlinLogging
 import org.apache.commons.io.IOUtils
@@ -16,21 +16,18 @@ import java.security.spec.X509EncodedKeySpec
 
 private val log = KotlinLogging.logger {}
 
-object FileSystemKeyStore : KeyStore {
-
-    //TODO: get path from config
-    private const val KEY_DIR_PATH = "data/key"
+open class FileSystemKeyStoreService : KeyStoreService() {
 
     //TODO: get key format from config
     private val KEY_FORMAT = KeyFormat.PEM
 
     init {
-        File(KEY_DIR_PATH).mkdirs()
+        File(Companion.KEY_DIR_PATH).mkdirs()
     }
 
     override fun listKeys(): List<Key> {
         val keys = ArrayList<Key>()
-        Files.walk(Paths.get(KEY_DIR_PATH))
+        Files.walk(Paths.get(Companion.KEY_DIR_PATH))
             .filter { Files.isRegularFile(it) }
             .filter { it.toString().endsWith(".meta") }
             .forEach {
@@ -50,14 +47,14 @@ object FileSystemKeyStore : KeyStore {
         val metaData = String(loadKeyFile(keyId, "meta"))
         val algorithm = metaData.substringBefore(delimiter = ";")
         val provider = metaData.substringAfter(delimiter = ";")
-        val publicPart = File("$KEY_DIR_PATH/$keyId.enc-pubkey").readText()
-        val privatePart = File("$KEY_DIR_PATH/$keyId.enc-privkey").readText()
+        val publicPart = File("${Companion.KEY_DIR_PATH}/$keyId.enc-pubkey").readText()
+        val privatePart = File("${Companion.KEY_DIR_PATH}/$keyId.enc-privkey").readText()
 
         return buildKey(keyId, algorithm, provider, publicPart, privatePart, KEY_FORMAT)
     }
 
     override fun addAlias(keyId: KeyId, alias: String) {
-        File("$KEY_DIR_PATH/Alias-$alias").writeText(keyId.id)
+        File("${Companion.KEY_DIR_PATH}/Alias-$alias").writeText(keyId.id)
     }
 
     override fun store(key: Key) {
@@ -72,7 +69,7 @@ object FileSystemKeyStore : KeyStore {
 
     override fun getKeyId(alias: String): String? {
         try {
-            return File("$KEY_DIR_PATH/Alias-$alias").readText()
+            return File("${Companion.KEY_DIR_PATH}/Alias-$alias").readText()
         } catch (e: Exception) {
         }
         return null
@@ -110,7 +107,7 @@ object FileSystemKeyStore : KeyStore {
     }
 
     private fun saveKeyData(key: Key, suffix: String, data: ByteArray): Unit =
-        FileOutputStream("$KEY_DIR_PATH/${key.keyId.id}.$suffix").use { it.write(data) }
+        FileOutputStream("${Companion.KEY_DIR_PATH}/${key.keyId.id}.$suffix").use { it.write(data) }
 
 
     //TODO consider deprecated methods below
@@ -195,7 +192,7 @@ object FileSystemKeyStore : KeyStore {
 //    }>
 
     private fun saveKeyFile(keyId: String, suffix: String, data: ByteArray): Unit =
-        FileOutputStream("$KEY_DIR_PATH/$keyId.$suffix").use { it.write(data) }
+        FileOutputStream("${Companion.KEY_DIR_PATH}/$keyId.$suffix").use { it.write(data) }
 
     private fun saveEncPublicKey(keyId: String, encodedPublicKey: PublicKey) =
         saveKeyFile(keyId, "enc-pubkey", X509EncodedKeySpec(encodedPublicKey.encoded).encoded)
@@ -211,13 +208,13 @@ object FileSystemKeyStore : KeyStore {
 
 
     private fun loadKeyFile(keyId: String, suffix: String): ByteArray =
-        IOUtils.toByteArray(FileInputStream("$KEY_DIR_PATH/$keyId.$suffix"))
+        IOUtils.toByteArray(FileInputStream("${Companion.KEY_DIR_PATH}/$keyId.$suffix"))
 
-    private fun deleteKeyFile(keyId: String, suffix: String) = File("$KEY_DIR_PATH/$keyId.$suffix").delete()
+    private fun deleteKeyFile(keyId: String, suffix: String) = File("${Companion.KEY_DIR_PATH}/$keyId.$suffix").delete()
 
-    fun getKeyIdList() = File(KEY_DIR_PATH).listFiles()!!.map { it.nameWithoutExtension }.distinct()
+    fun getKeyIdList() = File(Companion.KEY_DIR_PATH).listFiles()!!.map { it.nameWithoutExtension }.distinct()
 
-    private fun keyFileExists(keyId: String, suffix: String) = File("$KEY_DIR_PATH/$keyId.$suffix").exists()
+    private fun keyFileExists(keyId: String, suffix: String) = File("${Companion.KEY_DIR_PATH}/$keyId.$suffix").exists()
 
     private fun loadRawPublicKey(keyId: String): ByteArray = loadKeyFile(keyId, "raw-pubkey")
 
@@ -237,6 +234,11 @@ object FileSystemKeyStore : KeyStore {
                 loadKeyFile(keyId, "enc-privkey")
             )
         )
+    }
+
+    companion object {
+        //TODO: get path from config
+        private const val KEY_DIR_PATH = "data/key"
     }
 
 }

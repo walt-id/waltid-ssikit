@@ -10,7 +10,7 @@ import kotlinx.serialization.Serializable
 import org.bouncycastle.asn1.ASN1BitString
 import org.bouncycastle.asn1.ASN1Sequence
 import org.letstrust.CryptoProvider
-import org.letstrust.crypto.keystore.TinkKeyStore
+import org.letstrust.services.keystore.TinkKeyStoreService
 import java.security.KeyPair
 import java.security.PublicKey
 import java.security.interfaces.ECPublicKey
@@ -23,7 +23,7 @@ data class KeyId(val id: String) {
 data class Key(val keyId: KeyId, val algorithm: KeyAlgorithm, val cryptoProvider: CryptoProvider) {
     fun getPublicKey(): PublicKey = when {
         keyPair != null -> keyPair!!.public
-        keysetHandle != null -> TinkKeyStore.loadPublicKey(this) as ECPublicKey
+        keysetHandle != null -> TinkKeyStoreService().loadPublicKey(this) as ECPublicKey
         else -> throw Exception("No public key for $keyId")
     }
 
