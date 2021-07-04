@@ -13,7 +13,7 @@ object SqlDbManager {
 //    val JDBC_URL = "jdbc:sqlite::memory:"
 
     //  private val config: HikariConfig = HikariConfig()
-    private var ds: HikariDataSource? = LetsTrustServices.load<HikariDataSource>()
+    private var ds: HikariDataSource? = LetsTrustServices.loadHikariDataSource()
 
     // TODO: Should be configurable
     val recreateDb = false

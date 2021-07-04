@@ -13,13 +13,10 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.core.config.LoggerConfig
 import org.bouncycastle.jce.provider.BouncyCastleProvider
-import org.letstrust.services.crypto.CryptoService
-import org.letstrust.services.keystore.KeyStoreService
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.security.Security
-import java.util.*
 
 enum class CryptoProvider { SUN, TINK, CUSTOM }
 inline class Port(val value: Int)
@@ -61,12 +58,12 @@ object LetsTrustServices {
     val log = KotlinLogging.logger {}
 
     init {
-        val javaVersion = System.getProperty("java.runtime.version")
+        /*val javaVersion = System.getProperty("java.runtime.version")
         println("Let's Trust SSI Core ${Values.version} (running on Java $javaVersion)")
 
         if (Runtime.version().feature() < 15) {
             log.error { "Java version 15+ is required!" }
-        }
+        }*/
 
         // BC is required for
         // - secp256k1 curve
@@ -77,22 +74,9 @@ object LetsTrustServices {
         println()
     }
 
-    inline fun <reified T> load(): T {
-
-        log.debug { "Loading: " + T::class }
-
-        createDirStructure()
+    fun loadHikariDataSource(): HikariDataSource {
         val conf = this.loadConfig()
-
-        val service = when (T::class) {
-            //KeyStoreService::class -> loadKeyStore(conf)
-            //CryptoService::class -> loadCrypto(conf)
-            HikariDataSource::class -> conf.hikariDataSource as T
-            else -> throw Exception("Service " + T::class + " not registered")
-        }
-
-        log.debug { "Service: $service loaded" }
-        return service as T
+        return conf.hikariDataSource
     }
 
     fun createDirStructure() {
@@ -104,43 +88,6 @@ object LetsTrustServices {
         Files.createDirectories(Path.of("${dataDir}/vc/created"))
         Files.createDirectories(Path.of("${dataDir}/vc/presented"))
         Files.createDirectories(Path.of("${dataDir}/ebsi/"))
-    }
-
-    /* fun loadKeyStore(conf: LetsTrustConfig) = when (conf.keystore.type) {
-         KeystoreType.CUSTOM -> loadCustomKeyStore()
-         KeystoreType.TINK -> TinkKeyStoreService
-         KeystoreType.FILE -> FileSystemKeyStoreService
-         KeystoreType.DATABASE -> SqlKeyStoreService
-         else -> throw Exception("No Keystore implementation defined.")
-     }*/
-
-    /*
-    fun loadCrypto(conf: LetsTrustConfig) = when (conf.cryptoProvider) {
-        CryptoProvider.TINK -> TinkCryptoService
-        CryptoProvider.CUSTOM -> loadCustomCryptoService()
-        else -> SunCryptoService
-    }*/
-
-    private fun loadCustomCryptoService(): CryptoService {
-        println("Loading Custom CryptService")
-        val loader = ServiceLoader.load(CryptoService::class.java)
-        if (loader.iterator().hasNext()) {
-            val customCryptoService = loader.iterator().next()
-            println("Loaded custom CryptoService: $customCryptoService")
-            return customCryptoService
-        }
-        throw Exception("No custom crypto-service configured")
-    }
-
-    private fun loadCustomKeyStore(): KeyStoreService {
-        println("Loading Custom KeyStoreService")
-        val loader = ServiceLoader.load(KeyStoreService::class.java)
-        if (loader.iterator().hasNext()) {
-            val customKeyStore = loader.iterator().next()
-            println("Loaded custom KeyStoreService: $customKeyStore")
-            return customKeyStore
-        }
-        throw Exception("No custom keystore configured")
     }
 
     fun loadConfig() = ConfigLoader.Builder()
