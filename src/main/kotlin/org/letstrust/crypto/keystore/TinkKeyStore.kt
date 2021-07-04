@@ -26,17 +26,13 @@ import java.security.spec.InvalidKeySpecException
 object TinkKeyStore : KeyStore {
 
 
-    override fun listKeys(): List<Key> {
-        TODO("Not yet implemented")
-    }
+    override fun listKeys(): List<Key> = TODO("Not yet implemented")
 
 //    override fun loadKeyPair(keyId: String): Keys? {
 //        TODO("Not yet implemented")
 //    }
 
-    override fun delete(alias: String) {
-        TODO("Not yet implemented")
-    }
+    override fun delete(alias: String): Unit = TODO("Not yet implemented")
 
 
     override fun store(key: Key) {
@@ -144,9 +140,7 @@ object TinkKeyStore : KeyStore {
 //                .build()
         }
 
-        override fun write(keyset: EncryptedKeyset?) {
-            TODO("Not yet implemented")
-        }
+        override fun write(keyset: EncryptedKeyset?): Unit = TODO("Not yet implemented")
 
     }
 

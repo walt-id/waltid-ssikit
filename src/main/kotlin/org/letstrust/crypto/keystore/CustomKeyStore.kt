@@ -11,29 +11,15 @@ import java.security.PublicKey
 
 class CustomKeyStore : KeyStore {
 
-    init {
+    fun generate() = Unit
 
-    }
+    override fun getKeyId(keyId: String): String = TODO("Not yet implemented")
 
-    fun generate() {
+    override fun listKeys(): List<Key> = TODO("Not yet implemented")
 
-    }
+    override fun delete(alias: String): Unit = TODO("Not yet implemented")
 
-    override fun getKeyId(keyId: String): String? {
-        TODO("Not yet implemented")
-    }
-
-    override fun listKeys(): List<Key> {
-        TODO("Not yet implemented")
-    }
-
-    override fun delete(alias: String) {
-        TODO("Not yet implemented")
-    }
-
-    override fun store(key: Key) {
-        TODO("Not yet implemented")
-    }
+    override fun store(key: Key): Unit = TODO("Not yet implemented")
 
     override fun load(alias: String): Key {
         val publicKey: PublicKey? = null // TODO: load public key
@@ -43,7 +29,5 @@ class CustomKeyStore : KeyStore {
         return Key(KeyId(alias), KeyAlgorithm.EdDSA_Ed25519, CryptoProvider.CUSTOM, KeyPair(publicKey, privateKey))
     }
 
-    override fun addAlias(keyId: KeyId, alias: String) {
-        TODO("Not yet implemented")
-    }
+    override fun addAlias(keyId: KeyId, alias: String): Unit = TODO("Not yet implemented")
 }
