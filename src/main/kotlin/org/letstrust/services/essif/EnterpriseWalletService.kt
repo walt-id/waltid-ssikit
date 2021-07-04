@@ -2,7 +2,6 @@ package org.letstrust.services.essif
 
 import mu.KotlinLogging
 import org.letstrust.common.readEssif
-import org.letstrust.services.essif.mock.DidRegistry
 
 object EnterpriseWalletService {
 
@@ -68,7 +67,7 @@ object EnterpriseWalletService {
         return authRequest
     }
 
-    fun generateDidAuthRequest() : String {
+    fun generateDidAuthRequest(): String {
         println("3. [EWallet] Generate <DID-Auth Request>")
         return readEssif("onboarding-did-ownership-req")
     }

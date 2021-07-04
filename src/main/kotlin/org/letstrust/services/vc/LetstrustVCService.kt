@@ -177,7 +177,10 @@ open class LetstrustVCService : VCService() {
 
     override fun verify(vcOrVp: String): VerificationResult {
         return when { // TODO: replace the raw contains call
-            vcOrVp.contains("VerifiablePresentation") -> VerificationResult(verifyVp(vcOrVp), VerificationType.VERIFIABLE_PRESENTATION)
+            vcOrVp.contains("VerifiablePresentation") -> VerificationResult(
+                verifyVp(vcOrVp),
+                VerificationType.VERIFIABLE_PRESENTATION
+            )
             else -> VerificationResult(verifyVc(vcOrVp), VerificationType.VERIFIABLE_CREDENTIAL)
         }
     }
@@ -265,13 +268,26 @@ open class LetstrustVCService : VCService() {
 
         val (vpReqStr, holderDid) = try {
             val eurpass = VcLibManager.getVerifiableCredential(vc) as Europass
-            val vpReq = VerifiablePresentation(listOf("https://www.w3.org/2018/credentials/v1"), "id", listOf("VerifiablePresentation"), null, listOf(eurpass), null)
+            val vpReq = VerifiablePresentation(
+                listOf("https://www.w3.org/2018/credentials/v1"),
+                "id",
+                listOf("VerifiablePresentation"),
+                null,
+                listOf(eurpass),
+                null
+            )
             val vpReqStr = Json { prettyPrint = true }.encodeToString(vpReq)
             Pair(vpReqStr, eurpass.credentialSubject!!.id!!)
         } catch (e: IllegalArgumentException) {
             // TODO: get rid of legacy code
             val vc = Json.decodeFromString<VerifiableCredential>(vc)
-            val vpReq = VerifiablePresentation(listOf("https://www.w3.org/2018/credentials/v1"), "id", listOf("VerifiablePresentation"), listOf(vc), null)
+            val vpReq = VerifiablePresentation(
+                listOf("https://www.w3.org/2018/credentials/v1"),
+                "id",
+                listOf("VerifiablePresentation"),
+                listOf(vc),
+                null
+            )
             val vpReqStr = Json { prettyPrint = true }.encodeToString(vpReq)
             log.trace { "VP request:\n$vpReq" }
             Pair(vpReqStr, (vc.credentialSubject.id ?: vc.credentialSubject.did)!!)

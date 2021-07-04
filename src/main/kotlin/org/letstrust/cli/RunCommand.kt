@@ -4,7 +4,7 @@ import com.github.ajalt.clikt.core.CliktCommand
 import org.letstrust.rest.RestAPI
 
 class RunCommand : CliktCommand(
-    name ="serve",
+    name = "serve",
     help = """Run as RESTful service.
 
         Runs the library as RESTful service and exposes following APIs:

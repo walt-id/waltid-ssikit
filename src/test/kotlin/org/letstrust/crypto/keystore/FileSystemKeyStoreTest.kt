@@ -1,24 +1,28 @@
 package org.letstrust.crypto.keystore
 
+import id.walt.servicematrix.ServiceMatrix
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.letstrust.crypto.KeyAlgorithm
-import org.letstrust.crypto.SunCryptoService
+import org.letstrust.services.crypto.SunCryptoService
 import org.letstrust.services.key.KeyManagementService
 import kotlin.test.assertEquals
 
 open class FileSystemKeyStoreTest {//: KeyStoreTest() {
 
+    val sunCryptoService = SunCryptoService()
+
     @Before
     fun setUp() {
-        SunCryptoService.setKeyStore(FileSystemKeyStore)
+        ServiceMatrix("service-matrix.properties")
+        sunCryptoService.setKeyStore(FileSystemKeyStore)
         KeyManagementService.setKeyStore(FileSystemKeyStore)
     }
 
     @After
     fun tearDown() {
-        SunCryptoService.setKeyStore(SqlKeyStore)
+        sunCryptoService.setKeyStore(SqlKeyStore)
         KeyManagementService.setKeyStore(SqlKeyStore)
     }
 

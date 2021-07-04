@@ -4,7 +4,6 @@ import io.javalin.http.Context
 import io.javalin.plugin.openapi.annotations.OpenApi
 import io.javalin.plugin.openapi.annotations.OpenApiContent
 import io.javalin.plugin.openapi.annotations.OpenApiResponse
-import io.swagger.v3.oas.annotations.Hidden
 
 object RootController {
 

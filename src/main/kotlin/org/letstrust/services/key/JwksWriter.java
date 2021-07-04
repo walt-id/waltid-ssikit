@@ -61,33 +61,6 @@ public final class JwksWriter implements KeysetWriter {
         return new JwksWriter(stream);
     }
 
-    @Override
-    public void write(Keyset keyset) throws IOException {
-        JWKSet jwkSet;
-        try {
-            jwkSet = createJwks(keyset);
-        } catch (GeneralSecurityException exception) {
-            throw new IOException(exception);
-        }
-        outputStream.write(jwkSet.toString().getBytes(UTF_8));
-    }
-
-    @Override
-    public void write(EncryptedKeyset keyset) throws IOException {
-        throw new UnsupportedOperationException("JwksWriter.write(EncryptedKeyset) is unimplemented.");
-    }
-
-    public JWKSet createJwks(Keyset keyset) throws IOException, GeneralSecurityException {
-        ImmutableList.Builder<JWK> jwksBuilder = ImmutableList.builder();
-        for (Key key : keyset.getKeyList()) {
-            if (key.getStatus() != KeyStatusType.ENABLED) {
-                continue;
-            }
-            jwksBuilder.add(createJwk(key));
-        }
-        return new JWKSet(jwksBuilder.build());
-    }
-
     private static JWK createJwk(Key key) throws IOException, GeneralSecurityException {
         if (key.getOutputPrefixType() != OutputPrefixType.RAW) {
             throw new InvalidKeySpecException(
@@ -132,5 +105,32 @@ public final class JwksWriter implements KeysetWriter {
                 .keyID(String.valueOf(key.getKeyId()))
                 .keyOperations(ImmutableSet.of(KeyOperation.VERIFY))
                 .build();
+    }
+
+    @Override
+    public void write(Keyset keyset) throws IOException {
+        JWKSet jwkSet;
+        try {
+            jwkSet = createJwks(keyset);
+        } catch (GeneralSecurityException exception) {
+            throw new IOException(exception);
+        }
+        outputStream.write(jwkSet.toString().getBytes(UTF_8));
+    }
+
+    @Override
+    public void write(EncryptedKeyset keyset) throws IOException {
+        throw new UnsupportedOperationException("JwksWriter.write(EncryptedKeyset) is unimplemented.");
+    }
+
+    public JWKSet createJwks(Keyset keyset) throws IOException, GeneralSecurityException {
+        ImmutableList.Builder<JWK> jwksBuilder = ImmutableList.builder();
+        for (Key key : keyset.getKeyList()) {
+            if (key.getStatus() != KeyStatusType.ENABLED) {
+                continue;
+            }
+            jwksBuilder.add(createJwk(key));
+        }
+        return new JWKSet(jwksBuilder.build());
     }
 }

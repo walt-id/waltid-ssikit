@@ -15,7 +15,7 @@ import info.weboftrust.ldsignatures.suites.EcdsaSecp256k1Signature2019SignatureS
 import info.weboftrust.ldsignatures.suites.Ed25519Signature2018SignatureSuite
 import info.weboftrust.ldsignatures.suites.SignatureSuites
 import info.weboftrust.ldsignatures.util.JWSUtil
-import org.letstrust.LetsTrustServices
+import org.letstrust.services.crypto.CryptoService
 import java.security.InvalidKeyException
 import java.security.PrivateKey
 import java.security.SecureRandom
@@ -65,7 +65,7 @@ class LdSigner {
     // Directly calls LetsTrust CryptoService
     class JwsLtSigner(val keyId: KeyId) : JWSSigner {
 
-        val cryptoService = LetsTrustServices.load<CryptoService>()
+        val cryptoService = CryptoService.getService()
 
         override fun getJCAContext(): JCAContext {
             TODO("Not yet implemented")

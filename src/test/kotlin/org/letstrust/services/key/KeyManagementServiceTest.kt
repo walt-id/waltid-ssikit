@@ -46,11 +46,11 @@ class KeyManagementServiceTest {
         val kms = KeyManagementService
         val keyId = kms.generate(KeyAlgorithm.ECDSA_Secp256k1)
         val keysLoaded = kms.load(keyId.id)
-        assertEquals(keyId, keysLoaded?.keyId)
-        assertNotNull(keysLoaded?.keyPair)
-        assertNotNull(keysLoaded?.keyPair?.private)
-        assertNotNull(keysLoaded?.keyPair?.public)
-        assertEquals("ECDSA", keysLoaded?.keyPair?.private?.algorithm)
+        assertEquals(keyId, keysLoaded.keyId)
+        assertNotNull(keysLoaded.keyPair)
+        assertNotNull(keysLoaded.keyPair?.private)
+        assertNotNull(keysLoaded.keyPair?.public)
+        assertEquals("ECDSA", keysLoaded.keyPair?.private?.algorithm)
         kms.delete(keyId.id)
     }
 
@@ -60,11 +60,11 @@ class KeyManagementServiceTest {
         val kms = KeyManagementService
         val keyId = kms.generate(KeyAlgorithm.EdDSA_Ed25519)
         val keysLoaded = kms.load(keyId.id)
-        assertEquals(keyId, keysLoaded?.keyId)
-        assertNotNull(keysLoaded?.keyPair)
-        assertNotNull(keysLoaded?.keyPair?.private)
-        assertNotNull(keysLoaded?.keyPair?.public)
-       // assertTrue(keysLoaded?.getMultiBase58PublicKey(keyId).length > 32)
+        assertEquals(keyId, keysLoaded.keyId)
+        assertNotNull(keysLoaded.keyPair)
+        assertNotNull(keysLoaded.keyPair?.private)
+        assertNotNull(keysLoaded.keyPair?.public)
+        // assertTrue(keysLoaded?.getMultiBase58PublicKey(keyId).length > 32)
         kms.delete(keyId.id)
     }
 //

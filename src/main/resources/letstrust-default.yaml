@@ -1,4 +1,3 @@
-
 cryptoProvider: SUN # allowed values: SUN, CUSTOM, TINK (will be supported in future)
 
 keystore:

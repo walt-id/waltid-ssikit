@@ -88,7 +88,7 @@ object JwtService {
         val claimsSet = if (payload != null) JWTClaimsSet.parse(payload) else JWTClaimsSet.Builder()
             .subject(keyAlias)
             .issuer("https://letstrust.org")
-            .expirationTime(Date(Date().getTime() + 60 * 1000))
+            .expirationTime(Date(Date().time + 60 * 1000))
             .build()
 
         val issuerKey = KeyManagementService.load(keyAlias)

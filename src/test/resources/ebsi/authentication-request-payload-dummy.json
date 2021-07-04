@@ -17,7 +17,10 @@
             "document": {
               "type": {
                 "essential": true,
-                "value": ["VerifiableCredential", "VerifiableAuthorisation"]
+                "value": [
+                  "VerifiableCredential",
+                  "VerifiableAuthorisation"
+                ]
               },
               "credentialSchema": {
                 "id": {

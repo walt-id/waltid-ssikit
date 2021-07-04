@@ -1,10 +1,8 @@
 package org.letstrust.model
 
-import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.letstrust.vclib.vcs.Europass
-import org.letstrust.vclib.vcs.VC
 
 @Serializable
 data class VerifiablePresentation(

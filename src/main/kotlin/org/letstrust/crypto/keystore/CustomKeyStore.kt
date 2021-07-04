@@ -9,7 +9,7 @@ import java.security.KeyPair
 import java.security.PublicKey
 
 
-class CustomKeyStore constructor() : KeyStore {
+class CustomKeyStore : KeyStore {
 
     init {
 

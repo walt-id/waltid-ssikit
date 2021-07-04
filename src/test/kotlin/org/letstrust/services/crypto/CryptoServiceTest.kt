@@ -2,7 +2,10 @@ package org.letstrust.services.crypto
 
 import org.junit.Test
 import org.letstrust.LetsTrustServices
-import org.letstrust.crypto.*
+import org.letstrust.crypto.KeyAlgorithm
+import org.letstrust.crypto.LetsTrustProvider
+import org.letstrust.crypto.decBase64
+import org.letstrust.crypto.encBase64
 import java.security.KeyStore
 import java.security.Provider
 import java.security.Security
@@ -17,27 +20,30 @@ import kotlin.test.assertTrue
 
 class CryptoServiceTest {
 
+    val sunCryptoService = SunCryptoService()
+    val tinkCryptoService = TinkCryptoService()
+
     @Test
     fun testGenSecp256k1Sun() {
-        val keyId = SunCryptoService.generateKey(KeyAlgorithm.ECDSA_Secp256k1)
+        val keyId = sunCryptoService.generateKey(KeyAlgorithm.ECDSA_Secp256k1)
         assertNotNull(keyId.id)
     }
 
     @Test
     fun testGenEd255191Sun() {
-        val keyId = SunCryptoService.generateKey(KeyAlgorithm.EdDSA_Ed25519)
+        val keyId = sunCryptoService.generateKey(KeyAlgorithm.EdDSA_Ed25519)
         assertNotNull(keyId.id)
     }
 
     @Test
     fun testGenEd25519Tink() {
-        val keyId = TinkCryptoService.generateKey(KeyAlgorithm.EdDSA_Ed25519)
+        val keyId = tinkCryptoService.generateKey(KeyAlgorithm.EdDSA_Ed25519)
         assertNotNull(keyId.id)
     }
 
     // @Test TODO: not supported yet https://github.com/google/tink/issues/146
     fun testGenSecp256k1Tink() {
-        val keyId = TinkCryptoService.generateKey(KeyAlgorithm.ECDSA_Secp256k1)
+        val keyId = tinkCryptoService.generateKey(KeyAlgorithm.ECDSA_Secp256k1)
         assertNotNull(keyId.id)
     }
 
@@ -46,10 +52,13 @@ class CryptoServiceTest {
 
         LetsTrustServices
 
-        Security.addProvider(LetsTrustProvider());
+        Security.addProvider(LetsTrustProvider())
 
         println("SupportedCurves")
-        println("SupportedCurves: -> SunEC: " + Security.getProvider("SunEC").getProperty("AlgorithmParameters.EC SupportedCurves"))
+        println(
+            "SupportedCurves: -> SunEC: " + Security.getProvider("SunEC")
+                .getProperty("AlgorithmParameters.EC SupportedCurves")
+        )
 
 
         var letsTrustProviderFound = false
@@ -66,7 +75,7 @@ class CryptoServiceTest {
         val providers: Array<Provider> = Security.getProviders()
 
         for (p in providers) {
-            val info: String = p.getInfo()
+            val info: String = p.info
             println(p.toString() + " - " + info)
 
             if (p.toString().contains("LetsTrust version 1.0", true)) {

@@ -7,9 +7,8 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.Test
 import org.letstrust.crypto.KeyAlgorithm
-import org.letstrust.LetsTrustServices
-import org.letstrust.crypto.CryptoService
 import org.letstrust.model.*
+import org.letstrust.services.crypto.CryptoService
 import org.letstrust.services.did.DidService
 import org.letstrust.services.key.KeyManagementService
 import org.letstrust.services.vc.VCService
@@ -21,7 +20,7 @@ import kotlin.test.assertTrue
 class JwtServiceTest {
 
     val credentialService = VCService.getService()
-    val cryptoService = LetsTrustServices.load<CryptoService>()
+    val cryptoService = CryptoService.getService()
 
     @Test
     fun parseClaimsTest() {
@@ -148,11 +147,18 @@ class JwtServiceTest {
 
         // ake1_sig_payload(nonce, ake1_enc_payload, did(P))
         val ake1_nonce = UUID.randomUUID().toString()
-        val ake1_jws_detached = Json { prettyPrint = true }.encodeToString(Ake1JwsDetached(ake1_nonce, ake1_enc_payload_ENC, did_of_client))
+        val ake1_jws_detached =
+            Json { prettyPrint = true }.encodeToString(Ake1JwsDetached(ake1_nonce, ake1_enc_payload_ENC, did_of_client))
         val ake1_jws_detached_SIG = JwtService.sign(did_of_rp, ake1_jws_detached)
 
         // AKE response (ake1_jws_detached, ake1_enc_payload, did(Q))
-        val access_token_response = Json { prettyPrint = true }.encodeToString(AccessTokenResponse(ake1_enc_payload_ENC, ake1_jws_detached_SIG, did_of_rp))
+        val access_token_response = Json { prettyPrint = true }.encodeToString(
+            AccessTokenResponse(
+                ake1_enc_payload_ENC,
+                ake1_jws_detached_SIG,
+                did_of_rp
+            )
+        )
 
         println("access_token_response:\n" + access_token_response)
         println("ake1_enc_payload:\n" + ake1_enc_payload)
@@ -167,7 +173,7 @@ class JwtServiceTest {
 
         // encrypted payload ake1_enc_payload
         val received_ake1_enc_payload = JwtService.decrypt(received_access_token_response.ake1_enc_payload)
-        val received_ake1_enc_payload_obj  = Json.decodeFromString<Ake1EncPayload>(received_ake1_enc_payload)
+        val received_ake1_enc_payload_obj = Json.decodeFromString<Ake1EncPayload>(received_ake1_enc_payload)
         val received_access_token = received_ake1_enc_payload_obj.access_token
 
         assertEquals(accessToken, received_access_token)

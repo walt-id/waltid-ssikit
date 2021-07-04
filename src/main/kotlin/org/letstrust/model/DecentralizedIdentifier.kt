@@ -13,6 +13,7 @@ enum class DidMethod {
     web,
     ebsi
 }
+
 @Serializable
 data class Did(
     @SerialName("@context")

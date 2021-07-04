@@ -169,11 +169,11 @@ class CryptFunTests {
 //        val kg = KeyPairGenerator.getInstance("ECDSA", "BC")
 //        kg.initialize(ECNamedCurveTable.getParameterSpec("secp256k1"), SecureRandom())
 
-        val p: ECParameterSpec = (kg.generateKeyPair().public as ECPublicKey).getParams()
-        println("p=(dec)" + (p.getCurve().getField() as ECFieldFp).p)
-        val G: ECPoint = p.getGenerator()
-        System.out.format("Gx=(hex)%032x%n", G.getAffineX())
-        System.out.format("Gy=(hex)%032x%n", G.getAffineY())
+        val p: ECParameterSpec = (kg.generateKeyPair().public as ECPublicKey).params
+        println("p=(dec)" + (p.curve.field as ECFieldFp).p)
+        val G: ECPoint = p.generator
+        System.out.format("Gx=(hex)%032x%n", G.affineX)
+        System.out.format("Gy=(hex)%032x%n", G.affineY)
 
 //        val privatekey_enc: ByteArray = DatatypeConverter.parseHexBinary(
 //            "303E020100301006072A8648CE3D020106052B8104000A042730250201010420" +

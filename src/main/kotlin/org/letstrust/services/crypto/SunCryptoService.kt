@@ -1,9 +1,10 @@
-package org.letstrust.crypto
+package org.letstrust.services.crypto
 
 import com.nimbusds.jose.crypto.impl.AESGCM
 import com.nimbusds.jose.jwk.ECKey
 import org.letstrust.CryptoProvider
 import org.letstrust.LetsTrustServices
+import org.letstrust.crypto.*
 import org.letstrust.crypto.keystore.KeyStore
 import java.security.SecureRandom
 import java.security.Signature
@@ -12,16 +13,14 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 
-object SunCryptoService : CryptoService {
+open class SunCryptoService : CryptoService() {
 
-    private const val RSA_KEY_SIZE = 4096
-
-    private var ks: KeyStore = LetsTrustServices.load<KeyStore>()
+    private var keyStore: KeyStore = LetsTrustServices.load<KeyStore>()
 
     var ecJWK: ECKey? = null
 
-    internal fun setKeyStore(ks: KeyStore) {
-        SunCryptoService.ks = ks
+    fun setKeyStore(newKeyStore: KeyStore) {
+        keyStore = newKeyStore
     }
 
     override fun generateKey(algorithm: KeyAlgorithm): KeyId {
@@ -33,7 +32,7 @@ object SunCryptoService : CryptoService {
 
         val keyPair = generator.generateKeyPair()
         val key = Key(newKeyId(), algorithm, CryptoProvider.SUN, keyPair)
-        ks.store(key)
+        keyStore.store(key)
         return key.keyId
     }
 
@@ -65,7 +64,7 @@ object SunCryptoService : CryptoService {
     }
 
     override fun sign(keyId: KeyId, data: ByteArray): ByteArray {
-        val key = ks.load(keyId.id)
+        val key = keyStore.load(keyId.id)
         val sig = when (key.algorithm) {
             KeyAlgorithm.ECDSA_Secp256k1 -> Signature.getInstance("SHA256withECDSA")
             KeyAlgorithm.EdDSA_Ed25519 -> Signature.getInstance("Ed25519")
@@ -76,7 +75,7 @@ object SunCryptoService : CryptoService {
     }
 
     override fun verify(keyId: KeyId, sig: ByteArray, data: ByteArray): Boolean {
-        val key = ks.load(keyId.id)
+        val key = keyStore.load(keyId.id)
         val signature = when (key.algorithm) {
             KeyAlgorithm.ECDSA_Secp256k1 -> Signature.getInstance("SHA256withECDSA")
             KeyAlgorithm.EdDSA_Ed25519 -> Signature.getInstance("Ed25519")
@@ -87,11 +86,17 @@ object SunCryptoService : CryptoService {
     }
 
     var secretKey: SecretKey? = null
-    override fun encrypt(keyId: KeyId, algorithm: String, plainText: ByteArray, authData: ByteArray?, iv: ByteArray?): ByteArray {
+    override fun encrypt(
+        keyId: KeyId,
+        algorithm: String,
+        plainText: ByteArray,
+        authData: ByteArray?,
+        iv: ByteArray?
+    ): ByteArray {
 
         //TODO: load key
-        val keyGenerator: KeyGenerator = KeyGenerator.getInstance("AES");
-        keyGenerator.init(256, SecureRandom());
+        val keyGenerator: KeyGenerator = KeyGenerator.getInstance("AES")
+        keyGenerator.init(256, SecureRandom())
         secretKey = keyGenerator.generateKey()
 
         val c = Cipher.getInstance(algorithm)
@@ -100,7 +105,13 @@ object SunCryptoService : CryptoService {
         return c.doFinal(plainText)
     }
 
-    override fun decrypt(keyId: KeyId, algorithm: String, plainText: ByteArray, authData: ByteArray?, iv: ByteArray?): ByteArray {
+    override fun decrypt(
+        keyId: KeyId,
+        algorithm: String,
+        plainText: ByteArray,
+        authData: ByteArray?,
+        iv: ByteArray?
+    ): ByteArray {
         val c = Cipher.getInstance(algorithm)
         c.init(Cipher.DECRYPT_MODE, secretKey, GCMParameterSpec(AESGCM.AUTH_TAG_BIT_LENGTH, iv))
         authData?.let { c.updateAAD(authData) }

@@ -283,7 +283,8 @@ object EssifFlowRunner {
         // Finally the mutual authenticated session is established and the VC may be
         // obtained.
         ///////////////////////////////////////////////////////////////////////////
-        val credential = EosService.getCredentials(true) // user is authenticated (VC token is received); TODO: Align with spec, as the request goes to the EWallet there
+        val credential =
+            EosService.getCredentials(true) // user is authenticated (VC token is received); TODO: Align with spec, as the request goes to the EWallet there
         println(credential)
         println("21 Credential received")
     }

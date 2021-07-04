@@ -1,0 +1,35 @@
+package org.letstrust.services.crypto
+
+import id.walt.servicematrix.BaseService
+import id.walt.servicematrix.ServiceProvider
+import id.walt.servicematrix.ServiceRegistry
+import org.letstrust.crypto.KeyAlgorithm
+import org.letstrust.crypto.KeyId
+
+abstract class CryptoService : BaseService() {
+    override val implementation get() = ServiceRegistry.getService<CryptoService>()
+
+    open fun generateKey(algorithm: KeyAlgorithm): KeyId = implementation.generateKey(algorithm)
+    open fun sign(keyId: KeyId, data: ByteArray): ByteArray = implementation.sign(keyId, data)
+    open fun verify(keyId: KeyId, sig: ByteArray, data: ByteArray): Boolean = implementation.verify(keyId, sig, data)
+    open fun encrypt(
+        keyId: KeyId,
+        algorithm: String,
+        plainText: ByteArray,
+        authData: ByteArray?,
+        iv: ByteArray?
+    ): ByteArray = implementation.encrypt(keyId, algorithm, plainText, authData, iv)
+
+    open fun decrypt(
+        keyId: KeyId,
+        algorithm: String,
+        plainText: ByteArray,
+        authData: ByteArray?,
+        iv: ByteArray?
+    ): ByteArray = implementation.decrypt(keyId, algorithm, plainText, authData, iv)
+
+    companion object : ServiceProvider {
+        override fun getService() = object : CryptoService() {}
+    }
+}
+

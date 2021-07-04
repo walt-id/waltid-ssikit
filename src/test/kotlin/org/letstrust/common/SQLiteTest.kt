@@ -20,7 +20,7 @@ class SQLiteTest {
 
         val kms = KeyManagementService
         val keyId = kms.generate(KeyAlgorithm.ECDSA_Secp256k1)
-        val key = kms.load(keyId.id)!!
+        val key = kms.load(keyId.id)
         val db = SqlDbManager
         val pubKeyStr = Base64.encode(key.getPublicKey().encoded).toString()
 

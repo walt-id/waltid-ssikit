@@ -14,7 +14,7 @@ import java.security.PublicKey
 import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
 
-private val log = KotlinLogging.logger() {}
+private val log = KotlinLogging.logger {}
 
 object FileSystemKeyStore : KeyStore {
 
@@ -75,7 +75,7 @@ object FileSystemKeyStore : KeyStore {
             return File("$KEY_DIR_PATH/Alias-$alias").readText()
         } catch (e: Exception) {
         }
-        return null;
+        return null
     }
 
     override fun delete(alias: String) {

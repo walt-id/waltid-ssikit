@@ -1,5 +1,6 @@
 package org.letstrust.crypto.keystore
 
+import id.walt.servicematrix.ServiceMatrix
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.junit.Test
 import org.letstrust.crypto.KeyAlgorithm
@@ -17,6 +18,7 @@ open class KeyStoreTest {
 
     init {
         Security.addProvider(BouncyCastleProvider())
+        ServiceMatrix("service-matrix.properties")
     }
 
     @Test
@@ -47,14 +49,14 @@ open class KeyStoreTest {
     @Test
     open fun saveLoadEd25519KeysTest() {
         val keyId = kms.generate(KeyAlgorithm.EdDSA_Ed25519)
-        val key = kms.load(keyId.id)!!
+        val key = kms.load(keyId.id)
         assertEquals(48, key.keyPair!!.private.encoded.size)
     }
 
     @Test
     open fun saveLoadSecp256k1KeysTest() {
         val keyId = kms.generate(KeyAlgorithm.ECDSA_Secp256k1)
-        val key = kms.load(keyId.id)!!
+        val key = kms.load(keyId.id)
         assertEquals(88, key.keyPair!!.public.encoded.size)
         assertEquals(144, key.keyPair!!.private.encoded.size)
     }

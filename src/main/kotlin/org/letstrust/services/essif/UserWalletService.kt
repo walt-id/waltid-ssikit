@@ -9,7 +9,6 @@ import org.letstrust.model.*
 import org.letstrust.services.essif.mock.AuthorizationApi
 import org.letstrust.services.essif.mock.DidRegistry
 import org.letstrust.services.jwt.JwtService
-import java.io.File
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
@@ -144,7 +143,9 @@ object UserWalletService {
         val paramMap = HashMap<String, String>()
         val pairs = paramString.split("&")
 
-        pairs.forEach { paramMap[it.substringBefore("=")] = URLDecoder.decode(it.substringAfter("="), StandardCharsets.UTF_8) }
+        pairs.forEach {
+            paramMap[it.substringBefore("=")] = URLDecoder.decode(it.substringAfter("="), StandardCharsets.UTF_8)
+        }
         return paramMap
     }
 
@@ -167,7 +168,10 @@ object UserWalletService {
         println("")
     }
 
-    private fun siopSessionsRequest(authReq: AuthenticationRequestPayload, verifiableAuthorization: String): AccessTokenResponse? {
+    private fun siopSessionsRequest(
+        authReq: AuthenticationRequestPayload,
+        verifiableAuthorization: String
+    ): AccessTokenResponse? {
 
         // val verifiableAuthorization = File("src/test/resources/ebsi/verifiable-authorization.json").readText()
 

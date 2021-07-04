@@ -215,7 +215,10 @@ object RestAPI {
                 path("enterprise") {
                     path("wallet") {
                         post("createDid", EnterpriseWalletController::createDid)
-                        post("requestVerifiableAuthorization", EnterpriseWalletController::requestVerifiableAuthorization)
+                        post(
+                            "requestVerifiableAuthorization",
+                            EnterpriseWalletController::requestVerifiableAuthorization
+                        )
                         post("requestVerifiableCredential", EnterpriseWalletController::requestVerifiableCredential)
                         post("generateDidAuthRequest", EnterpriseWalletController::generateDidAuthRequest)
                         // post("onboardTrustedIssuer", EnterpriseWalletController::onboardTrustedIssuer) not supported yet

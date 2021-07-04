@@ -1,5 +1,6 @@
 package org.letstrust.services.vc
 
+import id.walt.servicematrix.ServiceMatrix
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -22,10 +23,10 @@ import kotlin.test.assertTrue
 class CredentialServiceTest {
 
     private val credentialService = VCService.getService()
-    
+
     @Before
     fun setup() {
-
+        ServiceMatrix("service-matrix.properties")
     }
 
     @Test
@@ -36,7 +37,7 @@ class CredentialServiceTest {
         val issuerDid = DidService.create(DidMethod.web) // DID web uses an ECDSA Secp256k1
         val domain = "example.com"
         val nonce: String? = null
-        
+
         val vc = credentialService.sign(issuerDid, credOffer, domain, nonce)
         assertNotNull(vc)
         println("Credential generated: $vc")
@@ -94,7 +95,7 @@ class CredentialServiceTest {
 
         val vc = credentialService.sign(issuerDid, Json.encodeToString(europass))
 
-        val vp= credentialService.present(vc, domain, challenge)
+        val vp = credentialService.present(vc, domain, challenge)
         println("Presentation generated: $vc")
 
         val vpVerified = credentialService.verifyVp(vp)
@@ -156,7 +157,13 @@ class CredentialServiceTest {
         val vc = Json.decodeFromString<VerifiableCredential>(vcStr)
         println("Credential generated: ${vc.encodePretty()}")
 
-        val vpIn = VerifiablePresentation(listOf("https://www.w3.org/2018/credentials/v1"), "id", listOf("VerifiablePresentation"), listOf(vc), null)
+        val vpIn = VerifiablePresentation(
+            listOf("https://www.w3.org/2018/credentials/v1"),
+            "id",
+            listOf("VerifiablePresentation"),
+            listOf(vc),
+            null
+        )
         val vpInputStr = Json { prettyPrint = true }.encodeToString(vpIn)
 
         val domain = "example.com"
@@ -182,7 +189,9 @@ class CredentialServiceTest {
         credOffer.issuanceDate = LocalDateTime.now()
 
         //val vcReqEnc = readCredOffer("vc-offer-simple-example") -> produces false-signature for invalid credential
-        val vcReqEnc = Json { prettyPrint = true }.encodeToString(credOffer) // FIXXX does not produce false-signature for invalid credential
+        val vcReqEnc = Json {
+            prettyPrint = true
+        }.encodeToString(credOffer) // FIXXX does not produce false-signature for invalid credential
 
         println("Credential request:\n$vcReqEnc")
 
@@ -198,7 +207,13 @@ class CredentialServiceTest {
 
         val vcVerified = credentialService.verifyVc(issuerDid, vcInvalidStr)
 
-        val vpIn = VerifiablePresentation(listOf("https://www.w3.org/2018/credentials/v1"), "id", listOf("VerifiablePresentation"), listOf(vcInvalid), null)
+        val vpIn = VerifiablePresentation(
+            listOf("https://www.w3.org/2018/credentials/v1"),
+            "id",
+            listOf("VerifiablePresentation"),
+            listOf(vcInvalid),
+            null
+        )
         val vpInputStr = Json { prettyPrint = true }.encodeToString(vpIn)
 
         print(vpInputStr)

@@ -3,20 +3,19 @@ package org.letstrust.services.key
 //import org.bouncycastle.jce.ECNamedCurveTable
 //import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.jce.ECNamedCurveTable
-import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.LetsTrustServices
-import org.letstrust.crypto.CryptoService
 import org.letstrust.crypto.Key
+import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.KeyId
 import org.letstrust.crypto.keystore.KeyStore
+import org.letstrust.services.crypto.CryptoService
 import java.util.*
-import kotlin.collections.ArrayList
 
 object KeyManagementService {
 
     private const val RSA_KEY_SIZE = 4096
 
-    private var cs: CryptoService = LetsTrustServices.load<CryptoService>()
+    private var cs: CryptoService = CryptoService.getService()
 
     private var ks: KeyStore = LetsTrustServices.load<KeyStore>()
 

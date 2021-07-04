@@ -1,6 +1,6 @@
 package org.letstrust.crypto
 
-import org.letstrust.LetsTrustServices
+import org.letstrust.services.crypto.CryptoService
 import java.security.AlgorithmParameters
 import java.security.Key
 import java.security.SecureRandom
@@ -13,11 +13,11 @@ open class LtCipherSpi(val algorithm: String) : CipherSpi() {
 
     val c: Cipher = Cipher.getInstance(algorithm)
 
-    val cryptoService = LetsTrustServices.load<CryptoService>()
+    val cryptoService = CryptoService.getService()
 
-    class AES256_GCM_NoPadding : LtCipherSpi("AES/GCM/NoPadding") {}
+    class AES256_GCM_NoPadding : LtCipherSpi("AES/GCM/NoPadding")
 
-    var isEncryptionMode = true;
+    var isEncryptionMode = true
     var iv: ByteArray? = null
     var authData: ByteArray? = null
     var plainText: ByteArray? = null
@@ -45,9 +45,16 @@ open class LtCipherSpi(val algorithm: String) : CipherSpi() {
     override fun engineInit(opmode: Int, key: Key?, params: AlgorithmParameters?, random: SecureRandom?) =
         TODO("Not yet implemented")
 
-    override fun engineUpdate(input: ByteArray?, inputOffset: Int, inputLen: Int): ByteArray = TODO("Not yet implemented")
+    override fun engineUpdate(input: ByteArray?, inputOffset: Int, inputLen: Int): ByteArray =
+        TODO("Not yet implemented")
 
-    override fun engineUpdate(input: ByteArray?, inputOffset: Int, inputLen: Int, output: ByteArray?, outputOffset: Int): Int =
+    override fun engineUpdate(
+        input: ByteArray?,
+        inputOffset: Int,
+        inputLen: Int,
+        output: ByteArray?,
+        outputOffset: Int
+    ): Int =
         TODO("Not yet implemented")
 
     override fun engineDoFinal(input: ByteArray?, inputOffset: Int, inputLen: Int): ByteArray {
@@ -60,7 +67,13 @@ open class LtCipherSpi(val algorithm: String) : CipherSpi() {
         //    return c.doFinal(p0, p1, p2)
     }
 
-    override fun engineDoFinal(input: ByteArray?, inputOffset: Int, inputLen: Int, output: ByteArray?, outputOffset: Int): Int =
+    override fun engineDoFinal(
+        input: ByteArray?,
+        inputOffset: Int,
+        inputLen: Int,
+        output: ByteArray?,
+        outputOffset: Int
+    ): Int =
         TODO("Not yet implemented")
 
     override fun engineUpdateAAD(src: ByteArray?, offset: Int, len: Int) {

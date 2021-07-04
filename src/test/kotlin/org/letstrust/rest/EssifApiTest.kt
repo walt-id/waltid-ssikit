@@ -11,7 +11,6 @@ import kotlinx.coroutines.runBlocking
 import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.junit.Test
-import org.letstrust.services.essif.UserWalletService
 import org.letstrust.services.essif.mock.RelyingParty
 import kotlin.test.assertEquals
 
@@ -64,7 +63,7 @@ class EssifApiTest {
 
         val verifiableId = client.post<String>("$ESSIF_API_URL/v1/enterprise/wallet/getVerifiableCredential") {
             contentType(ContentType.Application.Json)
-           // body = GetVcRequest("did:ebsi:234567", "did-ownership-req")
+            // body = GetVcRequest("did:ebsi:234567", "did-ownership-req")
         }
         println(verifiableId)
     }

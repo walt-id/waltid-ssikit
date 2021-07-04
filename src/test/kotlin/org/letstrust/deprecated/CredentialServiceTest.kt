@@ -2,6 +2,7 @@ package org.letstrust.deprecated
 
 import foundation.identity.jsonld.JsonLDObject
 import foundation.identity.jsonld.JsonLDUtils
+import id.walt.servicematrix.ServiceMatrix
 import info.weboftrust.ldsignatures.LdProof
 import info.weboftrust.ldsignatures.jsonld.LDSecurityContexts
 import info.weboftrust.ldsignatures.signer.Ed25519Signature2018LdSigner
@@ -44,6 +45,7 @@ class credentialServiceTest {
     @Before
     fun setup() {
         Security.addProvider(BouncyCastleProvider())
+        ServiceMatrix("service-matrix.properties")
     }
 
 

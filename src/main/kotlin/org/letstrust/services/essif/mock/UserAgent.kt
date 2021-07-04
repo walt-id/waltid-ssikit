@@ -2,7 +2,7 @@ package org.letstrust.services.essif.mock
 
 import org.letstrust.services.essif.UserWalletService
 
-class UserAgent() {
+class UserAgent {
 
     fun requestAccess(): Boolean {
         println("2. [UA] Sign-On")

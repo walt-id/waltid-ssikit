@@ -1,5 +1,6 @@
 package org.letstrust.deprecated
 
+import id.walt.servicematrix.ServiceMatrix
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.Test
@@ -14,10 +15,14 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-@Deprecated(message="New version in package org.letstrust.service.did")
+@Deprecated(message = "New version in package org.letstrust.service.did")
 class DidServiceTest {
 
     private val RESOURCES_PATH: String = "src/test/resources"
+
+    init {
+        ServiceMatrix("service-matrix.properties")
+    }
 
     fun readExampleDid(fileName: String) =
         File("$RESOURCES_PATH/dids/${fileName}.json").readText(Charsets.UTF_8)
@@ -79,7 +84,7 @@ class DidServiceTest {
     @Test
     fun didWebResolution() {
         val identifier = "did:web:mattr.global"
-        val didUrl:  DidUrl= DidUrl.from(identifier)
+        val didUrl: DidUrl = DidUrl.from(identifier)
         val didWeb = DidService.resolveDidWeb(didUrl)
         assertNotNull(didWeb)
         // assertEquals("https://w3id.org/did/v1", didWeb.context)

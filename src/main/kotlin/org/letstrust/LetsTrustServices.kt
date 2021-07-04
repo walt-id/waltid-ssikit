@@ -13,13 +13,11 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.core.config.LoggerConfig
 import org.bouncycastle.jce.provider.BouncyCastleProvider
-import org.letstrust.crypto.CryptoService
-import org.letstrust.crypto.SunCryptoService
-import org.letstrust.crypto.TinkCryptoService
 import org.letstrust.crypto.keystore.FileSystemKeyStore
 import org.letstrust.crypto.keystore.KeyStore
 import org.letstrust.crypto.keystore.SqlKeyStore
 import org.letstrust.crypto.keystore.TinkKeyStore
+import org.letstrust.services.crypto.CryptoService
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
@@ -91,7 +89,7 @@ object LetsTrustServices {
 
         val service = when (T::class) {
             KeyStore::class -> loadKeyStore(conf)
-            CryptoService::class -> loadCrypto(conf)
+            //CryptoService::class -> loadCrypto(conf)
             HikariDataSource::class -> conf.hikariDataSource as T
             else -> throw Exception("Service " + T::class + " not registered")
         }
@@ -119,11 +117,12 @@ object LetsTrustServices {
         else -> throw Exception("No Keystore implementation defined.")
     }
 
+    /*
     fun loadCrypto(conf: LetsTrustConfig) = when (conf.cryptoProvider) {
         CryptoProvider.TINK -> TinkCryptoService
         CryptoProvider.CUSTOM -> loadCustomCryptoService()
         else -> SunCryptoService
-    }
+    }*/
 
     private fun loadCustomCryptoService(): CryptoService {
         println("Loading Custom CryptService")
