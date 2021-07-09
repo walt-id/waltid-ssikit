@@ -5,7 +5,6 @@ package org.letstrust.services.key
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.jwk.*
 import com.nimbusds.jose.util.Base64URL
-import okhttp3.internal.and
 import org.bouncycastle.asn1.ASN1BitString
 import org.bouncycastle.asn1.ASN1OctetString
 import org.bouncycastle.asn1.ASN1Sequence
@@ -48,12 +47,13 @@ object KeyService {
             else -> toPem(keyAlias, exportPrivate)
         }
 
-    fun import(keyAlias: String, jwkKeyStr: String) {
-        val jwk = JWK.parse(jwkKeyStr)
+    fun import(jwkKeyStr: String): KeyId {
+        val jwk = JWK.parse(jwkKeyStr).toOctetKeyPair()
 
         // TODO convert JWK to Java KeyPair
-        TODO()
-        // ks.store()
+        val key = buildKey(jwk.keyID, KeyAlgorithm.EdDSA_Ed25519.name, "SUN", jwk.x.toString(), jwk.d.toString(), org.letstrust.crypto.KeyFormat.BASE64)
+        ks.store(key)
+        return key.keyId
     }
 
     fun toJwk(keyAlias: String, loadPrivate: Boolean = false, jwkKeyId: String? = null): JWK {
@@ -100,7 +100,7 @@ object KeyService {
             val privPrim = ASN1Sequence.fromByteArray(key.keyPair!!.private.encoded) as ASN1Sequence
             var d = (privPrim.getObjectAt(2) as ASN1OctetString).octets
 
-            if (d.size > 32 && d[0] and 0xFF == 0x04 && d[1] and 0xFF == 0x20) {
+            if (d.size > 32 && d[0].toInt() == 0x04 && d[1].toInt()  == 0x20) {
                 d = (ASN1OctetString.fromByteArray(d) as ASN1OctetString).octets
             }
 

@@ -345,8 +345,8 @@ class KeyServiceTest {
 
     @Test
     fun testImportJwkEd25519() {
-        val jwkImport = "{\"kty\":\"OKP\",\"use\":\"sig\",\"crv\":\"Ed25519\",\"kid\":\"8b057d7e0db64fb5b30beb186bc57840\",\"x\":\"Cs8hdqvWfy2rwUOvBsduWm_7l98zM24CaFVonVOfp1Y\",\"alg\":\"EdDSA\"}"
-        KeyService.import("key-alias", jwkImport)
+        val jwkImport = "{\"kty\":\"OKP\",\"d\":\"GoVhqvYKbjpzDDRHsBLEIwZTiY39fEpVtXAxKVxKcCg\",\"use\":\"sig\",\"crv\":\"Ed25519\",\"kid\":\"074a66fd5a7f4b01b1955a31b6598a8c\",\"x\":\"cU4CewjU2Adq8pxjfObrVg9u8svRP2JRC72zZdvFftI\",\"alg\":\"EdDSA\"}"
+        KeyService.import(jwkImport)
         val jwkExproted = KeyService.export("key-alias", KeyFormat.JWK)
         assertEquals(jwkImport, jwkExproted)
     }

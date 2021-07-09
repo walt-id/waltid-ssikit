@@ -104,7 +104,7 @@ fun buildKey(keyId: String, algorithm: String, provider: String, publicPart: Str
     }
     val kp = when (format) {
         KeyFormat.PEM -> Pair(decodePubKeyPem(publicPart, kf), privatePart?.let { decodePrivKeyPem(privatePart, kf) })
-        KeyFormat.BASE64 -> Pair(decodePubKeyBase64(publicPart, kf), privatePart?.let { decodePrivKeyPem(privatePart, kf) })
+        KeyFormat.BASE64 -> Pair(decodePubKeyBase64(publicPart, kf), privatePart?.let { decodePrivKeyBase64(privatePart, kf) })
     }
 
     return Key(KeyId(keyId), KeyAlgorithm.valueOf(algorithm), CryptoProvider.valueOf(provider), KeyPair(kp.first, kp.second))
