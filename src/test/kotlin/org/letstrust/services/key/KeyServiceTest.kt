@@ -351,4 +351,15 @@ class KeyServiceTest {
         print(jwkExported)
         assertEquals(jwkImport, jwkExported)
     }
+
+    @Test
+    fun testImportSecp256k1JwkPubKey() {
+        val kid = newKeyId()
+        val jwkImport = "{\"kty\":\"EC\",\"use\":\"sig\",\"crv\":\"secp256k1\",\"kid\":\"${kid}\",\"x\":\"ZxPG-mkME3AE19H-_-Z0vQacNTtD_4rChcUJqoiJZ5w\",\"y\":\"EPS4M1CiFoi-psyUNR8otGoNOCm0OvQY_i4fxf4shJY\",\"alg\":\"ES256K\"}"
+        KeyService.import(jwkImport)
+        println(jwkImport)
+        val jwkExported = KeyService.export(kid.id, KeyFormat.JWK)
+        print(jwkExported)
+        assertEquals(jwkImport, jwkExported)
+    }
 }
