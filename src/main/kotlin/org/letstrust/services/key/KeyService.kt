@@ -5,7 +5,7 @@ package org.letstrust.services.key
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.jwk.*
 import com.nimbusds.jose.util.Base64URL
-import org.apache.commons.lang3.StringUtils
+import okhttp3.internal.and
 import org.bouncycastle.asn1.ASN1BitString
 import org.bouncycastle.asn1.ASN1OctetString
 import org.bouncycastle.asn1.ASN1Sequence
@@ -20,7 +20,6 @@ import org.web3j.crypto.Hash
 import org.web3j.crypto.Keys
 import org.web3j.crypto.Sign
 import org.web3j.utils.Numeric
-import java.lang.IllegalStateException
 import java.security.interfaces.ECPublicKey
 import java.util.*
 
@@ -48,6 +47,14 @@ object KeyService {
             KeyFormat.JWK -> toJwk(keyAlias, exportPrivate).toJSONString()
             else -> toPem(keyAlias, exportPrivate)
         }
+
+    fun import(keyAlias: String, jwkKeyStr: String) {
+        val jwk = JWK.parse(jwkKeyStr)
+
+        // TODO convert JWK to Java KeyPair
+        TODO()
+        // ks.store()
+    }
 
     fun toJwk(keyAlias: String, loadPrivate: Boolean = false, jwkKeyId: String? = null): JWK {
         return ks.load(keyAlias, loadPrivate).let {
@@ -92,13 +99,18 @@ object KeyService {
         key.keyPair!!.private?.let {
             val privPrim = ASN1Sequence.fromByteArray(key.keyPair!!.private.encoded) as ASN1Sequence
             var d = (privPrim.getObjectAt(2) as ASN1OctetString).octets
+
+            if (d.size > 32 && d[0] and 0xFF == 0x04 && d[1] and 0xFF == 0x20) {
+                d = (ASN1OctetString.fromByteArray(d) as ASN1OctetString).octets
+            }
+
             builder.d(Base64URL.encode(d))
         }
 
         return builder.build()
     }
 
-    fun getEthereumAddress(keyAlias: String): String  =
+    fun getEthereumAddress(keyAlias: String): String =
         ks.load(keyAlias).let {
             when (it.algorithm) {
                 KeyAlgorithm.ECDSA_Secp256k1 -> calculateEthereumAddress(toSecp256Jwk(it))

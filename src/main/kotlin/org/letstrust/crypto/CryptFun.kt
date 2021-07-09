@@ -118,7 +118,7 @@ fun ByteArray.encodeMultiBase58Btc(): String = Multibase.encode(Multibase.Base.B
 
 fun String.decodeMultiBase58Btc(): ByteArray = Multibase.decode(this)
 
-fun ByteArray.toHexString() = this.joinToString("") { String.format("%02X", (it.toInt() and 0xFF)) }
+fun ByteArray.toHexString() = this.joinToString("") { String.format("%02X ", (it.toInt() and 0xFF)) }
 
 fun String.byteArrayFromHexString() = this.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
 
