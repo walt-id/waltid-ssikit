@@ -6,6 +6,7 @@ import com.nimbusds.jwt.SignedJWT
 import mu.KotlinLogging
 import org.letstrust.common.readEssif
 import org.letstrust.common.toParamMap
+import org.letstrust.services.did.DidService
 import org.letstrust.services.essif.mock.DidRegistry
 import org.letstrust.services.jwt.JwtService
 import org.letstrust.services.key.KeyService
@@ -23,8 +24,9 @@ object EnterpriseWalletService {
 
     fun constructAuthResponseJwt(did: String, redirectUri: String, nonce: String): String {
 
-        val kid = "$did#key-1"
-        val key = KeyService.toJwk(did, false, kid) as ECKey
+        //val kid = "$did#key-1"
+        val kid = DidService.loadDidEbsi(did).authentication!![0]
+        val key = KeyService.toJwk(did, false, kid)
         val thumbprint = key.computeThumbprint().toString()
 
         val payload = JWTClaimsSet.Builder()

@@ -5,6 +5,7 @@ import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import org.letstrust.Values
+import org.letstrust.services.essif.DidEbsiService
 import org.letstrust.services.essif.EssifFlowRunner
 
 // TODO: Support following commands
@@ -33,7 +34,7 @@ import org.letstrust.services.essif.EssifFlowRunner
 
 class EssifCommand : CliktCommand(
     name = "essif",
-    help = """ESSIF Use Cases.
+    help = """ESSIF specific operations.
 
         ESSIF functions & flows."""
 ) {
@@ -106,13 +107,14 @@ class EssifDidRegisterCommand : CliktCommand(
 
         Registers a previously created DID with the EBSI ledger."""
 ) {
-    val did: String by option("-d", "--did", help = "DID to be onboarded").default("did:ebsi:26wnek36z4djq1fdCgTZLTuRCe9gMf5Cr6FG8chyuaEBR4fT")
+    val did: String by option("-d", "--did", help = "DID to be onboarded").required()
+    val ethKeyAlias: String? by option("-k", "--eth-key", help = "Key to be used for signing the ETH transaction")
 
     override fun run() {
 
-        echo("Registering DID $did on the EBSI ledger ...\n")
+        echo("Registering DID $did on the EBSI ledger using key $ethKeyAlias ...\n")
 
-        EssifFlowRunner.registerDid(did)
+        DidEbsiService.registerDid(did, ethKeyAlias?:did)
 
         echo("DID registration was performed successfully. Call command: 'did resolve --did $did' in order to retrieve the DID document from the EBSI ledger.")
     }

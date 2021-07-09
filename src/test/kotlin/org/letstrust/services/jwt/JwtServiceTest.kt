@@ -84,7 +84,7 @@ class JwtServiceTest {
     @Test
     fun genJwtCustomPayload() {
         val did = DidService.create(DidMethod.ebsi, KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1).id)
-        val kid = "$did#key-1"
+        val kid = DidService.loadDidEbsi(did).verificationMethod!!.get(0)!!.id
         val key = KeyService.toJwk(did, false, kid) as ECKey
         val thumbprint = key.computeThumbprint().toString()
 
