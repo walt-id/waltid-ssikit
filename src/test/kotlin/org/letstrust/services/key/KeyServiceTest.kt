@@ -15,6 +15,7 @@ import org.junit.Test
 import org.letstrust.LetsTrustServices
 import org.letstrust.crypto.CryptoService
 import org.letstrust.crypto.KeyAlgorithm
+import org.letstrust.crypto.newKeyId
 import org.letstrust.model.Jwk
 import org.web3j.crypto.ECDSASignature
 import org.web3j.crypto.ECKeyPair
@@ -330,24 +331,24 @@ class KeyServiceTest {
     }
 
     @Test
-    fun testExportJwkEd25519Pub() {
-        val keyId = KeyService.generate(KeyAlgorithm.EdDSA_Ed25519)
-        val jwk = KeyService.export(keyId.id, KeyFormat.JWK)
-        println(jwk)
+    fun testImportEd25519JwkPrivKey() {
+        val kid = newKeyId()
+        val jwkImport = "{\"kty\":\"OKP\",\"d\":\"GoVhqvYKbjpzDDRHsBLEIwZTiY39fEpVtXAxKVxKcCg\",\"use\":\"sig\",\"crv\":\"Ed25519\",\"kid\":\"${kid}\",\"x\":\"cU4CewjU2Adq8pxjfObrVg9u8svRP2JRC72zZdvFftI\",\"alg\":\"EdDSA\"}"
+        KeyService.import(jwkImport)
+        println(jwkImport)
+        val jwkExported = KeyService.export(kid.id, KeyFormat.JWK, true)
+        print(jwkExported)
+        assertEquals(jwkImport, jwkExported)
     }
 
     @Test
-    fun testExportJwkEd25519Priv() {
-        val keyId = KeyService.generate(KeyAlgorithm.EdDSA_Ed25519)
-        val jwk = KeyService.export(keyId.id, KeyFormat.JWK, true)
-        println(jwk)
-    }
-
-    //TODO fix @Test
-    fun testImportJwkEd25519() {
-        val jwkImport = "{\"kty\":\"OKP\",\"d\":\"GoVhqvYKbjpzDDRHsBLEIwZTiY39fEpVtXAxKVxKcCg\",\"use\":\"sig\",\"crv\":\"Ed25519\",\"kid\":\"074a66fd5a7f4b01b1955a31b6598a8c\",\"x\":\"cU4CewjU2Adq8pxjfObrVg9u8svRP2JRC72zZdvFftI\",\"alg\":\"EdDSA\"}"
+    fun testImportEd25519JwkPubKey() {
+        val kid = newKeyId()
+        val jwkImport = "{\"kty\":\"OKP\",\"use\":\"sig\",\"crv\":\"Ed25519\",\"kid\":\"${kid}\",\"x\":\"cU4CewjU2Adq8pxjfObrVg9u8svRP2JRC72zZdvFftI\",\"alg\":\"EdDSA\"}"
         KeyService.import(jwkImport)
-        val jwkExproted = KeyService.export("key-alias", KeyFormat.JWK)
-        assertEquals(jwkImport, jwkExproted)
+        println(jwkImport)
+        val jwkExported = KeyService.export(kid.id, KeyFormat.JWK)
+        print(jwkExported)
+        assertEquals(jwkImport, jwkExported)
     }
 }

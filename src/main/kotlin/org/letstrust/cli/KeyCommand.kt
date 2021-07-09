@@ -1,17 +1,20 @@
 package org.letstrust.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
+import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.enum
+import com.github.ajalt.clikt.parameters.types.file
 import org.letstrust.CryptoProvider
-import org.letstrust.crypto.Key
+import org.letstrust.common.readWhenContent
 import org.letstrust.crypto.KeyAlgorithm
+import org.letstrust.crypto.KeyId
 import org.letstrust.services.key.KeyFormat
 import org.letstrust.services.key.KeyService
+import java.io.File
 
 
 class KeyCommand : CliktCommand(
@@ -59,16 +62,17 @@ class ImportKeyCommand : CliktCommand(
         Import key in JWK format."""
 ) {
 
-    val key: String by option("-k", "--key", help = "JWK of the imported key").required()
+    val keyFile: File by argument("JWK-FILE", help = "File containing the JWK key (e.g. jwk.json)").file()
     val provider: CryptoProvider by option("-p", "--provider", help = "Crypto provider of the imported key").enum<CryptoProvider>().default(CryptoProvider.SUN)
 
     override fun run() {
-        echo("Importing key \"$key\"...")
-        val key: Key = KeyService.import(key, provider)
+        val keyStr = readWhenContent(keyFile)
+        echo("Importing key: $keyStr")
+        val keyId: KeyId = KeyService.import(keyStr)
 
         echo("\nResults:\n")
 
-        echo("Key \"${key.keyId.id}\" imported.")
+        echo("Key \"${keyId.id}\" imported.")
     }
 }
 
@@ -79,7 +83,7 @@ class ExportKeyCommand : CliktCommand(
         Export key in JWK format."""
 ) {
 
-    val keyId: String by option("-k", "--key-id", help = "Key ID or key alias").required()
+    val keyId: String by argument("KEY-ID", help = "Key ID or key alias")
     val keyFormat: KeyFormat by option("-f", "--key-format", help = "Key format of exported key").enum<KeyFormat>().default(KeyFormat.JWK)
     val exportPrivate by option("--priv", help = "Export public or private key").flag("--pub", default = false)
 

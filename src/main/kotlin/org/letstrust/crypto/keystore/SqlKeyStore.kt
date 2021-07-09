@@ -24,10 +24,8 @@ object SqlKeyStore : KeyStore {
             con.prepareStatement("insert into lt_key (name, priv, pub, algorithm, provider) values (?, ?, ?, ?, ?)", RETURN_GENERATED_KEYS)
                 .use { stmt ->
                     stmt.setString(1, key.keyId.id)
-//                    println(key.keyPair!!.private.toPEM());
-//                    println(key.keyPair!!.public.toPEM());
 
-                    stmt.setString(2, key.keyPair!!.private.toBase64())
+                    key.keyPair!!.private?.let { stmt.setString(2, key.keyPair!!.private.toBase64()) }
                     stmt.setString(3, key.keyPair!!.public.toBase64())
                     stmt.setString(4, key.algorithm.name)
                     stmt.setString(5, key.cryptoProvider.name)

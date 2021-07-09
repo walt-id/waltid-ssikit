@@ -10,8 +10,8 @@ import org.bouncycastle.asn1.ASN1OctetString
 import org.bouncycastle.asn1.ASN1Sequence
 import org.bouncycastle.jcajce.provider.digest.Keccak
 import org.bouncycastle.jce.ECNamedCurveTable
-import org.bouncycastle.util.encoders.Hex
 import org.bouncycastle.jce.provider.BouncyCastleProvider
+import org.bouncycastle.util.encoders.Hex
 import org.letstrust.CryptoProvider
 import org.letstrust.LetsTrustServices
 import org.letstrust.crypto.*
@@ -51,9 +51,7 @@ object KeyService {
 
     fun import(jwkKeyStr: String): KeyId {
         val jwk = JWK.parse(jwkKeyStr).toOctetKeyPair()
-
-        // TODO convert JWK to Java KeyPair
-        val key = buildKey(jwk.keyID, KeyAlgorithm.EdDSA_Ed25519.name, "SUN", jwk.x.toString(), jwk.d.toString(), org.letstrust.crypto.KeyFormat.BASE64)
+        val key = buildKey(jwk.keyID, KeyAlgorithm.EdDSA_Ed25519.name, "SUN", jwk.x.toString(), jwk.d?.let { jwk.d.toString() }, org.letstrust.crypto.KeyFormat.BASE64_RAW)
         ks.store(key)
         return key.keyId
     }
@@ -102,7 +100,7 @@ object KeyService {
             val privPrim = ASN1Sequence.fromByteArray(key.keyPair!!.private.encoded) as ASN1Sequence
             var d = (privPrim.getObjectAt(2) as ASN1OctetString).octets
 
-            if (d.size > 32 && d[0].toInt() == 0x04 && d[1].toInt()  == 0x20) {
+            if (d.size > 32 && d[0].toInt() == 0x04 && d[1].toInt() == 0x20) {
                 d = (ASN1OctetString.fromByteArray(d) as ASN1OctetString).octets
             }
 
