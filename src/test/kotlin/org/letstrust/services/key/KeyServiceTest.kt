@@ -88,7 +88,7 @@ class KeyServiceTest {
 
     @Test
     fun generateEd25519JwkTest() {
-        val keyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val keyId = KeyService.generate(KeyAlgorithm.EdDSA_Ed25519)
         val key = KeyService.load(keyId.id, true)
 
         val jwk = KeyService.toEd25519Jwk(key)
@@ -327,5 +327,27 @@ class KeyServiceTest {
         val keyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
         val signature = cs.signEthTransaction(keyId, "Test data".toByteArray())!!
         KeyService.getRecoveryId(keyId.id, "Bad data".toByteArray(), signature)
+    }
+
+    @Test
+    fun testExportJwkEd25519Pub() {
+        val keyId = KeyService.generate(KeyAlgorithm.EdDSA_Ed25519)
+        val jwk = KeyService.export(keyId.id, KeyFormat.JWK)
+        println(jwk)
+    }
+
+    @Test
+    fun testExportJwkEd25519Priv() {
+        val keyId = KeyService.generate(KeyAlgorithm.EdDSA_Ed25519)
+        val jwk = KeyService.export(keyId.id, KeyFormat.JWK, true)
+        println(jwk)
+    }
+
+    //TODO fix @Test
+    fun testImportJwkEd25519() {
+        val jwkImport = "{\"kty\":\"OKP\",\"d\":\"GoVhqvYKbjpzDDRHsBLEIwZTiY39fEpVtXAxKVxKcCg\",\"use\":\"sig\",\"crv\":\"Ed25519\",\"kid\":\"074a66fd5a7f4b01b1955a31b6598a8c\",\"x\":\"cU4CewjU2Adq8pxjfObrVg9u8svRP2JRC72zZdvFftI\",\"alg\":\"EdDSA\"}"
+        KeyService.import(jwkImport)
+        val jwkExproted = KeyService.export("key-alias", KeyFormat.JWK)
+        assertEquals(jwkImport, jwkExproted)
     }
 }

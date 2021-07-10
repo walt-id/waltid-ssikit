@@ -18,6 +18,7 @@ import org.letstrust.common.readWhenContent
 import org.letstrust.common.toParamMap
 import org.letstrust.crypto.*
 import org.letstrust.model.*
+import org.letstrust.services.did.DidService
 import org.letstrust.services.essif.EssifFlowRunner.ake1EncFile
 import org.letstrust.services.essif.EssifFlowRunner.verifiablePresentationFile
 import org.letstrust.services.essif.mock.AuthorizationApi
@@ -305,7 +306,8 @@ object UserWalletService {
             null
         )
 
-        val vp = CredentialService.sign(did, vpReq.encode(), null, null, "$did#key-1", "assertionMethod")
+        val authKeyId = DidService.loadDidEbsi(did).authentication!![0]
+        val vp = CredentialService.sign(did, vpReq.encode(), null, null, authKeyId, "assertionMethod")
 
         log.debug { "Verifiable Presentation generated:\n$vp" }
 
@@ -318,7 +320,8 @@ object UserWalletService {
 
     fun constructSiopResponseJwt(emphPrivKey: ECKey, did: String, verifiedClaims: String, nonce: String): String {
 
-        val kid = "$did#key-1"
+        //val kid = "$did#key-1"
+        val kid = DidService.loadDidEbsi(did).authentication!![0]
         val key = emphPrivKey
         //val key = KeyService.toJwk(did, false, kid) as ECKey
         val thumbprint = key.computeThumbprint().toString()

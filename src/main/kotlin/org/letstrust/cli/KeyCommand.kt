@@ -7,6 +7,8 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.enum
+import org.letstrust.CryptoProvider
+import org.letstrust.crypto.Key
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.services.key.KeyFormat
 import org.letstrust.services.key.KeyService
@@ -57,15 +59,16 @@ class ImportKeyCommand : CliktCommand(
         Import key in JWK format."""
 ) {
 
-    val keyId: String by option(help = "Key ID or key alias").required()
+    val key: String by option("-k", "--key", help = "JWK of the imported key").required()
+    val provider: CryptoProvider by option("-p", "--provider", help = "Crypto provider of the imported key").enum<CryptoProvider>().default(CryptoProvider.SUN)
 
     override fun run() {
-        echo("Importing key \"$keyId\"...")
-        //val jwk = KeyManagementService.import ...
+        echo("Importing key \"$key\"...")
+        val key: Key = KeyService.import(key, provider)
 
-        println("\nResults:\n")
+        echo("\nResults:\n")
 
-        println("todo")
+        echo("Key \"${key.keyId.id}\" imported.")
     }
 }
 

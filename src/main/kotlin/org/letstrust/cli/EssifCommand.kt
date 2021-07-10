@@ -34,7 +34,7 @@ import org.letstrust.services.essif.EssifFlowRunner
 
 class EssifCommand : CliktCommand(
     name = "essif",
-    help = """ESSIF Use Cases.
+    help = """ESSIF specific operations.
 
         ESSIF functions & flows."""
 ) {
