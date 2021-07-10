@@ -7,6 +7,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import java.time.LocalDateTime
+import java.util.*
 
 
 @Serializable
@@ -115,10 +116,45 @@ data class OidcAuthenticationRequestUri(
 )
 
 @Serializable
+data class AuthRequestResponse(val session_token: String)
+
+@Serializable
+data class OidcRequest(
+    val uri: String,
+    val callback: String
+)
+
+@Serializable
+data class DidAuthRequest(
+    val reponse_type: String,
+    val client_id: String,
+    val scope: String,
+    val nonce: String,
+    val authenticationRequestJwt: AuthenticationRequestJwt,
+    val callback: String
+)
+
+@Serializable
+data class AuthenticationRequestJwt(
+    val authRequestHeader: AuthenticationRequestHeader,
+    val authRequestPayload: AuthenticationRequestPayload
+)
+
+// data class DidAuthRequestJwt(val scope: String, val iss: String, val response_type: String, val exp: Date, val iat: Date, val nonce: String, val client_id: String)
+
+
+@Serializable
+data class DecryptedAccessTokenResponse(
+    val access_token: String,
+    val did: String,
+    val nonce: String
+)
+
+@Serializable
 data class AuthenticationRequestHeader(
     val alg: String,
     val typ: String,
-    val jwk: String
+    val jwk: Jwk
 )
 
 @Serializable
@@ -128,9 +164,22 @@ data class AuthenticationRequestPayload(
     val response_type: String,
     val client_id: String,
     val nonce: String,
-    val registration: String,
+    val registration: AuthenticationRequestRegistration,
     val claims: Claim
 )
+
+@Serializable
+data class AuthenticationRequestRegistration(
+    val redirect_uris: List<String>,
+    val response_types: String,
+    val id_token_signed_response_alg: List<String>,
+    val request_object_signing_alg: List<String>,
+    val access_token_signing_alg: List<String>,
+    val access_token_encryption_alg_values_supported: List<String>,
+    val access_token_encryption_enc_values_supported: List<String>,
+    val jwks_uri: String
+)
+
 
 @Serializable
 data class Claim(
@@ -144,7 +193,7 @@ data class SiopSessionRequest(
 
 @Serializable
 data class IdToken(
-    val verified_claims: VerifiedClaims
+    val verified_claims: List<String>
 )
 
 @Serializable
@@ -246,14 +295,16 @@ data class EncryptedPayload(
     val iv: String,
     val ephemPublicKey: String,
     val mac: String,
-    val cipherText: String)
+    val cipherText: String
+)
 
 
 data class EncryptedAke1Payload(
     val iv: ByteArray,
     val ephemPublicKey: ECKey,
     val mac: ByteArray,
-    val cipherText: ByteArray)
+    val cipherText: ByteArray
+)
 
 
 @Serializable

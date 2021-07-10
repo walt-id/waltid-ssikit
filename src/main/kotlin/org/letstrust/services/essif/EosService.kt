@@ -6,6 +6,7 @@ import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.letstrust.LetsTrustServices
 import org.letstrust.common.readEssif
+import org.letstrust.model.AuthRequestResponse
 import org.letstrust.services.essif.mock.DidRegistry
 
 private val log = KotlinLogging.logger {}

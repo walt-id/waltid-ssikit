@@ -401,7 +401,7 @@ object UserWalletService {
             claims["response_type"].toString(),
             claims["client_id"].toString(),
             claims["nonce"].toString(),
-            claims["registration"].toString(),
+            Json.decodeFromString(claims["registration"].toString()),
             claim
         )
 
@@ -425,9 +425,9 @@ object UserWalletService {
 
         log.debug { "Validating Authentication Request $authReq" }
 
-        if (authReq.claims.id_token.verified_claims.verification.trust_framework != "EBSI") {
-            throw Exception("Trust framework needs to be: EBSI")
-        }
+//        if (authReq.claims.id_token.verified_claims.verification.trust_framework != "EBSI") {
+//            throw Exception("Trust framework needs to be: EBSI")
+//        }
 
         //TODO add further validations and validation based on the JSON schema
 

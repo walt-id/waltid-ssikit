@@ -3,9 +3,13 @@ package org.letstrust.services.essif
 import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import org.letstrust.common.readEssif
 import org.letstrust.common.toParamMap
+import org.letstrust.model.AuthRequestResponse
+import org.letstrust.model.DidAuthRequest
 import org.letstrust.services.did.DidService
 import org.letstrust.services.essif.mock.DidRegistry
 import org.letstrust.services.jwt.JwtService
@@ -57,7 +61,7 @@ object EnterpriseWalletService {
     fun parseDidAuthRequest(authResp: AuthRequestResponse): DidAuthRequest {
         val paramString = authResp.session_token.substringAfter("openid://?")
         val pm = toParamMap(paramString)
-        return DidAuthRequest(pm["response_type"]!!, pm["client_id"]!!, pm["scope"]!!, pm["nonce"]!!, pm["request"]!!)
+        return DidAuthRequest(pm["response_type"]!!, pm["client_id"]!!, pm["scope"]!!, pm["nonce"]!!, Json.decodeFromString(pm["request"]!!), "callback")
     }
 
 
