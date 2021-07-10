@@ -7,7 +7,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import java.time.LocalDateTime
-import java.util.*
 
 
 @Serializable
@@ -136,11 +135,15 @@ data class DidAuthRequest(
 
 @Serializable
 data class AuthenticationRequestJwt(
-    val authRequestHeader: AuthenticationRequestHeader,
+    val authHeader: AuthenticationHeader,
     val authRequestPayload: AuthenticationRequestPayload
 )
 
-// data class DidAuthRequestJwt(val scope: String, val iss: String, val response_type: String, val exp: Date, val iat: Date, val nonce: String, val client_id: String)
+@Serializable
+data class AuthenticationResponseJwt(
+    val authHeader: AuthenticationHeader,
+    val authRequestPayload: AuthenticationResponsePayload
+)
 
 
 @Serializable
@@ -151,7 +154,7 @@ data class DecryptedAccessTokenResponse(
 )
 
 @Serializable
-data class AuthenticationRequestHeader(
+data class AuthenticationHeader(
     val alg: String,
     val typ: String,
     val jwk: Jwk
@@ -167,6 +170,7 @@ data class AuthenticationRequestPayload(
     val registration: AuthenticationRequestRegistration,
     val claims: Claim
 )
+
 
 @Serializable
 data class AuthenticationRequestRegistration(
