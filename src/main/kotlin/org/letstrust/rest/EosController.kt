@@ -96,7 +96,7 @@ object EosController {
         ]
     )
     fun requestVerifiableCredential(ctx: Context) {
-        ctx.json(EosService.requestVerifiableCredential("credentialRequestUri"))
+        ctx.json(EosService.requestVerifiableCredential())
     }
 
 //    @OpenApi(

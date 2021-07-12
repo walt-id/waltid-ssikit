@@ -2,9 +2,7 @@ package org.letstrust.services.essif
 
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.crypto.impl.ECDH
-import com.nimbusds.jose.jwk.Curve
-import com.nimbusds.jose.jwk.ECKey
-import com.nimbusds.jose.jwk.KeyUse
+import com.nimbusds.jose.jwk.*
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import kotlinx.serialization.decodeFromString
@@ -318,13 +316,43 @@ object UserWalletService {
         return encBase64Str(vpCan)
     }
 
-    fun constructSiopResponseJwt(emphPrivKey: ECKey, did: String, verifiedClaims: String, nonce: String): String {
+    fun embedPublicEncryptionKey(key: JWK): Map<String, String> {
+        if (key is ECKey) {
+            return mapOf(
+                "kty" to key.keyType.value,
+                "alg" to key.algorithm.name,
+                "crv" to key.curve.name,
+                "x" to key.x.toString(),
+                "y" to key.y.toString()
+            )
+        } else if (key is OctetKeyPair) {
+            return when(key.curve) {
+                    Curve.X25519 -> mapOf(
+                        "kty" to key.keyType.value,
+                        "crv" to key.curve.name,
+                        "x" to key.x.toString()
+                    )
+                Curve.Ed25519 -> mapOf(
+                    "kty" to key.keyType.value,
+                    "alg" to key.algorithm.name,
+                    "crv" to key.curve.name,
+                    "x" to key.x.toString()
+                    //"d" to key.d.toString()
+                )
+                else -> throw IllegalArgumentException("Curve not supported")
+            }
+        } else {
+            throw IllegalArgumentException("Not supported key")
+        }
+    }
+
+    fun constructSiopResponseJwt(emphPrivKey: JWK, did: String, verifiedClaims: String, nonce: String): String {
 
         //val kid = "$did#key-1"
         val kid = DidService.loadDidEbsi(did).authentication!![0]
-        val key = emphPrivKey
+        //val key = emphPrivKey as ECKey
         //val key = KeyService.toJwk(did, false, kid) as ECKey
-        val thumbprint = key.computeThumbprint().toString()
+        val thumbprint = emphPrivKey.computeThumbprint().toString()
 
 
         val payload = JWTClaimsSet.Builder()
@@ -334,18 +362,12 @@ object UserWalletService {
             .issueTime(Date.from(Instant.now()))
             .expirationTime(Date.from(Instant.now().plusSeconds(300)))
             .claim("nonce", nonce)
-            .claim("sub_jwk", key.toJSONObject())
+            .claim("sub_jwk", emphPrivKey.toJSONObject())
             .claim(
                 "claims",
                 mapOf(
                     "verified_claims" to verifiedClaims,
-                    "encryption_key" to mapOf(
-                        "kyt" to key.keyType.value,
-                        "alg" to key.algorithm.name,
-                        "crv" to key.curve.name,
-                        "x" to key.x.toString(),
-                        "y" to key.y.toString()
-                    )
+                    "encryption_key" to embedPublicEncryptionKey(emphPrivKey)
                 )
             )
             .build().toString()

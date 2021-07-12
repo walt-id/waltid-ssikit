@@ -95,8 +95,8 @@ object EnterpriseWalletService {
         return verifiableAuthorization
     }
 
-    fun requestVerifiableCredential(credentialRequestUri: String): String {
-        val didOwnershipReq = LegalEntityClient.eos.requestVerifiableCredential(credentialRequestUri)
+    fun requestVerifiableCredential(): String {
+        val didOwnershipReq = LegalEntityClient.eos.requestVerifiableCredential()
         log.debug { didOwnershipReq }
         println("5. [EWallet] Request DID prove")
         return didOwnershipReq

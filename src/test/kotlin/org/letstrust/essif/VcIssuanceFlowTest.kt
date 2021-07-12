@@ -1,22 +1,31 @@
 package org.letstrust.essif
 
+import com.nimbusds.jose.jwk.Curve
+import com.nimbusds.jose.jwk.ECKey
+import com.nimbusds.jose.jwk.OctetKeyPair
+import com.nimbusds.jose.jwk.gen.OctetKeyPairGenerator
+import com.nimbusds.jose.shaded.json.JSONObject
+import com.nimbusds.jwt.JWT
+import com.nimbusds.jwt.SignedJWT
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.Test
 import org.letstrust.common.readEssif
+import org.letstrust.common.urlEncode
+import org.letstrust.crypto.JwtSigner
+import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.encBase64
 import org.letstrust.model.*
 import org.letstrust.services.essif.*
+import org.letstrust.services.jwt.JwtService
 import org.letstrust.services.key.KeyService
-import java.net.URLEncoder
 import java.util.*
 
 class VcIssuanceFlowTest {
 
 
-    @Test
-    fun generateDidAuthRequest() {
+    fun generateDidAuthRequest(): String {
         // println(EnterpriseWalletService.generateDidAuthRequest())
 
         val kid = "22df3f6e54494c12bfb559e171cfe747"
@@ -50,17 +59,80 @@ class VcIssuanceFlowTest {
 
         val didAuthOidcReq = toOidcRequest(didAuthReq)
 
-        println(Json.encodeToString(didAuthOidcReq))
+        return Json.encodeToString(didAuthOidcReq)
     }
 
     private fun toOidcRequest(didAuthReq: DidAuthRequest): OidcRequest {
         val authRequestJwt = encBase64(Json.encodeToString(didAuthReq).toByteArray())
 
-        val clientId = URLEncoder.encode(didAuthReq.client_id)
-        val scope = URLEncoder.encode(didAuthReq.scope)
+        val clientId = urlEncode(didAuthReq.client_id)
+        val scope = urlEncode(didAuthReq.scope)
 
         val uri = "openid://?response_type=id_token&client_id=$clientId&scope=$scope&request=$authRequestJwt"
         return OidcRequest(uri, didAuthReq.callback)
+    }
+
+
+    @Test
+    fun testOpenSiopSession() {
+
+
+        val siopRequest = generateDidAuthRequest() // LegalEntityClient.eos.requestVerifiableCredential()
+
+        val did = "did:ebsi:22U5PQ7nktiDea19MzQWeEfAH9FH3W2waroqaYxqizt2rDz7"//DidService.create(DidMethod.ebsi) println(did)
+       // val kid = "5f81b3bb18644c0289a8a4a4ea8141ce"// KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1) println(kid)
+        val kid = "56032b7a3bbe45d7aaeb253b6c6f5fcc" //  KeyService.generate(KeyAlgorithm.EdDSA_Ed25519)    println(kidEd)
+        // val emphPrivKey = KeyService.toJwk(kid, true) as ECKey
+        //val emphPrivKey = KeyService.toJwk(kid, true) as OctetKeyPair
+        val emphPrivKey = OctetKeyPairGenerator(Curve.X25519).keyID("123").generate()
+        val verifiedClaims = "{}"
+        val nonce = ""
+
+        LegalEntityClient.eos = EosServiceMock() // mocking of remote calls
+
+        val idToken = UserWalletService.constructSiopResponseJwt(emphPrivKey, did, verifiedClaims, nonce)
+
+        print(idToken)
+        val bearerToken = ""
+
+        val siopResponse = generateSiopSessionResponse(idToken) // LegalEntityClient.eos.siopSession(idToken, bearerToken)
+
+        //val accessTokenResponse = Json.decodeFromString<AccessTokenResponse>(siopResponse)
+
+        //println(accessTokenResponse)
+    }
+
+    @Test
+    fun testGenerateSiopSessionResponse() {
+        val token = "eyJraWQiOiJkaWQ6ZWJzaToyMlU1UFE3bmt0aURlYTE5TXpRV2VFZkFIOUZIM1cyd2Fyb3FhWXhxaXp0MnJEejcjZGU3NTIzZjc2MWViNDVjM2E2MjcxNzM2ZWNiNzU0ODMiLCJ0eXAiOiJKV1QiLCJhbGciOiJFZERTQSJ9.eyJhdWQiOiJcL3Npb3Atc2Vzc2lvbnMiLCJzdWIiOiJ5NjdwSTZuX1lQQl9vMGNRUTNzQVp3UnBCbE1RaTRPbEtKU1R1QzN1eXhrIiwiaXNzIjoiaHR0cHM6XC9cL3NlbGYtaXNzdWVkLm1lIiwiY2xhaW1zIjp7InZlcmlmaWVkX2NsYWltcyI6Int9IiwiZW5jcnlwdGlvbl9rZXkiOnsia3R5IjoiT0tQIiwiY3J2IjoiWDI1NTE5IiwieCI6IjJlRVZ2M21ZMzJlbmdEVkd5Sk5TQkJ5VXB0WnZBS2docG11OVpJVW5NamsifX0sInN1Yl9qd2siOnsia3R5IjoiT0tQIiwiZCI6Imh5QlF4ZVZYWXJpa2hOZ0J3T0lIeXU5S01wbEpLZkNKNEJMbHZVUG5BbzgiLCJjcnYiOiJYMjU1MTkiLCJraWQiOiIxMjMiLCJ4IjoiMmVFVnYzbVkzMmVuZ0RWR3lKTlNCQnlVcHRadkFLZ2hwbXU5WklVbk1qayJ9LCJleHAiOjE2MjYxMTc5MjQsImlhdCI6MTYyNjExNzYyNCwibm9uY2UiOiIifQ.nnkAf7-1xhsvikO-8W7W4CrFnaPTZHWOnuoAgugJ9cw4SYhlRGbMrQKeg5fiqgKWjYcJUoryFpuQ6h5IBnkQDQ"
+        val encToken = generateSiopSessionResponse(token)
+        println(encToken)
+    }
+
+    fun generateSiopSessionResponse(idToken: String): String {
+
+        val jwt = SignedJWT.parse(idToken)
+
+        val claims = jwt.jwtClaimsSet.getClaim("claims") as JSONObject
+
+        val vp = claims.get("verified_claims")
+        val encryption_key = claims.get("encryption_key") as JSONObject
+
+        // TODO verify VP
+        println(vp)
+
+        // Generate Access token
+        val accessToken = UUID.randomUUID().toString()
+
+        // Encrypt JWE
+        println(encryption_key)
+        val emphClientKey = OctetKeyPair.parse(encryption_key) // ECKey.parse(encryption_key)
+
+        val privateKeyId = KeyService.generate(KeyAlgorithm.EdDSA_Ed25519).id
+        println(privateKeyId)
+        val siopResponse = JwtService.encrypt(privateKeyId, emphClientKey, accessToken)
+
+        return siopResponse
     }
 
     @Test

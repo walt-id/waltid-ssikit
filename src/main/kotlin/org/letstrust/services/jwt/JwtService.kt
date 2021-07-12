@@ -3,12 +3,14 @@ package org.letstrust.services.jwt
 import com.nimbusds.jose.*
 import com.nimbusds.jose.crypto.*
 import com.nimbusds.jose.jwk.Curve
+import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jose.jwk.OctetKeyPair
 import com.nimbusds.jose.jwk.gen.OctetKeyPairGenerator
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import mu.KotlinLogging
 import org.letstrust.crypto.*
+import org.letstrust.model.Jwk
 import org.letstrust.services.key.KeyService
 import java.security.interfaces.ECPublicKey
 import java.util.*
@@ -30,21 +32,22 @@ object JwtService {
 
 
     fun encrypt(
-        keyAlias: String, // verification method
+        kid: String,
+        pubEncKey: OctetKeyPair,
         payload: String? = null
     ): String {
-        //TODO key loading/storing
+
         val jweObject = JWEObject(
             JWEHeader.Builder(JWEAlgorithm.ECDH_ES, EncryptionMethod.A256GCM)
                 .contentType("JWT") // required to indicate nested JWT
-                .keyID(keyId)
+                .keyID(kid)
                 .build(),
             Payload(payload)
         )
 
-        val pubEncKey = encKey.toPublicJWK()
+        val pubEncKey = pubEncKey.toPublicJWK()
         val encrypter = X25519Encrypter(pubEncKey)
-        encrypter.jcaContext.provider = LetsTrustProvider()
+        // encrypter.jcaContext.provider = LetsTrustProvider()
         jweObject.encrypt(encrypter)
         return jweObject.serialize()
     }
