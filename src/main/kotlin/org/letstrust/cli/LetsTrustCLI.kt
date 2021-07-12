@@ -72,6 +72,8 @@ object LetsTrustCLI {
 
     fun start(args: Array<String>) {
 
+        LetsTrustServices;
+
         try {
 
             log.debug { "Let's Trust CLI starting..." }

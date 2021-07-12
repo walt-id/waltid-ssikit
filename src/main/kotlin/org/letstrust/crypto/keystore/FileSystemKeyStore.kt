@@ -90,7 +90,7 @@ object FileSystemKeyStore : KeyStore {
             key, "enc-pubkey",
             when (KEY_FORMAT) {
                 KeyFormat.PEM -> key.getPublicKey().toPEM()
-                KeyFormat.BASE64 -> key.getPublicKey().toBase64()
+                else -> key.getPublicKey().toBase64()
             }.toByteArray()
         )
 
@@ -99,7 +99,7 @@ object FileSystemKeyStore : KeyStore {
             saveKeyData(
                 key, "enc-privkey", when (KEY_FORMAT) {
                     KeyFormat.PEM -> key.keyPair!!.private.toPEM()
-                    KeyFormat.BASE64 -> key.keyPair!!.private.toBase64()
+                    else -> key.keyPair!!.private.toBase64()
                 }.toByteArray()
             )
         }
