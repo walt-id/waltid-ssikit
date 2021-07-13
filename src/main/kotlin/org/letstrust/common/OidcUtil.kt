@@ -1,5 +1,7 @@
 package org.letstrust.common
 
+import com.nimbusds.jose.jwk.JWK
+import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -7,8 +9,12 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import mu.KotlinLogging
 import org.letstrust.model.*
+import org.letstrust.services.did.DidService
+import org.letstrust.services.essif.UserWalletService
 import org.letstrust.services.jwt.JwtService
 import org.letstrust.services.key.KeyService
+import java.time.Instant
+import java.util.*
 
 object OidcUtil {
 
@@ -118,6 +124,37 @@ object OidcUtil {
         return request
 
         //  return DidAuthRequest(responseType, clientId, scope, nonce, request, oidcAuthReq.callback)
+    }
+
+    fun generateOidcAuthenticationResponse(kid: String, emphPubKey: JWK, did: String, verifiedClaims: String, nonce: String): String {
+
+        //val kid = DidService.loadDidEbsi(did).authentication!![0]
+        //val key = emphPrivKey as ECKey
+        //val key = KeyService.toJwk(did, false, kid) as ECKey
+        val thumbprint = emphPubKey.computeThumbprint().toString()
+
+        val payload = JWTClaimsSet.Builder()
+            .issuer("https://self-issued.me")
+            .audience("/siop-sessions")
+            .subject(thumbprint)
+            .issueTime(Date.from(Instant.now()))
+            .expirationTime(Date.from(Instant.now().plusSeconds(300)))
+            .claim("nonce", nonce)
+            .claim("sub_jwk", emphPubKey.toJSONObject())
+            .claim(
+                "claims",
+                mapOf(
+                    "verified_claims" to verifiedClaims,
+                    "encryption_key" to UserWalletService.embedPublicEncryptionKey(emphPubKey)
+                )
+            )
+            .build().toString()
+
+        val jwt = JwtService.sign(kid, payload)
+
+        JwtService.verify(jwt).let { if (!it) throw IllegalStateException("Generated JWK not valid") }
+
+        return jwt
     }
 
 }

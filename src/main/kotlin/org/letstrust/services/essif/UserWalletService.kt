@@ -346,6 +346,7 @@ object UserWalletService {
         }
     }
 
+    // TODO replace with OidcUtil
     fun constructSiopResponseJwt(emphPrivKey: JWK, did: String, verifiedClaims: String, nonce: String): String {
 
         //val kid = "$did#key-1"

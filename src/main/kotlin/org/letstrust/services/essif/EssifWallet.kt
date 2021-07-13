@@ -1,5 +1,9 @@
 package org.letstrust.services.essif
 
+import com.nimbusds.jose.JWSAlgorithm
+import com.nimbusds.jose.jwk.Curve
+import com.nimbusds.jose.jwk.ECKey
+import com.nimbusds.jose.jwk.KeyUse
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -7,7 +11,16 @@ import mu.KotlinLogging
 import org.apache.logging.log4j.Level
 import org.letstrust.LetsTrustServices
 import org.letstrust.common.OidcUtil
+import org.letstrust.crypto.canonicalize
+import org.letstrust.crypto.encBase64Str
+import org.letstrust.crypto.newKeyId
 import org.letstrust.model.*
+import org.letstrust.services.did.DidService
+import org.letstrust.services.vc.CredentialService
+import java.security.KeyPairGenerator
+import java.security.SecureRandom
+import java.security.interfaces.ECPublicKey
+import java.security.spec.ECGenParameterSpec
 import java.util.*
 
 object EssifWalletClient {
@@ -27,6 +40,9 @@ object EssifWallet {
     ///////////////////////////////////////////////////////////////////////////
     // Client
     ///////////////////////////////////////////////////////////////////////////
+
+    val kidClient= "22df3f6e54494c12bfb559e171cfe747"
+    val didClient= "did:ebsi:0x416e6e6162656c2e4c65652e452d412d506f652e"
 
     /**
      * Runs DID + VC Auth (optional)
@@ -62,7 +78,46 @@ object EssifWallet {
 
         log.debug { "CLIENT::generateAuthenticationResponse()" }
 
-        return "TODO"
+        val vc = "" // TODO load VC
+        val verifiedClaims = "" // TODO: build VP createVerifiedClaims(didClient, vc)
+
+        val kg = KeyPairGenerator.getInstance("EC", "BC")
+        kg.initialize(ECGenParameterSpec("secp256k1"), SecureRandom())
+        val emphPrivKey = kg.generateKeyPair().let {
+            ECKey.Builder(Curve.SECP256K1, it.public as ECPublicKey)
+                .keyUse(KeyUse.SIGNATURE)
+                .algorithm(JWSAlgorithm.ES256K)
+                .keyID(newKeyId().id)
+                .privateKey(it.private)
+                .build()
+        }
+
+        return OidcUtil.generateOidcAuthenticationResponse(kidClient, emphPrivKey, didClient, verifiedClaims, authReq.nonce)
+    }
+
+    private fun createVerifiedClaims(did: String, va: String): String {
+
+        val vaWrapper = Json.decodeFromString<EbsiVAWrapper>(va)
+
+        val vpReq = EbsiVaVp(
+            listOf("https://www.w3.org/2018/credentials/v1"),
+            listOf("VerifiablePresentation"),
+            null,
+            listOf(vaWrapper.verifiableCredential),
+            did,
+            null
+        )
+
+        val authKeyId = DidService.loadDidEbsi(did).authentication!![0]
+        val vp = CredentialService.sign(did, vpReq.encode(), null, null, authKeyId, "assertionMethod")
+
+        log.debug { "Verifiable Presentation generated:\n$vp" }
+
+      //  verifiablePresentationFile.writeText(vp)
+
+        val vpCan = canonicalize(vp)
+
+        return encBase64Str(vpCan)
     }
 
 
