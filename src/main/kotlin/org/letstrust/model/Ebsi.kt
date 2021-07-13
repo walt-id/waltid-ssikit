@@ -108,12 +108,6 @@ data class CredentialStatusListEntry(
     val modificationReason: List<String>
 )
 
-data class OidcAuthenticationRequestUri(
-    val response_type: String,
-    val scope: String,
-    val request: String
-)
-
 @Serializable
 data class AuthRequestResponse(val session_token: String)
 
@@ -121,6 +115,12 @@ data class AuthRequestResponse(val session_token: String)
 data class OidcRequest(
     val uri: String,
     val callback: String
+)
+
+data class OidcAuthenticationRequestUri(
+    val response_type: String,
+    val scope: String,
+    val request: String
 )
 
 @Serializable
