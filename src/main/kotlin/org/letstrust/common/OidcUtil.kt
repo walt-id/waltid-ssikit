@@ -8,6 +8,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import mu.KotlinLogging
+import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.model.*
 import org.letstrust.services.did.DidService
 import org.letstrust.services.essif.UserWalletService
@@ -131,6 +132,7 @@ object OidcUtil {
         //val kid = DidService.loadDidEbsi(did).authentication!![0]
         //val key = emphPrivKey as ECKey
         //val key = KeyService.toJwk(did, false, kid) as ECKey
+
         val thumbprint = emphPubKey.computeThumbprint().toString()
 
         val payload = JWTClaimsSet.Builder()

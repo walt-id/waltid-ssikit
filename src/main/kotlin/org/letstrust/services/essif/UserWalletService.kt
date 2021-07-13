@@ -475,12 +475,11 @@ object UserWalletService {
             "did:ebsi:0x123abc",
             "thumbprint of the sub_jwk",
             "did:ebsi:RP-did-here",
+            AuthenticationResponseVerifiedClaims(vp),
+            null,
             1610714000,
             1610714900,
-            "signing JWK",
-            "did:ebsi:0x123abc#authentication-key-proof-3",
-            authReq.nonce,
-            AuthenticationResponseVerifiedClaims(vp, "enc_key")
+            authReq.nonce
         )
 
         println("AuthenticationResponse assembled:\n" + Json { prettyPrint = true }.encodeToString(arp) + "\n")

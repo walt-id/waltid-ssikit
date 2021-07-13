@@ -245,21 +245,21 @@ data class TypeDocument(
 
 @Serializable
 data class AuthenticationResponsePayload(
-    val iss: String,
-    val sub: String,
     val aud: String,
-    val iat: Long,
-    val exp: Long,
-    val sub_jwk: String,
-    val sub_did_verification_method_uri: String,
-    val nonce: String,
+    val sub: String,
+    val iss: String,
     val claims: AuthenticationResponseVerifiedClaims,
+    val sub_jwk: Jwk? = null,
+    val exp: Long,
+    val iat: Long,
+    //val sub_did_verification_method_uri: String,
+    val nonce: String
 )
 
 @Serializable
 data class AuthenticationResponseVerifiedClaims(
     val verified_claims: String,
-    val encryption_key: String
+    val encryption_key: Jwk? = null
 )
 
 @Serializable
