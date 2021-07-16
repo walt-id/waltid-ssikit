@@ -127,7 +127,7 @@ object OidcUtil {
         //  return DidAuthRequest(responseType, clientId, scope, nonce, request, oidcAuthReq.callback)
     }
 
-    fun generateOidcAuthenticationResponse(kid: String, emphPubKey: JWK, did: String, verifiedClaims: String, nonce: String): String {
+    fun generateOidcAuthenticationResponse(emphPubKey: JWK, did: String, verifiedClaims: String, nonce: String): String {
 
         //val kid = DidService.loadDidEbsi(did).authentication!![0]
         //val key = emphPrivKey as ECKey
@@ -152,7 +152,7 @@ object OidcUtil {
             )
             .build().toString()
 
-        val jwt = JwtService.sign(kid, payload)
+        val jwt = JwtService.sign(did, payload)
 
         JwtService.verify(jwt).let { if (!it) throw IllegalStateException("Generated JWK not valid") }
 

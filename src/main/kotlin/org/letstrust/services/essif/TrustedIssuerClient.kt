@@ -11,13 +11,29 @@ import org.letstrust.services.essif.mock.DidRegistry
 
 private val log = KotlinLogging.logger {}
 
-object EosService {
+object TrustedIssuerClient {
 
+    // TODO: move to config file
     val domain = "https://api.preprod.ebsi.eu"
     //val domain = "https://api.test.intebsi.xyz"
 
     val authorisation = "$domain/authorisation/v1"
     val onboarding = "$domain/users-onboarding/v1"
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Used for VC exchange flows
+    fun generateAuthenticationRequest(): String {
+        return EssifServer.generateAuthenticationRequest()
+    }
+
+    fun openSession(authResp: String): String {
+        return EssifServer.openSession(authResp)
+    }
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Used for registering DID EBSI
 
     fun authenticationRequests(): AuthRequestResponse = runBlocking {
         return@runBlocking LetsTrustServices.http.post<AuthRequestResponse>("$onboarding/authentication-requests") {
@@ -51,7 +67,7 @@ object EosService {
         }
     }
 
-
+    ///////////////////////////////////////////////////////////////////////////////////////////////
     //TODO: the methods below are stubbed - to be considered
 
     // POST /onboards

@@ -23,26 +23,12 @@ import org.letstrust.services.key.KeyService
 import org.letstrust.services.vc.CredentialService
 import java.util.*
 
-object EssifEosClient {
-    fun generateAuthenticationRequest(): String {
-        return EssifServer.generateAuthenticationRequest()
-    }
-
-    fun openSession(authResp: String): String {
-        return EssifServer.openSession(authResp)
-    }
-}
 
 object EssifClient {
 
     private val log = KotlinLogging.logger {}
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Client
-    ///////////////////////////////////////////////////////////////////////////
-
-    val kidClient= "22df3f6e54494c12bfb559e171cfe747"
-    val didClient= "did:ebsi:0x416e6e6162656c2e4c65652e452d412d506f652e"
+    val did: String = DidService.create(DidMethod.ebsi) // Client DID
 
     // SECP
     //        val kg = KeyPairGenerator.getInstance("EC", "BC")
@@ -75,10 +61,10 @@ object EssifClient {
 
         log.debug { "CLIENT::authenticate()" }
 
-        val authReq = EssifEosClient.generateAuthenticationRequest()
+        val authReq = TrustedIssuerClient.generateAuthenticationRequest()
         val didAuthReq = validateAuthenticationRequest(authReq)
         val authResp = this.generateAuthenticationResponse(didAuthReq)
-        val encAccessToken = EssifEosClient.openSession(authResp)
+        val encAccessToken = TrustedIssuerClient.openSession(authResp)
         val accessToken = decryptAccessToken(encAccessToken)
 
         log.debug { "Received access token for fetching credential: $accessToken" }
@@ -113,7 +99,7 @@ object EssifClient {
         val vc = "" // TODO load VC
         val verifiedClaims = "" // TODO: build VP createVerifiedClaims(didClient, vc)
 
-        return OidcUtil.generateOidcAuthenticationResponse(kidClient, ephPrivKey.toPublicJWK(), didClient, verifiedClaims, authReq.nonce)
+        return OidcUtil.generateOidcAuthenticationResponse(ephPrivKey.toPublicJWK(), did, verifiedClaims, authReq.nonce)
     }
 
     private fun createVerifiedClaims(did: String, va: String): String {
