@@ -76,7 +76,7 @@ object TrustedIssuerController {
         operationId = "generateAuthenticationRequest",
         tags = ["Trusted Issuer"],
         responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "DID Auth Reqeust"),
+            OpenApiResponse("200", [OpenApiContent(String::class)], "DID Auth Request"),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
             OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
@@ -85,24 +85,18 @@ object TrustedIssuerController {
         ctx.result(EssifServer.generateAuthenticationRequest())
     }
 
-
     @OpenApi(
-        summary = "Request credential",
-        operationId = "requestVerifiableCredential",
+        summary = "Establishes a mutual authenticated DID-SIOP session",
+        operationId = "generateAuthenticationRequest",
         tags = ["Trusted Issuer"],
-        requestBody = OpenApiRequestBody(
-            [OpenApiContent(String::class)],
-            true,
-            "Credential Request URI"
-        ),
         responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "DID ownership response"),
+            OpenApiResponse("200", [OpenApiContent(String::class)], "Encrypted access token"),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
             OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
-    fun requestVerifiableCredential(ctx: Context) {
-        ctx.json(EnterpriseWalletService.requestVerifiableCredential())
+    fun openSession(ctx: Context) {
+        ctx.result(EssifServer.openSession(ctx.body()))
     }
 
 }

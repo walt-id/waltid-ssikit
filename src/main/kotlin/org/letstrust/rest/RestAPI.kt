@@ -240,6 +240,7 @@ object RestAPI {
             path("v2") {
                 path("trusted-issuer") {
                     post("generateAuthenticationRequest", TrustedIssuerController::generateAuthenticationRequest)
+                    post("openSession", TrustedIssuerController::openSession)
                 }
             }
 

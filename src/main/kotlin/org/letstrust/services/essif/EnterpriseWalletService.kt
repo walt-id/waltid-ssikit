@@ -64,7 +64,6 @@ object EnterpriseWalletService {
         return DidAuthRequest(pm["response_type"]!!, pm["client_id"]!!, pm["scope"]!!, pm["nonce"]!!, Json.decodeFromString(pm["request"]!!), "callback")
     }
 
-
     // TODO consider the following stubs
 
     fun createDid(): String {

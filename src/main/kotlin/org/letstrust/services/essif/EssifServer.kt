@@ -1,10 +1,6 @@
 package org.letstrust.services.essif
 
-import com.nimbusds.jose.crypto.X25519Decrypter
-import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.jwk.OctetKeyPair
-import com.nimbusds.jose.jwk.gen.OctetKeyPairGenerator
-import com.nimbusds.jwt.EncryptedJWT
 import com.nimbusds.jwt.SignedJWT
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -14,13 +10,10 @@ import org.apache.logging.log4j.Level
 import org.letstrust.LetsTrustServices
 import org.letstrust.common.OidcUtil
 import org.letstrust.crypto.KeyAlgorithm
-import org.letstrust.crypto.canonicalize
-import org.letstrust.crypto.encBase64Str
 import org.letstrust.model.*
 import org.letstrust.services.did.DidService
 import org.letstrust.services.jwt.JwtService
 import org.letstrust.services.key.KeyService
-import org.letstrust.services.vc.CredentialService
 import java.util.*
 
 
@@ -52,11 +45,11 @@ object EssifServer {
     /**
      * Takes the Authentication Request, verifies it and establishes a mutual-authenticated sessions.
      */
-    fun openSession(authResp: String): String {
+    fun openSession(authRespJwt: String): String {
 
         log.debug { "SERVER::openSession()" }
 
-        val authRespPayload = this.validateAuthenticationResponse(authResp)
+        val authRespPayload = this.validateAuthenticationResponse(authRespJwt)
         val encryptionKeyJsonStr = Json.encodeToString(authRespPayload.claims.encryption_key)
         return this.generateEncryptedAccessToken(encryptionKeyJsonStr)
     }
