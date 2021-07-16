@@ -10,5 +10,5 @@ object LegalEntityClient {
     var le = EosService
     var rp = RelyingParty
     var ti = EosService
-    var eos: IEosService = EosService
+    var eos = EosService
 }

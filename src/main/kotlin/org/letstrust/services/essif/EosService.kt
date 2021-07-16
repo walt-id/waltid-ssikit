@@ -11,23 +11,7 @@ import org.letstrust.services.essif.mock.DidRegistry
 
 private val log = KotlinLogging.logger {}
 
-interface IEosService {
-    fun authenticationRequests(): AuthRequestResponse
-    fun authenticationResponse(idToken: String, bearerToken: String): String
-    fun siopSession(idToken: String, bearerToken: String): String
-
-    // POST /onboards
-    // returns DID ownership
-    fun onboards(): String
-    fun signedChallenge(signedChallenge: String): String
-    fun requestVerifiableCredential(): String
-    fun requestCredentialUri(): String
-    fun didOwnershipResponse(didOwnershipResp: String): String
-    fun getCredential(id: String): String
-    fun getCredentials(isUserAuthenticated: Boolean = false): String
-}
-
-object EosService : IEosService {
+object EosService {
 
     val domain = "https://api.preprod.ebsi.eu"
     //val domain = "https://api.test.intebsi.xyz"
@@ -35,7 +19,7 @@ object EosService : IEosService {
     val authorisation = "$domain/authorisation/v1"
     val onboarding = "$domain/users-onboarding/v1"
 
-    override fun authenticationRequests(): AuthRequestResponse = runBlocking {
+    fun authenticationRequests(): AuthRequestResponse = runBlocking {
         return@runBlocking LetsTrustServices.http.post<AuthRequestResponse>("$onboarding/authentication-requests") {
             contentType(ContentType.Application.Json)
             headers {
@@ -45,7 +29,7 @@ object EosService : IEosService {
         }
     }
 
-    override fun authenticationResponse(idToken: String, bearerToken: String): String = runBlocking {
+    fun authenticationResponse(idToken: String, bearerToken: String): String = runBlocking {
         return@runBlocking LetsTrustServices.http.post<String>("$onboarding/authentication-responses") {
             contentType(ContentType.Application.Json)
             headers {
@@ -56,7 +40,7 @@ object EosService : IEosService {
         }
     }
 
-    override fun siopSession(idToken: String, bearerToken: String): String = runBlocking {
+    fun siopSession(idToken: String, bearerToken: String): String = runBlocking {
         return@runBlocking LetsTrustServices.http.post<String>("$authorisation/siop-sessions") {
             contentType(ContentType.Application.Json)
             headers {
@@ -72,12 +56,12 @@ object EosService : IEosService {
 
     // POST /onboards
     // returns DID ownership
-    override fun onboards(): String {
+    fun onboards(): String {
         println("6. [Eos] Request DID ownership")
         return readEssif("onboarding-onboards-resp")
     }
 
-    override fun signedChallenge(signedChallenge: String): String {
+    fun signedChallenge(signedChallenge: String): String {
 
         val header = readEssif("onboarding-onboards-callback-req-header")
         val body = readEssif("onboarding-onboards-callback-req-body")
@@ -94,17 +78,17 @@ object EosService : IEosService {
         return verifiableAuthorization
     }
 
-    override fun requestVerifiableCredential(): String {
+    fun requestVerifiableCredential(): String {
         println("4. [Eos] Request V.ID")
         return EnterpriseWalletService.generateDidAuthRequest()
     }
 
-    override fun requestCredentialUri(): String {
+    fun requestCredentialUri(): String {
         println("2 [Eos] Request Credential (QR, URI, ...)")
         return "new session - QR/URI"
     }
 
-    override fun didOwnershipResponse(didOwnershipResp: String): String {
+    fun didOwnershipResponse(didOwnershipResp: String): String {
         println("8. [Eos] Response DID ownership")
         log.debug { "didOwnershipResp: $didOwnershipResp" }
 
@@ -121,12 +105,12 @@ object EosService : IEosService {
         return vIdRequestOkResp
     }
 
-    override fun getCredential(id: String): String {
+    fun getCredential(id: String): String {
         println("12. [Eos] [GET]/credentials")
         return readEssif("onboarding-vid")
     }
 
-    override fun getCredentials(isUserAuthenticated: Boolean): String {
+    fun getCredentials(isUserAuthenticated: Boolean): String {
         return if (isUserAuthenticated) {
             readEssif("vc-issuance-auth-req")
         } else {

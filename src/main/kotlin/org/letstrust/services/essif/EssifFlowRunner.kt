@@ -292,7 +292,7 @@ object EssifFlowRunner {
         //  }
         //}
         ///////////////////////////////////////////////////////////////////////////
-        val didAuthRequest = EosService.getCredentials()
+        val didAuthRequest = EosService.getCredentials(false)
         println("6. QR, URI, ...")
         println("9. Trigger Wallet (Scan QR, enter URI, ...)")
 
