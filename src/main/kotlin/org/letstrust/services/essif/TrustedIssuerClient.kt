@@ -19,15 +19,38 @@ object TrustedIssuerClient {
 
     val authorisation = "$domain/authorisation/v1"
     val onboarding = "$domain/users-onboarding/v1"
+    val trustedIssuerUrl = "http://localhost:7001/v2/trusted-issuer"
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Used for VC exchange flows
-    fun generateAuthenticationRequest(): String {
-        return EssifServer.generateAuthenticationRequest()
+
+    // Stubs
+//    fun generateAuthenticationRequest(): String {
+//        return EssifServer.generateAuthenticationRequest()
+//    }
+//
+//    fun openSession(authResp: String): String {
+//        return EssifServer.openSession(authResp)
+//    }
+
+    fun generateAuthenticationRequest(): String = runBlocking {
+        return@runBlocking LetsTrustServices.http.post<String>("$trustedIssuerUrl/generateAuthenticationRequest") {
+            contentType(ContentType.Application.Json)
+            headers {
+                append(HttpHeaders.Accept, "application/json")
+            }
+        }
     }
 
-    fun openSession(authResp: String): String {
-        return EssifServer.openSession(authResp)
+
+    fun openSession(authResp: String): String = runBlocking{
+        return@runBlocking LetsTrustServices.http.post<String>("$trustedIssuerUrl/openSession") {
+            contentType(ContentType.Application.Json)
+            headers {
+                append(HttpHeaders.Accept, "application/json")
+            }
+            body = authResp
+        }
     }
 
 
