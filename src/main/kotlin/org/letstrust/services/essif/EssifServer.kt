@@ -28,16 +28,12 @@ object EssifServer {
 
     private val log = KotlinLogging.logger {}
 
-    ///////////////////////////////////////////////////////////////////////////
-    // Server
-    ///////////////////////////////////////////////////////////////////////////
-
     // TODO: Add configuration + keystore integration
-    val kidServer = "22df3f6e54494c12bfb559e171cfe747"
-    val didServer = "did:ebsi:0x416e6e6162656c2e4c65652e452d412d506f652e"
     val redirectUri = "http://localhost:8080/redirect"
     val callback = "http://localhost:8080/callback"
-    val nonce = UUID.randomUUID().toString()
+
+    val nonce: String = UUID.randomUUID().toString()
+    val did: String = DidService.create(DidMethod.ebsi) // Server DID
 
     /**
      * Generates OIDC-based authentication request
@@ -48,7 +44,7 @@ object EssifServer {
 
         // TODO ingest correct parameters and claims
 
-        val oidcRequest = OidcUtil.generateOidcAuthenticationRequest(kidServer, didServer, redirectUri, callback, nonce)
+        val oidcRequest = OidcUtil.generateOidcAuthenticationRequest(did, redirectUri, callback, nonce)
 
         return Json.encodeToString(oidcRequest)
     }

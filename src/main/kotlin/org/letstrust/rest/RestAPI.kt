@@ -237,6 +237,11 @@ object RestAPI {
                     post("authentication-requests", EosController::authReq)
                 }
             }
+            path("v2") {
+                path("trusted-issuer") {
+                    post("generateAuthenticationRequest", TrustedIssuerController::generateAuthenticationRequest)
+                }
+            }
 
             JavalinJson.toJsonMapper = object : ToJsonMapper {
                 override fun map(obj: Any): String {

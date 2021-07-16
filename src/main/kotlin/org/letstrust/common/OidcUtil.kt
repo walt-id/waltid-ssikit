@@ -21,13 +21,13 @@ object OidcUtil {
 
     private val log = KotlinLogging.logger {}
 
-    fun generateOidcAuthenticationRequest(kid: String, did: String, redirectUri: String, callback: String, nonce: String): OidcRequest {
+    fun generateOidcAuthenticationRequest(did: String, redirectUri: String, callback: String, nonce: String): OidcRequest {
 
         // TODO ingest correct parameters and claims
 
         val scope = "openid did_authn"
         val response_type = "id_token"
-        val publicKeyJwk = Json.decodeFromString<Jwk>(KeyService.toJwk(kid).toPublicJWK().toString())
+        val publicKeyJwk = Json.decodeFromString<Jwk>(KeyService.toJwk(did).toPublicJWK().toString())
         val authRequestHeader = AuthenticationHeader("ES256K", "JWT", publicKeyJwk)
         val iss = did
         val jwks_uri = ""
@@ -51,7 +51,7 @@ object OidcUtil {
         val didAuthRequestJwt = AuthenticationRequestJwt(authRequestHeader, authRequestPayload)
         val didAuthReq = DidAuthRequest(response_type, client_id, scope, nonce, didAuthRequestJwt, callback)
 
-        return toOidcRequest(didAuthReq, kid)
+        return toOidcRequest(didAuthReq, did)
     }
 
     fun validateOidcAuthenticationRequest(oidcAuthReq: OidcRequest): DidAuthRequest {
