@@ -25,3 +25,4 @@ keys/
 *.db
 /data/
 /docs/essif/*
+*.log
