@@ -77,7 +77,7 @@ object LetsTrustCLI {
             log.debug { "Let's Trust CLI starting..." }
 
             if (args.any { it == "--verbose" || it == "-v" }) {
-                LetsTrustServices.setLogLevel(Level.TRACE)
+                LetsTrustServices.setLogLevel(Level.DEBUG)
             }
 
             LetsTrust()

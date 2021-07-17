@@ -61,17 +61,25 @@ object EssifClient {
 
         log.debug { "CLIENT::authenticate()" }
 
-        val authReq = TrustedIssuerClient.generateAuthenticationRequest()
-        val didAuthReq = validateAuthenticationRequest(authReq)
-        val authResp = this.generateAuthenticationResponse(didAuthReq)
-        val encAccessToken = TrustedIssuerClient.openSession(authResp)
-        val accessToken = decryptAccessToken(encAccessToken)
+        val oidcReq = TrustedIssuerClient.generateAuthenticationRequest()
+        log.debug { "Authentication request: $oidcReq" }
 
+        val didAuthReq = validateAuthenticationRequest(oidcReq)
+        log.debug { "Authentication request: $didAuthReq" }
+
+        val authResp = this.generateAuthenticationResponse(didAuthReq)
+        log.debug { "Authentication response: $authResp" }
+
+        val encAccessToken = TrustedIssuerClient.openSession(authResp)
+        log.debug { "Received encrypted access token: $encAccessToken" }
+
+        val accessToken = decryptAccessToken(encAccessToken)
         log.debug { "Received access token for fetching credential: $accessToken" }
+
         log.debug { "CLIENT::authenticate() - completed" }
     }
 
-    private fun decryptAccessToken(encAccessToken: String): String {
+    fun decryptAccessToken(encAccessToken: String): String {
 
         val jwt = EncryptedJWT.parse(encAccessToken)
         //TODO load enc-key based on: jwt.header.keyID
@@ -79,7 +87,7 @@ object EssifClient {
         return jwt.payload.toString()
     }
 
-    private fun validateAuthenticationRequest(authReq: String): DidAuthRequest {
+    fun validateAuthenticationRequest(authReq: String): DidAuthRequest {
 
         log.debug { "CLIENT::validateAuthenticationRequest()" }
 
@@ -92,7 +100,7 @@ object EssifClient {
         return didAuthReq
     }
 
-    private fun generateAuthenticationResponse(authReq: DidAuthRequest): String {
+    fun generateAuthenticationResponse(authReq: DidAuthRequest): String {
 
         log.debug { "CLIENT::generateAuthenticationResponse()" }
 

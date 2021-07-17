@@ -58,8 +58,6 @@ object OidcUtil {
 
         val didAuthReq = toDidAuthRequest(oidcAuthReq)
 
-        println(didAuthReq)
-
         // TODO: Validate DID
 
         return didAuthReq
