@@ -14,6 +14,11 @@ import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.util.Base64URL
 import io.ipfs.multibase.Base58
 import io.ipfs.multibase.Multibase
+import org.bouncycastle.asn1.DEROctetString
+import org.bouncycastle.asn1.edec.EdECObjectIdentifiers
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.math.ec.ECPoint
 import org.bouncycastle.util.encoders.Hex
@@ -41,7 +46,8 @@ enum class KeyAlgorithm {
 
 enum class KeyFormat {
     PEM,
-    BASE64
+    BASE64_RAW,
+    BASE64_DER
 }
 
 // Supported signatures
@@ -88,6 +94,19 @@ fun PublicKey.toBase64(): String = encBase64(X509EncodedKeySpec(this.encoded).en
 
 fun decodePubKeyBase64(base64: String, kf: KeyFactory): PublicKey = kf.generatePublic(X509EncodedKeySpec(decBase64(base64)))
 
+fun decodeRawPubKeyBase64(base64: String, kf: KeyFactory): PublicKey {
+    val pubKeyInfo = SubjectPublicKeyInfo(AlgorithmIdentifier(EdECObjectIdentifiers.id_Ed25519), decBase64(base64))
+    val x509KeySpec = X509EncodedKeySpec(pubKeyInfo.encoded)
+    return kf.generatePublic(x509KeySpec)
+}
+
+fun decodeRawPrivKey(base64: String, kf: KeyFactory): PrivateKey {
+    // TODO: extend for Secp256k1 keys
+    val privKeyInfo = PrivateKeyInfo(AlgorithmIdentifier(EdECObjectIdentifiers.id_Ed25519), DEROctetString(decBase64(base64)))
+    val pkcs8KeySpec = PKCS8EncodedKeySpec(privKeyInfo.encoded)
+    return kf.generatePrivate(pkcs8KeySpec)
+}
+
 fun decodePubKeyPem(pem: String, kf: KeyFactory): PublicKey = decodePubKeyBase64(pemToBase64(pem), kf)
 
 fun pemToBase64(pem: String): String = pem.substringAfter("\n").substringBefore("-").replace("\n", "")
@@ -103,11 +122,32 @@ fun buildKey(keyId: String, algorithm: String, provider: String, publicPart: Str
         KeyAlgorithm.EdDSA_Ed25519 -> KeyFactory.getInstance("Ed25519")
     }
     val kp = when (format) {
-        KeyFormat.PEM -> Pair(decodePubKeyPem(publicPart, kf), privatePart?.let { decodePrivKeyPem(privatePart, kf) })
-        KeyFormat.BASE64 -> Pair(decodePubKeyBase64(publicPart, kf), privatePart?.let { decodePrivKeyBase64(privatePart, kf) })
+        KeyFormat.PEM -> KeyPair(decodePubKeyPem(publicPart, kf), privatePart?.let { decodePrivKeyPem(privatePart, kf) })
+        KeyFormat.BASE64_DER -> KeyPair(decodePubKeyBase64(publicPart, kf), privatePart?.let { decodePrivKeyBase64(privatePart, kf) })
+        KeyFormat.BASE64_RAW -> KeyPair(decodeRawPubKeyBase64(publicPart, kf), privatePart?.let { decodeRawPrivKey(privatePart, kf) })
     }
 
-    return Key(KeyId(keyId), KeyAlgorithm.valueOf(algorithm), CryptoProvider.valueOf(provider), KeyPair(kp.first, kp.second))
+    return Key(KeyId(keyId), KeyAlgorithm.valueOf(algorithm), CryptoProvider.valueOf(provider), kp)
+}
+
+fun buildEd25519PubKey(base64: String): PublicKey {
+
+    val keyFactory = KeyFactory.getInstance("Ed25519")
+
+    val pubKeyInfo = SubjectPublicKeyInfo(AlgorithmIdentifier(EdECObjectIdentifiers.id_Ed25519), decBase64(base64))
+    val x509KeySpec = X509EncodedKeySpec(pubKeyInfo.encoded)
+
+    return keyFactory.generatePublic(x509KeySpec)
+}
+
+fun buildEd25519PrivKey(base64: String): PrivateKey {
+
+    val keyFactory = KeyFactory.getInstance("Ed25519")
+
+    val privKeyInfo = PrivateKeyInfo(AlgorithmIdentifier(EdECObjectIdentifiers.id_Ed25519), DEROctetString(decBase64(base64)))
+    val pkcs8KeySpec = PKCS8EncodedKeySpec(privKeyInfo.encoded)
+
+    return keyFactory.generatePrivate(pkcs8KeySpec)
 }
 
 fun ByteArray.encodeBase58(): String = Base58.encode(this)

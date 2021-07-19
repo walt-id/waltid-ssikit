@@ -2,7 +2,9 @@ package org.letstrust.services.key
 
 //import org.bouncycastle.jce.ECNamedCurveTable
 //import org.bouncycastle.jce.provider.BouncyCastleProvider
+import com.nimbusds.jose.Algorithm
 import com.nimbusds.jose.JWSAlgorithm
+import com.nimbusds.jose.JWSAlgorithm.EdDSA
 import com.nimbusds.jose.jwk.*
 import com.nimbusds.jose.util.Base64URL
 import org.bouncycastle.asn1.ASN1BitString
@@ -10,8 +12,10 @@ import org.bouncycastle.asn1.ASN1OctetString
 import org.bouncycastle.asn1.ASN1Sequence
 import org.bouncycastle.jcajce.provider.digest.Keccak
 import org.bouncycastle.jce.ECNamedCurveTable
-import org.bouncycastle.util.encoders.Hex
 import org.bouncycastle.jce.provider.BouncyCastleProvider
+import org.bouncycastle.math.ec.rfc8032.Ed25519
+import org.bouncycastle.math.ec.rfc8032.Ed25519.Algorithm.Ed25519ph
+import org.bouncycastle.util.encoders.Hex
 import org.letstrust.CryptoProvider
 import org.letstrust.LetsTrustServices
 import org.letstrust.crypto.*
@@ -50,10 +54,14 @@ object KeyService {
         }
 
     fun import(jwkKeyStr: String): KeyId {
-        val jwk = JWK.parse(jwkKeyStr).toOctetKeyPair()
+        val jwk = JWK.parse(jwkKeyStr)
 
-        // TODO convert JWK to Java KeyPair
-        val key = buildKey(jwk.keyID, KeyAlgorithm.EdDSA_Ed25519.name, "SUN", jwk.x.toString(), jwk.d.toString(), org.letstrust.crypto.KeyFormat.BASE64)
+        val key = when (jwk.algorithm.name) {
+            "EdDSA" -> buildKey(jwk.keyID, KeyAlgorithm.EdDSA_Ed25519.name, CryptoProvider.SUN.name, jwk.toOctetKeyPair().x.toString(), jwk.toOctetKeyPair().d?.let { jwk.toOctetKeyPair().d.toString() }, org.letstrust.crypto.KeyFormat.BASE64_RAW)
+            "ES256K" -> Key(KeyId(jwk.keyID), KeyAlgorithm.ECDSA_Secp256k1, CryptoProvider.SUN, jwk.toECKey().toKeyPair())
+            else -> throw IllegalArgumentException("Algorithm ${jwk.algorithm} not supported")
+        }
+        //val key = buildKey(jwk.keyID, KeyAlgorithm.EdDSA_Ed25519.name, CryptoProvider.SUN.name, jwk.toOctetKeyPair().x.toString(), jwk.toOctetKeyPair().d?.let { jwk.toOctetKeyPair().d.toString() }, org.letstrust.crypto.KeyFormat.BASE64_RAW)
         ks.store(key)
         return key.keyId
     }
@@ -102,7 +110,7 @@ object KeyService {
             val privPrim = ASN1Sequence.fromByteArray(key.keyPair!!.private.encoded) as ASN1Sequence
             var d = (privPrim.getObjectAt(2) as ASN1OctetString).octets
 
-            if (d.size > 32 && d[0].toInt() == 0x04 && d[1].toInt()  == 0x20) {
+            if (d.size > 32 && d[0].toInt() == 0x04 && d[1].toInt() == 0x20) {
                 d = (ASN1OctetString.fromByteArray(d) as ASN1OctetString).octets
             }
 
@@ -110,17 +118,6 @@ object KeyService {
         }
 
         return builder.build()
-    }
-
-    fun import(json: String, provider: CryptoProvider): Key {
-        val jwk = JWK.parse(json)
-        val key = when (jwk.keyType) {
-            KeyType.EC -> Key(KeyId(jwk.keyID), KeyAlgorithm.ECDSA_Secp256k1, provider, jwk.toECKey().toKeyPair(BouncyCastleProvider()))
-            // FIXME: KeyType.OKP -> jwk.toOctetKeyPair().toKeyPair()
-            else -> throw IllegalArgumentException("Key type not supported.")
-        }
-        ks.store(key)
-        return key
     }
 
     fun getEthereumAddress(keyAlias: String): String =

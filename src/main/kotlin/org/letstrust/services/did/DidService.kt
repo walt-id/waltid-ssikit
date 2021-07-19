@@ -115,7 +115,7 @@ object DidService {
         )
 
         val did = DidEbsi(
-            listOf("https://w3.org/ns/did/v1"), // TODO Context not working "https://ebsi.org/ns/did/v1"
+            listOf("https://w3id.org/did/v1"), // TODO Context not working "https://ebsi.org/ns/did/v1"
             didUrlStr,
             verificationMethods,
             listOf(kid)
@@ -145,7 +145,7 @@ object DidService {
 //            )
 //
 //            val did = DidEbsi(
-//                listOf("https://w3.org/ns/did/v1"), // TODO Context not working "https://ebsi.org/ns/did/v1"
+//                listOf("https://w3id.org/did/v1"), // TODO Context not working "https://ebsi.org/ns/did/v1"
 //                didUrlStr,
 //                verificationMethods,
 //                listOf("$didUrlStr#key-1")
