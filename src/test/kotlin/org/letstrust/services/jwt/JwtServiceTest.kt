@@ -14,14 +14,9 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.util.encoders.Hex
 import org.junit.Test
 import org.letstrust.crypto.KeyAlgorithm
-import org.letstrust.LetsTrustServices
-import org.letstrust.crypto.CryptoService
-import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.decBase64
-import org.letstrust.services.crypto.CryptoService
 import org.letstrust.model.*
 import org.letstrust.services.did.DidService
-import org.letstrust.services.key.KeyManagementService
 import org.letstrust.services.vc.VCService
 import java.io.File
 import java.time.Instant

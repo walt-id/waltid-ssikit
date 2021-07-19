@@ -1,6 +1,5 @@
 package org.letstrust.vclib.vcs
 
-import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString

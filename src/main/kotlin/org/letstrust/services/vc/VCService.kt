@@ -23,7 +23,8 @@ abstract class VCService : BaseService() {
         jsonCred: String,
         domain: String? = null,
         nonce: String? = null,
-        verificationMethod: String? = null
+        verificationMethod: String? = null,
+        proofPurpose: String? = null
     ): String = implementation.sign(issuerDid, jsonCred, domain, nonce, verificationMethod)
 
     open fun verify(vcOrVp: String): VerificationResult = implementation.verify(vcOrVp)
@@ -43,7 +44,6 @@ abstract class VCService : BaseService() {
 
     open fun addProof(credMap: Map<String, String>, ldProof: LdProof): String =
         implementation.addProof(credMap, ldProof)
-
 
     companion object : ServiceProvider {
         override fun getService() = object : VCService() {}

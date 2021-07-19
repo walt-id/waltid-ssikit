@@ -3,10 +3,9 @@ package org.letstrust.services.crypto
 import com.nimbusds.jose.crypto.impl.AESGCM
 import com.nimbusds.jose.jwk.ECKey
 import org.letstrust.CryptoProvider
-import org.letstrust.LetsTrustServices
 import org.letstrust.crypto.*
 import org.letstrust.services.keystore.KeyStoreService
-import org.letstrust.crypto.keystore.KeyStore
+import org.letstrust.services.keystore.KeyType
 import org.web3j.crypto.ECDSASignature
 import org.web3j.crypto.ECKeyPair
 import org.web3j.crypto.Hash
@@ -68,7 +67,7 @@ open class SunCryptoService : CryptoService() {
     }
 
     override fun sign(keyId: KeyId, data: ByteArray): ByteArray {
-        val key = keyStore.load(keyId.id, true)
+        val key = keyStore.load(keyId.id, KeyType.PRIVATE)
         val sig = when (key.algorithm) {
             KeyAlgorithm.ECDSA_Secp256k1 -> Signature.getInstance("SHA256withECDSA")
             KeyAlgorithm.EdDSA_Ed25519 -> Signature.getInstance("Ed25519")
@@ -123,7 +122,7 @@ open class SunCryptoService : CryptoService() {
     }
 
     override fun signEthTransaction(keyId: KeyId, encodedTx: ByteArray): ECDSASignature {
-        val key = ks.load(keyId.id, true)
+        val key = keyStore.load(keyId.id, KeyType.PRIVATE)
         when (key.algorithm) {
             KeyAlgorithm.ECDSA_Secp256k1 -> return ECKeyPair.create(key.keyPair).sign(Hash.sha3(encodedTx))
             else -> throw IllegalArgumentException("Wrong key algorithm: secp256k1 is required.")

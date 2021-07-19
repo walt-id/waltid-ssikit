@@ -12,11 +12,10 @@ import kotlinx.serialization.json.Json
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.junit.Before
 import org.junit.Test
-import org.letstrust.LetsTrustServices
-import org.letstrust.crypto.CryptoService
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.newKeyId
 import org.letstrust.model.Jwk
+import org.letstrust.services.keystore.KeyType
 import org.web3j.crypto.ECDSASignature
 import org.web3j.crypto.ECKeyPair
 import org.web3j.crypto.Keys
@@ -30,9 +29,10 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 
-class KeyServiceTest {
+class keyServiceTest {
 
-    private val cs = LetsTrustServices.load<CryptoService>()
+    private val cryptoService = org.letstrust.services.crypto.CryptoService.getService()
+    private val keyService = KeyService.getService()
 
     @Before
     fun setup() {
@@ -41,10 +41,9 @@ class KeyServiceTest {
 
     @Test
     fun checkRequiredAlgorithms() {
-        val kms = KeyService
         var secp256k1 = false
         var p521 = false
-        kms.getSupportedCurveNames().forEach {
+        keyService.getSupportedCurveNames().forEach {
             // println(it)
             when (it) {
                 "secp256k1" -> {
@@ -61,71 +60,68 @@ class KeyServiceTest {
 
     @Test
     fun generateSecp256k1KeyPairTest() {
-        val kms = KeyService
-        val keyId = kms.generate(KeyAlgorithm.ECDSA_Secp256k1)
-        val key = kms.load(keyId.id, true)
-        assertEquals(keyId, key?.keyId)
-        assertEquals(KeyAlgorithm.ECDSA_Secp256k1, key?.algorithm)
-        assertNotNull(key?.keyPair)
-        assertNotNull(key?.keyPair?.private)
-        assertNotNull(key?.keyPair?.public)
-        assertEquals("ECDSA", key?.keyPair?.private?.algorithm)
-        kms.delete(keyId.id)
+        val keyId = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val key = keyService.load(keyId.id, KeyType.PRIVATE)
+        assertEquals(keyId, key.keyId)
+        assertEquals(KeyAlgorithm.ECDSA_Secp256k1, key.algorithm)
+        assertNotNull(key.keyPair)
+        assertNotNull(key.keyPair?.private)
+        assertNotNull(key.keyPair?.public)
+        assertEquals("ECDSA", key.keyPair?.private?.algorithm)
+        keyService.delete(keyId.id)
     }
 
     @Test
     fun generateEd25519KeyPairTest() {
-        val kms = KeyService
-        val keyId = kms.generate(KeyAlgorithm.EdDSA_Ed25519)
-        val key = kms.load(keyId.id, true)
-        assertEquals(keyId, key?.keyId)
-        assertEquals(KeyAlgorithm.EdDSA_Ed25519, key?.algorithm)
-        assertNotNull(key?.keyPair)
-        assertNotNull(key?.keyPair?.private)
-        assertNotNull(key?.keyPair?.public)
+        val keyId = keyService.generate(KeyAlgorithm.EdDSA_Ed25519)
+        val key = keyService.load(keyId.id, KeyType.PRIVATE)
+        assertEquals(keyId, key.keyId)
+        assertEquals(KeyAlgorithm.EdDSA_Ed25519, key.algorithm)
+        assertNotNull(key.keyPair)
+        assertNotNull(key.keyPair?.private)
+        assertNotNull(key.keyPair?.public)
 
-        kms.delete(keyId.id)
+        keyService.delete(keyId.id)
     }
 
     @Test
     fun generateEd25519JwkTest() {
-        val keyId = KeyService.generate(KeyAlgorithm.EdDSA_Ed25519)
-        val key = KeyService.load(keyId.id, true)
+        val keyId = keyService.generate(KeyAlgorithm.EdDSA_Ed25519)
+        val key = keyService.load(keyId.id, KeyType.PRIVATE)
 
-        val jwk = KeyService.toEd25519Jwk(key)
+        val jwk = keyService.toEd25519Jwk(key)
         println(jwk)
         assertEquals("EdDSA", jwk.algorithm.name)
         assertEquals("Ed25519", jwk.curve.name)
 
-        val jwk2 = KeyService.toJwk(key.keyId.id)
+        val jwk2 = keyService.toJwk(key.keyId.id)
         assertEquals(keyId.id, jwk2.keyID)
 
-        KeyService.delete(keyId.id)
+        keyService.delete(keyId.id)
     }
 
     @Test
     fun generateSecp256k1JwkTest() {
         // Test generation
-        val kms = KeyService
-        val keyId = kms.generate(KeyAlgorithm.ECDSA_Secp256k1)
-        val key = kms.load(keyId.id, true)
+        val keyId = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val key = keyService.load(keyId.id, KeyType.PRIVATE)
 
-        val jwk = KeyService.toSecp256Jwk(key)
+        val jwk = keyService.toSecp256Jwk(key)
         println(jwk)
         assertEquals("ES256K", jwk.algorithm.name)
         assertEquals("secp256k1", jwk.curve.name)
 
-        val jwk2 = KeyService.toJwk(key.keyId.id)
+        val jwk2 = keyService.toJwk(key.keyId.id)
         assertEquals(keyId.id, jwk2.keyID)
 
-        kms.delete(keyId.id)
+        keyService.delete(keyId.id)
     }
 
     @Test
     fun serizalizeEd25519k1JwkTest() {
-        val keyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
-        val key = KeyService.load(keyId.id, true)
-        val jwk = KeyService.toEd25519Jwk(key)
+        val keyId = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val key = keyService.load(keyId.id, KeyType.PRIVATE)
+        val jwk = keyService.toEd25519Jwk(key)
 
         val serializedJwk = Json.decodeFromString<Jwk>(jwk.toString())
         assertEquals("EdDSA", serializedJwk.alg)
@@ -134,14 +130,14 @@ class KeyServiceTest {
 
         assertEquals(jwk, jwkFromSerialzed)
 
-        KeyService.delete(keyId.id)
+        keyService.delete(keyId.id)
     }
 
     @Test
     fun serizalizeSecp256k1JwkTest() {
-        val keyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
-        val key = KeyService.load(keyId.id, true)
-        val jwk = KeyService.toSecp256Jwk(key)
+        val keyId = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val key = keyService.load(keyId.id, KeyType.PRIVATE)
+        val jwk = keyService.toSecp256Jwk(key)
 
         val serializedJwk = Json.decodeFromString<Jwk>(jwk.toString())
         assertEquals("ES256K", serializedJwk.alg)
@@ -150,7 +146,7 @@ class KeyServiceTest {
 
         assertEquals(jwk, jwkFromSerialzed)
 
-        KeyService.delete(keyId.id)
+        keyService.delete(keyId.id)
     }
 
     // TODO complete following two tests
@@ -186,16 +182,16 @@ class KeyServiceTest {
 //
 //    @Test
 //    fun generateRsaKeyPairTest() {
-//        val kms = KeyManagementService
+//        val keyService = KeyManagementService
 //        val ks = FileSystemKeyStore
-//        val keyId = kms.generateKeyPair("RSA")
-//        val key = kms.loadKeys(keyId)
+//        val keyId = keyService.generateKeyPair("RSA")
+//        val key = keyService.loadKeys(keyId)
 //        assertEquals(keyId, key?.keyId)
 //        assertNotNull(key?.pair)
 //        assertNotNull(key?.pair?.private)
 //        assertNotNull(key?.pair?.public)
 //        assertEquals("RSA", key?.pair?.private?.algorithm)
-//        kms.delete(keyId)
+//        keyService.delete(keyId)
 //    }
 
     @Test
@@ -280,10 +276,10 @@ class KeyServiceTest {
 
     @Test
     fun testGetEthereumAddress() {
-        KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1).let { keyId ->
-            KeyService.load(keyId.id, true).keyPair.let { keyPair ->
+        keyService.generate(KeyAlgorithm.ECDSA_Secp256k1).let { keyId ->
+            keyService.load(keyId.id, KeyType.PRIVATE).keyPair.let { keyPair ->
                 val addressFromKeyPair = Keys.toChecksumAddress(Keys.getAddress(ECKeyPair.create(keyPair)))
-                val calculatedAddress = KeyService.getEthereumAddress(keyId.id)
+                val calculatedAddress = keyService.getEthereumAddress(keyId.id)
                 assertEquals(addressFromKeyPair, calculatedAddress)
             }
         }
@@ -291,52 +287,53 @@ class KeyServiceTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun testGetEthereumAddressWithBadKeyAlgorithm() {
-        val keyId = KeyService.generate(KeyAlgorithm.EdDSA_Ed25519)
-        KeyService.getEthereumAddress(keyId.id)
+        val keyId = keyService.generate(KeyAlgorithm.EdDSA_Ed25519)
+        keyService.getEthereumAddress(keyId.id)
     }
 
     @Test
     fun testGetRecoveryId() {
-        val keyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val keyId = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
         val data = "Test data".toByteArray()
-        val signature = cs.signEthTransaction(keyId, data)!!
-        val recoveryId = KeyService.getRecoveryId(keyId.id, data, signature)
+        val signature = cryptoService.signEthTransaction(keyId, data)!!
+        val recoveryId = keyService.getRecoveryId(keyId.id, data, signature)
         assert(arrayOf(0, 1, 2, 3).contains(recoveryId))
     }
 
     @Test(expected = IllegalStateException::class)
     fun testGetRecoveryIdFailsWithBadKey() {
-        val keyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
-        val badKeyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val keyId = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val badKeyId = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
         val data = "Test data".toByteArray()
-        val signature = cs.signEthTransaction(keyId, data)!!
-        KeyService.getRecoveryId(badKeyId.id, data, signature)
+        val signature = cryptoService.signEthTransaction(keyId, data)!!
+        keyService.getRecoveryId(badKeyId.id, data, signature)
     }
 
     @Test(expected = IllegalStateException::class)
     fun testGetRecoveryIdFailsWithBadSignature() {
-        val keyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val keyId = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
         val badSignature = ECDSASignature(
             BigInteger("999"),
             BigInteger("5390839579382847000243128974640652114050572986153482093796582175013638805313")
         )
-        KeyService.getRecoveryId(keyId.id, "Test data".toByteArray(), badSignature)
+        keyService.getRecoveryId(keyId.id, "Test data".toByteArray(), badSignature)
     }
 
     @Test(expected = IllegalStateException::class)
     fun testGetRecoveryIdFailsWithBadData() {
-        val keyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
-        val signature = cs.signEthTransaction(keyId, "Test data".toByteArray())!!
-        KeyService.getRecoveryId(keyId.id, "Bad data".toByteArray(), signature)
+        val keyId = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val signature = cryptoService.signEthTransaction(keyId, "Test data".toByteArray())!!
+        keyService.getRecoveryId(keyId.id, "Bad data".toByteArray(), signature)
     }
 
     @Test
     fun testImportEd25519JwkPrivKey() {
         val kid = newKeyId()
-        val jwkImport = "{\"kty\":\"OKP\",\"d\":\"GoVhqvYKbjpzDDRHsBLEIwZTiY39fEpVtXAxKVxKcCg\",\"use\":\"sig\",\"crv\":\"Ed25519\",\"kid\":\"${kid}\",\"x\":\"cU4CewjU2Adq8pxjfObrVg9u8svRP2JRC72zZdvFftI\",\"alg\":\"EdDSA\"}"
-        KeyService.import(jwkImport)
+        val jwkImport =
+            "{\"kty\":\"OKP\",\"d\":\"GoVhqvYKbjpzDDRHsBLEIwZTiY39fEpVtXAxKVxKcCg\",\"use\":\"sig\",\"crv\":\"Ed25519\",\"kid\":\"${kid}\",\"x\":\"cU4CewjU2Adq8pxjfObrVg9u8svRP2JRC72zZdvFftI\",\"alg\":\"EdDSA\"}"
+        keyService.import(jwkImport)
         println(jwkImport)
-        val jwkExported = KeyService.export(kid.id, KeyFormat.JWK, true)
+        val jwkExported = keyService.export(kid.id, KeyFormat.JWK, KeyType.PRIVATE)
         print(jwkExported)
         assertEquals(jwkImport, jwkExported)
     }
@@ -344,10 +341,11 @@ class KeyServiceTest {
     @Test
     fun testImportEd25519JwkPubKey() {
         val kid = newKeyId()
-        val jwkImport = "{\"kty\":\"OKP\",\"use\":\"sig\",\"crv\":\"Ed25519\",\"kid\":\"${kid}\",\"x\":\"cU4CewjU2Adq8pxjfObrVg9u8svRP2JRC72zZdvFftI\",\"alg\":\"EdDSA\"}"
-        KeyService.import(jwkImport)
+        val jwkImport =
+            "{\"kty\":\"OKP\",\"use\":\"sig\",\"crv\":\"Ed25519\",\"kid\":\"${kid}\",\"x\":\"cU4CewjU2Adq8pxjfObrVg9u8svRP2JRC72zZdvFftI\",\"alg\":\"EdDSA\"}"
+        keyService.import(jwkImport)
         println(jwkImport)
-        val jwkExported = KeyService.export(kid.id, KeyFormat.JWK)
+        val jwkExported = keyService.export(kid.id, KeyFormat.JWK)
         print(jwkExported)
         assertEquals(jwkImport, jwkExported)
     }
@@ -355,10 +353,11 @@ class KeyServiceTest {
     @Test
     fun testImportSecp256k1JwkPubKey() {
         val kid = newKeyId()
-        val jwkImport = "{\"kty\":\"EC\",\"use\":\"sig\",\"crv\":\"secp256k1\",\"kid\":\"${kid}\",\"x\":\"ZxPG-mkME3AE19H-_-Z0vQacNTtD_4rChcUJqoiJZ5w\",\"y\":\"EPS4M1CiFoi-psyUNR8otGoNOCm0OvQY_i4fxf4shJY\",\"alg\":\"ES256K\"}"
-        KeyService.import(jwkImport)
+        val jwkImport =
+            "{\"kty\":\"EC\",\"use\":\"sig\",\"crv\":\"secp256k1\",\"kid\":\"${kid}\",\"x\":\"ZxPG-mkME3AE19H-_-Z0vQacNTtD_4rChcUJqoiJZ5w\",\"y\":\"EPS4M1CiFoi-psyUNR8otGoNOCm0OvQY_i4fxf4shJY\",\"alg\":\"ES256K\"}"
+        keyService.import(jwkImport)
         println(jwkImport)
-        val jwkExported = KeyService.export(kid.id, KeyFormat.JWK)
+        val jwkExported = keyService.export(kid.id, KeyFormat.JWK)
         print(jwkExported)
         assertEquals(jwkImport, jwkExported)
     }

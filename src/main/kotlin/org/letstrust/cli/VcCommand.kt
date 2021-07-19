@@ -14,11 +14,9 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import org.letstrust.model.VerifiableCredential
-import org.letstrust.model.VerifiablePresentation
 import org.letstrust.model.encodePretty
 import org.letstrust.services.vc.VCService
 import org.letstrust.services.vc.VerificationType
-import org.letstrust.vclib.VcLibManager
 import org.letstrust.vclib.vcs.Europass
 import org.letstrust.vclib.vcs.PermanentResidentCard
 import org.letstrust.vclib.vcs.VC
@@ -273,6 +271,6 @@ class ExportVcTemplateCommand : CliktCommand(
         echo("\nExporting VC template ...")
 
         echo(credentialService.loadTemplate(templateName))
-        File("vc-template-$templateName-${getTimeMillis()}.json").writeText(CredentialService.loadTemplate(templateName))
+        File("vc-template-$templateName-${getTimeMillis()}.json").writeText(credentialService.loadTemplate(templateName))
     }
 }

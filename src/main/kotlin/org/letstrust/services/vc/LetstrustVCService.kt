@@ -11,12 +11,11 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import org.json.JSONObject
-import org.letstrust.LetsTrustServices
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.LdSigner
-import org.letstrust.services.keystore.KeyStoreService
 import org.letstrust.model.*
 import org.letstrust.model.Proof
+import org.letstrust.services.keystore.KeyStoreService
 import org.letstrust.vclib.vcs.*
 import java.io.File
 import java.net.URI
@@ -40,10 +39,10 @@ open class LetstrustVCService : VCService() {
     override fun sign(
         issuerDid: String,
         jsonCred: String,
-        domain: String? = null,
-        nonce: String? = null,
-        verificationMethod: String? = null,
-        proofPurpose: String? = null
+        domain: String?,
+        nonce: String?,
+        verificationMethod: String?,
+        proofPurpose: String?
     ): String {
         log.debug { "Signing jsonLd object with: issuerDid ($issuerDid), domain ($domain), nonce ($nonce)" }
 
@@ -268,7 +267,7 @@ open class LetstrustVCService : VCService() {
 //        return verifier.verify(jsonLdObject)
 //    }
 
-    override fun present(vcStr: String, domain: String? = null, challenge: String? = null): String {
+    override fun present(vcStr: String, domain: String?, challenge: String?): String {
         log.debug { "Creating a presentation for VC:\n$vcStr" }
 
 //        val (vpReqStr, holderDid) = try {
@@ -364,5 +363,5 @@ open class LetstrustVCService : VCService() {
     }
 
     //TODO: fix typed response: fun loadTemplate(name: String): VerifiableCredential = Json.decodeFromString(File("templates/vc-template-$name.json").readText())
-    fun loadTemplate(name: String): String = File("templates/vc-template-$name.json").readText()
+    override fun loadTemplate(name: String): String = File("templates/vc-template-$name.json").readText()
 }

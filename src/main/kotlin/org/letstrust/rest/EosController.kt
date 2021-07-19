@@ -5,7 +5,6 @@ import io.javalin.plugin.openapi.annotations.OpenApi
 import io.javalin.plugin.openapi.annotations.OpenApiContent
 import io.javalin.plugin.openapi.annotations.OpenApiRequestBody
 import io.javalin.plugin.openapi.annotations.OpenApiResponse
-import kotlinx.serialization.Serializable
 import org.letstrust.services.essif.AuthRequestResponse
 import org.letstrust.services.essif.EosService
 

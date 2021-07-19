@@ -7,6 +7,7 @@ import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.KeyId
 import org.letstrust.services.key.KeyFormat
 import org.letstrust.services.key.KeyService
+import org.letstrust.services.keystore.KeyType
 
 @Serializable
 data class GenKeyRequest(
@@ -28,6 +29,8 @@ data class ExportKeyRequest(
 
 object KeyController {
 
+    private val keyService = KeyService.getService()
+
     @OpenApi(
         summary = "Generate key",
         operationId = "genKey",
@@ -45,7 +48,7 @@ object KeyController {
     )
     fun gen(ctx: Context) {
         val genKeyReq = ctx.bodyAsClass(GenKeyRequest::class.java)
-        ctx.json(KeyService.generate(genKeyReq.keyAlgorithm))
+        ctx.json(keyService.generate(genKeyReq.keyAlgorithm))
     }
 
     @OpenApi(
@@ -59,7 +62,12 @@ object KeyController {
         ]
     )
     fun load(ctx: Context) {
-        ctx.json(KeyService.export(ctx.pathParam("id")))
+        ctx.json(
+            keyService.export(
+                ctx.pathParam("id"),
+                exportKeyType = KeyType.PUBLIC
+            )
+        )
     }
 
     @OpenApi(
@@ -99,7 +107,13 @@ object KeyController {
     )
     fun export(ctx: Context) {
         val req = ctx.bodyAsClass(ExportKeyRequest::class.java)
-        ctx.result(KeyService.export(req.keyAlias, req.format, req.exportPrivate))
+        ctx.result(
+            keyService.export(
+                req.keyAlias,
+                req.format,
+                if (req.exportPrivate) KeyType.PRIVATE else KeyType.PUBLIC
+            )
+        )
     }
 
     @OpenApi(
@@ -114,7 +128,7 @@ object KeyController {
     )
     fun list(ctx: Context) {
         val keyIds = ArrayList<String>()
-        KeyService.listKeys().forEach { key -> keyIds.add(key.keyId.id) }
+        keyService.listKeys().forEach { key -> keyIds.add(key.keyId.id) }
         ctx.json(keyIds)
     }
 

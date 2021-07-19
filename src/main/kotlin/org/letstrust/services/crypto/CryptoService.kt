@@ -5,6 +5,7 @@ import id.walt.servicematrix.ServiceProvider
 import id.walt.servicematrix.ServiceRegistry
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.KeyId
+import org.web3j.crypto.ECDSASignature
 
 abstract class CryptoService : BaseService() {
     override val implementation get() = ServiceRegistry.getService<CryptoService>()
@@ -27,6 +28,9 @@ abstract class CryptoService : BaseService() {
         authData: ByteArray?,
         iv: ByteArray?
     ): ByteArray = implementation.decrypt(keyId, algorithm, plainText, authData, iv)
+
+    open fun signEthTransaction(keyId: KeyId, encodedTx: ByteArray): ECDSASignature =
+        implementation.signEthTransaction(keyId, encodedTx)
 
     companion object : ServiceProvider {
         override fun getService() = object : CryptoService() {}

@@ -21,9 +21,9 @@ class CustomKeyStoreService : KeyStoreService() {
 
     override fun store(key: Key): Unit = TODO("Not yet implemented")
 
-    override fun load(alias: String, loadPrivate: Boolean): Key {
+    override fun load(alias: String, keyType: KeyType): Key {
         val publicKey: PublicKey? = null // TODO: load public key
-        // The private key handle does not contain the privyte key material. It is only
+        // The private key handle does not contain the private key material. It is only
         // used as reference to the private in the external key store.
         val privateKey = PrivateKeyHandle(KeyId(alias))
         return Key(KeyId(alias), KeyAlgorithm.EdDSA_Ed25519, CryptoProvider.CUSTOM, KeyPair(publicKey, privateKey))

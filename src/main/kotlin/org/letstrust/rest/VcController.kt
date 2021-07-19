@@ -122,7 +122,7 @@ object VcController {
             "VC to be verified"
         ),
         responses = [
-            OpenApiResponse("200", [OpenApiContent(CredentialService.VerificationResult::class)], "Verification result object"),
+            OpenApiResponse("200", [OpenApiContent(VerificationResult::class)], "Verification result object"),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
             OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]

@@ -1,6 +1,5 @@
 package org.letstrust.crypto
 
-import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey
 import java.security.interfaces.ECPublicKey
 import java.security.spec.ECParameterSpec
 import java.security.spec.ECPoint

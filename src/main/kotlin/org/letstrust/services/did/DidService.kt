@@ -12,14 +12,13 @@ import org.letstrust.LetsTrustServices
 import org.letstrust.crypto.*
 import org.letstrust.crypto.KeyAlgorithm.ECDSA_Secp256k1
 import org.letstrust.crypto.KeyAlgorithm.EdDSA_Ed25519
-import org.letstrust.services.keystore.KeyStoreService
 import org.letstrust.model.*
 import org.letstrust.services.crypto.CryptoService
-import org.letstrust.services.vc.VCService
 import org.letstrust.services.key.KeyService
-import org.letstrust.services.vc.CredentialService
+import org.letstrust.services.keystore.KeyStoreService
+import org.letstrust.services.keystore.KeyType
+import org.letstrust.services.vc.VCService
 import java.io.File
-import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.*
@@ -35,6 +34,7 @@ object DidService {
     private val credentialService = VCService.getService()
     private val cryptoService = CryptoService.getService()
     private val keyStore = KeyStoreService.getService()
+    private val keyService = KeyService.getService()
 
     // Public methods
 
@@ -112,7 +112,7 @@ object DidService {
             EdDSA_Ed25519 -> "Ed25519VerificationKey2018"
             ECDSA_Secp256k1 -> "Secp256k1VerificationKey2018"
         }
-        val publicKeyJwk = Json.decodeFromString<Jwk>(KeyService.toJwk(kid).toPublicJWK().toString())
+        val publicKeyJwk = Json.decodeFromString<Jwk>(keyService.toJwk(kid).toPublicJWK().toString())
         val verificationMethods = mutableListOf(
             VerificationMethod(kid, keyType, didUrlStr, null, null, publicKeyJwk),
         )

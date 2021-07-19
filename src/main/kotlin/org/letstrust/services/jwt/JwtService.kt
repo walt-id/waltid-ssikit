@@ -27,6 +27,8 @@ object JwtService {
     val encKey: OctetKeyPair = OctetKeyPairGenerator(Curve.X25519)
         .keyID(keyId)
         .generate()
+    
+    val keyService = KeyService.getService()
 
 
     fun encrypt(
@@ -88,7 +90,7 @@ object JwtService {
             .expirationTime(Date(Date().time + 60 * 1000))
             .build()
 
-        val issuerKey = KeyService.load(keyAlias)
+        val issuerKey = keyService.load(keyAlias)
         if (issuerKey == null) {
             log.error { "Could not load signing key for $keyAlias" }
             throw Exception("Could not load signing key for $keyAlias")
@@ -125,14 +127,14 @@ object JwtService {
 
         //TODO: key might also be entirely extracted out of the header",
         // Maybe resolve DID (verification method)
-        val verifierKey = KeyService.load(jwt.header.keyID)
+        val verifierKey = keyService.load(jwt.header.keyID)
         if (verifierKey == null) {
             log.error { "Could not load verifying key for $jwt.header.keyID" }
             throw Exception("Could not load verifying key for $jwt.header.keyID")
         }
 
         val res = when (verifierKey.algorithm) {
-            KeyAlgorithm.EdDSA_Ed25519 -> jwt.verify(Ed25519Verifier(KeyService.toEd25519Jwk(verifierKey)))
+            KeyAlgorithm.EdDSA_Ed25519 -> jwt.verify(Ed25519Verifier(keyService.toEd25519Jwk(verifierKey)))
             KeyAlgorithm.ECDSA_Secp256k1 -> {
                 val verifier = ECDSAVerifier(PublicKeyHandle(verifierKey.keyId, verifierKey.getPublicKey() as ECPublicKey))
                 verifier.jcaContext.provider = LetsTrustProvider()

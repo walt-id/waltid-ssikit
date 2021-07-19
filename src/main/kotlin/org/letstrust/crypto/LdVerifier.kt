@@ -32,10 +32,12 @@ class LdVerifier {
     class Ed25519Signature2018(val publicKey: Key) :
         LdVerifier<Ed25519Signature2018SignatureSuite?>(SignatureSuites.SIGNATURE_SUITE_ED25519SIGNATURE2018, null) {
 
+        val keyService = KeyService.getService()
+
         override fun verify(signingInput: ByteArray, ldProof: LdProof): Boolean {
             val detachedJwsObject = JWSObject.parse(ldProof.jws)
             val jwsSigningInput = JWSUtil.getJwsSigningInput(detachedJwsObject.header, signingInput)
-            val jwsVerifier = Ed25519Verifier(KeyService.toEd25519Jwk(publicKey))
+            val jwsVerifier = Ed25519Verifier(keyService.toEd25519Jwk(publicKey))
             return jwsVerifier.verify(detachedJwsObject.header, jwsSigningInput, detachedJwsObject.signature)
         }
     }

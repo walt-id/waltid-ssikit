@@ -1,6 +1,5 @@
 package org.letstrust.services.vc
 
-import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import id.walt.servicematrix.ServiceMatrix
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString

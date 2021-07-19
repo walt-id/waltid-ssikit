@@ -22,7 +22,6 @@ import org.letstrust.model.DidMethod
 import org.letstrust.model.VerifiableCredential
 import org.letstrust.model.VerifiablePresentation
 import org.letstrust.services.did.DidService
-import org.letstrust.services.key.KeyManagementService
 import org.letstrust.services.vc.VCService
 import java.io.File
 import java.net.URI

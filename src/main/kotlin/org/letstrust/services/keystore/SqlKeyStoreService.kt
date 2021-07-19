@@ -41,7 +41,7 @@ open class SqlKeyStoreService : KeyStoreService() {
 
     }
 
-    override fun load(alias: String, loadPrivate: Boolean): Key {
+    override fun load(alias: String, keyType: KeyType): Key {
         log.debug { "Loading key \"${alias}\"." }
         var key: Key? = null
 
@@ -52,7 +52,7 @@ open class SqlKeyStoreService : KeyStoreService() {
                 stmt.setString(1, keyId)
                 stmt.executeQuery().use { rs ->
                     if (rs.next()) {
-                        key = buildKey(keyId, rs.getString("algorithm"), rs.getString("provider"), rs.getString("pub"), if (loadPrivate) rs.getString("priv") else null)
+                        key = buildKey(keyId, rs.getString("algorithm"), rs.getString("provider"), rs.getString("pub"), if (keyType == KeyType.PRIVATE) rs.getString("priv") else null)
                     }
                 }
                 con.commit()

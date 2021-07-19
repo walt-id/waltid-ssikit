@@ -18,19 +18,16 @@ private val log = KotlinLogging.logger {}
 
 open class FileSystemKeyStoreService : KeyStoreService() {
 
-    //TODO: get path from config
-    private const val KEY_DIR_PATH = "data/key"
-
     //TODO: get key format from config
     private val KEY_FORMAT = KeyFormat.PEM
 
     init {
-        File(Companion.KEY_DIR_PATH).mkdirs()
+        File(KEY_DIR_PATH).mkdirs()
     }
 
     override fun listKeys(): List<Key> {
         val keys = ArrayList<Key>()
-        Files.walk(Paths.get(Companion.KEY_DIR_PATH))
+        Files.walk(Paths.get(KEY_DIR_PATH))
             .filter { Files.isRegularFile(it) }
             .filter { it.toString().endsWith(".meta") }
             .forEach {
@@ -42,22 +39,23 @@ open class FileSystemKeyStoreService : KeyStoreService() {
         return keys
     }
 
-    override fun load(alias: String, loadPrivate: Boolean): Key {
+    override fun load(alias: String, keyType: KeyType): Key {
         log.debug { "Loading key \"${alias}\"." }
 
-        var keyId = getKeyId(alias) ?: alias
+        val keyId = getKeyId(alias) ?: alias
 
         val metaData = String(loadKeyFile(keyId, "meta"))
         val algorithm = metaData.substringBefore(delimiter = ";")
         val provider = metaData.substringAfter(delimiter = ";")
         val publicPart = File("${Companion.KEY_DIR_PATH}/$keyId.enc-pubkey").readText()
-        val privatePart = if (loadPrivate) File("${Companion.KEY_DIR_PATH}/$keyId.enc-privkey").readText() else null
+        val privatePart =
+            if (keyType == KeyType.PRIVATE) File("${Companion.KEY_DIR_PATH}/$keyId.enc-privkey").readText() else null
 
         return buildKey(keyId, algorithm, provider, publicPart, privatePart, KEY_FORMAT)
     }
 
     override fun addAlias(keyId: KeyId, alias: String) {
-        File("${Companion.KEY_DIR_PATH}/Alias-$alias").writeText(keyId.id)
+        File("${KEY_DIR_PATH}/Alias-$alias").writeText(keyId.id)
     }
 
     override fun store(key: Key) {
@@ -243,5 +241,4 @@ open class FileSystemKeyStoreService : KeyStoreService() {
         //TODO: get path from config
         private const val KEY_DIR_PATH = "data/key"
     }
-
 }

@@ -6,8 +6,6 @@ import org.junit.Test
 import org.letstrust.LetsTrustServices
 import org.letstrust.crypto.*
 import org.letstrust.crypto.keystore.KeyStore
-import org.letstrust.services.key.KeyService
-import org.web3j.crypto.ECKeyPair
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.test.assertEquals

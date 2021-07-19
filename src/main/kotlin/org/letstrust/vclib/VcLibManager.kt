@@ -2,13 +2,11 @@ package org.letstrust.vclib
 
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.descriptors.elementNames
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
 import org.letstrust.vclib.vcs.*
 import kotlin.reflect.KClass
 import kotlin.reflect.full.companionObjectInstance
-import kotlin.reflect.jvm.jvmName
 
 object VcLibManager {
 

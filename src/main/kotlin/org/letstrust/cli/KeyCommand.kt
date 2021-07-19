@@ -14,8 +14,10 @@ import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.KeyId
 import org.letstrust.services.key.KeyFormat
 import org.letstrust.services.key.KeyService
+import org.letstrust.services.keystore.KeyType
 import java.io.File
 
+private val keyService = KeyService.getService()
 
 class KeyCommand : CliktCommand(
     help = """Key Management.
@@ -37,6 +39,7 @@ class GenCommand : CliktCommand(
         """
 ) {
 
+
     // val keyAlias: String by option("--key-alias", "-k", help = "Specific key alias").prompt()
     val algorithm: String by option("-a", "--algorithm", help = "Key algorithm [Ed25519]").choice(
         "Ed25519",
@@ -46,8 +49,8 @@ class GenCommand : CliktCommand(
     override fun run() {
         echo("Generating $algorithm key pair...")
         val keyId = when (algorithm) {
-            "Ed25519" -> KeyService.generate(KeyAlgorithm.EdDSA_Ed25519)
-            "Secp256k1" -> KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+            "Ed25519" -> keyService.generate(KeyAlgorithm.EdDSA_Ed25519)
+            "Secp256k1" -> keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
             // TODO add RSA: "RSA" -> KeyManagementService.generateRsaKeyPair()
             else -> throw IllegalArgumentException("Algorithm not supported")
         }
@@ -63,12 +66,16 @@ class ImportKeyCommand : CliktCommand(
 ) {
 
     val keyFile: File by argument("JWK-FILE", help = "File containing the JWK key (e.g. jwk.json)").file()
-    val provider: CryptoProvider by option("-p", "--provider", help = "Crypto provider of the imported key").enum<CryptoProvider>().default(CryptoProvider.SUN)
+    val provider: CryptoProvider by option(
+        "-p",
+        "--provider",
+        help = "Crypto provider of the imported key"
+    ).enum<CryptoProvider>().default(CryptoProvider.SUN)
 
     override fun run() {
         val keyStr = readWhenContent(keyFile)
         echo("Importing key: $keyStr")
-        val keyId: KeyId = KeyService.import(keyStr)
+        val keyId: KeyId = keyService.import(keyStr)
 
         echo("\nResults:\n")
 
@@ -84,12 +91,15 @@ class ExportKeyCommand : CliktCommand(
 ) {
 
     val keyId: String by argument("KEY-ID", help = "Key ID or key alias")
-    val keyFormat: KeyFormat by option("-f", "--key-format", help = "Key format of exported key").enum<KeyFormat>().default(KeyFormat.JWK)
+    val keyFormat: KeyFormat by option("-f", "--key-format", help = "Key format of exported key").enum<KeyFormat>()
+        .default(KeyFormat.JWK)
     val exportPrivate by option("--priv", help = "Export public or private key").flag("--pub", default = false)
 
     override fun run() {
+        val exportKeyType = if (!exportPrivate) KeyType.PUBLIC else KeyType.PRIVATE
+
         echo("Exporting $exportPrivate key \"$keyId\"...")
-        val jwk = KeyService.export(keyId, keyFormat, exportPrivate)
+        val jwk = keyService.export(keyId, keyFormat, exportKeyType)
 
         println("\nResults:\n")
 
@@ -109,7 +119,7 @@ class ListKeysCommand : CliktCommand(
 
         echo("\nResults:\n")
 
-        KeyService.listKeys().forEachIndexed { index, key ->
+        keyService.listKeys().forEachIndexed { index, key ->
             echo("- ${index + 1}: \"${key.keyId}\" (Algorithm: \"${key.algorithm.name}\", provided by \"${key.cryptoProvider.name}\")")
         }
     }

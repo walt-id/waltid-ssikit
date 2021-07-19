@@ -1,7 +1,7 @@
 package org.letstrust.rest
 
-import id.walt.servicematrix.ServiceMatrix
 import com.nimbusds.jose.jwk.JWK
+import id.walt.servicematrix.ServiceMatrix
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.json.*
@@ -25,11 +25,10 @@ import org.letstrust.model.DidUrl
 import org.letstrust.model.VerifiableCredential
 import org.letstrust.model.encodePretty
 import org.letstrust.services.did.DidService
+import org.letstrust.services.key.KeyFormat
 import org.letstrust.services.vc.VCService
 import org.letstrust.services.vc.VerificationResult
 import org.letstrust.services.vc.VerificationType
-import org.letstrust.services.key.KeyFormat
-import org.letstrust.services.vc.CredentialService
 import org.letstrust.test.getTemplate
 import org.letstrust.test.readCredOffer
 import org.letstrust.vclib.vcs.EbsiVerifiableAttestation

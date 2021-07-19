@@ -6,15 +6,13 @@ import com.google.crypto.tink.PublicKeyVerify
 import com.google.crypto.tink.signature.EcdsaSignKeyManager
 import com.google.crypto.tink.signature.Ed25519PrivateKeyManager
 import org.letstrust.CryptoProvider
-import org.letstrust.crypto.keystore.KeyStore
-import org.letstrust.crypto.keystore.TinkKeyStore
-import org.web3j.crypto.ECDSASignature
 import org.letstrust.crypto.Key
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.KeyId
+import org.letstrust.crypto.newKeyId
 import org.letstrust.services.keystore.KeyStoreService
 import org.letstrust.services.keystore.TinkKeyStoreService
-import org.letstrust.crypto.newKeyId
+import org.web3j.crypto.ECDSASignature
 
 
 open class TinkCryptoService : CryptoService() {

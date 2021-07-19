@@ -92,7 +92,8 @@ fun decBase64(base64: String): ByteArray = Base64.getDecoder().decode(base64)
 
 fun PublicKey.toBase64(): String = encBase64(X509EncodedKeySpec(this.encoded).encoded)
 
-fun decodePubKeyBase64(base64: String, kf: KeyFactory): PublicKey = kf.generatePublic(X509EncodedKeySpec(decBase64(base64)))
+fun decodePubKeyBase64(base64: String, kf: KeyFactory): PublicKey =
+    kf.generatePublic(X509EncodedKeySpec(decBase64(base64)))
 
 fun decodeRawPubKeyBase64(base64: String, kf: KeyFactory): PublicKey {
     val pubKeyInfo = SubjectPublicKeyInfo(AlgorithmIdentifier(EdECObjectIdentifiers.id_Ed25519), decBase64(base64))
@@ -102,7 +103,8 @@ fun decodeRawPubKeyBase64(base64: String, kf: KeyFactory): PublicKey {
 
 fun decodeRawPrivKey(base64: String, kf: KeyFactory): PrivateKey {
     // TODO: extend for Secp256k1 keys
-    val privKeyInfo = PrivateKeyInfo(AlgorithmIdentifier(EdECObjectIdentifiers.id_Ed25519), DEROctetString(decBase64(base64)))
+    val privKeyInfo =
+        PrivateKeyInfo(AlgorithmIdentifier(EdECObjectIdentifiers.id_Ed25519), DEROctetString(decBase64(base64)))
     val pkcs8KeySpec = PKCS8EncodedKeySpec(privKeyInfo.encoded)
     return kf.generatePrivate(pkcs8KeySpec)
 }
@@ -111,28 +113,33 @@ fun decodePubKeyPem(pem: String, kf: KeyFactory): PublicKey = decodePubKeyBase64
 
 fun pemToBase64(pem: String): String = pem.substringAfter("\n").substringBefore("-").replace("\n", "")
 
-fun decodePrivKeyBase64(base64: String, kf: KeyFactory): PrivateKey = kf.generatePrivate(PKCS8EncodedKeySpec(decBase64(base64)))
+fun decodePrivKeyBase64(base64: String, kf: KeyFactory): PrivateKey =
+    kf.generatePrivate(PKCS8EncodedKeySpec(decBase64(base64)))
 
 fun decodePrivKeyPem(pem: String, kf: KeyFactory): PrivateKey = decodePrivKeyBase64(pemToBase64(pem), kf)
 
-fun buildKey(keyId: String, algorithm: String, provider: String, publicPart: String, privatePart: String?, format: KeyFormat = KeyFormat.PEM): Key {
 fun buildKey(
     keyId: String,
     algorithm: String,
     provider: String,
     publicPart: String,
-    privatePart: String,
+    privatePart: String?,
     format: KeyFormat = KeyFormat.PEM
 ): Key {
-
     val kf = when (KeyAlgorithm.valueOf(algorithm)) {
         KeyAlgorithm.ECDSA_Secp256k1 -> KeyFactory.getInstance("ECDSA")
         KeyAlgorithm.EdDSA_Ed25519 -> KeyFactory.getInstance("Ed25519")
     }
     val kp = when (format) {
-        KeyFormat.PEM -> KeyPair(decodePubKeyPem(publicPart, kf), privatePart?.let { decodePrivKeyPem(privatePart, kf) })
-        KeyFormat.BASE64_DER -> KeyPair(decodePubKeyBase64(publicPart, kf), privatePart?.let { decodePrivKeyBase64(privatePart, kf) })
-        KeyFormat.BASE64_RAW -> KeyPair(decodeRawPubKeyBase64(publicPart, kf), privatePart?.let { decodeRawPrivKey(privatePart, kf) })
+        KeyFormat.PEM -> KeyPair(
+            decodePubKeyPem(publicPart, kf),
+            privatePart?.let { decodePrivKeyPem(privatePart, kf) })
+        KeyFormat.BASE64_DER -> KeyPair(
+            decodePubKeyBase64(publicPart, kf),
+            privatePart?.let { decodePrivKeyBase64(privatePart, kf) })
+        KeyFormat.BASE64_RAW -> KeyPair(
+            decodeRawPubKeyBase64(publicPart, kf),
+            privatePart?.let { decodeRawPrivKey(privatePart, kf) })
     }
 
     return Key(KeyId(keyId), KeyAlgorithm.valueOf(algorithm), CryptoProvider.valueOf(provider), kp)
@@ -152,7 +159,8 @@ fun buildEd25519PrivKey(base64: String): PrivateKey {
 
     val keyFactory = KeyFactory.getInstance("Ed25519")
 
-    val privKeyInfo = PrivateKeyInfo(AlgorithmIdentifier(EdECObjectIdentifiers.id_Ed25519), DEROctetString(decBase64(base64)))
+    val privKeyInfo =
+        PrivateKeyInfo(AlgorithmIdentifier(EdECObjectIdentifiers.id_Ed25519), DEROctetString(decBase64(base64)))
     val pkcs8KeySpec = PKCS8EncodedKeySpec(privKeyInfo.encoded)
 
     return keyFactory.generatePrivate(pkcs8KeySpec)
@@ -287,7 +295,7 @@ fun parseEncryptedAke1Payload(encryptedPayload: String): EncryptedAke1Payload {
 }
 
 // Returns the index of first match of the predicate or the full size of the array
-inline fun ByteArray.findFirst(predicate: (Byte) -> Boolean): Int {
+fun ByteArray.findFirst(predicate: (Byte) -> Boolean): Int {
     for ((index, element) in this.withIndex()) {
         if (predicate(element)) return index
     }

@@ -24,8 +24,7 @@ import org.letstrust.services.essif.EssifFlowRunner.verifiablePresentationFile
 import org.letstrust.services.essif.mock.AuthorizationApi
 import org.letstrust.services.essif.mock.DidRegistry
 import org.letstrust.services.jwt.JwtService
-import org.letstrust.services.key.KeyService
-import org.letstrust.services.vc.CredentialService
+import org.letstrust.services.vc.VCService
 import java.security.KeyPairGenerator
 import java.security.MessageDigest
 import java.security.SecureRandom
@@ -36,8 +35,6 @@ import java.util.*
 import javax.crypto.Cipher
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
-import java.net.URLDecoder
-import java.nio.charset.StandardCharsets
 
 private val log = KotlinLogging.logger {}
 
@@ -46,6 +43,8 @@ object UserWalletService {
 //    val didUrlUser by lazy {
 //        DidService.create(DidMethod.web)
 //    }
+
+    val credentialService = VCService.getService()
 
     fun createDid(): String {
         val did = EnterpriseWalletService.didGeneration()
@@ -308,7 +307,7 @@ object UserWalletService {
         )
 
         val authKeyId = DidService.loadDidEbsi(did).authentication!![0]
-        val vp = CredentialService.sign(did, vpReq.encode(), null, null, authKeyId, "assertionMethod")
+        val vp = credentialService.sign(did, vpReq.encode(), null, null, authKeyId, "assertionMethod")
 
         log.debug { "Verifiable Presentation generated:\n$vp" }
 

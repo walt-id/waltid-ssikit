@@ -2,7 +2,6 @@ package org.letstrust.common
 
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
-import java.util.HashMap
 
 fun toParamMap(paramString: String): Map<String, String> {
     val paramMap = HashMap<String, String>()
