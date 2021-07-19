@@ -5,7 +5,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.junit.Before
 import org.junit.Test
 import org.letstrust.crypto.KeyAlgorithm
-import org.letstrust.services.key.KeyManagementService
+import org.letstrust.services.key.KeyService
 import java.security.Security
 import kotlin.test.assertEquals
 
@@ -18,9 +18,9 @@ class SQLiteTest {
     @Test
     fun createKeyStoreDb() {
 
-        val kms = KeyManagementService
+        val kms = KeyService
         val keyId = kms.generate(KeyAlgorithm.ECDSA_Secp256k1)
-        val key = kms.load(keyId.id)
+        val key = kms.load(keyId.id, true)
         val db = SqlDbManager
         val pubKeyStr = Base64.encode(key.getPublicKey().encoded).toString()
 

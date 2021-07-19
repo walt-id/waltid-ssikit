@@ -3,10 +3,11 @@ package org.letstrust.services.did
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.Test
+import org.letstrust.common.prettyPrint
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.model.DidMethod
 import org.letstrust.model.DidUrl
-import org.letstrust.services.key.KeyManagementService
+import org.letstrust.services.key.KeyService
 import java.io.File
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -67,14 +68,14 @@ class DidServiceTest {
         val didUrl = DidUrl.generateDidEbsiV2DidUrl()
         val did = didUrl.did
         assertEquals("did:ebsi:", did.substring(0, 9))
-        assertEquals(47, didUrl.identifier.length)
+        assertEquals(48, didUrl.identifier.length)
     }
 
     @Test
-    fun createResolveDidEbsiTest() {
+    fun createDidEbsiTest() {
 
         // Create
-        val keyId = KeyManagementService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val keyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
         val did = ds.create(DidMethod.ebsi, keyId.id)
         println(did)
         val didUrl = DidUrl.from(did)
@@ -82,8 +83,8 @@ class DidServiceTest {
         assertEquals("ebsi", didUrl.method)
         print(did)
 
-        // Resolve
-        val resolvedDid = ds.resolveDidEbsi(did)
+        // Load
+        val resolvedDid = ds.loadDidEbsi(did)
         val encoded = Json { prettyPrint = true }.encodeToString(resolvedDid)
         println(encoded)
 
@@ -92,6 +93,21 @@ class DidServiceTest {
         ds.updateDidEbsi(resolvedDid)
         val encodedUpd = Json { prettyPrint = true }.encodeToString(resolvedDid)
         println(encodedUpd)
+    }
+
+    @Test
+    fun resolveDidEbsiTest() {
+        val did = "did:ebsi:22S7TBCJxzPS2Vv1UniBSdzFD2ZDFjZeYvQuFQWSeAQN5nTG"
+        val didDoc = DidService.resolveDidEbsi(did)
+        val encDidEbsi = Json { prettyPrint = true }.encodeToString(didDoc)
+        println(encDidEbsi)
+    }
+
+    @Test
+    fun resolveDidEbsiRawTest() {
+        val did = "did:ebsi:22S7TBCJxzPS2Vv1UniBSdzFD2ZDFjZeYvQuFQWSeAQN5nTG"
+        val didDoc = DidService.resolveDidEbsiRaw(did)
+        println(didDoc.prettyPrint())
     }
 
     @Test

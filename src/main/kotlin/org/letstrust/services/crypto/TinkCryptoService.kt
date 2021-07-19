@@ -6,6 +6,9 @@ import com.google.crypto.tink.PublicKeyVerify
 import com.google.crypto.tink.signature.EcdsaSignKeyManager
 import com.google.crypto.tink.signature.Ed25519PrivateKeyManager
 import org.letstrust.CryptoProvider
+import org.letstrust.crypto.keystore.KeyStore
+import org.letstrust.crypto.keystore.TinkKeyStore
+import org.web3j.crypto.ECDSASignature
 import org.letstrust.crypto.Key
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.KeyId
@@ -69,6 +72,10 @@ open class TinkCryptoService : CryptoService() {
         authData: ByteArray?,
         iv: ByteArray?
     ): ByteArray {
+        TODO("Not yet implemented")
+    }
+
+    override fun signEthTransaction(keyId: KeyId, encodedTx: ByteArray): ECDSASignature {
         TODO("Not yet implemented")
     }
 

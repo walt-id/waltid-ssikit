@@ -1,35 +1,82 @@
 package org.letstrust.services.essif
 
 import mu.KotlinLogging
+import org.letstrust.LetsTrustServices
+import org.letstrust.common.readEssifBearerToken
 import org.letstrust.services.essif.mock.RelyingParty
+import java.io.File
 
-private val log = KotlinLogging.logger {}
+
+
 
 object EssifFlowRunner {
 
+    private val log = KotlinLogging.logger {}
+
+    val bearerTokenFile = File("${LetsTrustServices.ebsiDir}bearer-token.txt")
+    val verifiableAuthorizationFile = File("${LetsTrustServices.ebsiDir}verifiable-authorization.json")
+    val verifiablePresentationFile = File("${LetsTrustServices.ebsiDir}verifiable-presentation.json")
+    val ake1EncFile = File("${LetsTrustServices.ebsiDir}ake1_enc.json")
+    val ebsiAccessTokenFile = File("${LetsTrustServices.ebsiDir}ebsi_access_token.json")
+
     // https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/2.+Main+Flow%3A+VC-Request+-+Onboarding+Flow
-    fun onboard() {
+    fun onboard(did: String) {
+
+        log.debug { "Running ESSIF onboarding flow ..." }
 
         ///////////////////////////////////////////////////////////////////////////
-        // Prerequisite: The LE must be authenticated and authorized by the classical
-        // way before triggering the ESSIF onboarding flow.
+        // Prerequisite: The Legal Entity (LE) or the Natural Person (NP) the must
+        // be authenticated and authorized by the classical way before triggering
+        // the ESSIF onboarding flow. The received bearer token must be copied in
+        // file: bearer-token.txt
         ///////////////////////////////////////////////////////////////////////////
 
-        println("ESSIF onboarding of a Legal Entity by requesting a Verifiable ID")
+        val bearerToken = readEssifBearerToken()
+
+        log.debug { "Loaded bearer token from ${bearerTokenFile.absolutePath}." }
+        log.debug { "Loaded bearer token $bearerToken." }
 
         ///////////////////////////////////////////////////////////////////////////
-        // LE requests the credential URI from the ESSIF Onboarding Service (EOS)
+        // Requesting the DID Auth Request from the ESSIF Onboarding Service (EOS)
         ///////////////////////////////////////////////////////////////////////////
-        println("1 Request V.ID (manually)")
-        val credentialRequestUri = EosService.requestCredentialUri()
-        log.debug { "credentialRequest: $credentialRequestUri" }
+
+        log.debug { "Requesting a Verifiable ID from ESSIF Onboarding Service (EOS)" }
+
+        val authRequestResponse = LegalEntityClient.eos.authenticationRequests()
+
+        log.debug { "AuthRequestResponse:\n$authRequestResponse" }
+
+        val didAuthRequest = EnterpriseWalletService.parseDidAuthRequest(authRequestResponse)
+
+        log.debug { "DidAuthRequest:\n$didAuthRequest" }
+
+        ///////////////////////////////////////////////////////////////////////////
+        // Constructing and returning the DID Auth Response
+        ///////////////////////////////////////////////////////////////////////////
+
+        val idToken = EnterpriseWalletService.constructAuthResponseJwt(did, didAuthRequest.client_id, didAuthRequest.nonce)
+
+        val verifiableAuthorization = LegalEntityClient.eos.authenticationResponse(idToken, bearerToken)
+
+        ///////////////////////////////////////////////////////////////////////////
+        // Storing the received Verifiable Authorization
+        ///////////////////////////////////////////////////////////////////////////
+
+        log.debug { "Verifiable Authorization received:\n${verifiableAuthorization}" }
+
+        log.debug { "Writing Verifiable Authorization to file: ${verifiableAuthorizationFile.absolutePath}" }
+
+        verifiableAuthorizationFile.writeText(verifiableAuthorization)
+
+
+
 
         ///////////////////////////////////////////////////////////////////////////
         // The EnterpriseWalletService processes the credentialRequestUri and forwards
         // the credential request ([POST] /credentials with and empty body) to the EOS
         ///////////////////////////////////////////////////////////////////////////
-        println("3 Trigger Wallet")
-        val didOwnershipReq = EnterpriseWalletService.requestVerifiableCredential(credentialRequestUri)
+//        println("3 Trigger Wallet")
+//        val didOwnershipReq = EnterpriseWalletService.requestVerifiableCredential(authResponse)
 
         ///////////////////////////////////////////////////////////////////////////
         // The DID ownership request is a JWT, which is verified by the public key of the EOS.
@@ -58,14 +105,14 @@ object EssifFlowRunner {
         //  }
         //}
         ///////////////////////////////////////////////////////////////////////////
-        log.debug { "didOwnershipReq: $didOwnershipReq" }
-        println("6. Notify DID ownership request")
-        println("7. Create a new DID")
-
-        ///////////////////////////////////////////////////////////////////////////
+//        log.debug { "didOwnershipReq: $didOwnershipReq" }
+//        println("6. Notify DID ownership request")
+//        println("7. Create a new DID")
+//
+//        ///////////////////////////////////////////////////////////////////////////
         // Creation of DID sub-flow (see: 04_main-essif-register-did.kt)
         ///////////////////////////////////////////////////////////////////////////
-        val didOfLegalEntity = EnterpriseWalletService.createDid()
+        //val didOfLegalEntity = EnterpriseWalletService.createDid()
 
         ///////////////////////////////////////////////////////////////////////////
         // Once the DID is created, the DID ownership response is composed and sent to the EOS.
@@ -91,7 +138,7 @@ object EssifFlowRunner {
         //  }
         //}
         ///////////////////////////////////////////////////////////////////////////
-        val verifiableId = EnterpriseWalletService.getVerifiableCredential(didOwnershipReq, didOfLegalEntity)
+        //      val verifiableId = EnterpriseWalletService.getVerifiableCredential(didOwnershipReq, didOfLegalEntity)
 
         ///////////////////////////////////////////////////////////////////////////
         // The requested V.ID is returned and should look like the following:
@@ -139,55 +186,61 @@ object EssifFlowRunner {
         //   }
         //}
         ///////////////////////////////////////////////////////////////////////////
-
-        log.debug { "verifiableId: $verifiableId" }
-        println("14. Successful process")
+//
+//        log.debug { "verifiableId: $verifiableId" }
+//        println("14. Successful process")
 
     }
 
     // https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/2.+Authorization+API
-    fun authApi() {
+    fun authApi(did: String) {
 
-        println("ESSIF Authorization API")
+        log.debug {"ESSIF Authorization API flow started" }
 
-        // Verifiable Authorization must be previously installed via ESSIF onboarding flow (DID registration)
-        val verifiableAuthorization = "{\n" +
-                "  \"@context\": [\n" +
-                "    \"https://www.w3.org/2018/credentials/v1\"\n" +
-                "  ],\n" +
-                "  \"id\": \"did:ebsi-eth:00000001/credentials/1872\",\n" +
-                "  \"type\": [\n" +
-                "    \"VerifiableCredential\",\n" +
-                "    \"VerifiableAuthorization\"\n" +
-                "  ],\n" +
-                "  \"issuer\": \"did:ebsi:000001234\",\n" +
-                "  \"issuanceDate\": \"2020-08-24T14:13:44Z\",\n" +
-                "  \"expirationDate\": \"2020-08-25T14:13:44Z\",\n" +
-                "  \"credentialSubject\": {\n" +
-                "    \"id\": \"did:key:z6MksTeZpzyCdeRHuvk6kAAfQQCas3NPTRtxnB5a68mDrps5\",\n" +
-                "    \"hash\": \"e96e3fecdbdf2126ea62e7c6...04de0f177e5971c27dedd0d17bc649a626ac\"\n" +
-                "  },\n" +
-                "  \"proof\": {\n" +
-                "    \"type\": \"EcdsaSecp256k1Signature2019\",\n" +
-                "    \"created\": \"2020-08-24T14:13:44Z\",\n" +
-                "    \"proofPurpose\": \"assertionMethod\",\n" +
-                "    \"verificationMethod\": \"did:ebsi-eth:000001234#key-1\",\n" +
-                "    \"jws\": \"eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..TCYt5X\"\n" +
-                "  }\n" +
-                "}\n"
+//        ///////////////////////////////////////////////////////////////////////////
+//        // Prerequisite:
+//        // - Bearer token must be available
+//        // - Verifiable Authorization must be previously installed by running
+//        //   ESSIF onboarding flow (DID registration)
+//        ///////////////////////////////////////////////////////////////////////////
+//
+//        log.debug { "Loading Verifiable Authorization from file: ${verifiableAuthorizationFile.absolutePath}." }
+//
+//        val verifiableAuthorization = readWhenContent(verifiableAuthorizationFile)
+//
+//        val bearerToken = readBearerToken()
+//
+//        log.debug { "Loaded bearer token from ${bearerTokenFile.absolutePath}." }
+//
+//        UserWalletService.siopSession(did, verifiableAuthorization, bearerToken)
+
 
         ///////////////////////////////////////////////////////////////////////////
         // Run authentication protocol (DID Auth + Authenticated Key Exchange Protocol)
         // and receive JWT Access Token.
         ///////////////////////////////////////////////////////////////////////////
 
-        val accessToken = UserWalletService.requestAccessToken(verifiableAuthorization)
+        val accessToken = UserWalletService.requestAccessToken(did)
+
+        ///////////////////////////////////////////////////////////////////////////
+        // Storing the received Access Token
+        ///////////////////////////////////////////////////////////////////////////
+
+        log.debug { "EBSI Access Token received:\n${accessToken}" }
+
+        log.debug { "Writing EBSI Access Token to file: ${ebsiAccessTokenFile.absolutePath}" }
+
+        ebsiAccessTokenFile.writeText(accessToken)
 
         ///////////////////////////////////////////////////////////////////////////
         // Protected resource can now be accessed
         ///////////////////////////////////////////////////////////////////////////
 
-        UserWalletService.accessProtectedResource(accessToken) // e.g updateDID, revoke VC
+        //UserWalletService.accessProtectedResource(accessToken) // e.g updateDID, revoke VC
+    }
+
+    fun registerDid(did: String, ethKeyAlias: String) {
+        DidEbsiService.registerDid(did, ethKeyAlias)
     }
 
     // https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/VC-Issuance+Flow
@@ -379,4 +432,5 @@ object EssifFlowRunner {
         println("18. Process completed successfully")
 
     }
+
 }

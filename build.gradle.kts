@@ -36,6 +36,10 @@ dependencies {
     implementation("com.goterl:lazysodium-java:5.0.1")
     implementation("com.github.multiformats:java-multibase:v1.1.0")
 
+    // Ethereum
+    implementation("org.web3j:core:4.8.4")
+    implementation("org.web3j:crypto:4.8.4")
+
     implementation("com.google.guava:guava:30.1.1-jre")
 
     // JSON
@@ -57,6 +61,7 @@ dependencies {
     implementation("io.ktor:ktor-client-core:1.6.1")
     implementation("io.ktor:ktor-client-cio:1.6.1")
     implementation("io.ktor:ktor-client-serialization:1.6.1")
+    implementation("io.ktor:ktor-client-logging:1.6.1")
 
     // REST
     implementation("io.javalin:javalin-bundle:3.13.8")
@@ -86,6 +91,12 @@ tasks.test {
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "13"
+}
+
+tasks.named<CreateStartScripts>("startScripts") {
+    doLast {
+        windowsScript.writeText(windowsScript.readText().replace(Regex("set CLASSPATH=.*"), "set CLASSPATH=%APP_HOME%\\\\lib\\\\*"))
+    }
 }
 
 val fatJar = task("fatJar", type = Jar::class) {

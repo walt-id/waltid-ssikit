@@ -1,15 +1,21 @@
 package org.letstrust.crypto
 
+import org.bouncycastle.asn1.DEROctetString
+import org.bouncycastle.asn1.edec.EdECObjectIdentifiers
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
+import org.bouncycastle.util.encoders.Hex
 import org.junit.Test
 import org.letstrust.LetsTrustServices
+import org.web3j.crypto.ECDSASignature
+import java.math.BigInteger
 import java.security.KeyFactory
 import java.security.KeyPairGenerator
 import java.security.SecureRandom
 import java.security.interfaces.ECPublicKey
-import java.security.spec.ECFieldFp
-import java.security.spec.ECGenParameterSpec
-import java.security.spec.ECParameterSpec
-import java.security.spec.ECPoint
+import java.security.spec.*
+import java.util.*
 import kotlin.test.assertEquals
 
 
@@ -35,6 +41,15 @@ class CryptFunTests {
         assertEquals(keypair.public, decodedPubKey)
         val decodedPrivKey = decodePrivKeyPem(priv, KeyFactory.getInstance("Ed25519"))
         assertEquals(keypair.private, decodedPrivKey)
+    }
+
+    @Test
+    fun base64EncodingTest() {
+        val input = "Hello World!"
+        val encoded = encBase64Str(input)
+        assertEquals("SGVsbG8gV29ybGQh", encoded)
+        val decoded = decBase64Str(encoded)
+        assertEquals(input, decoded)
     }
 
     @Test
@@ -185,5 +200,40 @@ class CryptFunTests {
 //        println("again p=(dec)" + (p2.getCurve().getField() as ECFieldFp).p)
     }
 
+    @Test
+    fun toECDSASignature() {
+        val actual = toECDSASignature(
+            Hex.decode("3046022100c638bbfe76516c7e61a55c47f74ce93496119925b25c17c901c19aa5aa3a96770221008c47712a0291bbebe2bd82fce85d8ac4850546096503dabc28bf599ba4a435da"),
+            KeyAlgorithm.ECDSA_Secp256k1
+        )
+        val expected = ECDSASignature(
+            BigInteger("89658184941967983938858979071000288788759949065333276282917577796385005803127"),
+            BigInteger("63450025973182083115333495879828484637440221913248412008596464222239711311322")
+        ).toCanonicalised()
+        assertEquals(expected.r, actual.r)
+        assertEquals(expected.s, actual.s)
+    }
+
+    @Test
+    fun constructJcaEd25519fromBytes() {
+        // Both formatted as 32bit raw key values (x and d)
+        // Both formatted as 32bit raw key values (x and d)
+        val privateKeyBytes = Base64.getUrlDecoder().decode("nWGxne_9WmC6hEr0kuwsxERJxWl7MmkZcDusAxyuf2A")
+        val publicKeyBytes = Base64.getUrlDecoder().decode("11qYAYKxCrfVS_7TyWQHOg7hcvPapiMlrwIaaPcHURo")
+
+        val keyFactory = KeyFactory.getInstance("Ed25519")
+
+        val pubKeyInfo: SubjectPublicKeyInfo = SubjectPublicKeyInfo(AlgorithmIdentifier(EdECObjectIdentifiers.id_Ed25519), publicKeyBytes)
+        val x509KeySpec = X509EncodedKeySpec(pubKeyInfo.encoded)
+
+        val jcaPublicKey = keyFactory.generatePublic(x509KeySpec)
+
+
+        val privKeyInfo = PrivateKeyInfo(AlgorithmIdentifier(EdECObjectIdentifiers.id_Ed25519), DEROctetString(privateKeyBytes))
+        val pkcs8KeySpec = PKCS8EncodedKeySpec(privKeyInfo.encoded)
+
+        val jcaPrivateKey = keyFactory.generatePrivate(pkcs8KeySpec)
+
+    }
 }
 

@@ -20,16 +20,11 @@ open class SqlKeyStoreService : KeyStoreService() {
         log.debug { "Saving key \"${key}\"" }
 
         SqlDbManager.getConnection().use { con ->
-            con.prepareStatement(
-                "insert into lt_key (name, priv, pub, algorithm, provider) values (?, ?, ?, ?, ?)",
-                RETURN_GENERATED_KEYS
-            )
+            con.prepareStatement("insert into lt_key (name, priv, pub, algorithm, provider) values (?, ?, ?, ?, ?)", RETURN_GENERATED_KEYS)
                 .use { stmt ->
                     stmt.setString(1, key.keyId.id)
-//                    println(key.keyPair!!.private.toPEM());
-//                    println(key.keyPair!!.public.toPEM());
 
-                    stmt.setString(2, key.keyPair!!.private.toBase64())
+                    key.keyPair!!.private?.let { stmt.setString(2, key.keyPair!!.private.toBase64()) }
                     stmt.setString(3, key.keyPair!!.public.toBase64())
                     stmt.setString(4, key.algorithm.name)
                     stmt.setString(5, key.cryptoProvider.name)
@@ -46,7 +41,7 @@ open class SqlKeyStoreService : KeyStoreService() {
 
     }
 
-    override fun load(alias: String): Key {
+    override fun load(alias: String, loadPrivate: Boolean): Key {
         log.debug { "Loading key \"${alias}\"." }
         var key: Key? = null
 
@@ -57,13 +52,7 @@ open class SqlKeyStoreService : KeyStoreService() {
                 stmt.setString(1, keyId)
                 stmt.executeQuery().use { rs ->
                     if (rs.next()) {
-                        key = buildKey(
-                            keyId,
-                            rs.getString("algorithm"),
-                            rs.getString("provider"),
-                            rs.getString("pub"),
-                            rs.getString("priv")
-                        )
+                        key = buildKey(keyId, rs.getString("algorithm"), rs.getString("provider"), rs.getString("pub"), if (loadPrivate) rs.getString("priv") else null)
                     }
                 }
                 con.commit()
@@ -127,13 +116,12 @@ open class SqlKeyStoreService : KeyStoreService() {
                     stmt.executeQuery().use { rs ->
                         if (rs.next()) {
                             rs.getInt("id").let { key_id ->
-                                con.prepareStatement("insert into lt_key_alias (key_id, alias) values (?, ?)")
-                                    .use { stmt ->
-                                        stmt.setInt(1, key_id)
-                                        stmt.setString(2, alias)
-                                        stmt.executeUpdate()
-                                        log.trace { "Alias \"${alias}\" for keyId \"${keyId}\" saved successfully." }
-                                    }
+                                con.prepareStatement("insert into lt_key_alias (key_id, alias) values (?, ?)").use { stmt ->
+                                    stmt.setInt(1, key_id)
+                                    stmt.setString(2, alias)
+                                    stmt.executeUpdate()
+                                    log.trace { "Alias \"${alias}\" for keyId \"${keyId}\" saved successfully." }
+                                }
                             }
                         }
                     }
@@ -192,15 +180,7 @@ open class SqlKeyStoreService : KeyStoreService() {
             con.prepareStatement("select * from lt_key").use { stmt ->
                 stmt.executeQuery().use { rs ->
                     while (rs.next()) {
-                        keys.add(
-                            buildKey(
-                                rs.getString("name"),
-                                rs.getString("algorithm"),
-                                rs.getString("provider"),
-                                rs.getString("pub"),
-                                rs.getString("priv")
-                            )
-                        )
+                        keys.add(buildKey(rs.getString("name"), rs.getString("algorithm"), rs.getString("provider"), rs.getString("pub"), rs.getString("priv")))
 //                        var keyId = rs.getString("name")
 //                        var algorithm = rs.getString("algorithm")
 //                        var provider = rs.getString("provider")
@@ -275,12 +255,22 @@ open class SqlKeyStoreService : KeyStoreService() {
     override fun delete(alias: String) {
         log.debug { "Deleting key \"${alias}\"." }
         SqlDbManager.getConnection().use { con ->
+            con.prepareStatement("select id from lt_key where name = ?").use { stmt ->
+                stmt.setString(1, alias)
+                stmt.executeQuery().use { rs ->
+                    while (rs.next()) {
+                        con.prepareStatement("delete from lt_key_alias where key_id = ?").use { stmt ->
+                            stmt.setString(1, rs.getString("id"))
+                            stmt.executeUpdate()
+                        }
+                    }
+                }
+            }
             con.prepareStatement("delete from lt_key where name = ?")
                 .use { stmt ->
                     stmt.setString(1, alias)
                     stmt.executeUpdate()
                 }
-            // TODO clean up key_alias
             con.commit()
         }
     }

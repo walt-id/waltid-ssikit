@@ -81,15 +81,15 @@ class DidServiceTest {
         println(dids)
     }
 
-    @Test
-    fun didWebResolution() {
-        val identifier = "did:web:mattr.global"
-        val didUrl: DidUrl = DidUrl.from(identifier)
-        val didWeb = DidService.resolveDidWeb(didUrl)
-        assertNotNull(didWeb)
-        // assertEquals("https://w3id.org/did/v1", didWeb.context)
-        assertEquals(identifier, didWeb.id)
-    }
+//    @Test
+//    fun didWebResolution() {
+//        val identifier = "did:web:mattr.global"
+//        val didUrl:  DidUrl= DidUrl.from(identifier)
+//        val didWeb = DidService.resolveDidWeb(didUrl)
+//        assertNotNull(didWeb)
+//        // assertEquals("https://w3id.org/did/v1", didWeb.context)
+//        assertEquals(identifier, didWeb.id)
+//    }
 
 //    // https://stackoverflow.com/questions/57178093/how-to-deserialize-json-with-dynamic-object
 //    // https://stackoverflow.com/questions/12134231/jackson-dynamic-property-names

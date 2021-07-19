@@ -1,5 +1,7 @@
 package org.letstrust.services.did
 
+import io.ktor.client.request.*
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -14,6 +16,8 @@ import org.letstrust.services.keystore.KeyStoreService
 import org.letstrust.model.*
 import org.letstrust.services.crypto.CryptoService
 import org.letstrust.services.vc.VCService
+import org.letstrust.services.key.KeyService
+import org.letstrust.services.vc.CredentialService
 import java.io.File
 import java.net.URL
 import java.nio.file.Files
@@ -49,16 +53,45 @@ object DidService {
     fun resolve(didUrl: DidUrl): Did {
         return when (didUrl.method) {
             DidMethod.key.name -> resolveDidKey(didUrl)
-            DidMethod.ebsi.name -> resolveDidKey(didUrl)
             DidMethod.web.name -> resolveDidWebDummy(didUrl)
             else -> TODO("did:${didUrl.method} not implemented yet")
         }
     }
 
+    fun load(did: String): Did = load(DidUrl.from(did))
+    fun load(didUrl: DidUrl): Did {
+        return when (didUrl.method) {
+            DidMethod.key.name -> resolveDidKey(didUrl)
+            DidMethod.web.name -> resolveDidWebDummy(didUrl)
+            else -> TODO("did:${didUrl.method} not implemented yet")
+        }
+    }
+
+    fun resolveDidEbsiRaw(did: String): String = runBlocking {
+        log.debug { "Resolving DID $did" }
+
+        val didDoc = LetsTrustServices.http.get<String>("https://api.preprod.ebsi.eu/did-registry/v2/identifiers/$did")
+
+        log.debug { didDoc }
+
+        return@runBlocking didDoc
+    }
+
     fun resolveDidEbsi(did: String): DidEbsi = resolveDidEbsi(DidUrl.from(did))
-    fun resolveDidEbsi(didUrl: DidUrl): DidEbsi {
-        log.warn { "DID EBSI is not resolved correctly yet. It is read from directory." }
-        return Json.decodeFromString<DidEbsi>(loadDid(didUrl.did))
+    fun resolveDidEbsi(didUrl: DidUrl): DidEbsi = runBlocking {
+
+        log.debug { "Resolving DID $didUrl" }
+
+        val didDoc = LetsTrustServices.http.get<String>("https://api.preprod.ebsi.eu/did-registry/v2/identifiers/${didUrl.did}")
+
+        log.debug { didDoc }
+
+        return@runBlocking Json.decodeFromString<DidEbsi>(didDoc)
+    }
+
+    fun loadDidEbsi(did: String): DidEbsi = loadDidEbsi(DidUrl.from(did))
+    fun loadDidEbsi(didUrl: DidUrl): DidEbsi {
+        return Json.decodeFromString(loadDid(didUrl.did))
     }
 
     fun updateDidEbsi(did: DidEbsi) = storeDid(did.id!!, Json.encodeToString(did))
@@ -72,37 +105,56 @@ object DidService {
         val didUrlStr = DidUrl.generateDidEbsiV2DidUrl().did
         keyStore.addAlias(keyId, didUrlStr)
 
-        val ebsiDid = if (key.algorithm == EdDSA_Ed25519) {
-            val pubKeyBytes = key.getPublicKey().encoded
-            val pubPrim = ASN1Sequence.fromByteArray(pubKeyBytes) as ASN1Sequence
-            val edPublicKey = (pubPrim.getObjectAt(1) as ASN1BitString).octets
-            // Create doc
-            val ebsiDidBody = ebsiDid(DidUrl.from(didUrlStr), edPublicKey)
+        val kid = didUrlStr + "#" + key.keyId
+        keyStore.addAlias(keyId, kid)
 
-            val ebsiDidBodyStr = Json.encodeToString(ebsiDidBody)
-
-            // Create proof
-            val verificationMethod = ebsiDidBody.verificationMethod?.get(0)?.id
-            signDid(didUrlStr, verificationMethod!!, ebsiDidBodyStr)
-        } else {
-            val verificationMethods = mutableListOf(
-                VerificationMethod(
-                    didUrlStr + "#keys-1",
-                    "Secp256k1VerificationKey2018",
-                    didUrlStr,
-                    null,
-                    key.getPublicKey().toPEM()
-                ),
-            )
-
-            val did = DidEbsi(
-                listOf("https://w3.org/ns/did/v1"), // TODO Context not working "https://ebsi.org/ns/did/v1"
-                didUrlStr,
-                verificationMethods,
-                listOf(didUrlStr + "#keys-1")
-            )
-            Json.encodeToString(did)
+        val keyType = when (key.algorithm) {
+            EdDSA_Ed25519 -> "Ed25519VerificationKey2018"
+            ECDSA_Secp256k1 -> "Secp256k1VerificationKey2018"
         }
+        val publicKeyJwk = Json.decodeFromString<Jwk>(KeyService.toJwk(kid).toPublicJWK().toString())
+        val verificationMethods = mutableListOf(
+            VerificationMethod(kid, keyType, didUrlStr, null, null, publicKeyJwk),
+        )
+
+        val did = DidEbsi(
+            listOf("https://w3id.org/did/v1"), // TODO Context not working "https://ebsi.org/ns/did/v1"
+            didUrlStr,
+            verificationMethods,
+            listOf(kid)
+        )
+        val ebsiDid = Json.encodeToString(did)
+
+//        val ebsiDid = if (key.algorithm == EdDSA_Ed25519) {
+//            val pubKeyBytes = key.getPublicKey().encoded
+//            val pubPrim = ASN1Sequence.fromByteArray(pubKeyBytes) as ASN1Sequence
+//            val edPublicKey = (pubPrim.getObjectAt(1) as ASN1BitString).octets
+//            // Create doc
+//            val ebsiDidBody = ebsiDid(DidUrl.from(didUrlStr), edPublicKey)
+//
+//            val ebsiDidBodyStr = Json.encodeToString(ebsiDidBody)
+//
+//            keyStore.addAlias(keyId, ebsiDidBody.verificationMethod!!.get(0)!!.id)
+//
+//            // Create proof
+//            val verificationMethod = ebsiDidBody.verificationMethod?.get(0)?.id
+//            signDid(didUrlStr, verificationMethod!!, ebsiDidBodyStr)
+//        } else {
+//            val kid = "$didUrlStr#key-1"
+//            keyStore.addAlias(keyId, kid)
+//            val publicKeyJwk = Json.decodeFromString<Jwk>(KeyService.toJwk(kid).toPublicJWK().toString())
+//            val verificationMethods = mutableListOf(
+//                VerificationMethod(kid, "Secp256k1VerificationKey2018", didUrlStr, null, null, publicKeyJwk),
+//            )
+//
+//            val did = DidEbsi(
+//                listOf("https://w3id.org/did/v1"), // TODO Context not working "https://ebsi.org/ns/did/v1"
+//                didUrlStr,
+//                verificationMethods,
+//                listOf("$didUrlStr#key-1")
+//            )
+//            Json.encodeToString(did)
+//        }
 
         // Store DID
         storeDid(didUrlStr, ebsiDid)
@@ -142,7 +194,8 @@ object DidService {
 
         keyStore.addAlias(keyId, didUrl.did)
 
-        resolveAndStore(didUrl.did)
+        //resolveAndStore(didUrl.did)
+        storeDid(didUrl.did, resolveDidWebDummy(didUrl).toString())
 
         return didUrl.did
     }
@@ -179,7 +232,7 @@ object DidService {
         )
 
         return DidEbsi(
-            listOf("https://w3.org/ns/did/v1"), // TODO Context not working "https://ebsi.org/ns/did/v1"
+            listOf("https://w3id.org./did/v1"), // TODO Context not working "https://ebsi.org/ns/did/v1"
             didUrl.did,
             verificationMethods,
             keyRef,
@@ -227,7 +280,7 @@ object DidService {
         return Triple(dhKeyId, verificationMethods, keyRef)
     }
 
-    private fun resolveDidWebDummy(didUrl: DidUrl): Did {
+    public fun resolveDidWebDummy(didUrl: DidUrl): Did {
         log.warn { "DID WEB implementation is not finalized yet. Use it only for demo purpose." }
         keyStore.getKeyId(didUrl.did).let {
             keyStore.load(it!!).let {
@@ -276,18 +329,18 @@ object DidService {
 //        }
 //    }
 
-
-    internal fun resolveDidWeb(didUrl: DidUrl): DidWeb {
-        val domain = didUrl.identifier
-        val didUrl = "https://${domain}/.well-known/did.json" // FIXME: didUrl argument is ignored?
-        log.debug { "Resolving did:web for domain $domain at: $didUrl" }
-        val didWebStr = URL(didUrl).readText()
-        log.debug { "did:web resolved:\n$didWebStr" }
-        print(didWebStr)
-        val did = Json.decodeFromString<DidWeb>(didWebStr)
-        log.debug { "did:web decoded:\n$did" }
-        return did
-    }
+// TODO: include once working
+//    internal fun resolveDidWeb(didUrl: DidUrl): DidWeb {
+//        val domain = didUrl.identifier
+//        val didUrl = "https://${domain}/.well-known/did.json" // FIXME: didUrl argument is ignored?
+//        log.debug { "Resolving did:web for domain $domain at: $didUrl" }
+//        val didWebStr = URL(didUrl).readText()
+//        log.debug { "did:web resolved:\n$didWebStr" }
+//        print(didWebStr)
+//        val did = Json.decodeFromString<DidWeb>(didWebStr)
+//        log.debug { "did:web decoded:\n$did" }
+//        return did
+//    }
 
 //    @Deprecated(message ="use create()")
 //    fun createDid(didMethod: String, keys: Keys? = null): String {
@@ -336,6 +389,5 @@ object DidService {
             .filter { it.toString().endsWith(".json") }
             .map { it.fileName.toString().substringBefore(".json").replace("-", ":") }.toList()
     }
-
 
 }

@@ -5,6 +5,8 @@ import io.javalin.plugin.openapi.annotations.OpenApi
 import io.javalin.plugin.openapi.annotations.OpenApiContent
 import io.javalin.plugin.openapi.annotations.OpenApiRequestBody
 import io.javalin.plugin.openapi.annotations.OpenApiResponse
+import kotlinx.serialization.Serializable
+import org.letstrust.services.essif.AuthRequestResponse
 import org.letstrust.services.essif.EosService
 
 /**
@@ -19,6 +21,7 @@ EosService.requestVerifiableCredential("")
 EosService.signedChallenge("")
 
  **/
+
 object EosController {
 
     @OpenApi(
@@ -71,6 +74,11 @@ object EosController {
     )
     fun requestCredentialUri(ctx: Context) {
         ctx.json(EosService.requestCredentialUri())
+    }
+
+    fun authReq(ctx: Context) {
+        println("authReq: " + ctx.body())
+        ctx.json(AuthRequestResponse("asdf2weswfsadfdf"))
     }
 
     @OpenApi(

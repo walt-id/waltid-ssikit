@@ -10,7 +10,9 @@ import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.junit.Test
+import java.security.Security
 import java.util.*
 
 
@@ -65,8 +67,9 @@ class JwtTest {
         assertTrue(Date().before(signedJWT.jwtClaimsSet.expirationTime))
     }
 
-    //@Test
+    // @Test
     fun jwtSpec256k1() {
+        Security.addProvider(BouncyCastleProvider())
         // Generate EC key pair on the secp256k1 curve
         val ecJWK = ECKeyGenerator(Curve.SECP256K1)
             .keyUse(KeyUse.SIGNATURE)

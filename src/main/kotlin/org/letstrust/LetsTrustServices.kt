@@ -7,6 +7,11 @@ import com.sksamuel.hoplite.PropertySource
 import com.sksamuel.hoplite.hikari.HikariDataSourceDecoder
 import com.sksamuel.hoplite.yaml.YamlParser
 import com.zaxxer.hikari.HikariDataSource
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.features.json.*
+import io.ktor.client.features.json.serializer.*
+import io.ktor.client.features.logging.*
 import mu.KotlinLogging
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.LogManager
@@ -52,10 +57,24 @@ data class LetsTrustConfig(
 
 object LetsTrustServices {
 
-    const val dataDir = "./data"
+    const val dataDir = "data"
     const val keyDir = "$dataDir/key/"
+    const val ebsiDir = "$dataDir/ebsi/"
 
+    val httpLogging = false
     val log = KotlinLogging.logger {}
+
+    val http = HttpClient(CIO) {
+        install(JsonFeature) {
+            serializer = KotlinxSerializer()
+        }
+        if (httpLogging) {
+            install(Logging) {
+                logger = Logger.SIMPLE
+                level = LogLevel.HEADERS
+            }
+        }
+    }
 
     init {
         /*val javaVersion = System.getProperty("java.runtime.version")
@@ -87,7 +106,7 @@ object LetsTrustServices {
         Files.createDirectories(Path.of("${dataDir}/vc/templates"))
         Files.createDirectories(Path.of("${dataDir}/vc/created"))
         Files.createDirectories(Path.of("${dataDir}/vc/presented"))
-        Files.createDirectories(Path.of("${dataDir}/ebsi/"))
+        Files.createDirectories(Path.of("${ebsiDir}"))
     }
 
     fun loadConfig() = ConfigLoader.Builder()

@@ -7,6 +7,9 @@ import cc.vileda.openapi.dsl.securityScheme
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.core.util.RouteOverviewPlugin
+import io.javalin.plugin.json.FromJsonMapper
+import io.javalin.plugin.json.JavalinJson
+import io.javalin.plugin.json.ToJsonMapper
 import io.javalin.plugin.openapi.InitialConfigurationCreator
 import io.javalin.plugin.openapi.OpenApiOptions
 import io.javalin.plugin.openapi.OpenApiPlugin
@@ -16,6 +19,11 @@ import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.info.Contact
 import io.swagger.v3.oas.models.security.SecurityScheme
 import io.swagger.v3.oas.models.servers.Server
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.serializer
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.serializer
 import mu.KotlinLogging
 import org.letstrust.Values
 
@@ -228,6 +236,24 @@ object RestAPI {
                     }
 
                 }
+                path("dummy") {
+                    post("authentication-requests", EosController::authReq)
+                }
+            }
+
+            JavalinJson.toJsonMapper = object : ToJsonMapper {
+                override fun map(obj: Any): String {
+
+                    if (obj is ArrayList<*>) {
+                        // TODO: support other list-element types
+                        return Json.encodeToString(ListSerializer(String.serializer()),obj as ArrayList<String>)
+                    }
+
+                    return Json.encodeToString(serializer(obj.javaClass), obj)
+                }
+            }
+            JavalinJson.fromJsonMapper = object : FromJsonMapper {
+                override fun <T> map(json: String, targetClass: Class<T>): T = Json.decodeFromString(serializer(targetClass) as KSerializer<T>, json)
             }
 
         }.exception(IllegalArgumentException::class.java) { e, ctx ->

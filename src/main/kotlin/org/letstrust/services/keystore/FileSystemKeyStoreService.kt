@@ -18,6 +18,9 @@ private val log = KotlinLogging.logger {}
 
 open class FileSystemKeyStoreService : KeyStoreService() {
 
+    //TODO: get path from config
+    private const val KEY_DIR_PATH = "data/key"
+
     //TODO: get key format from config
     private val KEY_FORMAT = KeyFormat.PEM
 
@@ -39,7 +42,7 @@ open class FileSystemKeyStoreService : KeyStoreService() {
         return keys
     }
 
-    override fun load(alias: String): Key {
+    override fun load(alias: String, loadPrivate: Boolean): Key {
         log.debug { "Loading key \"${alias}\"." }
 
         var keyId = getKeyId(alias) ?: alias
@@ -48,7 +51,7 @@ open class FileSystemKeyStoreService : KeyStoreService() {
         val algorithm = metaData.substringBefore(delimiter = ";")
         val provider = metaData.substringAfter(delimiter = ";")
         val publicPart = File("${Companion.KEY_DIR_PATH}/$keyId.enc-pubkey").readText()
-        val privatePart = File("${Companion.KEY_DIR_PATH}/$keyId.enc-privkey").readText()
+        val privatePart = if (loadPrivate) File("${Companion.KEY_DIR_PATH}/$keyId.enc-privkey").readText() else null
 
         return buildKey(keyId, algorithm, provider, publicPart, privatePart, KEY_FORMAT)
     }
@@ -87,7 +90,7 @@ open class FileSystemKeyStoreService : KeyStoreService() {
             key, "enc-pubkey",
             when (KEY_FORMAT) {
                 KeyFormat.PEM -> key.getPublicKey().toPEM()
-                KeyFormat.BASE64 -> key.getPublicKey().toBase64()
+                else -> key.getPublicKey().toBase64()
             }.toByteArray()
         )
 
@@ -96,7 +99,7 @@ open class FileSystemKeyStoreService : KeyStoreService() {
             saveKeyData(
                 key, "enc-privkey", when (KEY_FORMAT) {
                     KeyFormat.PEM -> key.keyPair!!.private.toPEM()
-                    KeyFormat.BASE64 -> key.keyPair!!.private.toBase64()
+                    else -> key.keyPair!!.private.toBase64()
                 }.toByteArray()
             )
         }

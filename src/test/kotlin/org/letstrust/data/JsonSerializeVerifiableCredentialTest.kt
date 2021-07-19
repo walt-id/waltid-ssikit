@@ -5,24 +5,83 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.Test
 import org.letstrust.model.*
+import org.letstrust.vclib.vcs.EbsiVerifiableAttestation
+import org.letstrust.vclib.vcs.Europass
+import org.letstrust.vclib.vcs.PermanentResidentCard
+import org.letstrust.vclib.vcs.VC
 import java.io.File
 import java.time.LocalDateTime
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 
 class JsonSerializeVerifiableCredentialTest {
 
+    val VC_PATH = "src/test/resources/verifiable-credentials"
+
     val format = Json { prettyPrint = true }
 
     @Test
+    fun vcTemplatesTest() {
+        File("templates/").walkTopDown()
+            .filter { it.toString().endsWith(".json") }
+            .forEach {
+                println("serializing: $it")
+
+                val input = File(it.toURI()).readText().replace("\\s".toRegex(), "")
+
+                val vc = VC.decode(input)
+
+                if (vc is Europass) {
+                    println("\t => Europass serialized")
+                } else if (vc is PermanentResidentCard) {
+                    println("\t => PermanentResidentCard serialized")
+                    val enc = Json.encodeToString(vc)
+                    assertEquals(input, enc)
+                } else if (vc is EbsiVerifiableAttestation) {
+                    println("\t => EbsiVerifiableAttestation serialized")
+                    val enc = Json.encodeToString(vc)
+                    assertEquals(input, enc)
+                } else {
+                    assertTrue(false, "VC type not supported")
+                }
+            }
+    }
+
+    @Test
+    fun serializeEbsiVerifiableAuthorization() {
+        val va = File("$VC_PATH/vc-ebsi-verifiable-authorisation.json").readText()
+        val vc = VC.decode(va)
+    }
+
+    @Test
+    fun serializeSignedVc() {
+        val signedEuropassStr = File("$VC_PATH/vc-europass-signed.json").readText()
+        println(signedEuropassStr)
+        val vc = VC.decode(signedEuropassStr)
+    }
+
+
+    // TODO: remove / replace functions below as they are using the old data model
+    @Test
     fun serializeExample37() {
-        val expected = File("src/test/resources/verifiable-credentials/vc-example37.json").readText()
+        val expected = File("$VC_PATH/vc-example37.json").readText()
         // println(expected)
         val obj = Json.decodeFromString<VerifiableCredentialPRC>(expected)
         // println(obj)
         val encoded = Json.encodeToString(obj)
         // println(encoded)
         assertEquals(expected.replace("\\s".toRegex(), ""), Json.encodeToString(obj).replace("\\s".toRegex(), ""))
+    }
+
+    @Test
+    fun vcSerialization() {
+        val input = File("templates/vc-template-default.json").readText().replace("\\s".toRegex(), "")
+        val vc = Json.decodeFromString<VerifiableCredential>(input)
+        println(vc)
+        val enc = Json.encodeToString(vc)
+        println(enc)
+        assertEquals(input, enc)
     }
 
     @Test
@@ -63,7 +122,7 @@ class JsonSerializeVerifiableCredentialTest {
     }
 
     @Test
-    fun vcTemplatesTest() {
+    fun vcTemplatesOldTest() {
         File("templates/").walkTopDown()
             .filter { it.toString().endsWith(".json") }
             .forEach {
@@ -75,10 +134,12 @@ class JsonSerializeVerifiableCredentialTest {
 
     //TODO not all files working yet @Test
     fun vcExamplesTest() {
-        File("src/test/resources/verifiable-credentials/").walkTopDown()
+        File(VC_PATH).walkTopDown()
             .filter { it.toString().endsWith(".json") }
             .forEach {
                 println("serializing: $it")
             }
     }
+
+
 }

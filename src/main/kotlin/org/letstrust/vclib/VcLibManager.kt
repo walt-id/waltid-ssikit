@@ -2,12 +2,10 @@ package org.letstrust.vclib
 
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.descriptors.elementNames
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
-import org.letstrust.vclib.vcs.Europass
-import org.letstrust.vclib.vcs.MinVC
-import org.letstrust.vclib.vcs.PermanentResidentCard
-import org.letstrust.vclib.vcs.VC
+import org.letstrust.vclib.vcs.*
 import kotlin.reflect.KClass
 import kotlin.reflect.full.companionObjectInstance
 import kotlin.reflect.jvm.jvmName
@@ -15,26 +13,36 @@ import kotlin.reflect.jvm.jvmName
 object VcLibManager {
 
     @OptIn(InternalSerializationApi::class)
-    fun getVerifiableCredential(json: String): VC {
-        val vcTypeClass = getCredentialType(json)
+    internal fun getVerifiableCredential(json: String): VC {
+        var vcTypeClass = getCredentialType(json)
 
-        println("Got type: ${vcTypeClass.qualifiedName} (is ${vcTypeClass.jvmName})")
+        // TODO: FIX hack
+        if (json.contains("VerifiablePresentation")) {
+            vcTypeClass = when {
+                json.contains("Europass") -> EuropassVP::class
+                json.contains("VerifiableAttestation") -> EbsiVerifiableAttestationVP::class
+                json.contains("VerifiableAuthorisation") -> EbsiVerifiableAuthorisationVP::class
+                json.contains("PermanentResidentCard") -> PermanentResidentCardVP::class
+                else -> throw IllegalArgumentException("No valid VP type")
+            }
+        }
+
+        //  println("Got type: ${vcTypeClass.qualifiedName} (is ${vcTypeClass.jvmName})")
 
         val metadata = vcTypeClass.companionObjectInstance as VCMetadata
-        println("Meta: ${metadata.metadataContext} ${metadata.metadataType}")
+        // println("Meta: ${metadata.metadataContext} ${metadata.metadataType}")
 
         val serializer = vcTypeClass.serializer()
 
-        // println("Serializer descriptor: " + serializer.descriptor.serialName)
-        // serializer.descriptor.elementNames.forEach { println("Element: $it") }
+//        println("Serializer descriptor: " + serializer.descriptor.serialName)
+//        serializer.descriptor.elementNames.forEach { println("Element: $it") }
 
         val decodedVC = Json /*{ ignoreUnknownKeys = true }*/.decodeFromString(serializer, json)
 
         return decodedVC
     }
 
-
-    fun getCredentialType(json: String): KClass<out VC> {
+    private fun getCredentialType(json: String): KClass<out VC> {
         val minVc = Json { ignoreUnknownKeys = true }.decodeFromString<MinVC>(json)
 
         val contexts = minVc.context
@@ -47,8 +55,8 @@ object VcLibManager {
     private val defaultTypes = listOf("VerifiableCredential")
 
     @OptIn(InternalSerializationApi::class)
-    fun getCredentialType(contexts: List<String>, types: List<String>): KClass<out VC> {
-        val vcTypes = listOf(PermanentResidentCard::class, Europass::class)
+    private fun getCredentialType(contexts: List<String>, types: List<String>): KClass<out VC> {
+        val vcTypes = listOf(VP::class, PermanentResidentCard::class, Europass::class, EbsiVerifiableAttestation::class, EbsiVerifiableAuthorisation::class)
 
         val searchedContexts = contexts.minus(defaultContexts)
         val searchedTypes = types.minus(defaultTypes)

@@ -88,15 +88,7 @@ object VcController {
     )
     fun create(ctx: Context) {
         val createVcReq = ctx.bodyAsClass(CreateVcRequest::class.java)
-        // TODO build credential based on the request e.g. load template, substitute values
-        ctx.result(
-            credentialService.sign(
-                createVcReq.issuerDid!!,
-                createVcReq.credentialOffer!!,
-                createVcReq.domain,
-                createVcReq.nonce
-            )
-        )
+        ctx.result(credentialService.sign(createVcReq.issuerDid!!, createVcReq.credentialOffer!!, createVcReq.domain, createVcReq.nonce))
     }
 
     @OpenApi(
@@ -130,11 +122,7 @@ object VcController {
             "VC to be verified"
         ),
         responses = [
-            OpenApiResponse(
-                "200",
-                [OpenApiContent(VerificationResult::class)],
-                "Verification result object"
-            ),
+            OpenApiResponse("200", [OpenApiContent(CredentialService.VerificationResult::class)], "Verification result object"),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
             OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
@@ -179,13 +167,10 @@ object VcController {
 
     @OpenApi(
         summary = "List VC templates",
-        operationId = "templatesList",
+        operationId = "listTemplates",
         tags = ["Verifiable Credentials"],
         responses = [
-            OpenApiResponse(
-                "200",
-                content = [OpenApiContent(from = String::class, isArray = true, type = "application/json")]
-            ),
+            OpenApiResponse("200", content = [OpenApiContent(from = String::class, isArray = true, type = "application/json")]),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
             OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
@@ -196,18 +181,20 @@ object VcController {
 
     @OpenApi(
         summary = "Loads a VC template",
-        operationId = "templateLoad",
+        operationId = "loadTemplate",
         tags = ["Verifiable Credentials"],
         pathParams = [
             OpenApiParam(name = "id", description = "Retrieves a single VC template form the data store")
         ],
         responses = [
-            OpenApiResponse("200", content = [OpenApiContent(from = String::class, type = "application/json")]),
+            //TODO: FIX:  Cannot invoke "io.swagger.v3.oas.models.media.Schema.getName()" because "subtypeModel" is null
+            // OpenApiResponse("200", [OpenApiContent(VerifiableCredential::class, type = "application/json")], "Verifiable credential template"),
+            OpenApiResponse("200", [OpenApiContent(String::class, type = "application/json")], "Verifiable credential template"),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
             OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
     fun loadTemplate(ctx: Context) {
-        ctx.json(credentialService.loadTemplate(ctx.pathParam("id")))
+        ctx.result(credentialService.loadTemplate(ctx.pathParam("id")))
     }
 }

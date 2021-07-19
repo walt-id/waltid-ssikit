@@ -1,6 +1,7 @@
 package org.letstrust.rest
 
 import id.walt.servicematrix.ServiceMatrix
+import com.nimbusds.jose.jwk.JWK
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.json.*
@@ -18,6 +19,7 @@ import org.junit.BeforeClass
 import org.junit.Test
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.KeyId
+import org.letstrust.crypto.localTimeSecondsUtc
 import org.letstrust.model.DidMethod
 import org.letstrust.model.DidUrl
 import org.letstrust.model.VerifiableCredential
@@ -26,10 +28,18 @@ import org.letstrust.services.did.DidService
 import org.letstrust.services.vc.VCService
 import org.letstrust.services.vc.VerificationResult
 import org.letstrust.services.vc.VerificationType
+import org.letstrust.services.key.KeyFormat
+import org.letstrust.services.vc.CredentialService
+import org.letstrust.test.getTemplate
 import org.letstrust.test.readCredOffer
+import org.letstrust.vclib.vcs.EbsiVerifiableAttestation
+import org.letstrust.vclib.vcs.Europass
+import org.letstrust.vclib.vcs.VC
+import java.io.File
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class CoreApiTest {
@@ -46,6 +56,20 @@ class CoreApiTest {
             serializer = KotlinxSerializer()
         }
         expectSuccess = false
+    }
+
+    companion object {
+        @BeforeClass
+        @JvmStatic
+        fun startServer() {
+            RestAPI.startCoreApi(7003)
+        }
+
+        @AfterClass
+        @JvmStatic
+        fun teardown() {
+            RestAPI.stopCoreApi()
+        }
     }
 
     fun get(path: String): HttpResponse = runBlocking {
@@ -109,7 +133,7 @@ class CoreApiTest {
             body = GenKeyRequest(KeyAlgorithm.EdDSA_Ed25519)
         }
 
-        assertTrue(keyId.id.length > 45)
+        assertTrue(keyId.id.length == 32)
     }
 
     @Test
@@ -119,7 +143,7 @@ class CoreApiTest {
             body = GenKeyRequest(KeyAlgorithm.ECDSA_Secp256k1)
         }
 
-        assertTrue(keyId.id.length > 45)
+        assertTrue(keyId.id.length == 32)
     }
 
     @Test
@@ -134,15 +158,14 @@ class CoreApiTest {
         assertEquals("Couldn't deserialize body to GenKeyRequest", error.title)
     }
 
-
     @Test
     fun testListKey() = runBlocking {
         val keyIds = client.get<List<String>>("$CORE_API_URL/v1/key")
-        keyIds.forEach { keyId -> assertTrue(keyId.length > 45) }
+        keyIds.forEach { keyId -> assertTrue(keyId.length >= 32) }
     }
 
     @Test
-    fun testExportKey() = runBlocking {
+    fun testExportPublicKey() = runBlocking {
         val keyId = client.post<KeyId>("$CORE_API_URL/v1/key/gen") {
             contentType(ContentType.Application.Json)
             body = GenKeyRequest(KeyAlgorithm.ECDSA_Secp256k1)
@@ -150,9 +173,23 @@ class CoreApiTest {
 
         val key = client.post<String>("$CORE_API_URL/v1/key/export") {
             contentType(ContentType.Application.Json)
-            body = ExportKeyRequest(keyId.id, "JWK")
+            body = ExportKeyRequest(keyId.id, KeyFormat.JWK)
         }
-        assertTrue(key.length > 180)
+        assertFalse(JWK.parse(key).isPrivate)
+    }
+
+    @Test
+    fun testExportPrivateKey() = runBlocking {
+        val keyId = client.post<KeyId>("$CORE_API_URL/v1/key/gen") {
+            contentType(ContentType.Application.Json)
+            body = GenKeyRequest(KeyAlgorithm.EdDSA_Ed25519)
+        }
+
+        val key = client.post<String>("$CORE_API_URL/v1/key/export") {
+            contentType(ContentType.Application.Json)
+            body = ExportKeyRequest(keyId.id, KeyFormat.JWK, true)
+        }
+        assertTrue(JWK.parse(key).isPrivate)
     }
 
     @Test
@@ -188,6 +225,31 @@ class CoreApiTest {
     }
 
     @Test
+    fun testListVcTemplates() = runBlocking {
+
+        val templates = client.get<List<String>>("$CORE_API_URL/v1/vc/templates") {
+            contentType(ContentType.Application.Json)
+        }
+        var foundDefaultTemplate = false
+        templates.forEach { if (it == "default") foundDefaultTemplate = true }
+        assertTrue(foundDefaultTemplate)
+    }
+
+    @Test
+    fun testGetVcDefaultTemplate() = runBlocking {
+
+        val defaultTemplate = client.get<String>("$CORE_API_URL/v1/vc/templates/default") {
+            contentType(ContentType.Application.Json)
+        }
+        val input = File("templates/vc-template-default.json").readText().replace("\\s".toRegex(), "")
+
+        val vc = VC.decode(input)
+        val enc = Json.encodeToString(vc as EbsiVerifiableAttestation)
+        assertEquals(input, enc)
+
+    }
+
+    @Test
     fun testDidCreateVc() = runBlocking {
         val didHolder = client.post<String>("$CORE_API_URL/v1/did/create") {
             contentType(ContentType.Application.Json)
@@ -213,23 +275,24 @@ class CoreApiTest {
 
     @Test
     fun testPresentVerifyVC() = runBlocking {
-        val credOffer = Json.decodeFromString<VerifiableCredential>(readCredOffer("vc-template-default"))
+        val credOffer = getTemplate("europass") as Europass
         val issuerDid = DidService.create(DidMethod.web)
         val subjectDid = DidService.create(DidMethod.key)
 
         credOffer.id = Timestamp.valueOf(LocalDateTime.now()).time.toString()
         credOffer.issuer = issuerDid
-        credOffer.credentialSubject.id = subjectDid
+        credOffer.credentialSubject!!.id = subjectDid
 
-        credOffer.issuanceDate = LocalDateTime.now()
+        credOffer.issuanceDate = localTimeSecondsUtc()
 
         val vcReqEnc = Json { prettyPrint = true }.encodeToString(credOffer)
 
         println("Credential request:\n$vcReqEnc")
 
         val vcStr = credentialService.sign(issuerDid, vcReqEnc)
-        val vc = Json.decodeFromString<VerifiableCredential>(vcStr)
-        println("Credential generated: ${vc.encodePretty()}")
+        val vc = VC.decode(vcStr)
+
+        println("Credential generated: ${vc}")
 
         val vp = client.post<String>("$CORE_API_URL/v1/vc/present") {
             contentType(ContentType.Application.Json)

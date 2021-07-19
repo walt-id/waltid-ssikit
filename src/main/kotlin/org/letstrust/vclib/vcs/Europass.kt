@@ -1,7 +1,10 @@
 package org.letstrust.vclib.vcs
 
+import kotlinx.serialization.Polymorphic
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.letstrust.vclib.VCMetadata
 
 @Serializable
@@ -22,6 +25,10 @@ data class Europass(
     val evidence: Evidence?,
     val proof: Proof? = null
 ) : VC {
+
+    override fun issuer(): String = issuer!!
+
+    override fun holder(): String = credentialSubject!!.id!!
 
     companion object : VCMetadata {
         override val metadataContext = "https://essif.europa.eu/schemas/vc/2020/v1"
@@ -48,7 +55,7 @@ data class Europass(
     data class LearningAchievement(
         @SerialName("@id")
         val id: String?, // urn:epass:learningAchievement:1
-        val title: Title?,
+        var title: Title?,
         val specifiedBy: SpecifiedBy?
     ) {
         @Serializable
@@ -62,7 +69,7 @@ data class Europass(
                 @SerialName("@lang")
                 val lang: String?, // en
                 @SerialName("#text")
-                val text: String? // Degree in Biology
+                var text: String? // Degree in Biology
             )
         }
 
@@ -178,21 +185,48 @@ data class Europass(
         val evidenceDocument: List<String?>?
     )
 
-    @Serializable
-    data class Proof(
-        val type: String?, // EcdsaSecp256k1Signature2019
-        val created: String?, // 2019-06-22T14:11:44Z
-        val creator: String? = null,
-        val proofPurpose: String? = null, // assertionMethod
-        val verificationMethod: VerificationMethod? = null,
-        val jws: String?, // eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..TCYt5X
-        val proofValue: String? = null // BD21J4fdlnBvBA+y6D...fnC8Y=
-    ) {
-        @Serializable
-        data class VerificationMethod(
-            val type: String?, // EidasCertificate2019
-            @SerialName("CertSerial")
-            val certSerial: String? // 1088321447
-        )
+//    @Serializable
+//    data class Proof(
+//        val type: String?, // EcdsaSecp256k1Signature2019
+//        val created: String?, // 2019-06-22T14:11:44Z
+//        val creator: String? = null,
+//        val proofPurpose: String? = null, // assertionMethod
+//        val verificationMethod: VerificationMethod? = null,
+//        val jws: String?, // eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..TCYt5X
+//        val proofValue: String? = null // BD21J4fdlnBvBA+y6D...fnC8Y=
+//    ) {
+//        @Serializable
+//        data class VerificationMethod(
+//            val type: String?, // EidasCertificate2019
+//            @SerialName("CertSerial")
+//            val certSerial: String? // 1088321447
+//        )
+//    }
+}
+
+fun Europass.encode() = Json.encodeToString(this)
+fun Europass.encodePretty() = Json { prettyPrint = true }.encodeToString(this)
+
+
+@Serializable
+data class EuropassVP(
+    @SerialName("@context")
+    override val context: List<String>,
+    override val type: List<String>,
+    val id: String? = null,
+    val vc: List<Europass>?,
+    val proof: org.letstrust.model.Proof? = null
+) : VC {
+
+    override fun issuer(): String = proof!!.creator!!
+
+    override fun holder(): String = proof!!.creator!!
+
+    companion object : VCMetadata {
+        override val metadataContext = ""
+        override val metadataType = "VerifiablePresentation"
     }
 }
+
+fun EuropassVP.encode() = Json.encodeToString(this)
+fun EuropassVP.encodePretty() = Json { prettyPrint = true }.encodeToString(this)

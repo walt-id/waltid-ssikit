@@ -31,7 +31,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 @Deprecated(message = "New version in package org.letstrust.service.vc")
-class credentialServiceTest {
+class CredentialServiceTest {
 
     private val credentialService = VCService.getService()
     private val RESOURCES_PATH: String = "src/test/resources"
@@ -51,8 +51,7 @@ class credentialServiceTest {
 
     //TOOD FIX @ signature-ld lib: the type in the proof is an ARRAY, rather than  a "type" : [ "Ed25519Signature2018" ],
 
-    val testEd25519PrivateKeyString =
-        "984b589e121040156838303f107e13150be4a80fc5088ccba0b0bdc9b1d89090de8777a28f8da1a74e7a13090ed974d879bf692d001cddee16e4cc9f84b60580"
+    val testEd25519PrivateKeyString = "984b589e121040156838303f107e13150be4a80fc5088ccba0b0bdc9b1d89090de8777a28f8da1a74e7a13090ed974d879bf692d001cddee16e4cc9f84b60580"
 
     val testEd25519PublicKeyString = "de8777a28f8da1a74e7a13090ed974d879bf692d001cddee16e4cc9f84b60580"
 
@@ -136,7 +135,7 @@ class credentialServiceTest {
 
         val vcVerified = credentialService.verifyVc(issuerDid, vc)
         assertTrue(vcVerified)
-        KeyManagementService.delete(issuerDid)
+        KeyService.delete(issuerDid)
     }
 
     @Test
@@ -154,7 +153,7 @@ class credentialServiceTest {
 
         val vcVerified = credentialService.verifyVc(issuerDid, vc)
         assertTrue(vcVerified)
-        KeyManagementService.delete(issuerDid)
+        KeyService.delete(issuerDid)
     }
 
     @Test
@@ -179,7 +178,7 @@ class credentialServiceTest {
 
         val credOffer = readCredOffer("PermanentResidentCard")
 
-        val keyId = KeyManagementService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val keyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
         val domain = "example.com"
         val nonce: String? = null
 
@@ -189,7 +188,7 @@ class credentialServiceTest {
 
         val vcVerified = credentialService.verifyVc(keyId.id, vc)
         assertTrue(vcVerified)
-        KeyManagementService.delete(keyId.id)
+        KeyService.delete(keyId.id)
     }
 
     @Test
@@ -197,13 +196,7 @@ class credentialServiceTest {
 
         val vcStr = readVerifiableCredential("vc-simple-example")
         val vc = Json.decodeFromString<VerifiableCredential>(vcStr)
-        val vpIn = VerifiablePresentation(
-            listOf("https://www.w3.org/2018/credentials/v1"),
-            "id",
-            listOf("VerifiablePresentation"),
-            listOf(vc, vc),
-            null
-        )
+        val vpIn = VerifiablePresentation(listOf("https://www.w3.org/2018/credentials/v1"), "id", listOf("VerifiablePresentation"), listOf(vc, vc), null)
         val vpInputStr = Json { prettyPrint = true }.encodeToString(vpIn)
 
         print(vpInputStr)

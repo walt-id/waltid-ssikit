@@ -1,7 +1,17 @@
 package org.letstrust.services.essif
 
+import com.nimbusds.jose.jwk.ECKey
+import com.nimbusds.jwt.JWTClaimsSet
+import com.nimbusds.jwt.SignedJWT
 import mu.KotlinLogging
 import org.letstrust.common.readEssif
+import org.letstrust.common.toParamMap
+import org.letstrust.services.did.DidService
+import org.letstrust.services.essif.mock.DidRegistry
+import org.letstrust.services.jwt.JwtService
+import org.letstrust.services.key.KeyService
+import java.time.Instant
+import java.util.*
 
 object EnterpriseWalletService {
 
@@ -10,6 +20,48 @@ object EnterpriseWalletService {
 //    val didUrlRp by lazy {
 //        DidService.create(DidMethod.web)
 //    }
+
+
+    fun constructAuthResponseJwt(did: String, redirectUri: String, nonce: String): String {
+
+        //val kid = "$did#key-1"
+        val kid = DidService.loadDidEbsi(did).authentication!![0]
+        val key = KeyService.toJwk(did, false, kid)
+        val thumbprint = key.computeThumbprint().toString()
+
+        val payload = JWTClaimsSet.Builder()
+            .issuer("https://self-issued.me")
+            .audience(redirectUri)
+            .subject(thumbprint)
+            .issueTime(Date.from(Instant.now()))
+            .expirationTime(Date.from(Instant.now().plusSeconds(300)))
+            .claim("nonce", nonce)
+            .claim("sub_jwk", key.toJSONObject())
+            .build().toString()
+
+        val jwt = JwtService.sign(kid, payload)
+
+        log.debug { "JWT: $jwt" }
+
+        val jwtToVerify = SignedJWT.parse(jwt)
+        log.debug { jwtToVerify.header }
+        log.debug { jwtToVerify.payload }
+
+        JwtService.verify(jwt).let { if (!it) throw IllegalStateException("Generated JWK not valid") }
+
+        val authResponseJwt = "$redirectUri#id_token=$jwt"
+        log.debug { "AuthResponse JWT: $authResponseJwt" }
+        return authResponseJwt
+    }
+
+    fun parseDidAuthRequest(authResp: AuthRequestResponse): DidAuthRequest {
+        val paramString = authResp.session_token.substringAfter("openid://?")
+        val pm = toParamMap(paramString)
+        return DidAuthRequest(pm["response_type"]!!, pm["client_id"]!!, pm["scope"]!!, pm["nonce"]!!, pm["request"]!!)
+    }
+
+
+    // TODO consider the following stubs
 
     fun createDid(): String {
         return UserWalletService.createDid()

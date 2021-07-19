@@ -5,6 +5,7 @@ import java.security.PrivateKey
 import java.security.PublicKey
 import java.security.SignatureSpi
 
+
 open class LtSignature(val algorithm: String) : SignatureSpi() {
 
     class SHA1withECDSA : LtSignature("SHA1withECDSA")
@@ -22,7 +23,7 @@ open class LtSignature(val algorithm: String) : SignatureSpi() {
     val cryptoService = CryptoService.getService()
 
     override fun engineInitVerify(publicKey: PublicKey?) {
-        TODO("Not yet implemented")
+        keyId = (publicKey as PublicKeyHandle).keyId
     }
 
     override fun engineInitSign(privateKey: PrivateKey?) {
@@ -44,7 +45,7 @@ open class LtSignature(val algorithm: String) : SignatureSpi() {
     }
 
     override fun engineVerify(sigBytes: ByteArray?): Boolean {
-        TODO("Not yet implemented")
+        return cryptoService.verify(keyId!!, sigBytes!!, b!!)
     }
 
     override fun engineSetParameter(param: String?, value: Any?) {

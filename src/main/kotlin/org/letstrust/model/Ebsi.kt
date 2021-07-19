@@ -2,6 +2,7 @@
 
 package org.letstrust.model
 
+import com.nimbusds.jose.jwk.ECKey
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -211,8 +212,20 @@ data class AuthenticationResponseVerifiedClaims(
 @Serializable
 data class AccessTokenResponse(
     val ake1_enc_payload: String,
+    val ake1_sig_payload: AkeSigPayload,
     val ake1_jws_detached: String,
     val did: String
+)
+
+
+@Serializable
+data class AkeSigPayload(
+    val iss: String,
+    val did: String,
+    val iat: Long,
+    val exp: Long,
+    val ake1_nonce: String,
+    val ake1_enc_payload: String
 )
 
 @Serializable
@@ -227,6 +240,21 @@ data class Ake1JwsDetached(
     val ake1_enc_payload: String,
     val did: String
 )
+
+@Serializable
+data class EncryptedPayload(
+    val iv: String,
+    val ephemPublicKey: String,
+    val mac: String,
+    val cipherText: String)
+
+
+data class EncryptedAke1Payload(
+    val iv: ByteArray,
+    val ephemPublicKey: ECKey,
+    val mac: ByteArray,
+    val cipherText: ByteArray)
+
 
 @Serializable
 data class AccessTokenHeader(

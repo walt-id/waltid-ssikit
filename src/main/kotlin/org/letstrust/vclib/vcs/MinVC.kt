@@ -8,4 +8,12 @@ data class MinVC(
     @SerialName("@context")
     override val context: List<String>,
     override val type: List<String>
-) : VC
+) : VC {
+    override fun issuer(): String {
+        TODO("Not yet implemented")
+    }
+
+    override fun holder(): String {
+        TODO("Not yet implemented")
+    }
+}

@@ -9,6 +9,7 @@
   ],
   "issuer": "XXX",
   "issuanceDate": "2021-12-03T10:15:30Z",
+  "expirationDate": "2023-12-03T10:15:30Z",
   "credentialSubject": {
     "id": "XXX",
     "authorizationClaims": [

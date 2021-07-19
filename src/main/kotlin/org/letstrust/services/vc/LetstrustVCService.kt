@@ -14,11 +14,10 @@ import org.json.JSONObject
 import org.letstrust.LetsTrustServices
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.LdSigner
-import org.letstrust.crypto.SignatureType
 import org.letstrust.services.keystore.KeyStoreService
 import org.letstrust.model.*
-import org.letstrust.vclib.VcLibManager
-import org.letstrust.vclib.vcs.Europass
+import org.letstrust.model.Proof
+import org.letstrust.vclib.vcs.*
 import java.io.File
 import java.net.URI
 import java.nio.file.Files
@@ -41,9 +40,10 @@ open class LetstrustVCService : VCService() {
     override fun sign(
         issuerDid: String,
         jsonCred: String,
-        domain: String?,
-        nonce: String?,
-        verificationMethod: String?
+        domain: String? = null,
+        nonce: String? = null,
+        verificationMethod: String? = null,
+        proofPurpose: String? = null
     ): String {
         log.debug { "Signing jsonLd object with: issuerDid ($issuerDid), domain ($domain), nonce ($nonce)" }
 
@@ -69,6 +69,8 @@ open class LetstrustVCService : VCService() {
         signer.domain = domain
         signer.nonce = nonce
         verificationMethod?.let { signer.verificationMethod = URI.create(verificationMethod) }
+        signer.proofPurpose = proofPurpose
+
 
         val proof = signer.sign(jsonLdObject)
 
@@ -189,47 +191,50 @@ open class LetstrustVCService : VCService() {
     override fun verifyVc(vc: String): Boolean {
         log.debug { "Verifying VC:\n$vc" }
 
-        val vcObj = Json.decodeFromString<VerifiableCredential>(vc)
+        //val vcObj = Json.decodeFromString<VerifiableCredential>(vc)
+        val vcObj = VC.decode(vc)
         log.trace { "VC decoded: $vcObj" }
 
-        val signatureType = SignatureType.valueOf(vcObj.proof!!.type)
-        log.debug { "Issuer: ${vcObj.issuer}" }
-        log.debug { "Signature type: $signatureType" }
+//        val signatureType = SignatureType.valueOf(vcObj.proof!!.type)
+//        log.debug { "Issuer: ${vcObj.issuer}" }
+//        log.debug { "Signature type: $signatureType" }
 
-        val vcVerified = verifyVc(vcObj.issuer, vc)
+        val vcVerified = verifyVc(vcObj.issuer(), vc)
         log.debug { "Verification of LD-Proof returned: $vcVerified" }
         return vcVerified
     }
 
-    override fun verifyVp(vp: String): Boolean {
-        log.debug { "Verifying VP:\n$vp" }
+    override fun verifyVp(vpStr: String): Boolean {
+        log.debug { "Verifying VP:\n$vpStr" }
 
-        val vpObj = Json.decodeFromString<VerifiablePresentation>(vp)
-        log.trace { "VC decoded: $vpObj" }
+        // val vpObj = Json.decodeFromString<VerifiablePresentation>(vp)
+        val vp = VC.decode(vpStr)
+        log.trace { "VC decoded: $vp" }
 
-        val signatureType = SignatureType.valueOf(vpObj.proof!!.type)
-        val presenter = vpObj.proof.creator!!
-        log.debug { "Presenter: $presenter" }
-        log.debug { "Signature type: $signatureType" }
 
-        val vpVerified = verifyVc(presenter, vp)
+//        val signatureType = SignatureType.valueOf(vpObj.proof!!.type)
+//        val presenter = vpObj.proof.creator!!
+//        log.debug { "Presenter: $presenter" }
+//        log.debug { "Signature type: $signatureType" }
+//
+        val vpVerified = verifyVc(vp.issuer(), vpStr)
         log.debug { "Verification of VP-Proof returned: $vpVerified" }
+//
+//        // TODO remove legacy verifiableCredential
+//        val (vcStr, issuer) = if (vpObj.verifiableCredential != null) {
+//            val vc = vpObj.verifiableCredential.get(0)
+//            Pair(vc.encodePretty(), vc.issuer)
+//        } else {
+//            val vc = vpObj.vc!!.get(0)
+//            Pair(Json.encodeToString(vc), vc.issuer!!)
+//        }
 
-        // TODO remove legacy verifiableCredential
-        val (vcStr, issuer) = if (vpObj.verifiableCredential != null) {
-            val vc = vpObj.verifiableCredential.get(0)
-            Pair(vc.encodePretty(), vc.issuer)
-        } else {
-            val vc = vpObj.vc!!.get(0)
-            Pair(Json.encodeToString(vc), vc.issuer!!)
-        }
+//        log.debug { "Verifying VC:\n$vp" }
+//        val vcVerified = verifyVc(vp.issuer(), vpStr)
 
-        log.debug { "Verifying VC:\n$vcStr" }
-        val vcVerified = verifyVc(issuer, vcStr)
+//        log.debug { "Verification of VC-Proof returned: $vcVerified" }
 
-        log.debug { "Verification of VC-Proof returned: $vpVerified" }
-
-        return vpVerified && vcVerified
+        return vpVerified // TODO add vc verification && vcVerified
     }
 
 //    fun verify_old(issuerDid: String, vc: String, signatureType: SignatureType): Boolean {
@@ -263,34 +268,56 @@ open class LetstrustVCService : VCService() {
 //        return verifier.verify(jsonLdObject)
 //    }
 
-    override fun present(vc: String, domain: String?, challenge: String?): String {
-        log.debug { "Creating a presentation for VC:\n$vc" }
+    override fun present(vcStr: String, domain: String? = null, challenge: String? = null): String {
+        log.debug { "Creating a presentation for VC:\n$vcStr" }
 
-        val (vpReqStr, holderDid) = try {
-            val eurpass = VcLibManager.getVerifiableCredential(vc) as Europass
-            val vpReq = VerifiablePresentation(
+//        val (vpReqStr, holderDid) = try {
+//            val eurpass = VC.decode(vc) as Europass
+//            val vpReq = VerifiablePresentation(listOf("https://www.w3.org/2018/credentials/v1"), "id", listOf("VerifiablePresentation"), null, listOf(eurpass), null)
+//            val vpReqStr = Json { prettyPrint = true }.encodeToString(vpReq)
+//            Pair(vpReqStr, eurpass.credentialSubject!!.id!!)
+//        } catch (e: IllegalArgumentException) {
+//            // TODO: get rid of legacy code
+//            val vc = Json.decodeFromString<VerifiableCredential>(vc)
+//            val vpReq = VerifiablePresentation(listOf("https://www.w3.org/2018/credentials/v1"), "id", listOf("VerifiablePresentation"), listOf(vc), null)
+//            val vpReqStr = Json { prettyPrint = true }.encodeToString(vpReq)
+//            log.trace { "VP request:\n$vpReq" }
+//            Pair(vpReqStr, (vc.credentialSubject.id ?: vc.credentialSubject.did)!!)
+//        }
+
+
+        val vc = VC.decode(vcStr)
+
+        val vpReqStr = when {
+            vc is Europass -> EuropassVP(
                 listOf("https://www.w3.org/2018/credentials/v1"),
-                "id",
                 listOf("VerifiablePresentation"),
                 null,
-                listOf(eurpass),
-                null
-            )
-            val vpReqStr = Json { prettyPrint = true }.encodeToString(vpReq)
-            Pair(vpReqStr, eurpass.credentialSubject!!.id!!)
-        } catch (e: IllegalArgumentException) {
-            // TODO: get rid of legacy code
-            val vc = Json.decodeFromString<VerifiableCredential>(vc)
-            val vpReq = VerifiablePresentation(
-                listOf("https://www.w3.org/2018/credentials/v1"),
-                "id",
-                listOf("VerifiablePresentation"),
                 listOf(vc),
                 null
-            )
-            val vpReqStr = Json { prettyPrint = true }.encodeToString(vpReq)
-            log.trace { "VP request:\n$vpReq" }
-            Pair(vpReqStr, (vc.credentialSubject.id ?: vc.credentialSubject.did)!!)
+            ).encode()
+            vc is PermanentResidentCard -> PermanentResidentCardVP(
+                listOf("https://www.w3.org/2018/credentials/v1"),
+                listOf("VerifiablePresentation"),
+                null,
+                listOf(vc),
+                null
+            ).encode()
+            vc is EbsiVerifiableAttestation -> EbsiVerifiableAttestationVP(
+                listOf("https://www.w3.org/2018/credentials/v1"),
+                listOf("VerifiablePresentation"),
+                null,
+                listOf(vc),
+                null
+            ).encode()
+            vc is EbsiVerifiableAuthorisation -> EbsiVerifiableAuthorisationVP(
+                listOf("https://www.w3.org/2018/credentials/v1"),
+                listOf("VerifiablePresentation"),
+                null,
+                listOf(vc),
+                null
+            ).encode()
+            else -> throw IllegalArgumentException("VC type not supported")
         }
 
         log.trace { "VP request:\n$vpReqStr" }
@@ -301,7 +328,7 @@ open class LetstrustVCService : VCService() {
 //            throw Exception("Could not load authentication key for $holderDid")
 //        }
 
-        val vp = sign(holderDid, vpReqStr, domain, challenge)
+        val vp = sign(vc.holder(), vpReqStr, domain, challenge)
         log.debug { "VP created:$vp" }
         return vp
     }
@@ -336,6 +363,6 @@ open class LetstrustVCService : VCService() {
             .map { it.fileName.toString().replace("vc-template-", "").replace(".json", "") }.toList()
     }
 
-    override fun loadTemplate(name: String): String = File("templates/vc-template-$name.json").readText()
-
+    //TODO: fix typed response: fun loadTemplate(name: String): VerifiableCredential = Json.decodeFromString(File("templates/vc-template-$name.json").readText())
+    fun loadTemplate(name: String): String = File("templates/vc-template-$name.json").readText()
 }
