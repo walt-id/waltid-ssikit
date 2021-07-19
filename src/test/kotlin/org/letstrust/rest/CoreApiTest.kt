@@ -57,20 +57,6 @@ class CoreApiTest {
         expectSuccess = false
     }
 
-    companion object {
-        @BeforeClass
-        @JvmStatic
-        fun startServer() {
-            RestAPI.startCoreApi(7003)
-        }
-
-        @AfterClass
-        @JvmStatic
-        fun teardown() {
-            RestAPI.stopCoreApi()
-        }
-    }
-
     fun get(path: String): HttpResponse = runBlocking {
         val response: HttpResponse = client.get("$CORE_API_URL$path") {
             headers {

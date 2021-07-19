@@ -3,9 +3,8 @@ package org.letstrust.services.essif
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
-import org.letstrust.LetsTrustServices
 import org.letstrust.crypto.*
-import org.letstrust.crypto.keystore.KeyStore
+import org.letstrust.services.keystore.KeyStoreService
 import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.test.assertEquals
@@ -19,7 +18,7 @@ class DidEbsiServiceTest {
         private val DID_FILENAME = DID.replace(":", "-") + ".json"
     }
 
-    private val ks = LetsTrustServices.load<KeyStore>()
+    private val keyStore = KeyStoreService.getService()
     private val key = buildKey(
         KEY_ID.id,
         KeyAlgorithm.ECDSA_Secp256k1.name,
@@ -34,15 +33,15 @@ class DidEbsiServiceTest {
             Path.of("src", "test", "resources", "ebsi", DID_FILENAME),
             Path.of("data", "did", "created", DID_FILENAME)
         )
-        ks.store(key)
-        ks.addAlias(KEY_ID, DID)
-        ks.addAlias(KEY_ID, "$DID#key-1")
+        keyStore.store(key)
+        keyStore.addAlias(KEY_ID, DID)
+        keyStore.addAlias(KEY_ID, "$DID#key-1")
     }
 
     @After
     fun clean() {
         Files.delete(Path.of("data", "did", "created", DID_FILENAME))
-        ks.delete(KEY_ID.id)
+        keyStore.delete(KEY_ID.id)
     }
 
     @Test

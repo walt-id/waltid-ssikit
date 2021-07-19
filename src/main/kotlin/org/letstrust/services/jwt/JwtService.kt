@@ -28,7 +28,7 @@ object JwtService {
         .keyID(keyId)
         .generate()
     
-    val keyService = KeyService.getService()
+    private val keyService = KeyService.getService()
 
 
     fun encrypt(

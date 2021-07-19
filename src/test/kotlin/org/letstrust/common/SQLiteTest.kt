@@ -6,10 +6,13 @@ import org.junit.Before
 import org.junit.Test
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.services.key.KeyService
+import org.letstrust.services.keystore.KeyType
 import java.security.Security
 import kotlin.test.assertEquals
 
 class SQLiteTest {
+    val keyService = KeyService.getService()
+
     @Before
     fun setup() {
         Security.addProvider(BouncyCastleProvider())
@@ -17,10 +20,8 @@ class SQLiteTest {
 
     @Test
     fun createKeyStoreDb() {
-
-        val kms = KeyService
-        val keyId = kms.generate(KeyAlgorithm.ECDSA_Secp256k1)
-        val key = kms.load(keyId.id, true)
+        val keyId = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val key = keyService.load(keyId.id, KeyType.PRIVATE)
         val db = SqlDbManager
         val pubKeyStr = Base64.encode(key.getPublicKey().encoded).toString()
 

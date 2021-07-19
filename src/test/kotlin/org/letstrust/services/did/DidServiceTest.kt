@@ -15,6 +15,7 @@ import kotlin.test.assertTrue
 class DidServiceTest {
 
     private val RESOURCES_PATH: String = "src/test/resources"
+    private val keyService = KeyService.getService()
 
     fun readExampleDid(fileName: String) =
         File("$RESOURCES_PATH/dids/${fileName}.json").readText(Charsets.UTF_8)
@@ -75,7 +76,7 @@ class DidServiceTest {
     fun createDidEbsiTest() {
 
         // Create
-        val keyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val keyId = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
         val did = ds.create(DidMethod.ebsi, keyId.id)
         println(did)
         val didUrl = DidUrl.from(did)

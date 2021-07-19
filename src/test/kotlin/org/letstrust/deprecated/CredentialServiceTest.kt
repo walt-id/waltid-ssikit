@@ -22,6 +22,7 @@ import org.letstrust.model.DidMethod
 import org.letstrust.model.VerifiableCredential
 import org.letstrust.model.VerifiablePresentation
 import org.letstrust.services.did.DidService
+import org.letstrust.services.key.KeyService
 import org.letstrust.services.vc.VCService
 import java.io.File
 import java.net.URI
@@ -33,6 +34,8 @@ import kotlin.test.assertTrue
 class CredentialServiceTest {
 
     private val credentialService = VCService.getService()
+    private val keyService = KeyService.getService()
+
     private val RESOURCES_PATH: String = "src/test/resources"
 
     fun readCredOffer(fileName: String) =
@@ -134,7 +137,7 @@ class CredentialServiceTest {
 
         val vcVerified = credentialService.verifyVc(issuerDid, vc)
         assertTrue(vcVerified)
-        KeyService.delete(issuerDid)
+        keyService.delete(issuerDid)
     }
 
     @Test
@@ -152,7 +155,7 @@ class CredentialServiceTest {
 
         val vcVerified = credentialService.verifyVc(issuerDid, vc)
         assertTrue(vcVerified)
-        KeyService.delete(issuerDid)
+        keyService.delete(issuerDid)
     }
 
     @Test
@@ -177,7 +180,7 @@ class CredentialServiceTest {
 
         val credOffer = readCredOffer("PermanentResidentCard")
 
-        val keyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val keyId = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
         val domain = "example.com"
         val nonce: String? = null
 
@@ -187,7 +190,7 @@ class CredentialServiceTest {
 
         val vcVerified = credentialService.verifyVc(keyId.id, vc)
         assertTrue(vcVerified)
-        KeyService.delete(keyId.id)
+        keyService.delete(keyId.id)
     }
 
     @Test

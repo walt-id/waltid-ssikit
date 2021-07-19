@@ -14,7 +14,7 @@ import kotlin.test.assertNotNull
 
 open class KeyStoreServiceTest {
 
-    val kms = KeyService
+    private val keyService = KeyService.getService()
 
     init {
         Security.addProvider(BouncyCastleProvider())
@@ -36,44 +36,44 @@ open class KeyStoreServiceTest {
 
     @Test
     open fun addAliasTest() {
-        val keyId = kms.generate(KeyAlgorithm.EdDSA_Ed25519)
+        val keyId = keyService.generate(KeyAlgorithm.EdDSA_Ed25519)
         val testAlias = UUID.randomUUID().toString()
-        kms.addAlias(keyId, testAlias)
-        val k1 = kms.load(testAlias, true)
+        keyService.addAlias(keyId, testAlias)
+        val k1 = keyService.load(testAlias, KeyType.PRIVATE)
         assertNotNull(k1)
-        val k2 = kms.load(keyId.id, true)
+        val k2 = keyService.load(keyId.id, KeyType.PRIVATE)
         assertNotNull(k2)
         assertEquals(k2.getPublicKey().encoded.contentToString(), k1.getPublicKey().encoded.contentToString())
     }
 
     @Test
     open fun saveLoadEd25519KeysTest() {
-        val keyId = kms.generate(KeyAlgorithm.EdDSA_Ed25519)
-        val key = kms.load(keyId.id, true)
+        val keyId = keyService.generate(KeyAlgorithm.EdDSA_Ed25519)
+        val key = keyService.load(keyId.id, KeyType.PRIVATE)
         assertEquals(48, key.keyPair!!.private.encoded.size)
     }
 
     @Test
     open fun saveLoadSecp256k1KeysTest() {
-        val keyId = kms.generate(KeyAlgorithm.ECDSA_Secp256k1)
-        val key = kms.load(keyId.id, true)
+        val keyId = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val key = keyService.load(keyId.id, KeyType.PRIVATE)
         assertEquals(88, key.keyPair!!.public.encoded.size)
         assertEquals(144, key.keyPair!!.private.encoded.size)
     }
 
     @Test
     fun listKeysTest() {
-        var keyId = kms.generate(KeyAlgorithm.ECDSA_Secp256k1)
-        kms.listKeys().forEach {
+        var keyId = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        keyService.listKeys().forEach {
             println("key $it")
         }
     }
 
     @Test
     open fun deleteKeysTest() {
-        val keyId = kms.generate(KeyAlgorithm.EdDSA_Ed25519)
-        var key = kms.load(keyId.id, true)
-        kms.delete(key.keyId.id)
-        assertFailsWith(Exception::class, "Key was not deleted correctly", block = { kms.load(keyId.id, true) })
+        val keyId = keyService.generate(KeyAlgorithm.EdDSA_Ed25519)
+        var key = keyService.load(keyId.id, KeyType.PRIVATE)
+        keyService.delete(key.keyId.id)
+        assertFailsWith(Exception::class, "Key was not deleted correctly", block = { keyService.load(keyId.id, KeyType.PRIVATE) })
     }
 }

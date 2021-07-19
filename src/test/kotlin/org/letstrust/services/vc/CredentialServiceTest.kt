@@ -36,17 +36,17 @@ class CredentialServiceTest {
 
     fun genericSignVerify(issuerDid: String, credOffer: String) {
 
-        val vcStr = CredentialService.sign(issuerDid, credOffer)
+        val vcStr = credentialService.sign(issuerDid, credOffer)
         println("Credential generated: $vcStr")
 
         val vc = VC.decode(vcStr)
         println("Credential decoded: $vc")
 
-        val vcVerified = CredentialService.verify(vcStr)
+        val vcVerified = credentialService.verify(vcStr)
         assertTrue(vcVerified.verified)
-        assertEquals(CredentialService.VerificationType.VERIFIABLE_CREDENTIAL,vcVerified.verificationType)
+        assertEquals(VerificationType.VERIFIABLE_CREDENTIAL,vcVerified.verificationType)
 
-        val vpStr = CredentialService.present(vcStr, "domain.com", "nonce")
+        val vpStr = credentialService.present(vcStr, "domain.com", "nonce")
         println("Presentation generated: $vpStr")
 
         // TODO FIX
@@ -55,9 +55,9 @@ class CredentialServiceTest {
 //        assertEquals("domain.com", vp.proof?.domain)
 //        assertEquals("nonce", vp.proof?.nonce)
 
-        val vpVerified = CredentialService.verify(vpStr)
+        val vpVerified = credentialService.verify(vpStr)
         assertTrue(vpVerified.verified)
-        assertEquals(CredentialService.VerificationType.VERIFIABLE_PRESENTATION, vpVerified.verificationType)
+        assertEquals(VerificationType.VERIFIABLE_PRESENTATION, vpVerified.verificationType)
     }
 
     @Test
@@ -108,7 +108,7 @@ class CredentialServiceTest {
     fun presentVa() {
         val vaStr = File("$VC_PATH/vc-ebsi-verifiable-authorisation.json").readText()
 
-        val vp = CredentialService.present(vaStr, null, null)
+        val vp = credentialService.present(vaStr, null, null)
 
         println(vp)
     }
@@ -126,15 +126,15 @@ class CredentialServiceTest {
         template.credentialSubject!!.id = subjectDid
         template.learningAchievement!!.title!!.text!!.text = "Some Europass specific title"
 
-        val vc = CredentialService.sign(issuerDid, template.encode())
+        val vc = credentialService.sign(issuerDid, template.encode())
 
         val vcSigned = VC.decode(vc)
         println(vcSigned)
 
-        val vp = CredentialService.present(vc, domain, challenge)
+        val vp = credentialService.present(vc, domain, challenge)
         println("Presentation generated: $vp")
 
-        val vpVerified = CredentialService.verifyVp(vp)
+        val vpVerified = credentialService.verifyVp(vp)
         assertTrue(vpVerified)
 
     }

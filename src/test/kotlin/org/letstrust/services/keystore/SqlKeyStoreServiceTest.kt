@@ -2,6 +2,7 @@ package org.letstrust.services.keystore
 
 import org.junit.Test
 import org.letstrust.crypto.KeyAlgorithm
+import org.letstrust.services.key.KeyService
 import java.util.*
 import kotlin.test.BeforeTest
 import kotlin.test.assertEquals
@@ -9,16 +10,16 @@ import kotlin.test.assertNotNull
 
 class SqlKeyStoreServiceTest : KeyStoreServiceTest() {
 
-    val sqlKeyStoreService = SqlKeyStoreService()
+    private val sqlKeyStoreService = SqlKeyStoreService()
+    private val keyService = KeyService.getService()
 
     @BeforeTest
     fun setUp() {
-        kms.setKeyStore(sqlKeyStoreService)
     }
 
     @Test
     fun addAliasSqlApiTest() {
-        val keyId = kms.generate(KeyAlgorithm.EdDSA_Ed25519)
+        val keyId = keyService.generate(KeyAlgorithm.EdDSA_Ed25519)
         val alias = UUID.randomUUID().toString()
         sqlKeyStoreService.addAlias(keyId, alias)
         val k1 = sqlKeyStoreService.getKeyId(alias)
