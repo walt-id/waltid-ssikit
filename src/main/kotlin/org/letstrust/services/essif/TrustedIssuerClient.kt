@@ -6,17 +6,57 @@ import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.letstrust.LetsTrustServices
 import org.letstrust.common.readEssif
+import org.letstrust.model.AuthRequestResponse
 import org.letstrust.services.essif.mock.DidRegistry
 
 private val log = KotlinLogging.logger {}
 
-object EosService {
+object TrustedIssuerClient {
 
+    // TODO: move to config file
     val domain = "https://api.preprod.ebsi.eu"
     //val domain = "https://api.test.intebsi.xyz"
 
     val authorisation = "$domain/authorisation/v1"
     val onboarding = "$domain/users-onboarding/v1"
+    val trustedIssuerUrl = "http://localhost:7001/v2/trusted-issuer"
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Used for VC exchange flows
+
+    // Stubs
+//    fun generateAuthenticationRequest(): String {
+//        return EssifServer.generateAuthenticationRequest()
+//    }
+//
+//    fun openSession(authResp: String): String {
+//        return EssifServer.openSession(authResp)
+//    }
+
+    fun generateAuthenticationRequest(): String = runBlocking {
+        return@runBlocking LetsTrustServices.http.post<String>("$trustedIssuerUrl/generateAuthenticationRequest") {
+            contentType(ContentType.Application.Json)
+            headers {
+                append(HttpHeaders.Accept, "application/json")
+            }
+        }
+    }
+
+
+    fun openSession(authResp: String): String = runBlocking{
+        return@runBlocking LetsTrustServices.http.post<String>("$trustedIssuerUrl/openSession") {
+            contentType(ContentType.Application.Json)
+            headers {
+                append(HttpHeaders.Accept, "application/json")
+            }
+            body = authResp
+        }
+    }
+
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////
+    // Used for registering DID EBSI
 
     fun authenticationRequests(): AuthRequestResponse = runBlocking {
         return@runBlocking LetsTrustServices.http.post<AuthRequestResponse>("$onboarding/authentication-requests") {
@@ -50,7 +90,7 @@ object EosService {
         }
     }
 
-
+    ///////////////////////////////////////////////////////////////////////////////////////////////
     //TODO: the methods below are stubbed - to be considered
 
     // POST /onboards
@@ -77,7 +117,7 @@ object EosService {
         return verifiableAuthorization
     }
 
-    fun requestVerifiableCredential(credentialRequestUri: String): String {
+    fun requestVerifiableCredential(): String {
         println("4. [Eos] Request V.ID")
         return EnterpriseWalletService.generateDidAuthRequest()
     }
@@ -109,7 +149,7 @@ object EosService {
         return readEssif("onboarding-vid")
     }
 
-    fun getCredentials(isUserAuthenticated: Boolean = false): String {
+    fun getCredentials(isUserAuthenticated: Boolean): String {
         return if (isUserAuthenticated) {
             readEssif("vc-issuance-auth-req")
         } else {

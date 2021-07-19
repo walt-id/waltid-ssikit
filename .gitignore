@@ -25,3 +25,4 @@ keys/
 *.db
 /data-20210719/
 /docs/essif/*
+*.log

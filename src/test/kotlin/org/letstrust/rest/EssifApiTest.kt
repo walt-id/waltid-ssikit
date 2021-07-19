@@ -11,7 +11,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.AfterClass
 import org.junit.BeforeClass
 import org.junit.Test
-import org.letstrust.services.essif.AuthRequestResponse
+import org.letstrust.model.AuthRequestResponse
 import org.letstrust.services.essif.mock.RelyingParty
 import kotlin.test.assertEquals
 
