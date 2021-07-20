@@ -54,7 +54,13 @@ object VcLibManager {
 
     @OptIn(InternalSerializationApi::class)
     private fun getCredentialType(contexts: List<String>, types: List<String>): KClass<out VC> {
-        val vcTypes = listOf(VP::class, PermanentResidentCard::class, Europass::class, EbsiVerifiableAttestation::class, EbsiVerifiableAuthorisation::class)
+        val vcTypes = listOf(
+            VP::class,
+            PermanentResidentCard::class,
+            Europass::class,
+            EbsiVerifiableAttestation::class,
+            EbsiVerifiableAuthorisation::class
+        )
 
         val searchedContexts = contexts.minus(defaultContexts)
         val searchedTypes = types.minus(defaultTypes)

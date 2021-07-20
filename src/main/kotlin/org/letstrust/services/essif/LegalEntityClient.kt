@@ -8,9 +8,23 @@ import java.util.*
 data class AuthRequestResponse(val session_token: String)
 
 @Serializable
-data class DidAuthRequest(val reponse_type: String, val client_id: String, val scope: String, val nonce: String, val request: String)
+data class DidAuthRequest(
+    val reponse_type: String,
+    val client_id: String,
+    val scope: String,
+    val nonce: String,
+    val request: String
+)
 
-data class DidAuthRequestJwt(val scope: String, val iss: String, val response_type: String, val exp: Date, val iat: Date, val nonce: String, val client_id: String)
+data class DidAuthRequestJwt(
+    val scope: String,
+    val iss: String,
+    val response_type: String,
+    val exp: Date,
+    val iat: Date,
+    val nonce: String,
+    val client_id: String
+)
 
 
 @Serializable

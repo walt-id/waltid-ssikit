@@ -29,7 +29,11 @@ abstract class KeyService : BaseService() {
     open fun load(keyAlias: String): Key = implementation.load(keyAlias)
     open fun load(keyAlias: String, keyType: KeyType = KeyType.PUBLIC): Key = implementation.load(keyAlias, keyType)
 
-    open fun export(keyAlias: String, format: KeyFormat = KeyFormat.JWK, exportKeyType: KeyType = KeyType.PUBLIC): String =
+    open fun export(
+        keyAlias: String,
+        format: KeyFormat = KeyFormat.JWK,
+        exportKeyType: KeyType = KeyType.PUBLIC
+    ): String =
         implementation.export(keyAlias, format, exportKeyType)
 
     open fun import(jwkKeyStr: String): KeyId = implementation.import(jwkKeyStr)

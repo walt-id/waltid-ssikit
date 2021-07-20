@@ -21,6 +21,7 @@ open class KeyStoreServiceTest {
         ServiceMatrix("service-matrix.properties")
     }
 
+    /* ServiceLoader is deprecated, no longer used, and will be removed in a future version
     @Test
     fun serviceLoaderTest() {
         val loader = ServiceLoader.load(KeyStoreService::class.java)
@@ -32,7 +33,7 @@ open class KeyStoreServiceTest {
 
         val ksObject = FileSystemKeyStoreService
         println(ksObject)
-    }
+    }*/
 
     @Test
     open fun addAliasTest() {
@@ -74,6 +75,9 @@ open class KeyStoreServiceTest {
         val keyId = keyService.generate(KeyAlgorithm.EdDSA_Ed25519)
         var key = keyService.load(keyId.id, KeyType.PRIVATE)
         keyService.delete(key.keyId.id)
-        assertFailsWith(Exception::class, "Key was not deleted correctly", block = { keyService.load(keyId.id, KeyType.PRIVATE) })
+        assertFailsWith(
+            Exception::class,
+            "Key was not deleted correctly",
+            block = { keyService.load(keyId.id, KeyType.PRIVATE) })
     }
 }

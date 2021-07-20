@@ -10,6 +10,7 @@ enum class KeyType {
     PUBLIC,
     PRIVATE
 }
+
 abstract class KeyStoreService : BaseService() {
     override val implementation get() = ServiceRegistry.getService<KeyStoreService>()
 

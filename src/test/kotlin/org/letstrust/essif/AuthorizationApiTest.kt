@@ -2,7 +2,7 @@ package org.letstrust.essif
 
 class AuthorizationApiTest {
 
-   //TODO @Test
+    //TODO @Test
 //    fun testAuthApiFlow() {
 //       EssifFlowRunner.authApi()
 //    }

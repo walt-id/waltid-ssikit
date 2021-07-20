@@ -42,7 +42,6 @@ data class Essif(
 
 data class LetsTrustConfig(
     val env: String = "dev",
-    val keystore: Keystore,
     val essif: Essif?,
     val server: Server?,
     val cryptoProvider: CryptoProvider = CryptoProvider.SUN,

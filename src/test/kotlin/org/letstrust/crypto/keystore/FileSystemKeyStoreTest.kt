@@ -1,5 +1,6 @@
 package org.letstrust.crypto.keystore
 
+import id.walt.servicematrix.ServiceMatrix
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -19,6 +20,7 @@ open class FileSystemKeyStoreTest {//: KeyStoreTest() {
 
     @Before
     fun setUp() {
+        ServiceMatrix("service-matrix.properties")
         sunCryptoService.setKeyStore(fileSystemKeyStoreService)
     }
 

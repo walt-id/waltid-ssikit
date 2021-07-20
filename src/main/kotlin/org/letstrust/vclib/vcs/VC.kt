@@ -10,8 +10,8 @@ interface VC {
     val context: List<String>
     val type: List<String>
 
-    abstract fun issuer(): String
-    abstract fun holder(): String
+    fun issuer(): String
+    fun holder(): String
 
     companion object {
         fun decode(json: String): VC = VcLibManager.getVerifiableCredential(json)

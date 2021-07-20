@@ -7,8 +7,6 @@ import org.letstrust.services.essif.mock.RelyingParty
 import java.io.File
 
 
-
-
 object EssifFlowRunner {
 
     private val log = KotlinLogging.logger {}
@@ -54,7 +52,8 @@ object EssifFlowRunner {
         // Constructing and returning the DID Auth Response
         ///////////////////////////////////////////////////////////////////////////
 
-        val idToken = EnterpriseWalletService.constructAuthResponseJwt(did, didAuthRequest.client_id, didAuthRequest.nonce)
+        val idToken =
+            EnterpriseWalletService.constructAuthResponseJwt(did, didAuthRequest.client_id, didAuthRequest.nonce)
 
         val verifiableAuthorization = LegalEntityClient.eos.authenticationResponse(idToken, bearerToken)
 
@@ -67,8 +66,6 @@ object EssifFlowRunner {
         log.debug { "Writing Verifiable Authorization to file: ${verifiableAuthorizationFile.absolutePath}" }
 
         verifiableAuthorizationFile.writeText(verifiableAuthorization)
-
-
 
 
         ///////////////////////////////////////////////////////////////////////////
@@ -195,7 +192,7 @@ object EssifFlowRunner {
     // https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/2.+Authorization+API
     fun authApi(did: String) {
 
-        log.debug {"ESSIF Authorization API flow started" }
+        log.debug { "ESSIF Authorization API flow started" }
 
 //        ///////////////////////////////////////////////////////////////////////////
 //        // Prerequisite:

@@ -16,7 +16,6 @@ import org.letstrust.model.*
 import org.letstrust.services.crypto.CryptoService
 import org.letstrust.services.key.KeyService
 import org.letstrust.services.keystore.KeyStoreService
-import org.letstrust.services.keystore.KeyType
 import org.letstrust.services.vc.VCService
 import java.io.File
 import java.nio.file.Files
@@ -82,7 +81,8 @@ object DidService {
 
         log.debug { "Resolving DID $didUrl" }
 
-        val didDoc = LetsTrustServices.http.get<String>("https://api.preprod.ebsi.eu/did-registry/v2/identifiers/${didUrl.did}")
+        val didDoc =
+            LetsTrustServices.http.get<String>("https://api.preprod.ebsi.eu/did-registry/v2/identifiers/${didUrl.did}")
 
         log.debug { didDoc }
 
@@ -280,7 +280,7 @@ object DidService {
         return Triple(dhKeyId, verificationMethods, keyRef)
     }
 
-    public fun resolveDidWebDummy(didUrl: DidUrl): Did {
+    fun resolveDidWebDummy(didUrl: DidUrl): Did {
         log.warn { "DID WEB implementation is not finalized yet. Use it only for demo purpose." }
         keyStore.getKeyId(didUrl.did).let {
             keyStore.load(it!!).let {

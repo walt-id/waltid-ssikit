@@ -112,11 +112,12 @@ object DidEbsiService {
     fun buildInsertDocumentParams(did: String, ethKeyAlias: String? = null): List<InsertDidDocumentParams> {
         val didDocumentString = Json.encodeToString(DidService.loadDidEbsi(did))
 
-        val from = keyService.getEthereumAddress(ethKeyAlias?:did)
+        val from = keyService.getEthereumAddress(ethKeyAlias ?: did)
         val identifier = Numeric.toHexString(did.toByteArray())
         val hashValue = Numeric.toHexString(Hash.sha256(canonicalize(didDocumentString).toByteArray()))
         val didVersionInfo = Numeric.toHexString(didDocumentString.toByteArray())
-        val timestampData = Numeric.toHexString("{\"data\":\"test\"}".toByteArray()) // TODO: check what data needs to be put here
+        val timestampData =
+            Numeric.toHexString("{\"data\":\"test\"}".toByteArray()) // TODO: check what data needs to be put here
         val didVersionMetadata =
             Numeric.toHexString("{\"meta\":\"${Numeric.toHexStringNoPrefix(Random.Default.nextBytes(32))}\"}".toByteArray()) // TODO: check what data needs to be put here
 
@@ -183,6 +184,11 @@ object DidEbsiService {
             append(HttpHeaders.Accept, "application/json")
             append(HttpHeaders.Authorization, "Bearer $bearerToken")
         }
-        body = JsonRpcRequest("2.0", method, params, (0..999).random()) //TODO: consider ID value. is random the generation ok?
+        body = JsonRpcRequest(
+            "2.0",
+            method,
+            params,
+            (0..999).random()
+        ) //TODO: consider ID value. is random the generation ok?
     }
 }

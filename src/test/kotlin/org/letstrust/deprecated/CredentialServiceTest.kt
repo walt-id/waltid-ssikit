@@ -53,7 +53,8 @@ class CredentialServiceTest {
 
     //TOOD FIX @ signature-ld lib: the type in the proof is an ARRAY, rather than  a "type" : [ "Ed25519Signature2018" ],
 
-    val testEd25519PrivateKeyString = "984b589e121040156838303f107e13150be4a80fc5088ccba0b0bdc9b1d89090de8777a28f8da1a74e7a13090ed974d879bf692d001cddee16e4cc9f84b60580"
+    val testEd25519PrivateKeyString =
+        "984b589e121040156838303f107e13150be4a80fc5088ccba0b0bdc9b1d89090de8777a28f8da1a74e7a13090ed974d879bf692d001cddee16e4cc9f84b60580"
 
     val testEd25519PublicKeyString = "de8777a28f8da1a74e7a13090ed974d879bf692d001cddee16e4cc9f84b60580"
 
@@ -198,7 +199,13 @@ class CredentialServiceTest {
 
         val vcStr = readVerifiableCredential("vc-simple-example")
         val vc = Json.decodeFromString<VerifiableCredential>(vcStr)
-        val vpIn = VerifiablePresentation(listOf("https://www.w3.org/2018/credentials/v1"), "id", listOf("VerifiablePresentation"), listOf(vc, vc), null)
+        val vpIn = VerifiablePresentation(
+            listOf("https://www.w3.org/2018/credentials/v1"),
+            "id",
+            listOf("VerifiablePresentation"),
+            listOf(vc, vc),
+            null
+        )
         val vpInputStr = Json { prettyPrint = true }.encodeToString(vpIn)
 
         print(vpInputStr)

@@ -44,7 +44,7 @@ class CredentialServiceTest {
 
         val vcVerified = credentialService.verify(vcStr)
         assertTrue(vcVerified.verified)
-        assertEquals(VerificationType.VERIFIABLE_CREDENTIAL,vcVerified.verificationType)
+        assertEquals(VerificationType.VERIFIABLE_CREDENTIAL, vcVerified.verificationType)
 
         val vpStr = credentialService.present(vcStr, "domain.com", "nonce")
         println("Presentation generated: $vpStr")
@@ -112,6 +112,7 @@ class CredentialServiceTest {
 
         println(vp)
     }
+
     @Test
     fun presentEuropassTest() {
 
@@ -191,7 +192,6 @@ class CredentialServiceTest {
         val vcVerified = credentialService.verifyVc(issuerDid, vc)
         assertTrue(vcVerified)
     }
-
 
 
     @Test
@@ -298,7 +298,13 @@ class CredentialServiceTest {
 
         val vcVerified = credentialService.verifyVc(issuerDid, vcInvalidStr)
 
-        val vpIn = VerifiablePresentation(listOf("https://www.w3.org/2018/credentials/v1"), "id", listOf("VerifiablePresentation"), listOf(vcInvalid), null)
+        val vpIn = VerifiablePresentation(
+            listOf("https://www.w3.org/2018/credentials/v1"),
+            "id",
+            listOf("VerifiablePresentation"),
+            listOf(vcInvalid),
+            null
+        )
         val vpInputStr = Json { prettyPrint = true }.encodeToString(vpIn)
 
         print(vpInputStr)

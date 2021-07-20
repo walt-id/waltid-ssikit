@@ -264,10 +264,10 @@ fun canonicalize(json: String): String =
     mapper.writeValueAsString(mapper.readTree(json))
 
 fun uncompressSecp256k1(compKey: ByteArray?): ECKey? {
-    val point: ECPoint = ECNamedCurveTable.getParameterSpec(Curve.SECP256K1.name).getCurve().decodePoint(compKey)
+    val point: ECPoint = ECNamedCurveTable.getParameterSpec(Curve.SECP256K1.name).curve.decodePoint(compKey)
 
-    val x: ByteArray = point.getXCoord().getEncoded()
-    val y: ByteArray = point.getYCoord().getEncoded()
+    val x: ByteArray = point.xCoord.encoded
+    val y: ByteArray = point.yCoord.encoded
 
     return ECKey.Builder(Curve.SECP256K1, Base64URL.encode(x), Base64URL.encode(y)).build()
 }

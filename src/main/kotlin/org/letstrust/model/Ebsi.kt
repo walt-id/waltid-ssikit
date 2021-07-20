@@ -246,14 +246,16 @@ data class EncryptedPayload(
     val iv: String,
     val ephemPublicKey: String,
     val mac: String,
-    val cipherText: String)
+    val cipherText: String
+)
 
 
 data class EncryptedAke1Payload(
     val iv: ByteArray,
     val ephemPublicKey: ECKey,
     val mac: ByteArray,
-    val cipherText: ByteArray)
+    val cipherText: ByteArray
+)
 
 
 @Serializable

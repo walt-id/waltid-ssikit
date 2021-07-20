@@ -4,7 +4,7 @@ import java.security.interfaces.ECPublicKey
 import java.security.spec.ECParameterSpec
 import java.security.spec.ECPoint
 
-class PublicKeyHandle(val keyId: KeyId, val publicKey: ECPublicKey): ECPublicKey {
+class PublicKeyHandle(val keyId: KeyId, val publicKey: ECPublicKey) : ECPublicKey {
     override fun getAlgorithm(): String =
         publicKey.algorithm
 

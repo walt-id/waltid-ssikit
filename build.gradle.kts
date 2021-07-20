@@ -44,7 +44,7 @@ dependencies {
 
     // JSON
     implementation("org.json:json:20210307")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
 
     // DB
     implementation("org.xerial:sqlite-jdbc:3.36.0.1")
@@ -79,15 +79,27 @@ dependencies {
     implementation("com.sksamuel.hoplite:hoplite-hikaricp:1.4.3")
 
     // Service-Matrix
-    implementation("id.walt.servicematrix:WaltID-ServiceMatrix:1.0.2-SNAPSHOT")
+    implementation("id.walt.servicematrix:WaltID-ServiceMatrix:1.0.1")
+
+    // Kotlin
+    implementation(kotlin("stdlib"))
 
     // Testing
     testImplementation(kotlin("test-junit"))
+
+    //testImplementation("io.kotest:kotest-runner-junit5:4.6.0")
+    //testImplementation("io.kotest:kotest-assertions-core:4.6.0")
 }
 
 tasks.test {
     useJUnit()
 }
+
+/*
+tasks.withType<Test> {
+    useJUnitPlatform()
+}
+ */
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "13"

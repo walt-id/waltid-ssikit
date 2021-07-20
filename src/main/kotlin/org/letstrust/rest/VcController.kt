@@ -88,7 +88,14 @@ object VcController {
     )
     fun create(ctx: Context) {
         val createVcReq = ctx.bodyAsClass(CreateVcRequest::class.java)
-        ctx.result(credentialService.sign(createVcReq.issuerDid!!, createVcReq.credentialOffer!!, createVcReq.domain, createVcReq.nonce))
+        ctx.result(
+            credentialService.sign(
+                createVcReq.issuerDid!!,
+                createVcReq.credentialOffer!!,
+                createVcReq.domain,
+                createVcReq.nonce
+            )
+        )
     }
 
     @OpenApi(
@@ -170,7 +177,10 @@ object VcController {
         operationId = "listTemplates",
         tags = ["Verifiable Credentials"],
         responses = [
-            OpenApiResponse("200", content = [OpenApiContent(from = String::class, isArray = true, type = "application/json")]),
+            OpenApiResponse(
+                "200",
+                content = [OpenApiContent(from = String::class, isArray = true, type = "application/json")]
+            ),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
             OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
@@ -189,7 +199,11 @@ object VcController {
         responses = [
             //TODO: FIX:  Cannot invoke "io.swagger.v3.oas.models.media.Schema.getName()" because "subtypeModel" is null
             // OpenApiResponse("200", [OpenApiContent(VerifiableCredential::class, type = "application/json")], "Verifiable credential template"),
-            OpenApiResponse("200", [OpenApiContent(String::class, type = "application/json")], "Verifiable credential template"),
+            OpenApiResponse(
+                "200",
+                [OpenApiContent(String::class, type = "application/json")],
+                "Verifiable credential template"
+            ),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
             OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]

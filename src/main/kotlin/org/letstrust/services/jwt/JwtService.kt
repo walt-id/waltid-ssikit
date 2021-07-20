@@ -27,7 +27,7 @@ object JwtService {
     val encKey: OctetKeyPair = OctetKeyPairGenerator(Curve.X25519)
         .keyID(keyId)
         .generate()
-    
+
     private val keyService = KeyService.getService()
 
 
@@ -98,13 +98,19 @@ object JwtService {
 
         val jwt = when (issuerKey.algorithm) {
             KeyAlgorithm.EdDSA_Ed25519 -> {
-                var jwt = SignedJWT(JWSHeader.Builder(JWSAlgorithm.EdDSA).keyID(keyAlias).type(JOSEObjectType.JWT).build(), claimsSet)
+                var jwt = SignedJWT(
+                    JWSHeader.Builder(JWSAlgorithm.EdDSA).keyID(keyAlias).type(JOSEObjectType.JWT).build(),
+                    claimsSet
+                )
                 //jwt.sign(Ed25519Signer(issuerKey.toOctetKeyPair()))
                 jwt.sign(LdSigner.JwsLtSigner(issuerKey.keyId))
                 jwt
             }
             KeyAlgorithm.ECDSA_Secp256k1 -> {
-                val jwt = SignedJWT(JWSHeader.Builder(JWSAlgorithm.ES256K).keyID(keyAlias).type(JOSEObjectType.JWT).build(), claimsSet)
+                val jwt = SignedJWT(
+                    JWSHeader.Builder(JWSAlgorithm.ES256K).keyID(keyAlias).type(JOSEObjectType.JWT).build(),
+                    claimsSet
+                )
                 val jwsSigner = ECDSASigner(PrivateKeyHandle(issuerKey.keyId), Curve.SECP256K1)
                 jwsSigner.jcaContext.provider = LetsTrustProvider()
                 jwt.sign(jwsSigner)
@@ -136,7 +142,8 @@ object JwtService {
         val res = when (verifierKey.algorithm) {
             KeyAlgorithm.EdDSA_Ed25519 -> jwt.verify(Ed25519Verifier(keyService.toEd25519Jwk(verifierKey)))
             KeyAlgorithm.ECDSA_Secp256k1 -> {
-                val verifier = ECDSAVerifier(PublicKeyHandle(verifierKey.keyId, verifierKey.getPublicKey() as ECPublicKey))
+                val verifier =
+                    ECDSAVerifier(PublicKeyHandle(verifierKey.keyId, verifierKey.getPublicKey() as ECPublicKey))
                 verifier.jcaContext.provider = LetsTrustProvider()
                 jwt.verify(verifier)
             }

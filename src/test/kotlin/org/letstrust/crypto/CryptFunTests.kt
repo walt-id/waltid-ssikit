@@ -223,13 +223,15 @@ class CryptFunTests {
 
         val keyFactory = KeyFactory.getInstance("Ed25519")
 
-        val pubKeyInfo: SubjectPublicKeyInfo = SubjectPublicKeyInfo(AlgorithmIdentifier(EdECObjectIdentifiers.id_Ed25519), publicKeyBytes)
+        val pubKeyInfo: SubjectPublicKeyInfo =
+            SubjectPublicKeyInfo(AlgorithmIdentifier(EdECObjectIdentifiers.id_Ed25519), publicKeyBytes)
         val x509KeySpec = X509EncodedKeySpec(pubKeyInfo.encoded)
 
         val jcaPublicKey = keyFactory.generatePublic(x509KeySpec)
 
 
-        val privKeyInfo = PrivateKeyInfo(AlgorithmIdentifier(EdECObjectIdentifiers.id_Ed25519), DEROctetString(privateKeyBytes))
+        val privKeyInfo =
+            PrivateKeyInfo(AlgorithmIdentifier(EdECObjectIdentifiers.id_Ed25519), DEROctetString(privateKeyBytes))
         val pkcs8KeySpec = PKCS8EncodedKeySpec(privKeyInfo.encoded)
 
         val jcaPrivateKey = keyFactory.generatePrivate(pkcs8KeySpec)

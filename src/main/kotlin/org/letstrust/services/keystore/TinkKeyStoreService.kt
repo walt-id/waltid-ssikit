@@ -46,7 +46,8 @@ open class TinkKeyStoreService : KeyStoreService() {
     }
 
     override fun load(alias: String, keyType: KeyType): Key {
-        val keysetHandle = CleartextKeysetHandle.read(JsonKeysetReader.withFile(File("${LetsTrustServices.keyDir}/${alias}.tink")))
+        val keysetHandle =
+            CleartextKeysetHandle.read(JsonKeysetReader.withFile(File("${LetsTrustServices.keyDir}/${alias}.tink")))
         val algorithm = when (keysetHandle.keysetInfo.getKeyInfo(0).typeUrl) {
             "type.googleapis.com/google.crypto.tink.Ed25519PrivateKey" -> KeyAlgorithm.EdDSA_Ed25519
             "type.googleapis.com/google.crypto.tink.EcdsaPrivateKey" -> KeyAlgorithm.ECDSA_Secp256k1

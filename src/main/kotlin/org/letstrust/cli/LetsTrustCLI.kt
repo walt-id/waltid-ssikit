@@ -76,7 +76,7 @@ object LetsTrustCLI {
 
     fun start(args: Array<String>) {
 
-        LetsTrustServices;
+        LetsTrustServices
 
         try {
 

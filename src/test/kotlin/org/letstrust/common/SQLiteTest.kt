@@ -22,11 +22,11 @@ class SQLiteTest {
     fun createKeyStoreDb() {
         val keyId = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
         val key = keyService.load(keyId.id, KeyType.PRIVATE)
-        val db = SqlDbManager
+        val database = SqlDbManager
         val pubKeyStr = Base64.encode(key.getPublicKey().encoded).toString()
 
 
-        db.getConnection().use { con ->
+        database.getConnection().use { con ->
             con.createStatement().use { stmt ->
                 stmt.executeUpdate("drop table if exists lt_keystore")
                 stmt.executeUpdate(

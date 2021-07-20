@@ -247,11 +247,16 @@ object UserWalletService {
         val clientKey = emphPrivKey
         // val clientKey = KeyService.toJwk(did, true) as ECKey
 
-        val sharedSecret = ECDH.deriveSharedSecret(encryptedPayload.ephemPublicKey!!.toECPublicKey(), clientKey.toECPrivateKey(), BouncyCastleProvider())
+        val sharedSecret = ECDH.deriveSharedSecret(
+            encryptedPayload.ephemPublicKey.toECPublicKey(),
+            clientKey.toECPrivateKey(),
+            BouncyCastleProvider()
+        )
 
-        val encryptionKeyBytes = MessageDigest.getInstance("SHA-512").digest(sharedSecret.encoded).slice(0..31).toByteArray()
+        val encryptionKeyBytes =
+            MessageDigest.getInstance("SHA-512").digest(sharedSecret.encoded).slice(0..31).toByteArray()
 
-        val encryptionKey = SecretKeySpec(encryptionKeyBytes, "AES");
+        val encryptionKey = SecretKeySpec(encryptionKeyBytes, "AES")
 
         val c = Cipher.getInstance("AES/CBC/NoPadding", BouncyCastleProvider())
 
@@ -261,7 +266,7 @@ object UserWalletService {
 
         var endInx = accessTokenBytes.findFirst { b -> (b.toInt() == 5) }
 
-        val accessTokenRespStr = String(accessTokenBytes.slice(0..(endInx!! - 1)).toByteArray())
+        val accessTokenRespStr = String(accessTokenBytes.slice(0..(endInx - 1)).toByteArray())
 
         val decAccesTokenResp = Json.decodeFromString<DecryptedAccessTokenResponse>(accessTokenRespStr)
 
@@ -439,7 +444,10 @@ object UserWalletService {
         println("")
     }
 
-    private fun siopSessionsRequest(authReq: AuthenticationRequestPayload, verifiableAuthorization: String): AccessTokenResponse? {
+    private fun siopSessionsRequest(
+        authReq: AuthenticationRequestPayload,
+        verifiableAuthorization: String
+    ): AccessTokenResponse? {
 
         // val verifiableAuthorization = File("src/test/resources/ebsi/verifiable-authorization.json").readText()
 

@@ -6,6 +6,7 @@ import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jose.jwk.KeyUse
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator
+import id.walt.servicematrix.ServiceMatrix
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -15,6 +16,7 @@ import org.junit.Test
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.newKeyId
 import org.letstrust.model.Jwk
+import org.letstrust.services.crypto.CryptoService
 import org.letstrust.services.keystore.KeyType
 import org.web3j.crypto.ECDSASignature
 import org.web3j.crypto.ECKeyPair
@@ -29,14 +31,15 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 
-class keyServiceTest {
+class KeyServiceTest {
 
-    private val cryptoService = org.letstrust.services.crypto.CryptoService.getService()
+    private val cryptoService = CryptoService.getService()
     private val keyService = KeyService.getService()
 
     @Before
     fun setup() {
         Security.addProvider(BouncyCastleProvider())
+        ServiceMatrix("service-matrix.properties")
     }
 
     @Test
@@ -295,7 +298,7 @@ class keyServiceTest {
     fun testGetRecoveryId() {
         val keyId = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
         val data = "Test data".toByteArray()
-        val signature = cryptoService.signEthTransaction(keyId, data)!!
+        val signature = cryptoService.signEthTransaction(keyId, data)
         val recoveryId = keyService.getRecoveryId(keyId.id, data, signature)
         assert(arrayOf(0, 1, 2, 3).contains(recoveryId))
     }
@@ -305,7 +308,7 @@ class keyServiceTest {
         val keyId = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
         val badKeyId = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
         val data = "Test data".toByteArray()
-        val signature = cryptoService.signEthTransaction(keyId, data)!!
+        val signature = cryptoService.signEthTransaction(keyId, data)
         keyService.getRecoveryId(badKeyId.id, data, signature)
     }
 
@@ -322,7 +325,7 @@ class keyServiceTest {
     @Test(expected = IllegalStateException::class)
     fun testGetRecoveryIdFailsWithBadData() {
         val keyId = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
-        val signature = cryptoService.signEthTransaction(keyId, "Test data".toByteArray())!!
+        val signature = cryptoService.signEthTransaction(keyId, "Test data".toByteArray())
         keyService.getRecoveryId(keyId.id, "Bad data".toByteArray(), signature)
     }
 
