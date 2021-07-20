@@ -70,7 +70,7 @@ For building the project JDK 15 or above is required.
 
 #### Manually:
 
-    gradle clean assemble
+    gradle clean build
 
 After the Gradle build the program can be run as follows: In `build/distributions/` you have two archives, a .tar, and a .zip.  
 Extract either one of them, and execute `letstrust-ssi-core-1.0-SNAPSHOT/bin/letstrust-ssi-core`.
