@@ -1,10 +1,17 @@
 package org.letstrust.crypto
 
+import id.walt.servicematrix.ServiceMatrix
+import org.junit.Before
 import org.junit.Test
 import org.letstrust.services.crypto.SunCryptoService
 import kotlin.test.assertTrue
 
 class SunCryptoTest {
+
+    @Before
+    fun setup() {
+        ServiceMatrix("service-matrix.properties")
+    }
 
     val sunCryptoService = SunCryptoService()
     val data = "some data".toByteArray()

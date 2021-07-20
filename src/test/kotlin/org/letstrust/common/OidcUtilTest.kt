@@ -1,5 +1,7 @@
 package org.letstrust.common
 
+import id.walt.servicematrix.ServiceMatrix
+import org.junit.Before
 import org.junit.Test
 import org.letstrust.model.DidMethod
 import org.letstrust.services.did.DidService
@@ -8,9 +10,13 @@ import kotlin.test.assertEquals
 
 class OidcUtilTest {
 
+    @Before
+    fun setup(){
+        ServiceMatrix("service-matrix.properties")
+    }
+
     @Test
     fun authenticationRequestTest() {
-
         val didServer = DidService.create(DidMethod.ebsi)
         val redirectUri = "http://localhost:8080/redirect"
         val callback = "http://localhost:8080/callback"
