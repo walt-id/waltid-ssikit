@@ -4,36 +4,42 @@ import com.nimbusds.jose.crypto.impl.AESGCM
 import com.nimbusds.jose.crypto.impl.ECDH
 import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.jwk.JWK
-import com.nimbusds.jose.shaded.json.JSONObject
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
+import id.walt.servicematrix.ServiceMatrix
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.util.encoders.Hex
+import org.junit.Before
 import org.junit.Test
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.decBase64
-import org.letstrust.model.*
+import org.letstrust.model.DidEbsi
+import org.letstrust.model.DidMethod
 import org.letstrust.services.crypto.CryptoService
 import org.letstrust.services.did.DidService
 import org.letstrust.services.key.KeyService
 import org.letstrust.services.keystore.KeyType
-import org.letstrust.services.vc.VCService
 import java.io.File
 import java.time.Instant
 import java.util.*
 import javax.crypto.Cipher
 import javax.crypto.spec.GCMParameterSpec
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class JwtServiceTest {
 
-    val credentialService = VCService.getService()
-    val cryptoService = CryptoService.getService()
-    val keyService = KeyService.getService()
+    @Before
+    fun setup() {
+        ServiceMatrix("service-matrix.properties")
+    }
+
+    private val cryptoService = CryptoService.getService()
+    private val keyService = KeyService.getService()
 
     @Test
     fun parseClaimsTest() {
@@ -47,8 +53,26 @@ class JwtServiceTest {
 
         assertEquals("054255a8-b82f-4ded-bd48-95f90f46c53e", claims["sub"].toString())
         assertEquals("https://api.letstrust.io", claims["iss"].toString())
+
+        // TODO be time specific too
+        /*println("${claims["exp"].toString()} should be Mon Mar 08 14:08:36 CET 2021")
         assertEquals("Mon Mar 08 14:08:36 CET 2021", claims["exp"].toString())
-        assertEquals("Mon Mar 08 13:18:36 CET 2021", claims["iat"].toString())
+        println("${claims["iat"].toString()} should be Mon Mar 08 13:18:36 CET 2021")
+        assertEquals("Mon Mar 08 13:18:36 CET 2021", claims["iat"].toString())*/
+
+        // TODO quick hack to get around locale/timezone specifics
+
+        // Mon Mar[ 08 ]14[:08:36 ]CET[ 2021]
+        val exp = claims["exp"].toString()
+        assertContains(exp, " 08 ")
+        assertContains(exp, ":08:36 ")
+        assertContains(exp, " 2021")
+
+        // Mon Mar[ 08 ]13[:18:36 ]CET[ 2021]
+        val iat = claims["iat"].toString()
+        assertContains(exp, " 08 ")
+        assertContains(iat, ":18:36 ")
+        assertContains(iat, " 2021")
     }
 
     @Test
