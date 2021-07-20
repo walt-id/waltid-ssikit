@@ -2,9 +2,13 @@ package org.letstrust.services.essif
 
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import org.letstrust.common.readEssif
 import org.letstrust.common.toParamMap
+import org.letstrust.model.AuthRequestResponse
+import org.letstrust.model.DidAuthRequest
 import org.letstrust.services.did.DidService
 import org.letstrust.services.jwt.JwtService
 import org.letstrust.services.key.KeyService
@@ -57,9 +61,8 @@ object EnterpriseWalletService {
     fun parseDidAuthRequest(authResp: AuthRequestResponse): DidAuthRequest {
         val paramString = authResp.session_token.substringAfter("openid://?")
         val pm = toParamMap(paramString)
-        return DidAuthRequest(pm["response_type"]!!, pm["client_id"]!!, pm["scope"]!!, pm["nonce"]!!, pm["request"]!!)
+        return DidAuthRequest(pm["response_type"]!!, pm["client_id"]!!, pm["scope"]!!, pm["nonce"]!!, Json.decodeFromString(pm["request"]!!), "callback")
     }
-
 
     // TODO consider the following stubs
 
@@ -91,8 +94,8 @@ object EnterpriseWalletService {
         return verifiableAuthorization
     }
 
-    fun requestVerifiableCredential(credentialRequestUri: String): String {
-        val didOwnershipReq = LegalEntityClient.eos.requestVerifiableCredential(credentialRequestUri)
+    fun requestVerifiableCredential(): String {
+        val didOwnershipReq = LegalEntityClient.eos.requestVerifiableCredential()
         log.debug { didOwnershipReq }
         println("5. [EWallet] Request DID prove")
         return didOwnershipReq

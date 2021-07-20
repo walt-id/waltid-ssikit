@@ -108,6 +108,15 @@ data class CredentialStatusListEntry(
     val modificationReason: List<String>
 )
 
+@Serializable
+data class AuthRequestResponse(val session_token: String)
+
+@Serializable
+data class OidcRequest(
+    val uri: String,
+    val callback: String
+)
+
 data class OidcAuthenticationRequestUri(
     val response_type: String,
     val scope: String,
@@ -115,10 +124,40 @@ data class OidcAuthenticationRequestUri(
 )
 
 @Serializable
-data class AuthenticationRequestHeader(
+data class DidAuthRequest(
+    val reponse_type: String,
+    val client_id: String,
+    val scope: String,
+    val nonce: String,
+    val authenticationRequestJwt: AuthenticationRequestJwt,
+    val callback: String
+)
+
+@Serializable
+data class AuthenticationRequestJwt(
+    val authHeader: AuthenticationHeader,
+    val authRequestPayload: AuthenticationRequestPayload
+)
+
+@Serializable
+data class AuthenticationResponseJwt(
+    val authHeader: AuthenticationHeader,
+    val authRequestPayload: AuthenticationResponsePayload
+)
+
+
+@Serializable
+data class DecryptedAccessTokenResponse(
+    val access_token: String,
+    val did: String,
+    val nonce: String
+)
+
+@Serializable
+data class AuthenticationHeader(
     val alg: String,
     val typ: String,
-    val jwk: String
+    val jwk: Jwk
 )
 
 @Serializable
@@ -128,9 +167,23 @@ data class AuthenticationRequestPayload(
     val response_type: String,
     val client_id: String,
     val nonce: String,
-    val registration: String,
+    val registration: AuthenticationRequestRegistration,
     val claims: Claim
 )
+
+
+@Serializable
+data class AuthenticationRequestRegistration(
+    val redirect_uris: List<String>,
+    val response_types: String,
+    val id_token_signed_response_alg: List<String>,
+    val request_object_signing_alg: List<String>,
+    val access_token_signing_alg: List<String>,
+    val access_token_encryption_alg_values_supported: List<String>,
+    val access_token_encryption_enc_values_supported: List<String>,
+    val jwks_uri: String
+)
+
 
 @Serializable
 data class Claim(
@@ -144,7 +197,7 @@ data class SiopSessionRequest(
 
 @Serializable
 data class IdToken(
-    val verified_claims: VerifiedClaims
+    val verified_claims: List<String>
 )
 
 @Serializable
@@ -192,21 +245,21 @@ data class TypeDocument(
 
 @Serializable
 data class AuthenticationResponsePayload(
-    val iss: String,
-    val sub: String,
     val aud: String,
-    val iat: Long,
-    val exp: Long,
-    val sub_jwk: String,
-    val sub_did_verification_method_uri: String,
-    val nonce: String,
+    val sub: String,
+    val iss: String,
     val claims: AuthenticationResponseVerifiedClaims,
+    val sub_jwk: Jwk? = null,
+    val exp: Long,
+    val iat: Long,
+    //val sub_did_verification_method_uri: String,
+    val nonce: String
 )
 
 @Serializable
 data class AuthenticationResponseVerifiedClaims(
     val verified_claims: String,
-    val encryption_key: String
+    val encryption_key: Jwk? = null
 )
 
 @Serializable

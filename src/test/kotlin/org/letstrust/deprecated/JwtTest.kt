@@ -178,7 +178,7 @@ class JwtTest {
         assertTrue(jwt2.verify(ECDSAVerifier(senderJWK)))
     }
 
-    // @Test
+  @Test
     fun signAndEncryptedJwtEd25519() {
 
         // setup

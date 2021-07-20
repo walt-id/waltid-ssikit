@@ -6,7 +6,9 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import org.letstrust.Values
 import org.letstrust.services.essif.DidEbsiService
+import org.letstrust.services.essif.EssifClient
 import org.letstrust.services.essif.EssifFlowRunner
+import org.letstrust.services.essif.TrustedIssuerClient
 
 // TODO: Support following commands
 
@@ -130,7 +132,29 @@ class EssifVcIssuanceCommand : CliktCommand(
 
         ESSIF VC issuance flow"""
 ) {
-    override fun run() = EssifFlowRunner.vcIssuance()
+    override fun run() {
+
+        // Mocked flow:
+        // EssifFlowRunner.vcIssuance()
+
+        // This runs everything: EssifClient.authenticate()
+
+        val oidcReq = TrustedIssuerClient.generateAuthenticationRequest()
+        echo("- Authentication request: \n$oidcReq\n\n")
+
+        val didAuthReq = EssifClient.validateAuthenticationRequest(oidcReq)
+        echo("- Parsed and validated authentication request: \n$didAuthReq\n\n" )
+
+        val authResp = EssifClient.generateAuthenticationResponse(didAuthReq)
+        echo("- Authentication response JWT: \n$authResp\n\n" )
+
+        val encAccessToken = TrustedIssuerClient.openSession(authResp)
+        echo("- Received encrypted access token: \n$encAccessToken\n\n" )
+
+        val accessToken = EssifClient.decryptAccessToken(encAccessToken)
+        echo("- Decrypted and verified access token: \n$accessToken\n\n" )
+
+    }
 }
 
 class EssifVcExchangeCommand : CliktCommand(

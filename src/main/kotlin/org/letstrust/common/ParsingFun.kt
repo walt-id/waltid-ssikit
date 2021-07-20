@@ -1,6 +1,7 @@
 package org.letstrust.common
 
 import java.net.URLDecoder
+import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
 fun toParamMap(paramString: String): Map<String, String> {
@@ -49,3 +50,5 @@ fun Any.prettyPrint(): String {
 
     return stringBuilder.toString()
 }
+
+fun urlEncode(str: String): String = URLEncoder.encode(str, java.nio.charset.StandardCharsets.UTF_8.toString())

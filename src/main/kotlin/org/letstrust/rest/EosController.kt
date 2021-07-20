@@ -5,8 +5,8 @@ import io.javalin.plugin.openapi.annotations.OpenApi
 import io.javalin.plugin.openapi.annotations.OpenApiContent
 import io.javalin.plugin.openapi.annotations.OpenApiRequestBody
 import io.javalin.plugin.openapi.annotations.OpenApiResponse
-import org.letstrust.services.essif.AuthRequestResponse
-import org.letstrust.services.essif.EosService
+import org.letstrust.model.AuthRequestResponse
+import org.letstrust.services.essif.TrustedIssuerClient
 
 /**
 EOS
@@ -39,7 +39,7 @@ object EosController {
         ]
     )
     fun onboards(ctx: Context) {
-        ctx.json(EosService.onboards())
+        ctx.json(TrustedIssuerClient.onboards())
     }
 
     @OpenApi(
@@ -58,7 +58,7 @@ object EosController {
         ]
     )
     fun signedChallenge(ctx: Context) {
-        ctx.json(EosService.signedChallenge("signedChallenge"))
+        ctx.json(TrustedIssuerClient.signedChallenge("signedChallenge"))
     }
 
     @OpenApi(
@@ -72,7 +72,7 @@ object EosController {
         ]
     )
     fun requestCredentialUri(ctx: Context) {
-        ctx.json(EosService.requestCredentialUri())
+        ctx.json(TrustedIssuerClient.requestCredentialUri())
     }
 
     fun authReq(ctx: Context) {
@@ -96,7 +96,7 @@ object EosController {
         ]
     )
     fun requestVerifiableCredential(ctx: Context) {
-        ctx.json(EosService.requestVerifiableCredential("credentialRequestUri"))
+        ctx.json(TrustedIssuerClient.requestVerifiableCredential())
     }
 
 //    @OpenApi(
@@ -137,7 +137,7 @@ object EosController {
         val vcToken = ctx.body()
         //TODO check if vcToken is available and valid
 
-        ctx.json(EosService.getCredentials(false))
+        ctx.json(TrustedIssuerClient.getCredentials(false))
     }
 
 

@@ -154,7 +154,7 @@ object EnterpriseWalletController {
         ]
     )
     fun requestVerifiableCredential(ctx: Context) {
-        ctx.json(EnterpriseWalletService.requestVerifiableCredential("uri"))
+        ctx.json(EnterpriseWalletService.requestVerifiableCredential())
     }
 
     @OpenApi(

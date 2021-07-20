@@ -23,5 +23,6 @@ gradle.properties
 # LetsTrust
 keys/
 *.db
-/data/
+/data-20210719/
 /docs/essif/*
+*.log

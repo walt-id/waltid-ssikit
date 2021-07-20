@@ -196,34 +196,51 @@ In order to overwrite these values, simply place a yaml-based config-file named 
     podman run -itv $(pwd)/data:/app/data -p 7000-7001:7000-7001 letstrust serve
 
 
-### EBSI DID Registration
+### EBSI DID Registration (via CLI)
 Create a directory for the generated data (if not present already)
 
     mkdir -p data/ebsi
-Paste your bearer token from https://app.preprod.ebsi.eu/users-onboarding/authentication in file *data/ebsi/bearer-token.txt*
+Paste your bearer token from https://app.preprod.ebsi.eu/users-onboarding in file *data/ebsi/bearer-token.txt*
 
     cat > data/ebsi/bearer-token.txt 
 
+Use the **walt.id** command line tool for creating and registering the DID EBSI.
+
+    "<cli-tool>" can be replaced with the startup-script "./letstrust.sh" (when running the code-base)
+
+    e.g. ./letstrust.sh  key gen -a Secp256k1
+
+    "<cli-tool>" can be replaced with  "docker run -itv $(pwd)/data:/app/data" (when running Docker)
+
+    In case of Docker add: "-p 7000-7001:7000-7001" when the REST APIs are required.
+    In case of Docker add: "-v $(pwd)/templates:/app/templates" when VC templates should be used.
+
+    e.g. docker run -itv $(pwd)/data:/app/data -v $(pwd)/templates:/app/templates -p 7000-7001:7000-7001 letstrust vc -h
+
+
 Create the DID controlling key and the ETH signing key. Note, that if a Secp256k1 DID controlling key is used, then the same key will be used for signing the ETH transaction automatically.
 
-    ./letstrust.sh key gen -a Secp256k1
+    <cli-tool>  key gen -a Secp256k1
 
 Create the DID document
 
-    ./letstrust.sh did -m ebsi -k <keyId>
+    <cli-tool> did -m ebsi -k <keyId>
 
 Run the onboarding flow in order to receive the Verifiable Authentication, which is valid for 6 months
 
-    ./letstrust.sh essif onboard -d <did-ebsi>
+    <cli-tool> essif onboard -d <did-ebsi>
 
 Run the auth-api flow for getting a short lived (15min) access token for write access to the ledger
 
-    ./letstrust.sh essif auth-api -d <did-ebsi>
+    <cli-tool> essif auth-api -d <did-ebsi>
 
 Register the DID on the ledger. Optionally the key for signing the ETH transaction can be specified (parameter *k*), if it is another key then the DID controlling key
 
-    ./letstrust.sh -v essif did register -d <did-ebsi> -k 5a86344a7fc546aca4eee065d85da5b9
+    <cli-tool> essif did register -d <did-ebsi> 
 
+Resolve DID EBSI from the command line or directly via the Swagger interface https://api.preprod.ebsi.eu/docs/?urls.primaryName=DID%20Registry%20API#/DID%20Registry/get-did-registry-v2-identifier
+
+    <cli-tool> did resolve --did <did-ebsi> 
 
 # Docker PUSH / PULL
 **push**
@@ -236,7 +253,7 @@ Register the DID on the ledger. Optionally the key for signing the ETH transacti
 **pull**
 
     export CR_PAT=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
-    echo $CR_PAT | docker login ghcr.io -u <username> --password-stdin
+    echo $CR_PAT | docker login ghcr.io
     docker pull ghcr.io/letstrustid/letstrust:test
     docker tag ghcr.io/letstrustid/letstrust:test letstrust
     docker run -itv $(pwd)/data:/app/data -p 7000-7001:7000-7001 letstrust serve
