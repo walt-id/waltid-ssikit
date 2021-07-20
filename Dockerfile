@@ -20,7 +20,7 @@ RUN apt-get update
 
 FROM openjdk-gradle AS letstrust-build
 COPY ./ /opt
-RUN ./gradlew clean assemble
+RUN ./gradlew clean build
 RUN tar xf /opt/build/distributions/letstrust-ssi-core-1.0-SNAPSHOT.tar -C /opt
 
 RUN mkdir /app
