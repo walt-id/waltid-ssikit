@@ -24,11 +24,11 @@ import java.util.*
 
 open class WaltIdKeyService : KeyService() {
 
-    private var cs: CryptoService = CryptoService.getService()
+    private var cryptoService: CryptoService = CryptoService.getService()
 
     private var keyStore: KeyStoreService = KeyStoreService.getService()
 
-    override fun generate(keyAlgorithm: KeyAlgorithm) = cs.generateKey(keyAlgorithm)
+    override fun generate(keyAlgorithm: KeyAlgorithm) = cryptoService.generateKey(keyAlgorithm)
 
     override fun addAlias(keyId: KeyId, alias: String) = keyStore.addAlias(keyId, alias)
 
