@@ -37,6 +37,8 @@ data class Key(val keyId: KeyId, val algorithm: KeyAlgorithm, val cryptoProvider
         this.keysetHandle = keysetHandle
     }
 
+    override fun toString(): String = "Key[${keyId.id}; Algo: ${algorithm.name}; Provider: ${cryptoProvider.name}]"
+
     var keyPair: KeyPair? = null
     var keysetHandle: KeysetHandle? = null
 }

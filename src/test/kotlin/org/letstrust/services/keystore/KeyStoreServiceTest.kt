@@ -7,7 +7,6 @@ import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.services.key.KeyService
 import java.security.Security
 import java.util.*
-import kotlin.reflect.full.createInstance
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
@@ -65,15 +64,13 @@ open class KeyStoreServiceTest {
     @Test
     fun listKeysTest() {
         var keyId = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
-        keyService.listKeys().forEach {
-            println("key $it")
-        }
+        println("keys: " + keyService.listKeys().joinToString { it.toString() })
     }
 
     @Test
     open fun deleteKeysTest() {
         val keyId = keyService.generate(KeyAlgorithm.EdDSA_Ed25519)
-        var key = keyService.load(keyId.id, KeyType.PRIVATE)
+        val key = keyService.load(keyId.id, KeyType.PRIVATE)
         keyService.delete(key.keyId.id)
         assertFailsWith(
             Exception::class,
