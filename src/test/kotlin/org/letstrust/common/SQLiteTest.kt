@@ -1,6 +1,7 @@
 package org.letstrust.common
 
 import com.nimbusds.jose.util.Base64
+import id.walt.servicematrix.ServiceMatrix
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.junit.Before
 import org.junit.Test
@@ -16,6 +17,7 @@ class SQLiteTest {
     @Before
     fun setup() {
         Security.addProvider(BouncyCastleProvider())
+        ServiceMatrix("service-matrix.properties")
     }
 
     @Test
