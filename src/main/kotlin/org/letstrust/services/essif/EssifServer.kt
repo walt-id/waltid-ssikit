@@ -20,6 +20,7 @@ import java.util.*
 object EssifServer {
 
     private val log = KotlinLogging.logger {}
+    private val keyService = KeyService.getService()
 
     // TODO: Add configuration + keystore integration
     val redirectUri = "http://localhost:8080/redirect"
@@ -89,7 +90,7 @@ object EssifServer {
         println(encryptionKey)
         val emphClientKey = OctetKeyPair.parse(encryptionKey) // ECKey.parse(encryption_key)
 
-        val privateKeyId = KeyService.generate(KeyAlgorithm.EdDSA_Ed25519).id
+        val privateKeyId = keyService.generate(KeyAlgorithm.EdDSA_Ed25519).id
         println(privateKeyId)
         val encToken = JwtService.encrypt(privateKeyId, emphClientKey, accessToken)
 
