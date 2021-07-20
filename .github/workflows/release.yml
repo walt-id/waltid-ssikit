@@ -58,10 +58,10 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
             ${{ runner.os }}-gradle-
-      - name: Running gradle build --no-daemon
+      - name: Running gradle build
         uses: eskatos/gradle-command-action@v1.3.3
         with:
-          arguments: build publish
+          arguments: build publish --no-daemon
       - name: Bump version and push tag
         id: tag_version
         uses: mathieudutour/github-tag-action@v5.5
