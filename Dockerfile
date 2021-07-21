@@ -16,7 +16,7 @@ VOLUME /home/gradle/.gradle
 
 WORKDIR /opt
 
-RUN apt-get update
+RUN apt-get update && apt-get upgrade --yes
 
 FROM openjdk-gradle AS letstrust-build
 COPY ./ /opt
