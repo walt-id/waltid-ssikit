@@ -26,8 +26,6 @@ import java.security.Security
 enum class CryptoProvider { SUN, TINK, CUSTOM }
 inline class Port(val value: Int)
 inline class Host(val value: String)
-enum class KeystoreType { FILE, DATABASE, TINK, AZURE_KEY_VAULT, CUSTOM }
-data class Keystore(val type: KeystoreType)
 data class Server(val host: Host, val port: Port)
 
 data class Essif(
