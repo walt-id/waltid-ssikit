@@ -3,13 +3,13 @@ package org.letstrust.services.key
 import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jose.jwk.OctetKeyPair
-import id.walt.servicematrix.BaseService
 import id.walt.servicematrix.ServiceProvider
 import id.walt.servicematrix.ServiceRegistry
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.letstrust.crypto.Key
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.KeyId
+import org.letstrust.services.WaltIdService
 import org.letstrust.services.keystore.KeyType
 import org.web3j.crypto.ECDSASignature
 
@@ -18,7 +18,7 @@ enum class KeyFormat {
     PEM
 }
 
-abstract class KeyService : BaseService() {
+abstract class KeyService : WaltIdService() {
     override val implementation get() = ServiceRegistry.getService<KeyService>()
 
 

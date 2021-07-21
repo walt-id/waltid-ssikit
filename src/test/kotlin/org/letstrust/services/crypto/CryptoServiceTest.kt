@@ -1,7 +1,7 @@
 package org.letstrust.services.crypto
 
 import org.junit.Test
-import org.letstrust.LetsTrustServices
+import org.letstrust.services.LetsTrustServices
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.LetsTrustProvider
 import org.letstrust.crypto.decBase64

@@ -2,7 +2,7 @@ package org.letstrust.services.crypto
 
 import com.nimbusds.jose.crypto.impl.AESGCM
 import com.nimbusds.jose.jwk.ECKey
-import org.letstrust.CryptoProvider
+import org.letstrust.services.CryptoProvider
 import org.letstrust.crypto.*
 import org.letstrust.services.keystore.KeyStoreService
 import org.letstrust.services.keystore.KeyType

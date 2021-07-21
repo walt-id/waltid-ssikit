@@ -1,13 +1,13 @@
 package org.letstrust.services.crypto
 
-import id.walt.servicematrix.BaseService
 import id.walt.servicematrix.ServiceProvider
 import id.walt.servicematrix.ServiceRegistry
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.KeyId
+import org.letstrust.services.WaltIdService
 import org.web3j.crypto.ECDSASignature
 
-abstract class CryptoService : BaseService() {
+abstract class CryptoService : WaltIdService() {
     override val implementation get() = ServiceRegistry.getService<CryptoService>()
 
     open fun generateKey(algorithm: KeyAlgorithm): KeyId = implementation.generateKey(algorithm)

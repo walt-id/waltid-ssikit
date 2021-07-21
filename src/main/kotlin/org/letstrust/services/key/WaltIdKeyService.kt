@@ -9,7 +9,7 @@ import org.bouncycastle.asn1.ASN1Sequence
 import org.bouncycastle.jcajce.provider.digest.Keccak
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.util.encoders.Hex
-import org.letstrust.CryptoProvider
+import org.letstrust.services.CryptoProvider
 import org.letstrust.crypto.*
 import org.letstrust.services.crypto.CryptoService
 import org.letstrust.services.keystore.KeyStoreService

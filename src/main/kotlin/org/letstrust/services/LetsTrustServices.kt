@@ -1,5 +1,4 @@
-package org.letstrust
-
+package org.letstrust.services
 
 import com.google.crypto.tink.config.TinkConfig
 import com.sksamuel.hoplite.ConfigLoader
@@ -18,39 +17,17 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.core.config.LoggerConfig
 import org.bouncycastle.jce.provider.BouncyCastleProvider
+import org.letstrust.Values
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.security.Security
 
 enum class CryptoProvider { SUN, TINK, CUSTOM }
-inline class Port(val value: Int)
-inline class Host(val value: String)
-data class Server(val host: Host, val port: Port)
-
-data class Essif(
-    val essifApiBaseUrl: String,
-    val authorizationApi: String,
-    val ledgerAPI: String,
-    val trustedIssuerRegistryApi: String,
-    val trustedAccreditationOrganizationRegistryApi: String,
-    val revocationRegistry: String,
-    val schemaRegistry: String
-)
 
 data class LetsTrustConfig(
-    val env: String = "dev",
-    val essif: Essif?,
-    val server: Server?,
-    val cryptoProvider: CryptoProvider = CryptoProvider.SUN,
     val hikariDataSource: HikariDataSource = HikariDataSource()
-) {
-    val log = KotlinLogging.logger {}
-
-    init {
-        log.debug { this }
-    }
-}
+)
 
 object LetsTrustServices {
 
@@ -74,12 +51,12 @@ object LetsTrustServices {
     }
 
     init {
-        /*val javaVersion = System.getProperty("java.runtime.version")
+        val javaVersion = System.getProperty("java.runtime.version")
         println("Let's Trust SSI Core ${Values.version} (running on Java $javaVersion)")
 
-        if (Runtime.version().feature() < 15) {
-            log.error { "Java version 15+ is required!" }
-        }*/
+        if (Runtime.version().feature() < 16) {
+            log.error { "Java version 16+ is required!" }
+        }
 
         // BC is required for
         // - secp256k1 curve
@@ -87,23 +64,25 @@ object LetsTrustServices {
 
         TinkConfig.register()
 
+        createDirStructure()
+
         println()
     }
 
     fun loadHikariDataSource(): HikariDataSource {
-        val conf = this.loadConfig()
+        val conf = loadConfig()
         return conf.hikariDataSource
     }
 
     fun createDirStructure() {
-        log.debug { "Creating dir-structure at: ${dataDir}" }
+        log.debug { "Creating dir-structure at: $dataDir" }
         Files.createDirectories(Path.of(keyDir))
-        Files.createDirectories(Path.of("${dataDir}/did/created"))
-        Files.createDirectories(Path.of("${dataDir}/did/resolved"))
-        Files.createDirectories(Path.of("${dataDir}/vc/templates"))
-        Files.createDirectories(Path.of("${dataDir}/vc/created"))
-        Files.createDirectories(Path.of("${dataDir}/vc/presented"))
-        Files.createDirectories(Path.of("${ebsiDir}"))
+        Files.createDirectories(Path.of("$dataDir/did/created"))
+        Files.createDirectories(Path.of("$dataDir/did/resolved"))
+        Files.createDirectories(Path.of("$dataDir/vc/templates"))
+        Files.createDirectories(Path.of("$dataDir/vc/created"))
+        Files.createDirectories(Path.of("$dataDir/vc/presented"))
+        Files.createDirectories(Path.of("$ebsiDir"))
     }
 
     fun loadConfig() = ConfigLoader.Builder()

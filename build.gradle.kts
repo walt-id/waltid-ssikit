@@ -18,7 +18,7 @@ repositories {
     mavenCentral()
     //jcenter()
     maven("https://jitpack.io")
-    maven("https://repo.danubetech.com/repository/maven-snapshots/")
+    maven("https://repo.danubetech.com/repository/maven-releases/")
     maven {
         url = uri("https://maven.letstrust.io/repository/waltid/")
 
@@ -32,7 +32,8 @@ repositories {
 dependencies {
     // Crypto
     implementation("com.google.crypto.tink:tink:1.6.0")
-    implementation("info.weboftrust:ld-signatures-java:0.4-SNAPSHOT")
+    implementation("info.weboftrust:ld-signatures-java:0.4.0")
+    implementation("decentralized-identity:jsonld-common-java:0.2.0")
     implementation("com.goterl:lazysodium-java:5.0.1")
     implementation("com.github.multiformats:java-multibase:v1.1.0")
 

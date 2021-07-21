@@ -2,7 +2,7 @@ package org.letstrust.common
 
 import com.zaxxer.hikari.HikariDataSource
 import mu.KotlinLogging
-import org.letstrust.LetsTrustServices
+import org.letstrust.services.LetsTrustServices
 import java.sql.Connection
 import java.sql.Statement
 

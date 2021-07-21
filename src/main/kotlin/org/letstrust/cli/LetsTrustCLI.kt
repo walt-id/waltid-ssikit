@@ -9,7 +9,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.versionOption
 import mu.KotlinLogging
 import org.apache.logging.log4j.Level
-import org.letstrust.LetsTrustServices
+import org.letstrust.services.LetsTrustServices
 import org.letstrust.Values
 
 

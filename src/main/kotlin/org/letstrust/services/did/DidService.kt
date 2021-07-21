@@ -8,7 +8,7 @@ import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import org.bouncycastle.asn1.ASN1BitString
 import org.bouncycastle.asn1.ASN1Sequence
-import org.letstrust.LetsTrustServices
+import org.letstrust.services.LetsTrustServices
 import org.letstrust.crypto.*
 import org.letstrust.crypto.KeyAlgorithm.ECDSA_Secp256k1
 import org.letstrust.crypto.KeyAlgorithm.EdDSA_Ed25519
@@ -21,7 +21,6 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.*
-import kotlin.streams.toList
 
 private val log = KotlinLogging.logger {}
 

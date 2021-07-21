@@ -1,6 +1,6 @@
 package org.letstrust.services.keystore
 
-import org.letstrust.CryptoProvider
+import org.letstrust.services.CryptoProvider
 import org.letstrust.crypto.Key
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.KeyId

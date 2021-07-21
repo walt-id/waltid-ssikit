@@ -22,7 +22,7 @@ import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.math.ec.ECPoint
 import org.bouncycastle.util.encoders.Hex
-import org.letstrust.CryptoProvider
+import org.letstrust.services.CryptoProvider
 import org.letstrust.model.EncryptedAke1Payload
 import org.web3j.crypto.ECDSASignature
 import org.web3j.utils.Numeric

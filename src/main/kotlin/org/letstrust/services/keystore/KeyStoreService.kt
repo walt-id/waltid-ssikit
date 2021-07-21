@@ -1,17 +1,17 @@
 package org.letstrust.services.keystore
 
-import id.walt.servicematrix.BaseService
 import id.walt.servicematrix.ServiceProvider
 import id.walt.servicematrix.ServiceRegistry
 import org.letstrust.crypto.Key
 import org.letstrust.crypto.KeyId
+import org.letstrust.services.WaltIdService
 
 enum class KeyType {
     PUBLIC,
     PRIVATE
 }
 
-abstract class KeyStoreService : BaseService() {
+abstract class KeyStoreService : WaltIdService() {
     override val implementation get() = ServiceRegistry.getService<KeyStoreService>()
 
     open fun store(key: Key): Unit = implementation.store(key)

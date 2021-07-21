@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import mu.KotlinLogging
-import org.letstrust.LetsTrustServices
+import org.letstrust.services.LetsTrustServices
 import org.letstrust.common.readWhenContent
 import org.letstrust.crypto.canonicalize
 import org.letstrust.services.did.DidService

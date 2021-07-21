@@ -7,7 +7,7 @@ import org.bouncycastle.asn1.x509.AlgorithmIdentifier
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
 import org.bouncycastle.util.encoders.Hex
 import org.junit.Test
-import org.letstrust.LetsTrustServices
+import org.letstrust.services.LetsTrustServices
 import org.web3j.crypto.ECDSASignature
 import java.math.BigInteger
 import java.security.KeyFactory

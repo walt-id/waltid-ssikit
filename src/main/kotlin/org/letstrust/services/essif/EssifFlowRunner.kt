@@ -1,7 +1,7 @@
 package org.letstrust.services.essif
 
 import mu.KotlinLogging
-import org.letstrust.LetsTrustServices
+import org.letstrust.services.LetsTrustServices
 import org.letstrust.common.readEssifBearerToken
 import org.letstrust.services.essif.mock.RelyingParty
 import java.io.File

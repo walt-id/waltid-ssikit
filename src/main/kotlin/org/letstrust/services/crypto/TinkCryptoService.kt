@@ -5,7 +5,7 @@ import com.google.crypto.tink.PublicKeySign
 import com.google.crypto.tink.PublicKeyVerify
 import com.google.crypto.tink.signature.EcdsaSignKeyManager
 import com.google.crypto.tink.signature.Ed25519PrivateKeyManager
-import org.letstrust.CryptoProvider
+import org.letstrust.services.CryptoProvider
 import org.letstrust.crypto.Key
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.KeyId

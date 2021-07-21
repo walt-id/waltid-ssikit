@@ -2,7 +2,7 @@ package org.letstrust.crypto
 
 import com.google.crypto.tink.KeysetHandle
 import kotlinx.serialization.Serializable
-import org.letstrust.CryptoProvider
+import org.letstrust.services.CryptoProvider
 import org.letstrust.services.keystore.TinkKeyStoreService
 import java.security.KeyPair
 import java.security.PublicKey

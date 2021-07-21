@@ -1,11 +1,11 @@
 package org.letstrust.services.vc
 
-import id.walt.servicematrix.BaseService
 import id.walt.servicematrix.ServiceProvider
 import id.walt.servicematrix.ServiceRegistry
 import info.weboftrust.ldsignatures.LdProof
 import kotlinx.serialization.Serializable
 import org.letstrust.model.VerifiableCredential
+import org.letstrust.services.WaltIdService
 
 enum class VerificationType {
     VERIFIABLE_CREDENTIAL,
@@ -15,7 +15,7 @@ enum class VerificationType {
 @Serializable
 data class VerificationResult(val verified: Boolean, val verificationType: VerificationType)
 
-abstract class VCService : BaseService() {
+abstract class VCService : WaltIdService() {
     override val implementation get() = ServiceRegistry.getService<VCService>()
 
     open fun sign(

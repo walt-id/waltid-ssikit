@@ -7,7 +7,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import org.apache.logging.log4j.Level
-import org.letstrust.LetsTrustServices
+import org.letstrust.services.LetsTrustServices
 import org.letstrust.common.OidcUtil
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.model.*
