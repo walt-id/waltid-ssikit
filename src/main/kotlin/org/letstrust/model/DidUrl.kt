@@ -32,7 +32,8 @@ data class DidUrl(
             }
         }
 
-        fun generateDidEbsiV2DidUrl() = DidUrl(DidMethod.ebsi.name, "2" + Random.nextBytes(47).encodeBase58().substring(0,47))
+        fun generateDidEbsiV2DidUrl() =
+            DidUrl(DidMethod.ebsi.name, "2" + Random.nextBytes(47).encodeBase58().substring(0, 47))
     }
 }
 

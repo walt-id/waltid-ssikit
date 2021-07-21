@@ -8,7 +8,7 @@ import com.nimbusds.jose.crypto.impl.AlgorithmSupportMessage
 import com.nimbusds.jose.crypto.impl.ECDSA
 import com.nimbusds.jose.jca.JCAContext
 import com.nimbusds.jose.util.Base64URL
-
+import org.letstrust.services.crypto.SunCryptoService
 
 
 // Proxy for enabling secure key storage
@@ -20,7 +20,9 @@ class JwtSigner(val keyId: String) : JWSSigner {
         jcaContext.provider = LetsTrustProvider()
     }
 
-    val nimbusSigner = com.nimbusds.jose.crypto.ECDSASigner(SunCryptoService.ecJWK)
+    val sunCryptoService = SunCryptoService()
+
+    val nimbusSigner = com.nimbusds.jose.crypto.ECDSASigner(sunCryptoService.ecJWK)
 
 
     override fun getJCAContext(): JCAContext {
@@ -43,7 +45,7 @@ class JwtSigner(val keyId: String) : JWSSigner {
         // DER-encoded signature, according to JCA spec
         // (sequence of two integers - R + S)
 
-        val jcaSignature = SunCryptoService.sign(KeyId(keyId), signingInput!!)
+        val jcaSignature = sunCryptoService.sign(KeyId(keyId), signingInput!!)
 
         // OR keyId to PrivateKey Handle + JCA Provider
 

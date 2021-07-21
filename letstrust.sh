@@ -9,7 +9,7 @@ function header() {
 function build() {
   echo "Building Let's Trust build files..."
 
-  if ./gradlew clean assemble; then
+  if ./gradlew clean build; then
     echo
     echo "Build was successful."
     echo "Continuing with build file extraction..."
@@ -24,7 +24,6 @@ function build() {
 }
 
 function build_docker() {
-  build
   if docker build -t letstrust .; then
     echo
     echo "Docker container build was successful."
@@ -38,7 +37,6 @@ function build_docker() {
 }
 
 function build_podman() {
-  build
   if podman build -t letstrust .; then
     echo
     echo "Podman container build was successful."

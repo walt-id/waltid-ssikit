@@ -4,34 +4,42 @@ import com.nimbusds.jose.crypto.impl.AESGCM
 import com.nimbusds.jose.crypto.impl.ECDH
 import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.jwk.JWK
-import com.nimbusds.jose.shaded.json.JSONObject
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
+import id.walt.servicematrix.ServiceMatrix
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.bouncycastle.util.encoders.Hex
+import org.junit.Before
 import org.junit.Test
-import org.letstrust.LetsTrustServices
-import org.letstrust.crypto.CryptoService
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.decBase64
-import org.letstrust.model.*
+import org.letstrust.model.DidEbsi
+import org.letstrust.model.DidMethod
+import org.letstrust.services.crypto.CryptoService
 import org.letstrust.services.did.DidService
 import org.letstrust.services.key.KeyService
-import org.letstrust.services.vc.CredentialService
+import org.letstrust.services.keystore.KeyType
 import java.io.File
 import java.time.Instant
 import java.util.*
 import javax.crypto.Cipher
 import javax.crypto.spec.GCMParameterSpec
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class JwtServiceTest {
 
-    val cs = LetsTrustServices.load<CryptoService>()
+    @Before
+    fun setup() {
+        ServiceMatrix("service-matrix.properties")
+    }
+
+    private val cryptoService = CryptoService.getService()
+    private val keyService = KeyService.getService()
 
     @Test
     fun parseClaimsTest() {
@@ -45,13 +53,31 @@ class JwtServiceTest {
 
         assertEquals("054255a8-b82f-4ded-bd48-95f90f46c53e", claims["sub"].toString())
         assertEquals("https://api.letstrust.io", claims["iss"].toString())
+
+        // TODO be time specific too
+        /*println("${claims["exp"].toString()} should be Mon Mar 08 14:08:36 CET 2021")
         assertEquals("Mon Mar 08 14:08:36 CET 2021", claims["exp"].toString())
-        assertEquals("Mon Mar 08 13:18:36 CET 2021", claims["iat"].toString())
+        println("${claims["iat"].toString()} should be Mon Mar 08 13:18:36 CET 2021")
+        assertEquals("Mon Mar 08 13:18:36 CET 2021", claims["iat"].toString())*/
+
+        // TODO quick hack to get around locale/timezone specifics
+
+        // Mon Mar[ 08 ]14[:08:36 ]CET[ 2021]
+        val exp = claims["exp"].toString()
+        assertContains(exp, " 08 ")
+        assertContains(exp, ":08:36 ")
+        assertContains(exp, " 2021")
+
+        // Mon Mar[ 08 ]13[:18:36 ]CET[ 2021]
+        val iat = claims["iat"].toString()
+        assertContains(exp, " 08 ")
+        assertContains(iat, ":18:36 ")
+        assertContains(iat, " 2021")
     }
 
     @Test
     fun genJwtSecp256k1() {
-        val keyId = cs.generateKey(KeyAlgorithm.ECDSA_Secp256k1)
+        val keyId = cryptoService.generateKey(KeyAlgorithm.ECDSA_Secp256k1)
 
         val jwt = JwtService.sign(keyId.id)
 
@@ -64,10 +90,9 @@ class JwtServiceTest {
         assertTrue(res1, "JWT verification failed")
     }
 
-
     @Test
     fun genJwtEd25519() {
-        val keyId = cs.generateKey(KeyAlgorithm.EdDSA_Ed25519)
+        val keyId = cryptoService.generateKey(KeyAlgorithm.EdDSA_Ed25519)
 
         val jwt = JwtService.sign(keyId.id)
 
@@ -83,9 +108,9 @@ class JwtServiceTest {
 
     @Test
     fun genJwtCustomPayload() {
-        val did = DidService.create(DidMethod.ebsi, KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1).id)
-        val kid = DidService.loadDidEbsi(did).verificationMethod!!.get(0)!!.id
-        val key = KeyService.toJwk(did, false, kid) as ECKey
+        val did = DidService.create(DidMethod.ebsi, keyService.generate(KeyAlgorithm.ECDSA_Secp256k1).id)
+        val kid = DidService.loadDidEbsi(did).verificationMethod!![0].id
+        val key = keyService.toJwk(did, jwkKeyId = kid) as ECKey
         val thumbprint = key.computeThumbprint().toString()
 
         val payload = JWTClaimsSet.Builder()
@@ -338,7 +363,8 @@ class JwtServiceTest {
 
         // val keyId = jweObj.header.keyID
 
-        val sharedKey = ECDH.deriveSharedSecret(publicKey.toECPublicKey(), privateKey.toECPrivateKey(), BouncyCastleProvider())
+        val sharedKey =
+            ECDH.deriveSharedSecret(publicKey.toECPublicKey(), privateKey.toECPrivateKey(), BouncyCastleProvider())
 
         println(sharedKey.algorithm)
 
@@ -366,8 +392,8 @@ class JwtServiceTest {
         val publicKey = JWK.parse(jwkStr) as ECKey
         print(publicKey)
 
-        val key = KeyService.load("did:ebsi:2LEi74mCZpgC8EqcngLCzUCL5d8W3dxfdjiy9XhaVoDyi259", true)
-        val privateKey = KeyService.toSecp256Jwk(key)
+        val key = keyService.load("did:ebsi:2LEi74mCZpgC8EqcngLCzUCL5d8W3dxfdjiy9XhaVoDyi259", KeyType.PRIVATE)
+        val privateKey = keyService.toSecp256Jwk(key)
 
         val payload =
             "bad07c7fd77371cc1eb59630d7d8f918032bbc53e70d6e19a8758f7924b252bcfa9d5c8c100a5977dbbd4d2980985705785ebec0cbd832a9da5b24a801b7e37e4774fb3fc2efe7deaeb4fa12a76744130cc8ad5a3bcdc5ea1fc3ffa792d472aa50c3c8efd236b6362701e705688d6059c9feee96e10e816ddfb9e8d1444da731d459d43af71cb5556a5bcf7d20d9d9521e3668282952ebeed295bbf10fffa5e4dc8a26283e3efa9befcaef2b8bdccc39169924217b9d446c1bc033d15f12b96a257cbd46e25d65f870a38e19b17cbe9801e7f44f30d4e61a6e5298702054347731cd9763743679c05a769d72238f9abad773b8f2254de9ac6c8644c9198d6f136388920c6492fe77ffdb6327134dcbc36615f6cd58c5f9630547b31dcb925d72f7b0a173896a87d4564ab72dcfa51ecd0806d6f3dcdfb113a6bb7d11aa80cdded9387371d2bcb9ef07f527a5deb7b9a144e987bf246780ac5e3b7d5c3cb7ad34ca74328a68f6a5faed643a3320742046b5ea7ae17582fc0e7fdc08f9380afc512f18975c0b6280c900f2d9e2e5b354b273d8cbbae0a1787c5741a5f8b114623a2496294c3658c1ec1c7f1c04ea9626ec88f4cb05ead350cc4a9f1f8cd9545a55372bfc7a1d90917dcd8fe7bef3d9bac07d990e2eabdb1db2c652bdc1c2a301420d9d49635d655d0762ef7f8fde1ad18efff8e91bb062f451d1ad9921f77604cf0c0d51b36ff99e17cf568f47cd96a4bd62c0eaf867e6176175381e393c804b0187fb781a0df72cabb260189e07429d6214c047ad05b83d2576006a7965c81dcbe7956196b2623df255542ccc192bbe2e71b43433b7c63392a3d2a0ed00c5bdc4ed08fcc891665742d9aedda44176cccc47eb2abd6ac486b9b47d2726d932a9d14ee22d1da27322d797d837909b49d315cd7f2980cd3fc138693f3259355927c05c718b89a0b15c0e0ce258997c6a187622de7a6d93e0d3acf9e24c13dc26c720af9e51db74d7b55f87db3e267bb53641edc2f8d6a29a351bba334d370a481ca17bbae89083823604a98eaa38117a57724a35f7921845f754b0fbd81fd8c56aef44a34a0f6097cf3c04dd05aaa3b64c7cba"

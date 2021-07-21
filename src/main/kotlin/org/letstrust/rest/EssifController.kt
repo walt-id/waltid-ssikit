@@ -56,6 +56,6 @@ object EssifController {
         EosService.requestCredentialUri()
         EosService.requestVerifiableCredential("")
         EosService.signedChallenge("")
-        **/
+         **/
     }
 }

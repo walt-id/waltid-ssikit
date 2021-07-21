@@ -15,7 +15,7 @@
   "credentialSubject": {
     "id": "did:ebsi:2123456789AB...fghijkmno",
     "legalPersonalIdentifier": "123456789",
-    "legalName": "Example Company",
+    "legalName": "Example Company"
   },
   "credentialStatus": {
     "id": "https://essif.europa.eu/status/identity#verifiableID#1dee355d-0432-4910-ac9c-70d89e8d674e",
@@ -25,14 +25,18 @@
     "id": "https://essif.europa.eu/tsr-vid/verifiableid1.json",
     "type": "JsonSchemaValidator2018"
   },
-  "evidence": [{
-    "id": "https://essif.europa.eu/tsr-vid/evidence/f2aeec97-fc0d-42bf-8ca7-0548192d4231",
-    "type": ["DocumentVerification"],
-    "verifier": "did:ebsi:2123456789AB...fghijkmno",
-    "evidenceDocument": "Passport",
-    "subjectPresence": "Physical",
-    "documentPresence": "Physical"
-  }],
+  "evidence": [
+    {
+      "id": "https://essif.europa.eu/tsr-vid/evidence/f2aeec97-fc0d-42bf-8ca7-0548192d4231",
+      "type": [
+        "DocumentVerification"
+      ],
+      "verifier": "did:ebsi:2123456789AB...fghijkmno",
+      "evidenceDocument": "Passport",
+      "subjectPresence": "Physical",
+      "documentPresence": "Physical"
+    }
+  ],
   "proof": {
     "type": "EidasSeal2021",
     "created": "2019-06-22T14:11:44Z",

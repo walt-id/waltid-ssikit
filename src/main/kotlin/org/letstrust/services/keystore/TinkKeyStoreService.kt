@@ -1,4 +1,4 @@
-package org.letstrust.crypto.keystore
+package org.letstrust.services.keystore
 
 import com.google.common.collect.ImmutableSet
 import com.google.crypto.tink.CleartextKeysetHandle
@@ -13,41 +13,41 @@ import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.jwk.KeyOperation
-import org.letstrust.CryptoProvider
-import org.letstrust.crypto.KeyAlgorithm
-import org.letstrust.LetsTrustServices
+import org.letstrust.services.CryptoProvider
+import org.letstrust.services.LetsTrustServices
 import org.letstrust.crypto.Key
+import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.KeyId
 import java.io.File
 import java.security.PublicKey
 import java.security.spec.InvalidKeySpecException
 
 
-object TinkKeyStore : KeyStore {
+open class TinkKeyStoreService : KeyStoreService() {
 
 
-    override fun listKeys(): List<Key> {
-        TODO("Not yet implemented")
-    }
+    override fun listKeys(): List<Key> = TODO("Not yet implemented")
 
 //    override fun loadKeyPair(keyId: String): Keys? {
 //        TODO("Not yet implemented")
 //    }
 
-    override fun delete(alias: String) {
-        TODO("Not yet implemented")
-    }
+    override fun delete(alias: String): Unit = TODO("Not yet implemented")
 
 
     override fun store(key: Key) {
-        CleartextKeysetHandle.write(key.keysetHandle, JsonKeysetWriter.withFile(File("${LetsTrustServices.keyDir}/${key.keyId.id}.tink")))
+        CleartextKeysetHandle.write(
+            key.keysetHandle,
+            JsonKeysetWriter.withFile(File("${LetsTrustServices.keyDir}/${key.keyId.id}.tink"))
+        )
 
         //TODO: only working for Secp256k1; should be impl. for Ed25519 as well
         // CleartextKeysetHandle.write(key.keysetHandle!!.publicKeysetHandle, JwksWriter.withOutputStream(FileOutputStream("${LetsTrustServices.keyDir}/${key.keyId.id}.json")))
     }
 
-    override fun load(alias: String, loadPrivate: Boolean): Key {
-        val keysetHandle = CleartextKeysetHandle.read(JsonKeysetReader.withFile(File("${LetsTrustServices.keyDir}/${alias}.tink")))
+    override fun load(alias: String, keyType: KeyType): Key {
+        val keysetHandle =
+            CleartextKeysetHandle.read(JsonKeysetReader.withFile(File("${LetsTrustServices.keyDir}/${alias}.tink")))
         val algorithm = when (keysetHandle.keysetInfo.getKeyInfo(0).typeUrl) {
             "type.googleapis.com/google.crypto.tink.Ed25519PrivateKey" -> KeyAlgorithm.EdDSA_Ed25519
             "type.googleapis.com/google.crypto.tink.EcdsaPrivateKey" -> KeyAlgorithm.ECDSA_Secp256k1
@@ -140,21 +140,19 @@ object TinkKeyStore : KeyStore {
 //                .build()
         }
 
-        override fun write(keyset: EncryptedKeyset?) {
-            TODO("Not yet implemented")
-        }
+        override fun write(keyset: EncryptedKeyset?): Unit = TODO("Not yet implemented")
 
     }
 
 
     override fun addAlias(keyId: KeyId, alias: String) {
-        //TODO remove dependency to FileSystemKeyStore
-        FileSystemKeyStore.addAlias(keyId, alias)
+        //TODO remove dependency to FileSystemKeyStoreService
+        FileSystemKeyStoreService().addAlias(keyId, alias)
     }
 
     override fun getKeyId(keyId: String): String? {
-        //TODO remove dependency to FileSystemKeyStore
-        return FileSystemKeyStore.getKeyId(keyId)
+        //TODO remove dependency to FileSystemKeyStoreService
+        return FileSystemKeyStoreService().getKeyId(keyId)
     }
 
 }

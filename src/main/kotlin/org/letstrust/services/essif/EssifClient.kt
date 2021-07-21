@@ -5,28 +5,23 @@ import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.jwk.OctetKeyPair
 import com.nimbusds.jose.jwk.gen.OctetKeyPairGenerator
 import com.nimbusds.jwt.EncryptedJWT
-import com.nimbusds.jwt.SignedJWT
 import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import mu.KotlinLogging
-import org.apache.logging.log4j.Level
-import org.letstrust.LetsTrustServices
 import org.letstrust.common.OidcUtil
-import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.canonicalize
 import org.letstrust.crypto.encBase64Str
 import org.letstrust.model.*
 import org.letstrust.services.did.DidService
 import org.letstrust.services.jwt.JwtService
-import org.letstrust.services.key.KeyService
-import org.letstrust.services.vc.CredentialService
+import org.letstrust.services.vc.VCService
 import java.util.*
 
 
 object EssifClient {
 
     private val log = KotlinLogging.logger {}
+    private val credentialService = VCService.getService()
 
     val did: String = DidService.create(DidMethod.ebsi) // Client DID
 
@@ -49,8 +44,8 @@ object EssifClient {
     // TODO move to KeyStore
     val ephPrivKey: OctetKeyPair by lazy {
         OctetKeyPairGenerator(Curve.X25519)
-        .keyID(JwtService.keyId)
-        .generate()
+            .keyID(JwtService.keyId)
+            .generate()
     }
 
     /**
@@ -124,11 +119,11 @@ object EssifClient {
         )
 
         val authKeyId = DidService.loadDidEbsi(did).authentication!![0]
-        val vp = CredentialService.sign(did, vpReq.encode(), null, null, authKeyId, "assertionMethod")
+        val vp = credentialService.sign(did, vpReq.encode(), null, null, authKeyId, "assertionMethod")
 
         log.debug { "Verifiable Presentation generated:\n$vp" }
 
-      //  verifiablePresentationFile.writeText(vp)
+        //  verifiablePresentationFile.writeText(vp)
 
         val vpCan = canonicalize(vp)
 

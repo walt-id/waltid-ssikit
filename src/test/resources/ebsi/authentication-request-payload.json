@@ -5,13 +5,35 @@
   "client_id": "<redirect-uri>",
   "nonce": "<random-nonce>",
   "registration": {
-    "redirect_uris": ["https://app.ebsi.xyz"],
+    "redirect_uris": [
+      "https://app.ebsi.xyz"
+    ],
     "response_types": "id_token",
-    "id_token_signed_response_alg": ["RS256", "ES256", "ES256K", "EdDSA"],
-    "request_object_signing_alg": ["RS256", "ES256", "ES256K", "EdDSA"],
-    "access_token_signing_alg": ["RS256", "ES256", "ES256K", "EdDSA"],
-    "access_token_encryption_alg_values_supported": ["ECDH-ES"],
-    "access_token_encryption_enc_values_supported": ["A128GCM", "A256GCM"],
+    "id_token_signed_response_alg": [
+      "RS256",
+      "ES256",
+      "ES256K",
+      "EdDSA"
+    ],
+    "request_object_signing_alg": [
+      "RS256",
+      "ES256",
+      "ES256K",
+      "EdDSA"
+    ],
+    "access_token_signing_alg": [
+      "RS256",
+      "ES256",
+      "ES256K",
+      "EdDSA"
+    ],
+    "access_token_encryption_alg_values_supported": [
+      "ECDH-ES"
+    ],
+    "access_token_encryption_enc_values_supported": [
+      "A128GCM",
+      "A256GCM"
+    ],
     "jwks_uri": "https://api.ebsi.xyz/did/1.0/identifiers/did:ebsi:0x416e6e6162656c2e4c65652e452d412d506f652e"
   },
   "claims": {
@@ -26,7 +48,10 @@
             "document": {
               "type": {
                 "essential": true,
-                "value": ["VerifiableCredential", "VerifiableAuthorisation"]
+                "value": [
+                  "VerifiableCredential",
+                  "VerifiableAuthorisation"
+                ]
               },
               "credentialSchema": {
                 "id": {

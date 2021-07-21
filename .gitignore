@@ -13,12 +13,12 @@ target/
 
 # Gradle
 .gradle
-gradle
 build/
 gradle-app.setting
 !gradle-wrapper.jar
 .gradletasknamecache
 **/build/
+gradle.properties
 
 # LetsTrust
 keys/
@@ -26,3 +26,4 @@ keys/
 /data-20210719/
 /docs/essif/*
 *.log
+data

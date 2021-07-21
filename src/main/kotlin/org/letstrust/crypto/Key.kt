@@ -2,8 +2,8 @@ package org.letstrust.crypto
 
 import com.google.crypto.tink.KeysetHandle
 import kotlinx.serialization.Serializable
-import org.letstrust.CryptoProvider
-import org.letstrust.crypto.keystore.TinkKeyStore
+import org.letstrust.services.CryptoProvider
+import org.letstrust.services.keystore.TinkKeyStoreService
 import java.security.KeyPair
 import java.security.PublicKey
 import java.security.interfaces.ECPublicKey
@@ -16,7 +16,7 @@ data class KeyId(val id: String) {
 data class Key(val keyId: KeyId, val algorithm: KeyAlgorithm, val cryptoProvider: CryptoProvider) {
     fun getPublicKey(): PublicKey = when {
         keyPair != null -> keyPair!!.public
-        keysetHandle != null -> TinkKeyStore.loadPublicKey(this) as ECPublicKey
+        keysetHandle != null -> TinkKeyStoreService().loadPublicKey(this) as ECPublicKey
         else -> throw Exception("No public key for $keyId")
     }
 
@@ -36,6 +36,8 @@ data class Key(val keyId: KeyId, val algorithm: KeyAlgorithm, val cryptoProvider
     ) : this(keyId, algorithm, cryptoProvider) {
         this.keysetHandle = keysetHandle
     }
+
+    override fun toString(): String = "Key[${keyId.id}; Algo: ${algorithm.name}; Provider: ${cryptoProvider.name}]"
 
     var keyPair: KeyPair? = null
     var keysetHandle: KeysetHandle? = null

@@ -8,7 +8,6 @@ import io.javalin.plugin.openapi.annotations.OpenApiResponse
 import org.letstrust.services.essif.UserWalletService
 
 
-
 object UserWalletController {
 
     @OpenApi(

@@ -8,20 +8,19 @@ import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import org.bouncycastle.asn1.ASN1BitString
 import org.bouncycastle.asn1.ASN1Sequence
-import org.letstrust.LetsTrustServices
+import org.letstrust.services.LetsTrustServices
 import org.letstrust.crypto.*
 import org.letstrust.crypto.KeyAlgorithm.ECDSA_Secp256k1
 import org.letstrust.crypto.KeyAlgorithm.EdDSA_Ed25519
-import org.letstrust.crypto.keystore.KeyStore
 import org.letstrust.model.*
+import org.letstrust.services.crypto.CryptoService
 import org.letstrust.services.key.KeyService
-import org.letstrust.services.vc.CredentialService
+import org.letstrust.services.keystore.KeyStoreService
+import org.letstrust.services.vc.VCService
 import java.io.File
-import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.*
-import kotlin.streams.toList
 
 private val log = KotlinLogging.logger {}
 
@@ -30,8 +29,10 @@ private val log = KotlinLogging.logger {}
  */
 object DidService {
 
-    private val cryptoService = LetsTrustServices.load<CryptoService>()
-    private val keyStore = LetsTrustServices.load<KeyStore>()
+    private val credentialService = VCService.getService()
+    private val cryptoService = CryptoService.getService()
+    private val keyStore = KeyStoreService.getService()
+    private val keyService = KeyService.getService()
 
     // Public methods
 
@@ -79,7 +80,8 @@ object DidService {
 
         log.debug { "Resolving DID $didUrl" }
 
-        val didDoc = LetsTrustServices.http.get<String>("https://api.preprod.ebsi.eu/did-registry/v2/identifiers/${didUrl.did}")
+        val didDoc =
+            LetsTrustServices.http.get<String>("https://api.preprod.ebsi.eu/did-registry/v2/identifiers/${didUrl.did}")
 
         log.debug { didDoc }
 
@@ -109,7 +111,7 @@ object DidService {
             EdDSA_Ed25519 -> "Ed25519VerificationKey2018"
             ECDSA_Secp256k1 -> "Secp256k1VerificationKey2018"
         }
-        val publicKeyJwk = Json.decodeFromString<Jwk>(KeyService.toJwk(kid).toPublicJWK().toString())
+        val publicKeyJwk = Json.decodeFromString<Jwk>(keyService.toJwk(kid).toPublicJWK().toString())
         val verificationMethods = mutableListOf(
             VerificationMethod(kid, keyType, didUrlStr, null, null, publicKeyJwk),
         )
@@ -198,7 +200,7 @@ object DidService {
     }
 
     private fun signDid(issuerDid: String, verificationMethod: String, edDidStr: String): String {
-        val signedDid = CredentialService.sign(issuerDid, edDidStr, null, null, verificationMethod)
+        val signedDid = credentialService.sign(issuerDid, edDidStr, null, null, verificationMethod)
         return signedDid
     }
 
@@ -219,7 +221,14 @@ object DidService {
 //        }
 
         val eidasKeyId = didUrl.identifier + "#" + UUID.randomUUID().toString().replace("-", "")
-        verificationMethods.add(VerificationMethod(eidasKeyId, "EidasVerificationKey2021", "publicKeyPem", "-----BEGIN.."))
+        verificationMethods.add(
+            VerificationMethod(
+                eidasKeyId,
+                "EidasVerificationKey2021",
+                "publicKeyPem",
+                "-----BEGIN.."
+            )
+        )
 
         return DidEbsi(
             listOf("https://w3id.org./did/v1"), // TODO Context not working "https://ebsi.org/ns/did/v1"
@@ -270,7 +279,7 @@ object DidService {
         return Triple(dhKeyId, verificationMethods, keyRef)
     }
 
-    public fun resolveDidWebDummy(didUrl: DidUrl): Did {
+    fun resolveDidWebDummy(didUrl: DidUrl): Did {
         log.warn { "DID WEB implementation is not finalized yet. Use it only for demo purpose." }
         keyStore.getKeyId(didUrl.did).let {
             keyStore.load(it!!).let {

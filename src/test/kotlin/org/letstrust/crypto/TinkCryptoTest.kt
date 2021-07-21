@@ -2,6 +2,7 @@ package org.letstrust.crypto
 
 import com.google.crypto.tink.config.TinkConfig
 import org.junit.Test
+import org.letstrust.services.crypto.TinkCryptoService
 import kotlin.test.assertTrue
 
 class TinkCryptoTest {
@@ -10,22 +11,22 @@ class TinkCryptoTest {
         TinkConfig.register()
     }
 
-    val crypto = TinkCryptoService
+    val tinkCryptoService = TinkCryptoService()
     val data = "some data".toByteArray()
 
     @Test
     fun signSecp256k1Test() {
-        val keyId = crypto.generateKey(KeyAlgorithm.ECDSA_Secp256k1)
-        val sig = crypto.sign(keyId, data)
-        val res = crypto.verify(keyId, sig, data)
+        val keyId = tinkCryptoService.generateKey(KeyAlgorithm.ECDSA_Secp256k1)
+        val sig = tinkCryptoService.sign(keyId, data)
+        val res = tinkCryptoService.verify(keyId, sig, data)
         assertTrue(res)
     }
 
     @Test
     fun signEd25519Test() {
-        val keyId = crypto.generateKey(KeyAlgorithm.EdDSA_Ed25519)
-        val sig = crypto.sign(keyId, data)
-        val res = crypto.verify(keyId, sig, data)
+        val keyId = tinkCryptoService.generateKey(KeyAlgorithm.EdDSA_Ed25519)
+        val sig = tinkCryptoService.sign(keyId, data)
+        val res = tinkCryptoService.verify(keyId, sig, data)
         assertTrue(res)
     }
 }

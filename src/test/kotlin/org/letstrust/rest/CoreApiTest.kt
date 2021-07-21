@@ -1,6 +1,7 @@
 package org.letstrust.rest
 
 import com.nimbusds.jose.jwk.JWK
+import id.walt.servicematrix.ServiceMatrix
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.json.*
@@ -25,7 +26,9 @@ import org.letstrust.model.VerifiableCredential
 import org.letstrust.model.encodePretty
 import org.letstrust.services.did.DidService
 import org.letstrust.services.key.KeyFormat
-import org.letstrust.services.vc.CredentialService
+import org.letstrust.services.vc.VCService
+import org.letstrust.services.vc.VerificationResult
+import org.letstrust.services.vc.VerificationType
 import org.letstrust.test.getTemplate
 import org.letstrust.test.readCredOffer
 import org.letstrust.vclib.vcs.EbsiVerifiableAttestation
@@ -40,6 +43,11 @@ import kotlin.test.assertTrue
 
 class CoreApiTest {
 
+    init {
+        ServiceMatrix("service-matrix.properties")
+    }
+
+    val credentialService = VCService.getService()
     val CORE_API_URL = "http://localhost:7003"
 
     val client = HttpClient(CIO) {
@@ -47,20 +55,6 @@ class CoreApiTest {
             serializer = KotlinxSerializer()
         }
         expectSuccess = false
-    }
-
-    companion object {
-        @BeforeClass
-        @JvmStatic
-        fun startServer() {
-            RestAPI.startCoreApi(7003)
-        }
-
-        @AfterClass
-        @JvmStatic
-        fun teardown() {
-            RestAPI.stopCoreApi()
-        }
     }
 
     fun get(path: String): HttpResponse = runBlocking {
@@ -94,6 +88,20 @@ class CoreApiTest {
         }
         //assertEquals(200, response.status.value)
         return@runBlocking response
+    }
+
+    companion object {
+        @BeforeClass
+        @JvmStatic
+        fun startServer() {
+            RestAPI.startCoreApi(7003)
+        }
+
+        @AfterClass
+        @JvmStatic
+        fun teardown() {
+            RestAPI.stopCoreApi()
+        }
     }
 
     @Test
@@ -266,7 +274,7 @@ class CoreApiTest {
 
         println("Credential request:\n$vcReqEnc")
 
-        val vcStr = CredentialService.sign(issuerDid, vcReqEnc)
+        val vcStr = credentialService.sign(issuerDid, vcReqEnc)
         val vc = VC.decode(vcStr)
 
         println("Credential generated: ${vc}")
@@ -277,12 +285,12 @@ class CoreApiTest {
         }
         assertEquals(2, countMatches(vp, "proof"))
 
-        val result = client.post<CredentialService.VerificationResult>("$CORE_API_URL/v1/vc/verify") {
+        val result = client.post<VerificationResult>("$CORE_API_URL/v1/vc/verify") {
             contentType(ContentType.Application.Json)
             body = VerifyVcRequest(vp)
         }
         assertEquals(true, result.verified)
-        assertEquals(CredentialService.VerificationType.VERIFIABLE_PRESENTATION, result.verificationType)
+        assertEquals(VerificationType.VERIFIABLE_PRESENTATION, result.verificationType)
     }
 
 }

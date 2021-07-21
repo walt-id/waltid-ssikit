@@ -16,11 +16,11 @@ VOLUME /home/gradle/.gradle
 
 WORKDIR /opt
 
-RUN apt-get update
+RUN apt-get update && apt-get upgrade --yes
 
 FROM openjdk-gradle AS letstrust-build
 COPY ./ /opt
-RUN ./gradlew clean assemble
+RUN ./gradlew clean build
 RUN tar xf /opt/build/distributions/letstrust-ssi-core-1.0-SNAPSHOT.tar -C /opt
 
 RUN mkdir /app

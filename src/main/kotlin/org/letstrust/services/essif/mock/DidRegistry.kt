@@ -1,7 +1,5 @@
 package org.letstrust.services.essif.mock
 
-import org.letstrust.common.readEssif
-
 object DidRegistry {
     fun get(did: String): String {
         return "did"

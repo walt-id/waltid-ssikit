@@ -3,15 +3,18 @@
   "data": {
     "@context": [
       "https://w3.org/ns/did/v1,
-      https: //ebsi.org/ns/did/v1"
+      https
+      :
+      //ebsi.org/ns/did/v1"
     ],
     "id": "did:ebsi:2123456789AB...fghijkmno",
-    "verificationMethod": [{
-      "id": "did:ebsi:2123456789AB...fghijkmno#key-1",
-      "type": "Ed25519VerificationKey2018",
-      "controller": "did:ebsi:2123456789AB...fghijkmno",
-      "publicKeyBase58": "5F5Q1qJbbvcyhnStAmkjF5rUBKe1XnHJHt2Tj49tTDpW"
-    },
+    "verificationMethod": [
+      {
+        "id": "did:ebsi:2123456789AB...fghijkmno#key-1",
+        "type": "Ed25519VerificationKey2018",
+        "controller": "did:ebsi:2123456789AB...fghijkmno",
+        "publicKeyBase58": "5F5Q1qJbbvcyhnStAmkjF5rUBKe1XnHJHt2Tj49tTDpW"
+      },
       {
         "id": "did:ebsi:2123456789AB...fghijkmno#key-2",
         "type": "X25519KeyAgreementKey2019",

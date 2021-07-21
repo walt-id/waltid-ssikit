@@ -38,7 +38,7 @@ class JwtTest {
         val claimsSet = JWTClaimsSet.Builder()
             .subject("alice")
             .issuer("https://c2id.com")
-            .expirationTime(Date(Date().getTime() + 60 * 1000))
+            .expirationTime(Date(Date().time + 60 * 1000))
             .build()
 
         var signedJWT = SignedJWT(
@@ -105,7 +105,8 @@ class JwtTest {
         // XZi_-U4RdMr4JvbiTKXH1ClofZgw
 
         // Parse the signed JWT
-        val jwtString = "eyJraWQiOiIxMjMiLCJhbGciOiJFUzI1NksifQ.eyJzdWIiOiJhbGljZSJ9.kbqs7pDjDCKNsy9KddEnfOD0i1BjsiqveVJztAXraIsH_ATLzJ_LqyDSTQ0vQhfuy24HBdA4jSwax8_0r6gTbg"
+        val jwtString =
+            "eyJraWQiOiIxMjMiLCJhbGciOiJFUzI1NksifQ.eyJzdWIiOiJhbGljZSJ9.kbqs7pDjDCKNsy9KddEnfOD0i1BjsiqveVJztAXraIsH_ATLzJ_LqyDSTQ0vQhfuy24HBdA4jSwax8_0r6gTbg"
 
         val jwt2 = SignedJWT.parse(jwt.serialize())
 
@@ -133,7 +134,7 @@ class JwtTest {
 
         // Create JWT
         val signedJWT = SignedJWT(
-            JWSHeader.Builder(JWSAlgorithm.ES256K).keyID(senderJWK.getKeyID()).build(),
+            JWSHeader.Builder(JWSAlgorithm.ES256K).keyID(senderJWK.keyID).build(),
             JWTClaimsSet.Builder()
                 .subject("test")
                 .issueTime(Date())
@@ -152,10 +153,11 @@ class JwtTest {
             Payload(signedJWT)
         )
 
-        val recipientPublicJWK = ECKeyGenerator(Curve.P_384) // SECP256K1 not working for encrypter; P_384 -> nist complient
-            .keyUse(KeyUse.SIGNATURE)
-            .keyID("456")
-            .generate()
+        val recipientPublicJWK =
+            ECKeyGenerator(Curve.P_384) // SECP256K1 not working for encrypter; P_384 -> nist complient
+                .keyUse(KeyUse.SIGNATURE)
+                .keyID("456")
+                .generate()
 
         // Encrypt with the recipient's public key
         jweObject.encrypt(ECDHEncrypter(recipientPublicJWK))

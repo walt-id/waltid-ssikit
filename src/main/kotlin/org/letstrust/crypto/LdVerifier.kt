@@ -16,7 +16,10 @@ import java.security.interfaces.ECPublicKey
 class LdVerifier {
 
     class EcdsaSecp256k1Signature2019(val publicKey: PublicKey) :
-        LdVerifier<EcdsaSecp256k1Signature2019SignatureSuite?>(SignatureSuites.SIGNATURE_SUITE_ECDSASECP256L1SIGNATURE2019, null) {
+        LdVerifier<EcdsaSecp256k1Signature2019SignatureSuite?>(
+            SignatureSuites.SIGNATURE_SUITE_ECDSASECP256L1SIGNATURE2019,
+            null
+        ) {
 
         override fun verify(signingInput: ByteArray, ldProof: LdProof): Boolean {
             val detachedJwsObject = JWSObject.parse(ldProof.jws)
@@ -29,10 +32,12 @@ class LdVerifier {
     class Ed25519Signature2018(val publicKey: Key) :
         LdVerifier<Ed25519Signature2018SignatureSuite?>(SignatureSuites.SIGNATURE_SUITE_ED25519SIGNATURE2018, null) {
 
+        val keyService = KeyService.getService()
+
         override fun verify(signingInput: ByteArray, ldProof: LdProof): Boolean {
             val detachedJwsObject = JWSObject.parse(ldProof.jws)
             val jwsSigningInput = JWSUtil.getJwsSigningInput(detachedJwsObject.header, signingInput)
-            val jwsVerifier = Ed25519Verifier(KeyService.toEd25519Jwk(publicKey))
+            val jwsVerifier = Ed25519Verifier(keyService.toEd25519Jwk(publicKey))
             return jwsVerifier.verify(detachedJwsObject.header, jwsSigningInput, detachedJwsObject.signature)
         }
     }

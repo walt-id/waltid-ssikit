@@ -15,8 +15,8 @@ import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import org.letstrust.model.VerifiableCredential
 import org.letstrust.model.encodePretty
-import org.letstrust.services.vc.CredentialService
-import org.letstrust.services.vc.CredentialService.VerificationType
+import org.letstrust.services.vc.VCService
+import org.letstrust.services.vc.VerificationType
 import org.letstrust.vclib.vcs.Europass
 import org.letstrust.vclib.vcs.PermanentResidentCard
 import org.letstrust.vclib.vcs.VC
@@ -25,6 +25,8 @@ import java.sql.Timestamp
 import java.time.LocalDateTime
 
 private val log = KotlinLogging.logger {}
+
+private val credentialService = VCService.getService()
 
 class VerifiableCredentialsCommand : CliktCommand(
     name = "vc",
@@ -74,7 +76,7 @@ class IssueVcCommand : CliktCommand(
 //        }
 
         if (!template.exists()) {
-            template.writeText(CredentialService.defaultVcTemplate().encodePretty())
+            template.writeText(credentialService.defaultVcTemplate().encodePretty())
         }
 
         // Populating VC with data
@@ -109,7 +111,7 @@ class IssueVcCommand : CliktCommand(
         echo("\nResults:\n")
 
         // Signing VC
-        val vcStr = CredentialService.sign(issuerDid, vcReqEnc)
+        val vcStr = credentialService.sign(issuerDid, vcReqEnc)
 
 
         echo("Generated Credential:\n\n$vcStr")
@@ -135,7 +137,6 @@ class PresentVcCommand : CliktCommand(
         
         """
 ) {
-
     val src: File by argument().file()
     val domain: String? by option("-d", "--domain", help = "Domain name to be used in the proof")
     val challenge: String? by option("-c", "--challenge", help = "Challenge to be used in the proof")
@@ -150,7 +151,7 @@ class PresentVcCommand : CliktCommand(
         }
 
         // Creating the Verifiable Presentation
-        val vp = CredentialService.present(src.readText(), domain, challenge)
+        val vp = credentialService.present(src.readText(), domain, challenge)
 
         log.debug { "Presentation created (ld-signature):\n$vp" }
 
@@ -189,7 +190,7 @@ class VerifyVcCommand : CliktCommand(
             throw Exception("Could not load file $src")
         }
 
-        val verificationResult = CredentialService.verify(src.readText())
+        val verificationResult = credentialService.verify(src.readText())
 
         echo("\nResults:\n")
 
@@ -219,7 +220,7 @@ class ListVcCommand : CliktCommand(
 
         echo("\nResults:\n")
 
-        CredentialService.listVCs().forEachIndexed { index, vc -> echo("- ${index + 1}: $vc") }
+        credentialService.listVCs().forEachIndexed { index, vc -> echo("- ${index + 1}: $vc") }
     }
 }
 
@@ -249,7 +250,7 @@ class ListVcTemplateCommand : CliktCommand(
 
         echo("\nResults:\n")
 
-        CredentialService.listTemplates().forEachIndexed { index, vc -> echo("- ${index + 1}: $vc") }
+        credentialService.listTemplates().forEachIndexed { index, vc -> echo("- ${index + 1}: $vc") }
     }
 }
 
@@ -260,11 +261,16 @@ class ExportVcTemplateCommand : CliktCommand(
         """
 ) {
 
-    val templateName: String by option("-n", "--template-name", help = "Name of the template to being exported").required()
+    val templateName: String by option(
+        "-n",
+        "--template-name",
+        help = "Name of the template to being exported"
+    ).required()
 
     override fun run() {
         echo("\nExporting VC template ...")
 
-        File("vc-template-$templateName-${getTimeMillis()}.json").writeText(CredentialService.loadTemplate(templateName))
+        echo(credentialService.loadTemplate(templateName))
+        File("vc-template-$templateName-${getTimeMillis()}.json").writeText(credentialService.loadTemplate(templateName))
     }
 }

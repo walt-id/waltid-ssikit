@@ -5,7 +5,12 @@
   "type": [
     "VerifiablePresentation"
   ],
-  "verifiableCredential": [{Verifiable Authorisation}],
+  "verifiableCredential": [
+    {
+      Verifiable
+      Authorisation
+    }
+  ],
   "holder": "{client DID}",
   "proof": {
     "type": "Ed25519Signature2018",

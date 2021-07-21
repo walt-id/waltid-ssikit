@@ -1,11 +1,9 @@
 package org.letstrust.essif
 
 import com.nimbusds.jose.jwk.Curve
-import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.jwk.OctetKeyPair
 import com.nimbusds.jose.jwk.gen.OctetKeyPairGenerator
 import com.nimbusds.jose.shaded.json.JSONObject
-import com.nimbusds.jwt.JWT
 import com.nimbusds.jwt.SignedJWT
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -13,18 +11,20 @@ import kotlinx.serialization.json.Json
 import org.junit.Test
 import org.letstrust.common.readEssif
 import org.letstrust.common.urlEncode
-import org.letstrust.crypto.JwtSigner
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.encBase64
 import org.letstrust.model.*
 import org.letstrust.services.did.DidService
-import org.letstrust.services.essif.*
+import org.letstrust.services.essif.EssifFlowRunner
+import org.letstrust.services.essif.EssifServer
+import org.letstrust.services.essif.UserWalletService
 import org.letstrust.services.jwt.JwtService
 import org.letstrust.services.key.KeyService
 import java.util.*
 
 class VcIssuanceFlowTest {
 
+    private val keyService = KeyService.getService()
 
     private fun generateDidAuthRequest(): String {
         // println(EnterpriseWalletService.generateDidAuthRequest())
@@ -33,7 +33,7 @@ class VcIssuanceFlowTest {
         val client_id = "http://localhost:8080/redirect" // redirect url
         val scope = "openid did_authn"
         val response_type = "id_token"
-        val publicKeyJwk = Json.decodeFromString<Jwk>(KeyService.toJwk(kid).toPublicJWK().toString())
+        val publicKeyJwk = Json.decodeFromString<Jwk>(keyService.toJwk(kid).toPublicJWK().toString())
         val authRequestHeader = AuthenticationHeader("ES256K", "JWT", publicKeyJwk)
         val iss = "did:ebsi:0x416e6e6162656c2e4c65652e452d412d506f652e"
         val nonce = UUID.randomUUID().toString()
@@ -53,7 +53,8 @@ class VcIssuanceFlowTest {
                 listOf<String>()
             )
         )
-        val authRequestPayload = AuthenticationRequestPayload(scope, iss, response_type, client_id, nonce, registration, claims)
+        val authRequestPayload =
+            AuthenticationRequestPayload(scope, iss, response_type, client_id, nonce, registration, claims)
         val didAuthRequestJwt = AuthenticationRequestJwt(authRequestHeader, authRequestPayload)
         val callback = "https://ti.example.com/callback"
         val didAuthReq = DidAuthRequest(response_type, client_id, scope, nonce, didAuthRequestJwt, callback)
@@ -76,8 +77,6 @@ class VcIssuanceFlowTest {
 
     @Test
     fun testOpenSiopSession() {
-
-
         val siopRequest = EssifServer.generateAuthenticationRequest()
 
         val did = DidService.create(DidMethod.ebsi)
@@ -93,7 +92,8 @@ class VcIssuanceFlowTest {
         print(idToken)
         val bearerToken = ""
 
-        val siopResponse = generateSiopSessionResponse(idToken) // LegalEntityClient.eos.siopSession(idToken, bearerToken)
+        val siopResponse =
+            generateSiopSessionResponse(idToken) // LegalEntityClient.eos.siopSession(idToken, bearerToken)
 
         //val accessTokenResponse = Json.decodeFromString<AccessTokenResponse>(siopResponse)
 
@@ -127,7 +127,7 @@ class VcIssuanceFlowTest {
         println(encryption_key)
         val emphClientKey = OctetKeyPair.parse(encryption_key) // ECKey.parse(encryption_key)
 
-        val privateKeyId = KeyService.generate(KeyAlgorithm.EdDSA_Ed25519).id
+        val privateKeyId = keyService.generate(KeyAlgorithm.EdDSA_Ed25519).id
         println(privateKeyId)
         val siopResponse = JwtService.encrypt(privateKeyId, emphClientKey, accessToken)
 

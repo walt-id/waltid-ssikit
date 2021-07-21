@@ -1,17 +1,16 @@
-package org.letstrust.crypto.keystore
+package org.letstrust.services.keystore
 
 import mu.KotlinLogging
-import org.letstrust.crypto.buildKey
 import org.letstrust.common.SqlDbManager
 import org.letstrust.crypto.Key
 import org.letstrust.crypto.KeyId
+import org.letstrust.crypto.buildKey
 import org.letstrust.crypto.toBase64
-import java.lang.IllegalArgumentException
 import java.sql.Statement.RETURN_GENERATED_KEYS
 
-private val log = KotlinLogging.logger() {}
+private val log = KotlinLogging.logger {}
 
-object SqlKeyStore : KeyStore {
+open class SqlKeyStoreService : KeyStoreService() {
 
     init {
         SqlDbManager.start()
@@ -21,7 +20,10 @@ object SqlKeyStore : KeyStore {
         log.debug { "Saving key \"${key}\"" }
 
         SqlDbManager.getConnection().use { con ->
-            con.prepareStatement("insert into lt_key (name, priv, pub, algorithm, provider) values (?, ?, ?, ?, ?)", RETURN_GENERATED_KEYS)
+            con.prepareStatement(
+                "insert into lt_key (name, priv, pub, algorithm, provider) values (?, ?, ?, ?, ?)",
+                RETURN_GENERATED_KEYS
+            )
                 .use { stmt ->
                     stmt.setString(1, key.keyId.id)
 
@@ -42,7 +44,7 @@ object SqlKeyStore : KeyStore {
 
     }
 
-    override fun load(alias: String, loadPrivate: Boolean): Key {
+    override fun load(alias: String, keyType: KeyType): Key {
         log.debug { "Loading key \"${alias}\"." }
         var key: Key? = null
 
@@ -53,7 +55,13 @@ object SqlKeyStore : KeyStore {
                 stmt.setString(1, keyId)
                 stmt.executeQuery().use { rs ->
                     if (rs.next()) {
-                        key = buildKey(keyId, rs.getString("algorithm"), rs.getString("provider"), rs.getString("pub"), if (loadPrivate) rs.getString("priv") else null)
+                        key = buildKey(
+                            keyId,
+                            rs.getString("algorithm"),
+                            rs.getString("provider"),
+                            rs.getString("pub"),
+                            if (keyType == KeyType.PRIVATE) rs.getString("priv") else null
+                        )
                     }
                 }
                 con.commit()
@@ -117,12 +125,13 @@ object SqlKeyStore : KeyStore {
                     stmt.executeQuery().use { rs ->
                         if (rs.next()) {
                             rs.getInt("id").let { key_id ->
-                                con.prepareStatement("insert into lt_key_alias (key_id, alias) values (?, ?)").use { stmt ->
-                                    stmt.setInt(1, key_id)
-                                    stmt.setString(2, alias)
-                                    stmt.executeUpdate()
-                                    log.trace { "Alias \"${alias}\" for keyId \"${keyId}\" saved successfully." }
-                                }
+                                con.prepareStatement("insert into lt_key_alias (key_id, alias) values (?, ?)")
+                                    .use { stmt ->
+                                        stmt.setInt(1, key_id)
+                                        stmt.setString(2, alias)
+                                        stmt.executeUpdate()
+                                        log.trace { "Alias \"${alias}\" for keyId \"${keyId}\" saved successfully." }
+                                    }
                             }
                         }
                     }
@@ -181,7 +190,15 @@ object SqlKeyStore : KeyStore {
             con.prepareStatement("select * from lt_key").use { stmt ->
                 stmt.executeQuery().use { rs ->
                     while (rs.next()) {
-                        keys.add(buildKey(rs.getString("name"), rs.getString("algorithm"), rs.getString("provider"), rs.getString("pub"), rs.getString("priv")))
+                        keys.add(
+                            buildKey(
+                                rs.getString("name"),
+                                rs.getString("algorithm"),
+                                rs.getString("provider"),
+                                rs.getString("pub"),
+                                rs.getString("priv")
+                            )
+                        )
 //                        var keyId = rs.getString("name")
 //                        var algorithm = rs.getString("algorithm")
 //                        var provider = rs.getString("provider")
@@ -206,7 +223,7 @@ object SqlKeyStore : KeyStore {
             }
             con.commit()
         }
-        return keys;
+        return keys
     }
 
 //    override fun loadKeyPair(keyId: String): Keys? {

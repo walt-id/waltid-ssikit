@@ -9,7 +9,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.versionOption
 import mu.KotlinLogging
 import org.apache.logging.log4j.Level
-import org.letstrust.LetsTrustServices
+import org.letstrust.services.LetsTrustServices
 import org.letstrust.Values
 
 
@@ -38,7 +38,11 @@ class LetsTrust : CliktCommand(
         versionOption(Values.version, message = {
             """
             Let's Trust: $it${if (Values.isSnapshot) " - SNAPSHOT VERSION, use only for demo and testing purposes)" else " - stable release"}
-            Environment: ${System.getProperty("java.runtime.name")} of ${System.getProperty("java.vm.name")} (${System.getProperty("java.version.date")})
+            Environment: ${System.getProperty("java.runtime.name")} of ${System.getProperty("java.vm.name")} (${
+                System.getProperty(
+                    "java.version.date"
+                )
+            })
             OS version:  ${System.getProperty("os.name")} ${System.getProperty("os.version")}
         """.trimIndent()
         })
@@ -72,7 +76,7 @@ object LetsTrustCLI {
 
     fun start(args: Array<String>) {
 
-        LetsTrustServices;
+        LetsTrustServices
 
         try {
 

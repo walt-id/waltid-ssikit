@@ -4,7 +4,7 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
-import org.letstrust.LetsTrustServices
+import org.letstrust.services.LetsTrustServices
 import org.letstrust.common.readEssif
 import org.letstrust.model.AuthRequestResponse
 import org.letstrust.services.essif.mock.DidRegistry

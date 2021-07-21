@@ -1,6 +1,5 @@
 package org.letstrust.services.essif
 
-import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import kotlinx.serialization.decodeFromString
@@ -11,7 +10,6 @@ import org.letstrust.common.toParamMap
 import org.letstrust.model.AuthRequestResponse
 import org.letstrust.model.DidAuthRequest
 import org.letstrust.services.did.DidService
-import org.letstrust.services.essif.mock.DidRegistry
 import org.letstrust.services.jwt.JwtService
 import org.letstrust.services.key.KeyService
 import java.time.Instant
@@ -25,12 +23,14 @@ object EnterpriseWalletService {
 //        DidService.create(DidMethod.web)
 //    }
 
+    private val keyService = KeyService.getService()
+
 
     fun constructAuthResponseJwt(did: String, redirectUri: String, nonce: String): String {
 
         //val kid = "$did#key-1"
         val kid = DidService.loadDidEbsi(did).authentication!![0]
-        val key = KeyService.toJwk(did, false, kid)
+        val key = keyService.toJwk(did, jwkKeyId = kid)
         val thumbprint = key.computeThumbprint().toString()
 
         val payload = JWTClaimsSet.Builder()
@@ -122,7 +122,7 @@ object EnterpriseWalletService {
         return authRequest
     }
 
-    fun generateDidAuthRequest() : String {
+    fun generateDidAuthRequest(): String {
         println("3. [EWallet] Generate <DID-Auth Request>")
         return readEssif("onboarding-did-ownership-req")
     }

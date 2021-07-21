@@ -50,7 +50,11 @@ class EssifOnboardingCommand : CliktCommand(
         ESSIF onboarding flow"""
 ) {
 
-    val keyId: String by option("-k", "--key-id", help = "Key ID or key alias").default("0ec07d2f853c4b00bd701a6124f1e4c3")
+    val keyId: String by option(
+        "-k",
+        "--key-id",
+        help = "Key ID or key alias"
+    ).default("0ec07d2f853c4b00bd701a6124f1e4c3")
     val did: String by option("-d", "--did", help = "DID to be onboarded").required()
 
     override fun run() {
@@ -168,7 +172,8 @@ class EssifTirCommand : CliktCommand(
 
         ESSIF DID operations."""
 ) {
-    override fun run() = TODO("The \"ESSIF-TIR\" operation has not yet been implemented in this Let's Trust snapshot (currently running ${Values.version}).")
+    override fun run() =
+        TODO("The \"ESSIF-TIR\" operation has not yet been implemented in this Let's Trust snapshot (currently running ${Values.version}).")
 }
 
 class EssifTaorCommand : CliktCommand(
@@ -177,7 +182,8 @@ class EssifTaorCommand : CliktCommand(
 
         ESSIF Trusted Accreditation Organization operations."""
 ) {
-    override fun run() = TODO("The \"ESSIF-TAOR\" operation has not yet been implemented in this Let's Trust snapshot (currently running ${Values.version}).")
+    override fun run() =
+        TODO("The \"ESSIF-TAOR\" operation has not yet been implemented in this Let's Trust snapshot (currently running ${Values.version}).")
 }
 
 class EssifTsrCommand : CliktCommand(
@@ -186,5 +192,6 @@ class EssifTsrCommand : CliktCommand(
 
         ESSIF Trusted Schema Registry operations."""
 ) {
-    override fun run() = TODO("The \"ESSIF-TSR\" operation has not yet been implemented in this Let's Trust snapshot (currently running ${Values.version}).")
+    override fun run() =
+        TODO("The \"ESSIF-TSR\" operation has not yet been implemented in this Let's Trust snapshot (currently running ${Values.version}).")
 }

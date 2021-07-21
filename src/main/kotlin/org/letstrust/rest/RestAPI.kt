@@ -223,7 +223,10 @@ object RestAPI {
                 path("enterprise") {
                     path("wallet") {
                         post("createDid", EnterpriseWalletController::createDid)
-                        post("requestVerifiableAuthorization", EnterpriseWalletController::requestVerifiableAuthorization)
+                        post(
+                            "requestVerifiableAuthorization",
+                            EnterpriseWalletController::requestVerifiableAuthorization
+                        )
                         post("requestVerifiableCredential", EnterpriseWalletController::requestVerifiableCredential)
                         post("generateDidAuthRequest", EnterpriseWalletController::generateDidAuthRequest)
                         // post("onboardTrustedIssuer", EnterpriseWalletController::onboardTrustedIssuer) not supported yet
@@ -249,14 +252,15 @@ object RestAPI {
 
                     if (obj is ArrayList<*>) {
                         // TODO: support other list-element types
-                        return Json.encodeToString(ListSerializer(String.serializer()),obj as ArrayList<String>)
+                        return Json.encodeToString(ListSerializer(String.serializer()), obj as ArrayList<String>)
                     }
 
                     return Json.encodeToString(serializer(obj.javaClass), obj)
                 }
             }
             JavalinJson.fromJsonMapper = object : FromJsonMapper {
-                override fun <T> map(json: String, targetClass: Class<T>): T = Json.decodeFromString(serializer(targetClass) as KSerializer<T>, json)
+                override fun <T> map(json: String, targetClass: Class<T>): T =
+                    Json.decodeFromString(serializer(targetClass) as KSerializer<T>, json)
             }
 
         }.exception(IllegalArgumentException::class.java) { e, ctx ->

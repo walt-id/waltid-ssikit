@@ -2,7 +2,7 @@ package org.letstrust.common
 
 import com.zaxxer.hikari.HikariDataSource
 import mu.KotlinLogging
-import org.letstrust.LetsTrustServices
+import org.letstrust.services.LetsTrustServices
 import java.sql.Connection
 import java.sql.Statement
 
@@ -13,7 +13,7 @@ object SqlDbManager {
 //    val JDBC_URL = "jdbc:sqlite::memory:"
 
     //  private val config: HikariConfig = HikariConfig()
-    private var ds: HikariDataSource? = LetsTrustServices.load<HikariDataSource>()
+    private var dataSource: HikariDataSource? = LetsTrustServices.loadHikariDataSource()
 
     // TODO: Should be configurable
     val recreateDb = false
@@ -35,11 +35,10 @@ object SqlDbManager {
     }
 
     fun stop() {
-        ds?.close()
+        dataSource?.close()
     }
 
     private fun createDatabase() {
-
         getConnection().use { con ->
             con.createStatement().use { stmt ->
 
@@ -74,7 +73,7 @@ object SqlDbManager {
 
     fun getConnection(): Connection {
         // var connection = DriverManager.getConnection(JDBC_URL)
-        return ds!!.connection!!
+        return dataSource!!.connection!!
     }
 
     fun getLastRowId(statement: Statement): Int {

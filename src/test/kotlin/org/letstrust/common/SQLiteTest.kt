@@ -1,31 +1,34 @@
 package org.letstrust.common
 
 import com.nimbusds.jose.util.Base64
+import id.walt.servicematrix.ServiceMatrix
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.junit.Before
 import org.junit.Test
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.services.key.KeyService
+import org.letstrust.services.keystore.KeyType
 import java.security.Security
 import kotlin.test.assertEquals
 
 class SQLiteTest {
+    val keyService = KeyService.getService()
+
     @Before
     fun setup() {
         Security.addProvider(BouncyCastleProvider())
+        ServiceMatrix("service-matrix.properties")
     }
 
     @Test
     fun createKeyStoreDb() {
-
-        val kms = KeyService
-        val keyId = kms.generate(KeyAlgorithm.ECDSA_Secp256k1)
-        val key = kms.load(keyId.id, true)
-        val db = SqlDbManager
+        val keyId = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val key = keyService.load(keyId.id, KeyType.PRIVATE)
+        val database = SqlDbManager
         val pubKeyStr = Base64.encode(key.getPublicKey().encoded).toString()
 
 
-        db.getConnection().use { con ->
+        database.getConnection().use { con ->
             con.createStatement().use { stmt ->
                 stmt.executeUpdate("drop table if exists lt_keystore")
                 stmt.executeUpdate(

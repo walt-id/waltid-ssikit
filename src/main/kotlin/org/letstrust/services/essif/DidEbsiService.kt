@@ -7,9 +7,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import mu.KotlinLogging
-import org.letstrust.LetsTrustServices
+import org.letstrust.services.LetsTrustServices
 import org.letstrust.common.readWhenContent
-import org.letstrust.crypto.CryptoService
 import org.letstrust.crypto.canonicalize
 import org.letstrust.services.did.DidService
 import org.letstrust.services.key.KeyService
@@ -75,7 +74,8 @@ data class SignedTransaction(val r: String, val s: String, val v: String, val si
 object DidEbsiService {
 
     private val log = KotlinLogging.logger {}
-    private val cs = LetsTrustServices.load<CryptoService>()
+    private val cryptoService = org.letstrust.services.crypto.CryptoService.getService()
+    private val keyService = KeyService.getService()
 
     fun registerDid(did: String, ethKeyAlias: String) = runBlocking {
         log.debug { "Running EBSI DID registration ... " }
@@ -112,11 +112,12 @@ object DidEbsiService {
     fun buildInsertDocumentParams(did: String, ethKeyAlias: String? = null): List<InsertDidDocumentParams> {
         val didDocumentString = Json.encodeToString(DidService.loadDidEbsi(did))
 
-        val from = KeyService.getEthereumAddress(ethKeyAlias?:did)
+        val from = keyService.getEthereumAddress(ethKeyAlias ?: did)
         val identifier = Numeric.toHexString(did.toByteArray())
         val hashValue = Numeric.toHexString(Hash.sha256(canonicalize(didDocumentString).toByteArray()))
         val didVersionInfo = Numeric.toHexString(didDocumentString.toByteArray())
-        val timestampData = Numeric.toHexString("{\"data\":\"test\"}".toByteArray()) // TODO: check what data needs to be put here
+        val timestampData =
+            Numeric.toHexString("{\"data\":\"test\"}".toByteArray()) // TODO: check what data needs to be put here
         val didVersionMetadata =
             Numeric.toHexString("{\"meta\":\"${Numeric.toHexStringNoPrefix(Random.Default.nextBytes(32))}\"}".toByteArray()) // TODO: check what data needs to be put here
 
@@ -140,11 +141,11 @@ object DidEbsiService {
         var rlpList = RlpList(TransactionEncoder.asRlpValues(rawTransaction, signatureData))
 
         val encodedTx = RlpEncoder.encode(rlpList)
-        val key = KeyService.load(ethKeyAlias)
-        val sig = cs.signEthTransaction(key.keyId, encodedTx)!!
+        val key = keyService.load(ethKeyAlias)
+        val sig = cryptoService.signEthTransaction(key.keyId, encodedTx)
 //        val sig = toECDSASignature(cs.sign(key.keyId, encodedTx), key.algorithm)
         val v = BigInteger
-            .valueOf(KeyService.getRecoveryId(ethKeyAlias, encodedTx, sig).toLong())
+            .valueOf(keyService.getRecoveryId(ethKeyAlias, encodedTx, sig).toLong())
             .add(chainId.multiply(BigInteger.TWO))
             .add(BigInteger.valueOf(35L))
 
@@ -183,6 +184,11 @@ object DidEbsiService {
             append(HttpHeaders.Accept, "application/json")
             append(HttpHeaders.Authorization, "Bearer $bearerToken")
         }
-        body = JsonRpcRequest("2.0", method, params, (0..999).random()) //TODO: consider ID value. is random the generation ok?
+        body = JsonRpcRequest(
+            "2.0",
+            method,
+            params,
+            (0..999).random()
+        ) //TODO: consider ID value. is random the generation ok?
     }
 }

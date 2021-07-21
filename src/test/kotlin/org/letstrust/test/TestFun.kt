@@ -15,4 +15,5 @@ fun readVerifiableCredential(fileName: String) =
 fun readDid(fileName: String) =
     File("$RESOURCES_PATH/dids/${fileName}.json").readText(Charsets.UTF_8)
 
-fun getTemplate( name: String): VC = VcLibManager.getVerifiableCredential(File("templates/vc-template-$name.json").readText(Charsets.UTF_8))
+fun getTemplate(name: String): VC =
+    VcLibManager.getVerifiableCredential(File("templates/vc-template-$name.json").readText(Charsets.UTF_8))

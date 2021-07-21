@@ -1,6 +1,6 @@
 package org.letstrust.crypto
 
-import org.letstrust.LetsTrustServices
+import org.letstrust.services.crypto.CryptoService
 import java.security.PrivateKey
 import java.security.PublicKey
 import java.security.SignatureSpi
@@ -20,7 +20,7 @@ open class LtSignature(val algorithm: String) : SignatureSpi() {
     var off: Int? = null
     var len: Int? = null
 
-    val cryptoService = LetsTrustServices.load<CryptoService>()
+    val cryptoService = CryptoService.getService()
 
     override fun engineInitVerify(publicKey: PublicKey?) {
         keyId = (publicKey as PublicKeyHandle).keyId

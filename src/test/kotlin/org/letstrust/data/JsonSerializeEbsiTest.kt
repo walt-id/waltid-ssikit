@@ -91,7 +91,8 @@ class JsonSerializeEbsiTest {
             )
         )
         val eidasCertificate = EidasCertificate("123456", "123456", "blob")
-        val issuer = Issuer("Brand Name", "www.domain.com",did, eidasCertificate, serviceEndpoints, organizationInfo, proof)
+        val issuer =
+            Issuer("Brand Name", "www.domain.com", did, eidasCertificate, serviceEndpoints, organizationInfo, proof)
         val accreditationCredentials = listOf(
             VerifiableCredential(
                 listOf(

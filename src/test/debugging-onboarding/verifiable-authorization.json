@@ -1,1 +1,32 @@
-{"verifiableCredential":{"id":"vc:ebsi:authentication#bb90da10-1a38-4ccd-9897-397ca690afa8","issuer":"did:ebsi:4jPxcigvfifZyVwym5zjxaKXGJTt7YwFtpg6AXtsR4d5","validFrom":"2021-06-08T07:56:36Z","credentialSubject":{"id":"did:ebsi:26wnek36z4djq1fdCgTZLTuRCe9gMf5Cr6FG8chyuaEBR4fT"},"credentialSchema":{"id":"https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0x312e332e362e312e342e312e313636342e31302e3138372e312e322e322e3333","type":"OID"},"issuanceDate":"2021-06-08T07:56:36Z","expirationDate":"2021-12-07T07:56:36Z","@context":["https://www.w3.org/2018/credentials/v1","https://www.w3.org/2018/credentials/examples/v1","https://w3c-ccg.github.io/lds-jws2020/contexts/lds-jws2020-v1.json"],"type":["VerifiableCredential","VerifiableAuthorisation"],"proof":{"type":"EcdsaSecp256k1Signature2019","created":"2021-06-08T07:56:36Z","proofPurpose":"assertionMethod","verificationMethod":"did:ebsi:4jPxcigvfifZyVwym5zjxaKXGJTt7YwFtpg6AXtsR4d5#keys-1","jws":"eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QifQ..YONPdKVv1ql0pYlVfR4voR6sHN5OLmTGDQqzLCmV_P7l5h1xSNd8-pE95ERJHYgwqkNsgEqikYb5BipWRE_MdQ"}}}
+{
+  "verifiableCredential": {
+    "id": "vc:ebsi:authentication#bb90da10-1a38-4ccd-9897-397ca690afa8",
+    "issuer": "did:ebsi:4jPxcigvfifZyVwym5zjxaKXGJTt7YwFtpg6AXtsR4d5",
+    "validFrom": "2021-06-08T07:56:36Z",
+    "credentialSubject": {
+      "id": "did:ebsi:26wnek36z4djq1fdCgTZLTuRCe9gMf5Cr6FG8chyuaEBR4fT"
+    },
+    "credentialSchema": {
+      "id": "https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0x312e332e362e312e342e312e313636342e31302e3138372e312e322e322e3333",
+      "type": "OID"
+    },
+    "issuanceDate": "2021-06-08T07:56:36Z",
+    "expirationDate": "2021-12-07T07:56:36Z",
+    "@context": [
+      "https://www.w3.org/2018/credentials/v1",
+      "https://www.w3.org/2018/credentials/examples/v1",
+      "https://w3c-ccg.github.io/lds-jws2020/contexts/lds-jws2020-v1.json"
+    ],
+    "type": [
+      "VerifiableCredential",
+      "VerifiableAuthorisation"
+    ],
+    "proof": {
+      "type": "EcdsaSecp256k1Signature2019",
+      "created": "2021-06-08T07:56:36Z",
+      "proofPurpose": "assertionMethod",
+      "verificationMethod": "did:ebsi:4jPxcigvfifZyVwym5zjxaKXGJTt7YwFtpg6AXtsR4d5#keys-1",
+      "jws": "eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QifQ..YONPdKVv1ql0pYlVfR4voR6sHN5OLmTGDQqzLCmV_P7l5h1xSNd8-pE95ERJHYgwqkNsgEqikYb5BipWRE_MdQ"
+    }
+  }
+}

@@ -6,18 +6,16 @@ import foundation.identity.jsonld.ConfigurableDocumentLoader
 import foundation.identity.jsonld.JsonLDObject
 import info.weboftrust.ldsignatures.LdProof
 import info.weboftrust.ldsignatures.jsonld.LDSecurityContexts
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import org.json.JSONObject
-import org.letstrust.LetsTrustServices
 import org.letstrust.crypto.KeyAlgorithm
 import org.letstrust.crypto.LdSigner
-import org.letstrust.crypto.keystore.KeyStore
 import org.letstrust.model.*
 import org.letstrust.model.Proof
+import org.letstrust.services.keystore.KeyStoreService
 import org.letstrust.vclib.vcs.*
 import java.io.File
 import java.net.URI
@@ -30,26 +28,22 @@ import kotlin.streams.toList
 
 private val log = KotlinLogging.logger {}
 
-/**
- * W3C Verifiable Credential Service
- */
-object CredentialService {
+open class LetstrustVCService : VCService() {
 
-    private var ks: KeyStore = LetsTrustServices.load<KeyStore>()
+    private var ks: KeyStoreService = KeyStoreService.getService()
 
     init {
         Ed25519Provider.set(TinkEd25519Provider())
     }
 
-    fun sign(
+    override fun sign(
         issuerDid: String,
         jsonCred: String,
-        domain: String? = null,
-        nonce: String? = null,
-        verificationMethod: String? = null,
-        proofPurpose: String? = null
+        domain: String?,
+        nonce: String?,
+        verificationMethod: String?,
+        proofPurpose: String?
     ): String {
-
         log.debug { "Signing jsonLd object with: issuerDid ($issuerDid), domain ($domain), nonce ($nonce)" }
 
         val jsonLdObject: JsonLDObject = JsonLDObject.fromJson(jsonCred)
@@ -85,7 +79,7 @@ object CredentialService {
 
     }
 
-    fun verifyVc(issuerDid: String, vc: String): Boolean {
+    override fun verifyVc(issuerDid: String, vc: String): Boolean {
         log.trace { "Loading verification key for:  $issuerDid" }
 
         val publicKey = ks.load(issuerDid)
@@ -176,30 +170,24 @@ object CredentialService {
         return Json.encodeToString(vc)
     }
 
-    fun addProof(credMap: Map<String, String>, ldProof: LdProof): String {
+    override fun addProof(credMap: Map<String, String>, ldProof: LdProof): String {
         val signedCredMap = HashMap<String, Any>(credMap)
         signedCredMap["proof"] = JSONObject(ldProof.toJson())
         return JSONObject(signedCredMap).toString()
     }
 
-    enum class VerificationType {
-        VERIFIABLE_CREDENTIAL,
-        VERIFIABLE_PRESENTATION
-    }
-
-    @Serializable
-    data class VerificationResult(val verified: Boolean, val verificationType: VerificationType)
-
-    fun verify(vcOrVp: String): VerificationResult {
+    override fun verify(vcOrVp: String): VerificationResult {
         return when { // TODO: replace the raw contains call
-            vcOrVp.contains("VerifiablePresentation") -> VerificationResult(verifyVp(vcOrVp), VerificationType.VERIFIABLE_PRESENTATION)
+            vcOrVp.contains("VerifiablePresentation") -> VerificationResult(
+                verifyVp(vcOrVp),
+                VerificationType.VERIFIABLE_PRESENTATION
+            )
             else -> VerificationResult(verifyVc(vcOrVp), VerificationType.VERIFIABLE_CREDENTIAL)
         }
-
     }
 
 
-    fun verifyVc(vc: String): Boolean {
+    override fun verifyVc(vc: String): Boolean {
         log.debug { "Verifying VC:\n$vc" }
 
         //val vcObj = Json.decodeFromString<VerifiableCredential>(vc)
@@ -215,7 +203,7 @@ object CredentialService {
         return vcVerified
     }
 
-    fun verifyVp(vpStr: String): Boolean {
+    override fun verifyVp(vpStr: String): Boolean {
         log.debug { "Verifying VP:\n$vpStr" }
 
         // val vpObj = Json.decodeFromString<VerifiablePresentation>(vp)
@@ -279,7 +267,7 @@ object CredentialService {
 //        return verifier.verify(jsonLdObject)
 //    }
 
-    fun present(vcStr: String, domain: String? = null, challenge: String? = null): String {
+    override fun present(vcStr: String, domain: String?, challenge: String?): String {
         log.debug { "Creating a presentation for VC:\n$vcStr" }
 
 //        val (vpReqStr, holderDid) = try {
@@ -344,14 +332,14 @@ object CredentialService {
         return vp
     }
 
-    fun listVCs(): List<String> {
+    override fun listVCs(): List<String> {
         return Files.walk(Path.of("data/vc/created"))
             .filter { it -> Files.isRegularFile(it) }
             .filter { it -> it.toString().endsWith(".json") }
             .map { it.fileName.toString() }.toList()
     }
 
-    fun defaultVcTemplate(): VerifiableCredential {
+    override fun defaultVcTemplate(): VerifiableCredential {
         return VerifiableCredential(
             listOf(
                 "https://www.w3.org/2018/credentials/v1"
@@ -367,7 +355,7 @@ object CredentialService {
         )
     }
 
-    fun listTemplates(): List<String> {
+    override fun listTemplates(): List<String> {
         return Files.walk(Path.of("templates"))
             .filter { it -> Files.isRegularFile(it) }
             .filter { it -> it.toString().endsWith(".json") }
@@ -375,5 +363,5 @@ object CredentialService {
     }
 
     //TODO: fix typed response: fun loadTemplate(name: String): VerifiableCredential = Json.decodeFromString(File("templates/vc-template-$name.json").readText())
-    fun loadTemplate(name: String): String = File("templates/vc-template-$name.json").readText()
+    override fun loadTemplate(name: String): String = File("templates/vc-template-$name.json").readText()
 }
