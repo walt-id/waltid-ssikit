@@ -1,0 +1,25 @@
+{
+  "@context": [
+    "https://w3.org/ns/did/v1"
+  ],
+  "id": "did:ebsi:23R3YwWEc7J1chejmwjh5JDaRjqvvf6ogHnxJNHUvaep4f98",
+  "verificationMethod": [
+    {
+      "id": "did:ebsi:23R3YwWEc7J1chejmwjh5JDaRjqvvf6ogHnxJNHUvaep4f98#key-1",
+      "type": "Secp256k1VerificationKey2018",
+      "controller": "did:ebsi:23R3YwWEc7J1chejmwjh5JDaRjqvvf6ogHnxJNHUvaep4f98",
+      "publicKeyJwk": {
+        "kid": "DidEbsiServiceTest_key",
+        "kty": "EC",
+        "alg": "ES256K",
+        "crv": "secp256k1",
+        "use": "sig",
+        "x": "nCOwfFKyIsS4Tu_BrEUac9XskbPVHY-gyvROBtd_mAE",
+        "y": "QN1yfM4Zi8i4VQmW9cea_nBP7pBwfcZNrVK8fBnNkUA"
+      }
+    }
+  ],
+  "authentication": [
+    "did:ebsi:23R3YwWEc7J1chejmwjh5JDaRjqvvf6ogHnxJNHUvaep4f98#key-1"
+  ]
+}

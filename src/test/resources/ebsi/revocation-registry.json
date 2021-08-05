@@ -1,0 +1,14 @@
+{
+  "id": "101",
+  "version": "1",
+  "type": [
+    "VerifiableCredential",
+    "VerifiableAttestation"
+  ],
+  "context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://essif.europa.eu/schemas/vc/2020/v1",
+    "https://essif.europa.eu/schemas/eidas/2020/v1",
+    "https://essif.europa.eu/schemas/education/2020/v1"
+  ]
+}

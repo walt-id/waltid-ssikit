@@ -1,0 +1,48 @@
+{
+  "@context": [
+    "https://w3.org/ns/did/v1"
+  ],
+  "id": "did:ebsi:z6Mkrh4MqBFc4LSNaFyYjbcgJfW3Cqmspg1bC6DTap4hX1ZU",
+  "verificationMethod": [
+    {
+      "id": "z6Mkrh4MqBFc4LSNaFyYjbcgJfW3Cqmspg1bC6DTap4hX1ZU#z6Mkrh4MqBFc4LSNaFyYjbcgJfW3Cqmspg1bC6DTap4hX1ZU",
+      "type": "Ed25519VerificationKey2018",
+      "controller": "did:ebsi:z6Mkrh4MqBFc4LSNaFyYjbcgJfW3Cqmspg1bC6DTap4hX1ZU",
+      "publicKeyBase58": "DEoKEw1AinwuTm8r42eqTZx3PGW2QnmEW5JXkY6gbnn6"
+    },
+    {
+      "id": "z6Mkrh4MqBFc4LSNaFyYjbcgJfW3Cqmspg1bC6DTap4hX1ZU#z6LSsXya35YkUkZxneWqDYoxo58uNWPQ6ekpNoBcsy9jmuMb",
+      "type": "X25519KeyAgreementKey2019",
+      "controller": "did:ebsi:z6Mkrh4MqBFc4LSNaFyYjbcgJfW3Cqmspg1bC6DTap4hX1ZU",
+      "publicKeyBase58": "GroQWmjtPHrDhG94guJ1UUvRXMrHQ3afVpTwPWWD4Xaq"
+    },
+    {
+      "id": "z6Mkrh4MqBFc4LSNaFyYjbcgJfW3Cqmspg1bC6DTap4hX1ZU#0fce6b9d0e464a1b9bcae5388d9753d4",
+      "type": "EidasVerificationKey2021",
+      "controller": "publicKeyPem",
+      "publicKeyBase58": "-----BEGIN.."
+    }
+  ],
+  "authentication": [
+    "z6Mkrh4MqBFc4LSNaFyYjbcgJfW3Cqmspg1bC6DTap4hX1ZU#z6Mkrh4MqBFc4LSNaFyYjbcgJfW3Cqmspg1bC6DTap4hX1ZU"
+  ],
+  "assertionMethod": [
+    "z6Mkrh4MqBFc4LSNaFyYjbcgJfW3Cqmspg1bC6DTap4hX1ZU#z6Mkrh4MqBFc4LSNaFyYjbcgJfW3Cqmspg1bC6DTap4hX1ZU"
+  ],
+  "capabilityDelegation": [
+    "z6Mkrh4MqBFc4LSNaFyYjbcgJfW3Cqmspg1bC6DTap4hX1ZU#z6Mkrh4MqBFc4LSNaFyYjbcgJfW3Cqmspg1bC6DTap4hX1ZU"
+  ],
+  "capabilityInvocation": [
+    "z6Mkrh4MqBFc4LSNaFyYjbcgJfW3Cqmspg1bC6DTap4hX1ZU#z6Mkrh4MqBFc4LSNaFyYjbcgJfW3Cqmspg1bC6DTap4hX1ZU"
+  ],
+  "keyAgreement": [
+    "z6Mkrh4MqBFc4LSNaFyYjbcgJfW3Cqmspg1bC6DTap4hX1ZU#z6LSsXya35YkUkZxneWqDYoxo58uNWPQ6ekpNoBcsy9jmuMb"
+  ],
+  "proof": {
+    "type": "Ed25519Signature2018",
+    "creator": "did:ebsi:z6Mkrh4MqBFc4LSNaFyYjbcgJfW3Cqmspg1bC6DTap4hX1ZU",
+    "created": "2021-05-07T06:18:58Z",
+    "verificationMethod": "z6Mkrh4MqBFc4LSNaFyYjbcgJfW3Cqmspg1bC6DTap4hX1ZU#z6Mkrh4MqBFc4LSNaFyYjbcgJfW3Cqmspg1bC6DTap4hX1ZU",
+    "jws": "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..Xp_N7maKu0Uf6G9paFH8I0aZOhyzppkfmiPlk68M-F18pwj8Bs3CAM_HrYLahdCs-rwF7IbxpgUf6iSTIb1pDw"
+  }
+}

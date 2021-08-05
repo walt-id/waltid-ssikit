@@ -1,0 +1,27 @@
+{
+  "iat": 1623156446,
+  "exp": 1623156746,
+  "iss": "https://self-issued.me",
+  "sub": "dIEuWeirGBGORXK5IS5ttWSJB_wpeL6ojEyHtoezFiM",
+  "aud": "/siop-sessions",
+  "nonce": "8f444370-cf7b-4029-8027-2c1d9ac30778",
+  "sub_jwk": {
+    "kid": "did:ebsi:26wnek36z4djq1fdCgTZLTuRCe9gMf5Cr6FG8chyuaEBR4fT#key-1",
+    "kty": "EC",
+    "crv": "secp256k1",
+    "x": "Cyb12xp1x7LfaulXdDkDovXXiAJtR4xPjGQiH9B6lcw",
+    "y": "nNV-RFkLeFefO5dM2lOybYebr8qFCi3grdV7fTQTKgo"
+    // "alg": "ES256K",
+    // "use": "sig"
+  },
+  "claims": {
+    "verified_claims": "eyJAY29udGV4dCI6WyJodHRwczovL3d3dy53My5vcmcvMjAxOC9jcmVkZW50aWFscy92MSJdLCJwcm9vZiI6eyJjcmVhdGVkIjoiMjAyMS0wNi0wOFQxMjo0NzoxM1oiLCJjcmVhdG9yIjoiZGlkOmVic2k6MjZ3bmVrMzZ6NGRqcTFmZENnVFpMVHVSQ2U5Z01mNUNyNkZHOGNoeXVhRUJSNGZUIiwiandzIjoiZXlKaU5qUWlPbVpoYkhObExDSmpjbWwwSWpwYkltSTJOQ0pkTENKaGJHY2lPaUpGVXpJMU5rc2lmUS4uRWlxdkdfN3RObGVhWUpockI3Q010dklCdURtYWNiSmdvMnFvbmZLcC1kTHJXaUotVVFKVFZBQWNIc3JCWGxNaXlzaHZ6T25mTzFaMmhyX2ZhQ2FRVmciLCJ0eXBlIjoiRWNkc2FTZWNwMjU2azFTaWduYXR1cmUyMDE5In0sInR5cGUiOlsiVmVyaWZpYWJsZVByZXNlbnRhdGlvbiJdLCJ2ZXJpZmlhYmxlQ3JlZGVudGlhbCI6W3siQGNvbnRleHQiOlsiaHR0cHM6Ly93d3cudzMub3JnLzIwMTgvY3JlZGVudGlhbHMvdjEiLCJodHRwczovL3d3dy53My5vcmcvMjAxOC9jcmVkZW50aWFscy9leGFtcGxlcy92MSIsImh0dHBzOi8vdzNjLWNjZy5naXRodWIuaW8vbGRzLWp3czIwMjAvY29udGV4dHMvbGRzLWp3czIwMjAtdjEuanNvbiJdLCJjcmVkZW50aWFsU2NoZW1hIjp7ImlkIjoiaHR0cHM6Ly9hcGkucHJlcHJvZC5lYnNpLmV1L3RydXN0ZWQtc2NoZW1hcy1yZWdpc3RyeS92MS9zY2hlbWFzLzB4MzEyZTMzMmUzNjJlMzEyZTM0MmUzMTJlMzEzNjM2MzQyZTMxMzAyZTMxMzgzNzJlMzEyZTMyMmUzMjJlMzMzMyIsInR5cGUiOiJPSUQifSwiY3JlZGVudGlhbFN1YmplY3QiOnsiaWQiOiJkaWQ6ZWJzaToyNnduZWszNno0ZGpxMWZkQ2dUWkxUdVJDZTlnTWY1Q3I2Rkc4Y2h5dWFFQlI0ZlQifSwiZXhwaXJhdGlvbkRhdGUiOiIyMDIxLTEyLTA3VDA3OjU2OjM2WiIsImlkIjoidmM6ZWJzaTphdXRoZW50aWNhdGlvbiNiYjkwZGExMC0xYTM4LTRjY2QtOTg5Ny0zOTdjYTY5MGFmYTgiLCJpc3N1YW5jZURhdGUiOiIyMDIxLTA2LTA4VDA3OjU2OjM2WiIsImlzc3VlciI6ImRpZDplYnNpOjRqUHhjaWd2ZmlmWnlWd3ltNXpqeGFLWEdKVHQ3WXdGdHBnNkFYdHNSNGQ1IiwicHJvb2YiOnsiY3JlYXRlZCI6IjIwMjEtMDYtMDhUMDc6NTY6MzZaIiwiandzIjoiZXlKaGJHY2lPaUpGVXpJMU5rc2lMQ0owZVhBaU9pSktWMVFpZlEuLllPTlBkS1Z2MXFsMHBZbFZmUjR2b1I2c0hONU9MbVRHRFFxekxDbVZfUDdsNWgxeFNOZDgtcEU5NUVSSkhZZ3dxa05zZ0VxaWtZYjVCaXBXUkVfTWRRIiwicHJvb2ZQdXJwb3NlIjoiYXNzZXJ0aW9uTWV0aG9kIiwidHlwZSI6IkVjZHNhU2VjcDI1NmsxU2lnbmF0dXJlMjAxOSIsInZlcmlmaWNhdGlvbk1ldGhvZCI6ImRpZDplYnNpOjRqUHhjaWd2ZmlmWnlWd3ltNXpqeGFLWEdKVHQ3WXdGdHBnNkFYdHNSNGQ1I2tleXMtMSJ9LCJ0eXBlIjpbIlZlcmlmaWFibGVDcmVkZW50aWFsIiwiVmVyaWZpYWJsZUF1dGhvcmlzYXRpb24iXSwidmFsaWRGcm9tIjoiMjAyMS0wNi0wOFQwNzo1NjozNloifV19",
+    "encryption_key": {
+      "kyt": "EC",
+      "crv": "secp256k1",
+      "x": "Cyb12xp1x7LfaulXdDkDovXXiAJtR4xPjGQiH9B6lcw",
+      "y": "nNV-RFkLeFefO5dM2lOybYebr8qFCi3grdV7fTQTKgo"
+      // "alg": "ES256K"
+    }
+  }
+}

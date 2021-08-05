@@ -1,0 +1,62 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+skinparam classFontColor 007BFF
+skinparam classFontSize 12
+skinparam classFontName Aapex
+skinparam backgroundColor white
+skinparam minClassWidth 155
+skinparam nodesep 34
+skinparam ranksep 70
+
+skinparam class {
+BorderColor 007BFF
+ArrowColor 007BFF
+BackgroundColor white
+}
+
+skinparam interface {
+BorderColor 007BFF
+ArrowColor 007BFF
+}
+
+skinparam note {
+BorderColor 007BFF
+BackgroundColor 7ACFF5
+}
+
+class CredentialService {}
+
+package WebOfTrust-LDSignatures {
+class LDSigner #line:gray;text:gray  {}
+}
+
+package Nimbus-JoseJWT {
+class JWTSigner #line:gray;text:gray 
+}
+
+LDSigner->JWTSigner
+
+package JCA {
+    interface Provider #line:gray;text:gray {}
+    interface SignatureSpi #line:gray;text:gray {}
+}
+
+class WaltIdProvider {}
+class WaltIdSignatureSpi {}
+
+WaltIdProvider ..> WaltIdSignatureSpi
+
+WaltIdProvider -up-|> Provider
+WaltIdSignatureSpi -up-|> SignatureSpi
+
+JWTSigner -right->SignatureSpi
+
+CredentialService --> LDSigner
+
+class CryptoService {}
+
+WaltIdSignatureSpi -right-> CryptoService
+
+
+@enduml

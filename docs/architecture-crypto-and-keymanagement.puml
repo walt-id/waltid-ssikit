@@ -1,0 +1,90 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+skinparam classFontColor 007BFF
+skinparam classFontSize 12
+skinparam classFontName Aapex
+skinparam backgroundColor white
+skinparam minClassWidth 155
+skinparam nodesep 34
+skinparam ranksep 70
+
+skinparam class {
+BorderColor 007BFF
+ArrowColor 007BFF
+BackgroundColor white
+}
+
+skinparam interface {
+BorderColor 007BFF
+ArrowColor 007BFF
+}
+
+skinparam note {
+BorderColor 007BFF
+BackgroundColor 7ACFF5
+}
+
+note as ConfNote
+  walt.yaml
+end note
+
+class WaltIdServices {
+load<ServiceType>()
+}
+
+ConfNote -right- WaltIdServices
+
+WaltIdServices ..> Crypto
+WaltIdServices ..> KeyStore
+
+interface Crypto  {
+gen(algorithm): KeyId
+sign(keyId, data): bytes
+addAlias(keyId, alias): boolean
+encrypt(keyId, data): bytes
+decrypt(keyId, data): bytes
+}
+
+interface KeyStore {
+store(Key)
+addAlias(keyId, alias)
+loadKey(name): (Key)
+deleteKey(name)
+}
+
+class Key {
+keyId
+keyPair //JCA
+keysetHandle // Tink
+}
+
+KeyStore -up-> Key
+
+class SQLKeyStore  {}
+class FileKeyStore  {}
+class TinkKeyStore  {}
+class CustomKeyStore  {}
+
+note as CustomKeyStoreNote
+  Dyn. instantiated via:
+  META-INF/services
+end note
+
+CustomKeyStoreNote --> CustomKeyStore
+
+KeyStore <|-right- CustomKeyStore
+KeyStore <|-- SQLKeyStore
+KeyStore <|-- FileKeyStore
+KeyStore <|-- TinkKeyStore
+
+
+Crypto <|-- SunCrypto
+Crypto <|-- TinkCrypto
+
+Crypto o-right-> KeyStore
+
+
+
+
+@enduml

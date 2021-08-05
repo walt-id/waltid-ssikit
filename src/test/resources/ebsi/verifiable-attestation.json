@@ -1,0 +1,28 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://essif.europa.eu/schemas/vc/2020/v1"
+  ],
+  "id": "https://essif.europa.eu/tsr/53",
+  "type": [
+    "VerifiableCredential",
+    "VerifiableAttestation"
+  ],
+  "issuer": "",
+  "issuanceDate": "2013-12-03T10:15:30Z",
+  "credentialSubject": {
+    "did": "did:ebsi:00001235",
+    "authorizationClaims": [
+      "claim1",
+      "claim2"
+    ]
+  },
+  "credentialStatus": {
+    "id": "https://essif.europa.eu/status/45",
+    "type": "CredentialsStatusList2020"
+  },
+  "credentialSchema": {
+    "id": "https://essif.europa.eu/tsr/education/CSR1224.json",
+    "type": "JsonSchemaValidator2018"
+  }
+}

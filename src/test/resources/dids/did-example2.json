@@ -1,0 +1,33 @@
+{
+  "@context": "https://www.w3.org/ns/did/v1",
+  "id": "did:example:123456789abcdefghi",
+  "authentication": [
+    {
+      "id": "did:example:123456789abcdefghi#keys-1",
+      "type": "Ed25519VerificationKey2018",
+      "controller": "did:example:123456789abcdefghi",
+      "publicKeyBase58": "H3C2AVvLMv6gmMNam3uVAjZpfkcJCwDwnZn6z3wXmqPV"
+    }
+  ],
+  "controller": [
+    {
+      "id": "id1",
+      "controller": "contr1",
+      "type": "type1",
+      "publicKeyBase58": "key1"
+    },
+    {
+      "id": "id2",
+      "controller": "contr2",
+      "type": "type2",
+      "publicKeyBase58": "key2"
+    }
+  ],
+  "service": [
+    {
+      "id": "did:example:123456789abcdefghi#vcs",
+      "type": "VerifiableCredentialService",
+      "serviceEndpoint": "https://example.com/vc/"
+    }
+  ]
+}
