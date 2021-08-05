@@ -1,0 +1,60 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://essif.europa.eu/schemas/vc/2020/v1",
+    "https://essif.europa.eu/schemas/eidas/2020/v1"
+  ],
+  "id": "did:ebsi:00000001/credential/1872",
+  "type": [
+    "VerifiableCredential",
+    "VerifiableID"
+  ],
+  "issuer": "did:ebsi:00000001",
+  "issuanceDate": "2019-06-22T14:11:44Z",
+  "credentialSubject": {
+    "id": "did:ebsi:00000002",
+    "currentFamilyName": "Skywalker",
+    "currentFirstName": "Luke",
+    "dateOfBirth": "1999-03-22T00:00:00Z"
+  },
+  "credentialStatus": {
+    "id": "https: //essif.europa.eu/status/42",
+    "type": "CredentialsStatusList2020"
+  },
+  "credentialSchema": {
+    "id": "https://essif.europa.eu/tsr-vid/verifiableid.json",
+    "type": "JsonSchemaValidator2018"
+  },
+  "evidence": [
+    {
+      "id": "https://essif.europa.eu/evidence/f2aeec97-fc0d-42bf-8ca7-0548192d4231",
+      "type": [
+        "DocumentVerification"
+      ],
+      "verifier": "https:// essif.europa.eu /issuers/48",
+      "evidenceDocument": "Passport",
+      "subjectPresence": "Physical",
+      "documentPresence": "Physical"
+    },
+    {
+      "id": "https://essif.europa.eu/evidence/f2aeec97-fc0d-42bf-8ca7-0548192dxyzab",
+      "type": [
+        "SupportingActivity"
+      ],
+      "verifier": "https://example.edu/issuers/48",
+      "evidenceDocument": "Fluid Dynamics Focus",
+      "subjectPresence": "Digital",
+      "documentPresence": "Digital"
+    }
+  ],
+  "proof": {
+    "type": "EidasSeal2019",
+    "created": "2019-06-22T14:11:44Z",
+    "proofPurpose": "assertionMethod",
+    "verificationMethod": {
+      "type": "EidasCertificate2019",
+      "CertSerial": "1088321447"
+    },
+    "proofValue": "BD21J4fdlnBvBA+y6D...fnC8Y="
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "id": "vc:ebsi:authentication#6c4b5d20-1791-46b3-a1ed-6d384e4c5f25",
+  "issuer": "did:ebsi:4jPxcigvfifZyVwym5zjxaKXGJTt7YwFtpg6AXtsR4d5",
+  "validFrom": "2021-05-31T12:29:47Z",
+  "credentialSubject": {
+    "id": "did:ebsi:2LEi74mCZpgC8EqcngLCzUCL5d8W3dxfdjiy9XhaVoDyi259"
+  },
+  "credentialSchema": {
+    "id": "https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0x312e332e362e312e342e312e313636342e31302e3138372e312e322e322e3333",
+    "type": "OID"
+  },
+  "issuanceDate": "2021-05-31T12:29:47Z",
+  "expirationDate": "2021-11-29T12:29:47Z",
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://www.w3.org/2018/credentials/examples/v1",
+    "https://w3c-ccg.github.io/lds-jws2020/contexts/lds-jws2020-v1.json"
+  ],
+  "type": [
+    "VerifiableCredential",
+    "VerifiableAuthorisation"
+  ],
+  "proof": {
+    "type": "EcdsaSecp256k1Signature2019",
+    "created": "2021-05-31T12:29:47Z",
+    "proofPurpose": "assertionMethod",
+    "verificationMethod": "did:ebsi:4jPxcigvfifZyVwym5zjxaKXGJTt7YwFtpg6AXtsR4d5#keys-1",
+    "jws": "eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QifQ..UhwM1AYmCYKtuNAShubnzxeBoOWR8bS1FZpIp958DA6WRp_thPtaEOKPkksRKswgg1UYNWbJRBVPEXQKQloD0w"
+  }
+}
+

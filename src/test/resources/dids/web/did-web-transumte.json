@@ -1,0 +1,17 @@
+{
+  "@context": [
+    "https://www.w3.org/ns/did/v1",
+    {
+      "@base": "did:web:transmute.industries"
+    }
+  ],
+  "id": "did:web:transmute.industries",
+  "publicKey": [
+    {
+      "id": "#z6MknMgTsNigCLoLExEHqJiff8P6TPGEjhAkU2nFPDsRweiZ",
+      "type": "Ed25519VerificationKey2018",
+      "controller": "",
+      "publicKeyBase58": "8uRRH8UEroJs8TPb9jkpp2q6dozPKovPn1sKYwuR2RwB"
+    }
+  ]
+}

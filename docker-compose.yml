@@ -1,0 +1,11 @@
+version: "3.9"
+services:
+  ssi-core-dev-env:
+    build: .
+    volumes:
+    - ./data:/app/data
+    - ./templates:/app/templates
+    entrypoint: /app/bin/waltid-ssi-kit serve
+    ports:
+      - 7000:7000
+      - 7001:7001

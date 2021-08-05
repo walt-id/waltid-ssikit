@@ -1,0 +1,26 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://essif.europa.eu/schemas/vc/2020/v1"
+  ],
+  "credentialSubject": {
+    "id": "did:ebsi:00000004321",
+    "naturalPerson": {
+      "did": "did:example:00001111"
+    }
+  },
+  "id": "did:ebsi-eth:00000001/credentials/1872",
+  "issuanceDate": "2020-08-24T14:13:44Z",
+  "issuer": "did:ebsi:000001234",
+  "proof": {
+    "created": "2020-08-24T14:13:44Z",
+    "jws": "eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19.",
+    "proofPurpose": "assertionMethod",
+    "type": "EcdsaSecp256k1Signature2019",
+    "verificationMethod": "did:ebsi-eth:000001234#key-1"
+  },
+  "type": [
+    "VerifiableCredential",
+    "VerifiableAuthorization"
+  ]
+}

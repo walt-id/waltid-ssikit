@@ -1,0 +1,66 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1"
+  ],
+  "id": "education#higherEducation#51e42fda-cb0a-4333-b6a6-35cb147e1a88",
+  "type": [
+    "VerifiableCredential",
+    "VerifiableAttestation",
+    "Europass"
+  ],
+  "issuer": "did:ebsi:2LGKvDMrNUPR6FhSNrXzQQ1h295zr4HwoX9UqvwAsenSKHe9",
+  "issuanceDate": "2020-11-03T00:00:00Z",
+  "validFrom": "2020-11-03T00:00:00Z",
+  "credentialSubject": {
+    "id": "did:ebsi:22AhtW7XMssv7es4YcQTdV2MCM3c8b1VsiBfi5weHsjcCY9o",
+    "identifier": "0904008084H",
+    "givenNames": "Jane",
+    "familyName": "DOE",
+    "dateOfBirth": "1993-04-08",
+    "gradingScheme": {
+      "id": "https://blockchain.univ-lille.fr/ontology#GradingScheme",
+      "title": "Lower Second-Class Honours"
+    },
+    "learningAchievement": {
+      "id": "https://blockchain.univ-lille.fr/ontology#LearningAchievment",
+      "title": "MASTERS LAW, ECONOMICS AND MANAGEMENT",
+      "description": "MARKETING AND SALES",
+      "additionalNote": [
+        "DISTRIBUTION MANAGEMENT"
+      ]
+    },
+    "awardingOpportunity": {
+      "id": "https://blockchain.univ-lille.fr/ontology#AwardingOpportunity",
+      "identifier": "https://certificate-demo.bcdiploma.com/check/87ED2F2270E6C41456E94B86B9D9115B4E35BCCAD200A49B846592C14F79C86BV1Fnbllta0NZTnJkR3lDWlRmTDlSRUJEVFZISmNmYzJhUU5sZUJ5Z2FJSHpWbmZZ",
+      "awardingBody": {
+        "id": "did:ebsi:2LGKvDMrNUPR6FhSNrXzQQ1h295zr4HwoX9UqvwAsenSKHe9",
+        "eidasLegalIdentifier": "Unknown",
+        "registration": "0597065J",
+        "preferredName": "Université de Lille",
+        "homepage": "https://www.univ-lille.fr/"
+      },
+      "location": "FRANCE",
+      "startedAtTime": "Unknown",
+      "endedAtTime": "2020-11-03T00:00:00Z"
+    },
+    "learningSpecification": {
+      "id": "https://blockchain.univ-lille.fr/ontology#LearningSpecification",
+      "ISCEDFCode": [
+        "7"
+      ],
+      "ECTSCreditPoints": 120,
+      "EQFLevel": 7,
+      "NQFLevel": [
+        "7"
+      ]
+    }
+  },
+  "credentialStatus": {
+    "id": "https://essif.europa.eu/status/education#higherEducation#51e42fda-cb0a-4333-b6a6-35cb147e1a88",
+    "type": "CredentialsStatusList2020"
+  },
+  "credentialSchema": {
+    "id": "https://essif.europa.eu/trusted-schemas-registry/v1/schemas/to_be_obtained_after_registration_of_the_schema",
+    "type": "JsonSchemaValidator2018"
+  }
+}

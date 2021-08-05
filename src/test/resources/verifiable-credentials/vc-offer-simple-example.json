@@ -1,0 +1,26 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1"
+  ],
+  "id": "did:ebsi-eth:00000001/credentials/1872",
+  "type": [
+    "VerifiableCredential",
+    "VerifiableAuthorization"
+  ],
+  "issuer": "did:ebsi:000001234",
+  "issuanceDate": "2020-08-24T14:13:44Z",
+  "credentialSubject": {
+    "id": "did:ebsi:00000004321",
+    "naturalPerson": {
+      "did": "did:example:00001111",
+      "publicKey": "eyJhbGciOiJSUzI1NiIsImI2N",
+      "serviceEndpoints": [
+        {
+          "id": "did:example:123456789abcdefghi#openid",
+          "type": "OpenIdConnectVersion1.0Service",
+          "serviceEndpoint": "https://openid.example.com/"
+        }
+      ]
+    }
+  }
+}

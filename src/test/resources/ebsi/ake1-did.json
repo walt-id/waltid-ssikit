@@ -1,0 +1,25 @@
+{
+  "@context": [
+    "https://w3id.org/did/v1"
+  ],
+  "id": "did:ebsi:HC9tmiitW4S9fYAaj6RYsoqbT3s7TcwyhyrsbSiznsdZ",
+  "verificationMethod": [
+    {
+      "id": "did:ebsi:HC9tmiitW4S9fYAaj6RYsoqbT3s7TcwyhyrsbSiznsdZ#keys-1",
+      "type": "Secp256k1VerificationKey2018",
+      "controller": "did:ebsi:HC9tmiitW4S9fYAaj6RYsoqbT3s7TcwyhyrsbSiznsdZ",
+      "publicKeyJwk": {
+        "kty": "EC",
+        "crv": "secp256k1",
+        "x": "Ou6y1zrJBeVnpV739kcTyez7RmQZFYg3F9bWGm6V5dQ",
+        "y": "jOq6B8CsOxoXj-WXAGY28PH0Ype1x6bnOB6_YOo3lK0"
+      }
+    }
+  ],
+  "authentication": [
+    "did:ebsi:HC9tmiitW4S9fYAaj6RYsoqbT3s7TcwyhyrsbSiznsdZ"
+  ],
+  "assertionMethod": [
+    "did:ebsi:HC9tmiitW4S9fYAaj6RYsoqbT3s7TcwyhyrsbSiznsdZ#keys-1"
+  ]
+}

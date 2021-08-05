@@ -1,0 +1,32 @@
+{
+  "@context": "https://w3.org/ns/did/v1",
+  "id": "did:web:mattr.global",
+  "publicKey": [
+    {
+      "id": "did:web:mattr.global#5F5Q1qJbbv",
+      "type": "Ed25519VerificationKey2018",
+      "controller": "did:web:mattr.global",
+      "publicKeyBase58": "5F5Q1qJbbvcyhnStAmkjF5rUBKe1XnHJHt2Tj49tTDpW"
+    }
+  ],
+  "keyAgreement": [
+    {
+      "id": "did:web:mattr.global#GnxxE5rAFY",
+      "type": "X25519KeyAgreementKey2019",
+      "controller": "did:web:mattr.global",
+      "publicKeyBase58": "GnxxE5rAFYoRS6af7XArmzh7gNS68XTAKjhNDRsfhrFJ"
+    }
+  ],
+  "authentication": [
+    "did:web:mattr.global#5F5Q1qJbbv"
+  ],
+  "assertionMethod": [
+    "did:web:mattr.global#5F5Q1qJbbv"
+  ],
+  "capabilityDelegation": [
+    "did:web:mattr.global#5F5Q1qJbbv"
+  ],
+  "capabilityInvocation": [
+    "did:web:mattr.global#5F5Q1qJbbv"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "id": "123",
+  "version": "1",
+  "type": [
+    "VerifiableCredential",
+    "VerifiableAttestation"
+  ],
+  "context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://essif.europa.eu/schemas/vc/2020/v1"
+  ]
+}
