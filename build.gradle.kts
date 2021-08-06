@@ -14,22 +14,15 @@ plugins {
 group = "id.walt"
 version = "1.0-SNAPSHOT"
 
-val secretMavenUsername = File("secret_maven_username.txt").readText()
-val secretMavenPassword = File("secret_maven_password.txt").readText()
+
 
 repositories {
     mavenCentral()
     //jcenter()
     maven("https://jitpack.io")
     maven("https://repo.danubetech.com/repository/maven-releases/")
-    maven {
-        url = uri("https://maven.walt.id/repository/waltid/")
-
-        credentials {
-            username = secretMavenUsername
-            password = secretMavenPassword
-        }
-    }
+    maven("https://maven.walt.id/repository/waltid/")
+    maven("https://maven.walt.id/repository/waltid-ssi-kit/")
 }
 
 dependencies {
@@ -119,7 +112,9 @@ tasks.withType<KotlinCompile> {
 
 tasks.named<CreateStartScripts>("startScripts") {
     doLast {
-        windowsScript.writeText(windowsScript.readText().replace(Regex("set CLASSPATH=.*"), "set CLASSPATH=%APP_HOME%\\\\lib\\\\*"))
+        windowsScript.writeText(
+            windowsScript.readText().replace(Regex("set CLASSPATH=.*"), "set CLASSPATH=%APP_HOME%\\\\lib\\\\*")
+        )
     }
 }
 
@@ -158,6 +153,9 @@ publishing {
         maven {
             url = uri("https://maven.walt.id/repository/waltid-ssi-kit/")
 
+            val secretMavenUsername = System.getenv()["SECRET_MAVEN_USERNAME"] ?: File("secret_maven_username.txt").readLines()[0]
+            val secretMavenPassword = System.getenv()["SECRET_MAVEN_PASSWORD"] ?: File("secret_maven_password.txt").readLines()[0]
+
             credentials {
                 username = secretMavenUsername
                 password = secretMavenPassword
@@ -167,7 +165,13 @@ publishing {
 }
 
 licenseReport {
-    renderers = arrayOf<com.github.jk1.license.render.ReportRenderer>(com.github.jk1.license.render.InventoryHtmlReportRenderer("report.html", "Backend"))
-    filters = arrayOf<com.github.jk1.license.filter.DependencyFilter>(com.github.jk1.license.filter.LicenseBundleNormalizer())
+    renderers = arrayOf<com.github.jk1.license.render.ReportRenderer>(
+        com.github.jk1.license.render.InventoryHtmlReportRenderer(
+            "report.html",
+            "Backend"
+        )
+    )
+    filters =
+        arrayOf<com.github.jk1.license.filter.DependencyFilter>(com.github.jk1.license.filter.LicenseBundleNormalizer())
 }
 
