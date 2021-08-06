@@ -36,5 +36,8 @@ jobs:
         java-version: '16'
     - name: Running gradle build
       uses: eskatos/gradle-command-action@v1.3.3
+      env:
+        SECRET_MAVEN_USERNAME: ${{ secrets.SECRET_MAVEN_USERNAME }}
+        SECRET_MAVEN_PASSWORD: ${{ secrets.SECRET_MAVEN_PASSWORD }}
       with:
         arguments: build --no-daemon

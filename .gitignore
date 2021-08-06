@@ -29,4 +29,5 @@ keys/
 data
 
 
-secret_*
+secret_maven_username.txt
+secret_maven_password.txt
