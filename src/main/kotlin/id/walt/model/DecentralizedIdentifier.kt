@@ -2,6 +2,7 @@ package id.walt.model
 
 import com.beust.klaxon.Json
 import com.beust.klaxon.Klaxon
+import id.walt.common.prettyPrint
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -30,7 +31,7 @@ data class Did(
 )
 
 fun Did.encode() = Klaxon().toJsonString(this)
-fun Did.encodePretty() = Klaxon().toJsonString(this)
+fun Did.encodePretty() = Klaxon().toJsonString(this).prettyPrint()
 fun String.decode() = Klaxon().parse<Did>(this)
 
 @Serializable
