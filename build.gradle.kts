@@ -152,9 +152,10 @@ publishing {
     repositories {
         maven {
             url = uri("https://maven.walt.id/repository/waltid-ssi-kit/")
-
-            val secretMavenUsername = System.getenv()["SECRET_MAVEN_USERNAME"] ?: File("secret_maven_username.txt").readLines()[0]
-            val secretMavenPassword = System.getenv()["SECRET_MAVEN_PASSWORD"] ?: File("secret_maven_password.txt").readLines()[0]
+            val usernameFile = File("secret_maven_username.txt")
+            val passwordFile = File("secret_maven_password.txt")
+            val secretMavenUsername = System.getenv()["SECRET_MAVEN_USERNAME"] ?: if (usernameFile.isFile) { usernameFile.readLines()[0] } else { "" }
+            val secretMavenPassword = System.getenv()["SECRET_MAVEN_PASSWORD"] ?: if (passwordFile.isFile) { passwordFile.readLines()[0] } else { "" }
 
             credentials {
                 username = secretMavenUsername
