@@ -8,7 +8,6 @@ import com.beust.klaxon.Klaxon
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.core.util.RouteOverviewPlugin
-import io.javalin.plugin.json.FromJsonMapper
 import io.javalin.plugin.json.JavalinJson
 import io.javalin.plugin.json.ToJsonMapper
 import io.javalin.plugin.openapi.InitialConfigurationCreator
@@ -20,11 +19,6 @@ import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.info.Contact
 import io.swagger.v3.oas.models.security.SecurityScheme
 import io.swagger.v3.oas.models.servers.Server
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.builtins.ListSerializer
-import kotlinx.serialization.builtins.serializer
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.serializer
 import mu.KotlinLogging
 import id.walt.Values
 
@@ -33,8 +27,8 @@ object RestAPI {
     private val log = KotlinLogging.logger {}
 
     val CORE_API_PORT = 7000
-    val API_HOST = "http://localhost"
     val ESSIF_API_PORT = 7001
+    val BIND_ADDRESS = "127.0.0.1"
 
     var coreApiUrl = ""
     var essifApiUrl = ""
@@ -42,10 +36,8 @@ object RestAPI {
     var coreApi: Javalin? = null
     var essifApi: Javalin? = null
 
-    fun startCoreApi(port: Int = CORE_API_PORT) {
+    fun startCoreApi(bindAddress: String = BIND_ADDRESS, port: Int = CORE_API_PORT, additionalApiServers: List<String> = listOf()) {
         log.info("Starting LetTrust Wallet API ...\n")
-
-        coreApiUrl = "$API_HOST:$port"
 
         coreApi = Javalin.create {
 
@@ -65,8 +57,8 @@ object RestAPI {
                             version = Values.version
                         }
                         servers = listOf(
-                            Server().description("Local testing server").url(coreApiUrl),
-                            Server().description("Walt").url("https://wallet-api.walt.id")
+                            Server().url("/"),
+                            *additionalApiServers.map { Server().url(it) }.toTypedArray()
                         )
                         externalDocs {
                             description = "Walt Docs"
@@ -138,14 +130,12 @@ object RestAPI {
             log.error(e.stackTraceToString())
             ctx.json(ErrorResponse(e.message ?: " Unknown server error", 500))
             ctx.status(500)
-        }.start(port)
+        }.start(bindAddress, port)
     }
 
-    fun startEssifApi(port: Int = ESSIF_API_PORT) {
+    fun startEssifApi(bindAddress: String = BIND_ADDRESS, port: Int = ESSIF_API_PORT, additionalApiServers: List<String> = listOf()) {
 
         log.info("Starting Walt Essif API ...\n")
-
-        essifApiUrl = "$API_HOST:$port"
 
         essifApi = Javalin.create {
 
@@ -165,8 +155,8 @@ object RestAPI {
                             version = Values.version
                         }
                         servers = listOf(
-                            Server().description("Local testing server").url(essifApiUrl),
-                            Server().description("Walt").url("https://essif-connector-api.walt.id")
+                            Server().url("/"),
+                            *additionalApiServers.map { Server().url(it) }.toTypedArray()
                         )
                         externalDocs {
                             description = "Walt Docs"
@@ -270,12 +260,12 @@ object RestAPI {
             log.error(e.stackTraceToString())
             ctx.json(ErrorResponse(e.message ?: " Unknown application error", 500))
             ctx.status(500)
-        }.start(port)
+        }.start(bindAddress, port)
     }
 
-    fun start() {
-        startCoreApi()
-        startEssifApi()
+    fun start(bindAddress: String = BIND_ADDRESS, apiPort: Int = CORE_API_PORT, essifPort: Int = ESSIF_API_PORT, additionalApiServers: List<String> = listOf()) {
+        startCoreApi(bindAddress, apiPort, additionalApiServers)
+        startEssifApi(bindAddress, essifPort, additionalApiServers)
     }
 
     fun stopCoreApi() = coreApi?.stop()

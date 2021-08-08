@@ -25,18 +25,14 @@ import id.walt.rest.RootController
 object SignatoryRestAPI {
 
     val SIGNATORY_API_PORT = 7002
-    val API_HOST = "http://localhost"
+    val BIND_ADDRESS = "127.0.0.1"
     var signatoryApiUrl = ""
 
     private val log = KotlinLogging.logger {}
 
     var signatoryApi: Javalin? = null
 
-    fun start(port: Int = SIGNATORY_API_PORT) {
-
-        signatoryApiUrl = "$API_HOST:$port"
-
-        log.info("Starting walt.id Signatory API at $signatoryApiUrl \n")
+    fun start(bindAddress: String = BIND_ADDRESS, port: Int = SIGNATORY_API_PORT, additionalApiServers: List<String> = listOf()) {
 
         signatoryApi = Javalin.create {
 
@@ -56,8 +52,8 @@ object SignatoryRestAPI {
                             version = Values.version
                         }
                         servers = listOf(
-                            Server().description("Local testing server").url(signatoryApiUrl),
-                            Server().description("walt.id").url("https://signatory-api.walt.id")
+                            Server().url("/"),
+                            *additionalApiServers.map { Server().url(it) }.toTypedArray()
                         )
                         externalDocs {
                             description = "walt.id Docs"
@@ -107,7 +103,7 @@ object SignatoryRestAPI {
             log.error(e.stackTraceToString())
             ctx.json(ErrorResponse(e.message ?: " Unknown server error", 500))
             ctx.status(500)
-        }.start(port)
+        }.start(bindAddress, port)
     }
 
     fun stop() = signatoryApi?.stop()
