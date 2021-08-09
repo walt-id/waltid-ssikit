@@ -27,9 +27,9 @@ repositories {
 
 dependencies {
     // Crypto
-    implementation("com.google.crypto.tink:tink:1.6.1")
-    implementation("info.weboftrust:ld-signatures-java:0.4.0")
-    implementation("decentralized-identity:jsonld-common-java:0.2.0")
+    api("com.google.crypto.tink:tink:1.6.1")
+    api("info.weboftrust:ld-signatures-java:0.4.0")
+    api("decentralized-identity:jsonld-common-java:0.2.0")
     implementation("com.goterl:lazysodium-java:5.0.1")
     implementation("com.github.multiformats:java-multibase:v1.1.0")
     implementation("com.microsoft.azure:azure-keyvault:1.2.4")
@@ -42,7 +42,7 @@ dependencies {
     implementation("com.google.guava:guava:30.1.1-jre")
 
     // VC
-    implementation("id.walt:waltid-ssikit-vclib:1.4.0")
+    api("id.walt:waltid-ssikit-vclib:1.4.0")
 
     // JSON
     implementation("org.json:json:20210307")
@@ -82,7 +82,7 @@ dependencies {
     implementation("com.sksamuel.hoplite:hoplite-hikaricp:1.4.4")
 
     // Service-Matrix
-    implementation("id.walt.servicematrix:WaltID-ServiceMatrix:1.0.1")
+    api("id.walt.servicematrix:WaltID-ServiceMatrix:1.0.1")
 
     // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.5.21")
