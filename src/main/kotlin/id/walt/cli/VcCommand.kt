@@ -22,9 +22,12 @@ import okio.ByteString.Companion.encode
 import id.walt.common.prettyPrint
 import id.walt.services.vc.VCService
 import id.walt.services.vc.VerificationType
+import id.walt.signatory.ProofConfig
+import id.walt.vclib.templates.VcTemplateManager
 import java.io.File
 import java.sql.Timestamp
 import java.time.LocalDateTime
+import kotlin.math.sign
 
 private val log = KotlinLogging.logger {}
 
@@ -60,12 +63,17 @@ class VcIssueCommand : CliktCommand(
     val subjectDid: String by option("-s", "--subject-did", help = "DID of the VC subject (receiver of VC)").required()
     val proofType: ProofType by option("-p", "--proof-type", help = "Proof type to be used [LD_PROOF]").enum<ProofType>().default(ProofType.LD_PROOF)
 
+    private val signatory = Signatory.getService()
+
     override fun run() {
         echo("Issuing and verifiable credential (using template ${template})...")
 
         // Loading VC template
         log.debug { "Loading credential template: ${template}" }
 
+
+        //signatory.issue(template, ProofConfig(issuerDid, "Ed25519Signature2018", proofType))
+        //signatory.loadTemplate(template)
 
         //TODO: move the following to Signatory
 

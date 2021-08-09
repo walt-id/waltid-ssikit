@@ -60,20 +60,18 @@ class WaltSignatory(configurationPath: String) : Signatory() {
     override val configuration: SignatoryConfig = fromConfiguration(configurationPath)
 
     override fun issue(templateId: String, config: ProofConfig): String {
-        val vcTemplate = VcTemplateManager.loadTemplate(listOf(templateId)) // TODO WALT 0508
+        val vcTemplate = VcTemplateManager.loadTemplate(templateId)
 
         val dataProvider = DataProviderRegistry.getProvider(vcTemplate::class) // vclib.getUniqueId(vcTemplate)
         val vc = dataProvider.populate(vcTemplate)
 
-        // TODO sign based on config
-        // TODO encode
         return VCService.getService()
             .sign(config.issuerDid, vc.encode(), config.domain, config.nonce, config.issuerVerificationMethod)
     }
 
-    override fun listTemplates(): List<String> = VcTemplateManager.listTemplateIds()
+    override fun listTemplates(): List<String> = VcTemplateManager.getTemplateList()
 
-    override fun loadTemplate(templateId: String): VerifiableCredential = VcTemplateManager.loadTemplate(listOf(templateId)) // TODO WALT0508
+    override fun loadTemplate(templateId: String): VerifiableCredential = VcTemplateManager.loadTemplate(templateId)
 
 }
 
