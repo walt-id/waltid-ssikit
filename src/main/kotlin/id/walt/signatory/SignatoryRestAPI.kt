@@ -32,7 +32,7 @@ object SignatoryRestAPI {
 
     var signatoryApi: Javalin? = null
 
-    fun start(bindAddress: String = BIND_ADDRESS, port: Int = SIGNATORY_API_PORT, additionalApiServers: List<String> = listOf()) {
+    fun start(port: Int = SIGNATORY_API_PORT, bindAddress: String = BIND_ADDRESS, apiTargetUrls: List<String> = listOf()) {
 
         signatoryApi = Javalin.create {
 
@@ -53,7 +53,7 @@ object SignatoryRestAPI {
                         }
                         servers = listOf(
                             Server().url("/"),
-                            *additionalApiServers.map { Server().url(it) }.toTypedArray()
+                            *apiTargetUrls.map { Server().url(it) }.toTypedArray()
                         )
                         externalDocs {
                             description = "walt.id Docs"

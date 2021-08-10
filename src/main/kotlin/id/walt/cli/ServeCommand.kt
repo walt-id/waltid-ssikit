@@ -23,15 +23,15 @@ class ServeCommand : CliktCommand(
          Additional API target servers can be specified using the -s option.
          """
 ) {
-    val apiPort: Int by option(help = "Core API port, default: ${RestAPI.CORE_API_PORT}", names = *arrayOf("-p", "--port")).int().default(RestAPI.CORE_API_PORT)
-    val essifPort: Int by option(help = "Essif API port, default: ${RestAPI.ESSIF_API_PORT}", names = *arrayOf("-e", "--essif-port")).int().default(RestAPI.ESSIF_API_PORT)
-    val signatoryPort: Int by option(help = "Signatory API port, default: ${SignatoryRestAPI.SIGNATORY_API_PORT}", names = *arrayOf("-s", "--signatory-port")).int().default(SignatoryRestAPI.SIGNATORY_API_PORT)
-    val bindAddress: String by option(help = "Bind address for API service, default: 127.0.0.1", names = *arrayOf("-b", "--bind-address")).default("127.0.0.1")
-    val additionalApiServers: List<String> by option(help = "API Server urls, defaults to root context '/'", names = *arrayOf("-S", "--server")).multiple()
+    val apiPort: Int by option(help = "Core API port [${RestAPI.CORE_API_PORT}]", names = *arrayOf("-p", "--port")).int().default(RestAPI.CORE_API_PORT)
+    val essifPort: Int by option(help = "Essif API port [${RestAPI.ESSIF_API_PORT}]", names = *arrayOf("-e", "--essif-port")).int().default(RestAPI.ESSIF_API_PORT)
+    val signatoryPort: Int by option(help = "Signatory API port [${SignatoryRestAPI.SIGNATORY_API_PORT}]", names = *arrayOf("-s", "--signatory-port")).int().default(SignatoryRestAPI.SIGNATORY_API_PORT)
+    val bindAddress: String by option(help = "Bind address for API service [127.0.0.1]", names = *arrayOf("-b", "--bind-address")).default("127.0.0.1")
+    val apiTargetUrls: List<String> by option(help = "Additional API target urls for swagger UI, defaults to root context '/'", names = *arrayOf("-t", "--target-url")).multiple()
 
     override fun run() {
-        RestAPI.start(bindAddress, apiPort, essifPort, additionalApiServers)
-        SignatoryRestAPI.start(bindAddress, signatoryPort, additionalApiServers)
+        RestAPI.start(apiPort, essifPort, bindAddress, apiTargetUrls)
+        SignatoryRestAPI.start(signatoryPort, bindAddress, apiTargetUrls)
 
         echo()
         echo(" walt.id Core API: http://${bindAddress}:${apiPort}")
