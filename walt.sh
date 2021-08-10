@@ -7,7 +7,7 @@ function header() {
 }
 
 function build() {
-  echo "Building Let's Trust build files..."
+  echo "Building walt.id build files..."
 
   if ./gradlew clean build; then
     echo
@@ -24,7 +24,7 @@ function build() {
 }
 
 function build_skip_tests() {
-  echo "Building Let's Trust build files..."
+  echo "Building walt.id build files..."
 
   if ./gradlew clean build -x test; then
     echo
@@ -41,7 +41,7 @@ function build_skip_tests() {
 }
 
 function build_docker() {
-  if docker build -t walt .; then
+  if docker build -t ssikit .; then
     echo
     echo "Docker container build was successful."
     echo
@@ -54,7 +54,7 @@ function build_docker() {
 }
 
 function build_podman() {
-  if podman build -t walt .; then
+  if podman build -t ssikit .; then
     echo
     echo "Podman container build was successful."
     echo
@@ -67,7 +67,7 @@ function build_podman() {
 }
 
 function extract() {
-  echo "Extracting Let's Trust build files..."
+  echo "Extracting walt.id build files..."
 
   echo
 
@@ -103,7 +103,7 @@ function execute() {
     build/distributions/waltid-ssi-kit-1.0-SNAPSHOT/bin/waltid-ssi-kit "$@"
   else
     header
-    echo "Cannot run Let's Trust: Runscript does not exist."
+    echo "Cannot run walt.id: Runscript does not exist."
     echo "Have you built and extracted the buildfiles? ($0 build)"
     echo
     echo -n "Do you want to build ($0 build)? [y/n]: "
