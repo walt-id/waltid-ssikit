@@ -2,13 +2,11 @@ package id.walt.signatory
 
 import id.walt.servicematrix.BaseService
 import id.walt.servicematrix.ServiceConfiguration
-import id.walt.servicematrix.ServiceMatrix
 import id.walt.servicematrix.ServiceProvider
+import id.walt.services.vc.VCService
 import id.walt.vclib.Helpers.encode
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.templates.VcTemplateManager
-import org.bouncycastle.asn1.x500.style.RFC4519Style.name
-import id.walt.services.vc.VCService
 
 // JWT are using the IANA types of signatures: alg=EdDSA oder ES256 oder ES256K oder RS256
 //enum class ProofType {
@@ -72,23 +70,5 @@ class WaltSignatory(configurationPath: String) : Signatory() {
     override fun listTemplates(): List<String> = VcTemplateManager.getTemplateList()
 
     override fun loadTemplate(templateId: String): VerifiableCredential = VcTemplateManager.loadTemplate(templateId)
-
-}
-
-fun main() {
-    ServiceMatrix("service-matrix.properties")
-
-    val signatory = Signatory.getService()
-
-    val vc = signatory.issue(
-        "templateId", ProofConfig(
-            issuerDid = "did:ebsi:2A2Rgd4r9HL8KL2hgLC4RdyvZDd1tzoJMYrLaQrxogFTFQAv#5a6ab975123f477ba31b6a3bdd90b916",
-            issuerVerificationMethod = "Ed25519Signature2018"
-        )
-    )
-
-    println(vc)
-
-    //SignatoryRestAPI.start(7004)
 
 }
