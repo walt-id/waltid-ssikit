@@ -36,7 +36,7 @@ object RestAPI {
     var coreApi: Javalin? = null
     var essifApi: Javalin? = null
 
-    fun startCoreApi(bindAddress: String = BIND_ADDRESS, port: Int = CORE_API_PORT, additionalApiServers: List<String> = listOf()) {
+    fun startCoreApi(port: Int = CORE_API_PORT, bindAddress: String = BIND_ADDRESS, apiTargetUrls: List<String> = listOf()) {
         log.info("Starting LetTrust Wallet API ...\n")
 
         coreApi = Javalin.create {
@@ -58,7 +58,7 @@ object RestAPI {
                         }
                         servers = listOf(
                             Server().url("/"),
-                            *additionalApiServers.map { Server().url(it) }.toTypedArray()
+                            *apiTargetUrls.map { Server().url(it) }.toTypedArray()
                         )
                         externalDocs {
                             description = "Walt Docs"
@@ -133,7 +133,7 @@ object RestAPI {
         }.start(bindAddress, port)
     }
 
-    fun startEssifApi(bindAddress: String = BIND_ADDRESS, port: Int = ESSIF_API_PORT, additionalApiServers: List<String> = listOf()) {
+    fun startEssifApi(port: Int = ESSIF_API_PORT, bindAddress: String = BIND_ADDRESS, apiTargetUrls: List<String> = listOf()) {
 
         log.info("Starting Walt Essif API ...\n")
 
@@ -156,7 +156,7 @@ object RestAPI {
                         }
                         servers = listOf(
                             Server().url("/"),
-                            *additionalApiServers.map { Server().url(it) }.toTypedArray()
+                            *apiTargetUrls.map { Server().url(it) }.toTypedArray()
                         )
                         externalDocs {
                             description = "Walt Docs"
@@ -263,9 +263,9 @@ object RestAPI {
         }.start(bindAddress, port)
     }
 
-    fun start(bindAddress: String = BIND_ADDRESS, apiPort: Int = CORE_API_PORT, essifPort: Int = ESSIF_API_PORT, additionalApiServers: List<String> = listOf()) {
-        startCoreApi(bindAddress, apiPort, additionalApiServers)
-        startEssifApi(bindAddress, essifPort, additionalApiServers)
+    fun start(apiPort: Int = CORE_API_PORT, essifPort: Int = ESSIF_API_PORT, bindAddress: String = BIND_ADDRESS, apiTargetUrls: List<String> = listOf()) {
+        startCoreApi(apiPort, bindAddress, apiTargetUrls)
+        startEssifApi(essifPort, bindAddress, apiTargetUrls)
     }
 
     fun stopCoreApi() = coreApi?.stop()
