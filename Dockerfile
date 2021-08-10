@@ -23,9 +23,12 @@ COPY ./ /opt
 RUN ./gradlew clean build
 RUN tar xf /opt/build/distributions/waltid-ssi-kit-*.tar -C /opt
 
+FROM openjdk:16-slim-buster
+
 RUN mkdir /app
-RUN mv /opt/waltid-ssi-kit-*/* /app
-RUN rm -r /opt/*
+COPY --from=walt-build /opt/waltid-ssi-kit-* /app/
+COPY --from=walt-build /opt/service-matrix.properties /app/
+COPY --from=walt-build /opt/signatory.conf /app/
 
 WORKDIR /app
 
