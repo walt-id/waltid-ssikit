@@ -18,6 +18,8 @@ class MyEuropassDataProvider : SignatoryDataProvider {
     }
 }
 
+class NoSuchDataProviderException(credentialType: KClass<out VerifiableCredential>) :
+    Exception("No data provider is registered for ${credentialType.simpleName}")
 
 object DataProviderRegistry {
     val providers = HashMap<KClass<out VerifiableCredential>, SignatoryDataProvider>()
@@ -26,11 +28,12 @@ object DataProviderRegistry {
     fun register(credentialType: KClass<out VerifiableCredential>, provider: SignatoryDataProvider) =
         providers.put(credentialType, provider)
 
-    fun getProvider(credentialType: KClass<out VerifiableCredential>) = providers[credentialType]!!
+    fun getProvider(credentialType: KClass<out VerifiableCredential>) =
+        providers[credentialType] ?: throw NoSuchDataProviderException(credentialType)
 
     init {
         // Init default providers
-        DataProviderRegistry.register(Europass::class, MyEuropassDataProvider())
+        register(Europass::class, MyEuropassDataProvider())
     }
 }
 

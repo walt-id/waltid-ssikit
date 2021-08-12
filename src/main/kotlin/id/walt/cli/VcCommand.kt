@@ -58,7 +58,7 @@ class VcIssueCommand : CliktCommand(
 ) {
     val config: CliConfig by requireObject()
     val dest: File? by argument().file().optional()
-    val template: String by option("-t", "--template", help = "VC template [VerifiableAttestation]").default("VerifiableAttestation")
+    val template: String by option("-t", "--template", help = "VC template [Europass]").default("Europass")
     val issuerDid: String by option("-i", "--issuer-did", help = "DID of the issuer (associated with signing key)").required()
     val subjectDid: String by option("-s", "--subject-did", help = "DID of the VC subject (receiver of VC)").required()
     val proofType: ProofType by option("-p", "--proof-type", help = "Proof type to be used [LD_PROOF]").enum<ProofType>().default(ProofType.LD_PROOF)
@@ -72,7 +72,7 @@ class VcIssueCommand : CliktCommand(
         log.debug { "Loading credential template: ${template}" }
 
 
-        //signatory.issue(template, ProofConfig(issuerDid, "Ed25519Signature2018", proofType))
+        val vcStr = signatory.issue(template, ProofConfig(issuerDid, "Ed25519Signature2018", proofType))
         //signatory.loadTemplate(template)
 
         //TODO: move the following to Signatory
@@ -82,7 +82,7 @@ class VcIssueCommand : CliktCommand(
 
 
 //        val vcReq = template.readText().toCredential()
-        val vcReq = credentialService.defaultVcTemplate()
+        /*val vcReq = credentialService.defaultVcTemplate()
 
         val vcReqEnc = Klaxon().toJsonString(when (vcReq) {
             is Europass -> {
@@ -112,7 +112,7 @@ class VcIssueCommand : CliktCommand(
         echo("\nResults:\n")
 
         // Signing VC
-        val vcStr = credentialService.sign(issuerDid, vcReqEnc)
+        val vcStr = credentialService.sign(issuerDid, vcReqEnc)*/
 
 
         echo("Generated Credential:\n\n$vcStr")

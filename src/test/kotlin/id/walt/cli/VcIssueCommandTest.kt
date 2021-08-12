@@ -1,19 +1,18 @@
 package id.walt.cli
 
 import com.github.ajalt.clikt.core.PrintHelpMessage
-import id.walt.servicematrix.ServiceMatrix
-import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.core.spec.style.StringSpec
-import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
-import id.walt.cli.EssifOnboardingCommand
-import id.walt.cli.VcCommand
-import id.walt.cli.VcIssueCommand
 import id.walt.crypto.KeyAlgorithm
 import id.walt.model.DidMethod
+import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
 import id.walt.services.key.KeyService
-import java.io.File
+import id.walt.signatory.DataProviderRegistry
+import id.walt.signatory.SignatoryDataProvider
+import id.walt.vclib.model.VerifiableCredential
+import id.walt.vclib.vclist.VerifiableAttestation
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.string.shouldContain
 
 
 class VcIssueCommandTest : StringSpec({
@@ -23,6 +22,11 @@ class VcIssueCommandTest : StringSpec({
     val key = KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1)
     var didIssuer = DidService.create(DidMethod.ebsi, keyAlias = key.id)
     var didSubject = DidService.create(DidMethod.key)
+
+    DataProviderRegistry.register(VerifiableAttestation::class, object : SignatoryDataProvider {
+        override fun populate(template: VerifiableCredential): VerifiableAttestation =
+            (template as VerifiableAttestation).apply { issuer = "NEW ISSUER" }
+    })
 
     "vc issue --help" {
         val e = shouldThrow<PrintHelpMessage> {
