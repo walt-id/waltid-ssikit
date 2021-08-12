@@ -49,7 +49,7 @@ Use "execute" to execute waltid-ssi-kit with no arguments. If you don't supply a
 
 ### Code-level integration
 
-For directly integrating the library as Java dependency, please refer to the project [waltid-ssi-kit-example-project](https://github.com/walt-id/waltid-ssikit-example-project), which contains a project configuration for Gradle and Maven es well as several examples how the library can be used.
+For directly integrating the library as Kotlin/Java dependency, please refer to the project [waltid-ssi-kit-examples](https://github.com/walt-id/waltid-ssikit-examples). The examples show how the library can be used in Kotlin as well as Java projects.
 
 ## :hammer: Build
 
