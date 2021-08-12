@@ -27,7 +27,7 @@ keys/
 /docs/essif/*
 *.log
 data
-
+logs
 
 secret_maven_username.txt
 secret_maven_password.txt
