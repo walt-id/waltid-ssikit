@@ -14,8 +14,6 @@ plugins {
 group = "id.walt"
 version = "1.0-SNAPSHOT"
 
-
-
 repositories {
     mavenCentral()
     //jcenter()
