@@ -29,6 +29,7 @@ data class ProofConfig(
     val proofType: ProofType = ProofType.LD_PROOF,
     val domain: String? = null,
     val nonce: String? = null,
+    val proofPurpose: String? = null
 )
 
 data class SignatoryConfig(
@@ -64,7 +65,7 @@ class WaltSignatory(configurationPath: String) : Signatory() {
         val vc = dataProvider.populate(vcTemplate)
 
         return VCService.getService()
-            .sign(config.issuerDid, vc.encode(), config.domain, config.nonce, config.issuerVerificationMethod)
+            .sign(config.issuerDid, vc.encode(), config.domain, config.nonce, config.issuerVerificationMethod, config.proofPurpose)
     }
 
     override fun listTemplates(): List<String> = VcTemplateManager.getTemplateList()

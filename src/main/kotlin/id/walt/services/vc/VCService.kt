@@ -25,7 +25,7 @@ abstract class VCService : WaltIdService() {
         nonce: String? = null,
         verificationMethod: String? = null,
         proofPurpose: String? = null
-    ): String = implementation.sign(issuerDid, jsonCred, domain, nonce, verificationMethod)
+    ): String = implementation.sign(issuerDid, jsonCred, domain, nonce, verificationMethod, proofPurpose)
 
     open fun verify(vcOrVp: String): VerificationResult = implementation.verify(vcOrVp)
     open fun verifyVc(issuerDid: String, vc: String): Boolean = implementation.verifyVc(issuerDid, vc)
