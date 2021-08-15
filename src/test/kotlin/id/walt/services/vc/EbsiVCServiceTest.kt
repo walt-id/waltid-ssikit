@@ -33,7 +33,7 @@ class EbsiVCServiceTest : AnnotationSpec() {
     private val verificationMethod = "$issuerDid#${keyId.id}"
     private val proofPurpose = "assertionMethod"
 
-    private val vc = EbsiVCService().sign(
+    private val vc = WaltIdJwtCredentialService().sign(
         issuerDid,
         Europass(
             id = "education#higherEducation#51e42fda-cb0a-4333-b6a6-35cb147e1a88",
@@ -95,15 +95,15 @@ class EbsiVCServiceTest : AnnotationSpec() {
 
     @Test
     fun testVerifyVc() =
-        EbsiVCService().verifyVc(vc) shouldBe true
+        WaltIdJwtCredentialService().verifyVc(vc) shouldBe true
 
     @Test
     fun testVerifyVcWithIssuerDid() =
-        EbsiVCService().verifyVc(issuerDid, vc) shouldBe true
+        WaltIdJwtCredentialService().verifyVc(issuerDid, vc) shouldBe true
 
     @Test
     fun testVerifyVcWithWrongIssuerDid() =
-        EbsiVCService().verifyVc("wrong", vc) shouldBe false
+        WaltIdJwtCredentialService().verifyVc("wrong", vc) shouldBe false
 
     private fun isEbsiDate(value: String) =
         try {

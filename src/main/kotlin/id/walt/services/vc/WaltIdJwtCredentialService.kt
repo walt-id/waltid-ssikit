@@ -22,7 +22,7 @@ import java.util.*
 
 private val log = KotlinLogging.logger {}
 
-open class EbsiVCService : JwtCredentialService() {
+open class WaltIdJwtCredentialService : JwtCredentialService() {
 
     private var ks = KeyStoreService.getService()
     private val jwtService = JwtService.getService()
@@ -46,7 +46,7 @@ open class EbsiVCService : JwtCredentialService() {
             when (it.algorithm) {
                 KeyAlgorithm.ECDSA_Secp256k1 -> SignatureType.EcdsaSecp256k1Signature2019.name
                 KeyAlgorithm.EdDSA_Ed25519 -> SignatureType.Ed25519Signature2018.name
-                else -> throw Exception("Signature for key algorithm ${it.algorithm} not supported")
+                // else -> throw Exception("Signature for key algorithm ${it.algorithm} not supported")
             }
         }
 
