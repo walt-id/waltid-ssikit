@@ -25,6 +25,7 @@ enum class ProofType {
 }
 
 data class ProofConfig(
+    val subjectDid: String,
     val issuerDid: String,
     val issuerVerificationMethod: String, // DID URL => defines key type
     val proofType: ProofType = ProofType.LD_PROOF,

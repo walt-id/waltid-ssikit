@@ -12,6 +12,7 @@ class SignatoryServiceTest : StringSpec({
     "Europass ld-proof" {
         val vc = signatory.issue(
             "Europass", ProofConfig(
+                subjectDid = DidService.listDids().first(),
                 issuerDid = DidService.listDids().first(),
                 issuerVerificationMethod = "Ed25519Signature2018"
             )
@@ -27,6 +28,7 @@ class SignatoryServiceTest : StringSpec({
     "Europass jwt-proof" {
         val vc = signatory.issue(
             "Europass", ProofConfig(
+                subjectDid = DidService.listDids().first(),
                 issuerDid = DidService.listDids().first(),
                 issuerVerificationMethod = "Ed25519Signature2018",
                 proofType = ProofType.JWT
