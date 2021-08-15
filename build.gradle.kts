@@ -21,6 +21,8 @@ repositories {
     maven("https://repo.danubetech.com/repository/maven-releases/")
     maven("https://maven.walt.id/repository/waltid/")
     maven("https://maven.walt.id/repository/waltid-ssi-kit/")
+    maven("https://maven.walt.id/repository/danubetech")
+    //mavenLocal()
 }
 
 dependencies {
@@ -40,7 +42,7 @@ dependencies {
     implementation("com.google.guava:guava:30.1.1-jre")
 
     // VC
-    api("id.walt:waltid-ssikit-vclib:1.4.0")
+    implementation("id.walt:waltid-ssikit-vclib:1.4.0")
 
     // JSON
     implementation("org.json:json:20210307")
@@ -80,7 +82,7 @@ dependencies {
     implementation("com.sksamuel.hoplite:hoplite-hikaricp:1.4.4")
 
     // Service-Matrix
-    api("id.walt.servicematrix:WaltID-ServiceMatrix:1.0.1")
+    implementation("id.walt.servicematrix:WaltID-ServiceMatrix:1.0.1")
 
     // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.5.21")
