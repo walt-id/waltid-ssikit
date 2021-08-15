@@ -1,6 +1,7 @@
 package id.walt.services.vc
 
 import com.nimbusds.jwt.JWTClaimsSet
+import id.walt.common.prettyPrint
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.SignatureType
 import id.walt.services.jwt.JwtService
@@ -21,7 +22,7 @@ import java.util.*
 
 private val log = KotlinLogging.logger {}
 
-open class EbsiVCService : VCService() {
+open class EbsiVCService : JwtCredentialService() {
 
     private var ks = KeyStoreService.getService()
     private val jwtService = JwtService.getService()
@@ -56,7 +57,7 @@ open class EbsiVCService : VCService() {
 
         val created = simpleDateFormat.format(Date.from(Instant.now()))
         credential.proof = Proof(type, null, created, proofPurpose, verificationMethod, jws)
-        return credential.encode()
+        return credential.encode().prettyPrint()
     }
 
     private fun sign(issuerDid: String, credential: Europass): String {

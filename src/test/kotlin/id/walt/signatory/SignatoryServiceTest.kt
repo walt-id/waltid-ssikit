@@ -9,7 +9,7 @@ class SignatoryServiceTest : StringSpec({
     ServiceMatrix("service-matrix.properties")
     val signatory = Signatory.getService()
 
-    "test signatory issuing" {
+    "Europass ld-proof" {
         val vc = signatory.issue(
             "Europass", ProofConfig(
                 issuerDid = DidService.listDids().first(),
@@ -22,5 +22,21 @@ class SignatoryServiceTest : StringSpec({
         vc shouldContain "Europass"
         vc shouldContain "Université de Lille"
         vc shouldContain "MASTERS LAW, ECONOMICS AND MANAGEMENT"
+    }
+
+    "Europass jwt-proof" {
+        val vc = signatory.issue(
+            "Europass", ProofConfig(
+                issuerDid = DidService.listDids().first(),
+                issuerVerificationMethod = "Ed25519Signature2018",
+                proofType = ProofType.JWT
+            )
+        )
+
+        println(vc)
+
+        vc shouldContain "Europass"
+        vc shouldContain "Université de Lille"
+        vc shouldContain "ECONOMICS AND MANAGEMENT"
     }
 })

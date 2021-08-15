@@ -3,6 +3,7 @@ package id.walt.signatory
 import id.walt.servicematrix.BaseService
 import id.walt.servicematrix.ServiceConfiguration
 import id.walt.servicematrix.ServiceProvider
+import id.walt.services.vc.JwtCredentialService
 import id.walt.services.vc.VCService
 import id.walt.vclib.Helpers.encode
 import id.walt.vclib.model.VerifiableCredential
@@ -62,10 +63,16 @@ class WaltSignatory(configurationPath: String) : Signatory() {
         val vcTemplate = VcTemplateManager.loadTemplate(templateId)
 
         val dataProvider = DataProviderRegistry.getProvider(vcTemplate::class) // vclib.getUniqueId(vcTemplate)
-        val vc = dataProvider.populate(vcTemplate)
+        val vcRequest = dataProvider.populate(vcTemplate)
 
-        return VCService.getService()
-            .sign(config.issuerDid, vc.encode(), config.domain, config.nonce, config.issuerVerificationMethod, config.proofPurpose)
+        val vc = when (config.proofType) {
+            ProofType.LD_PROOF -> VCService.getService()
+                .sign(config.issuerDid, vcRequest.encode(), config.domain, config.nonce, config.issuerVerificationMethod, config.proofPurpose)
+            ProofType.JWT -> JwtCredentialService.getService()
+                .sign(config.issuerDid, vcRequest.encode(), config.domain, config.nonce, config.issuerVerificationMethod, config.proofPurpose)
+        }
+
+        return vc
     }
 
     override fun listTemplates(): List<String> = VcTemplateManager.getTemplateList()
