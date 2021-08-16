@@ -1,5 +1,5 @@
 {
-  @context: [
+  "@context": [
     "https://www.w3.org/2018/credentials/v1"
   ],
   "holder": "did:ebsi:yMe3d2JDquN27rMPqoYjFVZhs8BcwVWbpgY1qHZy8zG",
