@@ -64,7 +64,7 @@ class VcIssueCommand : CliktCommand(
         // Loading VC template
         log.debug { "Loading credential template: ${template}" }
 
-        val vcStr = signatory.issue(template, ProofConfig(subjectDid, issuerDid, "Ed25519Signature2018", proofType))
+        val vcStr = signatory.issue(template, ProofConfig(issuerDid, subjectDid, "Ed25519Signature2018", proofType))
         //signatory.loadTemplate(template)
 
         //TODO: move the following to Signatory

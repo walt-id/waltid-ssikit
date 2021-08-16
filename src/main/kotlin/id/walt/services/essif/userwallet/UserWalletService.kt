@@ -27,6 +27,7 @@ import id.walt.services.essif.mock.AuthorizationApi
 import id.walt.services.essif.mock.DidRegistry
 import id.walt.services.jwt.JwtService
 import id.walt.services.vc.JsonLdCredentialService
+import id.walt.signatory.ProofConfig
 import java.security.KeyPairGenerator
 import java.security.MessageDigest
 import java.security.SecureRandom
@@ -302,7 +303,7 @@ object UserWalletService {
 //    }
 
 
-    private fun createVerifiedClaims(did: String, va: String): String {
+    private fun createVerifiedClaims(holderDid: String, va: String): String {
 
         val vaWrapper = Klaxon().parse<EbsiVAWrapper>(va)!!
 
@@ -311,14 +312,16 @@ object UserWalletService {
             listOf("VerifiablePresentation"),
             null,
             listOf(vaWrapper.verifiableCredential),
-            did,
+            holderDid,
             null
         )
 
-        val authKeyId = DidService.loadDidEbsi(did).authentication!![0]
+        val authKeyId = DidService.loadDidEbsi(holderDid).authentication!![0]
 
         val encodedVp = Klaxon().toJsonString(vpReq)
-        val vp = credentialService.sign(did, encodedVp, null, null, authKeyId, "assertionMethod")
+        // val vp = credentialService.sign(holderDid, encodedVp, null, null, authKeyId, "assertionMethod")
+        val vp =
+            credentialService.sign(encodedVp, ProofConfig(issuerDid = holderDid, subjectDid = holderDid, issuerVerificationMethod = authKeyId, proofPurpose = "assertionMethod"))
 
         log.debug { "Verifiable Presentation generated:\n$vp" }
 

@@ -28,6 +28,7 @@ import id.walt.services.key.KeyFormat
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.VerificationResult
 import id.walt.services.vc.VerificationType
+import id.walt.signatory.ProofConfig
 import id.walt.test.getTemplate
 import id.walt.test.readCredOffer
 import id.walt.vclib.Helpers.encode
@@ -255,7 +256,7 @@ class CoreApiTest : AnnotationSpec() {
 
         println("Credential request:\n$vcReqEnc")
 
-        val vcStr = credentialService.sign(issuerDid, vcReqEnc)
+        val vcStr = credentialService.sign(vcReqEnc, ProofConfig(issuerDid = issuerDid))
         println("OUR VC STR: $vcStr")
         val vc = vcStr.toCredential()
 

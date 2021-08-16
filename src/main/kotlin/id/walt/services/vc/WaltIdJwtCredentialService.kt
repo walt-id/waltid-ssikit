@@ -4,8 +4,11 @@ import com.nimbusds.jwt.JWTClaimsSet
 import id.walt.common.prettyPrint
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.SignatureType
+import id.walt.services.essif.EssifServer.nonce
+import id.walt.services.essif.TrustedIssuerClient.domain
 import id.walt.services.jwt.JwtService
 import id.walt.services.keystore.KeyStoreService
+import id.walt.signatory.ProofConfig
 import id.walt.vclib.Helpers.encode
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.Helpers.toMap
@@ -32,17 +35,13 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
     }
 
     override fun sign(
-        issuerDid: String,
         jsonCred: String,
-        domain: String?,
-        nonce: String?,
-        verificationMethod: String?,
-        proofPurpose: String?
+        config: ProofConfig
     ): String {
-        log.debug { "Signing JWT object with: issuerDid ($issuerDid), domain ($domain), nonce ($nonce)" }
+        log.debug { "Signing JWT object with: issuerDid (${config.issuerDid}), domain (${config.domain}), nonce (${config.nonce}" }
         val credential = jsonCred.toCredential()
 
-        val type = ks.load(issuerDid).let {
+        val type = ks.load(config.issuerDid).let {
             when (it.algorithm) {
                 KeyAlgorithm.ECDSA_Secp256k1 -> SignatureType.EcdsaSecp256k1Signature2019.name
                 KeyAlgorithm.EdDSA_Ed25519 -> SignatureType.Ed25519Signature2018.name
@@ -51,12 +50,12 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
         }
 
         val jws = when (credential) {
-            is Europass -> sign(issuerDid, credential)
+            is Europass -> sign(config.issuerDid, credential)
             else -> throw IllegalStateException("Template not supported yet.")
         }
 
         val created = simpleDateFormat.format(Date.from(Instant.now()))
-        credential.proof = Proof(type, null, created, proofPurpose, verificationMethod, jws)
+        credential.proof = Proof(type, null, created, config.proofPurpose, config.issuerVerificationMethod, jws)
         return credential.encode().prettyPrint()
     }
 

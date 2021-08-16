@@ -5,6 +5,9 @@ import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.WaltIdServices
 import id.walt.services.did.DidService
+import id.walt.services.essif.EssifServer.nonce
+import id.walt.services.essif.TrustedIssuerClient.domain
+import id.walt.signatory.ProofConfig
 import id.walt.test.getTemplate
 import id.walt.test.readCredOffer
 import id.walt.vclib.Helpers.encode
@@ -34,7 +37,7 @@ class CredentialServiceTest : AnnotationSpec() {
 
     fun genericSignVerify(issuerDid: String, credOffer: String) {
 
-        val vcStr = credentialService.sign(issuerDid, credOffer)
+        val vcStr = credentialService.sign(credOffer, ProofConfig(issuerDid = issuerDid))
         println("Credential generated: $vcStr")
 
         val vc = vcStr.toCredential()
@@ -189,7 +192,7 @@ class CredentialServiceTest : AnnotationSpec() {
         template.credentialSubject!!.id = subjectDid
         template.credentialSubject!!.learningAchievement!!.title = "Some Europass specific title"
 
-        val vc = credentialService.sign(issuerDid, template.encode())
+        val vc = credentialService.sign(template.encode() , ProofConfig(issuerDid = issuerDid))
 
         println("Signed vc: $vc")
         val vcSigned = vc.toCredential()
@@ -214,7 +217,7 @@ class CredentialServiceTest : AnnotationSpec() {
         val domain = "example.com"
         val nonce: String? = null
 
-        val vc = credentialService.sign(issuerDid, credOffer, domain, nonce)
+        val vc = credentialService.sign(credOffer, ProofConfig(issuerDid = issuerDid, nonce = nonce, domain = domain))
         vc shouldNotBe null
         println("Credential generated: $vc")
 
@@ -231,7 +234,7 @@ class CredentialServiceTest : AnnotationSpec() {
         val domain = "example.com"
         val nonce: String? = null
 
-        val vc = credentialService.sign(issuerDid, credOffer, domain, nonce)
+        val vc = credentialService.sign(credOffer, ProofConfig(issuerDid = issuerDid, nonce = nonce, domain = domain))
         vc shouldNotBe null
         println("Credential generated: $vc")
 
@@ -248,7 +251,7 @@ class CredentialServiceTest : AnnotationSpec() {
         val domain = "example.com"
         val nonce: String? = null
 
-        val vc = credentialService.sign(issuerDid, credOffer, domain, nonce)
+        val vc = credentialService.sign(credOffer, ProofConfig(issuerDid = issuerDid, nonce = nonce, domain = domain))
         vc shouldNotBe null
         println("Credential generated: $vc")
 
@@ -265,7 +268,8 @@ class CredentialServiceTest : AnnotationSpec() {
         val issuerDid = DidService.create(DidMethod.key)
         val anotherDid = DidService.create(DidMethod.key)
 
-        val vc = credentialService.sign(issuerDid, credOffer)
+        val vc = credentialService.sign(credOffer, ProofConfig(issuerDid = issuerDid))
+
         vc shouldNotBe null
         println("Credential generated: $vc")
 

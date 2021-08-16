@@ -7,6 +7,7 @@ import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
 import id.walt.services.jwt.JwtService
 import id.walt.services.key.KeyService
+import id.walt.signatory.ProofConfig
 import id.walt.vclib.Helpers.encode
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.vclist.Europass
@@ -33,20 +34,17 @@ class EbsiVCServiceTest : AnnotationSpec() {
     private val verificationMethod = "$issuerDid#${keyId.id}"
     private val proofPurpose = "assertionMethod"
 
+    val vcReq = Europass(
+        id = "education#higherEducation#51e42fda-cb0a-4333-b6a6-35cb147e1a88",
+        issuer = issuerDid,
+        issuanceDate = "2020-11-03T00:00:00Z",
+        credentialSubject = Europass.CredentialSubject(
+            id = "did:ebsi:22AhtW7XMssv7es4YcQTdV2MCM3c8b1VsiBfi5weHsjcCY9o",
+        )
+    ).encode()
+
     private val vc = WaltIdJwtCredentialService().sign(
-        issuerDid,
-        Europass(
-            id = "education#higherEducation#51e42fda-cb0a-4333-b6a6-35cb147e1a88",
-            issuer = issuerDid,
-            issuanceDate = "2020-11-03T00:00:00Z",
-            credentialSubject = Europass.CredentialSubject(
-                id = "did:ebsi:22AhtW7XMssv7es4YcQTdV2MCM3c8b1VsiBfi5weHsjcCY9o",
-            )
-        ).encode(),
-        null,
-        null,
-        verificationMethod,
-        proofPurpose
+        vcReq, ProofConfig(issuerDid = issuerDid, issuerVerificationMethod = verificationMethod, proofPurpose = proofPurpose)
     )
 
     @AfterAll
@@ -89,7 +87,7 @@ class EbsiVCServiceTest : AnnotationSpec() {
         vc.keys.size shouldBe 3
         vc.keys.forEach { listOf("credentialSubject", "type", "@context") shouldContain it }
         vc["@context"] shouldBe listOf("https://www.w3.org/2018/credentials/v1")
-        vc["type"] shouldBe listOf("VerifiableCredential","VerifiableAttestation","Europass")
+        vc["type"] shouldBe listOf("VerifiableCredential", "VerifiableAttestation", "Europass")
         vc["credentialSubject"] shouldNotBe null
     }
 

@@ -25,9 +25,9 @@ enum class ProofType {
 }
 
 data class ProofConfig(
-    val subjectDid: String,
-    val issuerDid: String,
-    val issuerVerificationMethod: String, // DID URL => defines key type
+    val issuerDid:  String, // if null -> issuer DID from json-input
+    val subjectDid:  String? = null, // if null -> subject DID from json-input
+    val issuerVerificationMethod: String? = null, // DID URL => defines key type; if null -> issuerDid default key
     val proofType: ProofType = ProofType.LD_PROOF,
     val domain: String? = null,
     val nonce: String? = null,
@@ -67,10 +67,8 @@ class WaltSignatory(configurationPath: String) : Signatory() {
         val vcRequest = dataProvider.populate(vcTemplate)
 
         val vc = when (config.proofType) {
-            ProofType.LD_PROOF -> JsonLdCredentialService.getService()
-                .sign(config.issuerDid, vcRequest.encode(), config.domain, config.nonce, config.issuerVerificationMethod, config.proofPurpose)
-            ProofType.JWT -> JwtCredentialService.getService()
-                .sign(config.issuerDid, vcRequest.encode(), config.domain, config.nonce, config.issuerVerificationMethod, config.proofPurpose)
+            ProofType.LD_PROOF -> JsonLdCredentialService.getService().sign(vcRequest.encode(), config)
+            ProofType.JWT -> JwtCredentialService.getService().sign(vcRequest.encode(), config)
         }
 
         return vc

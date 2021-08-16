@@ -6,6 +6,9 @@ import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.jwk.OctetKeyPair
 import com.nimbusds.jose.jwk.gen.OctetKeyPairGenerator
 import com.nimbusds.jwt.EncryptedJWT
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import id.walt.common.OidcUtil
 import id.walt.crypto.canonicalize
@@ -105,30 +108,30 @@ object EssifClient {
         return OidcUtil.generateOidcAuthenticationResponse(ephPrivKey.toPublicJWK(), did, verifiedClaims, authReq.nonce)
     }
 
-    private fun createVerifiedClaims(did: String, va: String): String {
-
-        val vaWrapper = Klaxon().parse<EbsiVAWrapper>(va)!!
-
-        val vpReq = EbsiVaVp(
-            listOf("https://www.w3.org/2018/credentials/v1"),
-            listOf("VerifiablePresentation"),
-            null,
-            listOf(vaWrapper.verifiableCredential),
-            did,
-            null
-        )
-
-        val authKeyId = DidService.loadDidEbsi(did).authentication!![0]
-        //val encodedVp = Json.encodeToString(vpReq)
-        //val vp = credentialService.sign(did, encodedVp, null, null, authKeyId, "assertionMethod")
-        val vp = credentialService.sign(did, Klaxon().toJsonString(vpReq), null, null, authKeyId, "assertionMethod")
-
-        log.debug { "Verifiable Presentation generated:\n$vp" }
-
-        //  verifiablePresentationFile.writeText(vp)
-
-        val vpCan = canonicalize(vp)
-
-        return encBase64Str(vpCan)
-    }
+//    private fun createVerifiedClaims(did: String, va: String): String {
+//
+//        val vaWrapper = Klaxon().parse<EbsiVAWrapper>(va)!!
+//
+//        val vpReq = EbsiVaVp(
+//            listOf("https://www.w3.org/2018/credentials/v1"),
+//            listOf("VerifiablePresentation"),
+//            null,
+//            listOf(vaWrapper.verifiableCredential),
+//            did,
+//            null
+//        )
+//
+//        val authKeyId = DidService.loadDidEbsi(did).authentication!![0]
+//        //val encodedVp = Json.encodeToString(vpReq)
+//        //val vp = credentialService.sign(did, encodedVp, null, null, authKeyId, "assertionMethod")
+//        val vp = credentialService.sign(did, Klaxon().toJsonString(vpReq), null, null, authKeyId, "assertionMethod")
+//
+//        log.debug { "Verifiable Presentation generated:\n$vp" }
+//
+//        //  verifiablePresentationFile.writeText(vp)
+//
+//        val vpCan = canonicalize(vp)
+//
+//        return encBase64Str(vpCan)
+//    }
 }

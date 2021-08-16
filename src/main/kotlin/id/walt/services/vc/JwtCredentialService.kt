@@ -5,19 +5,18 @@ import id.walt.servicematrix.ServiceRegistry
 import id.walt.vclib.model.VerifiableCredential
 import info.weboftrust.ldsignatures.LdProof
 import id.walt.services.WaltIdService
+import id.walt.services.essif.EssifServer.nonce
+import id.walt.services.essif.TrustedIssuerClient.domain
+import id.walt.signatory.ProofConfig
 
 
 abstract class JwtCredentialService : WaltIdService() {
     override val implementation get() = ServiceRegistry.getService<JsonLdCredentialService>()
 
     open fun sign(
-        issuerDid: String,
         jsonCred: String,
-        domain: String? = null,
-        nonce: String? = null,
-        verificationMethod: String? = null,
-        proofPurpose: String? = null
-    ): String = implementation.sign(issuerDid, jsonCred, domain, nonce, verificationMethod, proofPurpose)
+        config: ProofConfig
+    ): String = implementation.sign(jsonCred, config)
 
     open fun verify(vcOrVp: String): VerificationResult = implementation.verify(vcOrVp)
     open fun verifyVc(issuerDid: String, vc: String): Boolean = implementation.verifyVc(issuerDid, vc)
