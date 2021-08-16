@@ -104,6 +104,12 @@ tasks.withType<Test> {
 }
  */
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(16))
+    }
+}
+
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "13"
 }
