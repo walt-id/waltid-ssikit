@@ -84,7 +84,7 @@ jobs:
           DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
           DOCKER_FILE: Dockerfile
-          CONTAINER_TAG: waltid-ssikit/test:latest
+          CONTAINER_TAG: waltid/ssikit:${{ github.event.inputs.versionName }}
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
