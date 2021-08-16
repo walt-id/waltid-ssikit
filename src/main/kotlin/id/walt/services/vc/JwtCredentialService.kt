@@ -4,12 +4,11 @@ import id.walt.servicematrix.ServiceProvider
 import id.walt.servicematrix.ServiceRegistry
 import id.walt.vclib.model.VerifiableCredential
 import info.weboftrust.ldsignatures.LdProof
-import kotlinx.serialization.Serializable
 import id.walt.services.WaltIdService
 
 
 abstract class JwtCredentialService : WaltIdService() {
-    override val implementation get() = ServiceRegistry.getService<VCService>()
+    override val implementation get() = ServiceRegistry.getService<JsonLdCredentialService>()
 
     open fun sign(
         issuerDid: String,
@@ -36,6 +35,6 @@ abstract class JwtCredentialService : WaltIdService() {
         implementation.addProof(credMap, ldProof)
 
     companion object : ServiceProvider {
-        override fun getService() = object : VCService() {}
+        override fun getService() = object : JsonLdCredentialService() {}
     }
 }

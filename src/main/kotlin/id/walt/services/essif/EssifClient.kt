@@ -6,9 +6,6 @@ import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.jwk.OctetKeyPair
 import com.nimbusds.jose.jwk.gen.OctetKeyPairGenerator
 import com.nimbusds.jwt.EncryptedJWT
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import id.walt.common.OidcUtil
 import id.walt.crypto.canonicalize
@@ -18,13 +15,13 @@ import id.walt.model.DidMethod
 import id.walt.model.OidcRequest
 import id.walt.services.did.DidService
 import id.walt.services.jwt.keyId
-import id.walt.services.vc.VCService
+import id.walt.services.vc.JsonLdCredentialService
 
 
 object EssifClient {
 
     private val log = KotlinLogging.logger {}
-    private val credentialService = VCService.getService()
+    private val credentialService = JsonLdCredentialService.getService()
 
     val did: String = DidService.create(DidMethod.ebsi) // Client DID
 

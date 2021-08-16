@@ -7,7 +7,7 @@ import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
 import id.walt.services.key.KeyService
-import id.walt.services.vc.VCService
+import id.walt.services.vc.JsonLdCredentialService
 import id.walt.vclib.Helpers.encode
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.vclist.PermanentResidentCard
@@ -29,7 +29,7 @@ import java.security.Security
 @Deprecated(message = "New version in package id.walt.service.vc")
 class CredentialServiceTest : AnnotationSpec() {
 
-    private val credentialService = VCService.getService()
+    private val credentialService = JsonLdCredentialService.getService()
     private val keyService = KeyService.getService()
 
     private val RESOURCES_PATH: String = "src/test/resources"

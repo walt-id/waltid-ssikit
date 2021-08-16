@@ -22,7 +22,7 @@ import java.io.File
 
 class CredentialServiceTest : AnnotationSpec() {
 
-    private val credentialService = VCService.getService()
+    private val credentialService = JsonLdCredentialService.getService()
 
 
     val VC_PATH = "src/test/resources/verifiable-credentials"

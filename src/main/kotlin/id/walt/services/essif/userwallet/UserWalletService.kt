@@ -26,7 +26,7 @@ import id.walt.services.essif.enterprisewallet.EnterpriseWalletService
 import id.walt.services.essif.mock.AuthorizationApi
 import id.walt.services.essif.mock.DidRegistry
 import id.walt.services.jwt.JwtService
-import id.walt.services.vc.VCService
+import id.walt.services.vc.JsonLdCredentialService
 import java.security.KeyPairGenerator
 import java.security.MessageDigest
 import java.security.SecureRandom
@@ -46,7 +46,7 @@ object UserWalletService {
 //        DidService.create(DidMethod.web)
 //    }
 
-    private val credentialService = VCService.getService()
+    private val credentialService = JsonLdCredentialService.getService()
     private val enterpriseWalletService = EnterpriseWalletService.getService()
     private val jwtService = JwtService.getService()
 

@@ -3,7 +3,7 @@ package id.walt.rest
 import io.javalin.http.Context
 import io.javalin.plugin.openapi.annotations.*
 import kotlinx.serialization.Serializable
-import id.walt.services.vc.VCService
+import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.VerificationResult
 
 @Serializable
@@ -30,7 +30,7 @@ data class VerifyVcRequest(
 
 object VcController {
 
-    private val credentialService = VCService.getService()
+    private val credentialService = JsonLdCredentialService.getService()
 
     @OpenApi(
         summary = "Load VC",

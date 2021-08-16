@@ -1,6 +1,5 @@
 package id.walt.cli
 
-import com.beust.klaxon.Klaxon
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.arguments.argument
@@ -13,25 +12,19 @@ import com.github.ajalt.clikt.parameters.types.file
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.vclib.Helpers.encode
-import id.walt.vclib.vclist.Europass
-import id.walt.vclib.vclist.PermanentResidentCard
-import id.walt.vclib.vclist.VerifiableAttestation
 import io.ktor.util.date.*
 import mu.KotlinLogging
-import okio.ByteString.Companion.encode
 import id.walt.common.prettyPrint
-import id.walt.services.vc.VCService
+import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.VerificationType
 import id.walt.signatory.ProofConfig
-import id.walt.vclib.templates.VcTemplateManager
 import java.io.File
 import java.sql.Timestamp
 import java.time.LocalDateTime
-import kotlin.math.sign
 
 private val log = KotlinLogging.logger {}
 
-private val credentialService = VCService.getService()
+private val credentialService = JsonLdCredentialService.getService()
 
 class VcCommand : CliktCommand(
     name = "vc",

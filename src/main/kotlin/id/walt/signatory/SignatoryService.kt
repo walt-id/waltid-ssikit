@@ -4,7 +4,7 @@ import id.walt.servicematrix.BaseService
 import id.walt.servicematrix.ServiceConfiguration
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.vc.JwtCredentialService
-import id.walt.services.vc.VCService
+import id.walt.services.vc.JsonLdCredentialService
 import id.walt.vclib.Helpers.encode
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.templates.VcTemplateManager
@@ -67,7 +67,7 @@ class WaltSignatory(configurationPath: String) : Signatory() {
         val vcRequest = dataProvider.populate(vcTemplate)
 
         val vc = when (config.proofType) {
-            ProofType.LD_PROOF -> VCService.getService()
+            ProofType.LD_PROOF -> JsonLdCredentialService.getService()
                 .sign(config.issuerDid, vcRequest.encode(), config.domain, config.nonce, config.issuerVerificationMethod, config.proofPurpose)
             ProofType.JWT -> JwtCredentialService.getService()
                 .sign(config.issuerDid, vcRequest.encode(), config.domain, config.nonce, config.issuerVerificationMethod, config.proofPurpose)

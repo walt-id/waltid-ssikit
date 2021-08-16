@@ -15,8 +15,8 @@ enum class VerificationType {
 @Serializable
 data class VerificationResult(val verified: Boolean, val verificationType: VerificationType)
 
-abstract class VCService : WaltIdService() {
-    override val implementation get() = ServiceRegistry.getService<VCService>()
+abstract class JsonLdCredentialService : WaltIdService() {
+    override val implementation get() = ServiceRegistry.getService<JsonLdCredentialService>()
 
     open fun sign(
         issuerDid: String,
@@ -43,6 +43,6 @@ abstract class VCService : WaltIdService() {
         implementation.addProof(credMap, ldProof)
 
     companion object : ServiceProvider {
-        override fun getService() = object : VCService() {}
+        override fun getService() = object : JsonLdCredentialService() {}
     }
 }

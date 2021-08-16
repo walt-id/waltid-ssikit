@@ -28,7 +28,7 @@ import java.util.*
 
 private val log = KotlinLogging.logger {}
 
-open class WaltIdVCService : VCService() {
+open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
 
     private var ks: KeyStoreService = KeyStoreService.getService()
 

@@ -25,7 +25,7 @@ import id.walt.model.DidMethod
 import id.walt.model.DidUrl
 import id.walt.services.did.DidService
 import id.walt.services.key.KeyFormat
-import id.walt.services.vc.VCService
+import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.VerificationResult
 import id.walt.services.vc.VerificationType
 import id.walt.test.getTemplate
@@ -42,7 +42,7 @@ class CoreApiTest : AnnotationSpec() {
         ServiceMatrix("service-matrix.properties")
     }
 
-    val credentialService = VCService.getService()
+    val credentialService = JsonLdCredentialService.getService()
     val CORE_API_URL = "http://localhost:7003"
 
     val client = HttpClient(CIO) {
