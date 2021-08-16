@@ -101,7 +101,7 @@ class DidServiceTest : AnnotationSpec() {
         println(encodedUpd)
     }
 
-    // TODO fix @Test
+    @Test
     fun resolveDidEbsiTest() {
         val did = "did:ebsi:22S7TBCJxzPS2Vv1UniBSdzFD2ZDFjZeYvQuFQWSeAQN5nTG"
         val didDoc = DidService.resolveDidEbsi(did)
@@ -109,7 +109,7 @@ class DidServiceTest : AnnotationSpec() {
         println(encDidEbsi)
     }
 
-    // TODO fix @Test
+    @Test
     fun resolveDidEbsiRawTest() {
         val did = "did:ebsi:22S7TBCJxzPS2Vv1UniBSdzFD2ZDFjZeYvQuFQWSeAQN5nTG"
         val didDoc = DidService.resolveDidEbsiRaw(did)

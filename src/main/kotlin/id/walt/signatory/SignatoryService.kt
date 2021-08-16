@@ -61,10 +61,13 @@ class WaltSignatory(configurationPath: String) : Signatory() {
     override val configuration: SignatoryConfig = fromConfiguration(configurationPath)
 
     override fun issue(templateId: String, config: ProofConfig): String {
+
+        // TODO: load proof-conf from signatory.conf and optionally substitute values on request basis
+
         val vcTemplate = VcTemplateManager.loadTemplate(templateId)
 
         val dataProvider = DataProviderRegistry.getProvider(vcTemplate::class) // vclib.getUniqueId(vcTemplate)
-        val vcRequest = dataProvider.populate(vcTemplate)
+        val vcRequest = dataProvider.populate(vcTemplate, config.subjectDid!!, config.issuerDid)
 
         val vc = when (config.proofType) {
             ProofType.LD_PROOF -> JsonLdCredentialService.getService().sign(vcRequest.encode(), config)
