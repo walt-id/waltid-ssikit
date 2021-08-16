@@ -11,7 +11,7 @@ import id.walt.signatory.ProofConfig
 
 
 abstract class JwtCredentialService : WaltIdService() {
-    override val implementation get() = ServiceRegistry.getService<JsonLdCredentialService>()
+    override val implementation get() = ServiceRegistry.getService<JwtCredentialService>()
 
     open fun sign(
         jsonCred: String,
@@ -34,6 +34,6 @@ abstract class JwtCredentialService : WaltIdService() {
         implementation.addProof(credMap, ldProof)
 
     companion object : ServiceProvider {
-        override fun getService() = object : JsonLdCredentialService() {}
+        override fun getService() = object : JwtCredentialService() {}
     }
 }

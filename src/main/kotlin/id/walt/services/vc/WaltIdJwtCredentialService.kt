@@ -49,14 +49,16 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
             }
         }
 
-        val jws = when (credential) {
+        val jwt = when (credential) {
             is Europass -> sign(config.issuerDid, credential)
             else -> throw IllegalStateException("Template not supported yet.")
         }
 
-        val created = simpleDateFormat.format(Date.from(Instant.now()))
-        credential.proof = Proof(type, null, created, config.proofPurpose, config.issuerVerificationMethod, jws)
-        return credential.encode().prettyPrint()
+        return jwt
+
+//        val created = simpleDateFormat.format(Date.from(Instant.now()))
+//        credential.proof = Proof(type, null, created, config.proofPurpose, config.issuerVerificationMethod, jwt)
+//        return credential.encode().prettyPrint()
     }
 
     private fun sign(issuerDid: String, credential: Europass): String {
