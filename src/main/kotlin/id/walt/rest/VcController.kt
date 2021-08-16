@@ -1,14 +1,16 @@
 package id.walt.rest
 
+import id.walt.services.essif.TrustedIssuerClient.domain
 import io.javalin.http.Context
 import io.javalin.plugin.openapi.annotations.*
 import kotlinx.serialization.Serializable
-import id.walt.services.vc.VCService
+import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.VerificationResult
+import id.walt.signatory.ProofConfig
 
 @Serializable
 data class CreateVcRequest(
-    val issuerDid: String?,
+    val issuerDid: String,
     val subjectDid: String?,
     val credentialOffer: String?,
     val templateId: String? = null,
@@ -30,7 +32,7 @@ data class VerifyVcRequest(
 
 object VcController {
 
-    private val credentialService = VCService.getService()
+    private val credentialService = JsonLdCredentialService.getService()
 
     @OpenApi(
         summary = "Load VC",
@@ -90,10 +92,11 @@ object VcController {
         val createVcReq = ctx.bodyAsClass(CreateVcRequest::class.java)
         ctx.result(
             credentialService.sign(
-                createVcReq.issuerDid!!,
                 createVcReq.credentialOffer!!,
-                createVcReq.domain,
-                createVcReq.nonce
+                ProofConfig(
+                    issuerDid = createVcReq.issuerDid,
+                    domain = createVcReq.domain,
+                    nonce = createVcReq.nonce)
             )
         )
     }

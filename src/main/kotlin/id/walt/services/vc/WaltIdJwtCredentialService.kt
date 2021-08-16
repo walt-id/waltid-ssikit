@@ -1,10 +1,14 @@
 package id.walt.services.vc
 
 import com.nimbusds.jwt.JWTClaimsSet
+import id.walt.common.prettyPrint
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.SignatureType
+import id.walt.services.essif.EssifServer.nonce
+import id.walt.services.essif.TrustedIssuerClient.domain
 import id.walt.services.jwt.JwtService
 import id.walt.services.keystore.KeyStoreService
+import id.walt.signatory.ProofConfig
 import id.walt.vclib.Helpers.encode
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.Helpers.toMap
@@ -21,7 +25,7 @@ import java.util.*
 
 private val log = KotlinLogging.logger {}
 
-open class EbsiVCService : VCService() {
+open class WaltIdJwtCredentialService : JwtCredentialService() {
 
     private var ks = KeyStoreService.getService()
     private val jwtService = JwtService.getService()
@@ -31,32 +35,30 @@ open class EbsiVCService : VCService() {
     }
 
     override fun sign(
-        issuerDid: String,
         jsonCred: String,
-        domain: String?,
-        nonce: String?,
-        verificationMethod: String?,
-        proofPurpose: String?
+        config: ProofConfig
     ): String {
-        log.debug { "Signing JWT object with: issuerDid ($issuerDid), domain ($domain), nonce ($nonce)" }
+        log.debug { "Signing JWT object with: issuerDid (${config.issuerDid}), domain (${config.domain}), nonce (${config.nonce}" }
         val credential = jsonCred.toCredential()
 
-        val type = ks.load(issuerDid).let {
+        val type = ks.load(config.issuerDid).let {
             when (it.algorithm) {
                 KeyAlgorithm.ECDSA_Secp256k1 -> SignatureType.EcdsaSecp256k1Signature2019.name
                 KeyAlgorithm.EdDSA_Ed25519 -> SignatureType.Ed25519Signature2018.name
-                else -> throw Exception("Signature for key algorithm ${it.algorithm} not supported")
+                // else -> throw Exception("Signature for key algorithm ${it.algorithm} not supported")
             }
         }
 
-        val jws = when (credential) {
-            is Europass -> sign(issuerDid, credential)
+        val jwt = when (credential) {
+            is Europass -> sign(config.issuerDid, credential)
             else -> throw IllegalStateException("Template not supported yet.")
         }
 
-        val created = simpleDateFormat.format(Date.from(Instant.now()))
-        credential.proof = Proof(type, null, created, proofPurpose, verificationMethod, jws)
-        return credential.encode()
+        return jwt
+
+//        val created = simpleDateFormat.format(Date.from(Instant.now()))
+//        credential.proof = Proof(type, null, created, config.proofPurpose, config.issuerVerificationMethod, jwt)
+//        return credential.encode().prettyPrint()
     }
 
     private fun sign(issuerDid: String, credential: Europass): String {

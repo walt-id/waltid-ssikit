@@ -5,13 +5,15 @@ import id.walt.vclib.vclist.Europass
 import kotlin.reflect.KClass
 
 interface SignatoryDataProvider {
-    fun populate(template: VerifiableCredential): VerifiableCredential
+    fun populate(template: VerifiableCredential, subjectDid: String, issuerDid: String): VerifiableCredential
 }
 
 class MyEuropassDataProvider : SignatoryDataProvider {
-    override fun populate(template: VerifiableCredential): Europass {
+    override fun populate(template: VerifiableCredential, subjectDid: String, issuerDid: String): Europass {
         // TODO populate template and return fully defined VerifiableCredential
         val vc = template as Europass
+        vc.credentialSubject!!.id = subjectDid
+        vc.issuer = issuerDid
         vc.credentialSubject!!.givenNames = "My new name ${System.currentTimeMillis()}"
         vc.credentialSubject!!.familyName = "Family name"
         return vc

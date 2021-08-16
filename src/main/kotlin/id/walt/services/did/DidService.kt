@@ -1,11 +1,6 @@
 package id.walt.services.did
 
 import com.beust.klaxon.Klaxon
-import io.ktor.client.request.*
-import kotlinx.coroutines.runBlocking
-import mu.KotlinLogging
-import org.bouncycastle.asn1.ASN1BitString
-import org.bouncycastle.asn1.ASN1Sequence
 import id.walt.crypto.*
 import id.walt.crypto.KeyAlgorithm.ECDSA_Secp256k1
 import id.walt.crypto.KeyAlgorithm.EdDSA_Ed25519
@@ -14,7 +9,13 @@ import id.walt.services.WaltIdServices
 import id.walt.services.crypto.CryptoService
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyStoreService
-import id.walt.services.vc.VCService
+import id.walt.services.vc.JsonLdCredentialService
+import id.walt.signatory.ProofConfig
+import io.ktor.client.request.*
+import kotlinx.coroutines.runBlocking
+import mu.KotlinLogging
+import org.bouncycastle.asn1.ASN1BitString
+import org.bouncycastle.asn1.ASN1Sequence
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
@@ -27,7 +28,7 @@ private val log = KotlinLogging.logger {}
  */
 object DidService {
 
-    private val credentialService = VCService.getService()
+    private val credentialService = JsonLdCredentialService.getService()
     private val cryptoService = CryptoService.getService()
     private val keyStore = KeyStoreService.getService()
     private val keyService = KeyService.getService()
@@ -197,7 +198,7 @@ object DidService {
     }
 
     private fun signDid(issuerDid: String, verificationMethod: String, edDidStr: String): String {
-        val signedDid = credentialService.sign(issuerDid, edDidStr, null, null, verificationMethod)
+        val signedDid = credentialService.sign(edDidStr, ProofConfig(issuerDid = issuerDid, issuerVerificationMethod = verificationMethod))
         return signedDid
     }
 

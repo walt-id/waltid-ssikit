@@ -19,8 +19,12 @@ import mu.KotlinLogging
 import org.json.JSONObject
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.LdSigner
+import id.walt.services.essif.EssifServer.nonce
+import id.walt.services.essif.TrustedIssuerClient.domain
 import id.walt.services.keystore.KeyStoreService
 import id.walt.services.vc.VcUtils.getIssuer
+import id.walt.signatory.ProofConfig
+import id.walt.signatory.ProofType
 import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
@@ -28,7 +32,7 @@ import java.util.*
 
 private val log = KotlinLogging.logger {}
 
-open class WaltIdVCService : VCService() {
+open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
 
     private var ks: KeyStoreService = KeyStoreService.getService()
 
@@ -37,14 +41,10 @@ open class WaltIdVCService : VCService() {
     }
 
     override fun sign(
-        issuerDid: String,
         jsonCred: String,
-        domain: String?,
-        nonce: String?,
-        verificationMethod: String?,
-        proofPurpose: String?
+        config: ProofConfig
     ): String {
-        log.debug { "Signing jsonLd object with: issuerDid ($issuerDid), domain ($domain), nonce ($nonce)" }
+        log.debug { "Signing jsonLd object with: issuerDid (${config.issuerDid}), domain (${config.domain}), nonce (${config.nonce}" }
 
         val jsonLdObject: JsonLDObject = JsonLDObject.fromJson(jsonCred)
         val confLoader = LDSecurityContexts.DOCUMENT_LOADER as ConfigurableDocumentLoader
@@ -55,7 +55,7 @@ open class WaltIdVCService : VCService() {
         confLoader.isEnableLocalCache = true
         jsonLdObject.documentLoader = LDSecurityContexts.DOCUMENT_LOADER
 
-        val key = ks.load(issuerDid)
+        val key = ks.load(config.issuerDid)
 
         val signer = when (key.algorithm) {
             KeyAlgorithm.ECDSA_Secp256k1 -> LdSigner.EcdsaSecp256k1Signature2019(key.keyId)
@@ -63,12 +63,12 @@ open class WaltIdVCService : VCService() {
             else -> throw Exception("Signature for key algorithm ${key.algorithm} not supported")
         }
 
-        signer.creator = URI.create(issuerDid)
+        signer.creator = URI.create(config.issuerDid)
         signer.created = Date() // Use the current date
         signer.domain = domain
         signer.nonce = nonce
-        verificationMethod?.let { signer.verificationMethod = URI.create(verificationMethod) }
-        signer.proofPurpose = proofPurpose
+        config.issuerVerificationMethod?.let { signer.verificationMethod = URI.create(config.issuerVerificationMethod) }
+        signer.proofPurpose = config.proofPurpose
 
 
         log.debug { "Signing: $jsonLdObject" }
@@ -302,7 +302,16 @@ open class WaltIdVCService : VCService() {
 //            throw Exception("Could not load authentication key for $holderDid")
 //        }
 
-        val vp = sign(VcUtils.getHolder(vc.toCredential()), vpReqStr, domain, challenge)
+        val holderDid = VcUtils.getHolder(vc.toCredential())
+        val proofConfig = ProofConfig(
+            issuerDid = holderDid,
+            subjectDid = holderDid,
+            domain = domain,
+            proofType = ProofType.LD_PROOF,
+            nonce = challenge
+        )
+        val vp = sign(vpReqStr, proofConfig)
+        // val vp = sign(VcUtils.getHolder(vc.toCredential()), vpReqStr, domain, challenge)
         log.debug { "VP created:$vp" }
         return vp
     }

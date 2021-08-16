@@ -1,5 +1,10 @@
 package id.walt.auditor
 
+import id.walt.vclib.Helpers.encode
+import id.walt.vclib.VcLibManager
+import id.walt.vclib.model.CredentialSchema
+import id.walt.vclib.model.CredentialStatus
+import id.walt.vclib.vclist.Europass
 import id.walt.vclib.vclist.VerifiablePresentation
 
 // the following validation policies can be applied
@@ -20,7 +25,7 @@ interface VerificationPolicy {
     fun verify(vp: VerifiablePresentation): Boolean
 }
 
-class SignaturePolicy() : VerificationPolicy {
+class SignaturePolicy : VerificationPolicy {
     override fun id(): String = "SIGNATURE"
 
     override fun verify(vp: VerifiablePresentation): Boolean {
@@ -29,7 +34,7 @@ class SignaturePolicy() : VerificationPolicy {
     }
 }
 
-class JsonSchemaPolicy() : VerificationPolicy {
+class JsonSchemaPolicy : VerificationPolicy {
     override fun id(): String = "JSON_SCHEMA"
 
     override fun verify(vp: VerifiablePresentation): Boolean {
@@ -38,7 +43,7 @@ class JsonSchemaPolicy() : VerificationPolicy {
     }
 }
 
-class TrustedIssuerDidPolicy() : VerificationPolicy {
+class TrustedIssuerDidPolicy : VerificationPolicy {
     override fun id(): String = "TRUSTED_ISSUER_DID"
 
     override fun verify(vp: VerifiablePresentation): Boolean {
@@ -46,7 +51,8 @@ class TrustedIssuerDidPolicy() : VerificationPolicy {
         return true
     }
 }
-class TrustedSubjectDidPolicy() : VerificationPolicy {
+
+class TrustedSubjectDidPolicy : VerificationPolicy {
     override fun id(): String = "TRUSTED_SUBJECT_DID"
 
     override fun verify(vp: VerifiablePresentation): Boolean {
@@ -58,7 +64,7 @@ class TrustedSubjectDidPolicy() : VerificationPolicy {
 object PolicyRegistry {
     val policies = HashMap<String, VerificationPolicy>()
     fun register(policy: VerificationPolicy) = policies.put(policy.id(), policy)
-    fun getPolicy(id: String) = policies.get(id)!!
+    fun getPolicy(id: String) = policies[id]!!
 }
 
 data class VerificationResult(
@@ -82,13 +88,14 @@ interface IAuditor {
 
 object AuditorService : IAuditor {
 
+    private fun allAccepted(policyResults: Map<String, Boolean>) = policyResults.values.all { it }
+
     override fun verify(vp: String, policies: List<String>): VerificationResult {
-        val vpObj = vp as VerifiablePresentation         // TODO load VerifiablePresentation
-        val policyResults = HashMap<String, Boolean>()
-        for(id in policies) {
-            policyResults[id] = PolicyRegistry.getPolicy(id).verify(vpObj)
-        }
-        return VerificationResult(policyResults.values.all { it }, policyResults)
+        val vpObj = VcLibManager.getVerifiableCredential(vp) as VerifiablePresentation
+
+        val policyResults = policies.associateWith { PolicyRegistry.getPolicy(it).verify(vpObj) }
+
+        return VerificationResult(allAccepted(policyResults), policyResults)
     }
 }
 
@@ -98,6 +105,71 @@ fun main() {
     PolicyRegistry.register(TrustedSubjectDidPolicy())
     PolicyRegistry.register(JsonSchemaPolicy())
 
-    val res = AuditorService.verify("{}", listOf("signature", "revocation"))
+    val res = AuditorService.verify(
+        VerifiablePresentation(
+            id = "id",
+            verifiableCredential = listOf(
+                Europass(
+                    id = "education#higherEducation#51e42fda-cb0a-4333-b6a6-35cb147e1a88",
+                    issuer = "did:ebsi:2LGKvDMrNUPR6FhSNrXzQQ1h295zr4HwoX9UqvwAsenSKHe9",
+                    issuanceDate = "2020-11-03T00:00:00Z",
+                    validFrom = "2020-11-03T00:00:00Z",
+                    credentialSubject = Europass.CredentialSubject(
+                        id = "did:ebsi:22AhtW7XMssv7es4YcQTdV2MCM3c8b1VsiBfi5weHsjcCY9o",
+                        identifier = "0904008084H",
+                        givenNames = "Jane",
+                        familyName = "DOE",
+                        dateOfBirth = "1993-04-08",
+                        gradingScheme = Europass.CredentialSubject.GradingScheme(
+                            id = "https://blockchain.univ-lille.fr/ontology#GradingScheme",
+                            title = "Lower Second-Class Honours"
+                        ),
+                        learningAchievement = Europass.CredentialSubject.LearningAchievement(
+                            id = "https://blockchain.univ-lille.fr/ontology#LearningAchievment",
+                            title = "MASTERS LAW, ECONOMICS AND MANAGEMENT",
+                            description = "MARKETING AND SALES",
+                            additionalNote = listOf(
+                                "DISTRIBUTION MANAGEMENT"
+                            )
+                        ),
+                        awardingOpportunity = Europass.CredentialSubject.AwardingOpportunity(
+                            id = "https://blockchain.univ-lille.fr/ontology#AwardingOpportunity",
+                            identifier = "https://certificate-demo.bcdiploma.com/check/87ED2F2270E6C41456E94B86B9D9115B4E35BCCAD200A49B846592C14F79C86BV1Fnbllta0NZTnJkR3lDWlRmTDlSRUJEVFZISmNmYzJhUU5sZUJ5Z2FJSHpWbmZZ",
+                            awardingBody = Europass.CredentialSubject.AwardingOpportunity.AwardingBody(
+                                id = "did:ebsi:2LGKvDMrNUPR6FhSNrXzQQ1h295zr4HwoX9UqvwAsenSKHe9",
+                                eidasLegalIdentifier = "Unknown",
+                                registration = "0597065J",
+                                preferredName = "Université de Lille",
+                                homepage = "https://www.univ-lille.fr/"
+                            ),
+                            location = "FRANCE",
+                            startedAtTime = "Unknown",
+                            endedAtTime = "2020-11-03T00:00:00Z"
+                        ),
+                        learningSpecification = Europass.CredentialSubject.LearningSpecification(
+                            id = "https://blockchain.univ-lille.fr/ontology#LearningSpecification",
+                            iSCEDFCode = listOf(
+                                "7"
+                            ),
+                            eCTSCreditPoints = 120,
+                            eQFLevel = 7,
+                            nQFLevel = listOf(
+                                "7"
+                            )
+                        )
+                    ),
+                    credentialStatus = CredentialStatus(
+                        id = "https://essif.europa.eu/status/education#higherEducation#51e42fda-cb0a-4333-b6a6-35cb147e1a88",
+                        type = "CredentialsStatusList2020"
+                    ),
+                    credentialSchema = CredentialSchema(
+                        id = "https://essif.europa.eu/trusted-schemas-registry/v1/schemas/to_be_obtained_after_registration_of_the_schema",
+                        type = "JsonSchemaValidator2018"
+                    )
+                )
+            )
+        ).encode(), listOf("SIGNATURE", "JSON_SCHEMA")
+    )
+
     println(res)
 }
