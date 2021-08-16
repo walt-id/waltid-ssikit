@@ -6,8 +6,10 @@ import id.walt.crypto.KeyAlgorithm
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
+import id.walt.services.jwt.keyId
 import id.walt.services.key.KeyService
-import id.walt.services.vc.VCService
+import id.walt.services.vc.JsonLdCredentialService
+import id.walt.signatory.ProofConfig
 import id.walt.vclib.Helpers.encode
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.vclist.PermanentResidentCard
@@ -29,7 +31,7 @@ import java.security.Security
 @Deprecated(message = "New version in package id.walt.service.vc")
 class CredentialServiceTest : AnnotationSpec() {
 
-    private val credentialService = VCService.getService()
+    private val credentialService = JsonLdCredentialService.getService()
     private val keyService = KeyService.getService()
 
     private val RESOURCES_PATH: String = "src/test/resources"
@@ -125,7 +127,7 @@ class CredentialServiceTest : AnnotationSpec() {
         val credMap: Map<String, String> = mapOf("one" to "two")
         val cred = JSONObject(credMap).toString()
 
-        val vc = credentialService.sign(issuerDid, cred, domain, nonce)
+        val vc = credentialService.sign(cred, ProofConfig(issuerDid = issuerDid, domain = domain, nonce = nonce))
         vc shouldNotBe null
         println("Credential generated: $vc")
 
@@ -143,7 +145,7 @@ class CredentialServiceTest : AnnotationSpec() {
         val credMap: Map<String, String> = mapOf("one" to "two")
         val cred = JSONObject(credMap).toString()
 
-        val vc = credentialService.sign(issuerDid, cred, domain, nonce)
+        val vc = credentialService.sign(cred, ProofConfig(issuerDid = issuerDid, domain = domain, nonce = nonce))
         vc shouldNotBe null
         println("Credential generated: $vc")
 
@@ -161,7 +163,7 @@ class CredentialServiceTest : AnnotationSpec() {
         val domain = "example.com"
         val nonce: String? = null
 
-        val vc = credentialService.sign(issuerDid, credOffer, domain, nonce)
+        val vc = credentialService.sign(credOffer, ProofConfig(issuerDid = issuerDid, domain = domain, nonce = nonce))
         vc shouldNotBe null
         println("Credential generated: $vc")
 
@@ -174,17 +176,17 @@ class CredentialServiceTest : AnnotationSpec() {
 
         val credOffer = readCredOffer("PermanentResidentCard")
 
-        val keyId = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val issuerDid = DidService.create(DidMethod.key)
         val domain = "example.com"
         val nonce: String? = null
 
-        val vc = credentialService.sign(keyId.id, credOffer, domain, nonce)
+        val vc = credentialService.sign(credOffer, ProofConfig(issuerDid = issuerDid, domain = domain, nonce = nonce))
         vc shouldNotBe null
         println("Credential generated: $vc")
 
-        val vcVerified = credentialService.verifyVc(keyId.id, vc)
+        val vcVerified = credentialService.verifyVc(issuerDid, vc)
         vcVerified shouldBe true
-        keyService.delete(keyId.id)
+        keyService.delete(issuerDid)
     }
 
     @Test
@@ -218,7 +220,8 @@ class CredentialServiceTest : AnnotationSpec() {
         val domain = "example.com"
         val nonce: String? = null
 
-        val vp = credentialService.sign(issuerDid, vpInputStr, domain, nonce)
+        val vp = credentialService.sign(vpInputStr, ProofConfig(issuerDid = issuerDid, domain = domain, nonce = nonce))
+
         vp shouldNotBe null
         println("Verifiable Presentation generated: $vp")
     }

@@ -3,7 +3,8 @@ package id.walt.signatory
 import id.walt.servicematrix.BaseService
 import id.walt.servicematrix.ServiceConfiguration
 import id.walt.servicematrix.ServiceProvider
-import id.walt.services.vc.VCService
+import id.walt.services.vc.JwtCredentialService
+import id.walt.services.vc.JsonLdCredentialService
 import id.walt.vclib.Helpers.encode
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.templates.VcTemplateManager
@@ -24,11 +25,13 @@ enum class ProofType {
 }
 
 data class ProofConfig(
-    val issuerDid: String,
-    val issuerVerificationMethod: String, // DID URL => defines key type
+    val issuerDid:  String, // if null -> issuer DID from json-input
+    val subjectDid:  String? = null, // if null -> subject DID from json-input
+    val issuerVerificationMethod: String? = null, // DID URL => defines key type; if null -> issuerDid default key
     val proofType: ProofType = ProofType.LD_PROOF,
     val domain: String? = null,
     val nonce: String? = null,
+    val proofPurpose: String? = null
 )
 
 data class SignatoryConfig(
@@ -61,10 +64,14 @@ class WaltSignatory(configurationPath: String) : Signatory() {
         val vcTemplate = VcTemplateManager.loadTemplate(templateId)
 
         val dataProvider = DataProviderRegistry.getProvider(vcTemplate::class) // vclib.getUniqueId(vcTemplate)
-        val vc = dataProvider.populate(vcTemplate)
+        val vcRequest = dataProvider.populate(vcTemplate)
 
-        return VCService.getService()
-            .sign(config.issuerDid, vc.encode(), config.domain, config.nonce, config.issuerVerificationMethod)
+        val vc = when (config.proofType) {
+            ProofType.LD_PROOF -> JsonLdCredentialService.getService().sign(vcRequest.encode(), config)
+            ProofType.JWT -> JwtCredentialService.getService().sign(vcRequest.encode(), config)
+        }
+
+        return vc
     }
 
     override fun listTemplates(): List<String> = VcTemplateManager.getTemplateList()
