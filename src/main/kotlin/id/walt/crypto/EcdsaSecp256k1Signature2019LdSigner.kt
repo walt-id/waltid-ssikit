@@ -5,6 +5,7 @@ import com.nimbusds.jose.JWSHeader
 import com.nimbusds.jose.crypto.ECDSASigner
 import com.nimbusds.jose.jwk.Curve
 import info.weboftrust.ldsignatures.LdProof
+import info.weboftrust.ldsignatures.canonicalizer.Canonicalizers
 import info.weboftrust.ldsignatures.signer.LdSigner
 import info.weboftrust.ldsignatures.suites.EcdsaSecp256k1Signature2019SignatureSuite
 import info.weboftrust.ldsignatures.suites.SignatureSuites
@@ -14,7 +15,8 @@ import info.weboftrust.ldsignatures.util.JWSUtil
 class EcdsaSecp256k1Signature2019LdSigner(val keyId: KeyId) :
     LdSigner<EcdsaSecp256k1Signature2019SignatureSuite?>(
         SignatureSuites.SIGNATURE_SUITE_ECDSASECP256L1SIGNATURE2019,
-        null
+        null,
+        Canonicalizers.CANONICALIZER_JCSCANONICALIZER
     ) {
 
     override fun sign(ldProofBuilder: LdProof.Builder<*>, signingInput: ByteArray) {

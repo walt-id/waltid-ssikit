@@ -16,6 +16,7 @@ import info.weboftrust.ldsignatures.suites.Ed25519Signature2018SignatureSuite
 import info.weboftrust.ldsignatures.suites.SignatureSuites
 import info.weboftrust.ldsignatures.util.JWSUtil
 import id.walt.services.crypto.CryptoService
+import info.weboftrust.ldsignatures.canonicalizer.Canonicalizers
 import java.security.InvalidKeyException
 import java.security.PrivateKey
 import java.security.SecureRandom
@@ -89,7 +90,8 @@ class LdSigner {
     class EcdsaSecp256k1Signature2019(val keyId: KeyId) :
         LdSigner<EcdsaSecp256k1Signature2019SignatureSuite?>(
             SignatureSuites.SIGNATURE_SUITE_ECDSASECP256L1SIGNATURE2019,
-            null
+            null,
+            Canonicalizers.CANONICALIZER_JCSCANONICALIZER
         ) {
 
         override fun sign(ldProofBuilder: LdProof.Builder<*>, signingInput: ByteArray) {
@@ -107,7 +109,7 @@ class LdSigner {
     }
 
     class Ed25519Signature2018(val keyId: KeyId) :
-        LdSigner<Ed25519Signature2018SignatureSuite?>(SignatureSuites.SIGNATURE_SUITE_ED25519SIGNATURE2018, null) {
+        LdSigner<Ed25519Signature2018SignatureSuite?>(SignatureSuites.SIGNATURE_SUITE_ED25519SIGNATURE2018, null, Canonicalizers.CANONICALIZER_JCSCANONICALIZER) {
 
         override fun sign(ldProofBuilder: LdProof.Builder<*>, signingInput: ByteArray) {
 
