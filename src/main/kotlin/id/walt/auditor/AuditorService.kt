@@ -1,11 +1,9 @@
 package id.walt.auditor
 
+import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.vclib.Helpers.encode
 import id.walt.vclib.VcLibManager
-import id.walt.vclib.model.CredentialSchema
-import id.walt.vclib.model.CredentialStatus
-import id.walt.vclib.vclist.Europass
 import id.walt.vclib.vclist.VerifiablePresentation
 
 // the following validation policies can be applied
@@ -46,18 +44,21 @@ class TrustedSubjectDidPolicy : VerificationPolicy {
 
 object PolicyRegistry {
     val policies = HashMap<String, VerificationPolicy>()
+
     fun register(policy: VerificationPolicy) = policies.put(policy.id(), policy)
     fun getPolicy(id: String) = policies[id]!!
 }
 
 data class VerificationResult(
     val overallStatus: Boolean = false,
-    val policyResults: Map<String, Boolean>
+    val policyResults: Map<VerificationPolicy, Boolean>
 )
 
 interface IAuditor {
 
-    fun verify(vpJson: String, policies: List<String>): VerificationResult
+    fun verify(vpJson: String, policies: List<VerificationPolicy>): VerificationResult
+    fun verifyByIds(vpJson: String, policies: List<String>): VerificationResult =
+        verify(vpJson, policies.map { PolicyRegistry.getPolicy(it) })
 
 //    fun verifyVc(vc: String, config: AuditorConfig) = VerificationStatus(true)
 //    fun verifyVp(vp: String, config: AuditorConfig) = VerificationStatus(true)
@@ -65,87 +66,128 @@ interface IAuditor {
 
 object AuditorService : IAuditor {
 
-    private fun allAccepted(policyResults: Map<String, Boolean>) = policyResults.values.all { it }
+    private fun allAccepted(policyResults: Map<VerificationPolicy, Boolean>) = policyResults.values.all { it }
 
-    override fun verify(vpJson: String, policies: List<String>): VerificationResult {
+
+    override fun verify(vpJson: String, policies: List<VerificationPolicy>): VerificationResult {
         val vp = VcLibManager.getVerifiableCredential(vpJson) as VerifiablePresentation
 
-        val policyResults = policies.associateWith { PolicyRegistry.getPolicy(it).verify(vp) }
+        val policyResults = policies.associateWith { it.verify(vp) }
 
         return VerificationResult(allAccepted(policyResults), policyResults)
     }
 }
 
 fun main() {
+    ServiceMatrix("service-matrix.properties")
+
     PolicyRegistry.register(SignaturePolicy())
     PolicyRegistry.register(TrustedIssuerDidPolicy())
     PolicyRegistry.register(TrustedSubjectDidPolicy())
     PolicyRegistry.register(JsonSchemaPolicy())
 
     val res = AuditorService.verify(
-        VerifiablePresentation(
-            id = "id",
-            verifiableCredential = listOf(
-                Europass(
-                    id = "education#higherEducation#51e42fda-cb0a-4333-b6a6-35cb147e1a88",
-                    issuer = "did:ebsi:2LGKvDMrNUPR6FhSNrXzQQ1h295zr4HwoX9UqvwAsenSKHe9",
-                    issuanceDate = "2020-11-03T00:00:00Z",
-                    validFrom = "2020-11-03T00:00:00Z",
-                    credentialSubject = Europass.CredentialSubject(
-                        id = "did:ebsi:22AhtW7XMssv7es4YcQTdV2MCM3c8b1VsiBfi5weHsjcCY9o",
-                        identifier = "0904008084H",
-                        givenNames = "Jane",
-                        familyName = "DOE",
-                        dateOfBirth = "1993-04-08",
-                        gradingScheme = Europass.CredentialSubject.GradingScheme(
-                            id = "https://blockchain.univ-lille.fr/ontology#GradingScheme",
-                            title = "Lower Second-Class Honours"
-                        ),
-                        learningAchievement = Europass.CredentialSubject.LearningAchievement(
-                            id = "https://blockchain.univ-lille.fr/ontology#LearningAchievment",
-                            title = "MASTERS LAW, ECONOMICS AND MANAGEMENT",
-                            description = "MARKETING AND SALES",
-                            additionalNote = listOf(
-                                "DISTRIBUTION MANAGEMENT"
-                            )
-                        ),
-                        awardingOpportunity = Europass.CredentialSubject.AwardingOpportunity(
-                            id = "https://blockchain.univ-lille.fr/ontology#AwardingOpportunity",
-                            identifier = "https://certificate-demo.bcdiploma.com/check/87ED2F2270E6C41456E94B86B9D9115B4E35BCCAD200A49B846592C14F79C86BV1Fnbllta0NZTnJkR3lDWlRmTDlSRUJEVFZISmNmYzJhUU5sZUJ5Z2FJSHpWbmZZ",
-                            awardingBody = Europass.CredentialSubject.AwardingOpportunity.AwardingBody(
-                                id = "did:ebsi:2LGKvDMrNUPR6FhSNrXzQQ1h295zr4HwoX9UqvwAsenSKHe9",
-                                eidasLegalIdentifier = "Unknown",
-                                registration = "0597065J",
-                                preferredName = "Université de Lille",
-                                homepage = "https://www.univ-lille.fr/"
-                            ),
-                            location = "FRANCE",
-                            startedAtTime = "Unknown",
-                            endedAtTime = "2020-11-03T00:00:00Z"
-                        ),
-                        learningSpecification = Europass.CredentialSubject.LearningSpecification(
-                            id = "https://blockchain.univ-lille.fr/ontology#LearningSpecification",
-                            iSCEDFCode = listOf(
-                                "7"
-                            ),
-                            eCTSCreditPoints = 120,
-                            eQFLevel = 7,
-                            nQFLevel = listOf(
-                                "7"
-                            )
-                        )
-                    ),
-                    credentialStatus = CredentialStatus(
-                        id = "https://essif.europa.eu/status/education#higherEducation#51e42fda-cb0a-4333-b6a6-35cb147e1a88",
-                        type = "CredentialsStatusList2020"
-                    ),
-                    credentialSchema = CredentialSchema(
-                        id = "https://essif.europa.eu/trusted-schemas-registry/v1/schemas/to_be_obtained_after_registration_of_the_schema",
-                        type = "JsonSchemaValidator2018"
-                    )
-                )
-            )
-        ).encode(), listOf("SignaturePolicy", "JsonSchemaPolicy")
+        """
+      {
+  "@context" : [ "https://www.w3.org/2018/credentials/v1" ],
+  "id": "0",
+  "type" : [ "VerifiableCredential", "VerifiablePresentation" ],
+  "verifiableCredential" : [ {
+    "@context" : [ "https://www.w3.org/2018/credentials/v1" ],
+    "id" : "1626680615978",
+    "type" : [ "VerifiableCredential", "VerifiableAttestation", "Europass" ],
+    "issuer" : "did:ebsi:22RgRjvk6mVkUaZohDtDSweQFfMXTh1YBnCZu3JgPNEmx7zZ",
+    "issuanceDate" : "2021-07-19T09:43:36.214321688",
+    "credentialSubject" : {
+      "@id" : "did:key:z6MkuHT1Q4FTSC9tqaU3bt7dCGesYNzjNMfYX1YUvWKXLpod",
+      "currentFamilyName" : "Skywalker",
+      "currentGivenName" : "Lea",
+      "dateOfBirth" : "2021-02-15",
+      "mailBox" : {
+        "@uri" : "mailto:leaskywalker@gmail.com"
+      }
+    },
+    "learningAchievement" : {
+      "@id" : "urn:epass:learningAchievement:1",
+      "title" : {
+        "text" : {
+          "@content-type" : "text/plain",
+          "@lang" : "en",
+          "#text" : "Degree in Biology"
+        }
+      },
+      "specifiedBy" : {
+        "@idref" : "urn:epass:qualification:1"
+      }
+    },
+    "learningSpecificationReferences" : {
+      "qualification" : {
+        "@id" : "urn:epass:qualification:1",
+        "title" : {
+          "text" : {
+            "@content-type" : "text/plain",
+            "@lang" : "en",
+            "#text" : "Degree in Biology"
+          }
+        },
+        "awardingOpportunities" : null,
+        "eqfLevel" : {
+          "@targetFrameworkUrl" : "http://data.europa.eu/snb/eqf/25831c2",
+          "@targetNotation" : "eqf",
+          "@uri" : "http://data.europa.eu/snb/eqf/7",
+          "targetName" : {
+            "text" : {
+              "@content-type" : "text/plain",
+              "@lang" : "en",
+              "#text" : "Level 7"
+            }
+          }
+        }
+      }
+    },
+    "targetDescription" : {
+      "text" : {
+        "@content-type" : "text/plain",
+        "@lang" : "en",
+        "#text" : "Highly specialised knowledge, some of which is at the forefront of knowledge in a field of work or study, as the basis for original thinking and/or research <html:br></html:br>critical awareness of knowledge issues in a field and at the interface between different fields </html:div> <html:div xmlns:html=\"http://www.w3.org/1999/xhtml\" class=\"Skill\">specialised problem-solving skills required in research and/or innovation in order to develop new knowledge and procedures and to integrate knowledge from different fields</html:div> <html:div xmlns:html=\"http://www.w3.org/1999/xhtml\" class=\"Competence\">manage and transform work or study contexts that are complex, unpredictable and require new strategic approaches <html:br></html:br>take responsibility for contributing to professional knowledge and practice and/or for reviewing the strategic performance of teams"
+      }
+    },
+    "targetFrameworkName" : {
+      "text" : {
+        "@content-type" : "text/plain",
+        "@lang" : "en",
+        "#text" : "European Qualifications Framework for lifelong learning - (2008/C 111/01)"
+      }
+    },
+    "credentialStatus" : {
+      "id" : "https://essif.europa.eu/status/43",
+      "type" : "CredentialsStatusList2020"
+    },
+    "credentialSchema" : {
+      "id" : "https://essif.europa.eu/tsr-123/verifiableattestation.json",
+      "type" : "JsonSchemaValidator2018"
+    },
+    "evidence" : {
+      "id" : "https://essif.europa.eu/evidence/f2aeec97-fc0d-42bf-8ca7-0548192d4231",
+      "type" : [ "DocumentVerification, Assessment" ],
+      "verifier" : "https:// essif.europa.eu /issuers/48",
+      "evidenceDocument" : [ "Passport", "Assessment" ]
+    },
+    "proof" : {
+      "type" : "EcdsaSecp256k1Signature2019",
+      "created" : "2021-07-19T07:43:36Z",
+      "creator" : "did:ebsi:22RgRjvk6mVkUaZohDtDSweQFfMXTh1YBnCZu3JgPNEmx7zZ",
+      "jws" : "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFUzI1NksifQ..rlHLKG45ZXX8yRw2pynVs4H79ZM2BOq1WqF7M42OwCIOoJVi4V31eTJCNMnANsgzWrDOTsCUfj8EAt4fvEKylA"
+    }
+  } ],
+  "proof" : {
+    "type" : "Ed25519Signature2018",
+    "creator" : "did:key:z6MkuHT1Q4FTSC9tqaU3bt7dCGesYNzjNMfYX1YUvWKXLpod",
+    "created" : "2021-07-19T07:45:50Z",
+    "jws" : "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..uXAYH1UQL3D5YUoJRYLFbNsM5ojL0LVAWTVD3BRVu5Sieu9N3ueYbfN6y6TAPLNkMT5Ogs6Nu9M0O2U2gJdUCQ"
+  }
+}
+    """, listOf(SignaturePolicy(), JsonSchemaPolicy())
     )
 
     println(res)
