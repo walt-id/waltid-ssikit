@@ -38,18 +38,3 @@ object DataProviderRegistry {
         register(Europass::class, MyEuropassDataProvider())
     }
 }
-
-
-fun main() {
-
-
-    /*val vcTemplate = Europass(listOf(""), listOf(""))
-
-    val provider = DataProviderRegistry.getProvider(vcTemplate::class)
-
-    val vc = provider.populate(vcTemplate) as Europass
-
-    println(Klaxon().toJsonString(vc))*/
-
-    // TODO issue VerifiableCredential
-}
