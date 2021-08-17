@@ -1,5 +1,6 @@
 package id.walt.auditor
 
+import id.walt.services.vc.JsonLdCredentialService
 import id.walt.vclib.Helpers.encode
 import id.walt.vclib.VcLibManager
 import id.walt.vclib.model.CredentialSchema
@@ -21,22 +22,17 @@ import id.walt.vclib.vclist.VerifiablePresentation
 
 
 interface VerificationPolicy {
-    fun id(): String
+    fun id(): String = this.javaClass.simpleName
     fun verify(vp: VerifiablePresentation): Boolean
 }
 
 class SignaturePolicy : VerificationPolicy {
-    override fun id(): String = "SIGNATURE"
+    private val jsonLdCredentialService = JsonLdCredentialService.getService()
 
-    override fun verify(vp: VerifiablePresentation): Boolean {
-        // TODO validate policy
-        return true
-    }
+    override fun verify(vp: VerifiablePresentation) = jsonLdCredentialService.verifyVp(vp.encode())
 }
 
 class JsonSchemaPolicy : VerificationPolicy {
-    override fun id(): String = "JSON_SCHEMA"
-
     override fun verify(vp: VerifiablePresentation): Boolean {
         // TODO validate policy
         return true
@@ -44,8 +40,6 @@ class JsonSchemaPolicy : VerificationPolicy {
 }
 
 class TrustedIssuerDidPolicy : VerificationPolicy {
-    override fun id(): String = "TRUSTED_ISSUER_DID"
-
     override fun verify(vp: VerifiablePresentation): Boolean {
         // TODO validate policy
         return true
@@ -53,8 +47,6 @@ class TrustedIssuerDidPolicy : VerificationPolicy {
 }
 
 class TrustedSubjectDidPolicy : VerificationPolicy {
-    override fun id(): String = "TRUSTED_SUBJECT_DID"
-
     override fun verify(vp: VerifiablePresentation): Boolean {
         // TODO validate policy
         return true
@@ -168,7 +160,7 @@ fun main() {
                     )
                 )
             )
-        ).encode(), listOf("SIGNATURE", "JSON_SCHEMA")
+        ).encode(), listOf("SignaturePolicy", "JsonSchemaPolicy")
     )
 
     println(res)
