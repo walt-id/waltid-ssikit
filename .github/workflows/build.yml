@@ -41,3 +41,10 @@ jobs:
         SECRET_MAVEN_PASSWORD: ${{ secrets.SECRET_MAVEN_PASSWORD }}
       with:
         arguments: build --no-daemon
+    - name: Docker Build and Push SNAPSHOT
+      uses: philpotisk/github-action-docker-build-push@master
+      env:
+        DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
+        DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        DOCKER_FILE: Dockerfile
+        CONTAINER_TAG: waltid/ssikit:latest
