@@ -34,7 +34,7 @@ private val log = KotlinLogging.logger {}
 
 open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
 
-    private var ks: KeyStoreService = KeyStoreService.getService()
+    private var keyStore: KeyStoreService = KeyStoreService.getService()
 
     init {
         Ed25519Provider.set(TinkEd25519Provider())
@@ -55,7 +55,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
         confLoader.isEnableLocalCache = true
         jsonLdObject.documentLoader = LDSecurityContexts.DOCUMENT_LOADER
 
-        val key = ks.load(config.issuerDid)
+        val key = keyStore.load(config.issuerDid)
 
         val signer = when (key.algorithm) {
             KeyAlgorithm.ECDSA_Secp256k1 -> LdSigner.EcdsaSecp256k1Signature2019(key.keyId)
@@ -83,7 +83,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
     override fun verifyVc(issuerDid: String, vc: String): Boolean {
         log.trace { "Loading verification key for:  $issuerDid" }
 
-        val publicKey = ks.load(issuerDid)
+        val publicKey = keyStore.load(issuerDid)
 
         val confLoader = LDSecurityContexts.DOCUMENT_LOADER as ConfigurableDocumentLoader
 
