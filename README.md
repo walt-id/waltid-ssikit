@@ -14,8 +14,6 @@ The ESSIF/EBSI functions are in the scope of:
  - **Credential Issuance** protocols and data formats for issuing W3C credentials from an Trusted Issuer to a natural person.
  - **Credential Verification** verification facilities in order to determine the validity of a W3C verifiable credential aligned with ESSIF/EBSI standards
 
-
-
 The library is written in **Kotlin/Java based library** and can be directly integrated as Maven/Gradle dependency. Alternatively the library or the additional **Docker container** can be run as RESTful webservice.
 
 The **CLI tool** conveniently allows running all included functions manually. 
@@ -26,7 +24,7 @@ The documentation is hosted at: https://docs.walt.id/ssikit/
 
 Direct links for using the SSI Kit are:
 
-- Running the SSI Kit with Docker or with **ssikit.sh** (wrapper script for Linux): https://docs.walt.id/ssikit/ssikit-usage.html#running
+- Quick Start (running the SSI Kit with Docker or with **ssikit.sh**): https://docs.walt.id/ssikit-usage.html#quick-start
 - Building the SSI Kit with Gradle or with Docker: https://docs.walt.id/ssikit/ssikit-usage.html#build
 - CLI Tool: https://docs.walt.id/ssikit/ssikit-usage.html#cli
 - APIs: https://docs.walt.id/ssikit/ssikit-usage.html#apis
