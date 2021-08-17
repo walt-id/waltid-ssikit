@@ -17,21 +17,16 @@ The **CLI tool** conveniently allows running all included functions manually.
 
 ### Walt Container
 
-The simplest way of using _Walt.ID SSI Kit_ library is by pulling the Docker Container an running it via **Docker** or **Podman**. 
-
-Login to Container Registry:
-
-    export CR_PAT=<token-read-packages>
-    docker login
+The simplest way of using _Walt.ID SSI Kit_ library is by pulling the Docker Container an running it via **Docker** or **Podman**.
 
 Run via Docker:
 
-    docker run -itv $(pwd)/data:/app/data walt -h
+    docker run -itv $(pwd)/data:/app/data waltid/ssikit -h
 
 Run via Podman:
 
     mkdir data  # directory where the data is stored needs do be created manually
-    podman run -itv $(pwd)/data:/app/data walt
+    podman run -itv $(pwd)/data:/app/data waltid/ssikit
 
 Run as RESTful service via Docker Compose:
 
@@ -154,27 +149,27 @@ Refer to the specific service on how their configuration is laid out.
     ./walt.sh vc verify -p data/vc/presented/vp-1614291892489.json
 
 ### Walt Docker / Podman commands
-    docker run -itv $(pwd)/data:/app/data walt key gen --algorithm Ed25519
+    docker run -itv $(pwd)/data:/app/data waltid/ssikit key gen --algorithm Ed25519
 
-    docker run -itv $(pwd)/data:/app/data walt key list
+    docker run -itv $(pwd)/data:/app/data waltid/ssikit key list
 
-    docker run -itv $(pwd)/data:/app/data walt did create -m web
+    docker run -itv $(pwd)/data:/app/data waltid/ssikit did create -m web
 
-    docker run -itv $(pwd)/data:/app/data walt did resolve --did did:web:mattr.global
+    docker run -itv $(pwd)/data:/app/data waltid/ssikit did resolve --did did:web:mattr.global
 
-    docker run -itv $(pwd)/data:/app/data walt -v vc issue --issuer-did did:key:z6MkmNMF2... --subject-did did:key:zjkl2sd...
+    docker run -itv $(pwd)/data:/app/data waltid/ssikit -v vc issue --issuer-did did:key:z6MkmNMF2... --subject-did did:key:zjkl2sd...
 
-    docker run -itv $(pwd)/data:/app/data walt vc verify data/vc/created/vc-1614291790088-default.json
+    docker run -itv $(pwd)/data:/app/data waltid/ssikit vc verify data/vc/created/vc-1614291790088-default.json
 
-    docker run -itv $(pwd)/data:/app/data walt -v vc present data/vc/created/vc-1614291790088-default.json
+    docker run -itv $(pwd)/data:/app/data waltid/ssikit -v vc present data/vc/created/vc-1614291790088-default.json
 
-    docker run -itv $(pwd)/data:/app/data walt vc verify -p data/vc/presented/vp-1614291892489.json
+    docker run -itv $(pwd)/data:/app/data waltid/ssikit vc verify -p data/vc/presented/vp-1614291892489.json
 
-    docker run -itv $(pwd)/templates:/app/templates -v $(pwd)/data:/app/data walt vc templates list
+    docker run -itv $(pwd)/templates:/app/templates -v $(pwd)/data:/app/data waltid/ssikit vc templates list
 
-    docker run -itv $(pwd)/data:/app/data -p 7000-7001:7000-7001 walt serve
+    docker run -itv $(pwd)/data:/app/data -p 7000-7001:7000-7001 waltid/ssikit serve -b 0.0.0.0
 
-    podman run -itv $(pwd)/data:/app/data -p 7000-7001:7000-7001 walt serve
+    podman run -itv $(pwd)/data:/app/data -p 7000-7001:7000-7001 waltid/ssikit serve -b 0.0.0.0
 
 
 ### EBSI DID Registration (via CLI)
