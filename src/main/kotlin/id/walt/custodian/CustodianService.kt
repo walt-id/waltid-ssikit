@@ -4,6 +4,7 @@ import id.walt.crypto.Key
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
 import id.walt.services.keystore.KeyStoreService
+import id.walt.services.vcstore.VcStoreService
 import id.walt.vclib.model.VerifiableCredential
 
 abstract class CustodianService : WaltIdService() {
@@ -15,7 +16,8 @@ abstract class CustodianService : WaltIdService() {
 
     open fun getCredential(id: String): VerifiableCredential = implementation.getCredential(id)
     open fun listCredentials(): List<VerifiableCredential> = implementation.listCredentials()
-    open fun storeCredential(vc: VerifiableCredential): Unit = implementation.storeCredential(vc)
+    open fun listCredentialIds(): List<String> = implementation.listCredentialIds()
+    open fun storeCredential(alias: String, vc: VerifiableCredential): Unit = implementation.storeCredential(alias, vc)
 
     // fun createPresentation()
 
@@ -27,13 +29,15 @@ abstract class CustodianService : WaltIdService() {
 open class WaltCustodianService : CustodianService() {
 
     private val keystore = KeyStoreService.getService()
+    private val vcstore = VcStoreService.getService()
 
     override fun getKey(alias: String): Key = keystore.load(alias)
     override fun listKeys(): List<Key> = keystore.listKeys()
     override fun storeKey(key: Key) = keystore.store(key)
 
-    override fun getCredential(id: String): VerifiableCredential {
-        return super.getCredential(id)
-    }
+    override fun getCredential(id: String) = vcstore.getCredential(id)
+    override fun listCredentials(): List<VerifiableCredential> = vcstore.listCredentials()
+    override fun listCredentialIds(): List<String> = vcstore.listCredentialIds()
+    override fun storeCredential(alias: String, vc: VerifiableCredential) = vcstore.storeCredential(alias, vc)
 }
 

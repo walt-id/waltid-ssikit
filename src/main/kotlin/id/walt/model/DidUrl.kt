@@ -20,17 +20,13 @@ data class DidUrl(
     val url = did + if (fragment != null) "#${fragment}" else ""
 
     companion object {
-        fun from(url: String): DidUrl {
-            val didUrl = try {
-                val matchResult = "^did:([a-z]+):(.+)".toRegex().find(url)!!
-                val path = matchResult.groups[2]!!.value
-                val fragmentStr = path.substringAfter('#')
-                val identifierStr = path.substringBefore('#')
-                return DidUrl(matchResult.groups[1]!!.value, identifierStr, fragmentStr)
-            } catch (e: Exception) {
-                throw IllegalArgumentException("DID has wrong format.")
-            }
-        }
+        fun from(url: String): DidUrl = runCatching {
+            val matchResult = "^did:([a-z]+):(.+)".toRegex().find(url)!!
+            val path = matchResult.groups[2]!!.value
+            val fragmentStr = path.substringAfter('#')
+            val identifierStr = path.substringBefore('#')
+            return DidUrl(matchResult.groups[1]!!.value, identifierStr, fragmentStr)
+        }.getOrThrow<DidUrl>()
 
         fun generateDidEbsiV2DidUrl() =
             DidUrl(DidMethod.ebsi.name, "2" + Random.nextBytes(47).encodeBase58().substring(0, 47))
