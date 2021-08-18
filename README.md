@@ -24,7 +24,7 @@ The documentation is hosted at: https://docs.walt.id/ssikit/
 
 Direct links for using the SSI Kit are:
 
-- Quick Start (running the SSI Kit with Docker or with **ssikit.sh**): https://docs.walt.id/ssikit-usage.html#quick-start
+- Quick Start (running the SSI Kit with Docker or with **ssikit.sh**): https://docs.walt.id/ssikit/ssikit-usage.html#quick-start
 - Building the SSI Kit with Gradle or with Docker: https://docs.walt.id/ssikit/ssikit-usage.html#build
 - CLI Tool: https://docs.walt.id/ssikit/ssikit-usage.html#cli
 - APIs: https://docs.walt.id/ssikit/ssikit-usage.html#apis
