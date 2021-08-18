@@ -8,6 +8,7 @@ import id.walt.services.vc.JsonLdCredentialService
 import id.walt.vclib.Helpers.encode
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.templates.VcTemplateManager
+import java.util.*
 
 // JWT are using the IANA types of signatures: alg=EdDSA oder ES256 oder ES256K oder RS256
 //enum class ProofType {
@@ -25,13 +26,16 @@ enum class ProofType {
 }
 
 data class ProofConfig(
-    val issuerDid:  String, // if null -> issuer DID from json-input
-    val subjectDid:  String? = null, // if null -> subject DID from json-input
-    val issuerVerificationMethod: String? = null, // DID URL => defines key type; if null -> issuerDid default key
+    val issuerDid: String,
+    val subjectDid: String? = null, // if null and ProofType.LD_PROOF -> subject DID from json-input
+    val issuerVerificationMethod: String? = null, // DID URL => defines key type; if null and ProofType.LD_PROOF -> issuerDid default key
     val proofType: ProofType = ProofType.LD_PROOF,
     val domain: String? = null,
     val nonce: String? = null,
-    val proofPurpose: String? = null
+    val proofPurpose: String? = null,
+    val id: String? = null, // if null and ProofType.LD_PROOF -> generated with UUID random value
+    val issueDate: Date? = null, // if null and ProofType.LD_PROOF -> issue date from json-input or now if null as well
+    val expirationDate: Date? = null
 )
 
 data class SignatoryConfig(
@@ -65,16 +69,13 @@ class WaltSignatory(configurationPath: String) : Signatory() {
         // TODO: load proof-conf from signatory.conf and optionally substitute values on request basis
 
         val vcTemplate = VcTemplateManager.loadTemplate(templateId)
-
         val dataProvider = DataProviderRegistry.getProvider(vcTemplate::class) // vclib.getUniqueId(vcTemplate)
-        val vcRequest = dataProvider.populate(vcTemplate, config.subjectDid!!, config.issuerDid)
+        val vcRequest = dataProvider.populate(vcTemplate, config)
 
-        val vc = when (config.proofType) {
+        return when (config.proofType) {
             ProofType.LD_PROOF -> JsonLdCredentialService.getService().sign(vcRequest.encode(), config)
             ProofType.JWT -> JwtCredentialService.getService().sign(vcRequest.encode(), config)
         }
-
-        return vc
     }
 
     override fun listTemplates(): List<String> = VcTemplateManager.getTemplateList()
