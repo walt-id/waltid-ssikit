@@ -3,6 +3,7 @@ package id.walt.signatory
 import id.walt.vclib.model.CredentialStatus
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.vclist.Europass
+import id.walt.vclib.vclist.VerifiableID
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.reflect.KClass
@@ -11,11 +12,9 @@ interface SignatoryDataProvider {
     fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential
 }
 
-class EuropassDataProvider : SignatoryDataProvider {
+val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
 
-    companion object {
-        private val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
-    }
+class EuropassDataProvider : SignatoryDataProvider {
 
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): Europass {
         val vc = template as Europass
@@ -61,6 +60,52 @@ class EuropassDataProvider : SignatoryDataProvider {
     }
 }
 
+class VerifiableIDDataProvider : SignatoryDataProvider {
+
+    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableID {
+        val vc = template as VerifiableID
+
+        // TODO populate template and return fully defined VerifiableCredential
+
+        return when (proofConfig.proofType) {
+            ProofType.LD_PROOF -> populateForLDProof(vc, proofConfig)
+            ProofType.JWT -> populateForJWTProof(vc, proofConfig)
+        }
+    }
+
+    private fun populateForLDProof(vc: VerifiableID, proofConfig: ProofConfig): VerifiableID {
+        val id = proofConfig.id ?: "identity#verifiableID#${UUID.randomUUID()}"
+        vc.id = id
+        vc.issuer = proofConfig.issuerDid
+        vc.credentialStatus = CredentialStatus("https://essif.europa.eu/status/$id", "CredentialsStatusList2020")
+
+        if (proofConfig.subjectDid != null)
+            vc.credentialSubject!!.id = proofConfig.subjectDid
+
+        if (proofConfig.issueDate != null)
+            vc.issuanceDate = dateFormat.format(proofConfig.issueDate)
+        else if (vc.issuanceDate == null)
+            vc.issuanceDate = dateFormat.format(Date())
+
+        if (proofConfig.expirationDate != null)
+            vc.expirationDate = dateFormat.format(proofConfig.expirationDate)
+
+        return vc
+    }
+
+    private fun populateForJWTProof(vc: VerifiableID, proofConfig: ProofConfig): VerifiableID {
+        vc.id = null
+        vc.issuer = null
+        vc.credentialSubject!!.id = null
+        vc.issuanceDate = null
+        vc.expirationDate = null
+        vc.credentialStatus =
+            if (proofConfig.id == null) null
+            else CredentialStatus("https://essif.europa.eu/status/${proofConfig.id}", "CredentialsStatusList2020")
+        return vc
+    }
+}
+
 class NoSuchDataProviderException(credentialType: KClass<out VerifiableCredential>) :
     Exception("No data provider is registered for ${credentialType.simpleName}")
 
@@ -77,6 +122,7 @@ object DataProviderRegistry {
     init {
         // Init default providers
         register(Europass::class, EuropassDataProvider())
+        register(VerifiableID::class, VerifiableIDDataProvider())
     }
 }
 

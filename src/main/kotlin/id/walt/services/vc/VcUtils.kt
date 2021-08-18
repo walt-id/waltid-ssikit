@@ -7,6 +7,7 @@ object VcUtils {
 
     fun getIssuer(vcObj: VerifiableCredential): String = when (vcObj) {
         is Europass -> vcObj.issuer!!
+        is VerifiableID -> vcObj.issuer!!
         is PermanentResidentCard -> vcObj.issuer!!
         is UniversityDegree -> vcObj.issuer.id
         is VerifiableAttestation -> vcObj.issuer
@@ -16,6 +17,7 @@ object VcUtils {
 
     fun getHolder(vcObj: VerifiableCredential): String = when (vcObj) {
         is Europass -> vcObj.credentialSubject!!.id!!
+        is VerifiableID -> vcObj.credentialSubject!!.id!!
         is PermanentResidentCard -> vcObj.credentialSubject!!.id!!
         is UniversityDegree -> vcObj.credentialSubject.id
         is VerifiableAttestation -> vcObj.credentialSubject!!.id
