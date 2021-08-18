@@ -14,7 +14,7 @@ interface SignatoryDataProvider {
 class EuropassDataProvider : SignatoryDataProvider {
 
     companion object {
-        private val dateFormat = SimpleDateFormat("")
+        private val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
     }
 
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): Europass {

@@ -6,11 +6,14 @@ import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
 import id.walt.services.jwt.JwtService
 import id.walt.services.vc.JsonLdCredentialService
+import id.walt.vclib.Helpers.toCredential
+import id.walt.vclib.vclist.Europass
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.collections.shouldNotContainAnyOf
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import java.text.SimpleDateFormat
 
 class SignatoryServiceTest : StringSpec({
     ServiceMatrix("service-matrix.properties")
@@ -23,6 +26,7 @@ class SignatoryServiceTest : StringSpec({
             "Europass", ProofConfig(
                 subjectDid = did,
                 issuerDid = did,
+                issueDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse("2020-11-03T00:00:00Z"),
                 issuerVerificationMethod = "Ed25519Signature2018"
             )
         )
@@ -32,6 +36,7 @@ class SignatoryServiceTest : StringSpec({
         vc shouldContain "Europass"
         vc shouldContain "Université de Lille"
         vc shouldContain "MASTERS LAW, ECONOMICS AND MANAGEMENT"
+        (vc.toCredential() as Europass).issuanceDate shouldBe "2020-11-03T00:00:00Z"
 
         JsonLdCredentialService.getService().verifyVc(vc) shouldBe true
     }
