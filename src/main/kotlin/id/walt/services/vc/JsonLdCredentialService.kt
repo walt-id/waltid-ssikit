@@ -6,8 +6,6 @@ import id.walt.vclib.model.VerifiableCredential
 import info.weboftrust.ldsignatures.LdProof
 import kotlinx.serialization.Serializable
 import id.walt.services.WaltIdService
-import id.walt.services.essif.EssifServer.nonce
-import id.walt.services.essif.TrustedIssuerClient.domain
 import id.walt.signatory.ProofConfig
 
 enum class VerificationType {
@@ -28,8 +26,8 @@ abstract class JsonLdCredentialService : WaltIdService() {
 
     open fun verify(vcOrVp: String): VerificationResult = implementation.verify(vcOrVp)
     open fun verifyVc(issuerDid: String, vc: String): Boolean = implementation.verifyVc(issuerDid, vc)
-    open fun verifyVc(vc: String): Boolean = implementation.verifyVc(vc)
-    open fun verifyVp(vp: String): Boolean = implementation.verifyVp(vp)
+    open fun verifyVc(vcJson: String): Boolean = implementation.verifyVc(vcJson)
+    open fun verifyVp(vpJson: String): Boolean = implementation.verifyVp(vpJson)
 
     open fun present(vc: String, domain: String?, challenge: String?): String =
         implementation.present(vc, domain, challenge)

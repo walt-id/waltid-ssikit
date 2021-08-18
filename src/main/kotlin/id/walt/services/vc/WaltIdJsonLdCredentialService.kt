@@ -34,7 +34,7 @@ private val log = KotlinLogging.logger {}
 
 open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
 
-    private var ks: KeyStoreService = KeyStoreService.getService()
+    private var keyStore: KeyStoreService = KeyStoreService.getService()
 
     init {
         Ed25519Provider.set(TinkEd25519Provider())
@@ -55,7 +55,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
         confLoader.isEnableLocalCache = true
         jsonLdObject.documentLoader = LDSecurityContexts.DOCUMENT_LOADER
 
-        val key = ks.load(config.issuerDid)
+        val key = keyStore.load(config.issuerDid)
 
         val signer = when (key.algorithm) {
             KeyAlgorithm.ECDSA_Secp256k1 -> LdSigner.EcdsaSecp256k1Signature2019(key.keyId)
@@ -83,7 +83,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
     override fun verifyVc(issuerDid: String, vc: String): Boolean {
         log.trace { "Loading verification key for:  $issuerDid" }
 
-        val publicKey = ks.load(issuerDid)
+        val publicKey = keyStore.load(issuerDid)
 
         val confLoader = LDSecurityContexts.DOCUMENT_LOADER as ConfigurableDocumentLoader
 
@@ -189,11 +189,11 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
     }
 
 
-    override fun verifyVc(vc: String): Boolean {
-        log.debug { "Verifying VC:\n$vc" }
+    override fun verifyVc(vcJson: String): Boolean {
+        log.debug { "Verifying VC:\n$vcJson" }
 
         //val vcObj = Klaxon().parse<VerifiableCredential>(vc)
-        val vcObj = vc.toCredential()
+        val vcObj = vcJson.toCredential()
         log.trace { "VC decoded: $vcObj" }
 
 //        val signatureType = SignatureType.valueOf(vcObj.proof!!.type)
@@ -202,7 +202,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
 
         val issuer = getIssuer(vcObj)
 
-        val vcVerified = verifyVc(issuer, vc)
+        val vcVerified = verifyVc(issuer, vcJson)
         log.debug { "Verification of LD-Proof returned: $vcVerified" }
         return vcVerified
     }
@@ -210,9 +210,12 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
     override fun verifyVp(vpJson: String): Boolean {
         log.debug { "Verifying VP:\n$vpJson" }
 
+        val vp = vpJson.toCredential() as VerifiablePresentation
         // val vpObj = Klaxon().parse<VerifiablePresentation>(vp)
-        log.trace { "VC decoded: ${vpJson.toCredential()}" }
+        log.trace { "VC decoded: $vp" }
 
+        if (vp.proof == null)
+            return false
 
 //        val signatureType = SignatureType.valueOf(vpObj.proof!!.type)
 //        val presenter = vpObj.proof.creator!!
@@ -220,7 +223,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
 //        log.debug { "Signature type: $signatureType" }
 //
 
-        val vpVerified = verifyVc((vpJson.toCredential() as VerifiablePresentation).proof!!.creator!!, vpJson)
+        val vpVerified = verifyVc(vp.proof!!.creator!!, vpJson)
         log.debug { "Verification of VP-Proof returned: $vpVerified" }
 //
 //        // TODO remove legacy verifiableCredential

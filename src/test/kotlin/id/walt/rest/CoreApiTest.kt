@@ -43,7 +43,7 @@ class CoreApiTest : AnnotationSpec() {
         ServiceMatrix("service-matrix.properties")
     }
 
-    val credentialService = JsonLdCredentialService.getService()
+    private val credentialService = JsonLdCredentialService.getService()
     val CORE_API_URL = "http://localhost:7003"
 
     val client = HttpClient(CIO) {
