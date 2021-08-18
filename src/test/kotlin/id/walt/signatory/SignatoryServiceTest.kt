@@ -6,8 +6,9 @@ import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
 import id.walt.services.jwt.JwtService
 import id.walt.services.vc.JsonLdCredentialService
-import id.walt.services.vc.JwtCredentialService
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.collections.shouldNotContain
+import io.kotest.matchers.collections.shouldNotContainAnyOf
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 
@@ -40,7 +41,6 @@ class SignatoryServiceTest : StringSpec({
             "Europass", ProofConfig(
                 subjectDid = did,
                 issuerDid = did,
-                issuerVerificationMethod = "Ed25519Signature2018",
                 proofType = ProofType.JWT
             )
         )
@@ -56,12 +56,12 @@ class SignatoryServiceTest : StringSpec({
         did shouldBe jwt.jwtClaimsSet.claims["iss"]
         did shouldBe jwt.jwtClaimsSet.claims["sub"]
 
-        JwtService.getService().verify(jwtStr) shouldBe true
+        jwt.jwtClaimsSet.claims["vc"].let {
+            it as Map<*, *>
+            it.keys shouldNotContainAnyOf listOf("id", "issuer", "issuanceDate", "expirationDate")
+            (it["credentialSubject"] as Map<*, *>).keys shouldNotContain "id"
+        }
 
-//        vc shouldContain "Europass"
-//        vc shouldContain "Université de Lille"
-//        vc shouldContain "ECONOMICS AND MANAGEMENT"
-//
-//        JwtCredentialService.getService().verifyVc(vc) shouldBe true
+        JwtService.getService().verify(jwtStr) shouldBe true
     }
 })

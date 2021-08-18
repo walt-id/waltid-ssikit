@@ -33,9 +33,9 @@ data class ProofConfig(
     val domain: String? = null,
     val nonce: String? = null,
     val proofPurpose: String? = null,
-    val id: String? = null, // for ProofType.JWT only
-    val issueDate: Date? = null, // for ProofType.JWT only; if null -> issue date is now
-    val expirationDate: Date? = null // for ProofType.JWT only
+    val id: String? = null, // if null and ProofType.LD_PROOF -> generated with UUID random value
+    val issueDate: Date? = null, // if null and ProofType.LD_PROOF -> issue date from json-input or now if null as well
+    val expirationDate: Date? = null
 )
 
 data class SignatoryConfig(
@@ -70,7 +70,7 @@ class WaltSignatory(configurationPath: String) : Signatory() {
 
         val vcTemplate = VcTemplateManager.loadTemplate(templateId)
         val dataProvider = DataProviderRegistry.getProvider(vcTemplate::class) // vclib.getUniqueId(vcTemplate)
-        val vcRequest = dataProvider.populate(vcTemplate, config.subjectDid!!, config.issuerDid)
+        val vcRequest = dataProvider.populate(vcTemplate, config)
 
         return when (config.proofType) {
             ProofType.LD_PROOF -> JsonLdCredentialService.getService().sign(vcRequest.encode(), config)
