@@ -15,5 +15,6 @@ abstract class VcStoreService : WaltIdService() {
     open fun listCredentialIds(): List<String> = implementation.listCredentialIds()
     open fun listCredentials(): List<VerifiableCredential> = implementation.listCredentials()
     open fun storeCredential(alias: String, vc: VerifiableCredential): Unit = implementation.storeCredential(alias, vc)
+    open fun deleteCredential(alias: String): Boolean = implementation.deleteCredential(alias)
 }
 

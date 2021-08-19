@@ -20,4 +20,6 @@ open class FileSystemVcStoreService : VcStoreService() {
     override fun listCredentialIds(): List<String> = store.list()!!.asList()
 
     override fun storeCredential(alias: String, vc: VerifiableCredential) = getFileById(alias).writeText(vc.encode())
+
+    override fun deleteCredential(alias: String) = getFileById(alias).delete()
 }

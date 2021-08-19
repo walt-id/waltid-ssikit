@@ -102,7 +102,7 @@ open class FileSystemKeyStoreService : KeyStoreService() {
     }
 
     private fun saveKeyData(key: Key, suffix: String, data: ByteArray): Unit =
-        FileOutputStream("${Companion.KEY_DIR_PATH}/${key.keyId.id}.$suffix").use { it.write(data) }
+        FileOutputStream("${KEY_DIR_PATH}/${key.keyId.id}.$suffix").use { it.write(data) }
 
 
     //TODO consider deprecated methods below
