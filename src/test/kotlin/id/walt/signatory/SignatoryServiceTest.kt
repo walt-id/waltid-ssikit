@@ -8,6 +8,7 @@ import id.walt.services.jwt.JwtService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.vclist.Europass
+import id.walt.vclib.vclist.VerifiableID
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.collections.shouldNotContainAnyOf
@@ -41,13 +42,55 @@ class SignatoryServiceTest : StringSpec({
         JsonLdCredentialService.getService().verifyVc(vc) shouldBe true
     }
 
-    "Europass jwt-proof" {
-        val jwtStr = signatory.issue(
-            "Europass", ProofConfig(
+    "VerifiableID ld-proof" {
+        val vc = signatory.issue(
+            "VerifiableID", ProofConfig(
                 subjectDid = did,
                 issuerDid = did,
-                proofType = ProofType.JWT
+                issueDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").parse("2020-11-03T00:00:00Z"),
+                issuerVerificationMethod = "Ed25519Signature2018"
             )
+        )
+
+        println(vc)
+
+        vc shouldContain "VerifiableID"
+        vc shouldContain "0904008084H"
+        vc shouldContain "Jane DOE"
+        (vc.toCredential() as VerifiableID).issuanceDate shouldBe "2020-11-03T00:00:00Z"
+
+        JsonLdCredentialService.getService().verifyVc(vc) shouldBe true
+    }
+
+    "Europass jwt-proof" {
+        val jwtStr = signatory.issue(
+            "Europass", ProofConfig(subjectDid = did, issuerDid = did, proofType = ProofType.JWT)
+        )
+
+        println(jwtStr)
+
+        val jwt = SignedJWT.parse(jwtStr)
+
+        println(jwt.serialize())
+
+        "EdDSA" shouldBe jwt.header.algorithm.name
+        did shouldBe jwt.header.keyID
+        did shouldBe jwt.jwtClaimsSet.claims["iss"]
+        did shouldBe jwt.jwtClaimsSet.claims["sub"]
+
+        jwt.jwtClaimsSet.claims["vc"].let {
+            it as Map<*, *>
+            it.keys shouldNotContainAnyOf listOf("id", "issuer", "issuanceDate", "expirationDate")
+            (it["credentialSubject"] as Map<*, *>).keys shouldNotContain "id"
+        }
+
+        JwtService.getService().verify(jwtStr) shouldBe true
+    }
+
+    "VerifiableId jwt-proof" {
+        val jwtStr = signatory.issue(
+            "VerifiableID",
+            ProofConfig(subjectDid = did, issuerDid = did, proofType = ProofType.JWT)
         )
 
         println(jwtStr)
