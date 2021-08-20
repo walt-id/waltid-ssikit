@@ -150,9 +150,9 @@ open class TinkKeyStoreService : KeyStoreService() {
         FileSystemKeyStoreService().addAlias(keyId, alias)
     }
 
-    override fun getKeyId(keyId: String): String? {
+    override fun getKeyId(alias: String): String? {
         //TODO remove dependency to FileSystemKeyStoreService
-        return FileSystemKeyStoreService().getKeyId(keyId)
+        return FileSystemKeyStoreService().getKeyId(alias)
     }
 
 }

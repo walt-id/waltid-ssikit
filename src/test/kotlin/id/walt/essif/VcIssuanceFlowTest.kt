@@ -12,6 +12,7 @@ import id.walt.common.urlEncode
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.encBase64
 import id.walt.model.*
+import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
 import id.walt.services.essif.EssifFlowRunner
 import id.walt.services.essif.EssifServer
@@ -24,6 +25,10 @@ class VcIssuanceFlowTest : AnnotationSpec() {
 
     private val keyService = KeyService.getService()
     private val jwtService = JwtService.getService()
+
+    init {
+        ServiceMatrix("service-matrix.properties")
+    }
 
     private fun generateDidAuthRequest(): String {
         // println(EnterpriseWalletService.generateDidAuthRequest())

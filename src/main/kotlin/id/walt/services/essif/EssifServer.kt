@@ -25,7 +25,6 @@ object EssifServer {
     val callback = "http://localhost:8080/callback"
 
     val nonce: String = UUID.randomUUID().toString()
-    val did: String = DidService.create(DidMethod.ebsi) // Server DID
 
     /**
      * Generates OIDC-based authentication request
@@ -35,6 +34,8 @@ object EssifServer {
         log.debug { "SERVER::generateAuthenticationRequest()" }
 
         // TODO ingest correct parameters and claims
+
+        val did: String = DidService.create(DidMethod.ebsi) // Server DID
 
         val oidcRequest = OidcUtil.generateOidcAuthenticationRequest(did, redirectUri, callback, nonce)
 

@@ -9,7 +9,7 @@ import java.security.PublicKey
 import java.security.interfaces.ECPublicKey
 
 @Serializable
-data class KeyId(val id: String) {
+data class KeyId(val id: String) { // TODO Make value class (performance)
     override fun toString() = id
 }
 

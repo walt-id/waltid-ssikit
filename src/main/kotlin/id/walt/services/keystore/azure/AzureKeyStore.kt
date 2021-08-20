@@ -1,4 +1,4 @@
-package id.walt.crypto.keystore
+package id.walt.services.keystore.azure
 
 import com.microsoft.azure.keyvault.KeyVaultClient
 import com.microsoft.azure.keyvault.webkey.JsonWebKey
@@ -8,7 +8,6 @@ import id.walt.crypto.AzureKeyVaultConfig
 import id.walt.crypto.Key
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyId
-import id.walt.crypto.keystore.azure.TokenKeyVaultCredentials
 import id.walt.services.CryptoProvider
 import id.walt.services.keystore.KeyStoreService
 import id.walt.services.keystore.KeyType
@@ -27,12 +26,7 @@ open class AzureKeyStore(configurationPath: String) : KeyStoreService() {
         File(KEY_DIR_PATH).mkdirs()
     }
 
-    override fun getKeyId(keyId: String): String? =
-        try {
-            File("${KEY_DIR_PATH}/Alias-${keyId.split(":").joinToString("-")}").readText()
-        } catch (e: Exception) {
-            null
-        }
+    override fun getKeyId(alias: String): String? = runCatching { File("$KEY_DIR_PATH/Alias-${alias.split(":").joinToString("-")}").readText() }.getOrNull()
 
     override fun listKeys(): List<Key> =
         TODO("Not yet implemented")
@@ -62,7 +56,7 @@ open class AzureKeyStore(configurationPath: String) : KeyStoreService() {
     }
 
     override fun addAlias(keyId: KeyId, alias: String) =
-        File("${Companion.KEY_DIR_PATH}/Alias-${alias.split(":").joinToString("-")}").writeText(keyId.id)
+        File("$KEY_DIR_PATH/Alias-${alias.split(":").joinToString("-")}").writeText(keyId.id)
 
     private fun getKey(keyName: String): JsonWebKey =
         client.getKey(configuration.baseURL, keyName)?.key()

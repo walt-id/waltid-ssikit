@@ -20,20 +20,6 @@ open class KeyStoreServiceTest : AnnotationSpec() {
         ServiceMatrix("service-matrix.properties")
     }
 
-    /* ServiceLoader is deprecated, no longer used, and will be removed in a future version
-    @Test
-    fun serviceLoaderTest() {
-        val loader = ServiceLoader.load(KeyStoreService::class.java)
-        val ksServiceLoader = loader.iterator().next()
-        println(ksServiceLoader)
-
-        val ksKClass = Class.forName("id.walt.services.keystore.CustomKeyStoreService").kotlin.createInstance()
-        println(ksKClass)
-
-        val ksObject = FileSystemKeyStoreService
-        println(ksObject)
-    }*/
-
     @Test
     open fun addAliasTest() {
         val keyId = keyService.generate(KeyAlgorithm.EdDSA_Ed25519)
