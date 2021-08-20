@@ -16,6 +16,7 @@ abstract class CustodianService : WaltIdService() {
     open fun getKey(alias: String): Key = implementation.getKey(alias)
     open fun listKeys(): List<Key> = implementation.listKeys()
     open fun storeKey(key: Key): Unit = implementation.storeKey(key)
+    open fun deleteKey(id: String): Unit = implementation.deleteKey(id)
 
     open fun getCredential(id: String): VerifiableCredential = implementation.getCredential(id)
     open fun listCredentials(): List<VerifiableCredential> = implementation.listCredentials()
@@ -40,6 +41,7 @@ open class WaltCustodianService : CustodianService() {
     override fun getKey(alias: String): Key = keystore.load(alias)
     override fun listKeys(): List<Key> = keystore.listKeys()
     override fun storeKey(key: Key) = keystore.store(key)
+    override fun deleteKey(id: String) = keystore.delete(id)
 
     override fun getCredential(id: String) = vcStore.getCredential(id)
     override fun listCredentials(): List<VerifiableCredential> = vcStore.listCredentials()
