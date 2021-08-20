@@ -8,9 +8,10 @@ import java.security.KeyPair
 import java.security.PublicKey
 import java.security.interfaces.ECPublicKey
 
-
-@JvmInline
-value class KeyId(val id: String)
+@Serializable
+data class KeyId(val id: String) { // TODO Make value class (performance)
+    override fun toString() = id
+}
 
 data class Key(val keyId: KeyId, val algorithm: KeyAlgorithm, val cryptoProvider: CryptoProvider) {
     fun getPublicKey(): PublicKey = when {
