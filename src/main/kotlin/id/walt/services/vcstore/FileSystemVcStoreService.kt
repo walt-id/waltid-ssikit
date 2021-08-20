@@ -17,7 +17,7 @@ open class FileSystemVcStoreService : VcStoreService() {
     override fun listCredentials(): List<VerifiableCredential> =
         listCredentialIds().map { loadFileString(it).toCredential() }
 
-    override fun listCredentialIds(): List<String> = store.list()!!.asList()
+    override fun listCredentialIds(): List<String> = store.listFiles()!!.map { it.nameWithoutExtension }
 
     override fun storeCredential(alias: String, vc: VerifiableCredential) = getFileById(alias).writeText(vc.encode())
 
