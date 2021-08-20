@@ -69,15 +69,13 @@ class VerifiableIDDataProvider : SignatoryDataProvider {
 
         return when (proofConfig.proofType) {
             ProofType.LD_PROOF -> populateForLDProof(vc, proofConfig)
-            ProofType.JWT -> populateForJWTProof(vc, proofConfig)
+            ProofType.JWT -> populateForJWTProof(vc)
         }
     }
 
     private fun populateForLDProof(vc: VerifiableID, proofConfig: ProofConfig): VerifiableID {
-        val id = proofConfig.id ?: "identity#verifiableID#${UUID.randomUUID()}"
-        vc.id = id
+        vc.id = proofConfig.id ?: "identity#verifiableID#${UUID.randomUUID()}"
         vc.issuer = proofConfig.issuerDid
-        vc.credentialStatus = CredentialStatus("https://essif.europa.eu/status/$id", "CredentialsStatusList2020")
 
         if (proofConfig.subjectDid != null)
             vc.credentialSubject!!.id = proofConfig.subjectDid
@@ -93,15 +91,12 @@ class VerifiableIDDataProvider : SignatoryDataProvider {
         return vc
     }
 
-    private fun populateForJWTProof(vc: VerifiableID, proofConfig: ProofConfig): VerifiableID {
+    private fun populateForJWTProof(vc: VerifiableID): VerifiableID {
         vc.id = null
         vc.issuer = null
         vc.credentialSubject!!.id = null
         vc.issuanceDate = null
         vc.expirationDate = null
-        vc.credentialStatus =
-            if (proofConfig.id == null) null
-            else CredentialStatus("https://essif.europa.eu/status/${proofConfig.id}", "CredentialsStatusList2020")
         return vc
     }
 }
