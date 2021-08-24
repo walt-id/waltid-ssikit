@@ -53,9 +53,8 @@ open class EnterpriseWalletService : WaltIdService() {
 
         jwtService.verify(jwt).let { if (!it) throw IllegalStateException("Generated JWK not valid") }
 
-        val authResponseJwt = "$redirectUri#id_token=$jwt"
-        log.debug { "AuthResponse JWT: $authResponseJwt" }
-        return authResponseJwt
+        log.debug { "AuthResponse JWT: $jwt" }
+        return jwt
     }
 
     fun parseDidAuthRequest(authResp: AuthRequestResponse): DidAuthRequest {

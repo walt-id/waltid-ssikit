@@ -3,6 +3,7 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- Fixed EBSI DID registration due to API change
 
 ## [0.6.0] - 2021-07-21
 
@@ -10,7 +11,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
--   Initial release
+- Initial release
 
 [Unreleased]: https://github.com/walt-id/waltid-ssikit/compare/0.6.0...HEAD
 
