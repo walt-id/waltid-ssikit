@@ -7,6 +7,7 @@ import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
 import id.walt.services.key.KeyService
 import id.walt.signatory.DataProviderRegistry
+import id.walt.signatory.ProofConfig
 import id.walt.signatory.SignatoryDataProvider
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.vclist.VerifiableAttestation
@@ -24,7 +25,7 @@ class VcIssueCommandTest : StringSpec({
     var didSubject = DidService.create(DidMethod.key)
 
     DataProviderRegistry.register(VerifiableAttestation::class, object : SignatoryDataProvider {
-        override fun populate(template: VerifiableCredential, subjectDid: String, issuerDid: String): VerifiableAttestation =
+        override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableAttestation =
             (template as VerifiableAttestation).apply { issuer = "NEW ISSUER" }
     })
 

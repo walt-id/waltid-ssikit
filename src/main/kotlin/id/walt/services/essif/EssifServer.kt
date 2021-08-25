@@ -3,16 +3,14 @@ package id.walt.services.essif
 import com.beust.klaxon.Klaxon
 import com.nimbusds.jose.jwk.OctetKeyPair
 import com.nimbusds.jwt.SignedJWT
-import mu.KotlinLogging
-import org.apache.logging.log4j.Level
 import id.walt.common.OidcUtil
 import id.walt.crypto.KeyAlgorithm
 import id.walt.model.AuthenticationResponsePayload
 import id.walt.model.DidMethod
-import id.walt.services.WaltIdServices
 import id.walt.services.did.DidService
 import id.walt.services.jwt.JwtService
 import id.walt.services.key.KeyService
+import mu.KotlinLogging
 import java.util.*
 
 
@@ -27,7 +25,6 @@ object EssifServer {
     val callback = "http://localhost:8080/callback"
 
     val nonce: String = UUID.randomUUID().toString()
-    val did: String = DidService.create(DidMethod.ebsi) // Server DID
 
     /**
      * Generates OIDC-based authentication request
@@ -37,6 +34,8 @@ object EssifServer {
         log.debug { "SERVER::generateAuthenticationRequest()" }
 
         // TODO ingest correct parameters and claims
+
+        val did: String = DidService.create(DidMethod.ebsi) // Server DID
 
         val oidcRequest = OidcUtil.generateOidcAuthenticationRequest(did, redirectUri, callback, nonce)
 
@@ -98,7 +97,10 @@ object EssifServer {
     }
 }
 
+/*
 fun main() {
+    ServiceMatrix("service-matrix.properties")
     WaltIdServices.setLogLevel(Level.DEBUG)
     EssifClient.authenticate()
 }
+*/

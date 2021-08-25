@@ -4,8 +4,8 @@ services:
     build: .
     volumes:
     - ./data:/app/data
-    - ./templates:/app/templates
-    entrypoint: /app/bin/letstrust-ssi-core serve
+    entrypoint: /app/bin/waltid-ssi-kit serve -b 0.0.0.0
     ports:
       - "7000:7000"
       - "7001:7001"
+      - "7002:7002"

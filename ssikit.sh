@@ -73,14 +73,14 @@ function extract() {
 
   if [[ ! -d build/distributions ]]; then
     echo "The directory ./build/distributions does not exist."
-    echo "Have you run \"./walt.sh build\" yet?"
+    echo "Have you run \"./ssikit.sh build\" yet?"
     echo
     exit
   fi
 
   if [[ ! -f build/distributions/waltid-ssi-kit-1.0-SNAPSHOT.tar ]]; then
     echo "The build files do not exist (directory ./build/distributions)."
-    echo "Have you run \"./walt.sh build\" yet?"
+    echo "Have you run \"./ssikit.sh build\" yet?"
     echo
     exit
   fi

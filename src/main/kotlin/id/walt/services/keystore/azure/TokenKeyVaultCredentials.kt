@@ -1,4 +1,4 @@
-package id.walt.crypto.keystore.azure
+package id.walt.services.keystore.azure
 
 import com.microsoft.aad.adal4j.AuthenticationContext
 import com.microsoft.aad.adal4j.ClientCredential

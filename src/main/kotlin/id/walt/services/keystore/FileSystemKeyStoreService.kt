@@ -68,13 +68,7 @@ open class FileSystemKeyStoreService : KeyStoreService() {
 //        saveEncPrivateKey(key.keyId.id, key.keyPair!!.private)
     }
 
-    override fun getKeyId(alias: String): String? {
-        try {
-            return File("${Companion.KEY_DIR_PATH}/Alias-$alias").readText()
-        } catch (e: Exception) {
-        }
-        return null
-    }
+    override fun getKeyId(alias: String) = runCatching { File("${KEY_DIR_PATH}/Alias-$alias").readText() }.getOrNull()
 
     override fun delete(alias: String) {
         deleteKeyFile(alias, "enc-pubkey")
@@ -108,7 +102,7 @@ open class FileSystemKeyStoreService : KeyStoreService() {
     }
 
     private fun saveKeyData(key: Key, suffix: String, data: ByteArray): Unit =
-        FileOutputStream("${Companion.KEY_DIR_PATH}/${key.keyId.id}.$suffix").use { it.write(data) }
+        FileOutputStream("${KEY_DIR_PATH}/${key.keyId.id}.$suffix").use { it.write(data) }
 
 
     //TODO consider deprecated methods below

@@ -21,7 +21,7 @@ abstract class KeyStoreService : WaltIdService() {
     open fun listKeys(): List<Key> = implementation.listKeys()
 
     // OLD
-    open fun getKeyId(keyId: String): String? = implementation.getKeyId(keyId)
+    open fun getKeyId(alias: String): String? = implementation.getKeyId(alias)
     // fun saveKeyPair(keys: Keys)
     // fun loadKeyPair(keyId: String): Keys?
     //fun addAlias(keyId: String, alias: String)
