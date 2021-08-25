@@ -14,7 +14,7 @@ class VcVerifyCommandTest : StringSpec({
 
     "vc verify --help" {
         val e = shouldThrow<PrintHelpMessage> {
-            VerifyVcCommand().parse(listOf("--help"))
+            VerifyVcCommand().parse(listOf("--help", "-p", "--policy"))
         }
         val message = e.command.getFormattedHelp()
         message shouldContain "Verify VC or VP"

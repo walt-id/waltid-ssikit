@@ -180,7 +180,7 @@ class VerifyVcCommand : CliktCommand(
     val policies: List<String> by option("-p", "--policy", help = "Verification policy. Can be specified multiple times. By default, ${PolicyRegistry.defaultPolicyId} is used.").multiple(default = listOf(PolicyRegistry.defaultPolicyId))
 
     override fun run() {
-        echo("Verifying form file $src ...\n")
+        echo("Verifying from file $src ...\n")
 
         if (!src.exists()) {
             log.error("Could not load file $src")
@@ -211,6 +211,17 @@ class VerifyVcCommand : CliktCommand(
             echo("$policy:\t\t $result")
         }
         echo("Verified:\t\t ${verificationResult.overallStatus}")
+    }
+}
+
+class ListVerificationPoliciesCommand : CliktCommand (
+    name = "policies",
+    help = "List verification policies"
+        ) {
+    override fun run() {
+        PolicyRegistry.listPolicies().forEach { verificationPolicy ->
+            echo("${verificationPolicy.id}: ${verificationPolicy.description}")
+        }
     }
 }
 
