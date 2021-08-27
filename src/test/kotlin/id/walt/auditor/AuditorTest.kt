@@ -32,7 +32,7 @@ class AuditorCommandTest : StringSpec({
 
     "2. issue vc" {
         vcStr = signatory.issue(
-            "Europass", ProofConfig(
+            "VerifiableDiploma", ProofConfig(
                 issuerDid = did,
                 subjectDid = did,
                 issuerVerificationMethod = "Ed25519Signature2018"

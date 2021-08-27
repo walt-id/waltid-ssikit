@@ -68,8 +68,8 @@ class CryptoServiceTest : AnnotationSpec() {
         val myks = KeyStore.getInstance("PKCS11", "Walt")
         println(myks)
 
-        val mycipher = Cipher.getInstance("AES/GCM/NoPadding", "Walt")
-        println(mycipher)
+//        val mycipher = Cipher.getInstance("AES/GCM/NoPadding", "Walt")
+//        println(mycipher)
 
         val providers: Array<Provider> = Security.getProviders()
 

@@ -43,16 +43,24 @@ class VcIssueCommandTest : StringSpec({
         VcIssueCommand().parse(listOf("-i", didIssuer, "-s", didSubject))
     }
 
-    "vc issue Europass LD_PROOF" {
-        VcIssueCommand().parse(listOf("-i", didIssuer, "-s", didSubject, "-t", "Europass", "-p", "LD_PROOF"))
+    "vc issue VerifiableId LD_PROOF" {
+        VcIssueCommand().parse(listOf("-i", didIssuer, "-s", didSubject, "-t", "VerifiableId", "-p", "LD_PROOF"))
+    }
+
+    "vc issue VerifiableDiploma LD_PROOF" {
+        VcIssueCommand().parse(listOf("-i", didIssuer, "-s", didSubject, "-t", "VerifiableDiploma", "-p", "LD_PROOF"))
     }
 
     "vc issue VerifiableAttestation LD_PROOF" {
         VcIssueCommand().parse(listOf("-i", didIssuer, "-s", didSubject, "-t", "VerifiableAttestation"))
     }
 
-    "vc issue Europass JWT" {
-        VcIssueCommand().parse(listOf("-i", didIssuer, "-s", didSubject, "-t", "Europass", "-p", "JWT"))
+    "vc issue VerifiableId JWT" {
+        VcIssueCommand().parse(listOf("-i", didIssuer, "-s", didSubject, "-t", "VerifiableId", "-p", "JWT"))
+    }
+
+    "vc issue VerifiableDiploma JWT" {
+        VcIssueCommand().parse(listOf("-i", didIssuer, "-s", didSubject, "-t", "VerifiableDiploma", "-p", "JWT"))
     }
 
 // TODO   "vc issue VerifiableAttestation JWT" {

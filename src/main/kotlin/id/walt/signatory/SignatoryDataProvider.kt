@@ -1,9 +1,8 @@
 package id.walt.signatory
 
-import id.walt.vclib.model.CredentialStatus
 import id.walt.vclib.model.VerifiableCredential
-import id.walt.vclib.vclist.Europass
-import id.walt.vclib.vclist.VerifiableID
+import id.walt.vclib.vclist.VerifiableDiploma
+import id.walt.vclib.vclist.VerifiableId
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.reflect.KClass
@@ -14,89 +13,56 @@ interface SignatoryDataProvider {
 
 val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
 
-class EuropassDataProvider : SignatoryDataProvider {
+class VerifiableIdDataProvider : SignatoryDataProvider {
 
-    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): Europass {
-        val vc = template as Europass
-
-        // TODO populate template and return fully defined VerifiableCredential
-
+    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableId {
+        val vc = template as VerifiableId
+        vc.setDefaultData()
         return when (proofConfig.proofType) {
             ProofType.LD_PROOF -> populateForLDProof(vc, proofConfig)
             ProofType.JWT -> populateForJWTProof(vc, proofConfig)
         }
     }
 
-    private fun populateForLDProof(vc: Europass, proofConfig: ProofConfig): Europass {
-        val id = proofConfig.id ?: "education#higherEducation#${UUID.randomUUID()}"
-        vc.id = id
+    private fun populateForLDProof(vc: VerifiableId, proofConfig: ProofConfig): VerifiableId {
+        vc.id = proofConfig.id ?: "identity#verifiableID#${UUID.randomUUID()}"
         vc.issuer = proofConfig.issuerDid
-        vc.credentialStatus = CredentialStatus("https://essif.europa.eu/status/$id", "CredentialsStatusList2020")
-
-        if (proofConfig.subjectDid != null)
-            vc.credentialSubject!!.id = proofConfig.subjectDid
-
-        if (proofConfig.issueDate != null)
-            vc.issuanceDate = dateFormat.format(proofConfig.issueDate)
-        else if (vc.issuanceDate == null)
-            vc.issuanceDate = dateFormat.format(Date())
-
-        if (proofConfig.expirationDate != null)
-            vc.expirationDate = dateFormat.format(proofConfig.expirationDate)
-
+        if (proofConfig.issueDate != null) vc.issuanceDate = dateFormat.format(proofConfig.issueDate)
+        if (proofConfig.expirationDate != null) vc.expirationDate = dateFormat.format(proofConfig.expirationDate)
+        vc.validFrom = vc.issuanceDate
+        vc.credentialSubject!!.id = proofConfig.subjectDid
         return vc
     }
 
-    private fun populateForJWTProof(vc: Europass, proofConfig: ProofConfig): Europass {
-        vc.id = null
-        vc.issuer = null
-        vc.credentialSubject!!.id = null
-        vc.issuanceDate = null
-        vc.expirationDate = null
-        vc.credentialStatus =
-            if (proofConfig.id == null) null
-            else CredentialStatus("https://essif.europa.eu/status/${proofConfig.id}", "CredentialsStatusList2020")
+    private fun populateForJWTProof(vc: VerifiableId, proofConfig: ProofConfig): VerifiableId {
+        if (proofConfig.issueDate != null) vc.validFrom = dateFormat.format(proofConfig.issueDate)
         return vc
     }
 }
 
-class VerifiableIDDataProvider : SignatoryDataProvider {
+class VerifiableDiplomaDataProvider : SignatoryDataProvider {
 
-    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableID {
-        val vc = template as VerifiableID
-
-        // TODO populate template and return fully defined VerifiableCredential
-
+    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableDiploma {
+        val vc = template as VerifiableDiploma
+        vc.setDefaultData()
         return when (proofConfig.proofType) {
             ProofType.LD_PROOF -> populateForLDProof(vc, proofConfig)
-            ProofType.JWT -> populateForJWTProof(vc)
+            ProofType.JWT -> populateForJWTProof(vc, proofConfig)
         }
     }
 
-    private fun populateForLDProof(vc: VerifiableID, proofConfig: ProofConfig): VerifiableID {
-        vc.id = proofConfig.id ?: "identity#verifiableID#${UUID.randomUUID()}"
+    private fun populateForLDProof(vc: VerifiableDiploma, proofConfig: ProofConfig): VerifiableDiploma {
+        vc.id = proofConfig.id ?: "education#higherEducation#${UUID.randomUUID()}"
         vc.issuer = proofConfig.issuerDid
-
-        if (proofConfig.subjectDid != null)
-            vc.credentialSubject!!.id = proofConfig.subjectDid
-
-        if (proofConfig.issueDate != null)
-            vc.issuanceDate = dateFormat.format(proofConfig.issueDate)
-        else if (vc.issuanceDate == null)
-            vc.issuanceDate = dateFormat.format(Date())
-
-        if (proofConfig.expirationDate != null)
-            vc.expirationDate = dateFormat.format(proofConfig.expirationDate)
-
+        if (proofConfig.issueDate != null) vc.issuanceDate = dateFormat.format(proofConfig.issueDate)
+        if (proofConfig.expirationDate != null) vc.expirationDate = dateFormat.format(proofConfig.expirationDate)
+        vc.validFrom = vc.issuanceDate
+        vc.credentialSubject!!.id = proofConfig.subjectDid
         return vc
     }
 
-    private fun populateForJWTProof(vc: VerifiableID): VerifiableID {
-        vc.id = null
-        vc.issuer = null
-        vc.credentialSubject!!.id = null
-        vc.issuanceDate = null
-        vc.expirationDate = null
+    private fun populateForJWTProof(vc: VerifiableDiploma, proofConfig: ProofConfig): VerifiableDiploma {
+        if (proofConfig.issueDate != null) vc.validFrom = dateFormat.format(proofConfig.issueDate)
         return vc
     }
 }
@@ -116,7 +82,86 @@ object DataProviderRegistry {
 
     init {
         // Init default providers
-        register(Europass::class, EuropassDataProvider())
-        register(VerifiableID::class, VerifiableIDDataProvider())
+        register(VerifiableDiploma::class, VerifiableDiplomaDataProvider())
+        register(VerifiableId::class, VerifiableIdDataProvider())
     }
+}
+
+fun VerifiableId.setDefaultData(): VerifiableId {
+    credentialSubject = VerifiableId.CredentialSubject(
+        familyName = "DOE",
+        firstName = "Jane",
+        dateOfBirth = "1993-04-08T00:00:00Z",
+        personalIdentifier = "0904008084H",
+        nameAndFamilyNameAtBirth = "Jane DOE",
+        placeOfBirth = "LILLE, FRANCE",
+        currentAddress = "1 Boulevard de la Liberté, 59800 Lille",
+        gender = "FEMALE"
+    )
+    //  EBSI does not support credentialStatus yet
+    //  credentialStatus = CredentialStatus(
+    //      id = "https://essif.europa.eu/status/identity#verifiableID#51e42fda-cb0a-4333-b6a6-35cb147e1a88",
+    //      type = "CredentialsStatusList2020"
+    //  )
+    evidence = VerifiableId.Evidence(
+        id = "https://blockchain.univ-lille.fr/identity#V_ID_evidence",
+        type = listOf("DocumentVerification"),
+        verifier = "did:ebsi:2LGKvDMrNUPR6FhSNrXzQQ1h295zr4HwoX9UqvwAsenSKHe9",
+        evidenceDocument = listOf("Passport"),
+        subjectPresence = "Physical",
+        documentPresence = listOf("Physical")
+    )
+    return this
+}
+
+fun VerifiableDiploma.setDefaultData(): VerifiableDiploma {
+    credentialSubject = VerifiableDiploma.CredentialSubject(
+        identifier = "0904008084H",
+        givenNames = "Jane",
+        familyName = "DOE",
+        dateOfBirth = "1993-04-08T00:00:00Z",
+        gradingScheme = VerifiableDiploma.CredentialSubject.GradingScheme(
+            id = "https://blockchain.univ-lille.fr/ontology#GradingScheme",
+            title = "Lower Second-Class Honours"
+        ),
+        learningAchievement = VerifiableDiploma.CredentialSubject.LearningAchievement(
+            id = "https://blockchain.univ-lille.fr/ontology#LearningAchievment",
+            title = "MASTERS LAW, ECONOMICS AND MANAGEMENT",
+            description = "MARKETING AND SALES",
+            additionalNote = listOf(
+                "DISTRIBUTION MANAGEMENT"
+            )
+        ),
+        awardingOpportunity = VerifiableDiploma.CredentialSubject.AwardingOpportunity(
+            id = "https://blockchain.univ-lille.fr/ontology#AwardingOpportunity",
+            identifier = "https://certificate-demo.bcdiploma.com/check/87ED2F2270E6C41456E94B86B9D9115B4E35BCCAD200A49B846592C14F79C86BV1Fnbllta0NZTnJkR3lDWlRmTDlSRUJEVFZISmNmYzJhUU5sZUJ5Z2FJSHpWbmZZ",
+            awardingBody = VerifiableDiploma.CredentialSubject.AwardingOpportunity.AwardingBody(
+                id = "did:ebsi:2LGKvDMrNUPR6FhSNrXzQQ1h295zr4HwoX9UqvwAsenSKHe9",
+                eidasLegalIdentifier = "Unknown",
+                registration = "0597065J",
+                preferredName = "Université de Lille",
+                homepage = "https://www.univ-lille.fr/"
+            ),
+            location = "FRANCE",
+            startedAtTime = "2015-11-03T00:00:00Z",
+            endedAtTime = "2020-11-03T00:00:00Z"
+        ),
+        learningSpecification = VerifiableDiploma.CredentialSubject.LearningSpecification(
+            id = "https://blockchain.univ-lille.fr/ontology#LearningSpecification",
+            iscedfCode = listOf(
+                "7"
+            ),
+            ectsCreditPoints = 120,
+            eqfLevel = 7,
+            nqfLevel = listOf(
+                "7"
+            )
+        )
+    )
+    //  EBSI does not support credentialStatus yet
+    //  credentialStatus = CredentialStatus(
+    //      id = "https://essif.europa.eu/status/education#higherEducation#51e42fda-cb0a-4333-b6a6-35cb147e1a88",
+    //      type = "CredentialsStatusList2020"
+    //  )
+    return this
 }
