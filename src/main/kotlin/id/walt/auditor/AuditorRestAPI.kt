@@ -1,4 +1,4 @@
-package id.walt.signatory
+package id.walt.auditor
 
 import cc.vileda.openapi.dsl.components
 import cc.vileda.openapi.dsl.externalDocs
@@ -22,18 +22,18 @@ import id.walt.rest.ErrorResponse
 import id.walt.rest.KeyController
 import id.walt.rest.RootController
 
-object SignatoryRestAPI {
+object AuditorRestAPI {
 
-    val SIGNATORY_API_PORT = 7002
+    val AUDITOR_API_PORT = 7003
     val BIND_ADDRESS = "127.0.0.1"
 
     private val log = KotlinLogging.logger {}
 
-    var signatoryApi: Javalin? = null
+    var auditorApi: Javalin? = null
 
-    fun start(port: Int = SIGNATORY_API_PORT, bindAddress: String = BIND_ADDRESS, apiTargetUrls: List<String> = listOf()) {
+    fun start(port: Int = AUDITOR_API_PORT, bindAddress: String = BIND_ADDRESS, apiTargetUrls: List<String> = listOf()) {
 
-        signatoryApi = Javalin.create {
+        auditorApi = Javalin.create {
 
             it.apply {
                 registerPlugin(RouteOverviewPlugin("/api-routes"))
@@ -41,7 +41,7 @@ object SignatoryRestAPI {
                 registerPlugin(OpenApiPlugin(OpenApiOptions(InitialConfigurationCreator {
                     OpenAPI().apply {
                         info {
-                            title = "walt.id Signatory API"
+                            title = "walt.id Auditor API"
                             description = "The walt.id public API documentation"
                             contact = Contact().apply {
                                 name = "walt.id"
@@ -72,8 +72,8 @@ object SignatoryRestAPI {
                     }
                 }).apply {
                     path("/v1/api-documentation")
-                    swagger(SwaggerOptions("/v1/swagger").title("walt.id Signatory API"))
-                    reDoc(ReDocOptions("/v1/redoc").title("walt.id Signatory API"))
+                    swagger(SwaggerOptions("/v1/swagger").title("walt.id Auditor API"))
+                    reDoc(ReDocOptions("/v1/redoc").title("walt.id Auditor API"))
                 }))
 
             }
@@ -85,13 +85,8 @@ object SignatoryRestAPI {
             get("", RootController::rootSignatoryApi)
             get("health", RootController::health)
             path("v1") {
-                path("credentials") {
-                    post("issue", KeyController::import)
-                }
-                path("templates") {
-                    get("", SignatoryController::listTemplates)
-                    get(":id", SignatoryController::loadTemplate)
-                }
+                get("policies", AuditorController::listPolicies)
+                post("verify", AuditorController::verifyVP)
             }
 
         }.exception(IllegalArgumentException::class.java) { e, ctx ->
@@ -105,5 +100,5 @@ object SignatoryRestAPI {
         }.start(bindAddress, port)
     }
 
-    fun stop() = signatoryApi?.stop()
+    fun stop() = auditorApi?.stop()
 }
