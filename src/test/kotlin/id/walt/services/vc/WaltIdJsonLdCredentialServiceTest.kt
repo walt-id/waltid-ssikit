@@ -139,7 +139,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
                 identifier = "0904008084H",
                 givenNames = "Jane",
                 familyName = "DOE",
-                dateOfBirth = "1993-04-08",
+                dateOfBirth = "1993-04-08T00:00:00Z",
                 gradingScheme = Europass.CredentialSubject.GradingScheme(
                     id = "https://blockchain.univ-lille.fr/ontology#GradingScheme",
                     title = "Lower Second-Class Honours"
@@ -163,7 +163,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
                         homepage = "https://www.univ-lille.fr/"
                     ),
                     location = "FRANCE",
-                    startedAtTime = "Unknown",
+                    startedAtTime = "2015-11-03T00:00:00Z",
                     endedAtTime = "2020-11-03T00:00:00Z"
                 ),
                 learningSpecification = Europass.CredentialSubject.LearningSpecification(

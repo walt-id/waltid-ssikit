@@ -51,7 +51,7 @@ class VcIssueCommand : CliktCommand(
 ) {
     val config: CliConfig by requireObject()
     val dest: File? by argument().file().optional()
-    val template: String by option("-t", "--template", help = "VC template [Europass]").default("Europass")
+    val template: String by option("-t", "--template", help = "VC template [VerifiableDiploma]").default("VerifiableDiploma")
     val issuerDid: String by option("-i", "--issuer-did", help = "DID of the issuer (associated with signing key)").required()
     val subjectDid: String by option("-s", "--subject-did", help = "DID of the VC subject (receiver of VC)").required()
     val proofType: ProofType by option("-p", "--proof-type", help = "Proof type to be used [LD_PROOF]").enum<ProofType>().default(ProofType.LD_PROOF)
