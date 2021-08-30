@@ -31,14 +31,13 @@ class KeyCommand : CliktCommand(
     }
 }
 
-class GenCommand : CliktCommand(
+class GenKeyCommand : CliktCommand(
     help = """Generate keys.
 
         Generates an asymmetric keypair by the specified algorithm. Supported algorithms are ECDSA Secp256k1 & EdDSA Ed25519 (default)
         
         """
 ) {
-
 
     // val keyAlias: String by option("--key-alias", "-k", help = "Specific key alias").prompt()
     val algorithm: String by option("-a", "--algorithm", help = "Key algorithm [Ed25519]").choice(

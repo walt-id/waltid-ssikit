@@ -92,7 +92,7 @@ object WaltCLI {
             Walt()
                 .subcommands(
                     KeyCommand().subcommands(
-                        GenCommand(),
+                        GenKeyCommand(),
                         ListKeysCommand(),
                         ImportKeyCommand(),
                         ExportKeyCommand()
