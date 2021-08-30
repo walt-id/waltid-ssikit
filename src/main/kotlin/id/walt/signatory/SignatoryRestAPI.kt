@@ -26,7 +26,6 @@ object SignatoryRestAPI {
 
     val SIGNATORY_API_PORT = 7002
     val BIND_ADDRESS = "127.0.0.1"
-    var signatoryApiUrl = ""
 
     private val log = KotlinLogging.logger {}
 

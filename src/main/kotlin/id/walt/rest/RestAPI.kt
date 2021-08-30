@@ -30,9 +30,6 @@ object RestAPI {
     val ESSIF_API_PORT = 7001
     val BIND_ADDRESS = "127.0.0.1"
 
-    var coreApiUrl = ""
-    var essifApiUrl = ""
-
     var coreApi: Javalin? = null
     var essifApi: Javalin? = null
 
@@ -265,7 +262,7 @@ object RestAPI {
 
     fun start(apiPort: Int = CORE_API_PORT, essifPort: Int = ESSIF_API_PORT, bindAddress: String = BIND_ADDRESS, apiTargetUrls: List<String> = listOf()) {
         startCoreApi(apiPort, bindAddress, apiTargetUrls)
-        startEssifApi(essifPort, bindAddress, apiTargetUrls)
+        //startEssifApi(essifPort, bindAddress, apiTargetUrls)
     }
 
     fun stopCoreApi() = coreApi?.stop()
