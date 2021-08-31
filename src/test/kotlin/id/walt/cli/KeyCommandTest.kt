@@ -20,8 +20,6 @@ class KeyCommandTest : StringSpec({
 
     ServiceMatrix("service-matrix.properties")
 
-
-
     "key gen --help" {
         val e = shouldThrow<PrintHelpMessage> {
             GenKeyCommand().parse(listOf("--help"))
@@ -49,7 +47,7 @@ class KeyCommandTest : StringSpec({
     }
 
     "key import Ed25519 priv key PEM" {
-        ImportKeyCommand().parse(listOf("src/test/resources/cli/privKeyEd25519Pem.txt"))
+        ImportKeyCommand().parse(listOf("src/test/resources/cli/privKeyEd25519Pem.txt", "src/test/resources/cli/pubKeyEd25519Pem.txt"))
     }
 
     "key import Ed25519 pub key PEM" {
@@ -58,10 +56,12 @@ class KeyCommandTest : StringSpec({
 
     "key import Ed25519 priv key JWK" {
         ImportKeyCommand().parse(listOf("src/test/resources/cli/privKeyEd25519Jwk.json"))
+        KeyService.getService().delete("45674a4ac169f7f4716804393d20480138a")
     }
 
     "key import Ed25519 pub key JWK" {
         ImportKeyCommand().parse(listOf("src/test/resources/cli/pubKeyEd25519Jwk.json"))
+        KeyService.getService().delete("12374a4ac169f7f4716804393d20480138a")
     }
 
 
