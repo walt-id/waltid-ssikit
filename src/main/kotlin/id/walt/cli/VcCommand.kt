@@ -5,10 +5,13 @@ import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.optional
 import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.enum
 import com.github.ajalt.clikt.parameters.types.file
+import id.walt.auditor.AuditorService
+import id.walt.auditor.PolicyRegistry
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.vclib.Helpers.encode
@@ -174,30 +177,51 @@ class VerifyVcCommand : CliktCommand(
 
     val src: File by argument().file()
     //val isPresentation: Boolean by option("-p", "--is-presentation", help = "In case a VP is verified.").flag()
+    val policies: List<String> by option("-p", "--policy", help = "Verification policy. Can be specified multiple times. By default, ${PolicyRegistry.defaultPolicyId} is used.").multiple(default = listOf(PolicyRegistry.defaultPolicyId))
 
     override fun run() {
-        echo("Verifying form file $src ...\n")
+        echo("Verifying from file $src ...\n")
 
         if (!src.exists()) {
             log.error("Could not load file $src")
             throw Exception("Could not load file $src")
         }
+        if (policies.any { !PolicyRegistry.contains(it) }) {
+            log.error("Unknown verification policy specified")
+            throw Exception("Unknown verification policy specified")
+        }
 
-        val verificationResult = credentialService.verify(src.readText())
+        val verificationResult = AuditorService.verify(src.readText(), policies.map { PolicyRegistry.getPolicy(it) })
 
         echo("\nResults:\n")
 
-        val type = when (verificationResult.verificationType) {
-            VerificationType.VERIFIABLE_PRESENTATION -> "verifiable presentation"
-            VerificationType.VERIFIABLE_CREDENTIAL -> "verifiable credential"
-        }
+//        val type = when (verificationResult.verificationType) {
+//            VerificationType.VERIFIABLE_PRESENTATION -> "verifiable presentation"
+//            VerificationType.VERIFIABLE_CREDENTIAL -> "verifiable credential"
+//        }
 
-        echo(
-            when (verificationResult.verified) {
-                true -> "The $type was verified successfully."
-                false -> "The $type is not valid or could not be verified."
-            }
-        )
+//        echo(
+//            when (verificationResult.verified) {
+//                true -> "The $type was verified successfully."
+//                false -> "The $type is not valid or could not be verified."
+//            }
+//        )
+
+        verificationResult.policyResults.forEach { (policy, result) ->
+            echo("$policy:\t\t $result")
+        }
+        echo("Verified:\t\t ${verificationResult.overallStatus}")
+    }
+}
+
+class ListVerificationPoliciesCommand : CliktCommand (
+    name = "policies",
+    help = "List verification policies"
+        ) {
+    override fun run() {
+        PolicyRegistry.listPolicies().forEach { verificationPolicy ->
+            echo("${verificationPolicy.id}: ${verificationPolicy.description}")
+        }
     }
 }
 

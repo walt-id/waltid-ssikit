@@ -51,8 +51,8 @@ class AuditorCommandTest : StringSpec({
 
         res.policyResults.keys shouldBeSameSizeAs listOf(SignaturePolicy(), JsonSchemaPolicy())
 
-        res.policyResults.keys.map { it.id() } shouldContainAll
-                listOf(SignaturePolicy(), JsonSchemaPolicy()).map { it.id() }
+        res.policyResults.keys shouldContainAll
+                listOf(SignaturePolicy(), JsonSchemaPolicy()).map { it.id }
 
         res.policyResults.values.forEach {
             it shouldBe true

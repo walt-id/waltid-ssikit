@@ -30,14 +30,12 @@ object RestAPI {
     val ESSIF_API_PORT = 7001
     val BIND_ADDRESS = "127.0.0.1"
 
-    var coreApiUrl = ""
-    var essifApiUrl = ""
-
     var coreApi: Javalin? = null
     var essifApi: Javalin? = null
 
+
     fun startCoreApi(port: Int = CORE_API_PORT, bindAddress: String = BIND_ADDRESS, apiTargetUrls: List<String> = listOf()) {
-        log.info("Starting LetTrust Wallet API ...\n")
+        log.info("Starting walt.id Core API ...\n")
 
         coreApi = Javalin.create {
 
@@ -47,10 +45,10 @@ object RestAPI {
                 registerPlugin(OpenApiPlugin(OpenApiOptions(InitialConfigurationCreator {
                     OpenAPI().apply {
                         info {
-                            title = "Walt Wallet API"
-                            description = "The Walt public API documentation"
+                            title = "walt.id Core API"
+                            description = "The walt.id public API documentation"
                             contact = Contact().apply {
-                                name = "Walt"
+                                name = "walt.id"
                                 url = "https://walt.id"
                                 email = "office@walt.id"
                             }
@@ -62,7 +60,7 @@ object RestAPI {
                         )
                         externalDocs {
                             description = "Walt Docs"
-                            url = "https://docs.walt.id/api"
+                            url = "https://docs.walt.id"
                         }
 
                         components {
@@ -78,8 +76,8 @@ object RestAPI {
                     }
                 }).apply {
                     path("/v1/api-documentation")
-                    swagger(SwaggerOptions("/v1/swagger").title("Walt API"))
-                    reDoc(ReDocOptions("/v1/redoc").title("Walt API"))
+                    swagger(SwaggerOptions("/v1/swagger").title("walt.id Core API"))
+                    reDoc(ReDocOptions("/v1/redoc").title("walt.id Core API"))
 //                defaultDocumentation { doc ->
 //                    doc.json("5XX", ErrorResponse::class.java)
 //                }
