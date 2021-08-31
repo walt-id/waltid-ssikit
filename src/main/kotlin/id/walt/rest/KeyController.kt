@@ -16,7 +16,6 @@ data class GenKeyRequest(
 
 @Serializable
 data class ImportKeyRequest(
-    val keyId: String,
     val jwkKey: String,
 )
 
@@ -87,7 +86,8 @@ object KeyController {
         ]
     )
     fun delete(ctx: Context) {
-        ctx.json("todo")
+        println(ctx.body())
+        ctx.json(keyService.delete(ctx.body()))
     }
 
     @OpenApi(
@@ -148,7 +148,8 @@ object KeyController {
         ]
     )
     fun import(ctx: Context) {
-        ctx.json("todo")
+        val req = ctx.bodyAsClass(ImportKeyRequest::class.java)
+        ctx.json(keyService.import(req.jwkKey))
     }
 
 }
