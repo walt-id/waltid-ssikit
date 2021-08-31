@@ -22,6 +22,10 @@ import io.swagger.v3.oas.models.servers.Server
 import mu.KotlinLogging
 import id.walt.Values
 
+fun main() {
+    RestAPI.startCoreApi()
+}
+
 object RestAPI {
 
     private val log = KotlinLogging.logger {}
@@ -33,8 +37,10 @@ object RestAPI {
     var coreApi: Javalin? = null
     var essifApi: Javalin? = null
 
+
+
     fun startCoreApi(port: Int = CORE_API_PORT, bindAddress: String = BIND_ADDRESS, apiTargetUrls: List<String> = listOf()) {
-        log.info("Starting LetTrust Wallet API ...\n")
+        log.info("Starting Walt ID Core API ...\n")
 
         coreApi = Javalin.create {
 
@@ -44,7 +50,7 @@ object RestAPI {
                 registerPlugin(OpenApiPlugin(OpenApiOptions(InitialConfigurationCreator {
                     OpenAPI().apply {
                         info {
-                            title = "Walt Wallet API"
+                            title = "walt.id Core API"
                             description = "The Walt public API documentation"
                             contact = Contact().apply {
                                 name = "Walt"
@@ -59,7 +65,7 @@ object RestAPI {
                         )
                         externalDocs {
                             description = "Walt Docs"
-                            url = "https://docs.walt.id/api"
+                            url = "https://docs.walt.id"
                         }
 
                         components {
@@ -75,8 +81,8 @@ object RestAPI {
                     }
                 }).apply {
                     path("/v1/api-documentation")
-                    swagger(SwaggerOptions("/v1/swagger").title("Walt API"))
-                    reDoc(ReDocOptions("/v1/redoc").title("Walt API"))
+                    swagger(SwaggerOptions("/v1/swagger").title("walt.id Core API"))
+                    reDoc(ReDocOptions("/v1/redoc").title("walt.id Core API"))
 //                defaultDocumentation { doc ->
 //                    doc.json("5XX", ErrorResponse::class.java)
 //                }
@@ -262,7 +268,7 @@ object RestAPI {
 
     fun start(apiPort: Int = CORE_API_PORT, essifPort: Int = ESSIF_API_PORT, bindAddress: String = BIND_ADDRESS, apiTargetUrls: List<String> = listOf()) {
         startCoreApi(apiPort, bindAddress, apiTargetUrls)
-        //startEssifApi(essifPort, bindAddress, apiTargetUrls)
+        startEssifApi(essifPort, bindAddress, apiTargetUrls)
     }
 
     fun stopCoreApi() = coreApi?.stop()
