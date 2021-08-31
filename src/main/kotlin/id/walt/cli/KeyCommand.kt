@@ -32,6 +32,7 @@ class KeyCommand : CliktCommand(
 }
 
 class GenKeyCommand : CliktCommand(
+    name = "gen",
     help = """Generate keys.
 
         Generates an asymmetric keypair by the specified algorithm. Supported algorithms are ECDSA Secp256k1 & EdDSA Ed25519 (default)

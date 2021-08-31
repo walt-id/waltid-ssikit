@@ -329,7 +329,9 @@ class KeyServiceTest : AnnotationSpec() {
     fun testImportEd25519JwkPrivKey() {
         val kid = newKeyId()
         val jwkImport =
-            "{\"kty\":\"OKP\",\"d\":\"GoVhqvYKbjpzDDRHsBLEIwZTiY39fEpVtXAxKVxKcCg\",\"use\":\"sig\",\"crv\":\"Ed25519\",\"kid\":\"${kid}\",\"x\":\"cU4CewjU2Adq8pxjfObrVg9u8svRP2JRC72zZdvFftI\",\"alg\":\"EdDSA\"}"
+            //"{\"kty\":\"OKP\",\"d\":\"GoVhqvYKbjpzDDRHsBLEIwZTiY39fEpVtXAxKVxKcCg\",\"use\":\"sig\",\"crv\":\"Ed25519\",\"kid\":\"714a4ac169f7f4716804393d20480138a\",\"x\":\"cU4CewjU2Adq8pxjfObrVg9u8svRP2JRC72zZdvFftI\",\"alg\":\"EdDSA\"}"
+            //"{\"kty\":\"OKP\",\"d\":\"NzNkDxp2OPyplpxvxSmKtHCul2tQ_7QNuameOTKd6uY\",\"use\":\"sig\",\"crv\":\"Ed25519\",\"kid\":\"74a4ac169f7f4716804393d20480138a\",\"x\":\"4t6ROMKS2g9hwguVM-u9LzR06spoS__YyaOOvrtSFiI\",\"alg\":\"EdDSA\"}"
+            "{\"kty\":\"OKP\",\"use\":\"sig\",\"crv\":\"Ed25519\",\"kid\":\"2776c6c65a7541368217e16242e4d802\",\"x\":\"rax1VibMyN9KFDmM_9lZ5BlwxF0RyRaPa4izXcLf4yE\",\"alg\":\"EdDSA\"}"
         keyService.import(jwkImport)
         println(jwkImport)
         val jwkExported = keyService.export(kid.id, KeyFormat.JWK, KeyType.PRIVATE)

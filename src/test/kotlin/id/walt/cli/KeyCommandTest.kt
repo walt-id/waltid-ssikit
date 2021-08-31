@@ -20,7 +20,7 @@ class KeyCommandTest : StringSpec({
 
     ServiceMatrix("service-matrix.properties")
 
-    val key = KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1)
+
 
     "key gen --help" {
         val e = shouldThrow<PrintHelpMessage> {
@@ -37,20 +37,37 @@ class KeyCommandTest : StringSpec({
     "key gen Secp256k1" {
         GenKeyCommand().parse(listOf("-a", "Secp256k1"))
     }
-// TODO
+
+    "key export Secp256k1" {
+        val key = KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1)
+        ExportKeyCommand().parse(listOf(key.id))
+    }
+
+    "key export Ed25519" {
+        val key = KeyService.getService().generate(KeyAlgorithm.EdDSA_Ed25519)
+        ExportKeyCommand().parse(listOf(key.id))
+    }
+
+    "key import Ed25519 priv key PEM" {
+        ImportKeyCommand().parse(listOf("src/test/resources/cli/privKeyEd25519Pem.txt"))
+    }
+
+    "key import Ed25519 pub key PEM" {
+        ImportKeyCommand().parse(listOf("src/test/resources/cli/pubKeyEd25519Pem.txt"))
+    }
+
+    "key import Ed25519 priv key JWK" {
+        ImportKeyCommand().parse(listOf("src/test/resources/cli/privKeyEd25519Jwk.json"))
+    }
+
+    "key import Ed25519 pub key JWK" {
+        ImportKeyCommand().parse(listOf("src/test/resources/cli/pubKeyEd25519Jwk.json"))
+    }
+
+
 //    "key import Secp256k1" {
 //        ImportKeyCommand().parse(listOf("jwk.json"))
 //    }
 //
-//    "key import Ed25519" {
-//        ImportKeyCommand().parse(listOf("jwk.json"))
-//    }
-//
-//    "key export Secp256k1" {
-//        ExportKeyCommand().parse(listOf("key-id"))
-//    }
-//
-//    "key export Ed25519" {
-//        ExportKeyCommand().parse(listOf("key-id"))
-//    }
+
 })
