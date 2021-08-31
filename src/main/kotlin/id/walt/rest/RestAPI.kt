@@ -22,10 +22,6 @@ import io.swagger.v3.oas.models.servers.Server
 import mu.KotlinLogging
 import id.walt.Values
 
-fun main() {
-    RestAPI.startCoreApi()
-}
-
 object RestAPI {
 
     private val log = KotlinLogging.logger {}
@@ -38,9 +34,8 @@ object RestAPI {
     var essifApi: Javalin? = null
 
 
-
     fun startCoreApi(port: Int = CORE_API_PORT, bindAddress: String = BIND_ADDRESS, apiTargetUrls: List<String> = listOf()) {
-        log.info("Starting Walt ID Core API ...\n")
+        log.info("Starting walt.id Core API ...\n")
 
         coreApi = Javalin.create {
 
@@ -51,9 +46,9 @@ object RestAPI {
                     OpenAPI().apply {
                         info {
                             title = "walt.id Core API"
-                            description = "The Walt public API documentation"
+                            description = "The walt.id public API documentation"
                             contact = Contact().apply {
-                                name = "Walt"
+                                name = "walt.id"
                                 url = "https://walt.id"
                                 email = "office@walt.id"
                             }
