@@ -46,14 +46,6 @@ class KeyCommandTest : StringSpec({
         ExportKeyCommand().parse(listOf(key.id))
     }
 
-    "key import Ed25519 priv key PEM" {
-        ImportKeyCommand().parse(listOf("src/test/resources/cli/privKeyEd25519Pem.txt", "src/test/resources/cli/pubKeyEd25519Pem.txt"))
-    }
-
-    "key import Ed25519 pub key PEM" {
-        ImportKeyCommand().parse(listOf("src/test/resources/cli/pubKeyEd25519Pem.txt"))
-    }
-
     "key import Ed25519 priv key JWK" {
         ImportKeyCommand().parse(listOf("src/test/resources/cli/privKeyEd25519Jwk.json"))
         KeyService.getService().delete("45674a4ac169f7f4716804393d20480138a")
@@ -64,10 +56,12 @@ class KeyCommandTest : StringSpec({
         KeyService.getService().delete("12374a4ac169f7f4716804393d20480138a")
     }
 
-
-//    "key import Secp256k1" {
-//        ImportKeyCommand().parse(listOf("jwk.json"))
+// Import in PEM format currently not supported
+//    "key import Ed25519 priv key PEM" {
+//        ImportKeyCommand().parse(listOf("src/test/resources/cli/privKeyEd25519Pem.txt", "src/test/resources/cli/pubKeyEd25519Pem.txt"))
 //    }
 //
-
+//    "key import Ed25519 pub key PEM" {
+//        ImportKeyCommand().parse(listOf("src/test/resources/cli/pubKeyEd25519Pem.txt"))
+//    }
 })
