@@ -1,23 +1,24 @@
 package id.walt.rest
 
-import io.javalin.http.Context
-import io.javalin.plugin.openapi.annotations.*
-import kotlinx.serialization.Serializable
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyId
+import id.walt.model.Jwk
 import id.walt.services.key.KeyFormat
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
+import io.javalin.http.Context
+import io.javalin.plugin.openapi.annotations.*
+import kotlinx.serialization.Serializable
 
 @Serializable
 data class GenKeyRequest(
     val keyAlgorithm: KeyAlgorithm,
 )
 
-@Serializable
-data class ImportKeyRequest(
-    val jwkKey: String,
-)
+//@Serializable
+//data class ImportKeyRequest(
+//    val jwkKey: String,
+//)
 
 @Serializable
 data class ExportKeyRequest(
@@ -137,7 +138,7 @@ object KeyController {
         operationId = "importKey",
         tags = ["Key Management"],
         requestBody = OpenApiRequestBody(
-            [OpenApiContent(ImportKeyRequest::class)],
+            [OpenApiContent(String::class)],
             true,
             "Imports the key (JWK format) to the key store"
         ),
@@ -148,8 +149,8 @@ object KeyController {
         ]
     )
     fun import(ctx: Context) {
-        val req = ctx.bodyAsClass(ImportKeyRequest::class.java)
-        ctx.json(keyService.import(req.jwkKey))
+        // val req = ctx.bodyAsClass(ImportKeyRequest::class.java)
+        ctx.json(keyService.import(ctx.body()))
     }
 
 }
