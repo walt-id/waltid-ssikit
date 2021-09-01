@@ -1,6 +1,7 @@
 package id.walt.cli
 
 import com.github.ajalt.clikt.core.PrintHelpMessage
+import id.walt.auditor.PolicyRegistry
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
@@ -38,7 +39,7 @@ class VcVerifyCommandTest : StringSpec({
         val vpFile = File.createTempFile("vpr", ".json")
         try {
             vpFile.writeText(vpStr)
-            VerifyVcCommand().parse(listOf("-p", "SignaturePolicy", vpFile.absolutePath))
+            VerifyVcCommand().parse(listOf("-p", PolicyRegistry.defaultPolicyId, vpFile.absolutePath))
         } finally {
             vpFile.delete()
         }
