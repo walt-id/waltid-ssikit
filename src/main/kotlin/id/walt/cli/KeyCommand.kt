@@ -31,14 +31,14 @@ class KeyCommand : CliktCommand(
     }
 }
 
-class GenCommand : CliktCommand(
+class GenKeyCommand : CliktCommand(
+    name = "gen",
     help = """Generate keys.
 
         Generates an asymmetric keypair by the specified algorithm. Supported algorithms are ECDSA Secp256k1 & EdDSA Ed25519 (default)
         
         """
 ) {
-
 
     // val keyAlias: String by option("--key-alias", "-k", help = "Specific key alias").prompt()
     val algorithm: String by option("-a", "--algorithm", help = "Key algorithm [Ed25519]").choice(
@@ -60,17 +60,17 @@ class GenCommand : CliktCommand(
 
 class ImportKeyCommand : CliktCommand(
     name = "import",
-    help = """Import keys.
+    help = """Import key in JWK format.
 
-        Import key in JWK format."""
+        Based on the JWK key ID and key material an internal key object will be created in the corresponding key store."""
 ) {
 
     val keyFile: File by argument("JWK-FILE", help = "File containing the JWK key (e.g. jwk.json)").file()
-    val provider: CryptoProvider by option(
-        "-p",
-        "--provider",
-        help = "Crypto provider of the imported key"
-    ).enum<CryptoProvider>().default(CryptoProvider.SUN)
+//    val provider: CryptoProvider by option(
+//        "-p",
+//        "--provider",
+//        help = "Crypto provider of the imported key"
+//    ).enum<CryptoProvider>().default(CryptoProvider.SUN)
 
     override fun run() {
         val keyStr = readWhenContent(keyFile)

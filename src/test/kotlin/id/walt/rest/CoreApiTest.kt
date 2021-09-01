@@ -2,7 +2,24 @@ package id.walt.rest
 
 import com.beust.klaxon.Klaxon
 import com.nimbusds.jose.jwk.JWK
+import id.walt.common.readWhenContent
+import id.walt.crypto.KeyAlgorithm
+import id.walt.crypto.KeyId
+import id.walt.crypto.localTimeSecondsUtc
+import id.walt.model.DidMethod
+import id.walt.model.DidUrl
 import id.walt.servicematrix.ServiceMatrix
+import id.walt.services.did.DidService
+import id.walt.services.key.KeyFormat
+import id.walt.services.key.KeyService
+import id.walt.services.vc.JsonLdCredentialService
+import id.walt.services.vc.VerificationResult
+import id.walt.services.vc.VerificationType
+import id.walt.signatory.ProofConfig
+import id.walt.test.getTemplate
+import id.walt.test.readCredOffer
+import id.walt.vclib.Helpers.encode
+import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.VcLibManager
 import id.walt.vclib.vclist.Europass
 import id.walt.vclib.vclist.VerifiableAttestation
@@ -18,21 +35,6 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.lang3.StringUtils.countMatches
-import id.walt.crypto.KeyAlgorithm
-import id.walt.crypto.KeyId
-import id.walt.crypto.localTimeSecondsUtc
-import id.walt.model.DidMethod
-import id.walt.model.DidUrl
-import id.walt.services.did.DidService
-import id.walt.services.key.KeyFormat
-import id.walt.services.vc.JsonLdCredentialService
-import id.walt.services.vc.VerificationResult
-import id.walt.services.vc.VerificationType
-import id.walt.signatory.ProofConfig
-import id.walt.test.getTemplate
-import id.walt.test.readCredOffer
-import id.walt.vclib.Helpers.encode
-import id.walt.vclib.Helpers.toCredential
 import java.io.File
 import java.sql.Timestamp
 import java.time.LocalDateTime
@@ -168,6 +170,37 @@ class CoreApiTest : AnnotationSpec() {
         }
         (JWK.parse(key).isPrivate) shouldBe true
     }
+
+    @Test
+    fun testImportPrivateKey() = runBlocking {
+
+        val keyId = client.post<KeyId>("$CORE_API_URL/v1/key/import") {
+            body = readWhenContent(File("src/test/resources/cli/privKeyEd25519Jwk.json"))
+        }
+
+        val key = KeyService.getService().load(keyId.id)
+
+        key.keyId shouldBe keyId
+
+        KeyService.getService().delete(keyId.id)
+
+    }
+
+    @Test
+    fun testImportPublicKey() = runBlocking {
+
+        val keyId = client.post<KeyId>("$CORE_API_URL/v1/key/import") {
+            body = readWhenContent(File("src/test/resources/cli/pubKeyEd25519Jwk.json"))
+        }
+
+        val key = KeyService.getService().load(keyId.id)
+
+        key.keyId shouldBe keyId
+
+        KeyService.getService().delete(keyId.id)
+
+    }
+
 
     @Test
     fun testDidCreateKey() = runBlocking {
