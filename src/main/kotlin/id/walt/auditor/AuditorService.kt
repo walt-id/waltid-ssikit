@@ -79,7 +79,7 @@ data class VerificationResult(
 
 interface IAuditor {
 
-    fun verify(vpJson: String, policies: List<VerificationPolicy>): VerificationResult
+    fun verify(vcJson: String, policies: List<VerificationPolicy>): VerificationResult
 
 //    fun verifyVc(vc: String, config: AuditorConfig) = VerificationStatus(true)
 //    fun verifyVp(vp: String, config: AuditorConfig) = VerificationStatus(true)
@@ -89,8 +89,8 @@ object AuditorService : IAuditor {
 
     private fun allAccepted(policyResults: Map<String, Boolean>) = policyResults.values.all { it }
 
-    override fun verify(vpJson: String, policies: List<VerificationPolicy>): VerificationResult {
-        val vc = VcLibManager.getVerifiableCredential(vpJson)
+    override fun verify(vcJson: String, policies: List<VerificationPolicy>): VerificationResult {
+        val vc = VcLibManager.getVerifiableCredential(vcJson)
         val policyResults = policies.associateBy(keySelector = VerificationPolicy::id, { it.verify(vc) })
 
         return VerificationResult(allAccepted(policyResults), policyResults)
