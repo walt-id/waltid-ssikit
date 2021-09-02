@@ -1,6 +1,7 @@
 package id.walt.signatory
 
 import id.walt.vclib.model.VerifiableCredential
+import id.walt.vclib.vclist.Europass
 import id.walt.vclib.vclist.VerifiableDiploma
 import id.walt.vclib.vclist.VerifiableId
 import java.text.SimpleDateFormat
@@ -12,6 +13,18 @@ interface SignatoryDataProvider {
 }
 
 val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
+
+class EuropassDataProvider : SignatoryDataProvider {
+
+    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): Europass {
+        val vc = template as Europass
+
+        vc.issuer = proofConfig.issuerDid
+        vc.credentialSubject!!.id = proofConfig.subjectDid
+
+        return vc
+    }
+}
 
 class VerifiableIdDataProvider : SignatoryDataProvider {
 
@@ -88,5 +101,6 @@ object DataProviderRegistry {
         // Init default providers
         register(VerifiableDiploma::class, VerifiableDiplomaDataProvider())
         register(VerifiableId::class, VerifiableIdDataProvider())
+        register(Europass::class, EuropassDataProvider())
     }
 }
