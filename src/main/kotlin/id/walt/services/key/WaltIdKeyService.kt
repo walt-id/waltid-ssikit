@@ -45,13 +45,15 @@ open class WaltIdKeyService : KeyService() {
 
     override fun import(keyStr: String): KeyId {
 
-        val key = with(keyStr.trim()) {
-            when {
-                startsWith("---") -> parsePemKey(this)
-                startsWith("{") -> parseJwkKey(this)
-                else -> throw IllegalArgumentException("Invalid key format (must be PEM or JWK)")
-            }
-        }
+        val key = parseJwkKey(keyStr)
+//        PEM keys are currently not supported
+//        val key = with(keyStr.trim()) {
+//            when {
+//                startsWith("---") -> parsePemKey(this)
+//                startsWith("{") -> parseJwkKey(this)
+//                else -> throw IllegalArgumentException("Invalid key format (must be PEM or JWK)")
+//            }
+//        }
         keyStore.store(key)
         return key.keyId
     }

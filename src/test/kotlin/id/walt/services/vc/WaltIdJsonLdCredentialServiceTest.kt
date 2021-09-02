@@ -141,11 +141,11 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
                 familyName = "DOE",
                 dateOfBirth = "1993-04-08T00:00:00Z",
                 gradingScheme = Europass.CredentialSubject.GradingScheme(
-                    id = "https://blockchain.univ-lille.fr/ontology#GradingScheme",
+                    id = "https://leaston.bcdiploma.com/law-economics-management#GradingScheme",
                     title = "Lower Second-Class Honours"
                 ),
                 learningAchievement = Europass.CredentialSubject.LearningAchievement(
-                    id = "https://blockchain.univ-lille.fr/ontology#LearningAchievment",
+                    id = "https://leaston.bcdiploma.com/law-economics-management#LearningAchievment",
                     title = "MASTERS LAW, ECONOMICS AND MANAGEMENT",
                     description = "MARKETING AND SALES",
                     additionalNote = listOf(
@@ -153,21 +153,21 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
                     )
                 ),
                 awardingOpportunity = Europass.CredentialSubject.AwardingOpportunity(
-                    id = "https://blockchain.univ-lille.fr/ontology#AwardingOpportunity",
+                    id = "https://leaston.bcdiploma.com/law-economics-management#AwardingOpportunity",
                     identifier = "https://certificate-demo.bcdiploma.com/check/87ED2F2270E6C41456E94B86B9D9115B4E35BCCAD200A49B846592C14F79C86BV1Fnbllta0NZTnJkR3lDWlRmTDlSRUJEVFZISmNmYzJhUU5sZUJ5Z2FJSHpWbmZZ",
                     awardingBody = Europass.CredentialSubject.AwardingOpportunity.AwardingBody(
                         id = "did:ebsi:2LGKvDMrNUPR6FhSNrXzQQ1h295zr4HwoX9UqvwAsenSKHe9",
                         eidasLegalIdentifier = "Unknown",
                         registration = "0597065J",
-                        preferredName = "Université de Lille",
-                        homepage = "https://www.univ-lille.fr/"
+                        preferredName = "Leaston University",
+                        homepage = "https://leaston.bcdiploma.com/"
                     ),
                     location = "FRANCE",
                     startedAtTime = "2015-11-03T00:00:00Z",
                     endedAtTime = "2020-11-03T00:00:00Z"
                 ),
                 learningSpecification = Europass.CredentialSubject.LearningSpecification(
-                    id = "https://blockchain.univ-lille.fr/ontology#LearningSpecification",
+                    id = "https://leaston.bcdiploma.com/law-economics-management#LearningSpecification",
                     iSCEDFCode = listOf(
                         "7"
                     ),

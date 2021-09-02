@@ -81,7 +81,7 @@ class SignatoryServiceTest : StringSpec({
         println(vc)
 
         vc shouldContain "VerifiableDiploma"
-        vc shouldContain "Université de Lille"
+        vc shouldContain "Leaston University"
         vc shouldContain "MASTERS LAW, ECONOMICS AND MANAGEMENT"
         (vc.toCredential() as VerifiableDiploma).issuanceDate shouldBe "2020-11-03T00:00:00Z"
 

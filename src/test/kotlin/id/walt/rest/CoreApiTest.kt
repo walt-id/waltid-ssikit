@@ -175,8 +175,7 @@ class CoreApiTest : AnnotationSpec() {
     fun testImportPrivateKey() = runBlocking {
 
         val keyId = client.post<KeyId>("$CORE_API_URL/v1/key/import") {
-            contentType(ContentType.Application.Json)
-            body = ImportKeyRequest(readWhenContent(File("src/test/resources/cli/privKeyEd25519Jwk.json")))
+            body = readWhenContent(File("src/test/resources/cli/privKeyEd25519Jwk.json"))
         }
 
         val key = KeyService.getService().load(keyId.id)
@@ -191,8 +190,7 @@ class CoreApiTest : AnnotationSpec() {
     fun testImportPublicKey() = runBlocking {
 
         val keyId = client.post<KeyId>("$CORE_API_URL/v1/key/import") {
-            contentType(ContentType.Application.Json)
-            body = ImportKeyRequest(readWhenContent(File("src/test/resources/cli/pubKeyEd25519Jwk.json")))
+            body = readWhenContent(File("src/test/resources/cli/pubKeyEd25519Jwk.json"))
         }
 
         val key = KeyService.getService().load(keyId.id)
