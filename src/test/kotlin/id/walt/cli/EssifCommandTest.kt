@@ -18,6 +18,8 @@ import id.walt.services.key.KeyService
 import java.io.File
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
+import kotlin.time.minutes
+import kotlin.time.seconds
 
 
 // CLI KIT Options
@@ -86,7 +88,7 @@ class EssifCommandTest : StringSpec({
     }
 
     "did register --did".config(enabled = enableTests) {
-        retry(9, Duration.minutes(2), delay = Duration.seconds(4)) {
+        retry(9, 2.minutes, delay = 4.seconds) {
             println("Registering did")
             shouldNotThrowAny {
                 EssifDidRegisterCommand().parse(listOf("--did", did))

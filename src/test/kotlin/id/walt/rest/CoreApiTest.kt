@@ -26,6 +26,7 @@ import id.walt.vclib.vclist.VerifiableAttestation
 import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.json.*
@@ -99,6 +100,14 @@ class CoreApiTest : AnnotationSpec() {
     }
 
     @Test
+    fun testDocumentation() = runBlocking {
+        val response = get("/v1/api-documentation").readText()
+
+        response shouldContain "\"operationId\":\"health\""
+        response shouldContain "Returns HTTP 200 in case all services are up and running"
+    }
+
+    @Test
     fun testHealth() = runBlocking {
         val response = get("/health")
         "OK" shouldBe response.readText()
@@ -133,8 +142,8 @@ class CoreApiTest : AnnotationSpec() {
         }
         println(errorResp.readText())
         val error = Klaxon().parse<ErrorResponse>(errorResp.readText())!!
-        400 shouldBe error.status
-        "Couldn't deserialize body to GenKeyRequest" shouldBe error.title
+        error.status shouldBe 400
+        error.title shouldContain "GenKeyRequest"
     }
 
     @Test

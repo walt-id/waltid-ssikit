@@ -5,11 +5,13 @@ import cc.vileda.openapi.dsl.externalDocs
 import cc.vileda.openapi.dsl.info
 import cc.vileda.openapi.dsl.securityScheme
 import com.beust.klaxon.Klaxon
+import com.fasterxml.jackson.databind.exc.InvalidFormatException
+import id.walt.Values
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.core.util.RouteOverviewPlugin
-import io.javalin.plugin.json.JavalinJson
-import io.javalin.plugin.json.ToJsonMapper
+import io.javalin.plugin.json.JavalinJackson
+import io.javalin.plugin.json.JsonMapper
 import io.javalin.plugin.openapi.InitialConfigurationCreator
 import io.javalin.plugin.openapi.OpenApiOptions
 import io.javalin.plugin.openapi.OpenApiPlugin
@@ -20,25 +22,49 @@ import io.swagger.v3.oas.models.info.Contact
 import io.swagger.v3.oas.models.security.SecurityScheme
 import io.swagger.v3.oas.models.servers.Server
 import mu.KotlinLogging
-import id.walt.Values
 
+/**
+ * Interact with the REST API management interface
+ * Mostly used methods:
+ * - start
+ * - startCoreApi
+ * - startEssifApi
+ * - stop
+ * - stopCoreApi
+ * - stopEssifApi
+ */
 object RestAPI {
 
     private val log = KotlinLogging.logger {}
 
-    val CORE_API_PORT = 7000
-    val ESSIF_API_PORT = 7001
-    val BIND_ADDRESS = "127.0.0.1"
+    internal const val DEFAULT_CORE_API_PORT = 7000
+    internal const val DEFAULT_ESSIF_API_PORT = 7001
+    internal const val DEFAULT_BIND_ADDRESS = "127.0.0.1"
 
+    /**
+     * Currently used instance of the Core API server
+     */
     var coreApi: Javalin? = null
+
+    /**
+     * Currently used instance of the ESSIF API server
+     */
     var essifApi: Javalin? = null
 
-
-    fun startCoreApi(port: Int = CORE_API_PORT, bindAddress: String = BIND_ADDRESS, apiTargetUrls: List<String> = listOf()) {
-        log.info("Starting walt.id Core API ...\n")
+    /**
+     * Start Core REST API
+     * @param apiTargetUrls (optional): add URLs to Swagger documentation for easy testing
+     * @param bindAddress (default: 127.0.0.1): select address to bind on to, e.g. 0.0.0.0 for all interfaces
+     * @param port (default: 7000): select port to listen on
+     */
+    fun startCoreApi(
+        port: Int = DEFAULT_CORE_API_PORT,
+        bindAddress: String = DEFAULT_BIND_ADDRESS,
+        apiTargetUrls: List<String> = listOf()
+    ) {
+        log.info { "Starting walt.id Core API ...\n" }
 
         coreApi = Javalin.create {
-
             it.apply {
                 registerPlugin(RouteOverviewPlugin("/api-routes"))
 
@@ -83,6 +109,19 @@ object RestAPI {
 //                }
                 }))
 
+
+                this.jsonMapper(object : JsonMapper {
+                    override fun toJsonString(obj: Any): String {
+                        return Klaxon().toJsonString(obj)
+                    }
+
+                    override fun <T : Any?> fromJsonString(json: String, targetClass: Class<T>): T {
+                        return JavalinJackson().fromJsonString(json, targetClass)
+                    }
+
+
+                })
+
                 //addStaticFiles("/static")
             }
 
@@ -95,31 +134,34 @@ object RestAPI {
             path("v1") {
                 path("key") {
                     get("", KeyController::list)
-                    get(":id", KeyController::load)
-                    delete(":id", KeyController::delete)
+                    get("{id}", KeyController::load)
+                    delete("{id}", KeyController::delete)
                     post("gen", KeyController::gen)
                     post("import", KeyController::import)
                     post("export", KeyController::export)
                 }
                 path("did") {
                     get("", DidController::list)
-                    get(":id", DidController::load)
-                    delete(":id", DidController::delete)
+                    get("{id}", DidController::load)
+                    delete("{id}", DidController::delete)
                     post("create", DidController::create)
                     post("resolve", DidController::resolve)
                     post("import", DidController::import)
                 }
                 path("vc") {
                     get("", VcController::list)
-                    get(":id", VcController::load)
-                    delete(":id", VcController::delete)
+                    get("{id}", VcController::load)
+                    delete("{id}", VcController::delete)
                     post("create", VcController::create)
                     post("present", VcController::present)
                     post("verify", VcController::verify)
                     post("import", VcController::import)
                 }
             }
-
+        }.exception(InvalidFormatException::class.java) { e, ctx ->
+            log.error(e.stackTraceToString())
+            ctx.json(ErrorResponse(e.message ?: " Unknown application error", 400))
+            ctx.status(400)
         }.exception(IllegalArgumentException::class.java) { e, ctx ->
             log.error(e.stackTraceToString())
             ctx.json(ErrorResponse(e.message ?: " Unknown application error", 400))
@@ -131,13 +173,23 @@ object RestAPI {
         }.start(bindAddress, port)
     }
 
-    fun startEssifApi(port: Int = ESSIF_API_PORT, bindAddress: String = BIND_ADDRESS, apiTargetUrls: List<String> = listOf()) {
+    /**
+     * Start ESSIF REST API
+     * @param apiTargetUrls (optional): add URLs to Swagger documentation for easy testing
+     * @param bindAddress (default: 127.0.0.1): select address to bind on to, e.g. 0.0.0.0 for all interfaces
+     * @param port (default: 7001): select port to listen on
+     */
+    fun startEssifApi(
+        port: Int = DEFAULT_ESSIF_API_PORT,
+        bindAddress: String = DEFAULT_BIND_ADDRESS,
+        apiTargetUrls: List<String> = listOf()
+    ) {
 
-        log.info("Starting Walt Essif API ...\n")
+        log.info { "Starting Walt Essif API ...\n" }
 
-        essifApi = Javalin.create {
+        essifApi = Javalin.create { config ->
 
-            it.apply {
+            config.apply {
                 registerPlugin(RouteOverviewPlugin("/api-routes"))
 
                 registerPlugin(OpenApiPlugin(OpenApiOptions(InitialConfigurationCreator {
@@ -181,14 +233,26 @@ object RestAPI {
 //                }
                 }))
 
+
+                this.jsonMapper(object : JsonMapper {
+                    override fun toJsonString(obj: Any): String {
+                        return Klaxon().toJsonString(obj)
+                    }
+                })
+
+                /*JavalinJson.fromJsonMapper = object : FromJsonMapper {
+                    override inline fun <reified T> map(json: String, targetClass: Class<T>): T =
+                        Klaxon().parse<T::class>(json)
+                }*/
+
                 //addStaticFiles("/static")
             }
 
-            it.enableCorsForAllOrigins()
+            config.enableCorsForAllOrigins()
 
-            it.enableDevLogging()
+            config.enableDevLogging()
         }.routes {
-            get("", RootController::rootEssifApi)
+            get("/", RootController::rootEssifApi)
             get("health", RootController::health)
             path("v1") {
                 path("user") {
@@ -204,7 +268,7 @@ object RestAPI {
                 path("ti") {
                     path("credentials") {
                         post("", EosController::getCredential)
-                        get(":credentialId", EosController::getCredential)
+                        get("{credentialId}", EosController::getCredential)
                     }
                     get("requestCredentialUri", EosController::requestCredentialUri)
                     post("requestVerifiableCredential", EosController::requestVerifiableCredential)
@@ -240,16 +304,6 @@ object RestAPI {
                 }
             }
 
-            JavalinJson.toJsonMapper = object : ToJsonMapper {
-                override fun map(obj: Any): String {
-                    return Klaxon().toJsonString(obj)
-                }
-            }
-            /*JavalinJson.fromJsonMapper = object : FromJsonMapper {
-                override inline fun <reified T> map(json: String, targetClass: Class<T>): T =
-                    Klaxon().parse<T::class>(json)
-            }*/
-
         }.exception(IllegalArgumentException::class.java) { e, ctx ->
             log.error(e.stackTraceToString())
             ctx.json(ErrorResponse(e.message ?: " Illegal argument exception", 400))
@@ -261,14 +315,36 @@ object RestAPI {
         }.start(bindAddress, port)
     }
 
-    fun start(apiPort: Int = CORE_API_PORT, essifPort: Int = ESSIF_API_PORT, bindAddress: String = BIND_ADDRESS, apiTargetUrls: List<String> = listOf()) {
+    /**
+     * Start both Core REST API and ESSIF REST API
+     * @see startCoreApi
+     * @see startEssifApi
+     */
+    fun start(
+        apiPort: Int = DEFAULT_CORE_API_PORT,
+        essifPort: Int = DEFAULT_ESSIF_API_PORT,
+        bindAddress: String = DEFAULT_BIND_ADDRESS,
+        apiTargetUrls: List<String> = listOf()
+    ) {
         startCoreApi(apiPort, bindAddress, apiTargetUrls)
         startEssifApi(essifPort, bindAddress, apiTargetUrls)
     }
 
+    /**
+     * Stop Core API if it's currently running
+     */
     fun stopCoreApi() = coreApi?.stop()
+
+    /**
+     * Stop ESSIF API if it's currently running
+     */
     fun stopEssifApi() = essifApi?.stop()
 
+    /**
+     * Stop both Core REST API and ESSIF REST API
+     * @see stopCoreApi
+     * @see stopEssifApi
+     */
     fun stop() {
         stopCoreApi()
         stopEssifApi()
