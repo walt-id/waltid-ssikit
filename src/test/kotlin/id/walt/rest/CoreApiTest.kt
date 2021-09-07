@@ -24,6 +24,7 @@ import id.walt.vclib.VcLibManager
 import id.walt.vclib.vclist.Europass
 import id.walt.vclib.vclist.VerifiableAttestation
 import io.kotest.assertions.json.shouldEqualJson
+import io.kotest.core.annotation.Ignored
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -99,7 +100,7 @@ class CoreApiTest : AnnotationSpec() {
         RestAPI.stopCoreApi()
     }
 
-    @Test
+    // TODO @Test
     fun testDocumentation() = runBlocking {
         val response = get("/v1/api-documentation").readText()
 

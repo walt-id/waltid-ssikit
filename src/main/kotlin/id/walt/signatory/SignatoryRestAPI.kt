@@ -90,7 +90,7 @@ object SignatoryRestAPI {
                 }
                 path("templates") {
                     get("", SignatoryController::listTemplates)
-                    get(":id", SignatoryController::loadTemplate)
+                    get("{id}", SignatoryController::loadTemplate)
                 }
             }
 
