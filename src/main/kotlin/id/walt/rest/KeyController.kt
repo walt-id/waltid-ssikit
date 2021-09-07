@@ -10,7 +10,6 @@ import io.javalin.http.Context
 import io.javalin.plugin.openapi.annotations.*
 import kotlinx.serialization.Serializable
 
-@Serializable
 data class GenKeyRequest(
     val keyAlgorithm: KeyAlgorithm,
 )
@@ -20,7 +19,6 @@ data class GenKeyRequest(
 //    val jwkKey: String,
 //)
 
-@Serializable
 data class ExportKeyRequest(
     val keyAlias: String,
     val format: KeyFormat = KeyFormat.JWK,

@@ -25,7 +25,7 @@ object EssifFlowRunner {
 
 
     // https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/2.+Main+Flow%3A+VC-Request+-+Onboarding+Flow
-    fun onboard(did: String) {
+    fun onboard(did: String, token: String? = null) {
 
         log.debug { "Running ESSIF onboarding flow ..." }
 
@@ -36,7 +36,7 @@ object EssifFlowRunner {
         // file: bearer-token.txt
         ///////////////////////////////////////////////////////////////////////////
 
-        val bearerToken = readEssifBearerToken()
+        val bearerToken = token ?: readEssifBearerToken()
 
         log.debug { "Loaded bearer token from ${bearerTokenFile.absolutePath}." }
         log.debug { "Loaded bearer token $bearerToken." }

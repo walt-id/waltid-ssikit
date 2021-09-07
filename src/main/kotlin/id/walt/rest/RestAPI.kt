@@ -22,17 +22,9 @@ import io.swagger.v3.oas.models.info.Contact
 import io.swagger.v3.oas.models.security.SecurityScheme
 import io.swagger.v3.oas.models.servers.Server
 import mu.KotlinLogging
+import org.bouncycastle.asn1.x500.style.RFC4519Style.*
 
-/**
- * Interact with the REST API management interface
- * Mostly used methods:
- * - start
- * - startCoreApi
- * - startEssifApi
- * - stop
- * - stopCoreApi
- * - stopEssifApi
- */
+
 object RestAPI {
 
     private val log = KotlinLogging.logger {}
@@ -85,7 +77,7 @@ object RestAPI {
                             *apiTargetUrls.map { Server().url(it) }.toTypedArray()
                         )
                         externalDocs {
-                            description = "Walt Docs"
+                            description = "walt.id Docs"
                             url = "https://docs.walt.id"
                         }
 
@@ -118,7 +110,6 @@ object RestAPI {
                     override fun <T : Any?> fromJsonString(json: String, targetClass: Class<T>): T {
                         return JavalinJackson().fromJsonString(json, targetClass)
                     }
-
 
                 })
 
@@ -185,7 +176,7 @@ object RestAPI {
         apiTargetUrls: List<String> = listOf()
     ) {
 
-        log.info { "Starting Walt Essif API ...\n" }
+        log.info { "Starting walt.id Essif API ...\n" }
 
         essifApi = Javalin.create { config ->
 
@@ -195,10 +186,10 @@ object RestAPI {
                 registerPlugin(OpenApiPlugin(OpenApiOptions(InitialConfigurationCreator {
                     OpenAPI().apply {
                         info {
-                            title = "Walt ESSIF Connector"
-                            description = "The Walt public API documentation"
+                            title = "walt.id ESSIF API"
+                            description = "The walt.id public API documentation"
                             contact = Contact().apply {
-                                name = "Walt"
+                                name = "walt.id"
                                 url = "https://walt.id"
                                 email = "office@walt.id"
                             }
@@ -209,7 +200,7 @@ object RestAPI {
                             *apiTargetUrls.map { Server().url(it) }.toTypedArray()
                         )
                         externalDocs {
-                            description = "Walt Docs"
+                            description = "walt.id Docs"
                             url = "https://docs.walt.id/api"
                         }
 
@@ -226,8 +217,8 @@ object RestAPI {
                     }
                 }).apply {
                     path("/v1/api-documentation")
-                    swagger(SwaggerOptions("/v1/swagger").title("Walt API"))
-                    reDoc(ReDocOptions("/v1/redoc").title("Walt API"))
+                    swagger(SwaggerOptions("/v1/swagger").title("walt.id API"))
+                    reDoc(ReDocOptions("/v1/redoc").title("walt.id API"))
 //                defaultDocumentation { doc ->
 //                    doc.json("5XX", ErrorResponse::class.java)
 //                }
@@ -238,8 +229,10 @@ object RestAPI {
                     override fun toJsonString(obj: Any): String {
                         return Klaxon().toJsonString(obj)
                     }
+                    override fun <T : Any?> fromJsonString(json: String, targetClass: Class<T>): T {
+                        return JavalinJackson().fromJsonString(json, targetClass)
+                    }
                 })
-
                 /*JavalinJson.fromJsonMapper = object : FromJsonMapper {
                     override inline fun <reified T> map(json: String, targetClass: Class<T>): T =
                         Klaxon().parse<T::class>(json)
@@ -254,7 +247,18 @@ object RestAPI {
         }.routes {
             get("/", RootController::rootEssifApi)
             get("health", RootController::health)
+
             path("v1") {
+                path("trusted-issuer") {
+                    post("generateAuthenticationRequest", TrustedIssuerController::generateAuthenticationRequest)
+                    post("openSession", TrustedIssuerController::openSession)
+                }
+                path("client") {
+                    post("onboard", EssifClientController::onboard)
+                }
+            }
+
+            path("test") {
                 path("user") {
                     path("wallet") {
                         post("createDid", UserWalletController::createDid)
@@ -290,20 +294,11 @@ object RestAPI {
                         post("validateDidAuthResponse", EnterpriseWalletController::validateDidAuthResponse)
                         post("getVerifiableCredential", EnterpriseWalletController::getVerifiableCredential)
                         post("token", EnterpriseWalletController::token)
+                        post("authentication-requests", EosController::authReq)
                     }
 
                 }
-                path("dummy") {
-                    post("authentication-requests", EosController::authReq)
-                }
             }
-            path("v2") {
-                path("trusted-issuer") {
-                    post("generateAuthenticationRequest", TrustedIssuerController::generateAuthenticationRequest)
-                    post("openSession", TrustedIssuerController::openSession)
-                }
-            }
-
         }.exception(IllegalArgumentException::class.java) { e, ctx ->
             log.error(e.stackTraceToString())
             ctx.json(ErrorResponse(e.message ?: " Illegal argument exception", 400))

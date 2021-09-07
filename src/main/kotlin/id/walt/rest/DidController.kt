@@ -10,25 +10,21 @@ import id.walt.crypto.KeyAlgorithm
 import id.walt.model.DidMethod
 import id.walt.services.did.DidService
 
-@Serializable
 data class CreateDidRequest(
     val method: DidMethod,
     val keyAlias: String? = null
 )
 
-@Serializable
 data class ResolveDidRequest(
     val did: String
 )
 
-@Serializable
 data class ListDidRequest(
     val keyId: String,
     val keyAlgorithm: KeyAlgorithm,
 )
 
 object DidController {
-
 
     @OpenApi(
         summary = "List DIDs",
