@@ -36,7 +36,7 @@ object KeyController {
         requestBody = OpenApiRequestBody(
             [OpenApiContent(GenKeyRequest::class)],
             true,
-            "The desired key algorithm and other parameters"
+            "The desired key algorithm (ECDSA_Secp256k1 or EdDSA_Ed25519)"
         ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(KeyId::class)], "Key ID"),

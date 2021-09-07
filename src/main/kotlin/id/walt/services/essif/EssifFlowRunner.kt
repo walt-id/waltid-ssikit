@@ -25,7 +25,7 @@ object EssifFlowRunner {
 
 
     // https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/2.+Main+Flow%3A+VC-Request+-+Onboarding+Flow
-    fun onboard(did: String, token: String? = null) {
+    fun onboard(did: String, token: String? = null): String {
 
         log.debug { "Running ESSIF onboarding flow ..." }
 
@@ -193,6 +193,8 @@ object EssifFlowRunner {
 //
 //        log.debug { "verifiableId: $verifiableId" }
 //        println("14. Successful process")
+
+        return verifiableAuthorization
 
     }
 

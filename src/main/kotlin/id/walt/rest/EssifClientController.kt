@@ -1,6 +1,7 @@
 package id.walt.rest
 
 import id.walt.rest.TrustedIssuerController.enterpriseWalletService
+import id.walt.services.essif.EssifFlowRunner
 import io.javalin.http.Context
 import io.javalin.plugin.openapi.annotations.OpenApi
 import io.javalin.plugin.openapi.annotations.OpenApiContent
@@ -21,7 +22,7 @@ object EssifClientController {
         requestBody = OpenApiRequestBody(
             [OpenApiContent(EbsiOnboardRequest::class)],
             true,
-            "DID to be registered on the EBSI Blockchain; Bearer token to be used to authenticate the user."
+            "DID to be registered on the EBSI Blockchain; Bearer token to be used to authenticate the user. Get it from here https://app.preprod.ebsi.eu/users-onboarding"
         ),
         responses = [
             OpenApiResponse("200", [OpenApiContent(String::class)], "Onboarding flow completed successfully"),
@@ -31,9 +32,7 @@ object EssifClientController {
     )
     fun onboard(ctx: Context) {
         val req = ctx.bodyAsClass(EbsiOnboardRequest::class.java)
-        println(req)
-        // ctx.json(EssifFlowRunner.onboard(req.did, req.bearerToken))
-        ctx.json("ok")
+        ctx.json(EssifFlowRunner.onboard(req.did, req.bearerToken))
     }
 
     @OpenApi(
