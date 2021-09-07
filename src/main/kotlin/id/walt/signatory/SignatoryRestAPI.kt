@@ -4,6 +4,10 @@ import cc.vileda.openapi.dsl.components
 import cc.vileda.openapi.dsl.externalDocs
 import cc.vileda.openapi.dsl.info
 import cc.vileda.openapi.dsl.securityScheme
+import id.walt.Values
+import id.walt.rest.ErrorResponse
+import id.walt.rest.KeyController
+import id.walt.rest.RootController
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.core.util.RouteOverviewPlugin
@@ -17,10 +21,6 @@ import io.swagger.v3.oas.models.info.Contact
 import io.swagger.v3.oas.models.security.SecurityScheme
 import io.swagger.v3.oas.models.servers.Server
 import mu.KotlinLogging
-import id.walt.Values
-import id.walt.rest.ErrorResponse
-import id.walt.rest.KeyController
-import id.walt.rest.RootController
 
 object SignatoryRestAPI {
 
@@ -31,7 +31,11 @@ object SignatoryRestAPI {
 
     var signatoryApi: Javalin? = null
 
-    fun start(port: Int = SIGNATORY_API_PORT, bindAddress: String = BIND_ADDRESS, apiTargetUrls: List<String> = listOf()) {
+    fun start(
+        port: Int = SIGNATORY_API_PORT,
+        bindAddress: String = BIND_ADDRESS,
+        apiTargetUrls: List<String> = listOf()
+    ) {
 
         signatoryApi = Javalin.create {
 
@@ -90,7 +94,7 @@ object SignatoryRestAPI {
                 }
                 path("templates") {
                     get("", SignatoryController::listTemplates)
-                    get(":id", SignatoryController::loadTemplate)
+                    get("{id}", SignatoryController::loadTemplate)
                 }
             }
 

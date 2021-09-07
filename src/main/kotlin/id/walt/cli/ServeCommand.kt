@@ -41,11 +41,9 @@ class ServeCommand : CliktCommand(
         SignatoryRestAPI.start(signatoryPort, bindAddress, apiTargetUrls)
         AuditorRestAPI.start(auditorPort, bindAddress, apiTargetUrls)
 
-        echo()
         echo(" walt.id Core API: http://${bindAddress}:${apiPort}")
         echo(" walt.id ESSIF API: http://${bindAddress}:${essifPort}")
         echo(" walt.id Signatory API: http://${bindAddress}:${signatoryPort}")
         echo(" walt.id Auditor API: http://${bindAddress}:${auditorPort}")
-        echo()
     }
 }
