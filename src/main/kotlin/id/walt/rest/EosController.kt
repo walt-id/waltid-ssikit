@@ -74,7 +74,16 @@ object EosController {
     fun requestCredentialUri(ctx: Context) {
         ctx.json(TrustedIssuerClient.requestCredentialUri())
     }
-
+    @OpenApi(
+        summary = "Auth request",
+        operationId = "authReq",
+        tags = ["ESSIF Enterprise Wallet"],
+        responses = [
+            OpenApiResponse("200", [OpenApiContent(String::class)], ""),
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
+        ]
+    )
     fun authReq(ctx: Context) {
         println("authReq: " + ctx.body())
         ctx.json(AuthRequestResponse("asdf2weswfsadfdf"))

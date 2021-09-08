@@ -1,5 +1,6 @@
 package id.walt.rest
 
+import id.walt.common.prettyPrint
 import io.javalin.http.Context
 import io.javalin.plugin.openapi.annotations.OpenApi
 import io.javalin.plugin.openapi.annotations.OpenApiContent
@@ -8,6 +9,7 @@ import io.javalin.plugin.openapi.annotations.OpenApiResponse
 import kotlinx.serialization.Serializable
 import id.walt.crypto.KeyAlgorithm
 import id.walt.model.DidMethod
+import id.walt.model.encodePretty
 import id.walt.services.did.DidService
 
 @Serializable
@@ -28,7 +30,6 @@ data class ListDidRequest(
 )
 
 object DidController {
-
 
     @OpenApi(
         summary = "List DIDs",
@@ -120,7 +121,11 @@ object DidController {
         ]
     )
     fun resolve(ctx: Context) {
-        ctx.json(DidService.resolve(ctx.bodyAsClass(ResolveDidRequest::class.java).did))
+        val did = ctx.bodyAsClass(ResolveDidRequest::class.java).did
+        when {
+            did.contains("ebsi") -> ctx.result(DidService.resolveDidEbsiRaw(did).prettyPrint())
+            else -> ctx.json(DidService.resolve(did))
+        }
     }
 
 

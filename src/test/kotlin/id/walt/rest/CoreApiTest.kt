@@ -48,7 +48,7 @@ class CoreApiTest : AnnotationSpec() {
     }
 
     private val credentialService = JsonLdCredentialService.getService()
-    val CORE_API_URL = "http://localhost:7003"
+    val CORE_API_URL = "http://localhost:7013"
 
     val client = HttpClient(CIO) {
         install(JsonFeature) {
@@ -92,12 +92,12 @@ class CoreApiTest : AnnotationSpec() {
 
     @BeforeClass
     fun startServer() {
-        RestAPI.startCoreApi(7003)
+        CoreAPI.start(7013)
     }
 
     @AfterClass
     fun teardown() {
-        RestAPI.stopCoreApi()
+        CoreAPI.start()
     }
 
     // TODO @Test
