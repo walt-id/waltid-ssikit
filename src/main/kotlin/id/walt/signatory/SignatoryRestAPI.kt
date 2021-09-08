@@ -21,10 +21,12 @@ import io.swagger.v3.oas.models.info.Contact
 import io.swagger.v3.oas.models.security.SecurityScheme
 import io.swagger.v3.oas.models.servers.Server
 import mu.KotlinLogging
+import org.bouncycastle.asn1.x500.style.RFC4519Style.description
+import org.bouncycastle.asn1.x500.style.RFC4519Style.title
 
 object SignatoryRestAPI {
 
-    val SIGNATORY_API_PORT = 7002
+    val SIGNATORY_API_PORT = 7001
     val BIND_ADDRESS = "127.0.0.1"
 
     private val log = KotlinLogging.logger {}

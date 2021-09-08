@@ -5,8 +5,10 @@ import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import id.walt.Values
+import id.walt.model.DidMethod
+import id.walt.services.did.DidService
+import id.walt.services.essif.EssifClientVcExchange
 import id.walt.services.essif.EssifClient
-import id.walt.services.essif.EssifFlowRunner
 import id.walt.services.essif.TrustedIssuerClient
 import id.walt.services.essif.didebsi.DidEbsiService
 
@@ -71,10 +73,10 @@ class EssifOnboardingCommand : CliktCommand(
 //        val key = buildKey("0ec07d2f853c4b00bd701a6124f1e4c3", KeyAlgorithm.ECDSA_Secp256k1.name, "SUN", pub, priv)
 
 
-        EssifFlowRunner.onboard(did)
+        EssifClient.onboard(did)
 
         echo("ESSIF onboarding for DID $did was performed successfully.")
-        echo("The Verifiable Authorization can be accessed in file: ${EssifFlowRunner.verifiableAuthorizationFile.absolutePath}.")
+        echo("The Verifiable Authorization can be accessed in file: ${EssifClient.verifiableAuthorizationFile.absolutePath}.")
     }
 }
 
@@ -91,10 +93,10 @@ class EssifAuthCommand : CliktCommand(
 
         echo("Running EBSI Authentication API flow ...\n")
 
-        EssifFlowRunner.authApi(did)
+        EssifClient.authApi(did)
 
         echo("EBSI Authorization flow was performed successfully.")
-        echo("The EBSI Access Token can be accessed in file: ${EssifFlowRunner.ebsiAccessTokenFile.absolutePath}.")
+        echo("The EBSI Access Token can be accessed in file: ${EssifClient.ebsiAccessTokenFile.absolutePath}.")
     }
 }
 
@@ -140,20 +142,21 @@ class EssifVcIssuanceCommand : CliktCommand(
         // EssifFlowRunner.vcIssuance()
 
         // This runs everything: EssifClient.authenticate()
+        val did: String = DidService.create(DidMethod.ebsi) // Client DID
 
         val oidcReq = TrustedIssuerClient.generateAuthenticationRequest()
         echo("- Authentication request: \n$oidcReq\n\n")
 
-        val didAuthReq = EssifClient.validateAuthenticationRequest(oidcReq)
+        val didAuthReq = EssifClientVcExchange.validateAuthenticationRequest(oidcReq)
         echo("- Parsed and validated authentication request: \n$didAuthReq\n\n")
 
-        val authResp = EssifClient.generateAuthenticationResponse(didAuthReq)
+        val authResp = EssifClientVcExchange.generateAuthenticationResponse(did, didAuthReq)
         echo("- Authentication response JWT: \n$authResp\n\n")
 
         val encAccessToken = TrustedIssuerClient.openSession(authResp)
         echo("- Received encrypted access token: \n$encAccessToken\n\n")
 
-        val accessToken = EssifClient.decryptAccessToken(encAccessToken)
+        val accessToken = EssifClientVcExchange.decryptAccessToken(encAccessToken)
         echo("- Decrypted and verified access token: \n$accessToken\n\n")
 
     }
@@ -165,7 +168,7 @@ class EssifVcExchangeCommand : CliktCommand(
 
         ESSIF VC exchange flow"""
 ) {
-    override fun run() = EssifFlowRunner.vcExchange()
+    override fun run() = EssifClient.vcExchange()
 }
 
 class EssifTirCommand : CliktCommand(
