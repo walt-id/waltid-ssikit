@@ -18,9 +18,9 @@ import id.walt.model.*
 import id.walt.services.did.DidService
 import id.walt.services.essif.EbsiVAWrapper
 import id.walt.services.essif.EbsiVaVp
-import id.walt.services.essif.EssifFlowRunner
-import id.walt.services.essif.EssifFlowRunner.ake1EncFile
-import id.walt.services.essif.EssifFlowRunner.verifiablePresentationFile
+import id.walt.services.essif.EssifClient
+import id.walt.services.essif.EssifClient.ake1EncFile
+import id.walt.services.essif.EssifClient.verifiablePresentationFile
 import id.walt.services.essif.LegalEntityClient
 import id.walt.services.essif.enterprisewallet.EnterpriseWalletService
 import id.walt.services.essif.mock.AuthorizationApi
@@ -104,11 +104,11 @@ object UserWalletService {
         //   ESSIF onboarding flow (DID registration)
         ///////////////////////////////////////////////////////////////////////////
 
-        log.debug { "Loading Verifiable Authorization from file: ${EssifFlowRunner.verifiableAuthorizationFile.absolutePath}." }
+        log.debug { "Loading Verifiable Authorization from file: ${EssifClient.verifiableAuthorizationFile.absolutePath}." }
 
-        val verifiableAuthorization = readWhenContent(EssifFlowRunner.verifiableAuthorizationFile)
+        val verifiableAuthorization = readWhenContent(EssifClient.verifiableAuthorizationFile)
 
-        log.debug { "Loaded bearer token from ${EssifFlowRunner.bearerTokenFile.absolutePath}." }
+        // log.debug { "Loaded bearer token from ${EssifClient.bearerTokenFile.absolutePath}." }
 
         val accessToken = siopSession(did, verifiableAuthorization)
 
@@ -231,7 +231,8 @@ object UserWalletService {
 
         val idToken = constructSiopResponseJwt(emphPrivKey, did, verifiedClaims, nonce)
 
-        val siopResponse = LegalEntityClient.eos.siopSession(idToken, readEssifBearerToken())
+        //val siopResponse = LegalEntityClient.eos.siopSession(idToken, readEssifBearerToken())
+        val siopResponse = LegalEntityClient.eos.siopSession(idToken)
 
         log.debug { "Writing SIOP response (AKE1 encrypted token) to file: ${ake1EncFile.absolutePath}" }
 
