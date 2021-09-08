@@ -4,9 +4,12 @@ import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import id.walt.services.jwt.JwtService
 import id.walt.signatory.ProofConfig
+import id.walt.signatory.ProofType
+import id.walt.vclib.Helpers.encode
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.Helpers.toMap
 import id.walt.vclib.model.VerifiableCredential
+import id.walt.vclib.vclist.VerifiablePresentation
 import info.weboftrust.ldsignatures.LdProof
 import mu.KotlinLogging
 import java.nio.file.Files
@@ -56,8 +59,27 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
     override fun verifyVp(vp: String): Boolean =
         TODO("Not implemented yet.")
 
-    override fun present(vc: String, domain: String?, challenge: String?): String =
-        TODO("Not implemented yet.")
+    override fun present(vc: String): String {
+        log.debug { "Creating a presentation for VC:\n$vc" }
+
+        val vpReqStr = VerifiablePresentation(
+            id = "id",
+            verifiableCredential = listOf(vc.toCredential())
+        ).encode()
+
+        log.trace { "VP request:\n$vpReqStr" }
+
+        val holderDid = VcUtils.getHolder(vc.toCredential())
+        val proofConfig = ProofConfig(
+            issuerDid = holderDid,
+            subjectDid = holderDid,
+            proofType = ProofType.JWT
+        )
+        val vp = sign(vpReqStr, proofConfig)
+
+        log.debug { "VP created:$vp" }
+        return vp
+    }
 
     override fun listVCs(): List<String> =
         Files.walk(Path.of("data/vc/created"))

@@ -18,6 +18,7 @@ import id.walt.vclib.Helpers.encode
 import io.ktor.util.date.*
 import mu.KotlinLogging
 import id.walt.common.prettyPrint
+import id.walt.custodian.CustodianService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.VerificationType
 import id.walt.signatory.ProofConfig
@@ -134,8 +135,8 @@ class PresentVcCommand : CliktCommand(
         """
 ) {
     val src: File by argument().file()
-    val domain: String? by option("-d", "--domain", help = "Domain name to be used in the proof")
-    val challenge: String? by option("-c", "--challenge", help = "Challenge to be used in the proof")
+    val domain: String? by option("-d", "--domain", help = "Domain name to be used in the LD proof")
+    val challenge: String? by option("-c", "--challenge", help = "Challenge to be used in the LD proof")
     // val holderDid: String? by option("-i", "--holder-did", help = "DID of the holder (owner of the VC)")
 
     override fun run() {
@@ -147,7 +148,7 @@ class PresentVcCommand : CliktCommand(
         }
 
         // Creating the Verifiable Presentation
-        val vp = credentialService.present(src.readText(), domain, challenge)
+        val vp = CustodianService.getService().createPresentation(src.readText(), domain, challenge)
 
         log.debug { "Presentation created (ld-signature):\n$vp" }
 

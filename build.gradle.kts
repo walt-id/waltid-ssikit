@@ -22,7 +22,7 @@ repositories {
     maven("https://maven.walt.id/repository/waltid/")
     maven("https://maven.walt.id/repository/waltid-ssi-kit/")
     maven("https://maven.walt.id/repository/danubetech")
-    //mavenLocal()
+    mavenLocal()
 }
 
 dependencies {
@@ -42,7 +42,7 @@ dependencies {
     implementation("com.google.guava:guava:30.1.1-jre")
 
     // VC
-    implementation("id.walt:waltid-ssikit-vclib:1.4.5")
+    implementation("id.walt:waltid-ssikit-vclib:1.4.6-SNAPSHOT5")
 
     // JSON
     implementation("org.json:json:20210307")

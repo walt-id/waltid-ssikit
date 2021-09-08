@@ -22,37 +22,11 @@ import id.walt.vclib.vclist.VerifiablePresentation
 // - SECURE_CRYPTO
 // - HOLDER_BINDING (only for VPs)
 
-class VerificationItem(
-    val vc: VerifiableCredential,
-    val vcRaw: String,
-    val proofType: ProofType) {
-
-    companion object {
-        val JWT_PATTERN = "(^[A-Za-z0-9-_]*\\.[A-Za-z0-9-_]*\\.[A-Za-z0-9-_]*\$)"
-        fun parse(vc: String): VerificationItem {
-            if(Regex(JWT_PATTERN).matches(vc))
-            {
-                val claims = JwtService.getService().parseClaims(vc)
-                if (claims?.contains("vc") == true) {
-                    var parsedVC = claims["vc"].toString().toCredential();
-                    // TODO: how to set standard jwt claims (why are they stripped by data providers on issuance? I think they shouldn't be.)
-                    return VerificationItem(parsedVC, vc, ProofType.JWT)
-                } else {
-                    throw Exception("Invalid JWT token given")
-                }
-            } else
-            {
-                return VerificationItem(vc.toCredential(), vc, ProofType.LD_PROOF)
-            }
-        }
-    }
-}
-
 interface VerificationPolicy {
     val id: String
         get() = this.javaClass.simpleName
     val description: String
-    fun verify(item: VerificationItem): Boolean
+    fun verify(vc: VerifiableCredential): Boolean
 }
 
 class SignaturePolicy : VerificationPolicy {
@@ -60,28 +34,28 @@ class SignaturePolicy : VerificationPolicy {
     private val jwtCredentialService = JwtCredentialService.getService()
     override val description: String = "Verify by signature"
 
-    override fun verify(item: VerificationItem): Boolean {
-        return when(item.proofType) {
+    override fun verify(vc: VerifiableCredential): Boolean {
+        return when(vc?.jwt) {
             // TODO: support JWT Presentation
-            ProofType.JWT -> jwtCredentialService.verifyVc(item.vcRaw)
-            ProofType.LD_PROOF -> jsonLdCredentialService.verify(item.vcRaw).verified
+            null -> jsonLdCredentialService.verify(vc.json!!).verified
+            else -> jwtCredentialService.verifyVc(vc!!.jwt!!)
         }
     }
 }
 
 class JsonSchemaPolicy : VerificationPolicy { // Schema already validated by json-ld?
     override val description: String = "Verify by JSON schema"
-    override fun verify(item: VerificationItem) = true // TODO validate policy
+    override fun verify(vc: VerifiableCredential) = true // TODO validate policy
 }
 
 class TrustedIssuerDidPolicy : VerificationPolicy {
     override val description: String = "Verify by trusted issuer did"
-    override fun verify(item: VerificationItem) = true // TODO validate policy
+    override fun verify(vc: VerifiableCredential) = true // TODO validate policy
 }
 
 class TrustedSubjectDidPolicy : VerificationPolicy {
     override val description: String = "Verify by trusted subject did"
-    override fun verify(item: VerificationItem) = true // TODO validate policy
+    override fun verify(vc: VerifiableCredential) = true // TODO validate policy
 }
 
 object PolicyRegistry {
@@ -124,8 +98,16 @@ object AuditorService : IAuditor {
     private fun allAccepted(policyResults: Map<String, Boolean>) = policyResults.values.all { it }
 
     override fun verify(vc: String, policies: List<VerificationPolicy>): VerificationResult {
-        val item = VerificationItem.parse(vc)
-        val policyResults = policies.associateBy(keySelector = VerificationPolicy::id, { it.verify(item) })
+        val vc = vc.toCredential()
+        val policyResults = policies.associateBy(keySelector = VerificationPolicy::id) { policy ->
+            policy.verify(vc) &&
+                    when (vc) {
+                        is VerifiablePresentation -> vc.verifiableCredential.all { cred ->
+                            policy.verify(cred)
+                        }
+                        else -> true
+                    }
+        }
 
         return VerificationResult(allAccepted(policyResults), policyResults)
     }
