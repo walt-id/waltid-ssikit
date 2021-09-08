@@ -15,7 +15,7 @@ import id.walt.services.essif.mock.RelyingParty
 
 class EssifApiTest : AnnotationSpec() {
 
-    val ESSIF_API_URL = "http://localhost:7002"
+    val ESSIF_API_URL = "http://localhost:7012"
 
     val client = HttpClient(CIO) {
         install(JsonFeature) {
@@ -25,12 +25,12 @@ class EssifApiTest : AnnotationSpec() {
 
     @BeforeClass
     fun startServer() {
-        RestAPI.startEssifApi(7002)
+        EssifAPI.start(7012)
     }
 
     @AfterClass
     fun teardown() {
-        RestAPI.stopEssifApi()
+        EssifAPI.stop()
     }
 
     @Test
@@ -38,7 +38,6 @@ class EssifApiTest : AnnotationSpec() {
         val response = client.get<HttpResponse>("$ESSIF_API_URL/health")
         "OK" shouldBe response.readText()
     }
-
 
     @Test
     fun testRealEbsi() = runBlocking {
