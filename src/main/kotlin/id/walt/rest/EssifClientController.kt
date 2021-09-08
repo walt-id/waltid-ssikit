@@ -1,7 +1,7 @@
 package id.walt.rest
 
 import id.walt.rest.TrustedIssuerController.enterpriseWalletService
-import id.walt.services.essif.EssifFlowRunner
+import id.walt.services.essif.EssifClient
 import io.javalin.http.Context
 import io.javalin.plugin.openapi.annotations.OpenApi
 import io.javalin.plugin.openapi.annotations.OpenApiContent
@@ -32,27 +32,47 @@ object EssifClientController {
     )
     fun onboard(ctx: Context) {
         val req = ctx.bodyAsClass(EbsiOnboardRequest::class.java)
-        ctx.json(EssifFlowRunner.onboard(req.did, req.bearerToken))
+        ctx.json(EssifClient.onboard(req.did, req.bearerToken))
     }
 
     @OpenApi(
-        summary = "Creates and registers DID on the EBSI Blockchain",
+        summary = "Runs the ESSIF Authorization API flow",
         operationId = "createDid",
         tags = ["ESSIF Client"],
         requestBody = OpenApiRequestBody(
             [OpenApiContent(String::class)],
             true,
-            "Verifiable Authorization"
+            "DID"
         ),
         responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "Created DID"),
+            OpenApiResponse("200", [OpenApiContent(String::class)], "Auth flow executed successfully"),
             OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
             OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
         ]
     )
-    fun createDid(ctx: Context) {
-        ctx.json(enterpriseWalletService.createDid())
+
+    fun authApi(ctx: Context) {
+        ctx.json(EssifClient.authApi(ctx.body()))
     }
 
+    @OpenApi(
+        summary = "Registers DID on the EBSI Blockchain",
+        operationId = "registerDid",
+        tags = ["ESSIF Client"],
+        requestBody = OpenApiRequestBody(
+            [OpenApiContent(String::class)],
+            true,
+            "DID"
+        ),
+        responses = [
+            OpenApiResponse("200", [OpenApiContent(String::class)], "DID registered successfully"),
+            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
+            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
+        ]
+    )
+    fun registerDid(ctx: Context) {
+        val did = ctx.body()
+        ctx.json(EssifClient.registerDid(did, did))
+    }
 
 }

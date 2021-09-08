@@ -255,6 +255,8 @@ object RestAPI {
                 }
                 path("client") {
                     post("onboard", EssifClientController::onboard)
+                    post("auth", EssifClientController::authApi)
+                    post("registerDid", EssifClientController::registerDid)
                 }
             }
 
