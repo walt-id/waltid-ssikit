@@ -40,16 +40,15 @@ class VerifiableIdDataProvider : SignatoryDataProvider {
         vc.id = proofConfig.id ?: "identity#verifiableID#${UUID.randomUUID()}"
         vc.issuer = proofConfig.issuerDid
         if (proofConfig.issueDate != null) vc.issuanceDate = dateFormat.format(proofConfig.issueDate)
+        if (proofConfig.validDate != null) vc.validFrom = dateFormat.format(proofConfig.validDate)
         if (proofConfig.expirationDate != null) vc.expirationDate = dateFormat.format(proofConfig.expirationDate)
-        vc.validFrom = vc.issuanceDate
         vc.credentialSubject!!.id = proofConfig.subjectDid
         vc.evidence!!.verifier = proofConfig.issuerDid
         return vc
     }
 
     private fun populateForJWTProof(vc: VerifiableId, proofConfig: ProofConfig): VerifiableId {
-        vc.id = null; vc.issuer = null; vc.issuanceDate = null; vc.expirationDate; vc.credentialSubject!!.id = null
-        if (proofConfig.issueDate != null) vc.validFrom = dateFormat.format(proofConfig.issueDate)
+        vc.id = null; vc.issuer = null; vc.issuanceDate = null; vc.validFrom = null; vc.expirationDate; vc.credentialSubject!!.id = null
         vc.evidence!!.verifier = proofConfig.issuerDid
         return vc
     }
@@ -69,16 +68,15 @@ class VerifiableDiplomaDataProvider : SignatoryDataProvider {
         vc.id = proofConfig.id ?: "education#higherEducation#${UUID.randomUUID()}"
         vc.issuer = proofConfig.issuerDid
         if (proofConfig.issueDate != null) vc.issuanceDate = dateFormat.format(proofConfig.issueDate)
+        if (proofConfig.validDate != null) vc.validFrom = dateFormat.format(proofConfig.validDate)
         if (proofConfig.expirationDate != null) vc.expirationDate = dateFormat.format(proofConfig.expirationDate)
-        vc.validFrom = vc.issuanceDate
         vc.credentialSubject!!.id = proofConfig.subjectDid
         vc.credentialSubject!!.awardingOpportunity!!.awardingBody.id = proofConfig.issuerDid
         return vc
     }
 
     private fun populateForJWTProof(vc: VerifiableDiploma, proofConfig: ProofConfig): VerifiableDiploma {
-        vc.id = null; vc.issuer = null; vc.issuanceDate = null; vc.expirationDate; vc.credentialSubject!!.id = null
-        if (proofConfig.issueDate != null) vc.validFrom = dateFormat.format(proofConfig.issueDate)
+        vc.id = null; vc.issuer = null; vc.issuanceDate = null; vc.validFrom = null; vc.expirationDate; vc.credentialSubject!!.id = null
         vc.credentialSubject!!.awardingOpportunity!!.awardingBody.id = proofConfig.issuerDid
         return vc
     }

@@ -35,6 +35,7 @@ data class ProofConfig(
     val proofPurpose: String? = null,
     val id: String? = null, // if null and ProofType.LD_PROOF -> generated with UUID random value
     val issueDate: Date? = null, // if null and ProofType.LD_PROOF -> issue date from json-input or now if null as well
+    val validDate: Date? = null, // if null and ProofType.LD_PROOF -> valid date from json-input or now if null as well
     val expirationDate: Date? = null
 )
 

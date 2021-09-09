@@ -23,12 +23,13 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
         log.debug { "Signing JWT object with config: $config" }
         val issuerDid = config.issuerDid
         val issueDate = config.issueDate ?: Date()
+        val validDate = config.validDate ?: Date()
         val payload = JWTClaimsSet.Builder()
             .jwtID(config.id)
             .issuer(issuerDid)
             .subject(config.subjectDid)
             .issueTime(issueDate)
-            .notBeforeTime(issueDate)
+            .notBeforeTime(validDate)
             .expirationTime(config.expirationDate)
             .claim("vc", jsonCred.toCredential().toMap())
             .build().toString()
