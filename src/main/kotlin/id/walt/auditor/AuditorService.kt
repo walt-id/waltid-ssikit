@@ -38,7 +38,7 @@ class SignaturePolicy : VerificationPolicy {
         return when(vc?.jwt) {
             // TODO: support JWT Presentation
             null -> jsonLdCredentialService.verify(vc.json!!).verified
-            else -> jwtCredentialService.verifyVc(vc!!.jwt!!)
+            else -> jwtCredentialService.verify(vc!!.jwt!!).verified
         }
     }
 }

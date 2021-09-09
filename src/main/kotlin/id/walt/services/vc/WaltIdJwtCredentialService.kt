@@ -8,6 +8,7 @@ import id.walt.signatory.ProofType
 import id.walt.vclib.Helpers.encode
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.Helpers.toMap
+import id.walt.vclib.VcLibManager
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.vclist.VerifiablePresentation
 import info.weboftrust.ldsignatures.LdProof
@@ -49,7 +50,10 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
         TODO("Not implemented yet.")
 
     override fun verify(vcOrVp: String): VerificationResult =
-        TODO("Not implemented yet.")
+        when (VcLibManager.getVerifiableCredential(vcOrVp)) {
+            is VerifiablePresentation -> VerificationResult(verifyVp(vcOrVp), VerificationType.VERIFIABLE_PRESENTATION)
+            else -> VerificationResult(verifyVc(vcOrVp), VerificationType.VERIFIABLE_CREDENTIAL)
+        }
 
     override fun verifyVc(vc: String): Boolean {
         log.debug { "Verifying vc: $vc" }
@@ -57,7 +61,7 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
     }
 
     override fun verifyVp(vp: String): Boolean =
-        TODO("Not implemented yet.")
+        verifyVc(vp)
 
     override fun present(vc: String): String {
         log.debug { "Creating a presentation for VC:\n$vc" }

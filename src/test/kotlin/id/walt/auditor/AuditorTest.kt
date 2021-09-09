@@ -4,6 +4,7 @@ import com.github.fge.jsonschema.main.JsonSchema
 import id.walt.auditor.AuditorService
 import id.walt.auditor.JsonSchemaPolicy
 import id.walt.auditor.SignaturePolicy
+import id.walt.custodian.CustodianService
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
@@ -22,6 +23,7 @@ class AuditorCommandTest : StringSpec() {
     private lateinit var vcStr: String
     private lateinit var vcJwt: String
     private lateinit var vpStr: String
+    private lateinit var vpJwt: String
 
     override fun beforeSpec(spec: Spec) {
         super.beforeSpec(spec)
@@ -29,7 +31,7 @@ class AuditorCommandTest : StringSpec() {
         ServiceMatrix("service-matrix.properties")
 
         val signatory = Signatory.getService()
-        val credentialService = JsonLdCredentialService.getService()
+        var custodian = CustodianService.getService()
 
         did = DidService.create(DidMethod.key)
 
@@ -43,13 +45,15 @@ class AuditorCommandTest : StringSpec() {
         )
 
         vpStr =
-            credentialService.present(vcStr, "https://api.preprod.ebsi.eu", "d04442d3-661f-411e-a80f-42f19f594c9d")
+            custodian.createPresentation(vcStr, "https://api.preprod.ebsi.eu", "d04442d3-661f-411e-a80f-42f19f594c9d")
 
         vcJwt = signatory.issue("VerifiableDiploma", ProofConfig(
             issuerDid = did,
             subjectDid = did,
             issuerVerificationMethod = "Ed25519Signature2018", ProofType.JWT)
         )
+
+        vpJwt = custodian.createPresentation(vcJwt, null, null)
     }
 
     init {
@@ -87,6 +91,21 @@ class AuditorCommandTest : StringSpec() {
             val res = AuditorService.verify(vcJwt, listOf(SignaturePolicy(), JsonSchemaPolicy()))
 
             res.overallStatus shouldBe true
+            res.policyResults.keys shouldBeSameSizeAs listOf(SignaturePolicy(), JsonSchemaPolicy())
+
+            res.policyResults.keys shouldContainAll
+                    listOf(SignaturePolicy(), JsonSchemaPolicy()).map { it.id }
+
+            res.policyResults.values.forEach {
+                it shouldBe true
+            }
+        }
+
+        "4. verify vp jwt" {
+            val res = AuditorService.verify(vpJwt, listOf(SignaturePolicy(), JsonSchemaPolicy()))
+
+            res.overallStatus shouldBe true
+
             res.policyResults.keys shouldBeSameSizeAs listOf(SignaturePolicy(), JsonSchemaPolicy())
 
             res.policyResults.keys shouldContainAll
