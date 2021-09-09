@@ -7,7 +7,6 @@ import id.walt.services.essif.didebsi.DidEbsiService
 import id.walt.services.essif.enterprisewallet.EnterpriseWalletService
 import id.walt.services.essif.mock.RelyingParty
 import id.walt.services.essif.userwallet.UserWalletService
-import io.ktor.client.features.*
 import java.io.File
 
 

@@ -78,7 +78,7 @@ fun loadDidHelper(did: String) = when {
 fun resolveDidHelper(did: String, raw: Boolean) = when {
     did.contains("web") -> DidService.resolveDidWebDummy(DidUrl.from(did)).encodePretty()
     did.contains("ebsi") -> when (raw) {
-        true -> DidService.resolveDidEbsiRaw(did)
+        true -> DidService.resolveDidEbsiRaw(did).prettyPrint()
         else -> DidService.resolveDidEbsi(did).encodePretty()
     }
     else -> DidService.resolve(did).encodePretty()
