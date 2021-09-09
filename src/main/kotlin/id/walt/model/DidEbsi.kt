@@ -2,6 +2,7 @@ package id.walt.model
 
 import com.beust.klaxon.Json
 import com.beust.klaxon.Klaxon
+import id.walt.common.prettyPrint
 import id.walt.vclib.model.Proof
 
 data class DidEbsi(
@@ -19,4 +20,4 @@ data class DidEbsi(
 )
 
 fun DidEbsi.encode() = Klaxon().toJsonString(this)
-fun DidEbsi.encodePretty() = encode()
+fun DidEbsi.encodePretty() = encode().prettyPrint()

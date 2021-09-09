@@ -81,7 +81,17 @@ object TrustedIssuerClient {
         }
     }
 
-    fun siopSession(idToken: String, bearerToken: String): String = runBlocking {
+    fun siopSession(idToken: String): String = runBlocking {
+        return@runBlocking WaltIdServices.http.post<String>("$authorisation/siop-sessions") {
+            contentType(ContentType.Application.Json)
+            headers {
+                append(HttpHeaders.Accept, "application/json")
+            }
+            body = mapOf("id_token" to idToken)
+        }
+    }
+
+    fun siopSessionBearer(idToken: String, bearerToken: String): String = runBlocking {
         return@runBlocking WaltIdServices.http.post<String>("$authorisation/siop-sessions") {
             contentType(ContentType.Application.Json)
             headers {
