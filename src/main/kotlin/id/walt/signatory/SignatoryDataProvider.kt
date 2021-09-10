@@ -43,14 +43,12 @@ class VerifiableIdDataProvider : SignatoryDataProvider {
         if (proofConfig.expirationDate != null) vc.expirationDate = dateFormat.format(proofConfig.expirationDate)
         vc.validFrom = vc.issuanceDate
         vc.credentialSubject!!.id = proofConfig.subjectDid
-        vc.evidence!!.verifier = proofConfig.issuerDid
         return vc
     }
 
     private fun populateForJWTProof(vc: VerifiableId, proofConfig: ProofConfig): VerifiableId {
         vc.id = null; vc.issuer = null; vc.issuanceDate = null; vc.expirationDate; vc.credentialSubject!!.id = null
         if (proofConfig.issueDate != null) vc.validFrom = dateFormat.format(proofConfig.issueDate)
-        vc.evidence!!.verifier = proofConfig.issuerDid
         return vc
     }
 }
@@ -72,14 +70,12 @@ class VerifiableDiplomaDataProvider : SignatoryDataProvider {
         if (proofConfig.expirationDate != null) vc.expirationDate = dateFormat.format(proofConfig.expirationDate)
         vc.validFrom = vc.issuanceDate
         vc.credentialSubject!!.id = proofConfig.subjectDid
-        vc.credentialSubject!!.awardingOpportunity!!.awardingBody.id = proofConfig.issuerDid
         return vc
     }
 
     private fun populateForJWTProof(vc: VerifiableDiploma, proofConfig: ProofConfig): VerifiableDiploma {
         vc.id = null; vc.issuer = null; vc.issuanceDate = null; vc.expirationDate; vc.credentialSubject!!.id = null
         if (proofConfig.issueDate != null) vc.validFrom = dateFormat.format(proofConfig.issueDate)
-        vc.credentialSubject!!.awardingOpportunity!!.awardingBody.id = proofConfig.issuerDid
         return vc
     }
 }
