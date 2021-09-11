@@ -47,9 +47,9 @@ open class FileSystemKeyStoreService : KeyStoreService() {
         val metaData = String(loadKeyFile(keyId, "meta"))
         val algorithm = metaData.substringBefore(delimiter = ";")
         val provider = metaData.substringAfter(delimiter = ";")
-        val publicPart = File("${Companion.KEY_DIR_PATH}/$keyId.enc-pubkey").readText()
+        val publicPart = File("$KEY_DIR_PATH/$keyId.enc-pubkey").readText()
         val privatePart =
-            if (keyType == KeyType.PRIVATE) File("${Companion.KEY_DIR_PATH}/$keyId.enc-privkey").readText() else null
+            if (keyType == KeyType.PRIVATE) File("$KEY_DIR_PATH/$keyId.enc-privkey").readText() else null
 
         return buildKey(keyId, algorithm, provider, publicPart, privatePart, KEY_FORMAT)
     }
@@ -75,6 +75,7 @@ open class FileSystemKeyStoreService : KeyStoreService() {
         deleteKeyFile(alias, "enc-privkey")
         deleteKeyFile(alias, "raw-pubkey")
         deleteKeyFile(alias, "raw-privkey")
+        deleteKeyFile(alias, "meta")
     }
 
     private fun storePublicKey(key: Key) =
