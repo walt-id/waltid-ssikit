@@ -1,11 +1,11 @@
 package id.walt.services.keystore
 
-import mu.KotlinLogging
 import id.walt.common.SqlDbManager
 import id.walt.crypto.Key
 import id.walt.crypto.KeyId
 import id.walt.crypto.buildKey
 import id.walt.crypto.toBase64
+import mu.KotlinLogging
 import java.sql.Statement.RETURN_GENERATED_KEYS
 
 private val log = KotlinLogging.logger {}
@@ -17,54 +17,60 @@ open class SqlKeyStoreService : KeyStoreService() {
     }
 
     override fun store(key: Key) {
-        log.debug { "Saving key \"${key}\"" }
+        log.debug { "Saving key \"${key}\"..." }
 
-        SqlDbManager.getConnection().use { con ->
-            con.prepareStatement(
-                "insert into lt_key (name, priv, pub, algorithm, provider) values (?, ?, ?, ?, ?)",
-                RETURN_GENERATED_KEYS
-            )
-                .use { stmt ->
-                    stmt.setString(1, key.keyId.id)
+        SqlDbManager.getConnection().use { connection ->
+            connection.apply {
+                prepareStatement(
+                    "insert into lt_key (name, priv, pub, algorithm, provider) values (?, ?, ?, ?, ?)",
+                    RETURN_GENERATED_KEYS
+                ).use { statement ->
+                    key.run {
+                        listOf(
+                            keyId.id,
+                            keyPair!!.private?.toBase64(),
+                            keyPair!!.public.toBase64(),
+                            algorithm.name,
+                            cryptoProvider.name
+                        ).forEachIndexed { index, str -> str?.let { statement.setString(index + 1, str) } }
+                    }
 
-                    key.keyPair!!.private?.let { stmt.setString(2, key.keyPair!!.private.toBase64()) }
-                    stmt.setString(3, key.keyPair!!.public.toBase64())
-                    stmt.setString(4, key.algorithm.name)
-                    stmt.setString(5, key.cryptoProvider.name)
-
-                    if (stmt.executeUpdate() == 1) {
-                        con.commit()
-                        log.trace { "Key \"${key}\" saved successfully." }
-                    } else {
-                        log.error { "Error when saving key \"${key}\". Rolling back transaction." }
-                        con.rollback()
+                    when {
+                        statement.executeUpdate() == UPDATE_SUCCESS -> {
+                            commit()
+                            log.trace { "Key \"${key}\" saved successfully." }
+                        }
+                        else -> {
+                            log.error { "Error when saving key \"${key}\". Rolling back transaction." }
+                            rollback()
+                        }
                     }
                 }
+            }
         }
-
     }
 
     override fun load(alias: String, keyType: KeyType): Key {
-        log.debug { "Loading key \"${alias}\"." }
+        log.debug { "Loading key \"${alias}\"..." }
         var key: Key? = null
 
         val keyId = getKeyId(alias) ?: alias
 
-        SqlDbManager.getConnection().use { con ->
-            con.prepareStatement("select * from lt_key where name = ?").use { stmt ->
-                stmt.setString(1, keyId)
-                stmt.executeQuery().use { rs ->
-                    if (rs.next()) {
+        SqlDbManager.getConnection().use { connection ->
+            connection.prepareStatement("select * from lt_key where name = ?").use { statement ->
+                statement.setString(1, keyId)
+                statement.executeQuery().use { result ->
+                    if (result.next()) {
                         key = buildKey(
                             keyId,
-                            rs.getString("algorithm"),
-                            rs.getString("provider"),
-                            rs.getString("pub"),
-                            if (keyType == KeyType.PRIVATE) rs.getString("priv") else null
+                            result.getString("algorithm"),
+                            result.getString("provider"),
+                            result.getString("pub"),
+                            if (keyType == KeyType.PRIVATE) result.getString("priv") else null
                         )
                     }
                 }
-                con.commit()
+                connection.commit()
             }
         }
         return key ?: throw IllegalArgumentException("Could not load key: $keyId")
@@ -72,17 +78,19 @@ open class SqlKeyStoreService : KeyStoreService() {
 
 
     override fun getKeyId(alias: String): String? {
-        log.trace { "Loading keyId for alias \"${alias}\"." }
+        log.trace { "Loading keyId for alias \"${alias}\"..." }
+
         SqlDbManager.getConnection().use { con ->
             con.prepareStatement("select k.name from lt_key k, lt_key_alias a where k.id = a.key_id and a.alias = ?")
-                .use { stmt ->
-                    stmt.setString(1, alias)
-                    stmt.executeQuery().use { rs ->
+                .use { statement ->
+                    statement.setString(1, alias)
+
+                    statement.executeQuery().use { rs ->
                         if (rs.next()) {
-                            val name = rs.getString("name")
-                            log.trace { "keyId  \"${name}\" loaded." }
+                            val id = rs.getString("name")
+                            log.trace { "keyId \"${id}\" loaded." }
                             con.commit()
-                            return name
+                            return id
                         }
                     }
                 }
@@ -90,44 +98,20 @@ open class SqlKeyStoreService : KeyStoreService() {
         return null
     }
 
-//    override fun addAlias(keyId: String, alias: String) {
-//
-//        log.debug { "Adding alias \"${alias}\" for keyId \"${keyId}\"" }
-//        SqlDbManager.getConnection().use { con ->
-//            try {
-//                con.prepareStatement("select k.id from lt_key k where k.name = ?").use { stmt ->
-//                    stmt.setString(1, keyId)
-//                    stmt.executeQuery().use { rs ->
-//                        if (rs.next()) {
-//                            rs.getInt("id").let { key_id ->
-//                                con.prepareStatement("insert into lt_key_alias (key_id, alias) values (?, ?)").use { stmt ->
-//                                    stmt.setInt(1, key_id)
-//                                    stmt.setString(2, alias)
-//                                    stmt.executeUpdate()
-//                                    log.trace { "Alias \"${alias}\" for keyId \"${keyId}\" saved successfully." }
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            } finally {
-//                con.commit()
-//            }
-//        }
-//    }
-
     override fun addAlias(keyId: KeyId, alias: String) {
-        log.debug { "Adding alias \"${alias}\" for keyId \"${keyId}\"" }
+        log.debug { "Adding alias \"${alias}\" for keyId \"${keyId}\"..." }
+
         SqlDbManager.getConnection().use { con ->
             try {
-                con.prepareStatement("select k.id from lt_key k where k.name = ?").use { stmt ->
-                    stmt.setString(1, keyId.id)
-                    stmt.executeQuery().use { rs ->
+                con.prepareStatement("select k.id from lt_key k where k.name = ?").use { statement ->
+                    statement.setString(1, keyId.id)
+
+                    statement.executeQuery().use { rs ->
                         if (rs.next()) {
-                            rs.getInt("id").let { key_id ->
+                            rs.getInt("id").let { keyId ->
                                 con.prepareStatement("insert into lt_key_alias (key_id, alias) values (?, ?)")
                                     .use { stmt ->
-                                        stmt.setInt(1, key_id)
+                                        stmt.setInt(1, keyId)
                                         stmt.setString(2, alias)
                                         stmt.executeUpdate()
                                         log.trace { "Alias \"${alias}\" for keyId \"${keyId}\" saved successfully." }
@@ -291,6 +275,10 @@ open class SqlKeyStoreService : KeyStoreService() {
                 }
             con.commit()
         }
+    }
+
+    companion object {
+        private const val UPDATE_SUCCESS = 1
     }
 
 }
