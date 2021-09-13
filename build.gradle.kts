@@ -1,8 +1,8 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.4.31"
-    kotlin("plugin.serialization") version "1.4.31"
+    kotlin("jvm") version "1.5.20"
+    kotlin("plugin.serialization") version "1.5.20"
     id("com.github.kkdad.dependency-license-report") version "1.16.6"
     id("org.owasp.dependencycheck") version "6.1.6"
     //id("org.sonatype.gradle.plugins.scan") version "2.0.9"
@@ -22,7 +22,7 @@ repositories {
     maven("https://maven.walt.id/repository/waltid/")
     maven("https://maven.walt.id/repository/waltid-ssi-kit/")
     maven("https://maven.walt.id/repository/danubetech")
-    //mavenLocal()
+    mavenLocal()
 }
 
 dependencies {
@@ -42,7 +42,7 @@ dependencies {
     implementation("com.google.guava:guava:30.1.1-jre")
 
     // VC
-    implementation("id.walt:waltid-ssikit-vclib:1.4.5")
+    implementation("id.walt:waltid-ssikit-vclib:1.4.7")
 
     // JSON
     implementation("org.json:json:20210307")
@@ -113,7 +113,7 @@ java {
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "15"
+    kotlinOptions.jvmTarget = "16"
 }
 
 tasks.named<CreateStartScripts>("startScripts") {

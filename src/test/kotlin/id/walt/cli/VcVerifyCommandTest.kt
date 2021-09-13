@@ -6,7 +6,9 @@ import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
 import id.walt.services.vc.JsonLdCredentialService
+import id.walt.services.vc.JwtCredentialService
 import id.walt.signatory.ProofConfig
+import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
@@ -39,6 +41,21 @@ class VcVerifyCommandTest : StringSpec({
         val vpFile = File.createTempFile("vpr", ".json")
         try {
             vpFile.writeText(vpStr)
+            VerifyVcCommand().parse(listOf("-p", PolicyRegistry.defaultPolicyId, vpFile.absolutePath))
+        } finally {
+            vpFile.delete()
+        }
+    }
+
+    "vc verify -p SignaturePolicy path/to/vp.jwt" {
+        val did = DidService.create(DidMethod.key)
+        val vcJwt = Signatory.getService().issue(
+            "VerifiableDiploma", ProofConfig(issuerDid = did, subjectDid = did, issuerVerificationMethod = "Ed25519Signature2018", proofType = ProofType.JWT)
+        )
+        val vpJwt = JwtCredentialService.getService().present(vcJwt)
+        val vpFile = File.createTempFile("vpr", ".jwt")
+        try {
+            vpFile.writeText(vpJwt)
             VerifyVcCommand().parse(listOf("-p", PolicyRegistry.defaultPolicyId, vpFile.absolutePath))
         } finally {
             vpFile.delete()

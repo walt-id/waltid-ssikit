@@ -23,8 +23,8 @@ abstract class JwtCredentialService : WaltIdService() {
     open fun verifyVc(vc: String): Boolean = implementation.verifyVc(vc)
     open fun verifyVp(vp: String): Boolean = implementation.verifyVp(vp)
 
-    open fun present(vc: String, domain: String?, challenge: String?): String =
-        implementation.present(vc, domain, challenge)
+    open fun present(vc: String): String =
+        implementation.present(vc)
 
     open fun listVCs(): List<String> = implementation.listVCs()
 

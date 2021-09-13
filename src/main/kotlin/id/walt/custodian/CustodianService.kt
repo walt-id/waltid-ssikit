@@ -6,7 +6,10 @@ import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyStoreService
+import id.walt.services.vc.JsonLdCredentialService
+import id.walt.services.vc.JwtCredentialService
 import id.walt.services.vcstore.VcStoreService
+import id.walt.vclib.VcLibManager
 import id.walt.vclib.model.VerifiableCredential
 
 abstract class CustodianService : WaltIdService() {
@@ -24,7 +27,7 @@ abstract class CustodianService : WaltIdService() {
     open fun storeCredential(alias: String, vc: VerifiableCredential): Unit = implementation.storeCredential(alias, vc)
     open fun deleteCredential(alias: String): Boolean = implementation.deleteCredential(alias)
 
-    // fun createPresentation()
+    open fun createPresentation(vc: String, domain: String?, challenge: String?): String = implementation.createPresentation(vc, domain, challenge)
 
     companion object : ServiceProvider {
         override fun getService() = object : CustodianService() {}
@@ -48,5 +51,12 @@ open class WaltCustodianService : CustodianService() {
     override fun listCredentialIds(): List<String> = vcStore.listCredentialIds()
     override fun storeCredential(alias: String, vc: VerifiableCredential) = vcStore.storeCredential(alias, vc)
     override fun deleteCredential(alias: String) = vcStore.deleteCredential(alias)
+
+    override fun createPresentation(vc: String, domain: String?, challenge: String?): String {
+        return when(VcLibManager.isJWT(vc)) {
+            true -> JwtCredentialService.getService().present(vc)
+            false -> JsonLdCredentialService.getService().present(vc, domain, challenge)
+        }
+    }
 }
 

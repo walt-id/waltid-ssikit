@@ -1,7 +1,11 @@
 package id.walt.auditor
 
+import id.walt.services.jwt.JwtService
 import id.walt.services.vc.JsonLdCredentialService
+import id.walt.services.vc.JwtCredentialService
+import id.walt.signatory.ProofType
 import id.walt.vclib.Helpers.encode
+import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.VcLibManager
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.vclist.VerifiablePresentation
@@ -18,7 +22,6 @@ import id.walt.vclib.vclist.VerifiablePresentation
 // - SECURE_CRYPTO
 // - HOLDER_BINDING (only for VPs)
 
-
 interface VerificationPolicy {
     val id: String
         get() = this.javaClass.simpleName
@@ -28,10 +31,15 @@ interface VerificationPolicy {
 
 class SignaturePolicy : VerificationPolicy {
     private val jsonLdCredentialService = JsonLdCredentialService.getService()
+    private val jwtCredentialService = JwtCredentialService.getService()
     override val description: String = "Verify by signature"
 
     override fun verify(vc: VerifiableCredential): Boolean {
-        return jsonLdCredentialService.verify(vc.encode()).verified
+        return when(vc?.jwt) {
+            // TODO: support JWT Presentation
+            null -> jsonLdCredentialService.verify(vc.json!!).verified
+            else -> jwtCredentialService.verify(vc!!.jwt!!).verified
+        }
     }
 }
 
@@ -79,7 +87,7 @@ data class VerificationResult(
 
 interface IAuditor {
 
-    fun verify(vcJson: String, policies: List<VerificationPolicy>): VerificationResult
+    fun verify(vc: String, policies: List<VerificationPolicy>): VerificationResult
 
 //    fun verifyVc(vc: String, config: AuditorConfig) = VerificationStatus(true)
 //    fun verifyVp(vp: String, config: AuditorConfig) = VerificationStatus(true)
@@ -89,9 +97,17 @@ object AuditorService : IAuditor {
 
     private fun allAccepted(policyResults: Map<String, Boolean>) = policyResults.values.all { it }
 
-    override fun verify(vcJson: String, policies: List<VerificationPolicy>): VerificationResult {
-        val vc = VcLibManager.getVerifiableCredential(vcJson)
-        val policyResults = policies.associateBy(keySelector = VerificationPolicy::id, { it.verify(vc) })
+    override fun verify(vc: String, policies: List<VerificationPolicy>): VerificationResult {
+        val vc = vc.toCredential()
+        val policyResults = policies.associateBy(keySelector = VerificationPolicy::id) { policy ->
+            policy.verify(vc) &&
+                    when (vc) {
+                        is VerifiablePresentation -> vc.verifiableCredential.all { cred ->
+                            policy.verify(cred)
+                        }
+                        else -> true
+                    }
+        }
 
         return VerificationResult(allAccepted(policyResults), policyResults)
     }
