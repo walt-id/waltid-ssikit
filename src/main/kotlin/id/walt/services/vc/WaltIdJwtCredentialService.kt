@@ -22,11 +22,14 @@ private val log = KotlinLogging.logger {}
 open class WaltIdJwtCredentialService : JwtCredentialService() {
 
     private val jwtService = JwtService.getService()
+    val JWT_VC_CLAIM = "vc"
+    val JWT_VP_CLAIM = "vp"
 
     override fun sign(jsonCred: String, config: ProofConfig): String {
         log.debug { "Signing JWT object with config: $config" }
         val issuerDid = config.issuerDid
         val issueDate = config.issueDate ?: Date()
+        val crd = jsonCred.toCredential()
         val payload = JWTClaimsSet.Builder()
             .jwtID(config.id)
             .issuer(issuerDid)
@@ -34,7 +37,10 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
             .issueTime(issueDate)
             .notBeforeTime(issueDate)
             .expirationTime(config.expirationDate)
-            .claim("vc", jsonCred.toCredential().toMap())
+            .claim(when(crd) {
+                is VerifiablePresentation -> JWT_VP_CLAIM
+                else -> JWT_VC_CLAIM
+             }, crd.toMap())
             .build().toString()
 
         log.debug { "Signing: $payload" }
