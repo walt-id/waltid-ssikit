@@ -24,7 +24,6 @@ import id.walt.vclib.VcLibManager
 import id.walt.vclib.vclist.Europass
 import id.walt.vclib.vclist.VerifiableAttestation
 import io.kotest.assertions.json.shouldEqualJson
-import io.kotest.core.annotation.Ignored
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -64,7 +63,7 @@ class CoreApiTest : AnnotationSpec() {
                 append(HttpHeaders.Authorization, "token")
             }
         }
-        200 shouldBe response.status.value
+        response.status.value shouldBe 200
         return@runBlocking response
     }
 
@@ -75,7 +74,7 @@ class CoreApiTest : AnnotationSpec() {
                 append(HttpHeaders.Authorization, "token")
             }
         }
-        200 shouldBe response.status.value
+        response.status.value shouldBe 200
         return@runBlocking response
     }
 
@@ -116,7 +115,6 @@ class CoreApiTest : AnnotationSpec() {
 
     @Test
     fun testGenKeyEd25519() = runBlocking {
-
         val keyId = client.post<KeyId>("$CORE_API_URL/v1/key/gen") {
             contentType(ContentType.Application.Json)
             body = GenKeyRequest(KeyAlgorithm.EdDSA_Ed25519)
@@ -238,9 +236,9 @@ class CoreApiTest : AnnotationSpec() {
             contentType(ContentType.Application.Json)
             body = CreateDidRequest(DidMethod.ebsi)
         }
-        400 shouldBe errorResp.status.value
+        errorResp.status.value shouldBe 400
         val error = Klaxon().parse<ErrorResponse>(errorResp.readText())!!
-        400 shouldBe error.status
+        error.status shouldBe 400
         "DID method EBSI not supported" shouldBe error.title
     }
 
