@@ -35,7 +35,8 @@ class CreateDidCommand : CliktCommand(
     name = "create",
     help = """Create DID.
 
-        Generates an asymmetric keypair and register the DID containing the public key.
+        Creates a DID document based on the corresponding SSI ecosystem (DID method). 
+        Optionally the associated asymmetric keypair is also created.
         
         """
 ) {
@@ -46,11 +47,11 @@ class CreateDidCommand : CliktCommand(
         "web",
         "ebsi"
     ).default("key")
-    val keyAlias: String by option("-k", "--key", help = "Specific key (ID or alias)").default("default")
+    val keyAlias: String by option("-k", "--key", help = "Specific key (ID or alias)").default("new")
 
     override fun run() {
 
-        echo("Registering did:${method} (key: ${keyAlias})...")
+        echo("Creating did:${method} (key: ${keyAlias})")
 
         val keyId = if (keyAlias == "default") null else keyAlias
 
@@ -61,6 +62,9 @@ class CreateDidCommand : CliktCommand(
 
         val encodedDid = loadDidHelper(did)
         echo("DID document (below, JSON):\n\n$encodedDid")
+
+        //TODO replace the following with
+        //CustodianService.getService().storeDid(did, didDoc)
 
         dest?.let {
             echo("\nSaving DID to file: ${it.absolutePath}")

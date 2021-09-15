@@ -12,11 +12,10 @@ import id.walt.rest.CoreAPI
 
 /**
  * CLI Command to run the walt.id SSI KIT as RESTful service.
- * (Runs the library as RESTful service and exposes following APIs on the specified bind address)
  */
 class ServeCommand : CliktCommand(
     name = "serve",
-    help = """Run the walt.id SSI KIT as RESTful service.
+    help = """Run the walt.id SSI Kit as RESTful service.
 
         Runs the library as RESTful service and exposes following APIs on the specified bind address (default: ${CoreAPI.DEFAULT_BIND_ADDRESS}):
          

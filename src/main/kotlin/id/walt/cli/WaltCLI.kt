@@ -7,11 +7,11 @@ import com.github.ajalt.clikt.parameters.options.associate
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.versionOption
+import id.walt.Values
 import id.walt.servicematrix.ServiceMatrix
+import id.walt.services.WaltIdServices
 import mu.KotlinLogging
 import org.apache.logging.log4j.Level
-import id.walt.Values
-import id.walt.services.WaltIdServices
 
 
 data class CliConfig(var dataDir: String, val properties: MutableMap<String, String>, var verbose: Boolean)
@@ -20,25 +20,25 @@ private val log = KotlinLogging.logger {}
 
 class Walt : CliktCommand(
     name = "walt",
-    help = """Walt CLI
+    help = """SSI Kit by walt.id
 
-        The Walt CLI is a command line tool that allows you to onboard and use
-        a SSI (Self-Sovereign-Identity) ecosystem. You can generate and register
-        W3C Decentralized Identifiers (DIDs) including your public keys & service endpoints 
-        as well as issue & verify W3C Verifiable credentials (VCs). 
+        The SSI Kit by walt.id is a command line tool that allows you to onboard and use
+        a SSI (Self-Sovereign-Identity) ecosystem. You can manage cryptographic keys, 
+        generate and register W3C Decentralized Identifiers (DIDs) as well as create, 
+        issue & verify W3C Verifiable credentials (VCs). 
         
         Example commands are:
         
-        ./walt key gen --algorithm Secp256k1
+        ./ssikit.sh key gen --algorithm Secp256k1
 
-        docker run -itv ${'$'}(pwd)/data:/opt/data walt did create -m web
+        docker run -itv ${'$'}(pwd)/data:/app/data waltid/ssikit did create -m key
         
         """
 ) {
     init {
         versionOption(Values.version, message = {
             """
-            Let's Trust: $it${if (Values.isSnapshot) " - SNAPSHOT VERSION, use only for demo and testing purposes)" else " - stable release"}
+            SSI Kit: $it${if (Values.isSnapshot) " - SNAPSHOT VERSION, use only for demo and testing purposes)" else " - stable release"}
             Environment: ${System.getProperty("java.runtime.name")} of ${System.getProperty("java.vm.name")} (${
                 System.getProperty(
                     "java.version.date"
@@ -48,9 +48,6 @@ class Walt : CliktCommand(
         """.trimIndent()
         })
     }
-
-//    val dataDir: String by option("-d", "--data-dir", help = "Set data directory [./data].")
-//        .default("data")
 
     val cliConfig: Map<String, String> by option(
         "-c",
@@ -81,7 +78,7 @@ object WaltCLI {
 
         try {
 
-            log.debug { "Let's Trust CLI starting..." }
+            log.debug { "SSI Kit CLI starting..." }
 
             ServiceMatrix("service-matrix.properties")
 
@@ -113,7 +110,6 @@ object WaltCLI {
                             VcTemplatesExportCommand()
                         )
                     ),
-                    //AuthCommand(),
                     EssifCommand().subcommands(
                         EssifOnboardingCommand(),
                         EssifAuthCommand(),
@@ -128,8 +124,6 @@ object WaltCLI {
                     ),
                     ServeCommand()
                 )
-                //.id.walt.examples.id.walt.examples.id.walt.examples.main(arrayOf("-v", "-c", "mykey=myval", "vc", "-h"))
-                //.id.walt.examples.id.walt.examples.id.walt.examples.main(arrayOf("vc", "verify", "vc.json"))
                 .main(args)
 
         } catch (e: Exception) {
