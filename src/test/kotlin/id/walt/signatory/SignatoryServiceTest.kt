@@ -59,12 +59,6 @@ class SignatoryServiceTest : StringSpec({
         did shouldBe jwt.jwtClaimsSet.claims["iss"]
         did shouldBe jwt.jwtClaimsSet.claims["sub"]
 
-        jwt.jwtClaimsSet.claims["vc"].let {
-            it as Map<*, *>
-            it.keys shouldNotContainAnyOf listOf("id", "issuer", "issuanceDate", "expirationDate")
-            (it["credentialSubject"] as Map<*, *>).keys shouldNotContain "id"
-        }
-
         JwtService.getService().verify(jwtStr) shouldBe true
     }
 
@@ -103,12 +97,6 @@ class SignatoryServiceTest : StringSpec({
         did shouldBe jwt.header.keyID
         did shouldBe jwt.jwtClaimsSet.claims["iss"]
         did shouldBe jwt.jwtClaimsSet.claims["sub"]
-
-        jwt.jwtClaimsSet.claims["vc"].let {
-            it as Map<*, *>
-            it.keys shouldNotContainAnyOf listOf("id", "issuer", "issuanceDate", "expirationDate")
-            (it["credentialSubject"] as Map<*, *>).keys shouldNotContain "id"
-        }
 
         JwtService.getService().verify(jwtStr) shouldBe true
     }
