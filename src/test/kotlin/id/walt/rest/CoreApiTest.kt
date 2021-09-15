@@ -100,7 +100,7 @@ class CoreApiTest : AnnotationSpec() {
         CoreAPI.start()
     }
 
-    // TODO @Test
+    @Test
     fun testDocumentation() = runBlocking {
         val response = get("/v1/api-documentation").readText()
 
