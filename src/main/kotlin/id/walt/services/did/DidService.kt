@@ -7,6 +7,7 @@ import id.walt.crypto.KeyAlgorithm.EdDSA_Ed25519
 import id.walt.model.*
 import id.walt.services.WaltIdServices
 import id.walt.services.crypto.CryptoService
+import id.walt.services.hkvstore.HierarchicalKeyValueStoreService
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyStoreService
 import id.walt.services.vc.JsonLdCredentialService
@@ -308,10 +309,10 @@ object DidService {
     private fun resolveAndStore(didUrl: String) = storeDid(didUrl, resolve(didUrl).encodePretty())
 
     private fun storeDid(didUrlStr: String, didDoc: String) =
-        File(WaltIdServices.dataDir + "/did/created/${didUrlStr.replace(":", "-")}.json").writeText(didDoc)
+        HierarchicalKeyValueStoreService.getService().put(Path.of("did", "created", "${didUrlStr.replace(":", "-")}.json"), didDoc)
 
     private fun loadDid(didUrlStr: String) =
-        File(WaltIdServices.dataDir + "/did/created/${didUrlStr.replace(":", "-")}.json").readText(Charsets.UTF_8)
+        HierarchicalKeyValueStoreService.getService().getAsString(Path.of("did", "created", "${didUrlStr.replace(":", "-")}.json"))
 
 
     // TODO: consider the methods below. They might be deprecated!

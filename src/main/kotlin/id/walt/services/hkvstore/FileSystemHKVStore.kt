@@ -1,23 +1,35 @@
 package id.walt.services.hkvstore
 
+import id.walt.servicematrix.ServiceConfiguration
+import id.walt.signatory.ProofConfig
+import id.walt.signatory.SignatoryConfig
 import io.ktor.util.*
 import java.nio.file.Path
 
-class FileSystemHKVStore(val dataFolder: Path) : HierarchicalKeyValueStoreService() {
+data class FilesystemStoreConfig(
+    val dataRoot: String
+) : ServiceConfiguration {
+    val dataFolder = Path.of(dataRoot)
+}
+
+class FileSystemHKVStore(configurationPath: String) : HierarchicalKeyValueStoreService() {
+
+    override val configuration: FilesystemStoreConfig = fromConfiguration(configurationPath)
+
     override fun put(key: Path, value: ByteArray) {
-        dataFolder.combineSafe(key.parent).mkdirs()
-        dataFolder.combineSafe(key).writeBytes(value)
+        configuration.dataFolder.combineSafe(key.parent).mkdirs()
+        configuration.dataFolder.combineSafe(key).writeBytes(value)
     }
 
     override fun getAsByteArray(key: Path): ByteArray {
-        return dataFolder.combineSafe(key).readBytes()
+        return configuration.dataFolder.combineSafe(key).readBytes()
     }
 
     override fun listKeys(parent: Path, recursive: Boolean): Set<Path> {
         return when(recursive) {
-            false -> dataFolder.combineSafe(parent).listFiles()?.filter { it.isFile }?.map { dataFolder.relativize(it.toPath()) }?.toSet() ?: setOf()
-            else -> dataFolder.combineSafe(parent).listFiles()?.flatMap {
-                val currPath = dataFolder.relativize(it.toPath())
+            false -> configuration.dataFolder.combineSafe(parent).listFiles()?.filter { it.isFile }?.map { configuration.dataFolder.relativize(it.toPath()) }?.toSet() ?: setOf()
+            else -> configuration.dataFolder.combineSafe(parent).listFiles()?.flatMap {
+                val currPath = configuration.dataFolder.relativize(it.toPath())
                 when(it.isFile){
                     true -> setOf(currPath)
                     false -> listKeys(currPath, true)
@@ -28,8 +40,8 @@ class FileSystemHKVStore(val dataFolder: Path) : HierarchicalKeyValueStoreServic
 
     override fun delete(key: Path, recursive: Boolean) {
         when(recursive) {
-            true -> dataFolder.combineSafe(key).deleteRecursively()
-            false -> dataFolder.combineSafe(key).delete()
+            true -> configuration.dataFolder.combineSafe(key).deleteRecursively()
+            false -> configuration.dataFolder.combineSafe(key).delete()
         }
     }
 }
