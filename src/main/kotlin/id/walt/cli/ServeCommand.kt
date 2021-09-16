@@ -28,7 +28,7 @@ class ServeCommand : CliktCommand(
          
          - walt.id ESSIF API at the specified ESSIF API port (default: ${EssifAPI.DEFAULT_ESSIF_API_PORT})         
          
-         Additional API target servers can be specified using the -s option.
+         Additional API target servers can be specified using the -t option.
          """
 ) {
     private val apiPort: Int by option(help = "Core API port [${CoreAPI.DEFAULT_CORE_API_PORT}]", names = arrayOf("-p", "--port")).int().default(CoreAPI.DEFAULT_CORE_API_PORT)
@@ -48,7 +48,7 @@ class ServeCommand : CliktCommand(
 
         echo(" walt.id Core API:      http://${bindAddress}:${apiPort}")
         echo(" walt.id Signatory API: http://${bindAddress}:${signatoryPort}")
-        echo(" walt.id Custodian API: http://${bindAddress}:${custodianPort}\"")
+        echo(" walt.id Custodian API: http://${bindAddress}:${custodianPort}")
         echo(" walt.id Auditor API:   http://${bindAddress}:${auditorPort}")
         echo(" walt.id ESSIF API:     http://${bindAddress}:${essifPort}")
     }
