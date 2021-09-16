@@ -9,6 +9,7 @@ import id.walt.auditor.AuditorRestAPI
 import id.walt.rest.EssifAPI
 import id.walt.signatory.SignatoryRestAPI
 import id.walt.rest.CoreAPI
+import id.walt.rest.CustodianAPI
 
 /**
  * CLI Command to run the walt.id SSI KIT as RESTful service.
@@ -33,6 +34,7 @@ class ServeCommand : CliktCommand(
 ) {
     private val apiPort: Int by option(help = "Core API port [${CoreAPI.DEFAULT_CORE_API_PORT}]", names = arrayOf("-p", "--port")).int().default(CoreAPI.DEFAULT_CORE_API_PORT)
     private val signatoryPort: Int by option(help = "Signatory API port [${SignatoryRestAPI.SIGNATORY_API_PORT}]", names = arrayOf("-s", "--signatory-port")).int().default(SignatoryRestAPI.SIGNATORY_API_PORT)
+    private val custodianPort: Int by option(help = "Custodian API port [${CustodianAPI.DEFAULT_Custodian_API_PORT}]", names = arrayOf("-s", "--custodian-port")).int().default(CustodianAPI.DEFAULT_Custodian_API_PORT)
     private val auditorPort: Int by option(help = "Auditor API port [${AuditorRestAPI.AUDITOR_API_PORT}]", names = arrayOf("-a", "--auditor-port")).int().default(AuditorRestAPI.AUDITOR_API_PORT)
     private val essifPort: Int by option(help = "Essif API port [${EssifAPI.DEFAULT_ESSIF_API_PORT}]", names = arrayOf("-e", "--essif-port")).int().default(EssifAPI.DEFAULT_ESSIF_API_PORT)
     private val bindAddress: String by option(help = "Bind address for API service [127.0.0.1]", names = arrayOf("-b", "--bind-address")).default("127.0.0.1")
@@ -41,12 +43,13 @@ class ServeCommand : CliktCommand(
     override fun run() {
         CoreAPI.start(apiPort, bindAddress, apiTargetUrls)
         SignatoryRestAPI.start(signatoryPort, bindAddress, apiTargetUrls)
+        CustodianAPI.start(custodianPort, bindAddress, apiTargetUrls)
         AuditorRestAPI.start(auditorPort, bindAddress, apiTargetUrls)
         EssifAPI.start(essifPort, bindAddress, apiTargetUrls)
 
         echo(" walt.id Core API:      http://${bindAddress}:${apiPort}")
         echo(" walt.id Signatory API: http://${bindAddress}:${signatoryPort}")
-        echo(" walt.id Custodian API: comming soon")
+        echo(" walt.id Custodian API: http://${bindAddress}:${custodianPort}\"")
         echo(" walt.id Auditor API:   http://${bindAddress}:${auditorPort}")
         echo(" walt.id ESSIF API:     http://${bindAddress}:${essifPort}")
     }

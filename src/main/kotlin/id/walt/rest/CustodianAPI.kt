@@ -23,7 +23,7 @@ object CustodianAPI {
 
     private val log = KotlinLogging.logger {}
 
-    internal const val DEFAULT_Custodian_API_PORT = 7009
+    internal const val DEFAULT_Custodian_API_PORT = 7002
     internal const val DEFAULT_BIND_ADDRESS = "127.0.0.1"
 
     /**
