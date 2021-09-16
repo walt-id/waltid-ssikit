@@ -6,15 +6,17 @@ open class InMemoryVcStoreService : VcStoreService() {
 
     val store = HashMap<String, VerifiableCredential>()
 
-    override fun getCredential(id: String): VerifiableCredential = store[id]!!
+    private fun getKey(id: String, group: String) = "${group}/${id}"
 
-    override fun listCredentials(): List<VerifiableCredential> = store.values.toList()
+    override fun getCredential(id: String, group: String): VerifiableCredential = store[getKey(id, group)]!!
 
-    override fun listCredentialIds(): List<String> = store.keys.toList()
+    override fun listCredentials(group: String): List<VerifiableCredential> = listCredentialIds(group).map { store[it]!! }.toList()
 
-    override fun storeCredential(alias: String, vc: VerifiableCredential) {
-        store[alias] = vc
+    override fun listCredentialIds(group: String): List<String> = store.keys.filter { it.startsWith("${group}/") }.toList()
+
+    override fun storeCredential(alias: String, vc: VerifiableCredential, group: String) {
+        store[getKey(alias, group)] = vc
     }
 
-    override fun deleteCredential(alias: String) = store.remove(alias) != null
+    override fun deleteCredential(alias: String, group: String) = store.remove(getKey(alias, group)) != null
 }
