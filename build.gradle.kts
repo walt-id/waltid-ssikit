@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.5.20"
+    kotlin("jvm") version "1.4.32"
     kotlin("plugin.serialization") version "1.5.20"
     id("com.github.kkdad.dependency-license-report") version "1.16.6"
     id("org.owasp.dependencycheck") version "6.1.6"
@@ -64,7 +64,7 @@ dependencies {
     implementation("io.ktor:ktor-client-core:1.6.3")
     implementation("io.ktor:ktor-client-cio:1.6.3")
     implementation("io.ktor:ktor-client-serialization:1.6.3")
-    implementation("io.ktor:ktor-client-logging:1.6.2")
+    implementation("io.ktor:ktor-client-logging:1.6.3")
 
     // REST
     implementation("io.javalin:javalin-bundle:4.0.0.RC3")
@@ -113,7 +113,7 @@ java {
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "16"
+    kotlinOptions.jvmTarget = "15"
 }
 
 tasks.named<CreateStartScripts>("startScripts") {
