@@ -29,8 +29,6 @@ class HKVStoreTest: AnnotationSpec() {
 
     @Test
     fun testFSStore() {
-        val dataFolder = Path.of("./testdata")
-        hkvTest(FileSystemHKVStore(dataFolder))
-        dataFolder.toFile().deleteRecursively()
+        hkvTest(FileSystemHKVStore("./fsStore.conf"))
     }
 }
