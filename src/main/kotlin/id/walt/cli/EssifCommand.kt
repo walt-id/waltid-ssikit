@@ -63,16 +63,6 @@ class EssifOnboardingCommand : CliktCommand(
 
         echo("ESSIF onboarding of DID $did ...\n")
 
-        // Use following key for testing
-        // {"kty":"EC","use":"sig","crv":"secp256k1","kid":"0ec07d2f853c4b00bd701a6124f1e4c3","x":"Cyb12xp1x7LfaulXdDkDovXXiAJtR4xPjGQiH9B6lcw","y":"nNV-RFkLeFefO5dM2lOybYebr8qFCi3grdV7fTQTKgo","alg":"ES256K"}
-//        val priv = "MIGNAgEAMBAGByqGSM49AgEGBSuBBAAKBHYwdAIBAQQgNMQgxHfsmrHkxXTqj1kh" +
-//                "T61DmhEFMHYfdLxwxLhh0OygBwYFK4EEAAqhRANCAAQLJvXbGnXHst9q6Vd0OQOi" +
-//                "9deIAm1HjE+MZCIf0HqVzJzVfkRZC3hXnzuXTNpTsm2Hm6/KhQot4K3Ve300EyoK"
-//        val pub = "MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAECyb12xp1x7LfaulXdDkDovXXiAJtR4xP" +
-//                "jGQiH9B6lcyc1X5EWQt4V587l0zaU7Jth5uvyoUKLeCt1Xt9NBMqCg"
-//        val key = buildKey("0ec07d2f853c4b00bd701a6124f1e4c3", KeyAlgorithm.ECDSA_Secp256k1.name, "SUN", pub, priv)
-
-
         EssifClient.onboard(did)
 
         echo("ESSIF onboarding for DID $did was performed successfully.")
@@ -178,7 +168,7 @@ class EssifTirCommand : CliktCommand(
         ESSIF DID operations."""
 ) {
     override fun run() =
-        TODO("The \"ESSIF-TIR\" operation has not yet been implemented in this Let's Trust snapshot (currently running ${Values.version}).")
+        TODO("The \"ESSIF-TIR\" operation has not yet been implemented in this snapshot (currently running ${Values.version}).")
 }
 
 class EssifTaorCommand : CliktCommand(
@@ -188,7 +178,7 @@ class EssifTaorCommand : CliktCommand(
         ESSIF Trusted Accreditation Organization operations."""
 ) {
     override fun run() =
-        TODO("The \"ESSIF-TAOR\" operation has not yet been implemented in this Let's Trust snapshot (currently running ${Values.version}).")
+        TODO("The \"ESSIF-TAOR\" operation has not yet been implemented in this snapshot (currently running ${Values.version}).")
 }
 
 class EssifTsrCommand : CliktCommand(
@@ -198,5 +188,5 @@ class EssifTsrCommand : CliktCommand(
         ESSIF Trusted Schema Registry operations."""
 ) {
     override fun run() =
-        TODO("The \"ESSIF-TSR\" operation has not yet been implemented in this Let's Trust snapshot (currently running ${Values.version}).")
+        TODO("The \"ESSIF-TSR\" operation has not yet been implemented in this snapshot (currently running ${Values.version}).")
 }

@@ -12,16 +12,15 @@ import com.github.ajalt.clikt.parameters.types.enum
 import com.github.ajalt.clikt.parameters.types.file
 import id.walt.auditor.AuditorService
 import id.walt.auditor.PolicyRegistry
+import id.walt.common.prettyPrint
+import id.walt.custodian.CustodianService
+import id.walt.services.vc.JsonLdCredentialService
+import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.vclib.Helpers.encode
 import io.ktor.util.date.*
 import mu.KotlinLogging
-import id.walt.common.prettyPrint
-import id.walt.custodian.CustodianService
-import id.walt.services.vc.JsonLdCredentialService
-import id.walt.services.vc.VerificationType
-import id.walt.signatory.ProofConfig
 import java.io.File
 import java.sql.Timestamp
 import java.time.LocalDateTime
@@ -177,8 +176,13 @@ class VerifyVcCommand : CliktCommand(
 ) {
 
     val src: File by argument().file()
+
     //val isPresentation: Boolean by option("-p", "--is-presentation", help = "In case a VP is verified.").flag()
-    val policies: List<String> by option("-p", "--policy", help = "Verification policy. Can be specified multiple times. By default, ${PolicyRegistry.defaultPolicyId} is used.").multiple(default = listOf(PolicyRegistry.defaultPolicyId))
+    val policies: List<String> by option(
+        "-p",
+        "--policy",
+        help = "Verification policy. Can be specified multiple times. By default, ${PolicyRegistry.defaultPolicyId} is used."
+    ).multiple(default = listOf(PolicyRegistry.defaultPolicyId))
 
     override fun run() {
         echo("Verifying from file $src ...\n")
@@ -215,10 +219,10 @@ class VerifyVcCommand : CliktCommand(
     }
 }
 
-class ListVerificationPoliciesCommand : CliktCommand (
+class ListVerificationPoliciesCommand : CliktCommand(
     name = "policies",
     help = "List verification policies"
-        ) {
+) {
     override fun run() {
         PolicyRegistry.listPolicies().forEach { verificationPolicy ->
             echo("${verificationPolicy.id}: ${verificationPolicy.description}")
