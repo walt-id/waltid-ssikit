@@ -14,10 +14,9 @@ import java.security.PublicKey
 import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
 
-private val log = KotlinLogging.logger {}
-
 open class FileSystemKeyStoreService : KeyStoreService() {
 
+    private val log = KotlinLogging.logger {}
     //TODO: get key format from config
     private val KEY_FORMAT = KeyFormat.PEM
 
