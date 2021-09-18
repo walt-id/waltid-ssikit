@@ -6,8 +6,11 @@ import id.walt.services.WaltIdService
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 
-abstract class HierarchicalKeyValueStoreService : WaltIdService() {
-    override val implementation get() = ServiceRegistry.getService<HierarchicalKeyValueStoreService>()
+/**
+ * Hierarchical Kev Value Store Service
+ */
+abstract class HKVStoreService : WaltIdService() {
+    override val implementation get() = ServiceRegistry.getService<HKVStoreService>()
 
     fun put(key: Path, value: String) = this.put(key, value.toByteArray(StandardCharsets.UTF_8))
 
@@ -17,13 +20,13 @@ abstract class HierarchicalKeyValueStoreService : WaltIdService() {
 
     abstract fun getAsByteArray(key: Path): ByteArray
 
-    abstract fun getChildKeys(parent: Path, recursive: Boolean = false): Set<Path>
+    abstract fun listChildKeys(parent: Path, recursive: Boolean = false): Set<Path>
 
     abstract fun delete(key: Path, recursive: Boolean = false): Boolean
 
     companion object : ServiceProvider {
-        val implementation get() = ServiceRegistry.getService<HierarchicalKeyValueStoreService>()
-        override fun getService(): HierarchicalKeyValueStoreService {
+        val implementation get() = ServiceRegistry.getService<HKVStoreService>()
+        override fun getService(): HKVStoreService {
             return implementation
         }
     }

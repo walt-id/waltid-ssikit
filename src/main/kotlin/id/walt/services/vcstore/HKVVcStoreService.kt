@@ -1,6 +1,6 @@
 package id.walt.services.vcstore
 
-import id.walt.services.hkvstore.HierarchicalKeyValueStoreService
+import id.walt.services.hkvstore.HKVStoreService
 import id.walt.vclib.Helpers.encode
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.model.VerifiableCredential
@@ -10,8 +10,8 @@ import java.nio.file.Path
 
 class HKVVcStoreService : VcStoreService() {
 
-    val hkvStore = HierarchicalKeyValueStoreService.getService()
-    val vcRoot = Path.of("vc")
+    private val hkvStore = HKVStoreService.getService()
+    private val vcRoot = Path.of("vc")
 
     private fun getGroupRoot(group: String): Path = vcRoot.combineSafe(Path.of(group)).toPath()
 
@@ -25,7 +25,7 @@ class HKVVcStoreService : VcStoreService() {
         listCredentialIds(group).map { hkvStore.getAsString(getStoreKeyFor(it, group)).toCredential() }
 
     override fun listCredentialIds(group: String): List<String> =
-        hkvStore.getChildKeys(getGroupRoot(group)).map { it.toFile().nameWithoutExtension }
+        hkvStore.listChildKeys(getGroupRoot(group)).map { it.toFile().nameWithoutExtension }
 
     override fun storeCredential(alias: String, vc: VerifiableCredential, group: String) =
         hkvStore.put(getStoreKeyFor(alias, group), vc.encode())

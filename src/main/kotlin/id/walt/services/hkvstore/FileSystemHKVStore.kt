@@ -11,7 +11,7 @@ data class FilesystemStoreConfig(
     val dataDirectory: Path = Path.of(dataRoot)
 }
 
-class FileSystemHKVStore(configurationPath: String) : HierarchicalKeyValueStoreService() {
+class FileSystemHKVStore(configurationPath: String) : HKVStoreService() {
 
     override val configuration: FilesystemStoreConfig = fromConfiguration(configurationPath)
 
@@ -24,7 +24,7 @@ class FileSystemHKVStore(configurationPath: String) : HierarchicalKeyValueStoreS
 
     override fun getAsByteArray(key: Path): ByteArray = dataDirCombinePath(key).readBytes()
 
-    override fun getChildKeys(parent: Path, recursive: Boolean): Set<Path> =
+    override fun listChildKeys(parent: Path, recursive: Boolean): Set<Path> =
         dataDirCombinePath(parent).listFiles().let { pathFileList ->
             when (recursive) {
                 false -> pathFileList?.filter { it.isFile }?.map { dataDirRelativePath(it) }?.toSet()
@@ -32,7 +32,7 @@ class FileSystemHKVStore(configurationPath: String) : HierarchicalKeyValueStoreS
                     dataDirRelativePath(it).let { currentPath ->
                         when {
                             it.isFile -> setOf(currentPath)
-                            else -> getChildKeys(currentPath, true)
+                            else -> listChildKeys(currentPath, true)
                         }
                     }
                 }?.toSet()

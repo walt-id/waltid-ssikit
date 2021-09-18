@@ -7,7 +7,7 @@ import id.walt.crypto.KeyAlgorithm.EdDSA_Ed25519
 import id.walt.model.*
 import id.walt.services.WaltIdServices
 import id.walt.services.crypto.CryptoService
-import id.walt.services.hkvstore.HierarchicalKeyValueStoreService
+import id.walt.services.hkvstore.HKVStoreService
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyStoreService
 import id.walt.services.vc.JsonLdCredentialService
@@ -17,7 +17,6 @@ import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.bouncycastle.asn1.ASN1BitString
 import org.bouncycastle.asn1.ASN1Sequence
-import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.*
@@ -309,10 +308,10 @@ object DidService {
     private fun resolveAndStore(didUrl: String) = storeDid(didUrl, resolve(didUrl).encodePretty())
 
     private fun storeDid(didUrlStr: String, didDoc: String) =
-        HierarchicalKeyValueStoreService.getService().put(Path.of("did", "created", "${didUrlStr.replace(":", "-")}.json"), didDoc)
+        HKVStoreService.getService().put(Path.of("did", "created", "${didUrlStr.replace(":", "-")}.json"), didDoc)
 
     private fun loadDid(didUrlStr: String) =
-        HierarchicalKeyValueStoreService.getService().getAsString(Path.of("did", "created", "${didUrlStr.replace(":", "-")}.json"))
+        HKVStoreService.getService().getAsString(Path.of("did", "created", "${didUrlStr.replace(":", "-")}.json"))
 
 
     // TODO: consider the methods below. They might be deprecated!
