@@ -158,9 +158,18 @@ object EssifAPI {
                                 UserWalletController::validateDidAuthRequest
                             )
                         )
-                        post("didAuthResponse", UserWalletController::didAuthResponse)
-                        post("vcAuthResponse", UserWalletController::vcAuthResponse)
-                        post("oidcAuthResponse", UserWalletController::oidcAuthResponse)
+                        post(
+                            "didAuthResponse",
+                            documented(UserWalletController.didAuthResponseDocs(), UserWalletController::didAuthResponse)
+                        )
+                        post(
+                            "vcAuthResponse",
+                            documented(UserWalletController.vcAuthResponseDocs(), UserWalletController::vcAuthResponse)
+                        )
+                        post(
+                            "oidcAuthResponse",
+                            documented(UserWalletController.oidcAuthResponseDocs(), UserWalletController::oidcAuthResponse)
+                        )
                     }
                 }
                 path("ti") {
