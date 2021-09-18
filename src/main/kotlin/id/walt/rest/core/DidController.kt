@@ -1,16 +1,12 @@
-package id.walt.rest
+package id.walt.rest.core
 
 import id.walt.common.prettyPrint
-import io.javalin.http.Context
-import io.javalin.plugin.openapi.annotations.OpenApi
-import io.javalin.plugin.openapi.annotations.OpenApiContent
-import io.javalin.plugin.openapi.annotations.OpenApiRequestBody
-import io.javalin.plugin.openapi.annotations.OpenApiResponse
-import kotlinx.serialization.Serializable
 import id.walt.crypto.KeyAlgorithm
 import id.walt.model.DidMethod
-import id.walt.model.encodePretty
 import id.walt.services.did.DidService
+import io.javalin.http.Context
+import io.javalin.plugin.openapi.dsl.document
+import kotlinx.serialization.Serializable
 
 @Serializable
 data class CreateDidRequest(
@@ -31,95 +27,41 @@ data class ListDidRequest(
 
 object DidController {
 
-    @OpenApi(
-        summary = "List DIDs",
-        operationId = "listDids",
-        tags = ["Decentralized Identifiers"],
-        responses = [
-            OpenApiResponse("200", [OpenApiContent(Array<String>::class)]),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
-            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
-        ]
-    )
     fun list(ctx: Context) {
         ctx.json(DidService.listDids())
     }
 
-    @OpenApi(
-        summary = "Load DID",
-        operationId = "loadDid",
-        tags = ["Decentralized Identifiers"],
-        requestBody = OpenApiRequestBody(
-            [OpenApiContent(String::class)],
-            true,
-            "ID of the DID to be loaded"
-        ),
-        responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
-            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
-        ]
-    )
+    fun listDocumentation() = document().operation {
+        it.summary("List DIDs").operationId("listDids").addTagsItem("Decentralized Identifiers")
+    }.json<Array<String>>("200")
+
     fun load(ctx: Context) {
         ctx.json("todo")
     }
 
-    @OpenApi(
-        summary = "Delete DID",
-        operationId = "deleteDid",
-        tags = ["Decentralized Identifiers"],
-        //pathParams = [OpenApiParam("keyId", String::class, "The key ID")],
-        requestBody = OpenApiRequestBody(
-            [OpenApiContent(String::class)],
-            true,
-            "ID of DID to be deleted"
-        ),
-        responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
-            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
-        ]
-    )
+    fun loadDocumentation() = document().operation {
+        it.summary("Load DID").operationId("loadDid").addTagsItem("Decentralized Identifiers")
+    }.body<String> { it.description("ID of the DID to be loaded") }.json<String>("200")
+
     fun delete(ctx: Context) {
         ctx.json("todo")
     }
 
-    @OpenApi(
-        summary = "Create DID",
-        operationId = "createDid",
-        tags = ["Decentralized Identifiers"],
-        requestBody = OpenApiRequestBody(
-            [OpenApiContent(CreateDidRequest::class)],
-            true,
-            "Defines the DID method and optionally the key to be used"
-        ),
-        responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "Identifier of the created DID"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
-            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
-        ]
-    )
+    fun deleteDocumentation() = document().operation {
+        it.summary("Delete DID").operationId("deleteDid").addTagsItem("Decentralized Identifiers")
+    }.body<String> { it.description("ID of the DID to be deleted") }.json<String>("200")
+
     fun create(ctx: Context) {
         val createDidReq = ctx.bodyAsClass(CreateDidRequest::class.java)
 
         ctx.result(DidService.create(createDidReq.method, createDidReq.keyAlias))
     }
 
-    @OpenApi(
-        summary = "Resolve DID",
-        operationId = "resolve DID",
-        tags = ["Decentralized Identifiers"],
-        requestBody = OpenApiRequestBody(
-            [OpenApiContent(ResolveDidRequest::class)],
-            true,
-            "Identifier to be resolved"
-        ),
-        responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "DID document of the resolved DID"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
-            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
-        ]
-    )
+    fun createDocumentation() = document().operation {
+        it.summary("Create DID").operationId("createDid").addTagsItem("Decentralized Identifiers")
+    }.body<CreateDidRequest> { it.description("Defines the DID method and optionally the key to be used") }
+        .json<String>("200") { it.description("DID document of the resolved DID") }
+
     fun resolve(ctx: Context) {
         val did = ctx.bodyAsClass(ResolveDidRequest::class.java).did
         when {
@@ -128,25 +70,17 @@ object DidController {
         }
     }
 
+    fun resolveDocumentation() = document().operation {
+        it.summary("Resolve DID").operationId("resolveDid").addTagsItem("Decentralized Identifiers")
+    }.body<ResolveDidRequest> { it.description("Identifier to be resolved") }
+        .json<String>("200") { it.description("DID document of the resolved DID") }
 
-    @OpenApi(
-        summary = "Import DID",
-        operationId = "importDid",
-        tags = ["Decentralized Identifiers"],
-        requestBody = OpenApiRequestBody(
-            [OpenApiContent(String::class)],
-            true,
-            "Imports the DID to the underlying data store"
-        ),
-        responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
-            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
-        ]
-    )
     fun import(ctx: Context) {
         ctx.json("todo")
     }
 
-
+    fun importDocumentation() = document().operation {
+        it.summary("Import DID").operationId("importDid").addTagsItem("Decentralized Identifiers")
+    }.body<String> { it.description("Imports the DID to the underlying data store") }
+        .json<String>("200")
 }

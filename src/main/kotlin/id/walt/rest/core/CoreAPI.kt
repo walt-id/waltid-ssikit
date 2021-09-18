@@ -7,18 +7,11 @@ import cc.vileda.openapi.dsl.securityScheme
 import com.beust.klaxon.Klaxon
 import com.fasterxml.jackson.databind.exc.InvalidFormatException
 import id.walt.Values
-import id.walt.rest.DidController
 import id.walt.rest.ErrorResponse
 import id.walt.rest.OpenAPIUtils.documentedIgnored
 import id.walt.rest.RootController
 import id.walt.rest.RootController.healthDocumentation
 import id.walt.rest.VcController
-import id.walt.rest.core.KeyController.deleteDocumentation
-import id.walt.rest.core.KeyController.exportDocumentation
-import id.walt.rest.core.KeyController.genDocumentation
-import id.walt.rest.core.KeyController.importDocumentation
-import id.walt.rest.core.KeyController.listDocumentation
-import id.walt.rest.core.KeyController.loadDocumentation
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.core.util.RouteOverviewPlugin
@@ -131,20 +124,20 @@ object CoreAPI {
             get("health", documented(healthDocumentation(), RootController::health))
             path("v1") {
                 path("key") {
-                    get("", documented(listDocumentation(), KeyController::list))
-                    get("{id}", documented(loadDocumentation(), KeyController::load))
-                    delete("{id}", documented(deleteDocumentation(), KeyController::delete))
-                    post("gen", documented(genDocumentation(), KeyController::gen))
-                    post("import", documented(importDocumentation(), KeyController::import))
-                    post("export", documented(exportDocumentation(), KeyController::export))
+                    get("", documented(KeyController.listDocumentation(), KeyController::list))
+                    get("{id}", documented(KeyController.loadDocumentation(), KeyController::load))
+                    delete("{id}", documented(KeyController.deleteDocumentation(), KeyController::delete))
+                    post("gen", documented(KeyController.genDocumentation(), KeyController::gen))
+                    post("import", documented(KeyController.importDocumentation(), KeyController::import))
+                    post("export", documented(KeyController.exportDocumentation(), KeyController::export))
                 }
                 path("did") {
-                    get("", DidController::list)
-                    get("{id}", DidController::load)
-                    delete("{id}", DidController::delete)
-                    post("create", DidController::create)
-                    post("resolve", DidController::resolve)
-                    post("import", DidController::import)
+                    get("", documented(DidController.listDocumentation(), DidController::list))
+                    get("{id}", documented(DidController.loadDocumentation(), DidController::load))
+                    delete("{id}", documented(DidController.deleteDocumentation(), DidController::delete))
+                    post("create", documented(DidController.createDocumentation(), DidController::create))
+                    post("resolve", documented(DidController.resolveDocumentation(), DidController::resolve))
+                    post("import", documented(DidController.importDocumentation(), DidController::import))
                 }
                 path("vc") {
                     get("", VcController::list)
