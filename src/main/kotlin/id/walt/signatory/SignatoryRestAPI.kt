@@ -6,6 +6,7 @@ import cc.vileda.openapi.dsl.info
 import cc.vileda.openapi.dsl.securityScheme
 import id.walt.Values
 import id.walt.rest.ErrorResponse
+import id.walt.rest.OpenAPIUtils.documentedIgnored
 import id.walt.rest.RootController
 import id.walt.rest.core.KeyController
 import io.javalin.Javalin
@@ -87,8 +88,8 @@ object SignatoryRestAPI {
 
             it.enableDevLogging()
         }.routes {
-            get("", RootController::rootSignatoryApi)
-            get("health", RootController::health)
+            get("", documented(documentedIgnored(), RootController::rootSignatoryApi))
+            get("health", documented(RootController.healthDocumentation(), RootController::health))
             path("v1") {
                 path("credentials") {
                     post("issue", KeyController::import) // FIXME? Signatory Credential Issue is set to KeyController import?

@@ -1,46 +1,19 @@
 package id.walt.auditor
 
-import id.walt.rest.ErrorResponse
 import io.javalin.http.Context
-import io.javalin.plugin.openapi.annotations.OpenApi
-import io.javalin.plugin.openapi.annotations.OpenApiContent
-import io.javalin.plugin.openapi.annotations.OpenApiRequestBody
-import io.javalin.plugin.openapi.annotations.OpenApiResponse
+import io.javalin.plugin.openapi.dsl.document
 import org.apache.http.HttpStatus
 
 object AuditorController {
-    @OpenApi(
-        summary = "List verification policies",
-        operationId = "listPolicies",
-        tags = ["Verification Policies"],
-        responses = [
-            OpenApiResponse(
-                "200",
-                content = [OpenApiContent(from = VerificationPolicy::class, isArray = true, type = "application/json")]
-            ),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
-            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
-        ]
-    )
+
     fun listPolicies(ctx: Context) {
         ctx.json(PolicyRegistry.listPolicies())
     }
 
-    @OpenApi(
-        summary = "Verify a W3C VerifiablePresentation",
-        operationId = "verifyVP",
-        tags = ["Verification"],
-        requestBody = OpenApiRequestBody(
-            [OpenApiContent(String::class)],
-            true,
-            "VP to be verified"
-        ),
-        responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "Request processed successfully (VP might not be valid)"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
-            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
-        ]
-    )
+    fun listPoliciesDocumentation() = document().operation {
+        it.summary("List verification policies").operationId("listPolicies").addTagsItem("Verification Policies")
+    }.json<Array<VerificationPolicy>>("200")
+
     fun verifyVP(ctx: Context) {
         val policies = ctx.queryParams("policy").ifEmpty { listOf(PolicyRegistry.defaultPolicyId) }
         if (policies.any { !PolicyRegistry.contains(it) }) {
@@ -51,4 +24,9 @@ object AuditorController {
             )
         }
     }
+
+    fun verifyVPDocumentation() = document().operation {
+        it.summary("Verify a W3C VerifiablePresentation").operationId("verifyVP").addTagsItem("Verification Policies")
+    }.body<String> { it.description("VP to be verified") }
+        .json<String>("200") { it.description("Request processed successfully (VP might not be valid)") }
 }

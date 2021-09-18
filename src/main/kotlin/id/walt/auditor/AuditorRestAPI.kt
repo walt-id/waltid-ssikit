@@ -4,12 +4,17 @@ import cc.vileda.openapi.dsl.components
 import cc.vileda.openapi.dsl.externalDocs
 import cc.vileda.openapi.dsl.info
 import cc.vileda.openapi.dsl.securityScheme
+import id.walt.Values
+import id.walt.rest.ErrorResponse
+import id.walt.rest.OpenAPIUtils.documentedIgnored
+import id.walt.rest.RootController
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.core.util.RouteOverviewPlugin
 import io.javalin.plugin.openapi.InitialConfigurationCreator
 import io.javalin.plugin.openapi.OpenApiOptions
 import io.javalin.plugin.openapi.OpenApiPlugin
+import io.javalin.plugin.openapi.dsl.documented
 import io.javalin.plugin.openapi.ui.ReDocOptions
 import io.javalin.plugin.openapi.ui.SwaggerOptions
 import io.swagger.v3.oas.models.OpenAPI
@@ -17,9 +22,6 @@ import io.swagger.v3.oas.models.info.Contact
 import io.swagger.v3.oas.models.security.SecurityScheme
 import io.swagger.v3.oas.models.servers.Server
 import mu.KotlinLogging
-import id.walt.Values
-import id.walt.rest.ErrorResponse
-import id.walt.rest.RootController
 
 object AuditorRestAPI {
 
@@ -81,11 +83,11 @@ object AuditorRestAPI {
 
             it.enableDevLogging()
         }.routes {
-            get("", RootController::rootSignatoryApi)
-            get("health", RootController::health)
+            get("", documented(documentedIgnored(), RootController::rootSignatoryApi))
+            get("health", documented(RootController.healthDocumentation(), RootController::health))
             path("v1") {
-                get("policies", AuditorController::listPolicies)
-                post("verify", AuditorController::verifyVP)
+                get("policies", documented(AuditorController.listPoliciesDocumentation(), AuditorController::listPolicies))
+                post("verify", documented(AuditorController.verifyVPDocumentation(), AuditorController::verifyVP))
             }
 
         }.exception(IllegalArgumentException::class.java) { e, ctx ->

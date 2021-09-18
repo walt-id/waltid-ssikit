@@ -6,11 +6,13 @@ import cc.vileda.openapi.dsl.info
 import cc.vileda.openapi.dsl.securityScheme
 import com.beust.klaxon.Klaxon
 import id.walt.Values
-import id.walt.rest.*
+import id.walt.rest.ErrorResponse
+import id.walt.rest.OpenAPIUtils.documentedIgnored
+import id.walt.rest.RootController
 import id.walt.rest.essif.eos.EosController
-import id.walt.rest.essif.wallets.ti.TrustedIssuerController
 import id.walt.rest.essif.wallets.EnterpriseWalletController
 import id.walt.rest.essif.wallets.UserWalletController
+import id.walt.rest.essif.wallets.ti.TrustedIssuerController
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.core.util.RouteOverviewPlugin
@@ -123,8 +125,8 @@ object EssifAPI {
 
             config.enableDevLogging()
         }.routes {
-            get("/",  documented(OpenAPIUtils.documentedIgnored(), RootController::rootEssifApi))
-            get("health", RootController::health)
+            get("/", documented(documentedIgnored(), RootController::rootEssifApi))
+            get("health", documented(RootController.healthDocumentation(), RootController::health))
 
             path("v1") {
                 path("trusted-issuer") {
