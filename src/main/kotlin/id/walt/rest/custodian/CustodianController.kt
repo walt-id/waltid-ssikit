@@ -1,4 +1,4 @@
-package id.walt.rest
+package id.walt.rest.custodian
 
 import id.walt.crypto.Key
 import id.walt.crypto.KeyAlgorithm

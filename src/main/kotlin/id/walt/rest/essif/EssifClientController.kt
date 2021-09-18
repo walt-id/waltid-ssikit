@@ -1,6 +1,6 @@
-package id.walt.rest
+package id.walt.rest.essif
 
-import id.walt.rest.TrustedIssuerController.enterpriseWalletService
+import id.walt.rest.ErrorResponse
 import id.walt.services.essif.EssifClient
 import io.javalin.http.Context
 import io.javalin.plugin.openapi.annotations.OpenApi

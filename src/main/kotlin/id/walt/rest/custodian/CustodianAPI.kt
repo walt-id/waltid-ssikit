@@ -1,11 +1,12 @@
-package id.walt.rest
+package id.walt.rest.custodian
 
-import cc.vileda.openapi.dsl.components
 import cc.vileda.openapi.dsl.externalDocs
 import cc.vileda.openapi.dsl.info
-import cc.vileda.openapi.dsl.securityScheme
 import com.beust.klaxon.Klaxon
 import id.walt.Values
+import id.walt.rest.ErrorResponse
+import id.walt.rest.OpenAPIUtils
+import id.walt.rest.RootController
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.core.util.RouteOverviewPlugin
@@ -14,42 +15,40 @@ import io.javalin.plugin.json.JsonMapper
 import io.javalin.plugin.openapi.InitialConfigurationCreator
 import io.javalin.plugin.openapi.OpenApiOptions
 import io.javalin.plugin.openapi.OpenApiPlugin
+import io.javalin.plugin.openapi.dsl.documented
 import io.javalin.plugin.openapi.ui.ReDocOptions
 import io.javalin.plugin.openapi.ui.SwaggerOptions
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.info.Contact
-import io.swagger.v3.oas.models.security.SecurityScheme
 import io.swagger.v3.oas.models.servers.Server
 import mu.KotlinLogging
 
-
-object EssifAPI {
+object CustodianAPI {
 
     private val log = KotlinLogging.logger {}
 
-    internal const val DEFAULT_ESSIF_API_PORT = 7004
+    internal const val DEFAULT_Custodian_API_PORT = 7002
     internal const val DEFAULT_BIND_ADDRESS = "127.0.0.1"
 
     /**
-     * Currently used instance of the ESSIF API server
+     * Currently used instance of the Custodian API server
      */
-    var essifApi: Javalin? = null
+    var custodianApi: Javalin? = null
 
     /**
-     * Start ESSIF REST API
+     * Start Custodian REST API
      * @param apiTargetUrls (optional): add URLs to Swagger documentation for easy testing
      * @param bindAddress (default: 127.0.0.1): select address to bind on to, e.g. 0.0.0.0 for all interfaces
      * @param port (default: 7001): select port to listen on
      */
     fun start(
-        port: Int = DEFAULT_ESSIF_API_PORT,
+        port: Int = DEFAULT_Custodian_API_PORT,
         bindAddress: String = DEFAULT_BIND_ADDRESS,
         apiTargetUrls: List<String> = listOf()
     ) {
+        log.info { "Starting walt.id Custodian API ...\n" }
 
-        log.info { "Starting walt.id Essif API ...\n" }
-
-        essifApi = Javalin.create { config ->
+        custodianApi = Javalin.create { config ->
 
             config.apply {
                 registerPlugin(RouteOverviewPlugin("/api-routes"))
@@ -57,7 +56,7 @@ object EssifAPI {
                 registerPlugin(OpenApiPlugin(OpenApiOptions(InitialConfigurationCreator {
                     OpenAPI().apply {
                         info {
-                            title = "walt.id ESSIF API"
+                            title = "walt.id Custodian API"
                             description = "The walt.id public API documentation"
                             contact = Contact().apply {
                                 name = "walt.id"
@@ -73,17 +72,6 @@ object EssifAPI {
                         externalDocs {
                             description = "walt.id Docs"
                             url = "https://docs.walt.id/api"
-                        }
-
-                        components {
-                            securityScheme {
-                                name = "bearerAuth"
-                                type = SecurityScheme.Type.HTTP
-                                scheme = "bearer"
-                                `in` = SecurityScheme.In.HEADER
-                                description = "HTTP Bearer Token authentication"
-                                bearerFormat = "JWT"
-                            }
                         }
                     }
                 }).apply {
@@ -117,61 +105,23 @@ object EssifAPI {
 
             config.enableDevLogging()
         }.routes {
-            get("/", RootController::rootEssifApi)
+            get("/",  documented(OpenAPIUtils.documentedIgnored(), RootController::rootCustodianApi))
             get("health", RootController::health)
 
-            path("v1") {
-                path("trusted-issuer") {
-                    post("generateAuthenticationRequest", TrustedIssuerController::generateAuthenticationRequest)
-                    post("openSession", TrustedIssuerController::openSession)
-                }
-                path("client") {
-                    post("onboard", EssifClientController::onboard)
-                    post("auth", EssifClientController::authApi)
-                    post("registerDid", EssifClientController::registerDid)
-                }
+            path("keys") {
+                get("/", CustodianController::listKeys)
+                get("{alias}", CustodianController::getKey)
+                post("generate", CustodianController::generateKey)
+                put("store", CustodianController::storeKey)
+                delete("{id}", CustodianController::deleteKey)
             }
 
-            path("test") {
-                path("user") {
-                    path("wallet") {
-                        post("createDid", UserWalletController::createDid)
-                        post("requestAccessToken", UserWalletController::requestAccessToken)
-                        post("validateDidAuthRequest", UserWalletController::validateDidAuthRequest)
-                        post("didAuthResponse", UserWalletController::didAuthResponse)
-                        post("vcAuthResponse", UserWalletController::vcAuthResponse)
-                        post("oidcAuthResponse", UserWalletController::oidcAuthResponse)
-                    }
-                }
-                path("ti") {
-                    path("credentials") {
-                        post("", EosController::getCredential)
-                        get("{credentialId}", EosController::getCredential)
-                    }
-                    get("requestCredentialUri", EosController::requestCredentialUri)
-                    post("requestVerifiableCredential", EosController::requestVerifiableCredential)
-                }
-                path("eos") {
-                    post("onboard", EosController::onboards)
-                    post("signedChallenge", EosController::signedChallenge)
-                }
-                path("enterprise") {
-                    path("wallet") {
-                        post("createDid", EnterpriseWalletController::createDid)
-                        post(
-                            "requestVerifiableAuthorization",
-                            EnterpriseWalletController::requestVerifiableAuthorization
-                        )
-                        post("requestVerifiableCredential", EnterpriseWalletController::requestVerifiableCredential)
-                        post("generateDidAuthRequest", EnterpriseWalletController::generateDidAuthRequest)
-                        // post("onboardTrustedIssuer", EnterpriseWalletController::onboardTrustedIssuer) not supported yet
-                        post("validateDidAuthResponse", EnterpriseWalletController::validateDidAuthResponse)
-                        post("getVerifiableCredential", EnterpriseWalletController::getVerifiableCredential)
-                        post("token", EnterpriseWalletController::token)
-                        post("authentication-requests", EosController::authReq)
-                    }
-
-                }
+            path("credentials") {
+                get("/", CustodianController::listCredentials)
+                get("{id}", CustodianController::getCredential)
+                get("listCredentialIds", CustodianController::listCredentialIds)
+                put("{alias}", CustodianController::storeCredential)
+                delete("{alias}", CustodianController::deleteCredential)
             }
         }.exception(IllegalArgumentException::class.java) { e, ctx ->
             log.error { e.stackTraceToString() }
@@ -185,8 +135,12 @@ object EssifAPI {
     }
 
     /**
-     * Stop ESSIF API if it's currently running
+     * Stop Custodian API if it's currently running
      */
-    fun stop() = essifApi?.stop()
+    fun stop() = custodianApi?.stop()
 
+}
+
+fun main() {
+    CustodianAPI.start()
 }

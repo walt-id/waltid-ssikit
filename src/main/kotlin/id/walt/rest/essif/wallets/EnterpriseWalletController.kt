@@ -1,5 +1,6 @@
-package id.walt.rest
+package id.walt.rest.essif.wallets
 
+import id.walt.rest.ErrorResponse
 import io.javalin.http.Context
 import io.javalin.plugin.openapi.annotations.OpenApi
 import io.javalin.plugin.openapi.annotations.OpenApiContent

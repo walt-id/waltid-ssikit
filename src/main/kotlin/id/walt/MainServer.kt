@@ -2,9 +2,9 @@ package id.walt
 
 import com.github.ajalt.clikt.output.TermUi.echo
 import id.walt.auditor.AuditorRestAPI
-import id.walt.rest.CoreAPI
-import id.walt.rest.CustodianAPI
-import id.walt.rest.EssifAPI
+import id.walt.rest.core.CoreAPI
+import id.walt.rest.custodian.CustodianAPI
+import id.walt.rest.essif.EssifAPI
 import id.walt.signatory.SignatoryRestAPI
 
 fun main() {

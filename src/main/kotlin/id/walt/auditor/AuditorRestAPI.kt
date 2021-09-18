@@ -19,7 +19,6 @@ import io.swagger.v3.oas.models.servers.Server
 import mu.KotlinLogging
 import id.walt.Values
 import id.walt.rest.ErrorResponse
-import id.walt.rest.KeyController
 import id.walt.rest.RootController
 
 object AuditorRestAPI {

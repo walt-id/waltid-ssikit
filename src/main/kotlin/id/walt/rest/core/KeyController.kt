@@ -1,8 +1,8 @@
-package id.walt.rest
+package id.walt.rest.core
 
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyId
-import id.walt.model.Jwk
+import id.walt.rest.ErrorResponse
 import id.walt.services.key.KeyFormat
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType

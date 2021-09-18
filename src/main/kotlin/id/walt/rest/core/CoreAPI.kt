@@ -1,4 +1,4 @@
-package id.walt.rest
+package id.walt.rest.core
 
 import cc.vileda.openapi.dsl.components
 import cc.vileda.openapi.dsl.externalDocs
@@ -7,6 +7,11 @@ import cc.vileda.openapi.dsl.securityScheme
 import com.beust.klaxon.Klaxon
 import com.fasterxml.jackson.databind.exc.InvalidFormatException
 import id.walt.Values
+import id.walt.rest.DidController
+import id.walt.rest.ErrorResponse
+import id.walt.rest.OpenAPIUtils.documentedIgnored
+import id.walt.rest.RootController
+import id.walt.rest.VcController
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.core.util.RouteOverviewPlugin
@@ -15,6 +20,8 @@ import io.javalin.plugin.json.JsonMapper
 import io.javalin.plugin.openapi.InitialConfigurationCreator
 import io.javalin.plugin.openapi.OpenApiOptions
 import io.javalin.plugin.openapi.OpenApiPlugin
+import io.javalin.plugin.openapi.dsl.OpenApiDocumentation
+import io.javalin.plugin.openapi.dsl.documented
 import io.javalin.plugin.openapi.ui.ReDocOptions
 import io.javalin.plugin.openapi.ui.SwaggerOptions
 import io.swagger.v3.oas.models.OpenAPI
@@ -114,7 +121,13 @@ object CoreAPI {
 
             it.enableDevLogging()
         }.routes {
-            get("", RootController::rootCoreApi)
+            val createUserDocumentation: OpenApiDocumentation = documentedIgnored()
+
+            get("/users", documented(createUserDocumentation) { ctx -> {
+                // ...
+            }})
+
+            get("", documented(documentedIgnored(), RootController::rootCoreApi))
             get("health", RootController::health)
             path("v1") {
                 path("key") {

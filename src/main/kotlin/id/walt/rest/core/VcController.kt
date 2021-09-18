@@ -1,12 +1,11 @@
 package id.walt.rest
 
-import id.walt.services.essif.TrustedIssuerClient.domain
-import io.javalin.http.Context
-import io.javalin.plugin.openapi.annotations.*
-import kotlinx.serialization.Serializable
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.VerificationResult
 import id.walt.signatory.ProofConfig
+import io.javalin.http.Context
+import io.javalin.plugin.openapi.annotations.*
+import kotlinx.serialization.Serializable
 
 @Serializable
 data class CreateVcRequest(
@@ -96,7 +95,8 @@ object VcController {
                 ProofConfig(
                     issuerDid = createVcReq.issuerDid,
                     domain = createVcReq.domain,
-                    nonce = createVcReq.nonce)
+                    nonce = createVcReq.nonce
+                )
             )
         )
     }
