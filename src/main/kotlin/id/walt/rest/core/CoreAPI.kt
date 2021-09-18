@@ -139,13 +139,13 @@ object CoreAPI {
                     post("import", documented(DidController.importDocumentation(), DidController::import))
                 }
                 path("vc") {
-                    get("", VcController::list)
-                    get("{id}", VcController::load)
-                    delete("{id}", VcController::delete)
-                    post("create", VcController::create)
-                    post("present", VcController::present)
-                    post("verify", VcController::verify)
-                    post("import", VcController::import)
+                    get("", documented(VcController.listDocumentation(), VcController::list))
+                    get("{id}", documented(VcController.loadDocumentation(), VcController::load))
+                    delete("{id}", documented(VcController.deleteDocumentation(), VcController::delete))
+                    post("create", documented(VcController.createDocumentation(), VcController::create))
+                    post("present", documented(VcController.presentDocumentation(), VcController::present))
+                    post("verify", documented(VcController.verifyDocumentation(), VcController::verify))
+                    post("import", documented(VcController.importDocumentation(), VcController::import))
                 }
             }
         }.exception(InvalidFormatException::class.java) { e, ctx ->

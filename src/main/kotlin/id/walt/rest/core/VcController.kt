@@ -6,6 +6,7 @@ import id.walt.services.vc.VerificationResult
 import id.walt.signatory.ProofConfig
 import io.javalin.http.Context
 import io.javalin.plugin.openapi.annotations.*
+import io.javalin.plugin.openapi.dsl.document
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -34,60 +35,22 @@ object VcController {
 
     private val credentialService = JsonLdCredentialService.getService()
 
-    @OpenApi(
-        summary = "Load VC",
-        operationId = "loadVc",
-        tags = ["Verifiable Credentials"],
-        requestBody = OpenApiRequestBody(
-            [OpenApiContent(String::class)],
-            true,
-            "ID of the DID to be loaded"
-        ),
-        responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
-            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
-        ]
-    )
     fun load(ctx: Context) {
         ctx.json("todo - load")
     }
 
-    @OpenApi(
-        summary = "Delete VC",
-        operationId = "deleteVc",
-        tags = ["Verifiable Credentials"],
-        //pathParams = [OpenApiParam("keyId", String::class, "The key ID")],
-        requestBody = OpenApiRequestBody(
-            [OpenApiContent(String::class)],
-            true,
-            "ID of VC to be deleted"
-        ),
-        responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
-            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
-        ]
-    )
+    fun loadDocumentation() = document().operation {
+        it.summary("Load VC").operationId("loadVc").addTagsItem("Verifiable Credentials")
+    }.body<String> { it.description("ID of the DID to be loaded") }.json<String>("200")
+
     fun delete(ctx: Context) {
         ctx.json("todo - delete")
     }
 
-    @OpenApi(
-        summary = "Create VC",
-        operationId = "createVc",
-        tags = ["Verifiable Credentials"],
-        requestBody = OpenApiRequestBody(
-            [OpenApiContent(CreateVcRequest::class)],
-            true,
-            "Defines the credential issuer, holder and optionally a credential template  -  TODO: build credential based on the request e.g. load template, substitute values"
-        ),
-        responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "The signed credential"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
-            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
-        ]
-    )
+    fun deleteDocumentation() = document().operation {
+        it.summary("Delete VC").operationId("deleteVc").addTagsItem("Verifiable Credentials")
+    }.body<String> { it.description("ID of VC to be deleted") }.json<String>("200")
+
     fun create(ctx: Context) {
         val createVcReq = ctx.bodyAsClass(CreateVcRequest::class.java)
         ctx.result(
@@ -102,78 +65,45 @@ object VcController {
         )
     }
 
-    @OpenApi(
-        summary = "Present VC",
-        operationId = "presentVc",
-        tags = ["Verifiable Credentials"],
-        requestBody = OpenApiRequestBody(
-            [OpenApiContent(PresentVcRequest::class)],
-            true,
-            "Defines the VC to be presented"
-        ),
-        responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "The signed presentation"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
-            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
-        ]
-    )
+    fun createDocumentation() = document().operation {
+        it.summary("Create VC").operationId("createVc").addTagsItem("Verifiable Credentials")
+    }
+        .body<CreateVcRequest> { it.description("Defines the credential issuer, holder and optionally a credential template  -  TODO: build credential based on the request e.g. load template, substitute values") }
+        .json<String>("200") { it.description("The signed credential") }
+
     fun present(ctx: Context) {
         val presentVcReq = ctx.bodyAsClass(PresentVcRequest::class.java)
         ctx.result(credentialService.present(presentVcReq.vc, presentVcReq.domain, presentVcReq.challenge))
-
     }
 
-    @OpenApi(
-        summary = "Verify VC",
-        operationId = "verifyVc",
-        tags = ["Verifiable Credentials"],
-        requestBody = OpenApiRequestBody(
-            [OpenApiContent(VerifyVcRequest::class)],
-            true,
-            "VC to be verified"
-        ),
-        responses = [
-            OpenApiResponse("200", [OpenApiContent(VerificationResult::class)], "Verification result object"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
-            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
-        ]
-    )
+    fun presentDocumentation() = document().operation {
+        it.summary("Present VC").operationId("presentVc")
+    }.body<PresentVcRequest> { it.description("Defines the VC to be presented") }
+        .json<String>("200") { it.description("The signed presentation") }
+
     fun verify(ctx: Context) {
         val verifyVcReq = ctx.bodyAsClass(VerifyVcRequest::class.java)
         ctx.json(credentialService.verify(verifyVcReq.vcOrVp))
     }
 
-    @OpenApi(
-        summary = "List VCs",
-        operationId = "listVcs",
-        tags = ["Verifiable Credentials"],
-        responses = [
-            OpenApiResponse("200", [OpenApiContent(Array<String>::class)]),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
-            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
-        ]
-    )
+    fun verifyDocumentation() = document().operation {
+        it.summary("Verify VC").operationId( "verifyVc").addTagsItem("Verifiable Credentials")
+    }.body<VerifyVcRequest> { it.description("VC to be verified") }.json<VerifyVcRequest>("200") { it.description("Verification result object") }
+
     fun list(ctx: Context) {
         ctx.json(credentialService.listVCs())
     }
 
-    @OpenApi(
-        summary = "Import VC",
-        operationId = "importVc",
-        tags = ["Verifiable Credentials"],
-        requestBody = OpenApiRequestBody(
-            [OpenApiContent(String::class)],
-            true,
-            "Imports the DID to the underlying data store"
-        ),
-        responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "successful"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
-            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
-        ]
-    )
+    fun listDocumentation() = document().operation {
+        it.summary("List VCs").operationId("listVcs").addTagsItem("Verifiable Credentials")
+    }.json<Array<String>>("200")
+
     fun import(ctx: Context) {
         ctx.json("todo - import")
     }
+
+    fun importDocumentation() = document().operation {
+        it.summary("Import VC").operationId("importVc").addTagsItem("Verifiable Credentials")
+    }.body<String>().json<String>("200")
 
 }
