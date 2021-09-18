@@ -9,21 +9,17 @@ import java.nio.file.Path
 abstract class HierarchicalKeyValueStoreService : WaltIdService() {
     override val implementation get() = ServiceRegistry.getService<HierarchicalKeyValueStoreService>()
 
-    fun put(key: Path, value: String) {
-        this.put(key, value.toByteArray(StandardCharsets.UTF_8))
-    }
+    fun put(key: Path, value: String) = this.put(key, value.toByteArray(StandardCharsets.UTF_8))
 
     abstract fun put(key: Path, value: ByteArray)
 
-    fun getAsString(key: Path): String {
-        return String(getAsByteArray(key), StandardCharsets.UTF_8)
-    }
+    fun getAsString(key: Path): String = String(getAsByteArray(key), StandardCharsets.UTF_8)
 
     abstract fun getAsByteArray(key: Path): ByteArray
 
-    abstract fun listKeys(parent: Path, recursive: Boolean = false): Set<Path>
+    abstract fun getChildKeys(parent: Path, recursive: Boolean = false): Set<Path>
 
-    abstract fun delete(key: Path, recursive: Boolean = false)
+    abstract fun delete(key: Path, recursive: Boolean = false): Boolean
 
     companion object : ServiceProvider {
         val implementation get() = ServiceRegistry.getService<HierarchicalKeyValueStoreService>()
