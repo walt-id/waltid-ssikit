@@ -1,33 +1,35 @@
 package id.walt.services.hkvstore
 
-import io.kotest.core.spec.style.AnnotationSpec
+import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import java.nio.file.Path
 
-class HKVStoreTest : AnnotationSpec() {
+class HKVStoreTest : StringSpec({
 
     fun hkvTest(hkvStore: HierarchicalKeyValueStoreService) {
-        val TEST_DATA = "test data"
-        hkvStore.put(Path.of("parent", "child", "leaf"), TEST_DATA)
-        hkvStore.put(Path.of("parent", "child2", "leaf2"), TEST_DATA)
+        val testData = "test data"
 
+        println("Adding items...")
+        hkvStore.put(Path.of("parent", "child", "leaf"), testData)
+        hkvStore.put(Path.of("parent", "child2", "leaf2"), testData)
+
+        println("Retrieving items...")
         hkvStore.getChildKeys(Path.of("parent"), true) shouldHaveSize 2
         hkvStore.getChildKeys(Path.of("parent", "child")) shouldHaveSize 1
 
-        hkvStore.getAsString(Path.of("parent", "child", "leaf")) shouldBe TEST_DATA
+        println("Retrieving data...")
+        hkvStore.getAsString(Path.of("parent", "child", "leaf")) shouldBe testData
 
+        println("Deleting items...")
         hkvStore.delete(Path.of("parent"), true)
         hkvStore.getChildKeys(Path.of("parent"), true) shouldHaveSize 0
     }
 
-    @Test
-    fun testInMemoryStore() {
+    "InMemoryStore test" {
         hkvTest(InMemoryHKVStore())
     }
-
-    @Test
-    fun testFSStore() {
+    "FileSystemStore test" {
         hkvTest(FileSystemHKVStore("./fsStore.conf"))
     }
-}
+})
