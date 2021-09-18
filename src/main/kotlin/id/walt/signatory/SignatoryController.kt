@@ -14,7 +14,7 @@ object SignatoryController {
         ctx.json(Signatory.getService().listTemplates())
     }
 
-    fun listTemplatesDocumentation() = document().operation {
+    fun listTemplatesDocs() = document().operation {
         it.summary("List VC templates").operationId("listTemplates").addTagsItem("Verifiable Credentials")
     }.json<Array<String>>("200")
 
@@ -22,7 +22,7 @@ object SignatoryController {
         ctx.result(Signatory.getService().loadTemplate(ctx.pathParam("id")).encode())
     }
 
-    fun loadTemplateDocumentation() = document().operation {
+    fun loadTemplateDocs() = document().operation {
         it.summary("Loads a VC template").operationId("loadTemplate").addTagsItem("Verifiable Credentials")
     }.pathParam<String>("id") { it.description("Retrieves a single VC template form the data store") } .json<String>("200")
 }

@@ -89,14 +89,14 @@ object SignatoryRestAPI {
             it.enableDevLogging()
         }.routes {
             get("", documented(documentedIgnored(), RootController::rootSignatoryApi))
-            get("health", documented(RootController.healthDocumentation(), RootController::health))
+            get("health", documented(RootController.healthDocs(), RootController::health))
             path("v1") {
                 path("credentials") {
                     post("issue", KeyController::import) // FIXME? Signatory Credential Issue is set to KeyController import?
                 }
                 path("templates") {
-                    get("", documented(SignatoryController.listTemplatesDocumentation(), SignatoryController::listTemplates))
-                    get("{id}", documented(SignatoryController.loadTemplateDocumentation(), SignatoryController::loadTemplate))
+                    get("", documented(SignatoryController.listTemplatesDocs(), SignatoryController::listTemplates))
+                    get("{id}", documented(SignatoryController.loadTemplateDocs(), SignatoryController::loadTemplate))
                 }
             }
 

@@ -106,7 +106,7 @@ object CustodianAPI {
             config.enableDevLogging()
         }.routes {
             get("/", documented(OpenAPIUtils.documentedIgnored(), RootController::rootCustodianApi))
-            get("health", documented(RootController.healthDocumentation(), RootController::health))
+            get("health", documented(RootController.healthDocs(), RootController::health))
 
             path("keys") {
                 get("/", CustodianController::listKeys)

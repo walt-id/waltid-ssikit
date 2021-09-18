@@ -10,7 +10,7 @@ object AuditorController {
         ctx.json(PolicyRegistry.listPolicies())
     }
 
-    fun listPoliciesDocumentation() = document().operation {
+    fun listPoliciesDocs() = document().operation {
         it.summary("List verification policies").operationId("listPolicies").addTagsItem("Verification Policies")
     }.json<Array<VerificationPolicy>>("200")
 
@@ -25,7 +25,7 @@ object AuditorController {
         }
     }
 
-    fun verifyVPDocumentation() = document().operation {
+    fun verifyVPDocs() = document().operation {
         it.summary("Verify a W3C VerifiablePresentation").operationId("verifyVP").addTagsItem("Verification Policies")
     }.body<String> { it.description("VP to be verified") }
         .json<String>("200") { it.description("Request processed successfully (VP might not be valid)") }

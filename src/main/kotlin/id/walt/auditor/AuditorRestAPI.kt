@@ -84,10 +84,10 @@ object AuditorRestAPI {
             it.enableDevLogging()
         }.routes {
             get("", documented(documentedIgnored(), RootController::rootSignatoryApi))
-            get("health", documented(RootController.healthDocumentation(), RootController::health))
+            get("health", documented(RootController.healthDocs(), RootController::health))
             path("v1") {
-                get("policies", documented(AuditorController.listPoliciesDocumentation(), AuditorController::listPolicies))
-                post("verify", documented(AuditorController.verifyVPDocumentation(), AuditorController::verifyVP))
+                get("policies", documented(AuditorController.listPoliciesDocs(), AuditorController::listPolicies))
+                post("verify", documented(AuditorController.verifyVPDocs(), AuditorController::verifyVP))
             }
 
         }.exception(IllegalArgumentException::class.java) { e, ctx ->

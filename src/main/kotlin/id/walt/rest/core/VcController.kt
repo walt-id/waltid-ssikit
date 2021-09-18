@@ -39,7 +39,7 @@ object VcController {
         ctx.json("todo - load")
     }
 
-    fun loadDocumentation() = document().operation {
+    fun loadDocs() = document().operation {
         it.summary("Load VC").operationId("loadVc").addTagsItem("Verifiable Credentials")
     }.body<String> { it.description("ID of the DID to be loaded") }.json<String>("200")
 
@@ -47,7 +47,7 @@ object VcController {
         ctx.json("todo - delete")
     }
 
-    fun deleteDocumentation() = document().operation {
+    fun deleteDocs() = document().operation {
         it.summary("Delete VC").operationId("deleteVc").addTagsItem("Verifiable Credentials")
     }.body<String> { it.description("ID of VC to be deleted") }.json<String>("200")
 
@@ -65,7 +65,7 @@ object VcController {
         )
     }
 
-    fun createDocumentation() = document().operation {
+    fun createDocs() = document().operation {
         it.summary("Create VC").operationId("createVc").addTagsItem("Verifiable Credentials")
     }
         .body<CreateVcRequest> { it.description("Defines the credential issuer, holder and optionally a credential template  -  TODO: build credential based on the request e.g. load template, substitute values") }
@@ -76,7 +76,7 @@ object VcController {
         ctx.result(credentialService.present(presentVcReq.vc, presentVcReq.domain, presentVcReq.challenge))
     }
 
-    fun presentDocumentation() = document().operation {
+    fun presentDocs() = document().operation {
         it.summary("Present VC").operationId("presentVc")
     }.body<PresentVcRequest> { it.description("Defines the VC to be presented") }
         .json<String>("200") { it.description("The signed presentation") }
@@ -86,7 +86,7 @@ object VcController {
         ctx.json(credentialService.verify(verifyVcReq.vcOrVp))
     }
 
-    fun verifyDocumentation() = document().operation {
+    fun verifyDocs() = document().operation {
         it.summary("Verify VC").operationId( "verifyVc").addTagsItem("Verifiable Credentials")
     }.body<VerifyVcRequest> { it.description("VC to be verified") }.json<VerifyVcRequest>("200") { it.description("Verification result object") }
 
@@ -94,7 +94,7 @@ object VcController {
         ctx.json(credentialService.listVCs())
     }
 
-    fun listDocumentation() = document().operation {
+    fun listDocs() = document().operation {
         it.summary("List VCs").operationId("listVcs").addTagsItem("Verifiable Credentials")
     }.json<Array<String>>("200")
 
@@ -102,7 +102,7 @@ object VcController {
         ctx.json("todo - import")
     }
 
-    fun importDocumentation() = document().operation {
+    fun importDocs() = document().operation {
         it.summary("Import VC").operationId("importVc").addTagsItem("Verifiable Credentials")
     }.body<String>().json<String>("200")
 

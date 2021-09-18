@@ -7,6 +7,7 @@ import io.javalin.plugin.openapi.annotations.OpenApi
 import io.javalin.plugin.openapi.annotations.OpenApiContent
 import io.javalin.plugin.openapi.annotations.OpenApiRequestBody
 import io.javalin.plugin.openapi.annotations.OpenApiResponse
+import io.javalin.plugin.openapi.dsl.document
 
 data class EbsiOnboardRequest(
     val bearerToken: String,
@@ -15,64 +16,33 @@ data class EbsiOnboardRequest(
 
 object EssifClientController {
 
-    @OpenApi(
-        summary = "EBSI onboarding flow, which requests a Verifiable Authorization from the EOS.",
-        operationId = "onboard",
-        tags = ["ESSIF Client"],
-        requestBody = OpenApiRequestBody(
-            [OpenApiContent(EbsiOnboardRequest::class)],
-            true,
-            "DID to be registered on the EBSI Blockchain; Bearer token to be used to authenticate the user. Get it from here https://app.preprod.ebsi.eu/users-onboarding"
-        ),
-        responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "Onboarding flow completed successfully"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
-            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
-        ]
-    )
     fun onboard(ctx: Context) {
         val req = ctx.bodyAsClass(EbsiOnboardRequest::class.java)
         ctx.json(EssifClient.onboard(req.did, req.bearerToken))
     }
 
-    @OpenApi(
-        summary = "Runs the ESSIF Authorization API flow",
-        operationId = "createDid",
-        tags = ["ESSIF Client"],
-        requestBody = OpenApiRequestBody(
-            [OpenApiContent(String::class)],
-            true,
-            "DID"
-        ),
-        responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "Auth flow executed successfully"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
-            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
-        ]
-    )
+    fun onboardDocs() = document().operation {
+        it.summary("EBSI onboarding flow, which requests a Verifiable Authorization from the EOS.").operationId("onboard")
+            .addTagsItem("ESSIF Client")
+    }
+        .body<EbsiOnboardRequest> { it.description("DID to be registered on the EBSI Blockchain; Bearer token to be used to authenticate the user. Get it from here https://app.preprod.ebsi.eu/users-onboarding") }
+        .json<String>("200") { it.description("Onboarding flow completed successfully") }
 
     fun authApi(ctx: Context) {
         ctx.json(EssifClient.authApi(ctx.body()))
     }
 
-    @OpenApi(
-        summary = "Registers DID on the EBSI Blockchain",
-        operationId = "registerDid",
-        tags = ["ESSIF Client"],
-        requestBody = OpenApiRequestBody(
-            [OpenApiContent(String::class)],
-            true,
-            "DID"
-        ),
-        responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "DID registered successfully"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
-            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
-        ]
-    )
+    fun authApiDocs() = document().operation {
+        it.summary("Runs the ESSIF Authorization API flow").operationId("createDid").addTagsItem("ESSIF Client")
+    }.body<String> { it.description("DID") }.json<String>("200") { it.description("Auth flow executed successfully") }
+
     fun registerDid(ctx: Context) {
         val did = ctx.body()
         ctx.json(EssifClient.registerDid(did, did))
     }
+
+    fun registerDidDocs() = document().operation {
+        it.summary("Registers DID on the EBSI Blockchain").operationId( "registerDid").addTagsItem("ESSIF Client")
+    }.body<String> { it.description("DID") }.json<String>("200") { it.description("DID registered successfully") }
 
 }

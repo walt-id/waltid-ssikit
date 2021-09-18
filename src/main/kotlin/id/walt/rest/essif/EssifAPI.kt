@@ -126,7 +126,7 @@ object EssifAPI {
             config.enableDevLogging()
         }.routes {
             get("/", documented(documentedIgnored(), RootController::rootEssifApi))
-            get("health", documented(RootController.healthDocumentation(), RootController::health))
+            get("health", documented(RootController.healthDocs(), RootController::health))
 
             path("v1") {
                 path("trusted-issuer") {
@@ -134,9 +134,12 @@ object EssifAPI {
                     post("openSession", TrustedIssuerController::openSession)
                 }
                 path("client") {
-                    post("onboard", EssifClientController::onboard)
-                    post("auth", EssifClientController::authApi)
-                    post("registerDid", EssifClientController::registerDid)
+                    post("onboard", documented(EssifClientController.onboardDocs(), EssifClientController::onboard))
+                    post("auth", documented(EssifClientController.authApiDocs(), EssifClientController::authApi))
+                    post(
+                        "registerDid",
+                        documented(EssifClientController.registerDidDocs(), EssifClientController::registerDid)
+                    )
                 }
             }
 

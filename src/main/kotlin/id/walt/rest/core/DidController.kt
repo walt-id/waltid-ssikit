@@ -31,7 +31,7 @@ object DidController {
         ctx.json(DidService.listDids())
     }
 
-    fun listDocumentation() = document().operation {
+    fun listDocs() = document().operation {
         it.summary("List DIDs").operationId("listDids").addTagsItem("Decentralized Identifiers")
     }.json<Array<String>>("200")
 
@@ -39,7 +39,7 @@ object DidController {
         ctx.json("todo")
     }
 
-    fun loadDocumentation() = document().operation {
+    fun loadDocs() = document().operation {
         it.summary("Load DID").operationId("loadDid").addTagsItem("Decentralized Identifiers")
     }.body<String> { it.description("ID of the DID to be loaded") }.json<String>("200")
 
@@ -47,7 +47,7 @@ object DidController {
         ctx.json("todo")
     }
 
-    fun deleteDocumentation() = document().operation {
+    fun deleteDocs() = document().operation {
         it.summary("Delete DID").operationId("deleteDid").addTagsItem("Decentralized Identifiers")
     }.body<String> { it.description("ID of the DID to be deleted") }.json<String>("200")
 
@@ -57,7 +57,7 @@ object DidController {
         ctx.result(DidService.create(createDidReq.method, createDidReq.keyAlias))
     }
 
-    fun createDocumentation() = document().operation {
+    fun createDocs() = document().operation {
         it.summary("Create DID").operationId("createDid").addTagsItem("Decentralized Identifiers")
     }.body<CreateDidRequest> { it.description("Defines the DID method and optionally the key to be used") }
         .json<String>("200") { it.description("DID document of the resolved DID") }
@@ -70,7 +70,7 @@ object DidController {
         }
     }
 
-    fun resolveDocumentation() = document().operation {
+    fun resolveDocs() = document().operation {
         it.summary("Resolve DID").operationId("resolveDid").addTagsItem("Decentralized Identifiers")
     }.body<ResolveDidRequest> { it.description("Identifier to be resolved") }
         .json<String>("200") { it.description("DID document of the resolved DID") }
@@ -79,7 +79,7 @@ object DidController {
         ctx.json("todo")
     }
 
-    fun importDocumentation() = document().operation {
+    fun importDocs() = document().operation {
         it.summary("Import DID").operationId("importDid").addTagsItem("Decentralized Identifiers")
     }.body<String> { it.description("Imports the DID to the underlying data store") }
         .json<String>("200")

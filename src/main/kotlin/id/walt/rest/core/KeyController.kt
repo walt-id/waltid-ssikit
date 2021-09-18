@@ -35,7 +35,7 @@ object KeyController {
         ctx.json(keyService.generate(genKeyReq.keyAlgorithm))
     }
 
-    fun genDocumentation() = document().operation {
+    fun genDocs() = document().operation {
         it.summary("Generate key")
             .operationId("genKey").addTagsItem("Key Management")
     }.body<GenKeyRequest> {
@@ -51,7 +51,7 @@ object KeyController {
         )
     }
 
-    fun loadDocumentation() = document().operation {
+    fun loadDocs() = document().operation {
         it.summary("Load public key").addTagsItem("Key Management")
     }.json<String>("200")
 
@@ -60,7 +60,7 @@ object KeyController {
         ctx.json(keyService.delete(ctx.body()))
     }
 
-    fun deleteDocumentation() = document().operation {
+    fun deleteDocs() = document().operation {
         it.summary("Delete key").operationId("deleteKey").addTagsItem("Key Management")
 
     }.body<String> {
@@ -78,7 +78,7 @@ object KeyController {
         )
     }
 
-    fun exportDocumentation() = document().operation {
+    fun exportDocs() = document().operation {
         it.summary("Exports public and private key part (if supported by underlying keystore)").operationId("exportKey")
             .addTagsItem("Key Management")
     }.body<ExportKeyRequest> { it.description("Exports the key in JWK or PEM format") }
@@ -90,7 +90,7 @@ object KeyController {
         ctx.json(keyIds)
     }
 
-    fun listDocumentation() = document().operation {
+    fun listDocs() = document().operation {
         it.summary("List of key IDs").operationId("listKeys").addTagsItem("Key Management")
     }.json<Array<String>>("200") { it.description("The desired key IDs") }
 
@@ -99,7 +99,7 @@ object KeyController {
         ctx.json(keyService.import(ctx.body()))
     }
 
-    fun importDocumentation() = document().operation {
+    fun importDocs() = document().operation {
         it.summary("Import key").operationId("importKey").addTagsItem("Key Management")
     }.body<String> {
         it.description("Imports the key (JWK format) to the key store")
