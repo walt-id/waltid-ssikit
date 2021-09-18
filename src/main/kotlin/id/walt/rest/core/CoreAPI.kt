@@ -121,12 +121,6 @@ object CoreAPI {
 
             it.enableDevLogging()
         }.routes {
-            val createUserDocumentation: OpenApiDocumentation = documentedIgnored()
-
-            get("/users", documented(createUserDocumentation) { ctx -> {
-                // ...
-            }})
-
             get("", documented(documentedIgnored(), RootController::rootCoreApi))
             get("health", RootController::health)
             path("v1") {
