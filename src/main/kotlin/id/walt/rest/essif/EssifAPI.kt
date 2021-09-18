@@ -168,17 +168,47 @@ object EssifAPI {
                 }
                 path("enterprise") {
                     path("wallet") {
-                        post("createDid", EnterpriseWalletController::createDid)
+                        post(
+                            "createDid",
+                            documented(EnterpriseWalletController.createDidDocs(), EnterpriseWalletController::createDid)
+                        )
                         post(
                             "requestVerifiableAuthorization",
-                            EnterpriseWalletController::requestVerifiableAuthorization
+                            documented(
+                                EnterpriseWalletController.requestVerifiableAuthorizationDocs(),
+                                EnterpriseWalletController::requestVerifiableAuthorization
+                            )
                         )
-                        post("requestVerifiableCredential", EnterpriseWalletController::requestVerifiableCredential)
-                        post("generateDidAuthRequest", EnterpriseWalletController::generateDidAuthRequest)
+                        post(
+                            "requestVerifiableCredential",
+                            documented(
+                                EnterpriseWalletController.requestVerifiableCredentialDocs(),
+                                EnterpriseWalletController::requestVerifiableCredential
+                            )
+                        )
+                        post(
+                            "generateDidAuthRequest",
+                            documented(
+                                EnterpriseWalletController.generateDidAuthRequestDocs(),
+                                EnterpriseWalletController::generateDidAuthRequest
+                            )
+                        )
                         // post("onboardTrustedIssuer", EnterpriseWalletController::onboardTrustedIssuer) not supported yet
-                        post("validateDidAuthResponse", EnterpriseWalletController::validateDidAuthResponse)
-                        post("getVerifiableCredential", EnterpriseWalletController::getVerifiableCredential)
-                        post("token", EnterpriseWalletController::token)
+                        post(
+                            "validateDidAuthResponse",
+                            documented(
+                                EnterpriseWalletController.validateDidAuthResponseDocs(),
+                                EnterpriseWalletController::validateDidAuthResponse
+                            )
+                        )
+                        post(
+                            "getVerifiableCredential",
+                            documented(
+                                EnterpriseWalletController.getVerifiableCredentialDocs(),
+                                EnterpriseWalletController::getVerifiableCredential
+                            )
+                        )
+                        post("token", documented(EnterpriseWalletController.tokenDocs(), EnterpriseWalletController::token))
                         post("authentication-requests", EosController::authReq)
                     }
 
