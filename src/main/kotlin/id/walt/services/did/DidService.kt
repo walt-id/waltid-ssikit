@@ -314,6 +314,10 @@ object DidService {
         HKVStoreService.getService().getAsString(Path.of("did", "created", "${didUrlStr.replace(":", "-")}.json"))
 
 
+    fun listDids(): List<String> =
+        HKVStoreService.getService().listChildKeys(Path.of("did", "created")).map { it.toString().substringAfter("did/created/").replace("-", ":") }.toList()
+
+
     // TODO: consider the methods below. They might be deprecated!
 
 //    fun resolveDid(did: String): Did = resolveDid(did.DidUrl.toDidUrl())
@@ -376,15 +380,5 @@ object DidService {
 //
 //        return didUrl.did
 //    }
-
-    fun listDids(): List<String> {
-
-        // File("data").walkTopDown().filter {  it -> Files.isRegularFile(it)  }
-
-        return Files.walk(Path.of("data/did/created"))
-            .filter { Files.isRegularFile(it) }
-            .filter { it.toString().endsWith(".json") }
-            .map { it.fileName.toString().substringBefore(".json").replace("-", ":") }.toList()
-    }
 
 }

@@ -17,7 +17,7 @@ class DidServiceTest : AnnotationSpec() {
 
     @Before
     fun setup() {
-        ServiceMatrix("service-matrix.properties")
+        ServiceMatrix("src/test/resources/service-matrix.properties")
     }
 
     private val keyService = KeyService.getService()
