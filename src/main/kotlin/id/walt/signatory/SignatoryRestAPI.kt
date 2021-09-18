@@ -6,14 +6,15 @@ import cc.vileda.openapi.dsl.info
 import cc.vileda.openapi.dsl.securityScheme
 import id.walt.Values
 import id.walt.rest.ErrorResponse
-import id.walt.rest.core.KeyController
 import id.walt.rest.RootController
+import id.walt.rest.core.KeyController
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.core.util.RouteOverviewPlugin
 import io.javalin.plugin.openapi.InitialConfigurationCreator
 import io.javalin.plugin.openapi.OpenApiOptions
 import io.javalin.plugin.openapi.OpenApiPlugin
+import io.javalin.plugin.openapi.dsl.documented
 import io.javalin.plugin.openapi.ui.ReDocOptions
 import io.javalin.plugin.openapi.ui.SwaggerOptions
 import io.swagger.v3.oas.models.OpenAPI
@@ -90,11 +91,11 @@ object SignatoryRestAPI {
             get("health", RootController::health)
             path("v1") {
                 path("credentials") {
-                    post("issue", KeyController::import)
+                    post("issue", KeyController::import) // FIXME? Signatory Credential Issue is set to KeyController import?
                 }
                 path("templates") {
-                    get("", SignatoryController::listTemplates)
-                    get("{id}", SignatoryController::loadTemplate)
+                    get("", documented(SignatoryController.listTemplatesDocumentation(), SignatoryController::listTemplates))
+                    get("{id}", documented(SignatoryController.loadTemplateDocumentation(), SignatoryController::loadTemplate))
                 }
             }
 
