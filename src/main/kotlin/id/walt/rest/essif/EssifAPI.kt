@@ -146,9 +146,18 @@ object EssifAPI {
             path("test") {
                 path("user") {
                     path("wallet") {
-                        post("createDid", UserWalletController::createDid)
-                        post("requestAccessToken", UserWalletController::requestAccessToken)
-                        post("validateDidAuthRequest", UserWalletController::validateDidAuthRequest)
+                        post("createDid", documented(UserWalletController.createDidDocs(), UserWalletController::createDid))
+                        post(
+                            "requestAccessToken",
+                            documented(UserWalletController.requestAccessTokenDocs(), UserWalletController::requestAccessToken)
+                        )
+                        post(
+                            "validateDidAuthRequest",
+                            documented(
+                                UserWalletController.validateDidAuthRequestDocs(),
+                                UserWalletController::validateDidAuthRequest
+                            )
+                        )
                         post("didAuthResponse", UserWalletController::didAuthResponse)
                         post("vcAuthResponse", UserWalletController::vcAuthResponse)
                         post("oidcAuthResponse", UserWalletController::oidcAuthResponse)

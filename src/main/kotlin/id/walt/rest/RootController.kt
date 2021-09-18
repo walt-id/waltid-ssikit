@@ -72,7 +72,7 @@ object RootController {
     fun healthDocs() = document()
         .operation {
             it.summary("Returns HTTP 200 in case all services are up and running").operationId("health")
-        }.body<String>("200")
+        }.json<String>("200")
     fun health(ctx: Context) {
         // TODO: implement: WaltIdServices.checkHealth()
         ctx.html("OK")
