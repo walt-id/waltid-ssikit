@@ -4,6 +4,7 @@ import io.javalin.http.Context
 import io.javalin.plugin.openapi.annotations.OpenApi
 import io.javalin.plugin.openapi.annotations.OpenApiContent
 import io.javalin.plugin.openapi.annotations.OpenApiResponse
+import io.javalin.plugin.openapi.dsl.DocumentedContent
 import io.javalin.plugin.openapi.dsl.document
 
 object RootController {
@@ -72,15 +73,10 @@ object RootController {
         )
     }
 
-    @OpenApi(
-        summary = "Returns HTTP 200 in case all services are up and running",
-        operationId = "health",
-        responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "successful request"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
-            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
-        ]
-    )
+    fun healthDocumentation() = document()
+        .operation {
+            it.summary("Returns HTTP 200 in case all services are up and running").operationId("health")
+        }.body<String>("200")
     fun health(ctx: Context) {
         // TODO: implement: WaltIdServices.checkHealth()
         ctx.html("OK")

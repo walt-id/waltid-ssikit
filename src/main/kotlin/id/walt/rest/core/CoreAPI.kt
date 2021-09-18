@@ -11,7 +11,14 @@ import id.walt.rest.DidController
 import id.walt.rest.ErrorResponse
 import id.walt.rest.OpenAPIUtils.documentedIgnored
 import id.walt.rest.RootController
+import id.walt.rest.RootController.healthDocumentation
 import id.walt.rest.VcController
+import id.walt.rest.core.KeyController.deleteDocumentation
+import id.walt.rest.core.KeyController.exportDocumentation
+import id.walt.rest.core.KeyController.genDocumentation
+import id.walt.rest.core.KeyController.importDocumentation
+import id.walt.rest.core.KeyController.listDocumentation
+import id.walt.rest.core.KeyController.loadDocumentation
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.core.util.RouteOverviewPlugin
@@ -20,7 +27,6 @@ import io.javalin.plugin.json.JsonMapper
 import io.javalin.plugin.openapi.InitialConfigurationCreator
 import io.javalin.plugin.openapi.OpenApiOptions
 import io.javalin.plugin.openapi.OpenApiPlugin
-import io.javalin.plugin.openapi.dsl.OpenApiDocumentation
 import io.javalin.plugin.openapi.dsl.documented
 import io.javalin.plugin.openapi.ui.ReDocOptions
 import io.javalin.plugin.openapi.ui.SwaggerOptions
@@ -122,15 +128,15 @@ object CoreAPI {
             it.enableDevLogging()
         }.routes {
             get("", documented(documentedIgnored(), RootController::rootCoreApi))
-            get("health", RootController::health)
+            get("health", documented(healthDocumentation(), RootController::health))
             path("v1") {
                 path("key") {
-                    get("", KeyController::list)
-                    get("{id}", KeyController::load)
-                    delete("{id}", KeyController::delete)
-                    post("gen", KeyController::gen)
-                    post("import", KeyController::import)
-                    post("export", KeyController::export)
+                    get("", documented(listDocumentation(), KeyController::list))
+                    get("{id}", documented(loadDocumentation(), KeyController::load))
+                    delete("{id}", documented(deleteDocumentation(), KeyController::delete))
+                    post("gen", documented(genDocumentation(), KeyController::gen))
+                    post("import", documented(importDocumentation(), KeyController::import))
+                    post("export", documented(exportDocumentation(), KeyController::export))
                 }
                 path("did") {
                     get("", DidController::list)
