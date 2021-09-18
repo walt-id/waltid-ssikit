@@ -8,10 +8,7 @@ import id.walt.crypto.KeyId
 import id.walt.crypto.localTimeSecondsUtc
 import id.walt.model.DidMethod
 import id.walt.model.DidUrl
-import id.walt.rest.core.CoreAPI
-import id.walt.rest.core.CreateDidRequest
-import id.walt.rest.core.ExportKeyRequest
-import id.walt.rest.core.GenKeyRequest
+import id.walt.rest.core.*
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
 import id.walt.services.key.KeyFormat

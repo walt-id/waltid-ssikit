@@ -1,10 +1,6 @@
 package id.walt.rest
 
 import io.javalin.http.Context
-import io.javalin.plugin.openapi.annotations.OpenApi
-import io.javalin.plugin.openapi.annotations.OpenApiContent
-import io.javalin.plugin.openapi.annotations.OpenApiResponse
-import io.javalin.plugin.openapi.dsl.DocumentedContent
 import io.javalin.plugin.openapi.dsl.document
 
 object RootController {

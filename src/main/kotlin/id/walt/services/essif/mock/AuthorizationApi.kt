@@ -1,8 +1,6 @@
 package id.walt.services.essif.mock
 
 import com.beust.klaxon.Klaxon
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 
 private val log = KotlinLogging.logger {}

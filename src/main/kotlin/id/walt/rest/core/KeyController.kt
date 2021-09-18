@@ -86,7 +86,7 @@ object KeyController {
 
     fun list(ctx: Context) {
         val keyIds = ArrayList<String>()
-        keyService.listKeys().forEach { key -> keyIds.add(key.keyId.id) }
+        keyService.listKeys().forEach { (keyId) -> keyIds.add(keyId.id) }
         ctx.json(keyIds)
     }
 

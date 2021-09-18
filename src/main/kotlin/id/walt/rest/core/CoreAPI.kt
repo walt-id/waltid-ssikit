@@ -11,7 +11,6 @@ import id.walt.rest.ErrorResponse
 import id.walt.rest.OpenAPIUtils.documentedIgnored
 import id.walt.rest.RootController
 import id.walt.rest.RootController.healthDocumentation
-import id.walt.rest.VcController
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.core.util.RouteOverviewPlugin

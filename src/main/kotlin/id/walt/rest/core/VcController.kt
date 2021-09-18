@@ -1,5 +1,6 @@
-package id.walt.rest
+package id.walt.rest.core
 
+import id.walt.rest.ErrorResponse
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.VerificationResult
 import id.walt.signatory.ProofConfig
