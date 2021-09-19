@@ -2,6 +2,7 @@ package id.walt.signatory
 
 import com.beust.klaxon.Klaxon
 import id.walt.servicematrix.ServiceMatrix
+import id.walt.test.RESOURCES_PATH
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.vclist.VerifiableAttestation
 import io.kotest.assertions.json.shouldEqualJson
@@ -20,7 +21,7 @@ import java.io.File
 class SignatoryApiTest : AnnotationSpec() {
 
     init {
-        ServiceMatrix("service-matrix.properties")
+        ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
     }
 
     val SIGNATORY_API_PORT = 7003

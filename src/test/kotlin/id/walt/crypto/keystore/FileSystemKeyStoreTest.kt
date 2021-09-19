@@ -10,6 +10,7 @@ import id.walt.services.key.KeyService
 import id.walt.services.keystore.FileSystemKeyStoreService
 import id.walt.services.keystore.KeyStoreService
 import id.walt.services.keystore.SqlKeyStoreService
+import id.walt.test.RESOURCES_PATH
 
 open class FileSystemKeyStoreTest : AnnotationSpec() {//: KeyStoreTest() {
 
@@ -20,7 +21,7 @@ open class FileSystemKeyStoreTest : AnnotationSpec() {//: KeyStoreTest() {
 
     @Before
     fun setUp() {
-        ServiceMatrix("service-matrix.properties")
+        ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
         ServiceRegistry.registerService<KeyStoreService>(FileSystemKeyStoreService())
         sunCryptoService.setKeyStore(fileSystemKeyStoreService)
     }

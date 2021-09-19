@@ -8,6 +8,7 @@ import id.walt.services.did.DidService
 import id.walt.services.essif.EssifServer.nonce
 import id.walt.services.essif.TrustedIssuerClient.domain
 import id.walt.signatory.ProofConfig
+import id.walt.test.RESOURCES_PATH
 import id.walt.test.getTemplate
 import id.walt.test.readCredOffer
 import id.walt.vclib.Helpers.encode
@@ -32,7 +33,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
 
     @Before
     fun setup() {
-        ServiceMatrix("service-matrix.properties")
+        ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
     }
 
     fun genericSignVerify(issuerDid: String, credOffer: String) {

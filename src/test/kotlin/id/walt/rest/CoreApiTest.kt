@@ -16,6 +16,7 @@ import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.VerificationResult
 import id.walt.services.vc.VerificationType
 import id.walt.signatory.ProofConfig
+import id.walt.test.RESOURCES_PATH
 import id.walt.test.getTemplate
 import id.walt.test.readCredOffer
 import id.walt.vclib.Helpers.encode
@@ -43,7 +44,7 @@ import java.time.LocalDateTime
 class CoreApiTest : AnnotationSpec() {
 
     init {
-        ServiceMatrix("service-matrix.properties")
+        ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
     }
 
     private val credentialService = JsonLdCredentialService.getService()

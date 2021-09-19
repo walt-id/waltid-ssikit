@@ -1,13 +1,14 @@
 package id.walt.services.keystore
 
+import id.walt.crypto.KeyAlgorithm
 import id.walt.servicematrix.ServiceMatrix
+import id.walt.services.key.KeyService
+import id.walt.test.RESOURCES_PATH
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.bouncycastle.jce.provider.BouncyCastleProvider
-import id.walt.crypto.KeyAlgorithm
-import id.walt.services.key.KeyService
 import java.security.Security
 import java.util.*
 
@@ -17,7 +18,7 @@ open class KeyStoreServiceTest : AnnotationSpec() {
 
     init {
         Security.addProvider(BouncyCastleProvider())
-        ServiceMatrix("service-matrix.properties")
+        ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
     }
 
     @Test

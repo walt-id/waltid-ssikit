@@ -14,6 +14,7 @@ import id.walt.model.DidMethod
 import id.walt.services.did.DidService
 import id.walt.services.keystore.KeyStoreService
 import id.walt.services.keystore.KeyType
+import id.walt.test.RESOURCES_PATH
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
@@ -37,7 +38,7 @@ class AzureKeyStoreTest : AnnotationSpec() {
     fun setup() {
         mockkObject(PropertySource)
         every { PropertySource.file(File("walt.yaml"), optional = true) } returns
-                PropertySource.file(File("src/test/resources/walt-azure.yaml"))
+                PropertySource.file(File("$RESOURCES_PATH/walt-azure.yaml"))
 
         mockkConstructor(KeyVaultClient::class)
         every { anyConstructed<KeyVaultClient>().getKey(any(), "106") } returns getKeyBundle(keyPair)

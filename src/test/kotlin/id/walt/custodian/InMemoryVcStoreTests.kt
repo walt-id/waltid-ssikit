@@ -2,9 +2,9 @@ package id.walt.custodian
 
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.servicematrix.ServiceRegistry
-import id.walt.services.vcstore.FileSystemVcStoreService
 import id.walt.services.vcstore.InMemoryVcStoreService
 import id.walt.services.vcstore.VcStoreService
+import id.walt.test.RESOURCES_PATH
 import id.walt.vclib.vclist.Europass
 import id.walt.vclib.vclist.VerifiableAttestation
 import io.kotest.core.spec.style.StringSpec
@@ -13,7 +13,7 @@ import io.kotest.matchers.shouldBe
 
 class InMemoryVcStoreTests : StringSpec({
 
-    ServiceMatrix("service-matrix.properties")
+    ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
     val custodian = CustodianService.getService()
     ServiceRegistry.registerService<VcStoreService>(InMemoryVcStoreService())
 

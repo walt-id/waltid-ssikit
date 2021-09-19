@@ -4,6 +4,7 @@ import id.walt.servicematrix.ServiceMatrix
 import id.walt.servicematrix.ServiceRegistry
 import id.walt.services.vcstore.FileSystemVcStoreService
 import id.walt.services.vcstore.VcStoreService
+import id.walt.test.RESOURCES_PATH
 import id.walt.vclib.vclist.Europass
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
@@ -11,7 +12,7 @@ import io.kotest.matchers.shouldBe
 
 class FileSystemVcStoreTests : StringSpec({
 
-    ServiceMatrix("service-matrix.properties")
+    ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
     val custodian = CustodianService.getService()
     ServiceRegistry.registerService<VcStoreService>(FileSystemVcStoreService())
 
