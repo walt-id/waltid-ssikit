@@ -16,7 +16,6 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.string.shouldContain
 import java.io.File
 
-// TODO implement tests
 class VcVerifyCommandTest : StringSpec({
 
     ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")

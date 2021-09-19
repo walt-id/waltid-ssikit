@@ -64,7 +64,4 @@ class VcIssueCommandTest : StringSpec({
         VcIssueCommand().parse(listOf("-i", didIssuer, "-s", didSubject, "-t", "VerifiableDiploma", "-p", "JWT"))
     }
 
-// TODO   "vc issue VerifiableAttestation JWT" {
-//        VcIssueCommand().parse(listOf("-i", didIssuer, "-s", didSubject, "-t", "VerifiableAttestation", "-p", "JWT"))
-//    }
 })
