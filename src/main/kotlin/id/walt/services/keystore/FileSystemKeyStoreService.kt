@@ -1,8 +1,8 @@
 package id.walt.services.keystore
 
+import id.walt.crypto.*
 import mu.KotlinLogging
 import org.apache.commons.io.IOUtils
-import id.walt.crypto.*
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -17,6 +17,7 @@ import java.security.spec.X509EncodedKeySpec
 open class FileSystemKeyStoreService : KeyStoreService() {
 
     private val log = KotlinLogging.logger {}
+
     //TODO: get key format from config
     private val KEY_FORMAT = KeyFormat.PEM
 
@@ -75,6 +76,7 @@ open class FileSystemKeyStoreService : KeyStoreService() {
         deleteKeyFile(alias, "raw-pubkey")
         deleteKeyFile(alias, "raw-privkey")
         deleteKeyFile(alias, "meta")
+        deleteKeyAlias(alias)
     }
 
     private fun storePublicKey(key: Key) =
@@ -206,6 +208,8 @@ open class FileSystemKeyStoreService : KeyStoreService() {
         IOUtils.toByteArray(FileInputStream("${Companion.KEY_DIR_PATH}/$keyId.$suffix"))
 
     private fun deleteKeyFile(keyId: String, suffix: String) = File("${Companion.KEY_DIR_PATH}/$keyId.$suffix").delete()
+
+    private fun deleteKeyAlias(alias: String) = File("${KEY_DIR_PATH}/Alias-$alias").delete()
 
     fun getKeyIdList() = File(Companion.KEY_DIR_PATH).listFiles()!!.map { it.nameWithoutExtension }.distinct()
 

@@ -67,6 +67,10 @@ object CustodianKeyTestUtils {
 
             loadedKey.keyId.id shouldBe key2.keyId.id
             loadedKey.algorithm shouldBe KeyAlgorithm.ECDSA_Secp256k1
+
+            custodian.listKeys().forEach {
+                custodian.deleteKey(it.keyId.id)
+            }
         }
     }
 

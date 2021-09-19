@@ -46,5 +46,8 @@ open class FileSystemKeyStoreServiceTest : AnnotationSpec() {//: KeyStoreService
 
         keyId1 shouldBe key1.keyId
         keyId2 shouldBe key2.keyId
+
+        fileSystemKeyStoreService.delete(keyId1.id)
+        fileSystemKeyStoreService.delete(keyId2.id)
     }
 }

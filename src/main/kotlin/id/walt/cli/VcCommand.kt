@@ -80,8 +80,8 @@ class VcIssueCommand : CliktCommand(
         HKVStoreService.getService().put(Path.of("vc", "created", vcFileName), vcStr)
 
         log.debug { "Writing VC to file $vcFileName" }
-        File(vcFileName).writeText(vcStr)
-        echo("\nSaved credential to credential store \"$vcFileName\".")
+
+        echo("\nSaved credential to credential store \"./data/vc/created/$vcFileName\".")
 
         dest?.run {
             log.debug { "Writing VC to DEST file $dest" }
