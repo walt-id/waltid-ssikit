@@ -1,14 +1,15 @@
 package id.walt.services.essif
 
-import id.walt.servicematrix.ServiceMatrix
-import io.kotest.core.spec.style.AnnotationSpec
-import io.kotest.matchers.shouldBe
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyId
 import id.walt.crypto.buildKey
+import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.essif.didebsi.DidEbsiService
 import id.walt.services.essif.didebsi.UnsignedTransaction
 import id.walt.services.keystore.KeyStoreService
+import id.walt.test.RESOURCES_PATH
+import io.kotest.core.spec.style.AnnotationSpec
+import io.kotest.matchers.shouldBe
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -22,6 +23,8 @@ class DidEbsiServiceTest : AnnotationSpec() {
 
     init {
         println("Running ServiceMatrix")
+        // TODO replace with thest config
+        //ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
         ServiceMatrix("service-matrix.properties")
         println("Done running the ServiceMatrix")
     }

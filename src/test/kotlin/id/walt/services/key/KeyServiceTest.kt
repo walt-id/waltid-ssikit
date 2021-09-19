@@ -15,6 +15,7 @@ import id.walt.model.Jwk
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.crypto.CryptoService
 import id.walt.services.keystore.KeyType
+import id.walt.test.RESOURCES_PATH
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -37,7 +38,7 @@ class KeyServiceTest : AnnotationSpec() {
     @Before
     fun setup() {
         Security.addProvider(BouncyCastleProvider())
-        ServiceMatrix("service-matrix.properties")
+        ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
     }
 
     @Test

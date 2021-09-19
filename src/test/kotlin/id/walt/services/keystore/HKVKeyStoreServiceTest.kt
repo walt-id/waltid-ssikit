@@ -5,6 +5,7 @@ import id.walt.servicematrix.ServiceMatrix
 import id.walt.servicematrix.ServiceRegistry
 import id.walt.services.crypto.SunCryptoService
 import id.walt.services.key.KeyService
+import id.walt.test.RESOURCES_PATH
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import java.io.File
@@ -12,7 +13,7 @@ import java.io.File
 open class HKVKeyStoreServiceTest : AnnotationSpec() {//: KeyStoreServiceTest() {
 
     init {
-        ServiceMatrix("service-matrix.properties")
+        ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
         ServiceRegistry.registerService<KeyStoreService>(HKVKeyStoreService())
     }
 
@@ -51,5 +52,8 @@ open class HKVKeyStoreServiceTest : AnnotationSpec() {//: KeyStoreServiceTest() 
 
         keyId1 shouldBe key1.keyId
         keyId2 shouldBe key2.keyId
+
+        hkvKeyStoreService.delete(keyId1.id)
+        hkvKeyStoreService.delete(keyId2.id)
     }
 }

@@ -7,6 +7,7 @@ import id.walt.services.did.DidService
 import id.walt.services.jwt.JwtService
 import id.walt.services.key.KeyService
 import id.walt.signatory.ProofConfig
+import id.walt.test.RESOURCES_PATH
 import id.walt.vclib.Helpers.encode
 import id.walt.vclib.vclist.Europass
 import io.kotest.core.spec.style.AnnotationSpec
@@ -20,7 +21,7 @@ import java.util.*
 class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
 
     init {
-        ServiceMatrix("service-matrix.properties")
+        ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
     }
 
     private val credentialService = JwtCredentialService.getService()
@@ -36,8 +37,9 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
 
     @AfterAll
     fun tearDown() {
-        val didFilename = "${issuerDid.replace(":", "-")}.json"
-        Files.delete(Path.of("data", "did", "created", didFilename))
+        // Only required if file-key store is used
+//        val didFilename = "${issuerDid.replace(":", "-")}.json"
+//        Files.delete(Path.of("data", "did", "created", didFilename))
         KeyService.getService().delete(keyId.id)
     }
 

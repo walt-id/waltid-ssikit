@@ -1,9 +1,10 @@
 package id.walt.crypto
 
 import com.google.crypto.tink.config.TinkConfig
+import id.walt.services.crypto.TinkCryptoService
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import id.walt.services.crypto.TinkCryptoService
+import java.io.File
 
 class TinkCryptoTest : AnnotationSpec() {
 
@@ -20,6 +21,8 @@ class TinkCryptoTest : AnnotationSpec() {
         val sig = tinkCryptoService.sign(keyId, data)
         val res = tinkCryptoService.verify(keyId, sig, data)
         res shouldBe true
+
+        File("data/key/$keyId.tink").delete()
     }
 
     @Test
@@ -28,5 +31,7 @@ class TinkCryptoTest : AnnotationSpec() {
         val sig = tinkCryptoService.sign(keyId, data)
         val res = tinkCryptoService.verify(keyId, sig, data)
         res shouldBe true
+
+        File("data/key/$keyId.tink").delete()
     }
 }

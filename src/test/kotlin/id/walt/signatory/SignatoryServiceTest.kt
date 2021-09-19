@@ -6,6 +6,7 @@ import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
 import id.walt.services.jwt.JwtService
 import id.walt.services.vc.JsonLdCredentialService
+import id.walt.test.RESOURCES_PATH
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.vclist.VerifiableId
 import id.walt.vclib.vclist.VerifiableDiploma
@@ -17,7 +18,7 @@ import io.kotest.matchers.string.shouldContain
 import java.text.SimpleDateFormat
 
 class SignatoryServiceTest : StringSpec({
-    ServiceMatrix("service-matrix.properties")
+    ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
     val signatory = Signatory.getService()
 
     val did = DidService.create(DidMethod.key)

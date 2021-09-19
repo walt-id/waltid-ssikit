@@ -10,15 +10,15 @@ import id.walt.services.vc.JwtCredentialService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
+import id.walt.test.RESOURCES_PATH
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.string.shouldContain
 import java.io.File
 
-// TODO implement tests
 class VcVerifyCommandTest : StringSpec({
 
-    ServiceMatrix("service-matrix.properties")
+    ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
 
     "vc verify --help" {
         val e = shouldThrow<PrintHelpMessage> {

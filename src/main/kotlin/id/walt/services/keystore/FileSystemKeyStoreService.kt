@@ -75,6 +75,7 @@ open class FileSystemKeyStoreService : KeyStoreService() {
         deleteKeyFile(alias, "raw-pubkey")
         deleteKeyFile(alias, "raw-privkey")
         deleteKeyFile(alias, "meta")
+        deleteKeyAlias(alias)
     }
 
     private fun storePublicKey(key: Key) =
@@ -203,9 +204,11 @@ open class FileSystemKeyStoreService : KeyStoreService() {
 
 
     private fun loadKeyFile(keyId: String, suffix: String): ByteArray =
-        IOUtils.toByteArray(FileInputStream("${KEY_DIR_PATH}/$keyId.$suffix"))
+        IOUtils.toByteArray(FileInputStream("${Companion.KEY_DIR_PATH}/$keyId.$suffix"))
 
-    private fun deleteKeyFile(keyId: String, suffix: String) = File("${KEY_DIR_PATH}/$keyId.$suffix").delete()
+    private fun deleteKeyFile(keyId: String, suffix: String) = File("${Companion.KEY_DIR_PATH}/$keyId.$suffix").delete()
+
+    private fun deleteKeyAlias(alias: String) = File("${KEY_DIR_PATH}/Alias-$alias").delete()
 
     fun getKeyIdList() = File(KEY_DIR_PATH).listFiles()!!.map { it.nameWithoutExtension }.distinct()
 

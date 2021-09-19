@@ -45,7 +45,7 @@ class CredentialServiceTest : AnnotationSpec() {
     @Before
     fun setup() {
         Security.addProvider(BouncyCastleProvider())
-        ServiceMatrix("service-matrix.properties")
+        ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
     }
 
 
