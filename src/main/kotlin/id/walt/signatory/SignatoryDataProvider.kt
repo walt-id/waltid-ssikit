@@ -1,9 +1,9 @@
 package id.walt.signatory
 
-import id.walt.vclib.model.CredentialStatus
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.vclist.Europass
-import id.walt.vclib.vclist.VerifiableID
+import id.walt.vclib.vclist.VerifiableDiploma
+import id.walt.vclib.vclist.VerifiableId
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.reflect.KClass
@@ -19,84 +19,75 @@ class EuropassDataProvider : SignatoryDataProvider {
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): Europass {
         val vc = template as Europass
 
-        // TODO populate template and return fully defined VerifiableCredential
+        vc.issuer = proofConfig.issuerDid
+        vc.credentialSubject!!.id = proofConfig.subjectDid
 
+        return vc
+    }
+}
+
+class VerifiableIdDataProvider : SignatoryDataProvider {
+
+    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableId {
+        val vc = template as VerifiableId
         return when (proofConfig.proofType) {
             ProofType.LD_PROOF -> populateForLDProof(vc, proofConfig)
             ProofType.JWT -> populateForJWTProof(vc, proofConfig)
         }
     }
 
-    private fun populateForLDProof(vc: Europass, proofConfig: ProofConfig): Europass {
-        val id = proofConfig.id ?: "education#higherEducation#${UUID.randomUUID()}"
-        vc.id = id
+    private fun populateForLDProof(vc: VerifiableId, proofConfig: ProofConfig): VerifiableId {
+        vc.id = proofConfig.id ?: "identity#verifiableID#${UUID.randomUUID()}"
         vc.issuer = proofConfig.issuerDid
-        vc.credentialStatus = CredentialStatus("https://essif.europa.eu/status/$id", "CredentialsStatusList2020")
-
-        if (proofConfig.subjectDid != null)
-            vc.credentialSubject!!.id = proofConfig.subjectDid
-
-        if (proofConfig.issueDate != null)
-            vc.issuanceDate = dateFormat.format(proofConfig.issueDate)
-        else if (vc.issuanceDate == null)
-            vc.issuanceDate = dateFormat.format(Date())
-
-        if (proofConfig.expirationDate != null)
-            vc.expirationDate = dateFormat.format(proofConfig.expirationDate)
-
+        if (proofConfig.issueDate != null) vc.issuanceDate = dateFormat.format(proofConfig.issueDate)
+        if (proofConfig.expirationDate != null) vc.expirationDate = dateFormat.format(proofConfig.expirationDate)
+        vc.validFrom = vc.issuanceDate
+        vc.credentialSubject!!.id = proofConfig.subjectDid
+        vc.evidence!!.verifier = proofConfig.issuerDid
         return vc
     }
 
-    private fun populateForJWTProof(vc: Europass, proofConfig: ProofConfig): Europass {
-        vc.id = null
-        vc.issuer = null
-        vc.credentialSubject!!.id = null
-        vc.issuanceDate = null
-        vc.expirationDate = null
-        vc.credentialStatus =
-            if (proofConfig.id == null) null
-            else CredentialStatus("https://essif.europa.eu/status/${proofConfig.id}", "CredentialsStatusList2020")
+    private fun populateForJWTProof(vc: VerifiableId, proofConfig: ProofConfig): VerifiableId {
+        vc.id = proofConfig.id ?: "identity#verifiableID#${UUID.randomUUID()}"
+        vc.issuer = proofConfig.issuerDid
+        if (proofConfig.issueDate != null) vc.issuanceDate = dateFormat.format(proofConfig.issueDate)
+        if (proofConfig.expirationDate != null) vc.expirationDate = dateFormat.format(proofConfig.expirationDate)
+        vc.validFrom = vc.issuanceDate
+        vc.credentialSubject!!.id = proofConfig.subjectDid
+        vc.evidence!!.verifier = proofConfig.issuerDid
         return vc
     }
 }
 
-class VerifiableIDDataProvider : SignatoryDataProvider {
+class VerifiableDiplomaDataProvider : SignatoryDataProvider {
 
-    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableID {
-        val vc = template as VerifiableID
-
-        // TODO populate template and return fully defined VerifiableCredential
-
+    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableDiploma {
+        val vc = template as VerifiableDiploma
         return when (proofConfig.proofType) {
             ProofType.LD_PROOF -> populateForLDProof(vc, proofConfig)
-            ProofType.JWT -> populateForJWTProof(vc)
+            ProofType.JWT -> populateForJWTProof(vc, proofConfig)
         }
     }
 
-    private fun populateForLDProof(vc: VerifiableID, proofConfig: ProofConfig): VerifiableID {
-        vc.id = proofConfig.id ?: "identity#verifiableID#${UUID.randomUUID()}"
+    private fun populateForLDProof(vc: VerifiableDiploma, proofConfig: ProofConfig): VerifiableDiploma {
+        vc.id = proofConfig.id ?: "education#higherEducation#${UUID.randomUUID()}"
         vc.issuer = proofConfig.issuerDid
-
-        if (proofConfig.subjectDid != null)
-            vc.credentialSubject!!.id = proofConfig.subjectDid
-
-        if (proofConfig.issueDate != null)
-            vc.issuanceDate = dateFormat.format(proofConfig.issueDate)
-        else if (vc.issuanceDate == null)
-            vc.issuanceDate = dateFormat.format(Date())
-
-        if (proofConfig.expirationDate != null)
-            vc.expirationDate = dateFormat.format(proofConfig.expirationDate)
-
+        if (proofConfig.issueDate != null) vc.issuanceDate = dateFormat.format(proofConfig.issueDate)
+        if (proofConfig.expirationDate != null) vc.expirationDate = dateFormat.format(proofConfig.expirationDate)
+        vc.validFrom = vc.issuanceDate
+        vc.credentialSubject!!.id = proofConfig.subjectDid
+        vc.credentialSubject!!.awardingOpportunity!!.awardingBody.id = proofConfig.issuerDid
         return vc
     }
 
-    private fun populateForJWTProof(vc: VerifiableID): VerifiableID {
-        vc.id = null
-        vc.issuer = null
-        vc.credentialSubject!!.id = null
-        vc.issuanceDate = null
-        vc.expirationDate = null
+    private fun populateForJWTProof(vc: VerifiableDiploma, proofConfig: ProofConfig): VerifiableDiploma {
+        vc.id = proofConfig.id ?: "identity#verifiableID#${UUID.randomUUID()}"
+        vc.issuer = proofConfig.issuerDid
+        if (proofConfig.issueDate != null) vc.issuanceDate = dateFormat.format(proofConfig.issueDate)
+        if (proofConfig.expirationDate != null) vc.expirationDate = dateFormat.format(proofConfig.expirationDate)
+        vc.validFrom = vc.issuanceDate
+        vc.credentialSubject!!.id = proofConfig.subjectDid
+        vc.credentialSubject!!.awardingOpportunity!!.awardingBody.id = proofConfig.issuerDid
         return vc
     }
 }
@@ -116,7 +107,8 @@ object DataProviderRegistry {
 
     init {
         // Init default providers
+        register(VerifiableDiploma::class, VerifiableDiplomaDataProvider())
+        register(VerifiableId::class, VerifiableIdDataProvider())
         register(Europass::class, EuropassDataProvider())
-        register(VerifiableID::class, VerifiableIDDataProvider())
     }
 }

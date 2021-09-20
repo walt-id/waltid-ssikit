@@ -19,7 +19,7 @@ class DidServiceTest : AnnotationSpec() {
     private val RESOURCES_PATH: String = "src/test/resources"
 
     init {
-        ServiceMatrix("service-matrix.properties")
+        ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
     }
 
     fun readExampleDid(fileName: String) =

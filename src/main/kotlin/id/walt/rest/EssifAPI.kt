@@ -1,0 +1,192 @@
+package id.walt.rest
+
+import cc.vileda.openapi.dsl.components
+import cc.vileda.openapi.dsl.externalDocs
+import cc.vileda.openapi.dsl.info
+import cc.vileda.openapi.dsl.securityScheme
+import com.beust.klaxon.Klaxon
+import id.walt.Values
+import io.javalin.Javalin
+import io.javalin.apibuilder.ApiBuilder.*
+import io.javalin.core.util.RouteOverviewPlugin
+import io.javalin.plugin.json.JavalinJackson
+import io.javalin.plugin.json.JsonMapper
+import io.javalin.plugin.openapi.InitialConfigurationCreator
+import io.javalin.plugin.openapi.OpenApiOptions
+import io.javalin.plugin.openapi.OpenApiPlugin
+import io.javalin.plugin.openapi.ui.ReDocOptions
+import io.javalin.plugin.openapi.ui.SwaggerOptions
+import io.swagger.v3.oas.models.OpenAPI
+import io.swagger.v3.oas.models.info.Contact
+import io.swagger.v3.oas.models.security.SecurityScheme
+import io.swagger.v3.oas.models.servers.Server
+import mu.KotlinLogging
+
+
+object EssifAPI {
+
+    private val log = KotlinLogging.logger {}
+
+    internal const val DEFAULT_ESSIF_API_PORT = 7004
+    internal const val DEFAULT_BIND_ADDRESS = "127.0.0.1"
+
+    /**
+     * Currently used instance of the ESSIF API server
+     */
+    var essifApi: Javalin? = null
+
+    /**
+     * Start ESSIF REST API
+     * @param apiTargetUrls (optional): add URLs to Swagger documentation for easy testing
+     * @param bindAddress (default: 127.0.0.1): select address to bind on to, e.g. 0.0.0.0 for all interfaces
+     * @param port (default: 7001): select port to listen on
+     */
+    fun start(
+        port: Int = DEFAULT_ESSIF_API_PORT,
+        bindAddress: String = DEFAULT_BIND_ADDRESS,
+        apiTargetUrls: List<String> = listOf()
+    ) {
+
+        log.info { "Starting walt.id Essif API ...\n" }
+
+        essifApi = Javalin.create { config ->
+
+            config.apply {
+                registerPlugin(RouteOverviewPlugin("/api-routes"))
+
+                registerPlugin(OpenApiPlugin(OpenApiOptions(InitialConfigurationCreator {
+                    OpenAPI().apply {
+                        info {
+                            title = "walt.id ESSIF API"
+                            description = "The walt.id public API documentation"
+                            contact = Contact().apply {
+                                name = "walt.id"
+                                url = "https://walt.id"
+                                email = "office@walt.id"
+                            }
+                            version = Values.version
+                        }
+                        servers = listOf(
+                            Server().url("/"),
+                            *apiTargetUrls.map { Server().url(it) }.toTypedArray()
+                        )
+                        externalDocs {
+                            description = "walt.id Docs"
+                            url = "https://docs.walt.id/api"
+                        }
+
+                        components {
+                            securityScheme {
+                                name = "bearerAuth"
+                                type = SecurityScheme.Type.HTTP
+                                scheme = "bearer"
+                                `in` = SecurityScheme.In.HEADER
+                                description = "HTTP Bearer Token authentication"
+                                bearerFormat = "JWT"
+                            }
+                        }
+                    }
+                }).apply {
+                    path("/v1/api-documentation")
+                    swagger(SwaggerOptions("/v1/swagger").title("walt.id API"))
+                    reDoc(ReDocOptions("/v1/redoc").title("walt.id API"))
+//                defaultDocumentation { doc ->
+//                    doc.json("5XX", ErrorResponse::class.java)
+//                }
+                }))
+
+
+                this.jsonMapper(object : JsonMapper {
+                    override fun toJsonString(obj: Any): String {
+                        return Klaxon().toJsonString(obj)
+                    }
+
+                    override fun <T : Any?> fromJsonString(json: String, targetClass: Class<T>): T {
+                        return JavalinJackson().fromJsonString(json, targetClass)
+                    }
+                })
+                /*JavalinJson.fromJsonMapper = object : FromJsonMapper {
+                    override inline fun <reified T> map(json: String, targetClass: Class<T>): T =
+                        Klaxon().parse<T::class>(json)
+                }*/
+
+                //addStaticFiles("/static")
+            }
+
+            config.enableCorsForAllOrigins()
+
+            config.enableDevLogging()
+        }.routes {
+            get("/", RootController::rootEssifApi)
+            get("health", RootController::health)
+
+            path("v1") {
+                path("trusted-issuer") {
+                    post("generateAuthenticationRequest", TrustedIssuerController::generateAuthenticationRequest)
+                    post("openSession", TrustedIssuerController::openSession)
+                }
+                path("client") {
+                    post("onboard", EssifClientController::onboard)
+                    post("auth", EssifClientController::authApi)
+                    post("registerDid", EssifClientController::registerDid)
+                }
+            }
+
+            path("test") {
+                path("user") {
+                    path("wallet") {
+                        post("createDid", UserWalletController::createDid)
+                        post("requestAccessToken", UserWalletController::requestAccessToken)
+                        post("validateDidAuthRequest", UserWalletController::validateDidAuthRequest)
+                        post("didAuthResponse", UserWalletController::didAuthResponse)
+                        post("vcAuthResponse", UserWalletController::vcAuthResponse)
+                        post("oidcAuthResponse", UserWalletController::oidcAuthResponse)
+                    }
+                }
+                path("ti") {
+                    path("credentials") {
+                        post("", EosController::getCredential)
+                        get("{credentialId}", EosController::getCredential)
+                    }
+                    get("requestCredentialUri", EosController::requestCredentialUri)
+                    post("requestVerifiableCredential", EosController::requestVerifiableCredential)
+                }
+                path("eos") {
+                    post("onboard", EosController::onboards)
+                    post("signedChallenge", EosController::signedChallenge)
+                }
+                path("enterprise") {
+                    path("wallet") {
+                        post("createDid", EnterpriseWalletController::createDid)
+                        post(
+                            "requestVerifiableAuthorization",
+                            EnterpriseWalletController::requestVerifiableAuthorization
+                        )
+                        post("requestVerifiableCredential", EnterpriseWalletController::requestVerifiableCredential)
+                        post("generateDidAuthRequest", EnterpriseWalletController::generateDidAuthRequest)
+                        // post("onboardTrustedIssuer", EnterpriseWalletController::onboardTrustedIssuer) not supported yet
+                        post("validateDidAuthResponse", EnterpriseWalletController::validateDidAuthResponse)
+                        post("getVerifiableCredential", EnterpriseWalletController::getVerifiableCredential)
+                        post("token", EnterpriseWalletController::token)
+                        post("authentication-requests", EosController::authReq)
+                    }
+
+                }
+            }
+        }.exception(IllegalArgumentException::class.java) { e, ctx ->
+            log.error { e.stackTraceToString() }
+            ctx.json(ErrorResponse(e.message ?: " Illegal argument exception", 400))
+            ctx.status(400)
+        }.exception(Exception::class.java) { e, ctx ->
+            log.error { e.stackTraceToString() }
+            ctx.json(ErrorResponse(e.message ?: " Unknown application error", 500))
+            ctx.status(500)
+        }.start(bindAddress, port)
+    }
+
+    /**
+     * Stop ESSIF API if it's currently running
+     */
+    fun stop() = essifApi?.stop()
+
+}

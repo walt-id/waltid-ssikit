@@ -5,20 +5,25 @@ import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.optional
 import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.enum
 import com.github.ajalt.clikt.parameters.types.file
+import id.walt.auditor.AuditorService
+import id.walt.auditor.PolicyRegistry
+import id.walt.common.prettyPrint
+import id.walt.custodian.CustodianService
+import id.walt.services.hkvstore.HKVStoreService
+import id.walt.services.vc.JsonLdCredentialService
+import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.vclib.Helpers.encode
 import io.ktor.util.date.*
 import mu.KotlinLogging
-import id.walt.common.prettyPrint
-import id.walt.services.vc.JsonLdCredentialService
-import id.walt.services.vc.VerificationType
-import id.walt.signatory.ProofConfig
 import java.io.File
+import java.nio.file.Path
 import java.sql.Timestamp
 import java.time.LocalDateTime
 
@@ -51,7 +56,7 @@ class VcIssueCommand : CliktCommand(
 ) {
     val config: CliConfig by requireObject()
     val dest: File? by argument().file().optional()
-    val template: String by option("-t", "--template", help = "VC template [Europass]").default("Europass")
+    val template: String by option("-t", "--template", help = "VC template [VerifiableDiploma]").default("VerifiableDiploma")
     val issuerDid: String by option("-i", "--issuer-did", help = "DID of the issuer (associated with signing key)").required()
     val subjectDid: String by option("-s", "--subject-did", help = "DID of the VC subject (receiver of VC)").required()
     val proofType: ProofType by option("-p", "--proof-type", help = "Proof type to be used [LD_PROOF]").enum<ProofType>().default(ProofType.LD_PROOF)
@@ -65,56 +70,18 @@ class VcIssueCommand : CliktCommand(
         log.debug { "Loading credential template: ${template}" }
 
         val vcStr = signatory.issue(template, ProofConfig(issuerDid, subjectDid, "Ed25519Signature2018", proofType))
-        //signatory.loadTemplate(template)
 
-        //TODO: move the following to Signatory
-
-        // Populating VC with data
         val vcId = Timestamp.valueOf(LocalDateTime.now()).time
-
-
-//        val vcReq = template.readText().toCredential()
-        /*val vcReq = credentialService.defaultVcTemplate()
-
-        val vcReqEnc = Klaxon().toJsonString(when (vcReq) {
-            is Europass -> {
-                vcReq.apply {
-                    id = vcId.toString()
-                    issuer = issuerDid
-                    credentialSubject!!.id = subjectDid
-                    issuanceDate = LocalDateTime.now().toString()
-                }
-            }
-            is VerifiableAttestation -> {
-                vcReq.apply {
-                    id = vcId.toString()
-                    issuer = issuerDid
-                    credentialSubject!!.id = subjectDid
-                    issuanceDate = LocalDateTime.now().toString()
-                }
-            }
-            is PermanentResidentCard -> vcReq.apply {
-                //todo
-            }
-            else -> throw IllegalArgumentException()
-        })
-
-        log.debug { "Credential request:\n$vcReqEnc" }
-
-        echo("\nResults:\n")
-
-        // Signing VC
-        val vcStr = credentialService.sign(issuerDid, vcReqEnc)*/
-
 
         echo("Generated Credential:\n\n$vcStr")
 
         // Saving VC to file
-        val vcFileName = "data/vc/created/vc-$vcId-${template}.json"
+        val vcFileName = "vc-$vcId-${template}.json"
+        HKVStoreService.getService().put(Path.of("vc", "created", vcFileName), vcStr)
 
         log.debug { "Writing VC to file $vcFileName" }
-        File(vcFileName).writeText(vcStr)
-        echo("\nSaved credential to credential store \"$vcFileName\".")
+
+        echo("\nSaved credential to credential store \"./data/vc/created/$vcFileName\".")
 
         dest?.run {
             log.debug { "Writing VC to DEST file $dest" }
@@ -131,8 +98,8 @@ class PresentVcCommand : CliktCommand(
         """
 ) {
     val src: File by argument().file()
-    val domain: String? by option("-d", "--domain", help = "Domain name to be used in the proof")
-    val challenge: String? by option("-c", "--challenge", help = "Challenge to be used in the proof")
+    val domain: String? by option("-d", "--domain", help = "Domain name to be used in the LD proof")
+    val challenge: String? by option("-c", "--challenge", help = "Challenge to be used in the LD proof")
     // val holderDid: String? by option("-i", "--holder-did", help = "DID of the holder (owner of the VC)")
 
     override fun run() {
@@ -144,7 +111,7 @@ class PresentVcCommand : CliktCommand(
         }
 
         // Creating the Verifiable Presentation
-        val vp = credentialService.present(src.readText(), domain, challenge)
+        val vp = CustodianService.getService().createPresentation(src.readText(), domain, challenge)
 
         log.debug { "Presentation created (ld-signature):\n$vp" }
 
@@ -173,31 +140,57 @@ class VerifyVcCommand : CliktCommand(
 ) {
 
     val src: File by argument().file()
+
     //val isPresentation: Boolean by option("-p", "--is-presentation", help = "In case a VP is verified.").flag()
+    val policies: List<String> by option(
+        "-p",
+        "--policy",
+        help = "Verification policy. Can be specified multiple times. By default, ${PolicyRegistry.defaultPolicyId} is used."
+    ).multiple(default = listOf(PolicyRegistry.defaultPolicyId))
 
     override fun run() {
-        echo("Verifying form file $src ...\n")
+        echo("Verifying from file $src ...\n")
 
         if (!src.exists()) {
             log.error("Could not load file $src")
             throw Exception("Could not load file $src")
         }
+        if (policies.any { !PolicyRegistry.contains(it) }) {
+            log.error("Unknown verification policy specified")
+            throw Exception("Unknown verification policy specified")
+        }
 
-        val verificationResult = credentialService.verify(src.readText())
+        val verificationResult = AuditorService.verify(src.readText(), policies.map { PolicyRegistry.getPolicy(it) })
 
         echo("\nResults:\n")
 
-        val type = when (verificationResult.verificationType) {
-            VerificationType.VERIFIABLE_PRESENTATION -> "verifiable presentation"
-            VerificationType.VERIFIABLE_CREDENTIAL -> "verifiable credential"
-        }
+//        val type = when (verificationResult.verificationType) {
+//            VerificationType.VERIFIABLE_PRESENTATION -> "verifiable presentation"
+//            VerificationType.VERIFIABLE_CREDENTIAL -> "verifiable credential"
+//        }
 
-        echo(
-            when (verificationResult.verified) {
-                true -> "The $type was verified successfully."
-                false -> "The $type is not valid or could not be verified."
-            }
-        )
+//        echo(
+//            when (verificationResult.verified) {
+//                true -> "The $type was verified successfully."
+//                false -> "The $type is not valid or could not be verified."
+//            }
+//        )
+
+        verificationResult.policyResults.forEach { (policy, result) ->
+            echo("$policy:\t\t $result")
+        }
+        echo("Verified:\t\t ${verificationResult.overallStatus}")
+    }
+}
+
+class ListVerificationPoliciesCommand : CliktCommand(
+    name = "policies",
+    help = "List verification policies"
+) {
+    override fun run() {
+        PolicyRegistry.listPolicies().forEach { verificationPolicy ->
+            echo("${verificationPolicy.id}: ${verificationPolicy.description}")
+        }
     }
 }
 

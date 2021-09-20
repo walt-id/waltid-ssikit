@@ -24,14 +24,14 @@ class KeyCommand : CliktCommand(
 
         Key management functions like generation, export/import, and deletion."""
 ) {
-    // val repo: RepoConfig by requireObject()
     val algorithm: String by option(help = "Key algorithm [Ed25519]").default("Ed25519")
 
     override fun run() {
     }
 }
 
-class GenCommand : CliktCommand(
+class GenKeyCommand : CliktCommand(
+    name = "gen",
     help = """Generate keys.
 
         Generates an asymmetric keypair by the specified algorithm. Supported algorithms are ECDSA Secp256k1 & EdDSA Ed25519 (default)
@@ -39,8 +39,6 @@ class GenCommand : CliktCommand(
         """
 ) {
 
-
-    // val keyAlias: String by option("--key-alias", "-k", help = "Specific key alias").prompt()
     val algorithm: String by option("-a", "--algorithm", help = "Key algorithm [Ed25519]").choice(
         "Ed25519",
         "Secp256k1"
@@ -51,7 +49,6 @@ class GenCommand : CliktCommand(
         val keyId = when (algorithm) {
             "Ed25519" -> keyService.generate(KeyAlgorithm.EdDSA_Ed25519)
             "Secp256k1" -> keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
-            // TODO add RSA: "RSA" -> KeyManagementService.generateRsaKeyPair()
             else -> throw IllegalArgumentException("Algorithm not supported")
         }
         echo("Key \"$keyId\" generated.")
@@ -60,17 +57,13 @@ class GenCommand : CliktCommand(
 
 class ImportKeyCommand : CliktCommand(
     name = "import",
-    help = """Import keys.
+    help = """Import key in JWK format.
 
-        Import key in JWK format."""
+        Based on the JWK key ID and key material an internal key object will be
+        created and placed in the corresponding key store."""
 ) {
 
     val keyFile: File by argument("JWK-FILE", help = "File containing the JWK key (e.g. jwk.json)").file()
-    val provider: CryptoProvider by option(
-        "-p",
-        "--provider",
-        help = "Crypto provider of the imported key"
-    ).enum<CryptoProvider>().default(CryptoProvider.SUN)
 
     override fun run() {
         val keyStr = readWhenContent(keyFile)
@@ -101,7 +94,7 @@ class ExportKeyCommand : CliktCommand(
         echo("Exporting $exportPrivate key \"$keyId\"...")
         val jwk = keyService.export(keyId, keyFormat, exportKeyType)
 
-        println("\nResults:\n")
+        echo("\nResults:\n")
 
         println(jwk)
     }

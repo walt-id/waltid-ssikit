@@ -1,8 +1,8 @@
 package id.walt.services.keystore
 
+import id.walt.crypto.*
 import mu.KotlinLogging
 import org.apache.commons.io.IOUtils
-import id.walt.crypto.*
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -14,9 +14,9 @@ import java.security.PublicKey
 import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
 
-private val log = KotlinLogging.logger {}
-
 open class FileSystemKeyStoreService : KeyStoreService() {
+
+    private val log = KotlinLogging.logger {}
 
     //TODO: get key format from config
     private val KEY_FORMAT = KeyFormat.PEM
@@ -47,9 +47,9 @@ open class FileSystemKeyStoreService : KeyStoreService() {
         val metaData = String(loadKeyFile(keyId, "meta"))
         val algorithm = metaData.substringBefore(delimiter = ";")
         val provider = metaData.substringAfter(delimiter = ";")
-        val publicPart = File("${Companion.KEY_DIR_PATH}/$keyId.enc-pubkey").readText()
+        val publicPart = File("$KEY_DIR_PATH/$keyId.enc-pubkey").readText()
         val privatePart =
-            if (keyType == KeyType.PRIVATE) File("${Companion.KEY_DIR_PATH}/$keyId.enc-privkey").readText() else null
+            if (keyType == KeyType.PRIVATE) File("$KEY_DIR_PATH/$keyId.enc-privkey").readText() else null
 
         return buildKey(keyId, algorithm, provider, publicPart, privatePart, KEY_FORMAT)
     }
@@ -75,6 +75,8 @@ open class FileSystemKeyStoreService : KeyStoreService() {
         deleteKeyFile(alias, "enc-privkey")
         deleteKeyFile(alias, "raw-pubkey")
         deleteKeyFile(alias, "raw-privkey")
+        deleteKeyFile(alias, "meta")
+        deleteKeyAlias(alias)
     }
 
     private fun storePublicKey(key: Key) =
@@ -206,6 +208,8 @@ open class FileSystemKeyStoreService : KeyStoreService() {
         IOUtils.toByteArray(FileInputStream("${Companion.KEY_DIR_PATH}/$keyId.$suffix"))
 
     private fun deleteKeyFile(keyId: String, suffix: String) = File("${Companion.KEY_DIR_PATH}/$keyId.$suffix").delete()
+
+    private fun deleteKeyAlias(alias: String) = File("${KEY_DIR_PATH}/Alias-$alias").delete()
 
     fun getKeyIdList() = File(Companion.KEY_DIR_PATH).listFiles()!!.map { it.nameWithoutExtension }.distinct()
 

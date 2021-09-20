@@ -4,9 +4,13 @@ import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import id.walt.services.jwt.JwtService
 import id.walt.signatory.ProofConfig
+import id.walt.signatory.ProofType
+import id.walt.vclib.Helpers.encode
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.Helpers.toMap
+import id.walt.vclib.VcLibManager
 import id.walt.vclib.model.VerifiableCredential
+import id.walt.vclib.vclist.VerifiablePresentation
 import info.weboftrust.ldsignatures.LdProof
 import mu.KotlinLogging
 import java.nio.file.Files
@@ -18,11 +22,14 @@ private val log = KotlinLogging.logger {}
 open class WaltIdJwtCredentialService : JwtCredentialService() {
 
     private val jwtService = JwtService.getService()
+    val JWT_VC_CLAIM = "vc"
+    val JWT_VP_CLAIM = "vp"
 
     override fun sign(jsonCred: String, config: ProofConfig): String {
         log.debug { "Signing JWT object with config: $config" }
         val issuerDid = config.issuerDid
         val issueDate = config.issueDate ?: Date()
+        val crd = jsonCred.toCredential()
         val payload = JWTClaimsSet.Builder()
             .jwtID(config.id)
             .issuer(issuerDid)
@@ -30,7 +37,10 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
             .issueTime(issueDate)
             .notBeforeTime(issueDate)
             .expirationTime(config.expirationDate)
-            .claim("vc", jsonCred.toCredential().toMap())
+            .claim(when(crd) {
+                is VerifiablePresentation -> JWT_VP_CLAIM
+                else -> JWT_VC_CLAIM
+             }, crd.toMap())
             .build().toString()
 
         log.debug { "Signing: $payload" }
@@ -46,7 +56,10 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
         TODO("Not implemented yet.")
 
     override fun verify(vcOrVp: String): VerificationResult =
-        TODO("Not implemented yet.")
+        when (VcLibManager.getVerifiableCredential(vcOrVp)) {
+            is VerifiablePresentation -> VerificationResult(verifyVp(vcOrVp), VerificationType.VERIFIABLE_PRESENTATION)
+            else -> VerificationResult(verifyVc(vcOrVp), VerificationType.VERIFIABLE_CREDENTIAL)
+        }
 
     override fun verifyVc(vc: String): Boolean {
         log.debug { "Verifying vc: $vc" }
@@ -54,10 +67,29 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
     }
 
     override fun verifyVp(vp: String): Boolean =
-        TODO("Not implemented yet.")
+        verifyVc(vp)
 
-    override fun present(vc: String, domain: String?, challenge: String?): String =
-        TODO("Not implemented yet.")
+    override fun present(vc: String): String {
+        log.debug { "Creating a presentation for VC:\n$vc" }
+
+        val vpReqStr = VerifiablePresentation(
+            id = "id",
+            verifiableCredential = listOf(vc.toCredential())
+        ).encode()
+
+        log.trace { "VP request:\n$vpReqStr" }
+
+        val holderDid = VcUtils.getHolder(vc.toCredential())
+        val proofConfig = ProofConfig(
+            issuerDid = holderDid,
+            subjectDid = holderDid,
+            proofType = ProofType.JWT
+        )
+        val vp = sign(vpReqStr, proofConfig)
+
+        log.debug { "VP created:$vp" }
+        return vp
+    }
 
     override fun listVCs(): List<String> =
         Files.walk(Path.of("data/vc/created"))

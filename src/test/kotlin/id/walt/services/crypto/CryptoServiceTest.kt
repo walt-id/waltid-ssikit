@@ -1,13 +1,16 @@
 package id.walt.services.crypto
 
-import io.kotest.core.spec.style.AnnotationSpec
-import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.WaltIdProvider
 import id.walt.crypto.decBase64
 import id.walt.crypto.encBase64
+import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.WaltIdServices
+import id.walt.test.RESOURCES_PATH
+import io.kotest.core.spec.style.AnnotationSpec
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import java.io.File
 import java.security.KeyStore
 import java.security.Provider
 import java.security.Security
@@ -21,6 +24,11 @@ class CryptoServiceTest : AnnotationSpec() {
 
     val sunCryptoService = SunCryptoService()
     val tinkCryptoService = TinkCryptoService()
+
+    @Before
+    fun setup() {
+        ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
+    }
 
     @Test
     fun testGenSecp256k1Sun() {
@@ -38,6 +46,7 @@ class CryptoServiceTest : AnnotationSpec() {
     fun testGenEd25519Tink() {
         val keyId = tinkCryptoService.generateKey(KeyAlgorithm.EdDSA_Ed25519)
         keyId.id shouldNotBe null
+        File("data/key/$keyId.tink").delete()
     }
 
     // @Test TODO: not supported yet https://github.com/google/tink/issues/146
@@ -68,8 +77,8 @@ class CryptoServiceTest : AnnotationSpec() {
         val myks = KeyStore.getInstance("PKCS11", "Walt")
         println(myks)
 
-        val mycipher = Cipher.getInstance("AES/GCM/NoPadding", "Walt")
-        println(mycipher)
+//        val mycipher = Cipher.getInstance("AES/GCM/NoPadding", "Walt")
+//        println(mycipher)
 
         val providers: Array<Provider> = Security.getProviders()
 

@@ -1,17 +1,18 @@
 package id.walt.common
 
+import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
+import id.walt.services.did.DidService
+import id.walt.test.RESOURCES_PATH
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import id.walt.model.DidMethod
-import id.walt.services.did.DidService
 import java.util.*
 
 class OidcUtilTest : AnnotationSpec() {
 
     @Before
     fun setup() {
-        ServiceMatrix("service-matrix.properties")
+        ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
     }
 
     @Test

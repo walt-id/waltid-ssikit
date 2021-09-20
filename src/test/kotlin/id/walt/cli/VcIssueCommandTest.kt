@@ -9,6 +9,7 @@ import id.walt.services.key.KeyService
 import id.walt.signatory.DataProviderRegistry
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.SignatoryDataProvider
+import id.walt.test.RESOURCES_PATH
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.vclist.VerifiableAttestation
 import io.kotest.assertions.throwables.shouldThrow
@@ -18,7 +19,7 @@ import io.kotest.matchers.string.shouldContain
 
 class VcIssueCommandTest : StringSpec({
 
-    ServiceMatrix("service-matrix.properties")
+    ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
 
     val key = KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1)
     var didIssuer = DidService.create(DidMethod.ebsi, keyAlias = key.id)
@@ -43,19 +44,24 @@ class VcIssueCommandTest : StringSpec({
         VcIssueCommand().parse(listOf("-i", didIssuer, "-s", didSubject))
     }
 
-    "vc issue Europass LD_PROOF" {
-        VcIssueCommand().parse(listOf("-i", didIssuer, "-s", didSubject, "-t", "Europass", "-p", "LD_PROOF"))
+    "vc issue VerifiableId LD_PROOF" {
+        VcIssueCommand().parse(listOf("-i", didIssuer, "-s", didSubject, "-t", "VerifiableId", "-p", "LD_PROOF"))
+    }
+
+    "vc issue VerifiableDiploma LD_PROOF" {
+        VcIssueCommand().parse(listOf("-i", didIssuer, "-s", didSubject, "-t", "VerifiableDiploma", "-p", "LD_PROOF"))
     }
 
     "vc issue VerifiableAttestation LD_PROOF" {
         VcIssueCommand().parse(listOf("-i", didIssuer, "-s", didSubject, "-t", "VerifiableAttestation"))
     }
 
-    "vc issue Europass JWT" {
-        VcIssueCommand().parse(listOf("-i", didIssuer, "-s", didSubject, "-t", "Europass", "-p", "JWT"))
+    "vc issue VerifiableId JWT" {
+        VcIssueCommand().parse(listOf("-i", didIssuer, "-s", didSubject, "-t", "VerifiableId", "-p", "JWT"))
     }
 
-// TODO   "vc issue VerifiableAttestation JWT" {
-//        VcIssueCommand().parse(listOf("-i", didIssuer, "-s", didSubject, "-t", "VerifiableAttestation", "-p", "JWT"))
-//    }
+    "vc issue VerifiableDiploma JWT" {
+        VcIssueCommand().parse(listOf("-i", didIssuer, "-s", didSubject, "-t", "VerifiableDiploma", "-p", "JWT"))
+    }
+
 })

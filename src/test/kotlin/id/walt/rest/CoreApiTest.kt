@@ -2,13 +2,32 @@ package id.walt.rest
 
 import com.beust.klaxon.Klaxon
 import com.nimbusds.jose.jwk.JWK
+import id.walt.common.readWhenContent
+import id.walt.crypto.KeyAlgorithm
+import id.walt.crypto.KeyId
+import id.walt.crypto.localTimeSecondsUtc
+import id.walt.model.DidMethod
+import id.walt.model.DidUrl
 import id.walt.servicematrix.ServiceMatrix
+import id.walt.services.did.DidService
+import id.walt.services.key.KeyFormat
+import id.walt.services.key.KeyService
+import id.walt.services.vc.JsonLdCredentialService
+import id.walt.services.vc.VerificationResult
+import id.walt.services.vc.VerificationType
+import id.walt.signatory.ProofConfig
+import id.walt.test.RESOURCES_PATH
+import id.walt.test.getTemplate
+import id.walt.test.readCredOffer
+import id.walt.vclib.Helpers.encode
+import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.VcLibManager
 import id.walt.vclib.vclist.Europass
 import id.walt.vclib.vclist.VerifiableAttestation
 import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.json.*
@@ -18,21 +37,6 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import org.apache.commons.lang3.StringUtils.countMatches
-import id.walt.crypto.KeyAlgorithm
-import id.walt.crypto.KeyId
-import id.walt.crypto.localTimeSecondsUtc
-import id.walt.model.DidMethod
-import id.walt.model.DidUrl
-import id.walt.services.did.DidService
-import id.walt.services.key.KeyFormat
-import id.walt.services.vc.JsonLdCredentialService
-import id.walt.services.vc.VerificationResult
-import id.walt.services.vc.VerificationType
-import id.walt.signatory.ProofConfig
-import id.walt.test.getTemplate
-import id.walt.test.readCredOffer
-import id.walt.vclib.Helpers.encode
-import id.walt.vclib.Helpers.toCredential
 import java.io.File
 import java.sql.Timestamp
 import java.time.LocalDateTime
@@ -40,11 +44,11 @@ import java.time.LocalDateTime
 class CoreApiTest : AnnotationSpec() {
 
     init {
-        ServiceMatrix("service-matrix.properties")
+        ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
     }
 
     private val credentialService = JsonLdCredentialService.getService()
-    val CORE_API_URL = "http://localhost:7003"
+    val CORE_API_URL = "http://localhost:7013"
 
     val client = HttpClient(CIO) {
         install(JsonFeature) {
@@ -60,7 +64,7 @@ class CoreApiTest : AnnotationSpec() {
                 append(HttpHeaders.Authorization, "token")
             }
         }
-        200 shouldBe response.status.value
+        response.status.value shouldBe 200
         return@runBlocking response
     }
 
@@ -71,7 +75,7 @@ class CoreApiTest : AnnotationSpec() {
                 append(HttpHeaders.Authorization, "token")
             }
         }
-        200 shouldBe response.status.value
+        response.status.value shouldBe 200
         return@runBlocking response
     }
 
@@ -88,12 +92,20 @@ class CoreApiTest : AnnotationSpec() {
 
     @BeforeClass
     fun startServer() {
-        RestAPI.startCoreApi(7003)
+        CoreAPI.start(7013)
     }
 
     @AfterClass
     fun teardown() {
-        RestAPI.stopCoreApi()
+        CoreAPI.start()
+    }
+
+    @Test
+    fun testDocumentation() = runBlocking {
+        val response = get("/v1/api-documentation").readText()
+
+        response shouldContain "\"operationId\":\"health\""
+        response shouldContain "Returns HTTP 200 in case all services are up and running"
     }
 
     @Test
@@ -104,7 +116,6 @@ class CoreApiTest : AnnotationSpec() {
 
     @Test
     fun testGenKeyEd25519() = runBlocking {
-
         val keyId = client.post<KeyId>("$CORE_API_URL/v1/key/gen") {
             contentType(ContentType.Application.Json)
             body = GenKeyRequest(KeyAlgorithm.EdDSA_Ed25519)
@@ -131,8 +142,8 @@ class CoreApiTest : AnnotationSpec() {
         }
         println(errorResp.readText())
         val error = Klaxon().parse<ErrorResponse>(errorResp.readText())!!
-        400 shouldBe error.status
-        "Couldn't deserialize body to GenKeyRequest" shouldBe error.title
+        error.status shouldBe 400
+        error.title shouldContain "GenKeyRequest"
     }
 
     @Test
@@ -170,6 +181,37 @@ class CoreApiTest : AnnotationSpec() {
     }
 
     @Test
+    fun testImportPrivateKey() = runBlocking {
+
+        val keyId = client.post<KeyId>("$CORE_API_URL/v1/key/import") {
+            body = readWhenContent(File("src/test/resources/cli/privKeyEd25519Jwk.json"))
+        }
+
+        val key = KeyService.getService().load(keyId.id)
+
+        key.keyId shouldBe keyId
+
+        KeyService.getService().delete(keyId.id)
+
+    }
+
+    @Test
+    fun testImportPublicKey() = runBlocking {
+
+        val keyId = client.post<KeyId>("$CORE_API_URL/v1/key/import") {
+            body = readWhenContent(File("src/test/resources/cli/pubKeyEd25519Jwk.json"))
+        }
+
+        val key = KeyService.getService().load(keyId.id)
+
+        key.keyId shouldBe keyId
+
+        KeyService.getService().delete(keyId.id)
+
+    }
+
+
+    @Test
     fun testDidCreateKey() = runBlocking {
         val did = client.post<String>("$CORE_API_URL/v1/did/create") {
             contentType(ContentType.Application.Json)
@@ -195,9 +237,9 @@ class CoreApiTest : AnnotationSpec() {
             contentType(ContentType.Application.Json)
             body = CreateDidRequest(DidMethod.ebsi)
         }
-        400 shouldBe errorResp.status.value
+        errorResp.status.value shouldBe 400
         val error = Klaxon().parse<ErrorResponse>(errorResp.readText())!!
-        400 shouldBe error.status
+        error.status shouldBe 400
         "DID method EBSI not supported" shouldBe error.title
     }
 

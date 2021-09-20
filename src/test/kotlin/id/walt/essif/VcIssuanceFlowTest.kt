@@ -14,11 +14,12 @@ import id.walt.crypto.encBase64
 import id.walt.model.*
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
-import id.walt.services.essif.EssifFlowRunner
+import id.walt.services.essif.EssifClient
 import id.walt.services.essif.EssifServer
 import id.walt.services.essif.userwallet.UserWalletService
 import id.walt.services.jwt.JwtService
 import id.walt.services.key.KeyService
+import id.walt.test.RESOURCES_PATH
 import java.util.*
 
 class VcIssuanceFlowTest : AnnotationSpec() {
@@ -27,7 +28,7 @@ class VcIssuanceFlowTest : AnnotationSpec() {
     private val jwtService = JwtService.getService()
 
     init {
-        ServiceMatrix("service-matrix.properties")
+        ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
     }
 
     private fun generateDidAuthRequest(): String {
@@ -196,6 +197,6 @@ class VcIssuanceFlowTest : AnnotationSpec() {
 
     @Test
     fun testVcIssuanceFlow() {
-        EssifFlowRunner.vcIssuance()
+        EssifClient.vcIssuance()
     }
 }

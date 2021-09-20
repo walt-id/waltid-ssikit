@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.5.20"
+    kotlin("jvm") version "1.4.32"
     kotlin("plugin.serialization") version "1.5.20"
     id("com.github.kkdad.dependency-license-report") version "1.16.6"
     id("org.owasp.dependencycheck") version "6.1.6"
@@ -22,7 +22,7 @@ repositories {
     maven("https://maven.walt.id/repository/waltid/")
     maven("https://maven.walt.id/repository/waltid-ssi-kit/")
     maven("https://maven.walt.id/repository/danubetech")
-    //mavenLocal()
+    mavenLocal()
 }
 
 dependencies {
@@ -30,7 +30,7 @@ dependencies {
     api("com.google.crypto.tink:tink:1.6.1")
     api("info.weboftrust:ld-signatures-java:0.5-SNAPSHOT")
     api("decentralized-identity:jsonld-common-java:0.2.0")
-    implementation("com.goterl:lazysodium-java:5.0.1")
+    implementation("com.goterl:lazysodium-java:5.1.1")
     implementation("com.github.multiformats:java-multibase:v1.1.0")
     implementation("com.microsoft.azure:azure-keyvault:1.2.4")
     implementation("com.microsoft.azure:azure-client-authentication:1.7.13")
@@ -42,7 +42,7 @@ dependencies {
     implementation("com.google.guava:guava:30.1.1-jre")
 
     // VC
-    implementation("id.walt:waltid-ssikit-vclib:1.4.3")
+    implementation("id.walt:waltid-ssikit-vclib:1.4.7")
 
     // JSON
     implementation("org.json:json:20210307")
@@ -50,7 +50,7 @@ dependencies {
     //implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
 
     // DB
-    implementation("org.xerial:sqlite-jdbc:3.36.0.1")
+    implementation("org.xerial:sqlite-jdbc:3.36.0.2")
     implementation("com.zaxxer:HikariCP:5.0.0")
 
     // CLI
@@ -61,25 +61,25 @@ dependencies {
     implementation("commons-io:commons-io:2.11.0")
 
     // HTTP
-    implementation("io.ktor:ktor-client-core:1.6.1")
-    implementation("io.ktor:ktor-client-cio:1.6.1")
-    implementation("io.ktor:ktor-client-serialization:1.6.1")
-    implementation("io.ktor:ktor-client-logging:1.6.1")
+    implementation("io.ktor:ktor-client-core:1.6.3")
+    implementation("io.ktor:ktor-client-cio:1.6.3")
+    implementation("io.ktor:ktor-client-serialization:1.6.3")
+    implementation("io.ktor:ktor-client-logging:1.6.3")
 
     // REST
-    implementation("io.javalin:javalin-bundle:3.13.9")
+    implementation("io.javalin:javalin-bundle:4.0.0")
 
     // Logging
     implementation("org.slf4j:slf4j-api:2.0.0-alpha2")
     implementation("org.apache.logging.log4j:log4j-core:2.14.1")
     implementation("org.apache.logging.log4j:log4j-api:2.14.1")
     implementation("org.apache.logging.log4j:log4j-slf4j18-impl:2.14.1")
-    implementation("io.github.microutils:kotlin-logging-jvm:2.0.10")
+    implementation("io.github.microutils:kotlin-logging-jvm:2.0.11")
 
     // Config
-    implementation("com.sksamuel.hoplite:hoplite-core:1.4.4")
-    implementation("com.sksamuel.hoplite:hoplite-yaml:1.4.4")
-    implementation("com.sksamuel.hoplite:hoplite-hikaricp:1.4.4")
+    implementation("com.sksamuel.hoplite:hoplite-core:1.4.7")
+    implementation("com.sksamuel.hoplite:hoplite-yaml:1.4.7")
+    implementation("com.sksamuel.hoplite:hoplite-hikaricp:1.4.7")
 
     // Service-Matrix
     implementation("id.walt.servicematrix:WaltID-ServiceMatrix:1.0.1")
@@ -113,7 +113,7 @@ java {
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "16"
+    kotlinOptions.jvmTarget = "15"
 }
 
 tasks.named<CreateStartScripts>("startScripts") {
@@ -160,8 +160,8 @@ publishing {
             url = uri("https://maven.walt.id/repository/waltid-ssi-kit/")
             val usernameFile = File("secret_maven_username.txt")
             val passwordFile = File("secret_maven_password.txt")
-            val secretMavenUsername = System.getenv()["SECRET_MAVEN_USERNAME"] ?: if (usernameFile.isFile) { usernameFile.readLines()[0] } else { "" }
-            val secretMavenPassword = System.getenv()["SECRET_MAVEN_PASSWORD"] ?: if (passwordFile.isFile) { passwordFile.readLines()[0] } else { "" }
+            val secretMavenUsername = System.getenv()["MAVEN_USERNAME"] ?: if (usernameFile.isFile) { usernameFile.readLines()[0] } else { "" }
+            val secretMavenPassword = System.getenv()["MAVEN_PASSWORD"] ?: if (passwordFile.isFile) { passwordFile.readLines()[0] } else { "" }
 
             credentials {
                 username = secretMavenUsername

@@ -3,22 +3,24 @@ package id.walt.services.key
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.jwk.*
 import com.nimbusds.jose.util.Base64URL
+import id.walt.crypto.*
+import id.walt.services.CryptoProvider
+import id.walt.services.crypto.CryptoService
+import id.walt.services.keystore.KeyStoreService
+import id.walt.services.keystore.KeyType
 import org.bouncycastle.asn1.ASN1BitString
 import org.bouncycastle.asn1.ASN1OctetString
 import org.bouncycastle.asn1.ASN1Sequence
 import org.bouncycastle.jcajce.provider.digest.Keccak
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.util.encoders.Hex
-import id.walt.crypto.*
-import id.walt.services.CryptoProvider
-import id.walt.services.crypto.CryptoService
-import id.walt.services.keystore.KeyStoreService
-import id.walt.services.keystore.KeyType
 import org.web3j.crypto.ECDSASignature
 import org.web3j.crypto.Hash
 import org.web3j.crypto.Keys
 import org.web3j.crypto.Sign
 import org.web3j.utils.Numeric
+import java.security.KeyFactory
+import java.security.KeyPair
 import java.security.interfaces.ECPublicKey
 import java.util.*
 
@@ -41,7 +43,30 @@ open class WaltIdKeyService : KeyService() {
             else -> toPem(keyAlias, exportKeyType)
         }
 
-    override fun import(jwkKeyStr: String): KeyId {
+    override fun import(keyStr: String): KeyId {
+
+        val key = parseJwkKey(keyStr)
+//        PEM keys are currently not supported
+//        val key = with(keyStr.trim()) {
+//            when {
+//                startsWith("---") -> parsePemKey(this)
+//                startsWith("{") -> parseJwkKey(this)
+//                else -> throw IllegalArgumentException("Invalid key format (must be PEM or JWK)")
+//            }
+//        }
+        keyStore.store(key)
+        return key.keyId
+    }
+
+    private fun parsePemKey(pemKeyStr: String): Key {
+
+        val privateKey = if (pemKeyStr.contains("PRIVATE")) decodePrivKeyPem(pemKeyStr, KeyFactory.getInstance("Ed25519")) else null
+        val publicKey = if (pemKeyStr.contains("PUBLIC")) decodePubKeyPem(pemKeyStr, KeyFactory.getInstance("Ed25519")) else null
+
+        return Key(newKeyId(), KeyAlgorithm.EdDSA_Ed25519, CryptoProvider.SUN, KeyPair(publicKey, privateKey))
+    }
+
+    private fun parseJwkKey(jwkKeyStr: String): Key {
         val jwk = JWK.parse(jwkKeyStr)
 
         val key = when (jwk.algorithm.name) {
@@ -61,9 +86,7 @@ open class WaltIdKeyService : KeyService() {
             )
             else -> throw IllegalArgumentException("Algorithm ${jwk.algorithm} not supported")
         }
-        //val key = buildKey(jwk.keyID, KeyAlgorithm.EdDSA_Ed25519.name, CryptoProvider.SUN.name, jwk.toOctetKeyPair().x.toString(), jwk.toOctetKeyPair().d?.let { jwk.toOctetKeyPair().d.toString() }, id.walt.crypto.KeyFormat.BASE64_RAW)
-        keyStore.store(key)
-        return key.keyId
+        return key
     }
 
     override fun toJwk(keyAlias: String, keyType: KeyType, jwkKeyId: String?): JWK {

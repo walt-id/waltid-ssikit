@@ -1,8 +1,13 @@
 package id.walt.auditor
 
+import id.walt.services.jwt.JwtService
 import id.walt.services.vc.JsonLdCredentialService
+import id.walt.services.vc.JwtCredentialService
+import id.walt.signatory.ProofType
 import id.walt.vclib.Helpers.encode
+import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.VcLibManager
+import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.vclist.VerifiablePresentation
 
 // the following validation policies can be applied
@@ -17,53 +22,72 @@ import id.walt.vclib.vclist.VerifiablePresentation
 // - SECURE_CRYPTO
 // - HOLDER_BINDING (only for VPs)
 
-
 interface VerificationPolicy {
-    fun id(): String = this.javaClass.simpleName
-    fun verify(vp: VerifiablePresentation): Boolean
+    val id: String
+        get() = this.javaClass.simpleName
+    val description: String
+    fun verify(vc: VerifiableCredential): Boolean
 }
 
 class SignaturePolicy : VerificationPolicy {
     private val jsonLdCredentialService = JsonLdCredentialService.getService()
+    private val jwtCredentialService = JwtCredentialService.getService()
+    override val description: String = "Verify by signature"
 
-
-    override fun verify(vp: VerifiablePresentation): Boolean {
-        return jsonLdCredentialService.verify(vp.encode()).verified
+    override fun verify(vc: VerifiableCredential): Boolean {
+        return when(vc?.jwt) {
+            // TODO: support JWT Presentation
+            null -> jsonLdCredentialService.verify(vc.json!!).verified
+            else -> jwtCredentialService.verify(vc!!.jwt!!).verified
+        }
     }
 }
 
 class JsonSchemaPolicy : VerificationPolicy { // Schema already validated by json-ld?
-    override fun verify(vp: VerifiablePresentation) = true // TODO validate policy
+    override val description: String = "Verify by JSON schema"
+    override fun verify(vc: VerifiableCredential) = true // TODO validate policy
 }
 
 class TrustedIssuerDidPolicy : VerificationPolicy {
-    override fun verify(vp: VerifiablePresentation) = true // TODO validate policy
+    override val description: String = "Verify by trusted issuer did"
+    override fun verify(vc: VerifiableCredential) = true // TODO validate policy
 }
 
 class TrustedSubjectDidPolicy : VerificationPolicy {
-    override fun verify(vp: VerifiablePresentation) = true // TODO validate policy
+    override val description: String = "Verify by trusted subject did"
+    override fun verify(vc: VerifiableCredential) = true // TODO validate policy
 }
 
 object PolicyRegistry {
     val policies = HashMap<String, VerificationPolicy>()
+    val defaultPolicyId: String
 
-    fun register(policy: VerificationPolicy) = policies.put(policy.id(), policy)
+    fun register(policy: VerificationPolicy) = policies.put(policy.id, policy)
     fun getPolicy(id: String) = policies[id]!!
+    fun contains(id: String) = policies.containsKey(id)
+    fun listPolicies() = policies.values
+
+    init {
+        val sigPol = SignaturePolicy()
+        defaultPolicyId = sigPol.id
+        PolicyRegistry.register(sigPol)
+        PolicyRegistry.register(TrustedIssuerDidPolicy())
+        PolicyRegistry.register(TrustedSubjectDidPolicy())
+        PolicyRegistry.register(JsonSchemaPolicy())
+    }
 }
 
 data class VerificationResult(
     val overallStatus: Boolean = false,
-    val policyResults: Map<VerificationPolicy, Boolean>
+    val policyResults: Map<String, Boolean>
 ) {
     override fun toString() =
-        "VerificationResult(overallStatus=$overallStatus, policyResults={${policyResults.entries.joinToString { it.key.javaClass.simpleName + "=" + it.value }}})"
+        "VerificationResult(overallStatus=$overallStatus, policyResults={${policyResults.entries.joinToString { it.key + "=" + it.value }}})"
 }
 
 interface IAuditor {
 
-    fun verify(vpJson: String, policies: List<VerificationPolicy>): VerificationResult
-    fun verifyByIds(vpJson: String, policies: List<String>): VerificationResult =
-        verify(vpJson, policies.map { PolicyRegistry.getPolicy(it) })
+    fun verify(vc: String, policies: List<VerificationPolicy>): VerificationResult
 
 //    fun verifyVc(vc: String, config: AuditorConfig) = VerificationStatus(true)
 //    fun verifyVp(vp: String, config: AuditorConfig) = VerificationStatus(true)
@@ -71,21 +95,20 @@ interface IAuditor {
 
 object AuditorService : IAuditor {
 
-    private fun allAccepted(policyResults: Map<VerificationPolicy, Boolean>) = policyResults.values.all { it }
+    private fun allAccepted(policyResults: Map<String, Boolean>) = policyResults.values.all { it }
 
-
-    override fun verify(vpJson: String, policies: List<VerificationPolicy>): VerificationResult {
-        val vp = VcLibManager.getVerifiableCredential(vpJson) as VerifiablePresentation
-
-        val policyResults = policies.associateWith { it.verify(vp) }
+    override fun verify(vc: String, policies: List<VerificationPolicy>): VerificationResult {
+        val vc = vc.toCredential()
+        val policyResults = policies.associateBy(keySelector = VerificationPolicy::id) { policy ->
+            policy.verify(vc) &&
+                    when (vc) {
+                        is VerifiablePresentation -> vc.verifiableCredential.all { cred ->
+                            policy.verify(cred)
+                        }
+                        else -> true
+                    }
+        }
 
         return VerificationResult(allAccepted(policyResults), policyResults)
-    }
-
-    init {
-        PolicyRegistry.register(SignaturePolicy())
-        PolicyRegistry.register(TrustedIssuerDidPolicy())
-        PolicyRegistry.register(TrustedSubjectDidPolicy())
-        PolicyRegistry.register(JsonSchemaPolicy())
     }
 }

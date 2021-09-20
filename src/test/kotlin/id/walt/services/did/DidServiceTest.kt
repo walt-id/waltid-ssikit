@@ -9,15 +9,14 @@ import id.walt.crypto.KeyAlgorithm
 import id.walt.model.DidMethod
 import id.walt.model.DidUrl
 import id.walt.services.key.KeyService
+import id.walt.test.RESOURCES_PATH
 import java.io.File
 
 class DidServiceTest : AnnotationSpec() {
 
-    private val RESOURCES_PATH: String = "src/test/resources"
-
     @Before
     fun setup() {
-        ServiceMatrix("service-matrix.properties")
+        ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
     }
 
     private val keyService = KeyService.getService()

@@ -7,16 +7,19 @@ import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jose.jwk.KeyUse
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator
+import com.nimbusds.jose.util.Base64URL
+import id.walt.crypto.KeyAlgorithm
+import id.walt.crypto.encBase64Str
+import id.walt.crypto.newKeyId
+import id.walt.model.Jwk
 import id.walt.servicematrix.ServiceMatrix
+import id.walt.services.crypto.CryptoService
+import id.walt.services.keystore.KeyType
+import id.walt.test.RESOURCES_PATH
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.bouncycastle.jce.provider.BouncyCastleProvider
-import id.walt.crypto.KeyAlgorithm
-import id.walt.crypto.newKeyId
-import id.walt.model.Jwk
-import id.walt.services.crypto.CryptoService
-import id.walt.services.keystore.KeyType
 import org.web3j.crypto.ECDSASignature
 import org.web3j.crypto.ECKeyPair
 import org.web3j.crypto.Keys
@@ -35,7 +38,7 @@ class KeyServiceTest : AnnotationSpec() {
     @Before
     fun setup() {
         Security.addProvider(BouncyCastleProvider())
-        ServiceMatrix("service-matrix.properties")
+        ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
     }
 
     @Test
@@ -329,7 +332,7 @@ class KeyServiceTest : AnnotationSpec() {
     fun testImportEd25519JwkPrivKey() {
         val kid = newKeyId()
         val jwkImport =
-            "{\"kty\":\"OKP\",\"d\":\"GoVhqvYKbjpzDDRHsBLEIwZTiY39fEpVtXAxKVxKcCg\",\"use\":\"sig\",\"crv\":\"Ed25519\",\"kid\":\"${kid}\",\"x\":\"cU4CewjU2Adq8pxjfObrVg9u8svRP2JRC72zZdvFftI\",\"alg\":\"EdDSA\"}"
+            "{\"kty\":\"OKP\",\"d\":\"NzNkDxp2OPyplpxvxSmKtHCul2tQ_7QNuameOTKd6uY\",\"use\":\"sig\",\"crv\":\"Ed25519\",\"kid\":\"${kid}\",\"x\":\"4t6ROMKS2g9hwguVM-u9LzR06spoS__YyaOOvrtSFiI\",\"alg\":\"EdDSA\"}"
         keyService.import(jwkImport)
         println(jwkImport)
         val jwkExported = keyService.export(kid.id, KeyFormat.JWK, KeyType.PRIVATE)

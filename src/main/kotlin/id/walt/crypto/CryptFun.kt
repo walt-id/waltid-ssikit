@@ -59,7 +59,12 @@ enum class SignatureType {
 
 fun newKeyId(): KeyId = KeyId(UUID.randomUUID().toString().replace("-", ""))
 
-// EdECPrivateKeySpec(ED25519, this.encoded
+fun java.security.Key.toPEM(): String = when {
+    this is PublicKey -> this.toPEM()
+    this is PrivateKey -> this.toPEM()
+    else -> throw IllegalArgumentException()
+}
+
 fun PrivateKey.toPEM(): String =
     "-----BEGIN PRIVATE KEY-----\n" +
             String(
@@ -70,17 +75,19 @@ fun PrivateKey.toPEM(): String =
 
 fun PrivateKey.toBase64(): String = String(Base64.getEncoder().encode(PKCS8EncodedKeySpec(this.encoded).encoded))
 
-fun java.security.Key.toPEM(): String = when {
-    this is PublicKey -> this.toPEM()
-    this is PrivateKey -> this.toPEM()
-    else -> throw IllegalArgumentException()
-}
-
 fun PublicKey.toPEM(): String = "-----BEGIN PUBLIC KEY-----\n" +
         String(
             Base64.getMimeEncoder(64, "\n".toByteArray()).encode(X509EncodedKeySpec(this.encoded).encoded)
         ) +
         "\n-----END PUBLIC KEY-----"
+
+fun toPem(privKey: PrivateKey): String {
+   return "-----BEGIN PUBLIC KEY-----\n" +
+            String(
+                Base64.getMimeEncoder(64, "\n".toByteArray()).encode(X509EncodedKeySpec(privKey.encoded).encoded)
+            ) +
+            "\n-----END PUBLIC KEY-----"
+}
 
 fun encBase64Str(data: String): String = String(Base64.getEncoder().encode(data.toByteArray()))
 
@@ -96,7 +103,7 @@ fun decodePubKeyBase64(base64: String, kf: KeyFactory): PublicKey =
     kf.generatePublic(X509EncodedKeySpec(decBase64(base64)))
 
 fun decodeRawPubKeyBase64(base64: String, kf: KeyFactory): PublicKey {
-    val pubKeyInfo = SubjectPublicKeyInfo(AlgorithmIdentifier(EdECObjectIdentifiers.id_Ed25519), decBase64(base64))
+    val pubKeyInfo = SubjectPublicKeyInfo(AlgorithmIdentifier(EdECObjectIdentifiers.id_Ed25519), Base64URL.from(base64).decode())
     val x509KeySpec = X509EncodedKeySpec(pubKeyInfo.encoded)
     return kf.generatePublic(x509KeySpec)
 }
@@ -104,7 +111,7 @@ fun decodeRawPubKeyBase64(base64: String, kf: KeyFactory): PublicKey {
 fun decodeRawPrivKey(base64: String, kf: KeyFactory): PrivateKey {
     // TODO: extend for Secp256k1 keys
     val privKeyInfo =
-        PrivateKeyInfo(AlgorithmIdentifier(EdECObjectIdentifiers.id_Ed25519), DEROctetString(decBase64(base64)))
+        PrivateKeyInfo(AlgorithmIdentifier(EdECObjectIdentifiers.id_Ed25519), DEROctetString(Base64URL.from(base64).decode()))
     val pkcs8KeySpec = PKCS8EncodedKeySpec(privKeyInfo.encoded)
     return kf.generatePrivate(pkcs8KeySpec)
 }

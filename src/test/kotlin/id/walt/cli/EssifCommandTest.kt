@@ -1,23 +1,22 @@
 package id.walt.cli
 
 import com.github.ajalt.clikt.core.PrintHelpMessage
+import id.walt.crypto.KeyAlgorithm
+import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
+import id.walt.services.did.DidService
+import id.walt.services.key.KeyService
+import id.walt.test.RESOURCES_PATH
 import io.kotest.assertions.retry
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
-import id.walt.cli.EssifAuthCommand
-import id.walt.cli.EssifDidRegisterCommand
-import id.walt.cli.EssifOnboardingCommand
-import id.walt.crypto.KeyAlgorithm
-import id.walt.model.DidMethod
-import id.walt.services.did.DidService
-import id.walt.services.key.KeyService
 import java.io.File
-import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
+import kotlin.time.minutes
+import kotlin.time.seconds
 
 
 // CLI KIT Options
@@ -47,7 +46,7 @@ class EssifCommandTest : StringSpec({
     val bearerToken = File("data/ebsi/bearer-token.txt")
     val enableTests = bearerToken.exists()
 
-    ServiceMatrix("service-matrix.properties")
+    ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
 
     // DID used for onboarding
     val key = KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1)
@@ -86,7 +85,7 @@ class EssifCommandTest : StringSpec({
     }
 
     "did register --did".config(enabled = enableTests) {
-        retry(9, Duration.minutes(2), delay = Duration.seconds(4)) {
+        retry(9, 2.minutes, delay = 4.seconds) {
             println("Registering did")
             shouldNotThrowAny {
                 EssifDidRegisterCommand().parse(listOf("--did", did))
