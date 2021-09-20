@@ -130,8 +130,8 @@ object EssifAPI {
 
             path("v1") {
                 path("trusted-issuer") {
-                    post("generateAuthenticationRequest", TrustedIssuerController::generateAuthenticationRequest)
-                    post("openSession", TrustedIssuerController::openSession)
+                    post("generateAuthenticationRequest", documented(TrustedIssuerController.generateAuthenticationRequestDocs(), TrustedIssuerController::generateAuthenticationRequest))
+                    post("openSession", documented(TrustedIssuerController.openSessionDocs(), TrustedIssuerController::openSession))
                 }
                 path("client") {
                     post("onboard", documented(EssifClientController.onboardDocs(), EssifClientController::onboard))
@@ -174,15 +174,15 @@ object EssifAPI {
                 }
                 path("ti") {
                     path("credentials") {
-                        post("", EosController::getCredential)
-                        get("{credentialId}", EosController::getCredential)
+                        post("", documented(EosController.getCredentialDocs(), EosController::getCredential))
+                        get("{credentialId}", documented(EosController.getCredentialDocs(), EosController::getCredential))
                     }
-                    get("requestCredentialUri", EosController::requestCredentialUri)
-                    post("requestVerifiableCredential", EosController::requestVerifiableCredential)
+                    get("requestCredentialUri", documented(EosController.requestCredentialUriDocs(), EosController::requestCredentialUri))
+                    post("requestVerifiableCredential", documented(EosController.requestVerifiableCredentialDocs(), EosController::requestVerifiableCredential))
                 }
                 path("eos") {
-                    post("onboard", EosController::onboards)
-                    post("signedChallenge", EosController::signedChallenge)
+                    post("onboard", documented(EosController.onboardsDocs(), EosController::onboards))
+                    post("signedChallenge", documented(EosController.signedChallengeDocs(),EosController::signedChallenge))
                 }
                 path("enterprise") {
                     path("wallet") {
