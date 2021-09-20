@@ -109,19 +109,19 @@ object CustodianAPI {
             get("health", documented(RootController.healthDocs(), RootController::health))
 
             path("keys") {
-                get("/", CustodianController::listKeys)
-                get("{alias}", CustodianController::getKey)
-                post("generate", CustodianController::generateKey)
-                put("store", CustodianController::storeKey)
-                delete("{id}", CustodianController::deleteKey)
+                get("/", documented(CustodianController.listKeysDocs(), CustodianController::listKeys))
+                get("{alias}", documented(CustodianController.getKeysDocs(), CustodianController::getKey))
+                post("generate", documented(CustodianController.generateDocs(), CustodianController::generateKey))
+                put("store", documented(CustodianController.storeKeysDocs(), CustodianController::storeKey))
+                delete("{id}", documented(CustodianController.deleteKeysDocs(), CustodianController::deleteKey))
             }
 
             path("credentials") {
-                get("/", CustodianController::listCredentials)
-                get("{id}", CustodianController::getCredential)
-                get("listCredentialIds", CustodianController::listCredentialIds)
-                put("{alias}", CustodianController::storeCredential)
-                delete("{alias}", CustodianController::deleteCredential)
+                get("/", documented(CustodianController.deleteKeysDocs(), CustodianController::listCredentials))
+                get("{id}",  documented(CustodianController.getCredentialDocs(), CustodianController::getCredential))
+                get("listCredentialIds",  documented(CustodianController.listCredentialIdsDocs(), CustodianController::listCredentialIds))
+                put("{alias}",  documented(CustodianController.storeCredenitalsDocs(),CustodianController::storeCredential))
+                delete("{alias}", documented(CustodianController.deleteCredentialDocs(), CustodianController::deleteCredential))
             }
         }.exception(IllegalArgumentException::class.java) { e, ctx ->
             log.error { e.stackTraceToString() }
