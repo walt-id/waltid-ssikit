@@ -14,6 +14,7 @@ class SqlKeyStoreServiceTest : KeyStoreServiceTest() {
     @Test
     fun addAliasSqlApiTest() {
         val keyId = keyService.generate(KeyAlgorithm.EdDSA_Ed25519)
+        sqlKeyStoreService.store(keyService.load(keyId.id))
         val alias = UUID.randomUUID().toString()
         sqlKeyStoreService.addAlias(keyId, alias)
         val k1 = sqlKeyStoreService.getKeyId(alias)

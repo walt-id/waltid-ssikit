@@ -11,7 +11,9 @@ import java.nio.file.Path
 
 class HKVVcStoreService : VcStoreService() {
 
-    private val hkvStore = HKVStoreService.getService()
+    private val hkvStore
+        get() =  HKVStoreService.getService() // lazy load!
+
     private val vcRoot = "vc"
 
     private fun getGroupRoot(group: String): HKVKey = HKVKey.fromString("/$vcRoot/$group")

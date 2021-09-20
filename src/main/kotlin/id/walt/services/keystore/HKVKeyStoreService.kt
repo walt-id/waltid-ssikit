@@ -9,7 +9,8 @@ import java.nio.file.Path
 open class HKVKeyStoreService : KeyStoreService() {
 
     private val log = KotlinLogging.logger {}
-    private val hkvStore = HKVStoreService.getService()
+    private val hkvStore
+        get() = HKVStoreService.getService() // lazy load!
 
     //TODO: get key format from config
     private val KEY_FORMAT = KeyFormat.PEM
@@ -22,8 +23,7 @@ open class HKVKeyStoreService : KeyStoreService() {
     override fun load(alias: String, keyType: KeyType): Key {
         log.debug { "Loading key \"${alias}\"." }
 
-        //val keyId = getKeyId(alias) ?: alias
-        val keyId = alias
+        val keyId = getKeyId(alias) ?: alias
 
         val metaData = loadKey(keyId, "meta").decodeToString()
         val algorithm = metaData.substringBefore(delimiter = ";")
@@ -36,17 +36,17 @@ open class HKVKeyStoreService : KeyStoreService() {
         return buildKey(keyId, algorithm, provider, publicPart, privatePart, KEY_FORMAT)
     }
 
-    override fun addAlias(keyId: KeyId, alias: String) = TODO("Not implemented")
+    override fun addAlias(keyId: KeyId, alias: String) = hkvStore.put(HKVKey("keys", "alias", alias), keyId.id)
 
     override fun store(key: Key) {
         log.debug { "Storing key \"${key.keyId}\"." }
-        //addAlias(key.keyId, key.keyId.id)
+        addAlias(key.keyId, key.keyId.id)
         storeKeyMetaData(key)
         storePublicKey(key)
         storePrivateKeyWhenExisting(key)
     }
 
-    //override fun getKeyId(alias: String) = runCatching { File("${KEY_DIR_PATH}/Alias-$alias").readText() }.getOrNull()
+    override fun getKeyId(alias: String) = runCatching { hkvStore.getAsString(HKVKey("keys", "alias", alias)) }.getOrNull()
 
     override fun delete(alias: String) {
         hkvStore.delete(HKVKey("keys", alias), recursive = true)
