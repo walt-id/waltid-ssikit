@@ -14,6 +14,7 @@ import id.walt.auditor.AuditorService
 import id.walt.auditor.PolicyRegistry
 import id.walt.common.prettyPrint
 import id.walt.custodian.CustodianService
+import id.walt.services.hkvstore.HKVKey
 import id.walt.services.hkvstore.HKVStoreService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.ProofConfig
@@ -77,7 +78,7 @@ class VcIssueCommand : CliktCommand(
 
         // Saving VC to file
         val vcFileName = "vc-$vcId-${template}.json"
-        HKVStoreService.getService().put(Path.of("vc", "created", vcFileName), vcStr)
+        HKVStoreService.getService().put(HKVKey("vc", "created", vcFileName), vcStr)
 
         log.debug { "Writing VC to file $vcFileName" }
 

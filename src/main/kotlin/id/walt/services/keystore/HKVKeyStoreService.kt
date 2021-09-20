@@ -1,6 +1,7 @@
 package id.walt.services.keystore
 
 import id.walt.crypto.*
+import id.walt.services.hkvstore.HKVKey
 import id.walt.services.hkvstore.HKVStoreService
 import mu.KotlinLogging
 import java.nio.file.Path
@@ -13,9 +14,9 @@ open class HKVKeyStoreService : KeyStoreService() {
     //TODO: get key format from config
     private val KEY_FORMAT = KeyFormat.PEM
 
-    override fun listKeys(): List<Key> = hkvStore.listChildKeys(Path.of("keys"))
+    override fun listKeys(): List<Key> = hkvStore.listChildKeys(HKVKey("keys"))
         .map {
-            load(it.fileName.toString().substringBefore("."))
+            load(it.name.substringBefore("."))
         }
 
     override fun load(alias: String, keyType: KeyType): Key {
@@ -48,7 +49,7 @@ open class HKVKeyStoreService : KeyStoreService() {
     //override fun getKeyId(alias: String) = runCatching { File("${KEY_DIR_PATH}/Alias-$alias").readText() }.getOrNull()
 
     override fun delete(alias: String) {
-        hkvStore.delete(Path.of("keys", alias), recursive = true)
+        hkvStore.delete(HKVKey("keys", alias), recursive = true)
     }
 
     private fun storePublicKey(key: Key) =
@@ -76,8 +77,8 @@ open class HKVKeyStoreService : KeyStoreService() {
     }
 
     private fun saveKeyData(key: Key, suffix: String, data: ByteArray): Unit =
-        hkvStore.put(Path.of("keys", key.keyId.id, suffix), data)
+        hkvStore.put(HKVKey("keys", key.keyId.id, suffix), data)
 
     private fun loadKey(keyId: String, suffix: String): ByteArray =
-        hkvStore.getAsByteArray(Path.of("keys", keyId, suffix))
+        hkvStore.getAsByteArray(HKVKey("keys", keyId, suffix))
 }

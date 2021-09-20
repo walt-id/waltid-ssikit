@@ -6,6 +6,8 @@ import id.walt.crypto.buildKey
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.essif.didebsi.DidEbsiService
 import id.walt.services.essif.didebsi.UnsignedTransaction
+import id.walt.services.hkvstore.HKVKey
+import id.walt.services.hkvstore.HKVStoreService
 import id.walt.services.keystore.KeyStoreService
 import id.walt.test.RESOURCES_PATH
 import io.kotest.core.spec.style.AnnotationSpec
@@ -41,10 +43,9 @@ class DidEbsiServiceTest : AnnotationSpec() {
 
     @Before
     fun setup() {
-        Files.copy(
-            Path.of("src", "test", "resources", "ebsi", DID_FILENAME),
-            Path.of("data", "did", "created", DID_FILENAME)
-        )
+        HKVStoreService.getService().put(
+            HKVKey("did", "created", DID),
+            Path.of("src", "test", "resources", "ebsi", DID_FILENAME).toFile().readText())
         keyStore.store(key)
         keyStore.addAlias(KEY_ID, DID)
         keyStore.addAlias(KEY_ID, "$DID#key-1")
@@ -52,7 +53,7 @@ class DidEbsiServiceTest : AnnotationSpec() {
 
     @After
     fun clean() {
-        Files.delete(Path.of("data", "did", "created", DID_FILENAME))
+        HKVStoreService.getService().delete(HKVKey("did", "created", DID))
         keyStore.delete(KEY_ID.id)
     }
 

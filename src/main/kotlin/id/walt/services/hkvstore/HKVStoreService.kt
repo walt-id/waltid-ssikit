@@ -12,17 +12,17 @@ import java.nio.file.Path
 abstract class HKVStoreService : WaltIdService() {
     override val implementation get() = ServiceRegistry.getService<HKVStoreService>()
 
-    fun put(key: Path, value: String) = this.put(key, value.toByteArray(StandardCharsets.UTF_8))
+    fun put(key: HKVKey, value: String) = this.put(key, value.toByteArray(StandardCharsets.UTF_8))
 
-    abstract fun put(key: Path, value: ByteArray)
+    abstract fun put(key: HKVKey, value: ByteArray)
 
-    fun getAsString(key: Path): String = String(getAsByteArray(key), StandardCharsets.UTF_8)
+    fun getAsString(key: HKVKey): String = String(getAsByteArray(key), StandardCharsets.UTF_8)
 
-    abstract fun getAsByteArray(key: Path): ByteArray
+    abstract fun getAsByteArray(key: HKVKey): ByteArray
 
-    abstract fun listChildKeys(parent: Path, recursive: Boolean = false): Set<Path>
+    abstract fun listChildKeys(parent: HKVKey, recursive: Boolean = false): Set<HKVKey>
 
-    abstract fun delete(key: Path, recursive: Boolean = false): Boolean
+    abstract fun delete(key: HKVKey, recursive: Boolean = false): Boolean
 
     companion object : ServiceProvider {
         val implementation get() = ServiceRegistry.getService<HKVStoreService>()

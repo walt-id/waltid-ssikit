@@ -7,6 +7,7 @@ import id.walt.crypto.KeyAlgorithm.EdDSA_Ed25519
 import id.walt.model.*
 import id.walt.services.WaltIdServices
 import id.walt.services.crypto.CryptoService
+import id.walt.services.hkvstore.HKVKey
 import id.walt.services.hkvstore.HKVStoreService
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyStoreService
@@ -308,14 +309,14 @@ object DidService {
     private fun resolveAndStore(didUrl: String) = storeDid(didUrl, resolve(didUrl).encodePretty())
 
     private fun storeDid(didUrlStr: String, didDoc: String) =
-        HKVStoreService.getService().put(Path.of("did", "created", "${didUrlStr.replace(":", "-")}.json"), didDoc)
+        HKVStoreService.getService().put(HKVKey("did", "created", didUrlStr), didDoc)
 
     private fun loadDid(didUrlStr: String) =
-        HKVStoreService.getService().getAsString(Path.of("did", "created", "${didUrlStr.replace(":", "-")}.json"))
+        HKVStoreService.getService().getAsString(HKVKey("did", "created", didUrlStr))
 
 
     fun listDids(): List<String> =
-        HKVStoreService.getService().listChildKeys(Path.of("did", "created")).map { it.toString().substringAfter("did/created/").replace("-", ":") }.toList()
+        HKVStoreService.getService().listChildKeys(HKVKey("did", "created")).map { it.name }.toList()
 
 
     // TODO: consider the methods below. They might be deprecated!
