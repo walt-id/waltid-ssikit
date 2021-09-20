@@ -53,7 +53,7 @@ class CreateDidCommand : CliktCommand(
 
         echo("Creating did:${method} (key: ${keyAlias})")
 
-        val keyId = if (keyAlias == "default") null else keyAlias
+        val keyId = if (keyAlias == "new") null else keyAlias
 
         val did = DidService.create(DidMethod.valueOf(method), keyId)
 
@@ -105,7 +105,7 @@ class ResolveDidCommand : CliktCommand(
 
         echo("\nResult:\n")
 
-        echo(encodedDid.prettyPrint())
+        echo(encodedDid)
 
         val didFileName = "${did.replace(":", "-").replace(".", "_")}.json"
         val destFile = File(config.dataDir + "/did/resolved/" + didFileName)
