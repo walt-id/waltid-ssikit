@@ -2,12 +2,10 @@ package id.walt.services.vc
 
 import id.walt.servicematrix.ServiceProvider
 import id.walt.servicematrix.ServiceRegistry
+import id.walt.services.WaltIdService
+import id.walt.signatory.ProofConfig
 import id.walt.vclib.model.VerifiableCredential
 import info.weboftrust.ldsignatures.LdProof
-import id.walt.services.WaltIdService
-import id.walt.services.essif.EssifServer.nonce
-import id.walt.services.essif.TrustedIssuerClient.domain
-import id.walt.signatory.ProofConfig
 
 
 abstract class JwtCredentialService : WaltIdService() {

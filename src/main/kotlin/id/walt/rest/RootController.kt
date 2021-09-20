@@ -1,22 +1,10 @@
 package id.walt.rest
 
 import io.javalin.http.Context
-import io.javalin.plugin.openapi.annotations.OpenApi
-import io.javalin.plugin.openapi.annotations.OpenApiContent
-import io.javalin.plugin.openapi.annotations.OpenApiResponse
+import io.javalin.plugin.openapi.dsl.document
 
 object RootController {
 
-    @OpenApi(
-        ignore = true, // Hide this endpoint in the documentation
-        summary = "HTML page with links to the API doc",
-        operationId = "rootCoreApi",
-        responses = [
-            OpenApiResponse("200"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
-            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
-        ]
-    )
     fun rootCoreApi(ctx: Context) {
         ctx.html(
             " <!DOCTYPE html>\n" +
@@ -32,6 +20,7 @@ object RootController {
                     "</html> "
         )
     }
+
     fun rootSignatoryApi(ctx: Context) {
         ctx.html(
             " <!DOCTYPE html>\n" +
@@ -48,16 +37,6 @@ object RootController {
         )
     }
 
-    @OpenApi(
-        ignore = true, // Hide this endpoint in the documentation
-        summary = "HTML page with links to the API doc",
-        operationId = "rootCoreApi",
-        responses = [
-            OpenApiResponse("200"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
-            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
-        ]
-    )
     fun rootEssifApi(ctx: Context) {
         ctx.html(
             " <!DOCTYPE html>\n" +
@@ -74,15 +53,6 @@ object RootController {
         )
     }
 
-    @OpenApi(
-        summary = "HTML page with links to the API doc",
-        operationId = "rootCustodianApi",
-        responses = [
-            OpenApiResponse("200"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
-            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
-        ]
-    )
     fun rootCustodianApi(ctx: Context) {
         ctx.html(
             " <!DOCTYPE html>\n" +
@@ -99,15 +69,10 @@ object RootController {
         )
     }
 
-    @OpenApi(
-        summary = "Returns HTTP 200 in case all services are up and running",
-        operationId = "health",
-        responses = [
-            OpenApiResponse("200", [OpenApiContent(String::class)], "successful request"),
-            OpenApiResponse("400", [OpenApiContent(ErrorResponse::class)], "Bad request"),
-            OpenApiResponse("500", [OpenApiContent(ErrorResponse::class)], "Server Error"),
-        ]
-    )
+    fun healthDocs() = document()
+        .operation {
+            it.summary("Returns HTTP 200 in case all services are up and running").operationId("health")
+        }.json<String>("200")
     fun health(ctx: Context) {
         // TODO: implement: WaltIdServices.checkHealth()
         ctx.html("OK")

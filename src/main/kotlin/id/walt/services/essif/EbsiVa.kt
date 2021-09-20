@@ -3,7 +3,6 @@ package id.walt.services.essif
 import com.beust.klaxon.Json
 import id.walt.vclib.model.CredentialSchema
 import id.walt.vclib.model.Proof
-import id.walt.vclib.vclist.VerifiablePresentation
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

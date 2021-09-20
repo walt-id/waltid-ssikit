@@ -1,12 +1,8 @@
 package id.walt.auditor
 
-import id.walt.services.jwt.JwtService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
-import id.walt.signatory.ProofType
-import id.walt.vclib.Helpers.encode
 import id.walt.vclib.Helpers.toCredential
-import id.walt.vclib.VcLibManager
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.vclist.VerifiablePresentation
 
@@ -35,10 +31,10 @@ class SignaturePolicy : VerificationPolicy {
     override val description: String = "Verify by signature"
 
     override fun verify(vc: VerifiableCredential): Boolean {
-        return when(vc?.jwt) {
+        return when(vc.jwt) {
             // TODO: support JWT Presentation
             null -> jsonLdCredentialService.verify(vc.json!!).verified
-            else -> jwtCredentialService.verify(vc!!.jwt!!).verified
+            else -> jwtCredentialService.verify(vc.jwt!!).verified
         }
     }
 }
@@ -70,10 +66,10 @@ object PolicyRegistry {
     init {
         val sigPol = SignaturePolicy()
         defaultPolicyId = sigPol.id
-        PolicyRegistry.register(sigPol)
-        PolicyRegistry.register(TrustedIssuerDidPolicy())
-        PolicyRegistry.register(TrustedSubjectDidPolicy())
-        PolicyRegistry.register(JsonSchemaPolicy())
+        register(sigPol)
+        register(TrustedIssuerDidPolicy())
+        register(TrustedSubjectDidPolicy())
+        register(JsonSchemaPolicy())
     }
 }
 

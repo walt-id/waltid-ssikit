@@ -51,4 +51,4 @@ fun Any.prettyPrint(): String {
     return stringBuilder.toString()
 }
 
-fun urlEncode(str: String): String = URLEncoder.encode(str, java.nio.charset.StandardCharsets.UTF_8.toString())
+fun urlEncode(str: String): String = URLEncoder.encode(str, StandardCharsets.UTF_8.toString())
