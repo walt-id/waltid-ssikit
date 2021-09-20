@@ -1,9 +1,12 @@
-package id.walt.rest
+package id.walt.rest.custodian
 
 import cc.vileda.openapi.dsl.externalDocs
 import cc.vileda.openapi.dsl.info
 import com.beust.klaxon.Klaxon
 import id.walt.Values
+import id.walt.rest.ErrorResponse
+import id.walt.rest.OpenAPIUtils
+import id.walt.rest.RootController
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.core.util.RouteOverviewPlugin
@@ -12,6 +15,7 @@ import io.javalin.plugin.json.JsonMapper
 import io.javalin.plugin.openapi.InitialConfigurationCreator
 import io.javalin.plugin.openapi.OpenApiOptions
 import io.javalin.plugin.openapi.OpenApiPlugin
+import io.javalin.plugin.openapi.dsl.documented
 import io.javalin.plugin.openapi.ui.ReDocOptions
 import io.javalin.plugin.openapi.ui.SwaggerOptions
 import io.swagger.v3.oas.models.OpenAPI
@@ -101,23 +105,23 @@ object CustodianAPI {
 
             config.enableDevLogging()
         }.routes {
-            get("/", RootController::rootCustodianApi)
-            get("health", RootController::health)
+            get("/", documented(OpenAPIUtils.documentedIgnored(), RootController::rootCustodianApi))
+            get("health", documented(RootController.healthDocs(), RootController::health))
 
             path("keys") {
-                get("/", CustodianController::listKeys)
-                get("{alias}", CustodianController::getKey)
-                post("generate", CustodianController::generateKey)
-                put("store", CustodianController::storeKey)
-                delete("{id}", CustodianController::deleteKey)
+                get("/", documented(CustodianController.listKeysDocs(), CustodianController::listKeys))
+                get("{alias}", documented(CustodianController.getKeysDocs(), CustodianController::getKey))
+                post("generate", documented(CustodianController.generateDocs(), CustodianController::generateKey))
+                put("store", documented(CustodianController.storeKeysDocs(), CustodianController::storeKey))
+                delete("{id}", documented(CustodianController.deleteKeysDocs(), CustodianController::deleteKey))
             }
 
             path("credentials") {
-                get("/", CustodianController::listCredentials)
-                get("{id}", CustodianController::getCredential)
-                get("listCredentialIds", CustodianController::listCredentialIds)
-                put("{alias}", CustodianController::storeCredential)
-                delete("{alias}", CustodianController::deleteCredential)
+                get("/", documented(CustodianController.deleteKeysDocs(), CustodianController::listCredentials))
+                get("{id}",  documented(CustodianController.getCredentialDocs(), CustodianController::getCredential))
+                get("listCredentialIds",  documented(CustodianController.listCredentialIdsDocs(), CustodianController::listCredentialIds))
+                put("{alias}",  documented(CustodianController.storeCredenitalsDocs(),CustodianController::storeCredential))
+                delete("{alias}", documented(CustodianController.deleteCredentialDocs(), CustodianController::deleteCredential))
             }
         }.exception(IllegalArgumentException::class.java) { e, ctx ->
             log.error { e.stackTraceToString() }

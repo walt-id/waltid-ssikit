@@ -6,10 +6,10 @@ import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
 import id.walt.auditor.AuditorRestAPI
-import id.walt.rest.EssifAPI
+import id.walt.rest.essif.EssifAPI
 import id.walt.signatory.SignatoryRestAPI
-import id.walt.rest.CoreAPI
-import id.walt.rest.CustodianAPI
+import id.walt.rest.core.CoreAPI
+import id.walt.rest.custodian.CustodianAPI
 
 /**
  * CLI Command to run the walt.id SSI KIT as RESTful service.
@@ -31,11 +31,14 @@ class ServeCommand : CliktCommand(
          Additional API target servers can be specified using the -t option.
          """
 ) {
-    private val apiPort: Int by option(help = "Core API port [${CoreAPI.DEFAULT_CORE_API_PORT}]", names = arrayOf("-p", "--port")).int().default(CoreAPI.DEFAULT_CORE_API_PORT)
+    private val apiPort: Int by option(help = "Core API port [${CoreAPI.DEFAULT_CORE_API_PORT}]", names = arrayOf("-p", "--port")).int().default(
+        CoreAPI.DEFAULT_CORE_API_PORT)
     private val signatoryPort: Int by option(help = "Signatory API port [${SignatoryRestAPI.SIGNATORY_API_PORT}]", names = arrayOf("-s", "--signatory-port")).int().default(SignatoryRestAPI.SIGNATORY_API_PORT)
-    private val custodianPort: Int by option(help = "Custodian API port [${CustodianAPI.DEFAULT_Custodian_API_PORT}]", names = arrayOf("-c", "--custodian-port")).int().default(CustodianAPI.DEFAULT_Custodian_API_PORT)
+    private val custodianPort: Int by option(help = "Custodian API port [${CustodianAPI.DEFAULT_Custodian_API_PORT}]", names = arrayOf("-c", "--custodian-port")).int().default(
+        CustodianAPI.DEFAULT_Custodian_API_PORT)
     private val auditorPort: Int by option(help = "Auditor API port [${AuditorRestAPI.AUDITOR_API_PORT}]", names = arrayOf("-a", "--auditor-port")).int().default(AuditorRestAPI.AUDITOR_API_PORT)
-    private val essifPort: Int by option(help = "Essif API port [${EssifAPI.DEFAULT_ESSIF_API_PORT}]", names = arrayOf("-e", "--essif-port")).int().default(EssifAPI.DEFAULT_ESSIF_API_PORT)
+    private val essifPort: Int by option(help = "Essif API port [${EssifAPI.DEFAULT_ESSIF_API_PORT}]", names = arrayOf("-e", "--essif-port")).int().default(
+        EssifAPI.DEFAULT_ESSIF_API_PORT)
     private val bindAddress: String by option(help = "Bind address for API service [127.0.0.1]", names = arrayOf("-b", "--bind-address")).default("127.0.0.1")
     private val apiTargetUrls: List<String> by option(help = "Additional API target urls for swagger UI, defaults to root context '/'", names = arrayOf("-t", "--target-url")).multiple()
 

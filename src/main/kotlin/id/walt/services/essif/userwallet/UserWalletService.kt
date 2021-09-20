@@ -8,9 +8,6 @@ import com.nimbusds.jose.crypto.impl.ECDH
 import com.nimbusds.jose.jwk.*
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
-import mu.KotlinLogging
-import org.bouncycastle.jce.provider.BouncyCastleProvider
-import id.walt.common.readEssifBearerToken
 import id.walt.common.readWhenContent
 import id.walt.common.toParamMap
 import id.walt.crypto.*
@@ -28,6 +25,8 @@ import id.walt.services.essif.mock.DidRegistry
 import id.walt.services.jwt.JwtService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.ProofConfig
+import mu.KotlinLogging
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.KeyPairGenerator
 import java.security.MessageDigest
 import java.security.SecureRandom
@@ -272,7 +271,7 @@ object UserWalletService {
 
         var endInx = accessTokenBytes.findFirst { b -> (b.toInt() == 5) }
 
-        val accessTokenRespStr = String(accessTokenBytes.slice(0..(endInx - 1)).toByteArray())
+        val accessTokenRespStr = String(accessTokenBytes.slice(0 until endInx).toByteArray())
 
         val decAccesTokenResp = Klaxon().parse<DecryptedAccessTokenResponse>(accessTokenRespStr)!!
 
@@ -334,32 +333,36 @@ object UserWalletService {
     }
 
     fun embedPublicEncryptionKey(key: JWK): Map<String, String> {
-        if (key is ECKey) {
-            return mapOf(
-                "kty" to key.keyType.value,
-                "alg" to key.algorithm.name,
-                "crv" to key.curve.name,
-                "x" to key.x.toString(),
-                "y" to key.y.toString()
-            )
-        } else if (key is OctetKeyPair) {
-            return when (key.curve) {
-                Curve.X25519 -> mapOf(
-                    "kty" to key.keyType.value,
-                    "crv" to key.curve.name,
-                    "x" to key.x.toString()
-                )
-                Curve.Ed25519 -> mapOf(
+        when (key) {
+            is ECKey -> {
+                return mapOf(
                     "kty" to key.keyType.value,
                     "alg" to key.algorithm.name,
                     "crv" to key.curve.name,
-                    "x" to key.x.toString()
-                    //"d" to key.d.toString()
+                    "x" to key.x.toString(),
+                    "y" to key.y.toString()
                 )
-                else -> throw IllegalArgumentException("Curve not supported")
             }
-        } else {
-            throw IllegalArgumentException("Not supported key")
+            is OctetKeyPair -> {
+                return when (key.curve) {
+                    Curve.X25519 -> mapOf(
+                        "kty" to key.keyType.value,
+                        "crv" to key.curve.name,
+                        "x" to key.x.toString()
+                    )
+                    Curve.Ed25519 -> mapOf(
+                        "kty" to key.keyType.value,
+                        "alg" to key.algorithm.name,
+                        "crv" to key.curve.name,
+                        "x" to key.x.toString()
+                        //"d" to key.d.toString()
+                    )
+                    else -> throw IllegalArgumentException("Curve not supported")
+                }
+            }
+            else -> {
+                throw IllegalArgumentException("Not supported key")
+            }
         }
     }
 

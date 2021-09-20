@@ -1,4 +1,4 @@
-package id.walt.rest
+package id.walt.rest.core
 
 import cc.vileda.openapi.dsl.components
 import cc.vileda.openapi.dsl.externalDocs
@@ -7,6 +7,10 @@ import cc.vileda.openapi.dsl.securityScheme
 import com.beust.klaxon.Klaxon
 import com.fasterxml.jackson.databind.exc.InvalidFormatException
 import id.walt.Values
+import id.walt.rest.ErrorResponse
+import id.walt.rest.OpenAPIUtils.documentedIgnored
+import id.walt.rest.RootController
+import id.walt.rest.RootController.healthDocs
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.core.util.RouteOverviewPlugin
@@ -15,6 +19,7 @@ import io.javalin.plugin.json.JsonMapper
 import io.javalin.plugin.openapi.InitialConfigurationCreator
 import io.javalin.plugin.openapi.OpenApiOptions
 import io.javalin.plugin.openapi.OpenApiPlugin
+import io.javalin.plugin.openapi.dsl.documented
 import io.javalin.plugin.openapi.ui.ReDocOptions
 import io.javalin.plugin.openapi.ui.SwaggerOptions
 import io.swagger.v3.oas.models.OpenAPI
@@ -114,33 +119,33 @@ object CoreAPI {
 
             it.enableDevLogging()
         }.routes {
-            get("", RootController::rootCoreApi)
-            get("health", RootController::health)
+            get("", documented(documentedIgnored(), RootController::rootCoreApi))
+            get("health", documented(healthDocs(), RootController::health))
             path("v1") {
                 path("key") {
-                    get("", KeyController::list)
-                    get("{id}", KeyController::load)
-                    delete("{id}", KeyController::delete)
-                    post("gen", KeyController::gen)
-                    post("import", KeyController::import)
-                    post("export", KeyController::export)
+                    get("", documented(KeyController.listDocs(), KeyController::list))
+                    get("{id}", documented(KeyController.loadDocs(), KeyController::load))
+                    delete("{id}", documented(KeyController.deleteDocs(), KeyController::delete))
+                    post("gen", documented(KeyController.genDocs(), KeyController::gen))
+                    post("import", documented(KeyController.importDocs(), KeyController::import))
+                    post("export", documented(KeyController.exportDocs(), KeyController::export))
                 }
                 path("did") {
-                    get("", DidController::list)
-                    get("{id}", DidController::load)
-                    delete("{id}", DidController::delete)
-                    post("create", DidController::create)
-                    post("resolve", DidController::resolve)
-                    post("import", DidController::import)
+                    get("", documented(DidController.listDocs(), DidController::list))
+                    get("{id}", documented(DidController.loadDocs(), DidController::load))
+                    delete("{id}", documented(DidController.deleteDocs(), DidController::delete))
+                    post("create", documented(DidController.createDocs(), DidController::create))
+                    post("resolve", documented(DidController.resolveDocs(), DidController::resolve))
+                    post("import", documented(DidController.importDocs(), DidController::import))
                 }
                 path("vc") {
-                    get("", VcController::list)
-                    get("{id}", VcController::load)
-                    delete("{id}", VcController::delete)
-                    post("create", VcController::create)
-                    post("present", VcController::present)
-                    post("verify", VcController::verify)
-                    post("import", VcController::import)
+                    get("", documented(VcController.listDocs(), VcController::list))
+                    get("{id}", documented(VcController.loadDocs(), VcController::load))
+                    delete("{id}", documented(VcController.deleteDocs(), VcController::delete))
+                    post("create", documented(VcController.createDocs(), VcController::create))
+                    post("present", documented(VcController.presentDocs(), VcController::present))
+                    post("verify", documented(VcController.verifyDocs(), VcController::verify))
+                    post("import", documented(VcController.importDocs(), VcController::import))
                 }
             }
         }.exception(InvalidFormatException::class.java) { e, ctx ->

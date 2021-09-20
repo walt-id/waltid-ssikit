@@ -59,9 +59,9 @@ enum class SignatureType {
 
 fun newKeyId(): KeyId = KeyId(UUID.randomUUID().toString().replace("-", ""))
 
-fun java.security.Key.toPEM(): String = when {
-    this is PublicKey -> this.toPEM()
-    this is PrivateKey -> this.toPEM()
+fun java.security.Key.toPEM(): String = when (this) {
+    is PublicKey -> this.toPEM()
+    is PrivateKey -> this.toPEM()
     else -> throw IllegalArgumentException()
 }
 
@@ -260,7 +260,7 @@ fun localTimeSecondsUtc(): String {
 
 class SortingNodeFactory : JsonNodeFactory() {
     override fun objectNode(): ObjectNode =
-        ObjectNode(this, TreeMap<String, JsonNode>())
+        ObjectNode(this, TreeMap())
 }
 
 val mapper: ObjectMapper = JsonMapper.builder()

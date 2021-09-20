@@ -36,7 +36,7 @@ class FileSystemHKVStore(configurationPath: String) : HKVStoreService() {
                         }
                     }
                 }?.toSet()
-            }?: emptySet()
+            } ?: emptySet()
         }
 
     override fun delete(key: HKVKey, recursive: Boolean): Boolean =

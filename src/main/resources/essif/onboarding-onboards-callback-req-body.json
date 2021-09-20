@@ -1,11 +1,9 @@
 {
-  "nonce": "<request-nonce>"
+  "nonce": "<request-nonce>",
   "data": {
     "@context": [
-      "https://w3.org/ns/did/v1,
-      https
-      :
-      //ebsi.org/ns/did/v1"
+      "https://w3.org/ns/did/v1",
+      "https://ebsi.org/ns/did/v1"
     ],
     "id": "did:ebsi:2123456789AB...fghijkmno",
     "verificationMethod": [

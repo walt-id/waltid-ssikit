@@ -82,7 +82,7 @@ object WaltIdServices {
         Files.createDirectories(Path.of("$dataDir/vc/templates"))
         Files.createDirectories(Path.of("$dataDir/vc/created"))
         Files.createDirectories(Path.of("$dataDir/vc/presented"))
-        Files.createDirectories(Path.of("$ebsiDir"))
+        Files.createDirectories(Path.of(ebsiDir))
     }
 
     fun loadConfig() = ConfigLoader.Builder()

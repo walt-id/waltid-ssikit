@@ -48,7 +48,7 @@ object OidcUtil {
         )
         val claims = Claim(
             IdToken(
-                listOf<String>()
+                listOf()
             )
         )
         val authRequestPayload =

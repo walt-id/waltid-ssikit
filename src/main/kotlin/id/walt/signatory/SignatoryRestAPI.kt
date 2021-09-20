@@ -6,14 +6,16 @@ import cc.vileda.openapi.dsl.info
 import cc.vileda.openapi.dsl.securityScheme
 import id.walt.Values
 import id.walt.rest.ErrorResponse
-import id.walt.rest.KeyController
+import id.walt.rest.OpenAPIUtils.documentedIgnored
 import id.walt.rest.RootController
+import id.walt.rest.core.KeyController
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.core.util.RouteOverviewPlugin
 import io.javalin.plugin.openapi.InitialConfigurationCreator
 import io.javalin.plugin.openapi.OpenApiOptions
 import io.javalin.plugin.openapi.OpenApiPlugin
+import io.javalin.plugin.openapi.dsl.documented
 import io.javalin.plugin.openapi.ui.ReDocOptions
 import io.javalin.plugin.openapi.ui.SwaggerOptions
 import io.swagger.v3.oas.models.OpenAPI
@@ -21,8 +23,6 @@ import io.swagger.v3.oas.models.info.Contact
 import io.swagger.v3.oas.models.security.SecurityScheme
 import io.swagger.v3.oas.models.servers.Server
 import mu.KotlinLogging
-import org.bouncycastle.asn1.x500.style.RFC4519Style.description
-import org.bouncycastle.asn1.x500.style.RFC4519Style.title
 
 object SignatoryRestAPI {
 
@@ -88,15 +88,15 @@ object SignatoryRestAPI {
 
             it.enableDevLogging()
         }.routes {
-            get("", RootController::rootSignatoryApi)
-            get("health", RootController::health)
+            get("", documented(documentedIgnored(), RootController::rootSignatoryApi))
+            get("health", documented(RootController.healthDocs(), RootController::health))
             path("v1") {
                 path("credentials") {
-                    post("issue", KeyController::import)
+                    post("issue", KeyController::import) // FIXME? Signatory Credential Issue is set to KeyController import?
                 }
                 path("templates") {
-                    get("", SignatoryController::listTemplates)
-                    get("{id}", SignatoryController::loadTemplate)
+                    get("", documented(SignatoryController.listTemplatesDocs(), SignatoryController::listTemplates))
+                    get("{id}", documented(SignatoryController.loadTemplateDocs(), SignatoryController::loadTemplate))
                 }
             }
 

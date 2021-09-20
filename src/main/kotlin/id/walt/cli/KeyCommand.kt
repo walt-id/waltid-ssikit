@@ -11,7 +11,6 @@ import com.github.ajalt.clikt.parameters.types.file
 import id.walt.common.readWhenContent
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyId
-import id.walt.services.CryptoProvider
 import id.walt.services.key.KeyFormat
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
@@ -112,8 +111,8 @@ class ListKeysCommand : CliktCommand(
 
         echo("\nResults:\n")
 
-        keyService.listKeys().forEachIndexed { index, key ->
-            echo("- ${index + 1}: \"${key.keyId}\" (Algorithm: \"${key.algorithm.name}\", provided by \"${key.cryptoProvider.name}\")")
+        keyService.listKeys().forEachIndexed { index, (keyId, algorithm, cryptoProvider) ->
+            echo("- ${index + 1}: \"${keyId}\" (Algorithm: \"${algorithm.name}\", provided by \"${cryptoProvider.name}\")")
         }
     }
 }
