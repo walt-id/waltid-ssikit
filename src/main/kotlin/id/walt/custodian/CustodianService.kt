@@ -21,7 +21,7 @@ abstract class CustodianService : WaltIdService() {
     open fun storeKey(key: Key): Unit = implementation.storeKey(key)
     open fun deleteKey(id: String): Unit = implementation.deleteKey(id)
 
-    open fun getCredential(id: String): VerifiableCredential = implementation.getCredential(id)
+    open fun getCredential(id: String): VerifiableCredential? = implementation.getCredential(id)
     open fun listCredentials(): List<VerifiableCredential> = implementation.listCredentials()
     open fun listCredentialIds(): List<String> = implementation.listCredentialIds()
     open fun storeCredential(alias: String, vc: VerifiableCredential): Unit = implementation.storeCredential(alias, vc)
@@ -35,7 +35,7 @@ abstract class CustodianService : WaltIdService() {
 }
 
 open class WaltCustodianService : CustodianService() {
-
+    private val VC_GROUP = "custodian"
     private val keyService = KeyService.getService()
     private val keystore = KeyStoreService.getService()
     private val vcStore = VcStoreService.getService()
@@ -46,11 +46,11 @@ open class WaltCustodianService : CustodianService() {
     override fun storeKey(key: Key) = keystore.store(key)
     override fun deleteKey(id: String) = keystore.delete(id)
 
-    override fun getCredential(id: String) = vcStore.getCredential(id)
-    override fun listCredentials(): List<VerifiableCredential> = vcStore.listCredentials()
-    override fun listCredentialIds(): List<String> = vcStore.listCredentialIds()
-    override fun storeCredential(alias: String, vc: VerifiableCredential) = vcStore.storeCredential(alias, vc)
-    override fun deleteCredential(alias: String) = vcStore.deleteCredential(alias)
+    override fun getCredential(id: String) = vcStore.getCredential(id, VC_GROUP)
+    override fun listCredentials(): List<VerifiableCredential> = vcStore.listCredentials(VC_GROUP)
+    override fun listCredentialIds(): List<String> = vcStore.listCredentialIds(VC_GROUP)
+    override fun storeCredential(alias: String, vc: VerifiableCredential) = vcStore.storeCredential(alias, vc, VC_GROUP)
+    override fun deleteCredential(alias: String) = vcStore.deleteCredential(alias, VC_GROUP)
 
     override fun createPresentation(vc: String, domain: String?, challenge: String?): String {
         return when(VcLibManager.isJWT(vc)) {

@@ -16,16 +16,16 @@ class HKVVcStoreService : VcStoreService() {
 
     private val vcRoot = "vc"
 
-    private fun getGroupRoot(group: String): HKVKey = HKVKey.fromString("/$vcRoot/$group")
+    private fun getGroupRoot(group: String): HKVKey = HKVKey(vcRoot, group)
 
     private fun getStoreKeyFor(id: String, group: String): HKVKey =
-        HKVKey.fromString("${getGroupRoot(group)}/${id}")
+        HKVKey(vcRoot, group, id)
 
-    override fun getCredential(id: String, group: String): VerifiableCredential =
-        hkvStore.getAsString(getStoreKeyFor(id, group)).toCredential()
+    override fun getCredential(id: String, group: String): VerifiableCredential? =
+        hkvStore.getAsString(getStoreKeyFor(id, group))?.let { it.toCredential() }
 
     override fun listCredentials(group: String): List<VerifiableCredential> =
-        listCredentialIds(group).map { hkvStore.getAsString(getStoreKeyFor(it, group)).toCredential() }
+        listCredentialIds(group).map { hkvStore.getAsString(getStoreKeyFor(it, group))!!.toCredential() }
 
     override fun listCredentialIds(group: String): List<String> =
         hkvStore.listChildKeys(getGroupRoot(group)).map { it.name }

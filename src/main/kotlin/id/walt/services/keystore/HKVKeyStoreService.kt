@@ -80,5 +80,5 @@ open class HKVKeyStoreService : KeyStoreService() {
         hkvStore.put(HKVKey("keys", key.keyId.id, suffix), data)
 
     private fun loadKey(keyId: String, suffix: String): ByteArray =
-        hkvStore.getAsByteArray(HKVKey("keys", keyId, suffix))
+        hkvStore.getAsByteArray(HKVKey("keys", keyId, suffix))!!
 }
