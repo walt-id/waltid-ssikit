@@ -53,7 +53,7 @@ class CreateDidCommand : CliktCommand(
 
         echo("Creating did:${method} (key: ${keyAlias})")
 
-        val keyId = if (keyAlias == "default") null else keyAlias
+        val keyId = if (keyAlias == "new") null else keyAlias
 
         val did = DidService.create(DidMethod.valueOf(method), keyId)
 
