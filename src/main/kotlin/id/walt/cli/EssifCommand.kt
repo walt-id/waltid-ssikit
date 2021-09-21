@@ -1,16 +1,20 @@
 package id.walt.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.arguments.argument
+import com.github.ajalt.clikt.parameters.arguments.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
+import com.github.ajalt.clikt.parameters.types.file
 import id.walt.Values
+import id.walt.common.readWhenContent
 import id.walt.model.DidMethod
 import id.walt.services.did.DidService
-import id.walt.services.essif.EssifClientVcExchange
 import id.walt.services.essif.EssifClient
+import id.walt.services.essif.EssifClientVcExchange
 import id.walt.services.essif.TrustedIssuerClient
 import id.walt.services.essif.didebsi.DidEbsiService
+import java.io.File
 
 // TODO: Support following commands
 
@@ -49,24 +53,21 @@ class EssifOnboardingCommand : CliktCommand(
     name = "onboard",
     help = """ESSIF Onboarding flow
 
-        ESSIF onboarding flow"""
+        Onboards a new DID to the EBSI/ESSIF eco system. 
+        
+        For gaining access to the EBSI service, a bearer token from 
+        https://app.preprod.ebsi.eu/users-onboarding must be present."""
 ) {
-
-    val keyId: String by option(
-        "-k",
-        "--key-id",
-        help = "Key ID or key alias"
-    ).default("0ec07d2f853c4b00bd701a6124f1e4c3")
+    val bearerTokenFile: File by argument("BEARER-TOKEN-FILE", help = "File containing the Bearer Token from EOS").file().default(File("data/ebsi/bearer-token.txt"))
     val did: String by option("-d", "--did", help = "DID to be onboarded").required()
 
     override fun run() {
 
         echo("ESSIF onboarding of DID $did ...\n")
 
-        EssifClient.onboard(did)
+        EssifClient.onboard(did, readWhenContent(bearerTokenFile).replace("\n", ""))
 
         echo("ESSIF onboarding for DID $did was performed successfully.")
-        echo("The Verifiable Authorization can be accessed in file: ${EssifClient.verifiableAuthorizationFile.absolutePath}.")
     }
 }
 
@@ -86,7 +87,6 @@ class EssifAuthCommand : CliktCommand(
         EssifClient.authApi(did)
 
         echo("EBSI Authorization flow was performed successfully.")
-        echo("The EBSI Access Token can be accessed in file: ${EssifClient.ebsiAccessTokenFile.absolutePath}.")
     }
 }
 

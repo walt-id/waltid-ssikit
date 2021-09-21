@@ -7,6 +7,8 @@ import id.walt.services.essif.didebsi.DidEbsiService
 import id.walt.services.essif.enterprisewallet.EnterpriseWalletService
 import id.walt.services.essif.mock.RelyingParty
 import id.walt.services.essif.userwallet.UserWalletService
+import id.walt.services.hkvstore.HKVKey
+import id.walt.services.hkvstore.HKVStoreService
 import java.io.File
 
 
@@ -15,10 +17,12 @@ object EssifClient {
     private val log = KotlinLogging.logger {}
 
     val bearerTokenFile = File("${WaltIdServices.ebsiDir}bearer-token.txt")
-    val verifiableAuthorizationFile = File("${WaltIdServices.ebsiDir}verifiable-authorization.json")
-    val verifiablePresentationFile = File("${WaltIdServices.ebsiDir}verifiable-presentation.json")
-    val ake1EncFile = File("${WaltIdServices.ebsiDir}ake1_enc.json")
-    val ebsiAccessTokenFile = File("${WaltIdServices.ebsiDir}ebsi_access_token.json")
+
+    val verifiableAuthorizationFile = "verifiable-authorization.json"
+    val verifiablePresentationFile = "verifiable-presentation.json"
+    val ake1EncFile = "ake1_enc.json"
+    val ebsiAccessTokenFile = "ebsi_access_token.json"
+
 
     private val didEbsiService = DidEbsiService.getService()
     private val enterpriseWalletService = EnterpriseWalletService.getService()
@@ -70,9 +74,8 @@ object EssifClient {
 
         log.debug { "Verifiable Authorization received:\n${verifiableAuthorization}" }
 
-        log.debug { "Writing Verifiable Authorization to file: ${verifiableAuthorizationFile.absolutePath}" }
 
-        verifiableAuthorizationFile.writeText(verifiableAuthorization)
+        HKVStoreService.getService().put(HKVKey("ebsi", did.substringAfterLast(":"), verifiableAuthorizationFile), verifiableAuthorization)
 
 
         ///////////////////////////////////////////////////////////////////////////
@@ -234,9 +237,7 @@ object EssifClient {
 
         log.debug { "EBSI Access Token received:\n${accessToken}" }
 
-        log.debug { "Writing EBSI Access Token to file: ${ebsiAccessTokenFile.absolutePath}" }
-
-        ebsiAccessTokenFile.writeText(accessToken)
+        HKVStoreService.getService().put(HKVKey("ebsi", did.substringAfterLast(":"), ebsiAccessTokenFile), accessToken)
 
         ///////////////////////////////////////////////////////////////////////////
         // Protected resource can now be accessed
@@ -259,7 +260,6 @@ object EssifClient {
                 }
             }
         }
-
     }
 
     // https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/VC-Issuance+Flow

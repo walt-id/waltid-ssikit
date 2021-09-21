@@ -1,18 +1,19 @@
 package id.walt.services.essif.didebsi
 
 import com.beust.klaxon.Klaxon
-import io.ktor.client.request.*
-import io.ktor.http.*
-import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.Serializable
-import mu.KotlinLogging
-import id.walt.common.readWhenContent
 import id.walt.crypto.canonicalize
 import id.walt.services.WaltIdServices
 import id.walt.services.crypto.CryptoService
 import id.walt.services.did.DidService
 import id.walt.services.essif.EssifClient
+import id.walt.services.hkvstore.HKVKey
+import id.walt.services.hkvstore.HKVStoreService
 import id.walt.services.key.KeyService
+import io.ktor.client.request.*
+import io.ktor.http.*
+import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.Serializable
+import mu.KotlinLogging
 import org.web3j.crypto.Hash
 import org.web3j.crypto.RawTransaction
 import org.web3j.crypto.Sign
@@ -43,7 +44,8 @@ open class WaltIdDidEbsiService : DidEbsiService() {
         log.debug { "Running EBSI DID registration ... " }
         //TODO run auth-flow, if file is not present
         //TODO re-run auth-flow, if token is expired -> io.ktor.client.features.ClientRequestException: Client request(https://api.preprod.ebsi.eu/did-registry/v2/jsonrpc) invalid: 401 Unauthorized. Text: "{"title":"Unauthorized","status":401,"type":"about:blank","detail":"Invalid JWT: JWT has expired: exp: 1623244001 < now: 1623245358"}"
-        val token = readWhenContent(EssifClient.ebsiAccessTokenFile)
+        // val token = readWhenContent(EssifClient.ebsiAccessTokenFile)
+        val token = HKVStoreService.getService().getAsString(HKVKey("ebsi", did.substringAfterLast(":"), EssifClient.ebsiAccessTokenFile))
 
         // Insert DID document request
         val insertDocumentParams = buildInsertDocumentParams(did, ethKeyAlias)

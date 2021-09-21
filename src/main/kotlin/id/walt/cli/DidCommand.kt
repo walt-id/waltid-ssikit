@@ -105,7 +105,7 @@ class ResolveDidCommand : CliktCommand(
 
         echo("\nResult:\n")
 
-        echo(encodedDid.prettyPrint())
+        echo(encodedDid)
 
         val didFileName = "${did.replace(":", "-").replace(".", "_")}.json"
         val destFile = File(config.dataDir + "/did/resolved/" + didFileName)
