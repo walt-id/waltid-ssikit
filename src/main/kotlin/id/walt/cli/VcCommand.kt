@@ -32,8 +32,6 @@ import java.util.*
 
 private val log = KotlinLogging.logger {}
 
-private val credentialService = JsonLdCredentialService.getService()
-
 class VcCommand : CliktCommand(
     name = "vc",
     help = """Verifiable Credentials (VCs).
@@ -217,7 +215,7 @@ class ListVcCommand : CliktCommand(
 
         echo("\nResults:\n")
 
-        credentialService.listVCs().forEachIndexed { index, vc -> echo("- ${index + 1}: $vc") }
+        CustodianService.getService().listCredentials().forEachIndexed { index, vc -> echo("- ${index + 1}: $vc") }
     }
 }
 
