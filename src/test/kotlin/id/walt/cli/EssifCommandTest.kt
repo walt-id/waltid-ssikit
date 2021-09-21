@@ -3,10 +3,12 @@ package id.walt.cli
 import com.github.ajalt.clikt.core.PrintHelpMessage
 import id.walt.crypto.KeyAlgorithm
 import id.walt.model.DidMethod
+import id.walt.model.DidUrl
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
+import id.walt.services.hkvstore.HKVKey
+import id.walt.services.hkvstore.HKVStoreService
 import id.walt.services.key.KeyService
-import id.walt.test.RESOURCES_PATH
 import io.kotest.assertions.retry
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
@@ -46,11 +48,12 @@ class EssifCommandTest : StringSpec({
     val bearerToken = File("data/ebsi/bearer-token.txt")
     val enableTests = bearerToken.exists()
 
-    ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
+    ServiceMatrix("service-matrix.properties")
 
     // DID used for onboarding
     val key = KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1)
     var did = DidService.create(DidMethod.ebsi, keyAlias = key.id)
+    val identifier = DidUrl.from(did).identifier
 
     "onboard --help" {
         val e = shouldThrow<PrintHelpMessage> {
@@ -58,7 +61,7 @@ class EssifCommandTest : StringSpec({
         }
         val message = e.command.getFormattedHelp()
         println(message)
-        message shouldContain "-k, --key-id"
+        message shouldContain "BEARER-TOKEN-FILE"
         message shouldContain "-d, --did"
     }
 
@@ -70,18 +73,15 @@ class EssifCommandTest : StringSpec({
         if (!bearerToken.exists()) throw Exception("Bearer Token from https://app.preprod.ebsi.eu/users-onboarding/ should be placed in file data/ebsi/bearer-token.txt")
 
         println("Generating verifiable authorization...")
-        File("data/ebsi/verifiable-authorization.json").delete()
         EssifOnboardingCommand().parse(listOf("--did", did))
-        File("data/ebsi/verifiable-authorization.json").exists() shouldBe true
+        File("data/ebsi/${identifier}/verifiable-authorization.json").exists() shouldBe true
     }
 
     "auth-api --did".config(enabled = enableTests) {
         println("Starting auth...")
-        File("data/ebsi/ebsi_access_tokenjson").delete()
-        File("data/ebsi/ake1_enc.json").delete()
         EssifAuthCommand().parse(listOf("--did", did))
-        File("data/ebsi/ebsi_access_token.json").exists() shouldBe true
-        File("data/ebsi/ake1_enc.json").exists() shouldBe true
+        File("data/ebsi/${identifier}/ebsi_access_token.json").exists() shouldBe true
+        File("data/ebsi/${identifier}/ake1_enc.json").exists() shouldBe true
     }
 
     "did register --did".config(enabled = enableTests) {
@@ -91,5 +91,6 @@ class EssifCommandTest : StringSpec({
                 EssifDidRegisterCommand().parse(listOf("--did", did))
             }
         }
+        HKVStoreService.getService().delete(HKVKey("ebsi", identifier), true)
     }
 })
