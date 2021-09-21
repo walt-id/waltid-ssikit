@@ -21,12 +21,14 @@ import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.vclib.Helpers.encode
+import id.walt.vclib.Helpers.toCredential
 import io.ktor.util.date.*
 import mu.KotlinLogging
 import java.io.File
 import java.nio.file.Path
 import java.sql.Timestamp
 import java.time.LocalDateTime
+import java.util.*
 
 private val log = KotlinLogging.logger {}
 
@@ -80,6 +82,24 @@ class VcIssueCommand : CliktCommand(
             echo("\nSaved credential to file: $dest")
         }
     }
+}
+
+class VcImportCommand : CliktCommand (
+    name = "import",
+    help = "Import VC to custodian store"
+        ) {
+
+    val src: File by argument().file()
+
+    override fun run() {
+        if(src.exists()) {
+            val cred = src.readText().toCredential()
+            val storeId = cred.id ?: "custodian#${UUID.randomUUID()}"
+            CustodianService.getService().storeCredential(storeId, cred)
+            println("Credential stored as $storeId")
+        }
+    }
+
 }
 
 class PresentVcCommand : CliktCommand(
