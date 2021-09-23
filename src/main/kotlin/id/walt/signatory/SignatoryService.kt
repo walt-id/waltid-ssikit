@@ -28,6 +28,7 @@ enum class ProofType {
 data class ProofConfig(
     val issuerDid: String,
     val subjectDid: String? = null, // if null and ProofType.LD_PROOF -> subject DID from json-input
+    val verifierDid: String? = null,
     val issuerVerificationMethod: String? = null, // DID URL => defines key type; if null and ProofType.LD_PROOF -> issuerDid default key
     val proofType: ProofType = ProofType.LD_PROOF,
     val domain: String? = null,

@@ -32,7 +32,7 @@ class AuditorCommandTest : StringSpec() {
         ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
 
         val signatory = Signatory.getService()
-        var custodian = CustodianService.getService()
+        val custodian = CustodianService.getService()
 
         did = DidService.create(DidMethod.key)
 
@@ -42,22 +42,22 @@ class AuditorCommandTest : StringSpec() {
             "VerifiableDiploma", ProofConfig(
                 issuerDid = did,
                 subjectDid = did,
-                issuerVerificationMethod = "Ed25519Signature2018", ProofType.LD_PROOF
+                issuerVerificationMethod = "Ed25519Signature2018", proofType = ProofType.LD_PROOF
             )
         )
 
         vpStr =
-            custodian.createPresentation(vcStr, "https://api.preprod.ebsi.eu", "d04442d3-661f-411e-a80f-42f19f594c9d")
+            custodian.createPresentation(listOf(vcStr), did, did, "https://api.preprod.ebsi.eu", "d04442d3-661f-411e-a80f-42f19f594c9d")
 
         vcJwt = signatory.issue(
             "VerifiableDiploma", ProofConfig(
                 issuerDid = did,
                 subjectDid = did,
-                issuerVerificationMethod = "Ed25519Signature2018", ProofType.JWT
+                issuerVerificationMethod = "Ed25519Signature2018", proofType = ProofType.JWT
             )
         )
 
-        vpJwt = custodian.createPresentation(vcJwt, null, null)
+        vpJwt = custodian.createPresentation(listOf(vcJwt), did, did, null, "abcd")
     }
 
     init {

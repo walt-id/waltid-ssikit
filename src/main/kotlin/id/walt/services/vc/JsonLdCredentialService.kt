@@ -29,8 +29,8 @@ abstract class JsonLdCredentialService : WaltIdService() {
     open fun verifyVc(vcJson: String): Boolean = implementation.verifyVc(vcJson)
     open fun verifyVp(vpJson: String): Boolean = implementation.verifyVp(vpJson)
 
-    open fun present(vc: String, domain: String?, challenge: String?): String =
-        implementation.present(vc, domain, challenge)
+    open fun present(vcs: List<String>, holderDid: String, domain: String?, challenge: String?): String =
+        implementation.present(vcs, holderDid, domain, challenge)
 
     open fun listVCs(): List<String> = implementation.listVCs()
 

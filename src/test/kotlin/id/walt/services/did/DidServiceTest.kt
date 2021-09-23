@@ -115,16 +115,16 @@ class DidServiceTest : AnnotationSpec() {
         println(didDoc.prettyPrint())
     }
 
-    @Test
-    fun listDidsTest() {
-
-        ds.create(DidMethod.key)
-
-        val dids = ds.listDids()
-
-        dids.isNotEmpty() shouldBe true
-
-        dids.forEach { s -> s shouldBe DidUrl.from(s).did }
-    }
+//    @Test
+//    fun listDidsTest() {
+//
+//        ds.create(DidMethod.key)
+//
+//        val dids = ds.listDids()
+//
+//        dids.isNotEmpty() shouldBe true
+//
+//        dids.forEach { s -> s shouldBe DidUrl.from(s).did }
+//    }
 
 }

@@ -9,8 +9,17 @@ import id.walt.services.keystore.KeyStoreService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
 import id.walt.services.vcstore.VcStoreService
+import id.walt.signatory.ProofConfig
+import id.walt.signatory.ProofType
+import id.walt.vclib.Helpers.encode
+import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.VcLibManager
 import id.walt.vclib.model.VerifiableCredential
+import id.walt.vclib.vclist.VerifiablePresentation
+import mu.KotlinLogging
+import java.util.*
+
+private val log = KotlinLogging.logger {}
 
 abstract class CustodianService : WaltIdService() {
     override val implementation get() = serviceImplementation<CustodianService>()
@@ -27,7 +36,9 @@ abstract class CustodianService : WaltIdService() {
     open fun storeCredential(alias: String, vc: VerifiableCredential): Unit = implementation.storeCredential(alias, vc)
     open fun deleteCredential(alias: String): Boolean = implementation.deleteCredential(alias)
 
-    open fun createPresentation(vc: String, domain: String?, challenge: String?): String = implementation.createPresentation(vc, domain, challenge)
+    open fun createPresentation(
+        vcs: List<String>, holderDid: String, verifierDid: String?, domain: String?, challenge: String?
+    ): String = implementation.createPresentation(vcs, holderDid, verifierDid, domain, challenge)
 
     companion object : ServiceProvider {
         override fun getService() = object : CustodianService() {}
@@ -39,6 +50,8 @@ open class WaltCustodianService : CustodianService() {
     private val keyService = KeyService.getService()
     private val keystore = KeyStoreService.getService()
     private val vcStore = VcStoreService.getService()
+    private val jwtCredentialService = JwtCredentialService.getService()
+    private val jsonLdCredentialService = JsonLdCredentialService.getService()
 
     override fun generateKey(keyAlgorithm: KeyAlgorithm): Key = keystore.load(keyService.generate(keyAlgorithm).id)
     override fun getKey(alias: String): Key = keystore.load(alias)
@@ -52,11 +65,12 @@ open class WaltCustodianService : CustodianService() {
     override fun storeCredential(alias: String, vc: VerifiableCredential) = vcStore.storeCredential(alias, vc)
     override fun deleteCredential(alias: String) = vcStore.deleteCredential(alias)
 
-    override fun createPresentation(vc: String, domain: String?, challenge: String?): String {
-        return when(VcLibManager.isJWT(vc)) {
-            true -> JwtCredentialService.getService().present(vc)
-            false -> JsonLdCredentialService.getService().present(vc, domain, challenge)
-        }
+    override fun createPresentation(
+        vcs: List<String>, holderDid: String, verifierDid: String?, domain: String?, challenge: String?
+    ): String = when {
+        vcs.stream().allMatch { VcLibManager.isJWT(it) } -> jwtCredentialService.present(vcs, holderDid, verifierDid!!, challenge!!)
+        vcs.stream().noneMatch { VcLibManager.isJWT(it) } -> jsonLdCredentialService.present(vcs, holderDid, domain, challenge)
+        else -> throw IllegalStateException("All verifiable credentials must be of the same proof type.")
     }
 }
 

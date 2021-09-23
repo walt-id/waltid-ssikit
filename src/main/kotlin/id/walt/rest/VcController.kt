@@ -21,6 +21,7 @@ data class CreateVcRequest(
 @Serializable
 data class PresentVcRequest(
     val vc: String,
+    val holderDid: String,
     val domain: String?,
     val challenge: String?
 )
@@ -96,7 +97,8 @@ object VcController {
                 ProofConfig(
                     issuerDid = createVcReq.issuerDid,
                     domain = createVcReq.domain,
-                    nonce = createVcReq.nonce)
+                    nonce = createVcReq.nonce
+                )
             )
         )
     }
@@ -118,7 +120,14 @@ object VcController {
     )
     fun present(ctx: Context) {
         val presentVcReq = ctx.bodyAsClass(PresentVcRequest::class.java)
-        ctx.result(credentialService.present(presentVcReq.vc, presentVcReq.domain, presentVcReq.challenge))
+        ctx.result(
+            credentialService.present(
+                listOf(presentVcReq.vc),
+                presentVcReq.holderDid,
+                presentVcReq.domain,
+                presentVcReq.challenge
+            )
+        )
 
     }
 

@@ -19,6 +19,7 @@ import mu.KotlinLogging
 import org.json.JSONObject
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.LdSigner
+import id.walt.services.did.DidService
 import id.walt.services.essif.EssifServer.nonce
 import id.walt.services.essif.TrustedIssuerClient.domain
 import id.walt.services.keystore.KeyStoreService
@@ -63,10 +64,11 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
             else -> throw Exception("Signature for key algorithm ${key.algorithm} not supported")
         }
 
+        println(domain)
         signer.creator = URI.create(config.issuerDid)
         signer.created = Date() // Use the current date
-        signer.domain = domain
-        signer.nonce = nonce
+        signer.domain = config.domain ?: domain
+        signer.nonce = config.nonce ?: nonce
         config.issuerVerificationMethod?.let { signer.verificationMethod = URI.create(config.issuerVerificationMethod) }
         signer.proofPurpose = config.proofPurpose
 
@@ -274,19 +276,29 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
     //        return verifier.verify(jsonLdObject)
     //    }
 
-    override fun present(vc: String, domain: String?, challenge: String?): String {
-        log.debug { "Creating a presentation for VC:\n$vc" }
+    override fun present(vcs: List<String>, holderDid: String, domain: String?, challenge: String?): String {
+        log.debug { "Creating a presentation for VCs:\n$vcs" }
 
         val id = "urn:uuid:${UUID.randomUUID()}"
-        val credential = vc.toCredential()
-        val holderDid = VcUtils.getHolder(credential)
-        val vpReqStr = VerifiablePresentation(id = id, holder = holderDid, verifiableCredential = listOf(credential)).encode()
-        val proofConfig = ProofConfig(issuerDid = holderDid, domain = domain, proofType = ProofType.LD_PROOF, nonce = challenge)
+        val config = ProofConfig(
+            issuerDid = holderDid,
+            issuerVerificationMethod = DidService.getAuthenticationMethods(holderDid)!![0],
+            proofPurpose = "authentication",
+            proofType = ProofType.LD_PROOF,
+            domain = domain,
+            nonce = challenge,
+            id = id
+        )
+        val vpReqStr = VerifiablePresentation(
+            id = id,
+            holder = holderDid,
+            verifiableCredential = vcs.map { it.toCredential() }
+        ).encode()
 
         log.trace { "VP request: $vpReqStr" }
-        log.trace { "Proof config: $$proofConfig" }
+        log.trace { "Proof config: $$config" }
 
-        val vp = sign(vpReqStr, proofConfig)
+        val vp = sign(vpReqStr, config)
 
         log.debug { "VP created:$vp" }
         return vp
