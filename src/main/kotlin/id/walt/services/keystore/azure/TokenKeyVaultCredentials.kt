@@ -5,6 +5,7 @@ import com.microsoft.aad.adal4j.ClientCredential
 import com.microsoft.azure.keyvault.authentication.KeyVaultCredentials
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlin.math.min
 
 class TokenKeyVaultCredentials(private val id: String, private val secret: String) : KeyVaultCredentials() {
 
@@ -26,7 +27,7 @@ class TokenKeyVaultCredentials(private val id: String, private val secret: Strin
                     println("Error occurred during waiting $sleepy")
                 }
                 nbRetries++
-                delay = Math.min(delay * 2, maxDelay)
+                delay = min(delay * 2, maxDelay)
                 if (nbRetries > maxReties) {
                     return ""
                 }

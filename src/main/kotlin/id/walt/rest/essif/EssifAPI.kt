@@ -1,4 +1,4 @@
-package id.walt.rest
+package id.walt.rest.essif
 
 import cc.vileda.openapi.dsl.components
 import cc.vileda.openapi.dsl.externalDocs
@@ -6,6 +6,13 @@ import cc.vileda.openapi.dsl.info
 import cc.vileda.openapi.dsl.securityScheme
 import com.beust.klaxon.Klaxon
 import id.walt.Values
+import id.walt.rest.ErrorResponse
+import id.walt.rest.OpenAPIUtils.documentedIgnored
+import id.walt.rest.RootController
+import id.walt.rest.essif.eos.EosController
+import id.walt.rest.essif.wallets.EnterpriseWalletController
+import id.walt.rest.essif.wallets.UserWalletController
+import id.walt.rest.essif.wallets.ti.TrustedIssuerController
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.core.util.RouteOverviewPlugin
@@ -14,6 +21,7 @@ import io.javalin.plugin.json.JsonMapper
 import io.javalin.plugin.openapi.InitialConfigurationCreator
 import io.javalin.plugin.openapi.OpenApiOptions
 import io.javalin.plugin.openapi.OpenApiPlugin
+import io.javalin.plugin.openapi.dsl.documented
 import io.javalin.plugin.openapi.ui.ReDocOptions
 import io.javalin.plugin.openapi.ui.SwaggerOptions
 import io.swagger.v3.oas.models.OpenAPI
@@ -117,57 +125,108 @@ object EssifAPI {
 
             config.enableDevLogging()
         }.routes {
-            get("/", RootController::rootEssifApi)
-            get("health", RootController::health)
+            get("/", documented(documentedIgnored(), RootController::rootEssifApi))
+            get("health", documented(RootController.healthDocs(), RootController::health))
 
             path("v1") {
                 path("trusted-issuer") {
-                    post("generateAuthenticationRequest", TrustedIssuerController::generateAuthenticationRequest)
-                    post("openSession", TrustedIssuerController::openSession)
+                    post("generateAuthenticationRequest", documented(TrustedIssuerController.generateAuthenticationRequestDocs(), TrustedIssuerController::generateAuthenticationRequest))
+                    post("openSession", documented(TrustedIssuerController.openSessionDocs(), TrustedIssuerController::openSession))
                 }
                 path("client") {
-                    post("onboard", EssifClientController::onboard)
-                    post("auth", EssifClientController::authApi)
-                    post("registerDid", EssifClientController::registerDid)
+                    post("onboard", documented(EssifClientController.onboardDocs(), EssifClientController::onboard))
+                    post("auth", documented(EssifClientController.authApiDocs(), EssifClientController::authApi))
+                    post(
+                        "registerDid",
+                        documented(EssifClientController.registerDidDocs(), EssifClientController::registerDid)
+                    )
                 }
             }
 
             path("test") {
                 path("user") {
                     path("wallet") {
-                        post("createDid", UserWalletController::createDid)
-                        post("requestAccessToken", UserWalletController::requestAccessToken)
-                        post("validateDidAuthRequest", UserWalletController::validateDidAuthRequest)
-                        post("didAuthResponse", UserWalletController::didAuthResponse)
-                        post("vcAuthResponse", UserWalletController::vcAuthResponse)
-                        post("oidcAuthResponse", UserWalletController::oidcAuthResponse)
+                        post("createDid", documented(UserWalletController.createDidDocs(), UserWalletController::createDid))
+                        post(
+                            "requestAccessToken",
+                            documented(UserWalletController.requestAccessTokenDocs(), UserWalletController::requestAccessToken)
+                        )
+                        post(
+                            "validateDidAuthRequest",
+                            documented(
+                                UserWalletController.validateDidAuthRequestDocs(),
+                                UserWalletController::validateDidAuthRequest
+                            )
+                        )
+                        post(
+                            "didAuthResponse",
+                            documented(UserWalletController.didAuthResponseDocs(), UserWalletController::didAuthResponse)
+                        )
+                        post(
+                            "vcAuthResponse",
+                            documented(UserWalletController.vcAuthResponseDocs(), UserWalletController::vcAuthResponse)
+                        )
+                        post(
+                            "oidcAuthResponse",
+                            documented(UserWalletController.oidcAuthResponseDocs(), UserWalletController::oidcAuthResponse)
+                        )
                     }
                 }
                 path("ti") {
                     path("credentials") {
-                        post("", EosController::getCredential)
-                        get("{credentialId}", EosController::getCredential)
+                        post("", documented(EosController.getCredentialDocs(), EosController::getCredential))
+                        get("{credentialId}", documented(EosController.getCredentialDocs(), EosController::getCredential))
                     }
-                    get("requestCredentialUri", EosController::requestCredentialUri)
-                    post("requestVerifiableCredential", EosController::requestVerifiableCredential)
+                    get("requestCredentialUri", documented(EosController.requestCredentialUriDocs(), EosController::requestCredentialUri))
+                    post("requestVerifiableCredential", documented(EosController.requestVerifiableCredentialDocs(), EosController::requestVerifiableCredential))
                 }
                 path("eos") {
-                    post("onboard", EosController::onboards)
-                    post("signedChallenge", EosController::signedChallenge)
+                    post("onboard", documented(EosController.onboardsDocs(), EosController::onboards))
+                    post("signedChallenge", documented(EosController.signedChallengeDocs(),EosController::signedChallenge))
                 }
                 path("enterprise") {
                     path("wallet") {
-                        post("createDid", EnterpriseWalletController::createDid)
+                        post(
+                            "createDid",
+                            documented(EnterpriseWalletController.createDidDocs(), EnterpriseWalletController::createDid)
+                        )
                         post(
                             "requestVerifiableAuthorization",
-                            EnterpriseWalletController::requestVerifiableAuthorization
+                            documented(
+                                EnterpriseWalletController.requestVerifiableAuthorizationDocs(),
+                                EnterpriseWalletController::requestVerifiableAuthorization
+                            )
                         )
-                        post("requestVerifiableCredential", EnterpriseWalletController::requestVerifiableCredential)
-                        post("generateDidAuthRequest", EnterpriseWalletController::generateDidAuthRequest)
+                        post(
+                            "requestVerifiableCredential",
+                            documented(
+                                EnterpriseWalletController.requestVerifiableCredentialDocs(),
+                                EnterpriseWalletController::requestVerifiableCredential
+                            )
+                        )
+                        post(
+                            "generateDidAuthRequest",
+                            documented(
+                                EnterpriseWalletController.generateDidAuthRequestDocs(),
+                                EnterpriseWalletController::generateDidAuthRequest
+                            )
+                        )
                         // post("onboardTrustedIssuer", EnterpriseWalletController::onboardTrustedIssuer) not supported yet
-                        post("validateDidAuthResponse", EnterpriseWalletController::validateDidAuthResponse)
-                        post("getVerifiableCredential", EnterpriseWalletController::getVerifiableCredential)
-                        post("token", EnterpriseWalletController::token)
+                        post(
+                            "validateDidAuthResponse",
+                            documented(
+                                EnterpriseWalletController.validateDidAuthResponseDocs(),
+                                EnterpriseWalletController::validateDidAuthResponse
+                            )
+                        )
+                        post(
+                            "getVerifiableCredential",
+                            documented(
+                                EnterpriseWalletController.getVerifiableCredentialDocs(),
+                                EnterpriseWalletController::getVerifiableCredential
+                            )
+                        )
+                        post("token", documented(EnterpriseWalletController.tokenDocs(), EnterpriseWalletController::token))
                         post("authentication-requests", EosController::authReq)
                     }
 

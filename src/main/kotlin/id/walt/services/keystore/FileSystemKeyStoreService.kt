@@ -2,9 +2,7 @@ package id.walt.services.keystore
 
 import id.walt.crypto.*
 import mu.KotlinLogging
-import org.apache.commons.io.IOUtils
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -205,7 +203,7 @@ open class FileSystemKeyStoreService : KeyStoreService() {
 
 
     private fun loadKeyFile(keyId: String, suffix: String): ByteArray =
-        IOUtils.toByteArray(FileInputStream("${Companion.KEY_DIR_PATH}/$keyId.$suffix"))
+        File("${Companion.KEY_DIR_PATH}/$keyId.$suffix").readBytes()
 
     private fun deleteKeyFile(keyId: String, suffix: String) = File("${Companion.KEY_DIR_PATH}/$keyId.$suffix").delete()
 

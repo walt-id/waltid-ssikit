@@ -9,7 +9,7 @@ open class InMemoryVcStoreService : VcStoreService() {
 
     private fun getKey(id: String, group: String) = "${group}/${id}"
 
-    override fun getCredential(id: String, group: String): VerifiableCredential = store[getKey(id, group)]!!
+    override fun getCredential(id: String, group: String): VerifiableCredential? = store[getKey(id, group)]
 
     override fun listCredentials(group: String): List<VerifiableCredential> = listCredentialIds(group).map { store[getKey(it, group)]!! }.toList()
 

@@ -8,10 +8,6 @@ import com.nimbusds.jose.crypto.impl.ECDH
 import com.nimbusds.jose.jwk.*
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
-import mu.KotlinLogging
-import org.bouncycastle.jce.provider.BouncyCastleProvider
-import id.walt.common.readEssifBearerToken
-import id.walt.common.readWhenContent
 import id.walt.common.toParamMap
 import id.walt.crypto.*
 import id.walt.model.*
@@ -19,15 +15,17 @@ import id.walt.services.did.DidService
 import id.walt.services.essif.EbsiVAWrapper
 import id.walt.services.essif.EbsiVaVp
 import id.walt.services.essif.EssifClient
-import id.walt.services.essif.EssifClient.ake1EncFile
-import id.walt.services.essif.EssifClient.verifiablePresentationFile
 import id.walt.services.essif.LegalEntityClient
 import id.walt.services.essif.enterprisewallet.EnterpriseWalletService
 import id.walt.services.essif.mock.AuthorizationApi
 import id.walt.services.essif.mock.DidRegistry
+import id.walt.services.hkvstore.HKVKey
+import id.walt.services.hkvstore.HKVStoreService
 import id.walt.services.jwt.JwtService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.ProofConfig
+import mu.KotlinLogging
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.KeyPairGenerator
 import java.security.MessageDigest
 import java.security.SecureRandom
@@ -104,9 +102,11 @@ object UserWalletService {
         //   ESSIF onboarding flow (DID registration)
         ///////////////////////////////////////////////////////////////////////////
 
-        log.debug { "Loading Verifiable Authorization from file: ${EssifClient.verifiableAuthorizationFile.absolutePath}." }
+        log.debug { "Loading Verifiable Authorization from HKV Store." }
 
-        val verifiableAuthorization = readWhenContent(EssifClient.verifiableAuthorizationFile)
+        val verifiableAuthorization = HKVStoreService.getService().getAsString(HKVKey("ebsi", did.substringAfterLast(":"), EssifClient.verifiableAuthorizationFile))!!
+
+        // val verifiableAuthorization = readWhenContent(EssifClient.verifiableAuthorizationFile)
 
         // log.debug { "Loaded bearer token from ${EssifClient.bearerTokenFile.absolutePath}." }
 
@@ -234,15 +234,17 @@ object UserWalletService {
         //val siopResponse = LegalEntityClient.eos.siopSession(idToken, readEssifBearerToken())
         val siopResponse = LegalEntityClient.eos.siopSession(idToken)
 
-        log.debug { "Writing SIOP response (AKE1 encrypted token) to file: ${ake1EncFile.absolutePath}" }
+        log.debug { "Writing SIOP response (AKE1 encrypted token) to HKV store." }
 
-        ake1EncFile.writeText(siopResponse)
+        //ake1EncFile.writeText(siopResponse)
+
+        HKVStoreService.getService().put(HKVKey("ebsi", did.substringAfterLast(":"), EssifClient.ake1EncFile), siopResponse)
 
         ///////////////////////////////////////////////////////////////////////////
         // Decrypt Access Token
         ///////////////////////////////////////////////////////////////////////////
 
-        val accessTokenResponse = Klaxon().parse<AccessTokenResponse>(ake1EncFile.readText())!!
+        val accessTokenResponse = Klaxon().parse<AccessTokenResponse>(siopResponse)!!
 
         val encryptedPayload = parseEncryptedAke1Payload(accessTokenResponse.ake1_enc_payload)
 
@@ -272,7 +274,7 @@ object UserWalletService {
 
         var endInx = accessTokenBytes.findFirst { b -> (b.toInt() == 5) }
 
-        val accessTokenRespStr = String(accessTokenBytes.slice(0..(endInx - 1)).toByteArray())
+        val accessTokenRespStr = String(accessTokenBytes.slice(0 until endInx).toByteArray())
 
         val decAccesTokenResp = Klaxon().parse<DecryptedAccessTokenResponse>(accessTokenRespStr)!!
 
@@ -326,7 +328,8 @@ object UserWalletService {
 
         log.debug { "Verifiable Presentation generated:\n$vp" }
 
-        verifiablePresentationFile.writeText(vp)
+        //verifiablePresentationFile.writeText(vp)
+        HKVStoreService.getService().put(HKVKey("ebsi", holderDid.substringAfterLast(":"), EssifClient.verifiablePresentationFile), vp)
 
         val vpCan = canonicalize(vp)
 
@@ -334,32 +337,36 @@ object UserWalletService {
     }
 
     fun embedPublicEncryptionKey(key: JWK): Map<String, String> {
-        if (key is ECKey) {
-            return mapOf(
-                "kty" to key.keyType.value,
-                "alg" to key.algorithm.name,
-                "crv" to key.curve.name,
-                "x" to key.x.toString(),
-                "y" to key.y.toString()
-            )
-        } else if (key is OctetKeyPair) {
-            return when (key.curve) {
-                Curve.X25519 -> mapOf(
-                    "kty" to key.keyType.value,
-                    "crv" to key.curve.name,
-                    "x" to key.x.toString()
-                )
-                Curve.Ed25519 -> mapOf(
+        when (key) {
+            is ECKey -> {
+                return mapOf(
                     "kty" to key.keyType.value,
                     "alg" to key.algorithm.name,
                     "crv" to key.curve.name,
-                    "x" to key.x.toString()
-                    //"d" to key.d.toString()
+                    "x" to key.x.toString(),
+                    "y" to key.y.toString()
                 )
-                else -> throw IllegalArgumentException("Curve not supported")
             }
-        } else {
-            throw IllegalArgumentException("Not supported key")
+            is OctetKeyPair -> {
+                return when (key.curve) {
+                    Curve.X25519 -> mapOf(
+                        "kty" to key.keyType.value,
+                        "crv" to key.curve.name,
+                        "x" to key.x.toString()
+                    )
+                    Curve.Ed25519 -> mapOf(
+                        "kty" to key.keyType.value,
+                        "alg" to key.algorithm.name,
+                        "crv" to key.curve.name,
+                        "x" to key.x.toString()
+                        //"d" to key.d.toString()
+                    )
+                    else -> throw IllegalArgumentException("Curve not supported")
+                }
+            }
+            else -> {
+                throw IllegalArgumentException("Not supported key")
+            }
         }
     }
 

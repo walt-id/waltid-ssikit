@@ -11,6 +11,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import id.walt.model.AuthRequestResponse
+import id.walt.rest.essif.EssifAPI
 import id.walt.services.essif.mock.RelyingParty
 
 class EssifApiTest : AnnotationSpec() {

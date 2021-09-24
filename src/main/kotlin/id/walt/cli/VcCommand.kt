@@ -14,6 +14,7 @@ import id.walt.auditor.AuditorService
 import id.walt.auditor.PolicyRegistry
 import id.walt.common.prettyPrint
 import id.walt.custodian.CustodianService
+import id.walt.services.hkvstore.HKVKey
 import id.walt.services.hkvstore.HKVStoreService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.ProofConfig
@@ -71,17 +72,7 @@ class VcIssueCommand : CliktCommand(
 
         val vcStr = signatory.issue(template, ProofConfig(issuerDid, subjectDid, null, "Ed25519Signature2018", proofType))
 
-        val vcId = Timestamp.valueOf(LocalDateTime.now()).time
-
         echo("Generated Credential:\n\n$vcStr")
-
-        // Saving VC to file
-        val vcFileName = "vc-$vcId-${template}.json"
-        HKVStoreService.getService().put(Path.of("vc", "created", vcFileName), vcStr)
-
-        log.debug { "Writing VC to file $vcFileName" }
-
-        echo("\nSaved credential to credential store \"./data/vc/created/$vcFileName\".")
 
         dest?.run {
             log.debug { "Writing VC to DEST file $dest" }

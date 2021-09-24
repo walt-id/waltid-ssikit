@@ -1,11 +1,14 @@
 package id.walt.signatory
 
+import id.walt.custodian.CustodianService
 import id.walt.servicematrix.BaseService
 import id.walt.servicematrix.ServiceConfiguration
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.vc.JwtCredentialService
 import id.walt.services.vc.JsonLdCredentialService
+import id.walt.services.vcstore.VcStoreService
 import id.walt.vclib.Helpers.encode
+import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.templates.VcTemplateManager
 import java.util.*
@@ -63,20 +66,32 @@ abstract class Signatory : BaseService(), ISignatory {
 
 class WaltSignatory(configurationPath: String) : Signatory() {
 
+    private val vcStore = VcStoreService.getService()
+    private val VC_GROUP = "signatory"
     override val configuration: SignatoryConfig = fromConfiguration(configurationPath)
 
     override fun issue(templateId: String, config: ProofConfig): String {
 
         // TODO: load proof-conf from signatory.conf and optionally substitute values on request basis
-
         val vcTemplate = VcTemplateManager.loadTemplate(templateId)
+        val configDP = when (config.id.isNullOrBlank()) {
+            true -> ProofConfig(
+                config.issuerDid, config.subjectDid, null, config.issuerVerificationMethod, config.proofType,
+                config.domain, config.nonce, config.proofPurpose,
+                "identity#${templateId}#${UUID.randomUUID()}",
+                config.issueDate, config.expirationDate
+            )
+            else -> config
+        }
         val dataProvider = DataProviderRegistry.getProvider(vcTemplate::class) // vclib.getUniqueId(vcTemplate)
-        val vcRequest = dataProvider.populate(vcTemplate, config)
+        val vcRequest = dataProvider.populate(vcTemplate, configDP)
 
-        return when (config.proofType) {
+        val signedVc = when (config.proofType) {
             ProofType.LD_PROOF -> JsonLdCredentialService.getService().sign(vcRequest.encode(), config)
             ProofType.JWT -> JwtCredentialService.getService().sign(vcRequest.encode(), config)
         }
+        vcStore.storeCredential(configDP.id!!, signedVc.toCredential(), VC_GROUP)
+        return signedVc
     }
 
     override fun listTemplates(): List<String> = VcTemplateManager.getTemplateList()
