@@ -12,17 +12,19 @@ import com.github.ajalt.clikt.parameters.types.enum
 import com.github.ajalt.clikt.parameters.types.file
 import id.walt.auditor.AuditorService
 import id.walt.auditor.PolicyRegistry
+import id.walt.common.prettyPrint
+import id.walt.custodian.CustodianService
+import id.walt.services.hkvstore.HKVKey
+import id.walt.services.hkvstore.HKVStoreService
+import id.walt.services.vc.JsonLdCredentialService
+import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.vclib.Helpers.encode
 import io.ktor.util.date.*
 import mu.KotlinLogging
-import id.walt.common.prettyPrint
-import id.walt.custodian.CustodianService
-import id.walt.services.vc.JsonLdCredentialService
-import id.walt.services.vc.VerificationType
-import id.walt.signatory.ProofConfig
 import java.io.File
+import java.nio.file.Path
 import java.sql.Timestamp
 import java.time.LocalDateTime
 
@@ -69,56 +71,8 @@ class VcIssueCommand : CliktCommand(
         log.debug { "Loading credential template: ${template}" }
 
         val vcStr = signatory.issue(template, ProofConfig(issuerDid, subjectDid, "Ed25519Signature2018", proofType))
-        //signatory.loadTemplate(template)
-
-        //TODO: move the following to Signatory
-
-        // Populating VC with data
-        val vcId = Timestamp.valueOf(LocalDateTime.now()).time
-
-
-//        val vcReq = template.readText().toCredential()
-        /*val vcReq = credentialService.defaultVcTemplate()
-
-        val vcReqEnc = Klaxon().toJsonString(when (vcReq) {
-            is Europass -> {
-                vcReq.apply {
-                    id = vcId.toString()
-                    issuer = issuerDid
-                    credentialSubject!!.id = subjectDid
-                    issuanceDate = LocalDateTime.now().toString()
-                }
-            }
-            is VerifiableAttestation -> {
-                vcReq.apply {
-                    id = vcId.toString()
-                    issuer = issuerDid
-                    credentialSubject!!.id = subjectDid
-                    issuanceDate = LocalDateTime.now().toString()
-                }
-            }
-            is PermanentResidentCard -> vcReq.apply {
-                //todo
-            }
-            else -> throw IllegalArgumentException()
-        })
-
-        log.debug { "Credential request:\n$vcReqEnc" }
-
-        echo("\nResults:\n")
-
-        // Signing VC
-        val vcStr = credentialService.sign(issuerDid, vcReqEnc)*/
-
 
         echo("Generated Credential:\n\n$vcStr")
-
-        // Saving VC to file
-        val vcFileName = "data/vc/created/vc-$vcId-${template}.json"
-
-        log.debug { "Writing VC to file $vcFileName" }
-        File(vcFileName).writeText(vcStr)
-        echo("\nSaved credential to credential store \"$vcFileName\".")
 
         dest?.run {
             log.debug { "Writing VC to DEST file $dest" }
@@ -177,8 +131,13 @@ class VerifyVcCommand : CliktCommand(
 ) {
 
     val src: File by argument().file()
+
     //val isPresentation: Boolean by option("-p", "--is-presentation", help = "In case a VP is verified.").flag()
-    val policies: List<String> by option("-p", "--policy", help = "Verification policy. Can be specified multiple times. By default, ${PolicyRegistry.defaultPolicyId} is used.").multiple(default = listOf(PolicyRegistry.defaultPolicyId))
+    val policies: List<String> by option(
+        "-p",
+        "--policy",
+        help = "Verification policy. Can be specified multiple times. By default, ${PolicyRegistry.defaultPolicyId} is used."
+    ).multiple(default = listOf(PolicyRegistry.defaultPolicyId))
 
     override fun run() {
         echo("Verifying from file $src ...\n")
@@ -215,10 +174,10 @@ class VerifyVcCommand : CliktCommand(
     }
 }
 
-class ListVerificationPoliciesCommand : CliktCommand (
+class ListVerificationPoliciesCommand : CliktCommand(
     name = "policies",
     help = "List verification policies"
-        ) {
+) {
     override fun run() {
         PolicyRegistry.listPolicies().forEach { verificationPolicy ->
             echo("${verificationPolicy.id}: ${verificationPolicy.description}")

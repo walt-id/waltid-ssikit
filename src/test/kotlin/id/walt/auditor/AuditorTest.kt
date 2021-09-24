@@ -12,6 +12,7 @@ import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
+import id.walt.test.RESOURCES_PATH
 import io.kotest.core.spec.Spec
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldBeSameSizeAs
@@ -28,7 +29,7 @@ class AuditorCommandTest : StringSpec() {
     override fun beforeSpec(spec: Spec) {
         super.beforeSpec(spec)
 
-        ServiceMatrix("service-matrix.properties")
+        ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
 
         val signatory = Signatory.getService()
         var custodian = CustodianService.getService()
@@ -38,19 +39,22 @@ class AuditorCommandTest : StringSpec() {
         println("Generated: $did")
 
         vcStr = signatory.issue(
-    "VerifiableDiploma", ProofConfig(
-            issuerDid = did,
-            subjectDid = did,
-            issuerVerificationMethod = "Ed25519Signature2018", ProofType.LD_PROOF)
+            "VerifiableDiploma", ProofConfig(
+                issuerDid = did,
+                subjectDid = did,
+                issuerVerificationMethod = "Ed25519Signature2018", ProofType.LD_PROOF
+            )
         )
 
         vpStr =
             custodian.createPresentation(vcStr, "https://api.preprod.ebsi.eu", "d04442d3-661f-411e-a80f-42f19f594c9d")
 
-        vcJwt = signatory.issue("VerifiableDiploma", ProofConfig(
-            issuerDid = did,
-            subjectDid = did,
-            issuerVerificationMethod = "Ed25519Signature2018", ProofType.JWT)
+        vcJwt = signatory.issue(
+            "VerifiableDiploma", ProofConfig(
+                issuerDid = did,
+                subjectDid = did,
+                issuerVerificationMethod = "Ed25519Signature2018", ProofType.JWT
+            )
         )
 
         vpJwt = custodian.createPresentation(vcJwt, null, null)

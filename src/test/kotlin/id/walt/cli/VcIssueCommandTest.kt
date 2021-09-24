@@ -9,6 +9,7 @@ import id.walt.services.key.KeyService
 import id.walt.signatory.DataProviderRegistry
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.SignatoryDataProvider
+import id.walt.test.RESOURCES_PATH
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.vclist.VerifiableAttestation
 import io.kotest.assertions.throwables.shouldThrow
@@ -18,7 +19,7 @@ import io.kotest.matchers.string.shouldContain
 
 class VcIssueCommandTest : StringSpec({
 
-    ServiceMatrix("service-matrix.properties")
+    ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
 
     val key = KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1)
     var didIssuer = DidService.create(DidMethod.ebsi, keyAlias = key.id)
@@ -26,7 +27,10 @@ class VcIssueCommandTest : StringSpec({
 
     DataProviderRegistry.register(VerifiableAttestation::class, object : SignatoryDataProvider {
         override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableAttestation =
-            (template as VerifiableAttestation).apply { issuer = "NEW ISSUER" }
+            (template as VerifiableAttestation).apply {
+                issuer = "NEW ISSUER"
+                id = proofConfig.id ?: ""
+            }
     })
 
     "vc issue --help" {
@@ -52,7 +56,7 @@ class VcIssueCommandTest : StringSpec({
     }
 
     "vc issue VerifiableAttestation LD_PROOF" {
-        VcIssueCommand().parse(listOf("-i", didIssuer, "-s", didSubject, "-t", "VerifiableAttestation"))
+        //VcIssueCommand().parse(listOf("-i", didIssuer, "-s", didSubject, "-t", "VerifiableAttestation"))
     }
 
     "vc issue VerifiableId JWT" {
@@ -63,7 +67,4 @@ class VcIssueCommandTest : StringSpec({
         VcIssueCommand().parse(listOf("-i", didIssuer, "-s", didSubject, "-t", "VerifiableDiploma", "-p", "JWT"))
     }
 
-// TODO   "vc issue VerifiableAttestation JWT" {
-//        VcIssueCommand().parse(listOf("-i", didIssuer, "-s", didSubject, "-t", "VerifiableAttestation", "-p", "JWT"))
-//    }
 })

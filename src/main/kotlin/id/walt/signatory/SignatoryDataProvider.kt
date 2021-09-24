@@ -18,7 +18,7 @@ class EuropassDataProvider : SignatoryDataProvider {
 
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): Europass {
         val vc = template as Europass
-
+        vc.id = proofConfig.id
         vc.issuer = proofConfig.issuerDid
         vc.credentialSubject!!.id = proofConfig.subjectDid
 

@@ -1,9 +1,10 @@
 package id.walt.services.keystore
 
 import com.google.crypto.tink.config.TinkConfig
-import io.kotest.core.spec.style.AnnotationSpec
 import id.walt.crypto.KeyAlgorithm
 import id.walt.services.crypto.TinkCryptoService
+import io.kotest.core.spec.style.AnnotationSpec
+import java.io.File
 
 class TinkKeyStoreServiceTest : AnnotationSpec() {
 
@@ -20,5 +21,7 @@ class TinkKeyStoreServiceTest : AnnotationSpec() {
         val key = tinkKeyStoreService.load(keyId.id)
 
         println(key)
+
+        File("data/key/$keyId.tink").delete()
     }
 }

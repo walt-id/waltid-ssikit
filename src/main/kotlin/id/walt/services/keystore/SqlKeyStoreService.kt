@@ -8,9 +8,9 @@ import id.walt.crypto.toBase64
 import mu.KotlinLogging
 import java.sql.Statement.RETURN_GENERATED_KEYS
 
-private val log = KotlinLogging.logger {}
-
 open class SqlKeyStoreService : KeyStoreService() {
+
+    private val log = KotlinLogging.logger {}
 
     init {
         SqlDbManager.start()

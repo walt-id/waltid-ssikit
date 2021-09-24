@@ -39,35 +39,39 @@ object CustodianKeyTestUtils {
             custodian.listKeys().size shouldBeGreaterThanOrEqual 2
         }
 
-//        "4: Delete keys" {
-//            for (key in custodian.listKeys()) {
-//                custodian.deleteKey(key.keyId.id)
-//            }
-//
-//            custodian.listKeys().size shouldBeExactly 0
-//        }
-//
-//        "5.1: Store EdDSA_Ed25519 key" {
-//            custodian.storeKey(key1)
-//        }
-//
-//        "5.2: Store ECDSA_Secp256k1 key" {
-//            custodian.storeKey(key2)
-//        }
-//
-//        "6.1: Retrieve stored EdDSA_Ed25519 key" {
-//            val loadedKey = custodian.getKey(key1.keyId.id)
-//
-//            loadedKey.keyId.id shouldBe key1.keyId.id
-//            loadedKey.algorithm shouldBe KeyAlgorithm.EdDSA_Ed25519
-//        }
-//
-//        "6.2: Retrieve stored ECDSA_Secp256k1 key" {
-//            val loadedKey = custodian.getKey(key2.keyId.id)
-//
-//            loadedKey.keyId.id shouldBe key2.keyId.id
-//            loadedKey.algorithm shouldBe KeyAlgorithm.ECDSA_Secp256k1
-//        }
+        "4: Delete keys" {
+            custodian.listKeys().forEach {
+                custodian.deleteKey(it.keyId.id)
+            }
+
+            custodian.listKeys().size shouldBeExactly 0
+        }
+
+        "5.1: Store EdDSA_Ed25519 key" {
+            custodian.storeKey(key1)
+        }
+
+        "5.2: Store ECDSA_Secp256k1 key" {
+            custodian.storeKey(key2)
+        }
+
+        "6.1: Retrieve stored EdDSA_Ed25519 key" {
+            val loadedKey = custodian.getKey(key1.keyId.id)
+
+            loadedKey.keyId.id shouldBe key1.keyId.id
+            loadedKey.algorithm shouldBe KeyAlgorithm.EdDSA_Ed25519
+        }
+
+        "6.2: Retrieve stored ECDSA_Secp256k1 key" {
+            val loadedKey = custodian.getKey(key2.keyId.id)
+
+            loadedKey.keyId.id shouldBe key2.keyId.id
+            loadedKey.algorithm shouldBe KeyAlgorithm.ECDSA_Secp256k1
+
+            custodian.listKeys().forEach {
+                custodian.deleteKey(it.keyId.id)
+            }
+        }
     }
 
 }

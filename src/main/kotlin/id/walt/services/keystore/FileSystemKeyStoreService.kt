@@ -1,10 +1,8 @@
 package id.walt.services.keystore
 
-import mu.KotlinLogging
-import org.apache.commons.io.IOUtils
 import id.walt.crypto.*
+import mu.KotlinLogging
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -14,9 +12,9 @@ import java.security.PublicKey
 import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
 
-private val log = KotlinLogging.logger {}
-
 open class FileSystemKeyStoreService : KeyStoreService() {
+
+    private val log = KotlinLogging.logger {}
 
     //TODO: get key format from config
     private val KEY_FORMAT = KeyFormat.PEM
@@ -76,6 +74,7 @@ open class FileSystemKeyStoreService : KeyStoreService() {
         deleteKeyFile(alias, "raw-pubkey")
         deleteKeyFile(alias, "raw-privkey")
         deleteKeyFile(alias, "meta")
+        deleteKeyAlias(alias)
     }
 
     private fun storePublicKey(key: Key) =
@@ -204,9 +203,11 @@ open class FileSystemKeyStoreService : KeyStoreService() {
 
 
     private fun loadKeyFile(keyId: String, suffix: String): ByteArray =
-        IOUtils.toByteArray(FileInputStream("${Companion.KEY_DIR_PATH}/$keyId.$suffix"))
+        File("${Companion.KEY_DIR_PATH}/$keyId.$suffix").readBytes()
 
     private fun deleteKeyFile(keyId: String, suffix: String) = File("${Companion.KEY_DIR_PATH}/$keyId.$suffix").delete()
+
+    private fun deleteKeyAlias(alias: String) = File("${KEY_DIR_PATH}/Alias-$alias").delete()
 
     fun getKeyIdList() = File(Companion.KEY_DIR_PATH).listFiles()!!.map { it.nameWithoutExtension }.distinct()
 

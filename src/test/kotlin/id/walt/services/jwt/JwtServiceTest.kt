@@ -7,22 +7,22 @@ import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
-import id.walt.servicematrix.ServiceMatrix
-import id.walt.vclib.vclist.Europass
-import io.kotest.core.spec.style.AnnotationSpec
-import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
-import org.bouncycastle.jce.provider.BouncyCastleProvider
-import org.bouncycastle.util.encoders.Hex
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.decBase64
 import id.walt.model.DidEbsi
 import id.walt.model.DidMethod
+import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.crypto.CryptoService
 import id.walt.services.did.DidService
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
+import id.walt.test.RESOURCES_PATH
 import id.walt.vclib.Helpers.toCredential
+import id.walt.vclib.vclist.Europass
+import io.kotest.core.spec.style.AnnotationSpec
+import io.kotest.matchers.shouldBe
+import org.bouncycastle.jce.provider.BouncyCastleProvider
+import org.bouncycastle.util.encoders.Hex
 import java.io.File
 import java.time.Instant
 import java.util.*
@@ -33,7 +33,7 @@ class JwtServiceTest : AnnotationSpec() {
 
     @Before
     fun setup() {
-        ServiceMatrix("service-matrix.properties")
+        ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
     }
 
     private val cryptoService = CryptoService.getService()

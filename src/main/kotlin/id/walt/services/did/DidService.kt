@@ -7,6 +7,8 @@ import id.walt.crypto.KeyAlgorithm.EdDSA_Ed25519
 import id.walt.model.*
 import id.walt.services.WaltIdServices
 import id.walt.services.crypto.CryptoService
+import id.walt.services.hkvstore.HKVKey
+import id.walt.services.hkvstore.HKVStoreService
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyStoreService
 import id.walt.services.vc.JsonLdCredentialService
@@ -16,7 +18,6 @@ import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.bouncycastle.asn1.ASN1BitString
 import org.bouncycastle.asn1.ASN1Sequence
-import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.*
@@ -88,7 +89,7 @@ object DidService {
     }
 
     fun loadDidEbsi(did: String): DidEbsi = loadDidEbsi(DidUrl.from(did))
-    fun loadDidEbsi(didUrl: DidUrl): DidEbsi = Klaxon().parse<DidEbsi>(loadDid(didUrl.did))!!
+    fun loadDidEbsi(didUrl: DidUrl): DidEbsi = Klaxon().parse<DidEbsi>(loadDid(didUrl.did)!!)!!
 
     fun updateDidEbsi(did: DidEbsi) = storeDid(did.id!!, Klaxon().toJsonString(did))
     // Private methods
@@ -308,10 +309,14 @@ object DidService {
     private fun resolveAndStore(didUrl: String) = storeDid(didUrl, resolve(didUrl).encodePretty())
 
     private fun storeDid(didUrlStr: String, didDoc: String) =
-        File(WaltIdServices.dataDir + "/did/created/${didUrlStr.replace(":", "-")}.json").writeText(didDoc)
+        HKVStoreService.getService().put(HKVKey("did", "created", didUrlStr), didDoc)
 
     private fun loadDid(didUrlStr: String) =
-        File(WaltIdServices.dataDir + "/did/created/${didUrlStr.replace(":", "-")}.json").readText(Charsets.UTF_8)
+        HKVStoreService.getService().getAsString(HKVKey("did", "created", didUrlStr))
+
+
+    fun listDids(): List<String> =
+        HKVStoreService.getService().listChildKeys(HKVKey("did", "created")).map { it.name }.toList()
 
 
     // TODO: consider the methods below. They might be deprecated!
@@ -376,15 +381,5 @@ object DidService {
 //
 //        return didUrl.did
 //    }
-
-    fun listDids(): List<String> {
-
-        // File("data").walkTopDown().filter {  it -> Files.isRegularFile(it)  }
-
-        return Files.walk(Path.of("data/did/created"))
-            .filter { Files.isRegularFile(it) }
-            .filter { it.toString().endsWith(".json") }
-            .map { it.fileName.toString().substringBefore(".json").replace("-", ":") }.toList()
-    }
 
 }

@@ -9,17 +9,23 @@ open class FileSystemVcStoreService : VcStoreService() {
 
     val store = File("credential-store").apply { mkdir() }
 
-    private fun getFileById(id: String) = File("${store.absolutePath}/$id.cred")
-    private fun loadFileString(id: String) = getFileById(id).readText()
+    private fun getGroupDir(group: String) = File(store.absolutePath, group).apply { mkdirs() }
+    private fun getFileById(id: String, group: String) = File(getGroupDir(group),"${id}.cred")
+    private fun loadFileString(id: String, group: String) = getFileById(id, group).let {
+        when(it.exists()) {
+            true -> it.readText()
+            false -> null
+        }
+    }
 
-    override fun getCredential(id: String): VerifiableCredential = loadFileString(id).toCredential()
+    override fun getCredential(id: String, group: String): VerifiableCredential? = loadFileString(id, group)?.let { it.toCredential() }
 
-    override fun listCredentials(): List<VerifiableCredential> =
-        listCredentialIds().map { loadFileString(it).toCredential() }
+    override fun listCredentials(group: String): List<VerifiableCredential> =
+        listCredentialIds(group).map { getCredential(it, group)!! }
 
-    override fun listCredentialIds(): List<String> = store.listFiles()!!.map { it.nameWithoutExtension }
+    override fun listCredentialIds(group: String): List<String> = getGroupDir(group).listFiles()!!.map { it.nameWithoutExtension }
 
-    override fun storeCredential(alias: String, vc: VerifiableCredential) = getFileById(alias).writeText(vc.encode())
+    override fun storeCredential(alias: String, vc: VerifiableCredential, group: String) = getFileById(alias, group).writeText(vc.encode())
 
-    override fun deleteCredential(alias: String) = getFileById(alias).delete()
+    override fun deleteCredential(alias: String, group: String) = getFileById(alias, group).delete()
 }

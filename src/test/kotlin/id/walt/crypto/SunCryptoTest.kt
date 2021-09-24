@@ -4,12 +4,13 @@ import id.walt.servicematrix.ServiceMatrix
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import id.walt.services.crypto.SunCryptoService
+import id.walt.test.RESOURCES_PATH
 
 class SunCryptoTest : AnnotationSpec() {
 
     @Before
     fun setup() {
-        ServiceMatrix("service-matrix.properties")
+        ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
     }
 
     val sunCryptoService = SunCryptoService()

@@ -7,6 +7,7 @@ import id.walt.services.did.DidService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
+import id.walt.test.RESOURCES_PATH
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.VcLibManager
 import id.walt.vclib.vclist.VerifiablePresentation
@@ -24,7 +25,7 @@ class CustodianPresentTest : StringSpec() {
     override fun beforeSpec(spec: Spec) {
         super.beforeSpec(spec)
 
-        ServiceMatrix("service-matrix.properties")
+        ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
 
         did = DidService.create(DidMethod.key)
 

@@ -3,12 +3,6 @@
 package id.walt.model
 
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Serializer
-import kotlinx.serialization.UseSerializers
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonTransformingSerializer
-import kotlinx.serialization.json.jsonObject
 
 //fun VerifiableCredential.encode() = Klaxon().toJsonString(this)
 //fun VerifiableCredential.encodePretty() = Klaxon().toJsonString(this)

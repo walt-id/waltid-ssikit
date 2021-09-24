@@ -8,6 +8,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider
 import id.walt.crypto.KeyAlgorithm
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
+import id.walt.test.RESOURCES_PATH
 import java.security.Security
 
 class SQLiteTest : AnnotationSpec() {
@@ -16,7 +17,7 @@ class SQLiteTest : AnnotationSpec() {
     @Before
     fun setup() {
         Security.addProvider(BouncyCastleProvider())
-        ServiceMatrix("service-matrix.properties")
+        ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
     }
 
     @Test
