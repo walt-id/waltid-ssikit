@@ -19,32 +19,39 @@ import java.util.*
 
 private val log = KotlinLogging.logger {}
 
+private const val JWT_VC_CLAIM = "vc"
+private const val JWT_VP_CLAIM = "vp"
+
 open class WaltIdJwtCredentialService : JwtCredentialService() {
 
     private val jwtService = JwtService.getService()
-    val JWT_VC_CLAIM = "vc"
-    val JWT_VP_CLAIM = "vp"
 
     override fun sign(jsonCred: String, config: ProofConfig): String {
         log.debug { "Signing JWT object with config: $config" }
+
         val issuerDid = config.issuerDid
         val issueDate = config.issueDate ?: Date()
         val validDate = config.validDate ?: Date()
-        val crd = jsonCred.toCredential()
-        val payload = JWTClaimsSet.Builder()
+        val jwtClaimsSet = JWTClaimsSet.Builder()
             .jwtID(config.id)
             .issuer(issuerDid)
-            .subject(config.subjectDid)
             .issueTime(issueDate)
             .notBeforeTime(validDate)
             .expirationTime(config.expirationDate)
-            .claim(when(crd) {
-                is VerifiablePresentation -> JWT_VP_CLAIM
-                else -> JWT_VC_CLAIM
-             }, crd.toMap())
-            .build().toString()
 
+        when(val crd = jsonCred.toCredential()) {
+            is VerifiablePresentation -> jwtClaimsSet
+                .audience(config.verifierDid!!)
+                .claim("nonce", config.nonce!!)
+                .claim(JWT_VP_CLAIM, crd.toMap())
+            else -> jwtClaimsSet
+                .subject(config.subjectDid)
+                .claim(JWT_VC_CLAIM, crd.toMap())
+        }
+
+        val payload = jwtClaimsSet.build().toString()
         log.debug { "Signing: $payload" }
+
         return jwtService.sign(issuerDid, payload)
     }
 
@@ -70,23 +77,17 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
     override fun verifyVp(vp: String): Boolean =
         verifyVc(vp)
 
-    override fun present(vc: String): String {
-        log.debug { "Creating a presentation for VC:\n$vc" }
+    override fun present(vcs: List<String>, holderDid: String, verifierDid: String, challenge: String): String {
+        log.debug { "Creating a presentation for VCs:\n$vcs" }
 
-        val vpReqStr = VerifiablePresentation(
-            id = "id",
-            verifiableCredential = listOf(vc.toCredential())
-        ).encode()
+        val id = "urn:uuid:${UUID.randomUUID()}"
+        val config = ProofConfig(issuerDid = holderDid, verifierDid = verifierDid, proofType = ProofType.JWT, nonce = challenge, id = id)
+        val vpReqStr = VerifiablePresentation(verifiableCredential = vcs.map { it.toCredential() }).encode()
 
-        log.trace { "VP request:\n$vpReqStr" }
+        log.trace { "VP request: $vpReqStr" }
+        log.trace { "Proof config: $$config" }
 
-        val holderDid = VcUtils.getHolder(vc.toCredential())
-        val proofConfig = ProofConfig(
-            issuerDid = holderDid,
-            subjectDid = holderDid,
-            proofType = ProofType.JWT
-        )
-        val vp = sign(vpReqStr, proofConfig)
+        val vp = sign(vpReqStr, config)
 
         log.debug { "VP created:$vp" }
         return vp

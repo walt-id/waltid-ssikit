@@ -306,6 +306,11 @@ object DidService {
         }
     }
 
+    fun getAuthenticationMethods(did: String) = when (DidUrl.from(did).method) {
+        DidMethod.ebsi.name -> loadDidEbsi(did).authentication
+        else -> load(did).authentication
+    }
+
     private fun resolveAndStore(didUrl: String) = storeDid(didUrl, resolve(didUrl).encodePretty())
 
     private fun storeDid(didUrlStr: String, didDoc: String) =

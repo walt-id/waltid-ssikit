@@ -70,7 +70,7 @@ class VcIssueCommand : CliktCommand(
         // Loading VC template
         log.debug { "Loading credential template: ${template}" }
 
-        val vcStr = signatory.issue(template, ProofConfig(issuerDid, subjectDid, "Ed25519Signature2018", proofType))
+        val vcStr = signatory.issue(template, ProofConfig(issuerDid, subjectDid, null, "Ed25519Signature2018", proofType))
 
         echo("Generated Credential:\n\n$vcStr")
 
@@ -89,9 +89,10 @@ class PresentVcCommand : CliktCommand(
         """
 ) {
     val src: File by argument().file()
+    val holderDid: String by option("-i", "--holder-did", help = "DID of the holder (owner of the VC)").required()
+    val verifierDid: String? by option("-v", "--verifier-did", help = "DID of the verifier (recipient of the VP)")
     val domain: String? by option("-d", "--domain", help = "Domain name to be used in the LD proof")
     val challenge: String? by option("-c", "--challenge", help = "Challenge to be used in the LD proof")
-    // val holderDid: String? by option("-i", "--holder-did", help = "DID of the holder (owner of the VC)")
 
     override fun run() {
         echo("Creating verifiable presentation form file \"$src\"...")
@@ -102,7 +103,7 @@ class PresentVcCommand : CliktCommand(
         }
 
         // Creating the Verifiable Presentation
-        val vp = CustodianService.getService().createPresentation(src.readText(), domain, challenge)
+        val vp = CustodianService.getService().createPresentation(listOf(src.readText()), holderDid, verifierDid, domain, challenge)
 
         log.debug { "Presentation created (ld-signature):\n$vp" }
 
