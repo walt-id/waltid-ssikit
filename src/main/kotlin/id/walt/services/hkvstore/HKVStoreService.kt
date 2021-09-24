@@ -3,6 +3,7 @@ package id.walt.services.hkvstore
 import id.walt.servicematrix.ServiceProvider
 import id.walt.servicematrix.ServiceRegistry
 import id.walt.services.WaltIdService
+import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 
@@ -16,9 +17,9 @@ abstract class HKVStoreService : WaltIdService() {
 
     abstract fun put(key: HKVKey, value: ByteArray)
 
-    fun getAsString(key: HKVKey): String = String(getAsByteArray(key), StandardCharsets.UTF_8)
+    fun getAsString(key: HKVKey): String? = getAsByteArray(key)?.let { String(it) }
 
-    abstract fun getAsByteArray(key: HKVKey): ByteArray
+    abstract fun getAsByteArray(key: HKVKey): ByteArray?
 
     abstract fun listChildKeys(parent: HKVKey, recursive: Boolean = false): Set<HKVKey>
 

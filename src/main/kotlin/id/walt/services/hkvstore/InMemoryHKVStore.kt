@@ -7,7 +7,7 @@ open class InMemoryHKVStore : HKVStoreService() {
 
     override fun put(key: HKVKey, value: ByteArray) = store.set(key, value)
 
-    override fun getAsByteArray(key: HKVKey): ByteArray = store[key]!!
+    override fun getAsByteArray(key: HKVKey): ByteArray? = store[key]
 
     override fun listChildKeys(parent: HKVKey, recursive: Boolean): Set<HKVKey> = when {
         recursive -> store.keys.filter { it.startsWith(parent) }.toSet()

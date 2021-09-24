@@ -72,17 +72,7 @@ class VcIssueCommand : CliktCommand(
 
         val vcStr = signatory.issue(template, ProofConfig(issuerDid, subjectDid, "Ed25519Signature2018", proofType))
 
-        val vcId = Timestamp.valueOf(LocalDateTime.now()).time
-
         echo("Generated Credential:\n\n$vcStr")
-
-        // Saving VC to file
-        val vcFileName = "vc-$vcId-${template}.json"
-        HKVStoreService.getService().put(HKVKey("vc", "created", vcFileName), vcStr)
-
-        log.debug { "Writing VC to file $vcFileName" }
-
-        echo("\nSaved credential to credential store \"./data/vc/created/$vcFileName\".")
 
         dest?.run {
             log.debug { "Writing VC to DEST file $dest" }

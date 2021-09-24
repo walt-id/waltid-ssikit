@@ -9,6 +9,7 @@ import id.walt.vclib.vclist.Europass
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 
 class FileSystemVcStoreTests : StringSpec({
 
@@ -33,8 +34,8 @@ class FileSystemVcStoreTests : StringSpec({
     "3: Retrieve credential" {
         val retrievedVc = custodian.getCredential("my-test-europass")
         println(retrievedVc)
-        retrievedVc as Europass
-        println(retrievedVc.credentialSchema!!.id)
+        retrievedVc shouldNotBe null
+        println((retrievedVc!! as Europass).credentialSchema!!.id)
     }
 
     "3: List credentials" {

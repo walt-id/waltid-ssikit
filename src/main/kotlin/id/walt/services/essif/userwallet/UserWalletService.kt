@@ -103,7 +103,7 @@ object UserWalletService {
 
         log.debug { "Loading Verifiable Authorization from HKV Store." }
 
-        val verifiableAuthorization = HKVStoreService.getService().getAsString(HKVKey("ebsi", did.substringAfterLast(":"), EssifClient.verifiableAuthorizationFile))
+        val verifiableAuthorization = HKVStoreService.getService().getAsString(HKVKey("ebsi", did.substringAfterLast(":"), EssifClient.verifiableAuthorizationFile))!!
 
         // val verifiableAuthorization = readWhenContent(EssifClient.verifiableAuthorizationFile)
 

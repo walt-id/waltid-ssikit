@@ -95,9 +95,14 @@ object CustodianController {
     fun getCredentialDocs() = document()
         .operation { it.summary("Gets a specific Credential by id").operationId("getCredential").addTagsItem("Credentials") }
         .json<String>("200") { it.description("Created Credential") }
+        .result<String>("404")
 
     fun getCredential(ctx: Context) {
-        ctx.json(custodian.getCredential(ctx.pathParam("id")))
+        val vc = custodian.getCredential(ctx.pathParam("id"))
+        if(vc == null)
+            ctx.status(404).result("Not found")
+        else
+            ctx.json(vc)
     }
 
     //    @OpenApi(

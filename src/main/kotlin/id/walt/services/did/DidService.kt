@@ -89,7 +89,7 @@ object DidService {
     }
 
     fun loadDidEbsi(did: String): DidEbsi = loadDidEbsi(DidUrl.from(did))
-    fun loadDidEbsi(didUrl: DidUrl): DidEbsi = Klaxon().parse<DidEbsi>(loadDid(didUrl.did))!!
+    fun loadDidEbsi(didUrl: DidUrl): DidEbsi = Klaxon().parse<DidEbsi>(loadDid(didUrl.did)!!)!!
 
     fun updateDidEbsi(did: DidEbsi) = storeDid(did.id!!, Klaxon().toJsonString(did))
     // Private methods
