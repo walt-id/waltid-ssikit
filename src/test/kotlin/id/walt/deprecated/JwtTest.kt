@@ -66,7 +66,7 @@ class JwtTest : AnnotationSpec() {
         (Date().before(signedJWT.jwtClaimsSet.expirationTime)) shouldBe true
     }
 
-    // @Test
+    // @Test Curve not supported: secp256k1 (1.3.132.0.10)
     fun jwtSpec256k1() {
         Security.addProvider(BouncyCastleProvider())
         // Generate EC key pair on the secp256k1 curve

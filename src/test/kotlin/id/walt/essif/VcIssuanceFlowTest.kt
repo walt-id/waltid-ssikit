@@ -1,25 +1,21 @@
 package id.walt.essif
 
 import com.beust.klaxon.Klaxon
-import com.nimbusds.jose.jwk.Curve
-import com.nimbusds.jose.jwk.OctetKeyPair
-import com.nimbusds.jose.jwk.gen.OctetKeyPairGenerator
 import com.nimbusds.jose.shaded.json.JSONObject
 import com.nimbusds.jwt.SignedJWT
-import io.kotest.core.spec.style.AnnotationSpec
 import id.walt.common.readEssif
 import id.walt.common.urlEncode
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.encBase64
 import id.walt.model.*
 import id.walt.servicematrix.ServiceMatrix
-import id.walt.services.did.DidService
 import id.walt.services.essif.EssifClient
 import id.walt.services.essif.EssifServer
 import id.walt.services.essif.userwallet.UserWalletService
 import id.walt.services.jwt.JwtService
 import id.walt.services.key.KeyService
 import id.walt.test.RESOURCES_PATH
+import io.kotest.core.spec.style.AnnotationSpec
 import java.util.*
 
 class VcIssuanceFlowTest : AnnotationSpec() {
@@ -82,17 +78,19 @@ class VcIssuanceFlowTest : AnnotationSpec() {
 
     @Test
     fun testOpenSiopSession() {
+
         val siopRequest = EssifServer.generateAuthenticationRequest()
 
-        val did = DidService.create(DidMethod.ebsi)
-        // val kid = "5f81b3bb18644c0289a8a4a4ea8141ce"// KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1) println(kid)
-        // val emphPrivKey = KeyService.toJwk(kid, true) as ECKey
-        //val emphPrivKey = KeyService.toJwk(kid, true) as OctetKeyPair
-        val emphPrivKey = OctetKeyPairGenerator(Curve.X25519).keyID("123").generate()
+//        val emphPrivKey = ECKeyGenerator(Curve.SECP256K1)
+//            .keyUse(KeyUse.SIGNATURE)
+//            .keyID("123")
+//            .generate()
+        val emphKeyId = KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1)
+
         val verifiedClaims = "{}"
         val nonce = ""
 
-        val idToken = UserWalletService.constructSiopResponseJwt(emphPrivKey, did, verifiedClaims, nonce)
+        val idToken = UserWalletService.constructSiopResponseJwt(emphKeyId, verifiedClaims, nonce)
 
         print(idToken)
         val bearerToken = ""
@@ -113,10 +111,7 @@ class VcIssuanceFlowTest : AnnotationSpec() {
         println(encToken)
     }
 
-    fun
-
-
-            generateSiopSessionResponse(idToken: String): String {
+    fun generateSiopSessionResponse(idToken: String): String {
 
         val jwt = SignedJWT.parse(idToken)
 
@@ -131,15 +126,14 @@ class VcIssuanceFlowTest : AnnotationSpec() {
         // Generate Access token
         val accessToken = UUID.randomUUID().toString()
 
-        // Encrypt JWE
-        println(encryption_key)
-        val emphClientKey = OctetKeyPair.parse(encryption_key) // ECKey.parse(encryption_key)
+        // Decrypt JWE: See UserWalletService::siopSession
+//        val emphClientKey = ECKey.parse(encryption_key)
+//
+//        val privateKeyId = keyService.generate(KeyAlgorithm.EdDSA_Ed25519).id
+//        println(privateKeyId)
+//        val siopResponse = jwtService.encrypt(privateKeyId, emphClientKey, accessToken)
 
-        val privateKeyId = keyService.generate(KeyAlgorithm.EdDSA_Ed25519).id
-        println(privateKeyId)
-        val siopResponse = jwtService.encrypt(privateKeyId, emphClientKey, accessToken)
-
-        return siopResponse
+        return "siopResponse"
     }
 
 //    @Test
