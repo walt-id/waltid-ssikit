@@ -34,6 +34,7 @@ class VerifiableIdDataProvider : SignatoryDataProvider {
         vc.id = proofConfig.id ?: "identity#verifiableID#${UUID.randomUUID()}"
         vc.issuer = proofConfig.issuerDid
         if (proofConfig.issueDate != null) vc.issuanceDate = dateFormat.format(proofConfig.issueDate)
+        if (proofConfig.validDate != null) vc.validFrom = dateFormat.format(proofConfig.validDate)
         if (proofConfig.expirationDate != null) vc.expirationDate = dateFormat.format(proofConfig.expirationDate)
         vc.validFrom = vc.issuanceDate
         vc.credentialSubject!!.id = proofConfig.subjectDid
@@ -51,8 +52,8 @@ class VerifiableDiplomaDataProvider : SignatoryDataProvider {
         vc.id = proofConfig.id ?: "education#higherEducation#${UUID.randomUUID()}"
         vc.issuer = proofConfig.issuerDid
         if (proofConfig.issueDate != null) vc.issuanceDate = dateFormat.format(proofConfig.issueDate)
+        if (proofConfig.validDate != null) vc.validFrom = dateFormat.format(proofConfig.validDate)
         if (proofConfig.expirationDate != null) vc.expirationDate = dateFormat.format(proofConfig.expirationDate)
-        vc.validFrom = vc.issuanceDate
         vc.credentialSubject!!.id = proofConfig.subjectDid
         vc.credentialSubject!!.awardingOpportunity!!.awardingBody.id = proofConfig.issuerDid
 

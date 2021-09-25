@@ -32,8 +32,8 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
     private val issuerDid = DidService.create(DidMethod.ebsi, keyId.id)
     private val subjectDid = "did:ebsi:22AhtW7XMssv7es4YcQTdV2MCM3c8b1VsiBfi5weHsjcCY9o"
     private val issueDate = Date()
+    private val validDate = Date(Date().time - (1000 * 60 * 60 * 24))
     private val expirationDate = Date(Date().time + (1000 * 60 * 60 * 24))
-    private val validFrom = "2021-05-31T12:29:47Z"
 
     @AfterAll
     fun tearDown() {
@@ -46,12 +46,13 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
     @Test
     fun testSignedVcAttributes() {
         val credential = credentialService.sign(
-            Europass(validFrom = validFrom).encode(),
+            Europass().encode(),
             ProofConfig(
                 id = id,
                 issuerDid = issuerDid,
                 subjectDid = subjectDid,
                 issueDate = issueDate,
+                validDate = validDate,
                 expirationDate = expirationDate
             )
         )
@@ -61,16 +62,15 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
         claims["iss"] shouldBe issuerDid
         claims["sub"] shouldBe subjectDid
         (claims["iat"] as Date).toInstant().epochSecond shouldBe issueDate.toInstant().epochSecond
-        (claims["nbf"] as Date).toInstant().epochSecond shouldBe issueDate.toInstant().epochSecond
+        (claims["nbf"] as Date).toInstant().epochSecond shouldBe validDate.toInstant().epochSecond
         (claims["exp"] as Date).toInstant().epochSecond shouldBe expirationDate.toInstant().epochSecond
         claims shouldContainKey "vc"
         claims["vc"].let {
             it as Map<*, *>
-            it.keys.size shouldBe 3
-            it.keys.forEach { listOf("@context", "type", "validFrom") shouldContain it }
+            it.keys.size shouldBe 2
+            it.keys.forEach { listOf("@context", "type") shouldContain it }
             it["@context"] shouldBe listOf("https://www.w3.org/2018/credentials/v1")
             it["type"] shouldBe listOf("VerifiableCredential", "VerifiableAttestation", "Europass")
-            it["validFrom"] shouldBe validFrom
         }
     }
 

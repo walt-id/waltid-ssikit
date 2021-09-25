@@ -31,11 +31,12 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
 
         val issuerDid = config.issuerDid
         val issueDate = config.issueDate ?: Date()
+        val validDate = config.validDate ?: Date()
         val jwtClaimsSet = JWTClaimsSet.Builder()
             .jwtID(config.id)
             .issuer(issuerDid)
             .issueTime(issueDate)
-            .notBeforeTime(issueDate)
+            .notBeforeTime(validDate)
             .expirationTime(config.expirationDate)
 
         when(val crd = jsonCred.toCredential()) {
