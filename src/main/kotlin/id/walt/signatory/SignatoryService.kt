@@ -31,6 +31,7 @@ enum class ProofType {
 data class ProofConfig(
     val issuerDid: String,
     val subjectDid: String? = null, // if null and ProofType.LD_PROOF -> subject DID from json-input
+    val verifierDid: String? = null,
     val issuerVerificationMethod: String? = null, // DID URL => defines key type; if null and ProofType.LD_PROOF -> issuerDid default key
     val proofType: ProofType = ProofType.LD_PROOF,
     val domain: String? = null,
@@ -73,12 +74,13 @@ class WaltSignatory(configurationPath: String) : Signatory() {
 
         // TODO: load proof-conf from signatory.conf and optionally substitute values on request basis
         val vcTemplate = VcTemplateManager.loadTemplate(templateId)
-        val configDP = when(config.id.isNullOrBlank()) {
+        val configDP = when (config.id.isNullOrBlank()) {
             true -> ProofConfig(
-                        config.issuerDid, config.subjectDid, config.issuerVerificationMethod, config.proofType,
-                        config.domain, config.nonce, config.proofPurpose,
-                    "identity#${templateId}#${UUID.randomUUID()}",
-                        config.issueDate, config.expirationDate)
+                config.issuerDid, config.subjectDid, null, config.issuerVerificationMethod, config.proofType,
+                config.domain, config.nonce, config.proofPurpose,
+                "identity#${templateId}#${UUID.randomUUID()}",
+                config.issueDate, config.expirationDate
+            )
             else -> config
         }
         val dataProvider = DataProviderRegistry.getProvider(vcTemplate::class) // vclib.getUniqueId(vcTemplate)

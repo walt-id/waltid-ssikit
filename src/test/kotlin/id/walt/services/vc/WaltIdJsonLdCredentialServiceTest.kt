@@ -18,6 +18,7 @@ import id.walt.vclib.model.CredentialStatus
 import id.walt.vclib.vclist.Europass
 import id.walt.vclib.vclist.PermanentResidentCard
 import id.walt.vclib.vclist.VerifiableAttestation
+import id.walt.vclib.vclist.VerifiablePresentation
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -53,14 +54,16 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
 
         vcVerified.verificationType shouldBe VerificationType.VERIFIABLE_CREDENTIAL
 
-        val vpStr = credentialService.present(vcStr, "domain.com", "nonce")
+        val holderDid = VcUtils.getHolder(vc)
+        val vpStr = credentialService.present(listOf(vcStr), holderDid, "domain.com", "nonce")
         println("Presentation generated: $vpStr")
 
-        // TODO FIX
-//        val vp = VC.decode(vpStr)
-//        println(vp)
-//        "domain.com" shouldBe vp.proof?.domain
-//        "nonce" shouldBe vp.proof?.nonce
+        val vp = vpStr.toCredential() as VerifiablePresentation
+        println(vpStr)
+        vp.proof?.domain shouldBe "domain.com"
+        vp.proof?.nonce shouldBe "nonce"
+        vp.proof?.proofPurpose shouldBe "authentication"
+        vp.proof?.verificationMethod shouldBe DidService.resolve(holderDid).authentication?.get(0)
 
         val vpVerified = credentialService.verify(vpStr)
         vpVerified.verified shouldBe true
@@ -117,7 +120,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
     fun presentVa() {
         val vaStr = File("$VC_PATH/vc-ebsi-verifiable-authorisation.json").readText()
 
-        val vp = credentialService.present(vaStr, null, null)
+        val vp = credentialService.present(listOf(vaStr), VcUtils.getHolder(vaStr.toCredential()), null, null)
 
         println(vp)
     }
@@ -199,7 +202,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
         val vcSigned = vc.toCredential()
         println(vcSigned.toString())
 
-        val vp = credentialService.present(vc, domain, challenge)
+        val vp = credentialService.present(listOf(vc), VcUtils.getHolder(vcSigned), domain, challenge)
         println("Presentation generated: $vp")
 
         val vpVerified = credentialService.verifyVp(vp)

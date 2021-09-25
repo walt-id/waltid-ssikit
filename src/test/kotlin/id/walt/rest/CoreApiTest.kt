@@ -307,9 +307,9 @@ class CoreApiTest : AnnotationSpec() {
 
         val vp = client.post<String>("$CORE_API_URL/v1/vc/present") {
             contentType(ContentType.Application.Json)
-            body = PresentVcRequest(vcStr, "domain.com", "nonce")
+            body = PresentVcRequest(vcStr, subjectDid, "domain.com", "nonce")
         }
-        countMatches(vp, "proof") shouldBe 2
+        countMatches(vp, "\"proof\"") shouldBe 2
 
         val result = client.post<VerificationResult>("$CORE_API_URL/v1/vc/verify") {
             contentType(ContentType.Application.Json)
