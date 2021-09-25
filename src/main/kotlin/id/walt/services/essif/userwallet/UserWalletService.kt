@@ -3,11 +3,12 @@ package id.walt.services.essif.userwallet
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
 import com.beust.klaxon.Parser
-import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.crypto.impl.ECDH
-import com.nimbusds.jose.jwk.*
+import com.nimbusds.jose.jwk.Curve
+import com.nimbusds.jose.jwk.ECKey
+import com.nimbusds.jose.jwk.JWK
+import com.nimbusds.jose.jwk.OctetKeyPair
 import com.nimbusds.jwt.JWTClaimsSet
-import com.nimbusds.jwt.SignedJWT
 import id.walt.common.toParamMap
 import id.walt.crypto.*
 import id.walt.model.*
@@ -22,15 +23,13 @@ import id.walt.services.essif.mock.DidRegistry
 import id.walt.services.hkvstore.HKVKey
 import id.walt.services.hkvstore.HKVStoreService
 import id.walt.services.jwt.JwtService
+import id.walt.services.key.KeyService
+import id.walt.services.keystore.KeyType
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.ProofConfig
 import mu.KotlinLogging
 import org.bouncycastle.jce.provider.BouncyCastleProvider
-import java.security.KeyPairGenerator
 import java.security.MessageDigest
-import java.security.SecureRandom
-import java.security.interfaces.ECPublicKey
-import java.security.spec.ECGenParameterSpec
 import java.time.Instant
 import java.util.*
 import javax.crypto.Cipher
@@ -214,22 +213,10 @@ object UserWalletService {
         // Build SIOP response token
         val nonce = UUID.randomUUID().toString()
 
-        // TODO: make switching key-store possible
-        //        val emphPrivKeyId = KeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
-        //        val emphPrivKey = KeyService.toJwk(emphPrivKeyId.id, true) as ECKey
-        // FIXME: Remove the hack below with TODO above
-        val kg = KeyPairGenerator.getInstance("EC", "BC")
-        kg.initialize(ECGenParameterSpec("secp256k1"), SecureRandom())
-        val emphPrivKey = kg.generateKeyPair().let {
-            ECKey.Builder(Curve.SECP256K1, it.public as ECPublicKey)
-                .keyUse(KeyUse.SIGNATURE)
-                .algorithm(JWSAlgorithm.ES256K)
-                .keyID(newKeyId().id)
-                .privateKey(it.private)
-                .build()
-        }
+        // Generate an emphemeral key-pair for encryption and signing the JWT
+        val emphKeyId = KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1)
 
-        val idToken = constructSiopResponseJwt(emphPrivKey, did, verifiedClaims, nonce)
+        val idToken = constructSiopResponseJwt(emphKeyId, verifiedClaims, nonce)
 
         //val siopResponse = LegalEntityClient.eos.siopSession(idToken, readEssifBearerToken())
         val siopResponse = LegalEntityClient.eos.siopSession(idToken)
@@ -248,11 +235,8 @@ object UserWalletService {
 
         val encryptedPayload = parseEncryptedAke1Payload(accessTokenResponse.ake1_enc_payload)
 
-//    if (ephemPublicKey!!.equals(pubKeyEos)) {
-//        throw Exception("Key from EOS DID != key from AKE1 Payload")
-//    }
 
-        val clientKey = emphPrivKey
+        val clientKey = KeyService.getService().toJwk(emphKeyId.id, KeyType.PRIVATE) as ECKey
         // val clientKey = KeyService.toJwk(did, true) as ECKey
 
         val sharedSecret = ECDH.deriveSharedSecret(
@@ -277,6 +261,8 @@ object UserWalletService {
         val accessTokenRespStr = String(accessTokenBytes.slice(0 until endInx).toByteArray())
 
         val decAccesTokenResp = Klaxon().parse<DecryptedAccessTokenResponse>(accessTokenRespStr)!!
+
+        KeyService.getService().delete(emphKeyId.id)
 
         ///////////////////////////////////////////////////////////////////////////
         // Validate received Access Token
@@ -371,14 +357,13 @@ object UserWalletService {
     }
 
     // TODO replace with OidcUtil
-    fun constructSiopResponseJwt(emphPrivKey: JWK, did: String, verifiedClaims: String, nonce: String): String {
+    fun constructSiopResponseJwt(emphKeyId: KeyId, verifiedClaims: String, nonce: String): String {
 
-        //val kid = "$did#key-1"
-        val kid = DidService.loadDidEbsi(did).authentication!![0]
-        //val key = emphPrivKey as ECKey
-        //val key = KeyService.toJwk(did, false, kid) as ECKey
+        //val kid = DidService.loadDidEbsi(did).authentication!![0]
+
+        val emphPrivKey = KeyService.getService().toJwk(emphKeyId.id, KeyType.PRIVATE)
+
         val thumbprint = emphPrivKey.computeThumbprint().toString()
-
 
         val payload = JWTClaimsSet.Builder()
             .issuer("https://self-issued.me")
@@ -397,14 +382,9 @@ object UserWalletService {
             )
             .build().toString()
 
-        val jwt = jwtService.sign(kid, payload)
+        val jwt = jwtService.sign(emphKeyId.id, payload)
 
         log.debug { "Siop Response JWT:\n$jwt" }
-
-        val jwtToVerify = SignedJWT.parse(jwt)
-
-//        println(jwtToVerify.header)
-//        println(jwtToVerify.payload)
 
         jwtService.verify(jwt).let { if (!it) throw IllegalStateException("Generated JWK not valid") }
 

@@ -51,7 +51,8 @@ class EssifCommandTest : StringSpec({
     ServiceMatrix("service-matrix.properties")
 
     // DID used for onboarding
-    val key = KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1)
+    val key = KeyService.getService().generate(KeyAlgorithm.EdDSA_Ed25519)
+    val ethKey = KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1)
     var did = DidService.create(DidMethod.ebsi, keyAlias = key.id)
     val identifier = DidUrl.from(did).identifier
 
@@ -88,7 +89,7 @@ class EssifCommandTest : StringSpec({
         retry(9, 2.minutes, delay = 4.seconds) {
             println("Registering did")
             shouldNotThrowAny {
-                EssifDidRegisterCommand().parse(listOf("--did", did))
+                EssifDidRegisterCommand().parse(listOf("--did", did, "--eth-key", ethKey.id))
             }
         }
         HKVStoreService.getService().delete(HKVKey("ebsi", identifier), true)

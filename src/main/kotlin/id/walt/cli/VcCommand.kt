@@ -3,32 +3,28 @@ package id.walt.cli
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.arguments.argument
-import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.arguments.optional
-import com.github.ajalt.clikt.parameters.options.default
-import com.github.ajalt.clikt.parameters.options.multiple
-import com.github.ajalt.clikt.parameters.options.option
-import com.github.ajalt.clikt.parameters.options.required
+import com.github.ajalt.clikt.parameters.options.*
 import com.github.ajalt.clikt.parameters.types.enum
 import com.github.ajalt.clikt.parameters.types.file
-import com.github.ajalt.clikt.parameters.types.path
 import id.walt.auditor.AuditorService
 import id.walt.auditor.PolicyRegistry
 import id.walt.common.prettyPrint
 import id.walt.custodian.CustodianService
+import id.walt.services.hkvstore.HKVKey
+import id.walt.services.hkvstore.HKVStoreService
 import id.walt.services.vc.JsonLdCredentialService
-import id.walt.signatory.ProofConfig
-import id.walt.signatory.ProofType
-import id.walt.signatory.Signatory
+import id.walt.signatory.*
 import id.walt.vclib.Helpers.encode
+import id.walt.vclib.Helpers.toCredential
+import id.walt.vclib.templates.VcTemplateManager
 import io.ktor.util.date.*
 import mu.KotlinLogging
 import java.io.File
 import java.nio.file.Path
 import java.sql.Timestamp
 import java.time.LocalDateTime
-import java.util.stream.Collectors
-import kotlin.io.path.readText
+import java.util.*
 
 private val log = KotlinLogging.logger {}
 
@@ -63,16 +59,26 @@ class VcIssueCommand : CliktCommand(
     val issuerDid: String by option("-i", "--issuer-did", help = "DID of the issuer (associated with signing key)").required()
     val subjectDid: String by option("-s", "--subject-did", help = "DID of the VC subject (receiver of VC)").required()
     val proofType: ProofType by option("-p", "--proof-type", help = "Proof type to be used [LD_PROOF]").enum<ProofType>().default(ProofType.LD_PROOF)
+    val interactive: Boolean by option("--interactive", help = "Interactively prompt for VC data to fill in").flag(default = false)
 
     private val signatory = Signatory.getService()
 
     override fun run() {
+        if(interactive) {
+            val cliDataProvider = CLIDataProviders.getCLIDataProviderFor(template)
+            if(cliDataProvider == null) {
+                echo("No interactive data provider available for template: $template")
+                return
+            }
+            val templ = VcTemplateManager.loadTemplate(template)
+            DataProviderRegistry.register(templ::class, cliDataProvider)
+        }
         echo("Issuing and verifiable credential (using template ${template})...")
 
         // Loading VC template
         log.debug { "Loading credential template: ${template}" }
 
-        val vcStr = signatory.issue(template, ProofConfig(issuerDid, subjectDid, null, "Ed25519Signature2018", proofType))
+        val vcStr = signatory.issue(template, ProofConfig(issuerDid, subjectDid, "Ed25519Signature2018", proofType))
 
         echo("Generated Credential:\n\n$vcStr")
 
@@ -82,6 +88,24 @@ class VcIssueCommand : CliktCommand(
             echo("\nSaved credential to file: $dest")
         }
     }
+}
+
+class VcImportCommand : CliktCommand (
+    name = "import",
+    help = "Import VC to custodian store"
+        ) {
+
+    val src: File by argument().file()
+
+    override fun run() {
+        if(src.exists()) {
+            val cred = src.readText().toCredential()
+            val storeId = cred.id ?: "custodian#${UUID.randomUUID()}"
+            CustodianService.getService().storeCredential(storeId, cred)
+            println("Credential stored as $storeId")
+        }
+    }
+
 }
 
 class PresentVcCommand : CliktCommand(
@@ -95,6 +119,7 @@ class PresentVcCommand : CliktCommand(
     val verifierDid: String? by option("-v", "--verifier-did", help = "DID of the verifier (recipient of the VP)")
     val domain: String? by option("-d", "--domain", help = "Domain name to be used in the LD proof")
     val challenge: String? by option("-c", "--challenge", help = "Challenge to be used in the LD proof")
+    // val holderDid: String? by option("-i", "--holder-did", help = "DID of the holder (owner of the VC)")
 
     override fun run() {
         echo("Creating verifiable presentation from files:")
@@ -189,7 +214,7 @@ class ListVcCommand : CliktCommand(
 
         echo("\nResults:\n")
 
-        credentialService.listVCs().forEachIndexed { index, vc -> echo("- ${index + 1}: $vc") }
+        CustodianService.getService().listCredentials().forEachIndexed { index, vc -> echo("- ${index + 1}: $vc") }
     }
 }
 
