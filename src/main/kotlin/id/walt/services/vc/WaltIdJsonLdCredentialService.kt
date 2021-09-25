@@ -64,7 +64,6 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
             else -> throw Exception("Signature for key algorithm ${key.algorithm} not supported")
         }
 
-        println(domain)
         signer.creator = URI.create(config.issuerDid)
         signer.created = Date() // Use the current date
         signer.domain = config.domain ?: domain
