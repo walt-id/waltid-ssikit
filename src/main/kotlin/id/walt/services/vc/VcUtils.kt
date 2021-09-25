@@ -13,6 +13,7 @@ object VcUtils {
         is UniversityDegree -> vcObj.issuer.id
         is VerifiableAttestation -> vcObj.issuer
         is VerifiableAuthorization -> vcObj.issuer
+        is VerifiablePresentation -> vcObj.proof!!.creator!!
         else -> ""
     }
 
