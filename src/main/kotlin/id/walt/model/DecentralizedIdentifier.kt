@@ -46,7 +46,7 @@ data class VerificationMethod(
 
 @Serializable
 data class Jwk(
-    @Json(serializeNull = false) val kid: String? = null, // "6a838696803b4140974a3d09b74ee6ec"
+    @Json(serializeNull = false) var kid: String? = null, // "6a838696803b4140974a3d09b74ee6ec"
     @Json(serializeNull = false) val kty: String? = null, // "EC",
     @Json(serializeNull = false) val alg: String? = null, // "ES256K"
     @Json(serializeNull = false) val crv: String? = null, // "secp256k1",

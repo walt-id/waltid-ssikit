@@ -1,9 +1,13 @@
 package id.walt.auditor
 
+import com.beust.klaxon.Klaxon
+import id.walt.services.did.DidService
+import id.walt.services.key.KeyService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.model.VerifiableCredential
+import id.walt.vclib.vclist.VerifiableDiploma
 import id.walt.vclib.vclist.VerifiablePresentation
 
 // the following validation policies can be applied
@@ -31,7 +35,7 @@ class SignaturePolicy : VerificationPolicy {
     override val description: String = "Verify by signature"
 
     override fun verify(vc: VerifiableCredential): Boolean {
-        return when(vc.jwt) {
+        return when (vc.jwt) {
             // TODO: support JWT Presentation
             null -> jsonLdCredentialService.verify(vc.json!!).verified
             else -> jwtCredentialService.verify(vc.jwt!!).verified
@@ -46,12 +50,32 @@ class JsonSchemaPolicy : VerificationPolicy { // Schema already validated by jso
 
 class TrustedIssuerDidPolicy : VerificationPolicy {
     override val description: String = "Verify by trusted issuer did"
-    override fun verify(vc: VerifiableCredential) = true // TODO validate policy
+    override fun verify(vc: VerifiableCredential): Boolean {
+
+        //TODO complete PoC implementation
+        vc as VerifiableDiploma
+        val issuerDid = DidService.resolveDidEbsi(vc.issuer!!)!!
+        val pubKeyJwk = issuerDid.verificationMethod!![0].publicKeyJwk
+        pubKeyJwk!!.kid = issuerDid.id
+        KeyService.getService().import(Klaxon().toJsonString(pubKeyJwk))
+
+        return true
+    }
 }
 
 class TrustedSubjectDidPolicy : VerificationPolicy {
     override val description: String = "Verify by trusted subject did"
-    override fun verify(vc: VerifiableCredential) = true // TODO validate policy
+    override fun verify(vc: VerifiableCredential): Boolean {
+
+        //TODO complete PoC implementation
+        vc as VerifiableDiploma
+        val subjectDid = DidService.resolveDidEbsi(vc.credentialSubject!!.id!!)!!
+        val pubKeyJwk = subjectDid.verificationMethod!![0].publicKeyJwk
+        pubKeyJwk!!.kid = subjectDid.id
+        KeyService.getService().import(Klaxon().toJsonString(pubKeyJwk))
+
+        return true
+    }
 }
 
 object PolicyRegistry {
