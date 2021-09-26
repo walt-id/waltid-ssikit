@@ -1,6 +1,7 @@
 package id.walt.auditor
 
 import com.beust.klaxon.Klaxon
+import id.walt.services.WaltIdServices.log
 import id.walt.services.did.DidService
 import id.walt.services.key.KeyService
 import id.walt.services.vc.JsonLdCredentialService
@@ -9,6 +10,7 @@ import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.vclist.VerifiableDiploma
 import id.walt.vclib.vclist.VerifiablePresentation
+import mu.KotlinLogging
 
 // the following validation policies can be applied
 // - SIGNATURE
@@ -21,6 +23,8 @@ import id.walt.vclib.vclist.VerifiablePresentation
 // - REVOCATION_STATUS
 // - SECURE_CRYPTO
 // - HOLDER_BINDING (only for VPs)
+
+val log = KotlinLogging.logger {}
 
 interface VerificationPolicy {
     val id: String
@@ -48,18 +52,32 @@ class JsonSchemaPolicy : VerificationPolicy { // Schema already validated by jso
     override fun verify(vc: VerifiableCredential) = true // TODO validate policy
 }
 
+// TODO move to DID Service
+fun resolveAndImportDidEbsiKey(didStr: String) {
+    log.debug { "Resolving $didStr" }
+    val did = DidService.resolveDidEbsi(didStr)
+    val pubKeyJwk = did.verificationMethod!![0].publicKeyJwk
+    KeyService.getService().delete(did.id!!)
+    pubKeyJwk!!.kid = did.id
+    log.debug { "Importing key: ${pubKeyJwk.kid}" }
+    KeyService.getService().import(Klaxon().toJsonString(pubKeyJwk))
+}
+
 class TrustedIssuerDidPolicy : VerificationPolicy {
     override val description: String = "Verify by trusted issuer did"
     override fun verify(vc: VerifiableCredential): Boolean {
 
         //TODO complete PoC implementation
-        vc as VerifiableDiploma
-        val issuerDid = DidService.resolveDidEbsi(vc.issuer!!)!!
-        val pubKeyJwk = issuerDid.verificationMethod!![0].publicKeyJwk
-        pubKeyJwk!!.kid = issuerDid.id
-        KeyService.getService().import(Klaxon().toJsonString(pubKeyJwk))
+        when (vc) {
+            is VerifiableDiploma -> {
+                val issuerDid = vc.issuer!!
+                resolveAndImportDidEbsiKey(issuerDid)
+                return true
+            }
+            is VerifiablePresentation -> return true
+        }
 
-        return true
+        return false
     }
 }
 
@@ -68,13 +86,16 @@ class TrustedSubjectDidPolicy : VerificationPolicy {
     override fun verify(vc: VerifiableCredential): Boolean {
 
         //TODO complete PoC implementation
-        vc as VerifiableDiploma
-        val subjectDid = DidService.resolveDidEbsi(vc.credentialSubject!!.id!!)!!
-        val pubKeyJwk = subjectDid.verificationMethod!![0].publicKeyJwk
-        pubKeyJwk!!.kid = subjectDid.id
-        KeyService.getService().import(Klaxon().toJsonString(pubKeyJwk))
+        when (vc) {
+            is VerifiableDiploma -> {
+                val did = vc.credentialSubject!!.id!!
+                resolveAndImportDidEbsiKey(did)
+                return true
+            }
+            is VerifiablePresentation -> return true
+        }
 
-        return true
+        return false
     }
 }
 
@@ -117,8 +138,8 @@ object AuditorService : IAuditor {
 
     private fun allAccepted(policyResults: Map<String, Boolean>) = policyResults.values.all { it }
 
-    override fun verify(vc: String, policies: List<VerificationPolicy>): VerificationResult {
-        val vc = vc.toCredential()
+    override fun verify(vcStr: String, policies: List<VerificationPolicy>): VerificationResult {
+        val vc = vcStr.toCredential()
         val policyResults = policies.associateBy(keySelector = VerificationPolicy::id) { policy ->
             policy.verify(vc) &&
                     when (vc) {
