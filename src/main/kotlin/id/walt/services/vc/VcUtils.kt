@@ -1,5 +1,6 @@
 package id.walt.services.vc
 
+import com.nimbusds.jwt.SignedJWT
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.vclist.*
 
@@ -13,7 +14,10 @@ object VcUtils {
         is UniversityDegree -> vcObj.issuer.id
         is VerifiableAttestation -> vcObj.issuer
         is VerifiableAuthorization -> vcObj.issuer
-        is VerifiablePresentation -> vcObj.proof!!.creator!!
+        is VerifiablePresentation -> when (vcObj.jwt) {
+            null -> vcObj.proof!!.creator!!
+            else -> SignedJWT.parse(vcObj.jwt).jwtClaimsSet.issuer
+        }
         else -> ""
     }
 

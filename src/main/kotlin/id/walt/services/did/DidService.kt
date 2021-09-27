@@ -323,6 +323,21 @@ object DidService {
     fun listDids(): List<String> =
         HKVStoreService.getService().listChildKeys(HKVKey("did", "created")).map { it.name }.toList()
 
+    fun resolveDidAndImportKey(didStr: String): Boolean {
+        if (didStr.startsWith("did:ebsi:")) {
+            WaltIdServices.log.debug { "Resolving $didStr" }
+            val did = DidService.runCatching { resolveDidEbsi(didStr) }.getOrNull() ?: return false
+            val pubKeyJwk = did.verificationMethod!![0].publicKeyJwk
+            KeyService.getService().delete(did.id!!)
+            pubKeyJwk!!.kid = did.id
+            WaltIdServices.log.debug { "Importing key: ${pubKeyJwk.kid}" }
+            KeyService.getService().import(Klaxon().toJsonString(pubKeyJwk))
+            return true
+        } else {
+            //TODO: implement for other did types
+            return true
+        }
+    }
 
     // TODO: consider the methods below. They might be deprecated!
 
