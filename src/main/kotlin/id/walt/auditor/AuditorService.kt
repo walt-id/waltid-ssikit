@@ -40,7 +40,7 @@ class SignaturePolicy : VerificationPolicy {
     override val description: String = "Verify by signature"
 
     override fun verify(vc: VerifiableCredential): Boolean {
-        return DidService.resolveDidAndImportKey(VcUtils.getIssuer(vc)) && when (vc.jwt) {
+        return DidService.importKey(VcUtils.getIssuer(vc)) && when (vc.jwt) {
             null -> jsonLdCredentialService.verify(vc.json!!).verified
             else -> jwtCredentialService.verify(vc.jwt!!).verified
         }
@@ -59,7 +59,7 @@ class TrustedIssuerDidPolicy : VerificationPolicy {
         //TODO complete PoC implementation
         return when (vc) {
             is VerifiablePresentation -> true
-            else -> DidService.resolveDidAndImportKey(VcUtils.getIssuer(vc))
+            else -> DidService.loadOrResolveAnyDid(VcUtils.getIssuer(vc)) != null
         }
     }
 }
@@ -71,7 +71,7 @@ class TrustedSubjectDidPolicy : VerificationPolicy {
         //TODO complete PoC implementation
         return when (vc) {
             is VerifiablePresentation -> true
-            else -> DidService.resolveDidAndImportKey(VcUtils.getHolder(vc))
+            else -> DidService.loadOrResolveAnyDid(VcUtils.getHolder(vc)) != null
         }
     }
 }
