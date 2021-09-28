@@ -1,10 +1,17 @@
 package id.walt.auditor
 
+import com.beust.klaxon.Klaxon
+import id.walt.services.WaltIdServices.log
+import id.walt.services.did.DidService
+import id.walt.services.key.KeyService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
+import id.walt.services.vc.VcUtils
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.model.VerifiableCredential
+import id.walt.vclib.vclist.VerifiableDiploma
 import id.walt.vclib.vclist.VerifiablePresentation
+import mu.KotlinLogging
 
 // the following validation policies can be applied
 // - SIGNATURE
@@ -17,6 +24,8 @@ import id.walt.vclib.vclist.VerifiablePresentation
 // - REVOCATION_STATUS
 // - SECURE_CRYPTO
 // - HOLDER_BINDING (only for VPs)
+
+val log = KotlinLogging.logger {}
 
 interface VerificationPolicy {
     val id: String
@@ -31,8 +40,7 @@ class SignaturePolicy : VerificationPolicy {
     override val description: String = "Verify by signature"
 
     override fun verify(vc: VerifiableCredential): Boolean {
-        return when(vc.jwt) {
-            // TODO: support JWT Presentation
+        return DidService.importKey(VcUtils.getIssuer(vc)) && when (vc.jwt) {
             null -> jsonLdCredentialService.verify(vc.json!!).verified
             else -> jwtCredentialService.verify(vc.jwt!!).verified
         }
@@ -46,12 +54,26 @@ class JsonSchemaPolicy : VerificationPolicy { // Schema already validated by jso
 
 class TrustedIssuerDidPolicy : VerificationPolicy {
     override val description: String = "Verify by trusted issuer did"
-    override fun verify(vc: VerifiableCredential) = true // TODO validate policy
+    override fun verify(vc: VerifiableCredential): Boolean {
+
+        //TODO complete PoC implementation
+        return when (vc) {
+            is VerifiablePresentation -> true
+            else -> DidService.loadOrResolveAnyDid(VcUtils.getIssuer(vc)) != null
+        }
+    }
 }
 
 class TrustedSubjectDidPolicy : VerificationPolicy {
     override val description: String = "Verify by trusted subject did"
-    override fun verify(vc: VerifiableCredential) = true // TODO validate policy
+    override fun verify(vc: VerifiableCredential): Boolean {
+
+        //TODO complete PoC implementation
+        return when (vc) {
+            is VerifiablePresentation -> true
+            else -> DidService.loadOrResolveAnyDid(VcUtils.getHolder(vc)) != null
+        }
+    }
 }
 
 object PolicyRegistry {
@@ -93,8 +115,8 @@ object AuditorService : IAuditor {
 
     private fun allAccepted(policyResults: Map<String, Boolean>) = policyResults.values.all { it }
 
-    override fun verify(vc: String, policies: List<VerificationPolicy>): VerificationResult {
-        val vc = vc.toCredential()
+    override fun verify(vcStr: String, policies: List<VerificationPolicy>): VerificationResult {
+        val vc = vcStr.toCredential()
         val policyResults = policies.associateBy(keySelector = VerificationPolicy::id) { policy ->
             policy.verify(vc) &&
                     when (vc) {

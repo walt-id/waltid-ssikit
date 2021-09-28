@@ -75,7 +75,7 @@ class VcIssueCommand : CliktCommand(
             val templ = VcTemplateManager.loadTemplate(template)
             DataProviderRegistry.register(templ::class, cliDataProvider)
         }
-        echo("Issuing and verifiable credential (using template ${template})...")
+        echo("Issuing a verifiable credential (using template ${template})")
 
         // Loading VC template
         log.debug { "Loading credential template: ${template}" }
@@ -120,7 +120,6 @@ class PresentVcCommand : CliktCommand(
     val verifierDid: String? by option("-v", "--verifier-did", help = "DID of the verifier (recipient of the VP)")
     val domain: String? by option("-d", "--domain", help = "Domain name to be used in the LD proof")
     val challenge: String? by option("-c", "--challenge", help = "Challenge to be used in the LD proof")
-    // val holderDid: String? by option("-i", "--holder-did", help = "DID of the holder (owner of the VC)")
 
     override fun run() {
         echo("Creating verifiable presentation from files:")
