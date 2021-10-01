@@ -33,9 +33,8 @@ class DidServiceTest : AnnotationSpec() {
     @Test
     fun parseDidUrlTest() {
 
-        val did = Did("context")
-
         val didUrl = DidUrl("method", "identifier", "key1")
+        val did = Did("context", didUrl.did)
 
         "did:method:identifier#key1" shouldBe didUrl.url
 

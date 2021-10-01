@@ -14,13 +14,34 @@ enum class DidMethod {
     ebsi
 }
 
+abstract class BaseDid {
+    abstract val id: String
+    @Json(ignored = true) val url: DidUrl
+        get() = DidUrl.from(id)
+    @Json(ignored = true) val method: DidMethod
+        get() = DidMethod.valueOf(url.method)
+
+    fun encode() = Klaxon().toJsonString(this)
+    fun encodePretty() = Klaxon().toJsonString(this).prettyPrint()
+
+    companion object {
+        fun decode(id: String, didDoc: String): BaseDid? {
+            return when(DidUrl.from(id).method) {
+                "key" -> Klaxon().parse<Did>(didDoc)
+                "ebsi" -> Klaxon().parse<DidEbsi>(didDoc)
+                // TODO: support did:web
+                else -> null
+            }
+        }
+    }
+}
+
 @Serializable
-data class Did(
+data class Did (
     @SerialName("@context")
     @Json(name = "@context")
     val context: String,
-
-    @Json(serializeNull = false) var id: String? = null,
+    override val id: String,
     @Json(serializeNull = false) val verificationMethod: List<VerificationMethod>? = null,
     @Json(serializeNull = false) val authentication: List<String>? = null,
     @Json(serializeNull = false) val assertionMethod: List<String>? = null,
@@ -28,11 +49,7 @@ data class Did(
     @Json(serializeNull = false) val capabilityInvocation: List<String>? = null,
     @Json(serializeNull = false) val keyAgreement: List<String>? = null,
     @Json(serializeNull = false) val serviceEndpoint: List<VerificationMethod>? = null,
-)
-
-fun Did.encode() = Klaxon().toJsonString(this)
-fun Did.encodePretty() = Klaxon().toJsonString(this).prettyPrint()
-fun String.decode() = Klaxon().parse<Did>(this)
+) : BaseDid ()
 
 @Serializable
 data class VerificationMethod(
