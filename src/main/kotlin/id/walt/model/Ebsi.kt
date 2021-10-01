@@ -2,7 +2,9 @@
 
 package id.walt.model
 
+import com.beust.klaxon.Klaxon
 import com.nimbusds.jose.jwk.ECKey
+import id.walt.common.prettyPrint
 import id.walt.vclib.model.Proof
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -90,6 +92,21 @@ data class Issuer(
     val organizationInfo: OrganizationInfo,
     val proof: Proof
 )
+
+@Serializable
+data class Attribute(
+    val hash: String,
+    val body: String,
+)
+
+@Serializable
+data class TrustedIssuer(
+    val did: String,
+    val attributes: List<Attribute>,
+)
+
+fun TrustedIssuer.encode() = Klaxon().toJsonString(this)
+fun TrustedIssuer.encodePretty() = encode().prettyPrint()
 
 @Serializable
 data class EidasCertificate(

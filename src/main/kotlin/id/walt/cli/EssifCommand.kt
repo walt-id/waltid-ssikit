@@ -2,11 +2,14 @@ package id.walt.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.arguments.argument
+import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
 import id.walt.Values
+import id.walt.common.prettyPrint
 import id.walt.model.DidMethod
+import id.walt.model.encodePretty
 import id.walt.services.did.DidService
 import id.walt.services.essif.EssifClient
 import id.walt.services.essif.EssifClientVcExchange
@@ -138,8 +141,32 @@ class EssifTirCommand : CliktCommand(
 
         ESSIF DID operations."""
 ) {
-    override fun run() =
-        TODO("The \"ESSIF-TIR\" operation has not yet been implemented in this snapshot (currently running ${Values.version}).")
+    override fun run() {}
+}
+
+fun getIssuerHelper(did: String, raw: Boolean) = when (raw) { 
+    true -> TrustedIssuerClient.getIssuerRaw(did).prettyPrint()
+    else -> TrustedIssuerClient.getIssuer(did).encodePretty()
+ }
+
+class EssifTirGetIssuerCommand : CliktCommand(
+    name = "get",
+    help = """Get issuer.
+
+        Get issuer by its DID. Use option raw to disable type checking."""
+) {
+    val did: String by option("-d", "--did", help = "DID of the issuer.").required()
+    val raw by option("--raw", "-r").flag("--typed", "-t", default = false)
+
+    override fun run() {
+        echo("Getting issuer with DID \"$did\"...")
+
+        val trustedIssuer = getIssuerHelper(did, raw)
+
+        echo("\nResult:\n")
+
+        echo(trustedIssuer)
+    }
 }
 
 class EssifTaorCommand : CliktCommand(
