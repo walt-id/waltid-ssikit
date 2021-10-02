@@ -160,11 +160,9 @@ class VerifyVcCommand : CliktCommand(
         echo("Verifying from file $src ...\n")
 
         if (!src.exists()) {
-            log.error("Could not load file $src")
             throw Exception("Could not load file $src")
         }
         if (policies.any { !PolicyRegistry.contains(it) }) {
-            log.error("Unknown verification policy specified")
             throw Exception("Unknown verification policy specified")
         }
 

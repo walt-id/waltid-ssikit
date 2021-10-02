@@ -1,7 +1,6 @@
 package id.walt.services.essif
 
 import id.walt.servicematrix.ServiceMatrix
-import id.walt.services.essif.TrustedIssuerClient
 import id.walt.test.RESOURCES_PATH
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
