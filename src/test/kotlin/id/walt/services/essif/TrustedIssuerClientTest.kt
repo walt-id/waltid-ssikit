@@ -2,6 +2,7 @@ package id.walt.services.essif
 
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.essif.TrustedIssuerClient
+import id.walt.test.RESOURCES_PATH
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
 
@@ -12,9 +13,7 @@ class TrustedIssuerClientTest : AnnotationSpec() {
 
     init {
         println("Running ServiceMatrix")
-        // TODO replace with thest config
-        //ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
-        ServiceMatrix("service-matrix.properties")
+        ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
         println("Done running the ServiceMatrix")
     }
 
