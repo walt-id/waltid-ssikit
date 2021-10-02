@@ -1,5 +1,6 @@
 package id.walt.services.essif
 
+import com.beust.klaxon.Klaxon
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
@@ -9,6 +10,7 @@ import id.walt.model.AuthRequestResponse
 import id.walt.services.WaltIdServices
 import id.walt.services.essif.enterprisewallet.EnterpriseWalletService
 import id.walt.services.essif.mock.DidRegistry
+import id.walt.model.TrustedIssuer
 
 private val log = KotlinLogging.logger {}
 
@@ -100,6 +102,28 @@ object TrustedIssuerClient {
             }
             body = mapOf("id_token" to idToken)
         }
+    }
+
+    // GET /issuers/{did}
+    // returns trusted issuer record
+    fun getIssuerRaw(did: String): String = runBlocking {
+        log.debug { "Getting trusted issuer with DID $did" }
+
+        val trustedIssuer: String = WaltIdServices.http.get("https://api.preprod.ebsi.eu/trusted-issuers-registry/v2/issuers/$did")
+
+        log.debug { trustedIssuer }
+
+        return@runBlocking trustedIssuer
+    }
+
+    fun getIssuer(did: String): TrustedIssuer = runBlocking {
+        log.debug { "Getting trusted issuer with DID $did" }
+
+        val trustedIssuer: String = WaltIdServices.http.get("https://api.preprod.ebsi.eu/trusted-issuers-registry/v2/issuers/$did")
+
+        log.debug { trustedIssuer }
+
+        return@runBlocking Klaxon().parse<TrustedIssuer>(trustedIssuer)!!
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
