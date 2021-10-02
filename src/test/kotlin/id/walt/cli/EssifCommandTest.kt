@@ -94,4 +94,12 @@ class EssifCommandTest : StringSpec({
         }
         HKVStoreService.getService().delete(HKVKey("ebsi", identifier), true)
     }
+
+    "essif tir get -r" {
+        EssifTirGetIssuerCommand().parse(listOf("--did", "did:ebsi:224AEY73SGS1gpTvbt5TNTTPdNj8GU6NAq2AVBFmasQbntCt", "-r"))
+    }
+
+    "essif tir get -t" {
+        EssifTirGetIssuerCommand().parse(listOf("--did", "did:ebsi:224AEY73SGS1gpTvbt5TNTTPdNj8GU6NAq2AVBFmasQbntCt", "-t"))
+    }
 })
