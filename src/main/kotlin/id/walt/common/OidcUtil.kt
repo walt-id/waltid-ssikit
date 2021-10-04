@@ -89,7 +89,7 @@ object OidcUtil {
         val clientId = urlEncode(didAuthReq.client_id)
         val scope = urlEncode(didAuthReq.scope)
 
-        val uri = "openid://?response_type=id_token&client_id=$clientId&scope=$scope&request=$authRequestJwt"
+        val uri = "openid://?response_type=id_token&client_id=$clientId&scope=$scope&request=$authRequestJwt&request=${didAuthReq.nonce}"
         return OidcRequest(uri, didAuthReq.callback)
     }
 
