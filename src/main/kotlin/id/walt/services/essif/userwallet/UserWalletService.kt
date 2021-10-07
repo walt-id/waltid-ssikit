@@ -12,6 +12,7 @@ import com.nimbusds.jwt.JWTClaimsSet
 import id.walt.common.toParamMap
 import id.walt.crypto.*
 import id.walt.model.*
+import id.walt.services.crypto.SunCryptoService
 import id.walt.services.did.DidService
 import id.walt.services.essif.EbsiVAWrapper
 import id.walt.services.essif.EbsiVaVp
@@ -23,6 +24,7 @@ import id.walt.services.essif.mock.DidRegistry
 import id.walt.services.hkvstore.HKVKey
 import id.walt.services.hkvstore.HKVStoreService
 import id.walt.services.jwt.JwtService
+import id.walt.services.key.EphemeralKeyService
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
 import id.walt.services.vc.JsonLdCredentialService
@@ -214,7 +216,7 @@ object UserWalletService {
         val nonce = UUID.randomUUID().toString()
 
         // Generate an emphemeral key-pair for encryption and signing the JWT
-        val emphKeyId = KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val emphKeyId = EphemeralKeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1)
 
         val idToken = constructSiopResponseJwt(emphKeyId, verifiedClaims, nonce)
 
@@ -236,8 +238,8 @@ object UserWalletService {
         val encryptedPayload = parseEncryptedAke1Payload(accessTokenResponse.ake1_enc_payload)
 
 
-        val clientKey = KeyService.getService().toJwk(emphKeyId.id, KeyType.PRIVATE) as ECKey
-        // val clientKey = KeyService.toJwk(did, true) as ECKey
+        val clientKey = EphemeralKeyService.getService().toJwk(emphKeyId.id, KeyType.PRIVATE) as ECKey
+        // val clientKey = EphemeralKeyService.toJwk(did, true) as ECKey
 
         val sharedSecret = ECDH.deriveSharedSecret(
             encryptedPayload.ephemPublicKey.toECPublicKey(),
@@ -262,7 +264,7 @@ object UserWalletService {
 
         val decAccesTokenResp = Klaxon().parse<DecryptedAccessTokenResponse>(accessTokenRespStr)!!
 
-        KeyService.getService().delete(emphKeyId.id)
+        EphemeralKeyService.getService().delete(emphKeyId.id)
 
         ///////////////////////////////////////////////////////////////////////////
         // Validate received Access Token
@@ -361,7 +363,7 @@ object UserWalletService {
 
         //val kid = DidService.loadDidEbsi(did).authentication!![0]
 
-        val emphPrivKey = KeyService.getService().toJwk(emphKeyId.id, KeyType.PRIVATE)
+        val emphPrivKey = EphemeralKeyService.getService().toJwk(emphKeyId.id, KeyType.PRIVATE)
 
         val thumbprint = emphPrivKey.computeThumbprint().toString()
 
