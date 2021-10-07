@@ -8,7 +8,6 @@ import id.walt.services.CryptoProvider
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.shouldBeSameInstanceAs
 
 class InMemoryKeyStoreServiceTest : StringSpec({
     "In memory key store can store keys, add aliases, list, get and delete keys by id" {
