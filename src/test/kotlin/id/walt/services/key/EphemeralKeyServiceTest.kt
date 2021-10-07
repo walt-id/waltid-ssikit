@@ -10,14 +10,13 @@ import io.kotest.matchers.shouldBe
 
 class EphemeralKeyServiceTest : StringSpec({
     "Crypto and Keystore services do not need config and are in memory" {
-        val ephemeralKeyService = EphemeralKeyService()
-        ephemeralKeyService.cryptoService::class shouldBe SunCryptoService::class
-        ephemeralKeyService.keyStore::class shouldBe InMemoryKeyStoreService::class
+        EphemeralKeyService.getService().cryptoService::class shouldBe SunCryptoService::class
+        EphemeralKeyService.getService().keyStore::class shouldBe InMemoryKeyStoreService::class
 
-        val keyId = ephemeralKeyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
-        ephemeralKeyService.listKeys().map { it.keyId } shouldContain keyId
-        ephemeralKeyService.delete(keyId.id)
-        ephemeralKeyService.listKeys().map { it.keyId } shouldNotContain keyId
+        val keyId = EphemeralKeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1)
+        EphemeralKeyService.getService().listKeys().map { it.keyId } shouldContain keyId
+        EphemeralKeyService.getService().delete(keyId.id)
+        EphemeralKeyService.getService().listKeys().map { it.keyId } shouldNotContain keyId
 
     }
 
