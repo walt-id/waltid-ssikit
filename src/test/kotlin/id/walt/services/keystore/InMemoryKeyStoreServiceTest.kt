@@ -21,6 +21,8 @@ class InMemoryKeyStoreServiceTest : StringSpec({
     )
     val alias = "my-test-alias"
 
+    cleanUpStore(inMemoryKeyStore)
+
     "In memory key store can store keys, add aliases, list, get and delete keys by id" {
         inMemoryKeyStore.store(key)
         inMemoryKeyStore.listKeys() shouldBe listOf(key)
@@ -44,3 +46,7 @@ class InMemoryKeyStoreServiceTest : StringSpec({
         inMemoryKeyStore2.listKeys() shouldBe listOf(key)
     }
 })
+
+fun cleanUpStore(inMemoryKeyStore: KeyStoreService) {
+    inMemoryKeyStore.listKeys().forEach { inMemoryKeyStore.delete(it.keyId.id) }
+}
