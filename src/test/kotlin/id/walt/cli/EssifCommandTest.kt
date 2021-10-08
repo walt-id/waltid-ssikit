@@ -74,7 +74,7 @@ class EssifCommandTest : StringSpec({
         if (!bearerToken.exists()) throw Exception("Bearer Token from https://app.preprod.ebsi.eu/users-onboarding/ should be placed in file data/ebsi/bearer-token.txt")
 
         println("Generating verifiable authorization...")
-        EssifOnboardingCommand().parse(listOf("--did", did))
+        EssifOnboardingCommand().parse(listOf("--did", did, File("data/ebsi/bearer-token.txt").absolutePath))
         File("data/ebsi/${identifier}/verifiable-authorization.json").exists() shouldBe true
     }
 
