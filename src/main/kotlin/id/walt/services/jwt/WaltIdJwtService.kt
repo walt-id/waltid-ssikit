@@ -10,6 +10,7 @@ import com.nimbusds.jwt.SignedJWT
 import mu.KotlinLogging
 import id.walt.crypto.*
 import id.walt.services.key.KeyService
+import java.security.Provider
 import java.security.interfaces.ECPublicKey
 import java.util.*
 
@@ -24,7 +25,7 @@ open class WaltIdJwtService : JwtService() {
         .generate()
 
     open val keyService = KeyService.getService()
-
+    open val provider: Provider = WaltIdProvider()
 
     override fun encrypt(
         kid: String,
@@ -42,7 +43,7 @@ open class WaltIdJwtService : JwtService() {
 
         val pubEncKey = pubEncKey.toPublicJWK()
         val encrypter = X25519Encrypter(pubEncKey)
-        // encrypter.jcaContext.provider = WaltIdProvider()
+        // encrypter.jcaContext.provider = waltIdProvider
         jweObject.encrypt(encrypter)
         return jweObject.serialize()
     }
@@ -61,7 +62,7 @@ open class WaltIdJwtService : JwtService() {
             throw Exception("Could not load verifying key for $keyId")
         }
         val decrypter = X25519Decrypter(encKey)
-        decrypter.jcaContext.provider = WaltIdProvider()
+        decrypter.jcaContext.provider = provider
         jweObj.decrypt(decrypter)
 
         return jweObj.payload.toString()
@@ -108,7 +109,7 @@ open class WaltIdJwtService : JwtService() {
                     claimsSet
                 )
                 val jwsSigner = ECDSASigner(PrivateKeyHandle(issuerKey.keyId), Curve.SECP256K1)
-                jwsSigner.jcaContext.provider = WaltIdProvider()
+                jwsSigner.jcaContext.provider = provider
                 jwt.sign(jwsSigner)
                 jwt
             }
@@ -140,7 +141,7 @@ open class WaltIdJwtService : JwtService() {
             KeyAlgorithm.ECDSA_Secp256k1 -> {
                 val verifier =
                     ECDSAVerifier(PublicKeyHandle(verifierKey.keyId, verifierKey.getPublicKey() as ECPublicKey))
-                verifier.jcaContext.provider = WaltIdProvider()
+                verifier.jcaContext.provider = provider
                 jwt.verify(verifier)
             }
             else -> {

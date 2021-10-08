@@ -20,7 +20,7 @@ open class LtSignature(val algorithm: String) : SignatureSpi() {
     var off: Int? = null
     var len: Int? = null
 
-    private val cryptoService = CryptoService.getService()
+    open val cryptoService = CryptoService.getService()
 
     override fun engineInitVerify(publicKey: PublicKey?) {
         keyId = (publicKey as PublicKeyHandle).keyId
