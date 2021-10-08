@@ -15,7 +15,7 @@ import java.util.*
 
 val keyId = "123" // FIXME static keyId
 
-class WaltIdJwtService : JwtService() {
+open class WaltIdJwtService : JwtService() {
 
     private val log = KotlinLogging.logger {}
 
@@ -23,7 +23,7 @@ class WaltIdJwtService : JwtService() {
         .keyID(keyId)
         .generate()
 
-    private val keyService = KeyService.getService()
+    open val keyService = KeyService.getService()
 
 
     override fun encrypt(

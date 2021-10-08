@@ -14,9 +14,13 @@ import id.walt.crypto.newKeyId
 import id.walt.model.Jwk
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.crypto.CryptoService
+import id.walt.services.crypto.SunCryptoService
+import id.walt.services.keystore.InMemoryKeyStoreService
 import id.walt.services.keystore.KeyType
 import id.walt.test.RESOURCES_PATH
 import io.kotest.core.spec.style.AnnotationSpec
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.bouncycastle.jce.provider.BouncyCastleProvider
@@ -39,6 +43,17 @@ class KeyServiceTest : AnnotationSpec() {
     fun setup() {
         Security.addProvider(BouncyCastleProvider())
         ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
+    }
+
+    @Test
+    fun testInMemoryKeyService() {
+        InMemoryKeyService.getService().cryptoService::class shouldBe SunCryptoService::class
+        InMemoryKeyService.getService().keyStore::class shouldBe InMemoryKeyStoreService::class
+
+        val keyId = InMemoryKeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1)
+        InMemoryKeyService.getService().listKeys().map { it.keyId } shouldContain keyId
+        InMemoryKeyService.getService().delete(keyId.id)
+        InMemoryKeyService.getService().listKeys().map { it.keyId } shouldNotContain keyId
     }
 
     @Test
