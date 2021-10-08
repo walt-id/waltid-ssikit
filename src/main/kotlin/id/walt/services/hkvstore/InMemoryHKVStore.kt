@@ -4,8 +4,6 @@ import kotlin.collections.HashMap
 
 open class InMemoryHKVStore : HKVStoreService() {
 
-    companion object { val aliasKey = HKVKey("keys", "alias") }
-
     val store = HashMap<HKVKey, ByteArray>()
 
     override fun put(key: HKVKey, value: ByteArray) = store.set(key, value)
@@ -26,5 +24,5 @@ open class InMemoryHKVStore : HKVStoreService() {
     }
 
     private fun listKeyAliases(key: HKVKey) = store.keys
-        .filter { it.parent == aliasKey }.filter { getAsString(it) == key.name }.toSet()
+        .filter { it.parent == HKVKey("keys", "alias") }.filter { getAsString(it) == key.name }.toSet()
 }
