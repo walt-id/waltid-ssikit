@@ -10,16 +10,18 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 
 class InMemoryKeyStoreServiceTest : StringSpec({
-    "In memory key store can store keys, add aliases, list, get and delete keys by id" {
-        val inMemoryKeyStore = InMemoryKeyStoreService()
-        val key = Key(
-            newKeyId(),
-            KeyAlgorithm.ECDSA_Secp256k1,
-            CryptoProvider.SUN,
-            keyPairGeneratorSecp256k1().generateKeyPair()
-        )
-        val alias = "my-test-alias"
 
+    val inMemoryKeyStore = InMemoryKeyStoreService()
+    val inMemoryKeyStore2 = InMemoryKeyStoreService()
+    val key = Key(
+        newKeyId(),
+        KeyAlgorithm.ECDSA_Secp256k1,
+        CryptoProvider.SUN,
+        keyPairGeneratorSecp256k1().generateKeyPair()
+    )
+    val alias = "my-test-alias"
+
+    "In memory key store can store keys, add aliases, list, get and delete keys by id" {
         inMemoryKeyStore.store(key)
         inMemoryKeyStore.listKeys() shouldBe listOf(key)
         inMemoryKeyStore.load(key.keyId.id) shouldBe key
@@ -35,5 +37,10 @@ class InMemoryKeyStoreServiceTest : StringSpec({
         inMemoryKeyStore.getKeyId(alias) shouldBe null
         shouldThrow<NullPointerException> { inMemoryKeyStore.load(key.keyId.id) }
         shouldThrow<NullPointerException> { inMemoryKeyStore.load(alias) }
+    }
+
+    "All InMemoryKeyStoreService instances reference the same HKVStore" {
+        inMemoryKeyStore.store(key)
+        inMemoryKeyStore2.listKeys() shouldBe listOf(key)
     }
 })
