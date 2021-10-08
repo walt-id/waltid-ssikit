@@ -39,6 +39,7 @@ open class HKVKeyStoreService : KeyStoreService() {
 
     override fun store(key: Key) {
         log.debug { "Storing key \"${key.keyId}\"." }
+        hkvStore.put(HKVKey("keys", key.keyId.id), key.keyId.id)
         addAlias(key.keyId, key.keyId.id)
         storeKeyMetaData(key)
         storePublicKey(key)

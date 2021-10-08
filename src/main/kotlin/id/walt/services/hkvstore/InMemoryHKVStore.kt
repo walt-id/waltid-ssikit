@@ -14,7 +14,7 @@ open class InMemoryHKVStore : HKVStoreService() {
 
     override fun listChildKeys(parent: HKVKey, recursive: Boolean): Set<HKVKey> = when {
         recursive -> store.keys.filter { it.startsWith(parent) }.toSet()
-        else -> store.keys.filter { it.parent != null && it.parent != aliasKey }.map { it.parent!! }.toSet()
+        else -> store.keys.filter { it.parent == parent }.toSet()
     }
 
     override fun delete(key: HKVKey, recursive: Boolean): Boolean {
