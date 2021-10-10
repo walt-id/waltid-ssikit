@@ -13,7 +13,7 @@ object UserWalletController {
     }
 
     fun createDidDocs() = document().operation {
-        it.summary("Creates and registers DID on the EBSI Blockchain").operationId("createDid").addTagsItem("ESSIF User Wallet")
+        it.summary("Creates and registers DID on the EBSI Blockchain").operationId("createUserDid").addTagsItem("ESSIF User Wallet")
     }.body<String> { it.description("Verifiable Authorization") }.json<String>("200") { it.description("Created DID") }
 
     /**

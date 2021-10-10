@@ -23,7 +23,7 @@ object CustodianController {
 //        requestBody = OpenApiRequestBody([OpenApiContent(GenerateKeyRequest::class)], true, "Generate Key Request"),
 //        responses = [OpenApiResponse("200", [OpenApiContent(Key::class)], "Created Key")]
 //    )
-    fun generateDocs() = document()
+    fun generateKeyDocs() = document()
         .operation { it.summary("Generates a key with a specific key algorithm").operationId("generateKey").addTagsItem("Keys") }
         .body<GenerateKeyRequest> { it.description("Generate Key Request") }
         .json<String>("200") { it.description("Created key") }

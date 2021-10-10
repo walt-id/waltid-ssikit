@@ -30,7 +30,7 @@ object EnterpriseWalletController {
     }
 
     fun createDidDocs() = document().operation {
-        it.summary("Creates and registers DID on the EBSI Blockchain").operationId("createDid")
+        it.summary("Creates and registers DID on the EBSI Blockchain").operationId("createEnterpriseDid")
             .addTagsItem("ESSIF Enterprise Wallet")
     }.body<String> { it.description("Verifiable Authorization") }.json<String>("200") { it.description("Created DID") }
 
@@ -97,7 +97,7 @@ object EnterpriseWalletController {
     }
 
     fun requestVerifiableCredentialDocs() = document().operation {
-        it.summary("Request credential").operationId("requestVerifiableCredential").addTagsItem("ESSIF Enterprise Wallet")
+        it.summary("Request credential").operationId("requestEnterpriseVerifiableCredential").addTagsItem("ESSIF Enterprise Wallet")
     }.body<String> { it.description("Credential Request URI") }.json<String>("200") { it.description("DID ownership response") }
 
     fun token(ctx: Context) {
