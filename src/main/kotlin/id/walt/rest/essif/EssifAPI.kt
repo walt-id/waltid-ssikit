@@ -174,7 +174,7 @@ object EssifAPI {
                 }
                 path("ti") {
                     path("credentials") {
-                        //post("", documented(EosController.getCredentialDocs(), EosController::getCredential))
+                        post("", documented(EosController.getCredentialDocs(), EosController::getCredential))
                         get("{credentialId}", documented(EosController.getCredentialDocs(), EosController::getCredential))
                     }
                     get("requestCredentialUri", documented(EosController.requestCredentialUriDocs(), EosController::requestCredentialUri))
