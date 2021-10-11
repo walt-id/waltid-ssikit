@@ -4,19 +4,21 @@ The Walt.ID SSI Kit is a holistic SSI solution, with primarily focus on the Euro
 
 The core services are in the scope of:
  - **Key Management** generation, import/export
- - **Decentralized Identifier (DID)** operations (register, update, deactivate)
+ - **Decentralized Identifier (DID)** operations (create, register, update, deactivate)
  - **Verifiable Credential (VC)** operations (issue, present, verify)
  - **ESSIF/EBSI** related Use Cases (onboarding, VC exchange, etc.)
 
 The ESSIF/EBSI functions are in the scope of:
  - **Onboarding ESSIF/EBSI** onboarding a natural person/legal entity including the DID creation and registration
- - **Enable Trusted Issuer** process for entitling a leagal entity to become a Trusted Issuer in the ESSIF ecosystem.
- - **Credential Issuance** protocols and data formats for issuing W3C credentials from an Trusted Issuer to a natural person.
- - **Credential Verification** verification facilities in order to determine the validity of a W3C verifiable credential aligned with ESSIF/EBSI standards
+ - **Enable Trusted Issuer** process for entitling a legal entity to become a Trusted Issuer in the ESSIF ecosystem.
+ - **Credential Issuance** protocols and data formats for issuing W3C credentials from a Trusted Issuer to a natural person.
+ - **Credential Verification** verification facilities in order to determine the validity of a W3C Verifiable Credential aligned with ESSIF/EBSI standards.
 
 The library is written in **Kotlin/Java based library** and can be directly integrated as Maven/Gradle dependency. Alternatively the library or the additional **Docker container** can be run as RESTful webservice.
 
-The **CLI tool** conveniently allows running all included functions manually. 
+The **CLI tool** conveniently allows running all included functions manually. Please see for yourself by just running the following command:
+
+    docker run -itv $(pwd)/data:/app/data waltid/ssikit -h
 
 ## Documentation
 
@@ -32,7 +34,32 @@ Direct links for using the SSI Kit are:
 
 ## Examples
 
-This project demonstrates how to integrate & use the SSI Kit in any Kotlin/Java app: https://github.com/walt-id/waltid-ssikit-examples
+This project demonstrates how to integrate & use the SSI Kit in any Kotlin/Java app: https://github.com/walt-id/waltid-ssikit-examples. Also the **Gradle** and **Maven** build instructions are provided there.
+
+Following code snipped gives a first impression how to use the SSI Kit for creating **W3C Decentralized Identifiers** and for issuing/verifying **W3C Verifiable Credentials** in **JSON_LD** as well as **JWT** format.
+
+    fun main() {
+
+        ServiceMatrix("service-matrix.properties")
+    
+        val issuerDid = DidService.create(DidMethod.ebsi)
+        val holderDid = DidService.create(DidMethod.key)
+    
+        // Issue VC in JSON-LD and JWT format (for show-casing both formats)
+        val vcJson = Signatory.getService().issue("VerifiableId", ProofConfig(issuerDid = issuerDid, subjectDid = holderDid, proofType = ProofType.LD_PROOF))
+        val vcJwt = Signatory.getService().issue("VerifiableId", ProofConfig(issuerDid = issuerDid, subjectDid = holderDid, proofType = ProofType.JWT))
+    
+        // Present VC in JSON-LD and JWT format (for show-casing both formats)
+        val vpJson = CustodianService.getService().createPresentation(listOf(vcJson), holderDid)
+        val vpJwt = CustodianService.getService().createPresentation(listOf(vcJwt), holderDid)
+    
+        // Verify VPs, using Signature, JsonSchema and a custom policy
+        val resJson = AuditorService.verify(vpJson, listOf(SignaturePolicy(), JsonSchemaPolicy()))
+        val resJwt = AuditorService.verify(vpJwt, listOf(SignaturePolicy(), JsonSchemaPolicy()))
+    
+        println("JSON verification result: ${resJson.overallStatus}")
+        println("JWT verification result: ${resJwt.overallStatus}")
+    }
 
 ## License
 
