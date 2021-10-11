@@ -22,8 +22,8 @@ import id.walt.services.essif.mock.AuthorizationApi
 import id.walt.services.essif.mock.DidRegistry
 import id.walt.services.hkvstore.HKVKey
 import id.walt.services.hkvstore.HKVStoreService
-import id.walt.services.jwt.JwtService
-import id.walt.services.key.KeyService
+import id.walt.services.jwt.InMemoryJwtService
+import id.walt.services.key.InMemoryKeyService
 import id.walt.services.keystore.KeyType
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.ProofConfig
@@ -46,7 +46,8 @@ object UserWalletService {
 
     private val credentialService = JsonLdCredentialService.getService()
     private val enterpriseWalletService = EnterpriseWalletService.getService()
-    private val jwtService = JwtService.getService()
+    private val jwtService = InMemoryJwtService.getService()
+    private val keyService = InMemoryKeyService.getService()
 
     fun createDid(): String {
         val did = enterpriseWalletService.didGeneration()
@@ -214,7 +215,7 @@ object UserWalletService {
         val nonce = UUID.randomUUID().toString()
 
         // Generate an emphemeral key-pair for encryption and signing the JWT
-        val emphKeyId = KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val emphKeyId = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
 
         val idToken = constructSiopResponseJwt(emphKeyId, verifiedClaims, nonce)
 
@@ -236,8 +237,8 @@ object UserWalletService {
         val encryptedPayload = parseEncryptedAke1Payload(accessTokenResponse.ake1_enc_payload)
 
 
-        val clientKey = KeyService.getService().toJwk(emphKeyId.id, KeyType.PRIVATE) as ECKey
-        // val clientKey = KeyService.toJwk(did, true) as ECKey
+        val clientKey = keyService.toJwk(emphKeyId.id, KeyType.PRIVATE) as ECKey
+        // val clientKey = keyService.toJwk(did, true) as ECKey
 
         val sharedSecret = ECDH.deriveSharedSecret(
             encryptedPayload.ephemPublicKey.toECPublicKey(),
@@ -262,7 +263,7 @@ object UserWalletService {
 
         val decAccesTokenResp = Klaxon().parse<DecryptedAccessTokenResponse>(accessTokenRespStr)!!
 
-        KeyService.getService().delete(emphKeyId.id)
+        keyService.delete(emphKeyId.id)
 
         ///////////////////////////////////////////////////////////////////////////
         // Validate received Access Token
@@ -361,7 +362,7 @@ object UserWalletService {
 
         //val kid = DidService.loadDidEbsi(did).authentication!![0]
 
-        val emphPrivKey = KeyService.getService().toJwk(emphKeyId.id, KeyType.PRIVATE)
+        val emphPrivKey = keyService.toJwk(emphKeyId.id, KeyType.PRIVATE)
 
         val thumbprint = emphPrivKey.computeThumbprint().toString()
 
