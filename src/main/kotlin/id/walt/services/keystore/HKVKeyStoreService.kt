@@ -4,12 +4,11 @@ import id.walt.crypto.*
 import id.walt.services.hkvstore.HKVKey
 import id.walt.services.hkvstore.HKVStoreService
 import mu.KotlinLogging
-import java.nio.file.Path
 
 open class HKVKeyStoreService : KeyStoreService() {
 
     private val log = KotlinLogging.logger {}
-    private val hkvStore
+    open val hkvStore
         get() = HKVStoreService.getService() // lazy load!
 
     //TODO: get key format from config
@@ -40,6 +39,7 @@ open class HKVKeyStoreService : KeyStoreService() {
 
     override fun store(key: Key) {
         log.debug { "Storing key \"${key.keyId}\"." }
+        hkvStore.put(HKVKey("keys", key.keyId.id), key.keyId.id)
         addAlias(key.keyId, key.keyId.id)
         storeKeyMetaData(key)
         storePublicKey(key)

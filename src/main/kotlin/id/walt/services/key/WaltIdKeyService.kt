@@ -26,9 +26,9 @@ import java.util.*
 
 open class WaltIdKeyService : KeyService() {
 
-    private var cryptoService: CryptoService = CryptoService.getService()
+    open val cryptoService: CryptoService = CryptoService.getService()
 
-    private var keyStore: KeyStoreService = KeyStoreService.getService()
+    open val keyStore: KeyStoreService = KeyStoreService.getService()
 
     override fun generate(keyAlgorithm: KeyAlgorithm) = cryptoService.generateKey(keyAlgorithm)
 

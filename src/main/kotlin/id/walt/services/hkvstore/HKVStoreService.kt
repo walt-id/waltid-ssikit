@@ -3,9 +3,7 @@ package id.walt.services.hkvstore
 import id.walt.servicematrix.ServiceProvider
 import id.walt.servicematrix.ServiceRegistry
 import id.walt.services.WaltIdService
-import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets
-import java.nio.file.Path
 
 /**
  * Hierarchical Kev Value Store Service
@@ -24,6 +22,8 @@ abstract class HKVStoreService : WaltIdService() {
     abstract fun listChildKeys(parent: HKVKey, recursive: Boolean = false): Set<HKVKey>
 
     abstract fun delete(key: HKVKey, recursive: Boolean = false): Boolean
+
+    fun search(search: String): List<HKVKey> = listChildKeys(HKVKey("root"), true).filter { getAsString(it)!!.contains(search) }
 
     companion object : ServiceProvider {
         val implementation get() = ServiceRegistry.getService<HKVStoreService>()

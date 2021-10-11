@@ -41,7 +41,8 @@ object EosController {
 //        ]
 //    )
     fun onboardsDocs() = document()
-    .operation { it.summary("Establishes a mutual authenticated DID-SIOP session.").operationId("openSession").addTagsItem("ESSIF Enterprise Wallet")   }
+    .operation { it.summary("Request Verifiable Authorization. Returns the DID ownership request.").operationId("onboards").addTagsItem("ESSIF Enterprise Wallet")   }
+    .body<String>() { it.description("DID to be registered") }
     .json<String>("200") { it.description("Request DID ownership") }
     .json<ErrorResponse>("400") { it.description("Bad request") }
     .json<ErrorResponse>("500") { it.description("Server Error") }
@@ -65,7 +66,8 @@ object EosController {
 //        ]
 //    )
     fun signedChallengeDocs() = document()
-    .operation { it.summary("Establishes a mutual authenticated DID-SIOP session.").operationId("signedChallenge").addTagsItem("ESSIF Enterprise Wallet")   }
+    .operation { it.summary("Processes the signed challenge in the scope of DID Auth and if successful, returns the Verifiable Authorization").operationId("signedChallenge").addTagsItem("ESSIF Enterprise Wallet")   }
+    .body<String>() { it.description("Signed challenge") }
     .json<String>("200") { it.description("Verifiable Authorization") }
     .json<ErrorResponse>("400") { it.description("Bad request") }
     .json<ErrorResponse>("500") { it.description("Server Error") }
@@ -103,8 +105,8 @@ object EosController {
 //        ]
 //    )
     fun authReqDocs() = document()
-    .operation { it.summary("Establishes a mutual authenticated DID-SIOP session.").operationId("authReq").addTagsItem("ESSIF Enterprise Wallet")   }
-    .json<String>("200") { it.description("Authentication response code") }
+    .operation { it.summary("Auth request").operationId("authReq").addTagsItem("ESSIF Enterprise Wallet")   }
+    .json<String>("200") { it.description("") }
     .json<ErrorResponse>("400") { it.description("Bad request") }
     .json<ErrorResponse>("500") { it.description("Server Error") }
     fun authReq(ctx: Context) {
@@ -128,7 +130,8 @@ object EosController {
 //        ]
 //    )
     fun requestVerifiableCredentialDocs() = document()
-    .operation { it.summary("Establishes a mutual authenticated DID-SIOP session.").operationId("requestVerifiableCredential").addTagsItem("ESSIF Enterprise Wallet")   }
+    .operation { it.summary("Returns the DID ownership request").operationId("requestVerifiableCredential").addTagsItem("ESSIF Enterprise Wallet")   }
+    .body<String>() { it.description("Credential request URI") }
     .json<String>("200") { it.description("DID ownership request") }
     .json<ErrorResponse>("400") { it.description("Bad request") }
     .json<ErrorResponse>("500") { it.description("Server Error") }

@@ -1,12 +1,7 @@
 package id.walt.rest.essif
 
-import id.walt.rest.ErrorResponse
 import id.walt.services.essif.EssifClient
 import io.javalin.http.Context
-import io.javalin.plugin.openapi.annotations.OpenApi
-import io.javalin.plugin.openapi.annotations.OpenApiContent
-import io.javalin.plugin.openapi.annotations.OpenApiRequestBody
-import io.javalin.plugin.openapi.annotations.OpenApiResponse
 import io.javalin.plugin.openapi.dsl.document
 
 data class EbsiOnboardRequest(
@@ -42,7 +37,7 @@ object EssifClientController {
     }
 
     fun registerDidDocs() = document().operation {
-        it.summary("Registers DID on the EBSI Blockchain").operationId( "registerDid").addTagsItem("ESSIF Client")
+        it.summary("Registers DID on the EBSI Blockchain").operationId("registerDid").addTagsItem("ESSIF Client")
     }.body<String> { it.description("DID") }.json<String>("200") { it.description("DID registered successfully") }
 
 }

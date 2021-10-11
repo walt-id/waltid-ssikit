@@ -111,13 +111,13 @@ object CustodianAPI {
             path("keys") {
                 get("/", documented(CustodianController.listKeysDocs(), CustodianController::listKeys))
                 get("{alias}", documented(CustodianController.getKeysDocs(), CustodianController::getKey))
-                post("generate", documented(CustodianController.generateDocs(), CustodianController::generateKey))
+                post("generate", documented(CustodianController.generateKeyDocs(), CustodianController::generateKey))
                 put("store", documented(CustodianController.storeKeysDocs(), CustodianController::storeKey))
                 delete("{id}", documented(CustodianController.deleteKeysDocs(), CustodianController::deleteKey))
             }
 
             path("credentials") {
-                get("/", documented(CustodianController.deleteKeysDocs(), CustodianController::listCredentials))
+                get("/", documented(CustodianController.listCredentialsDocs(), CustodianController::listCredentials))
                 get("{id}",  documented(CustodianController.getCredentialDocs(), CustodianController::getCredential))
                 get("listCredentialIds",  documented(CustodianController.listCredentialIdsDocs(), CustodianController::listCredentialIds))
                 put("{alias}",  documented(CustodianController.storeCredenitalsDocs(),CustodianController::storeCredential))

@@ -53,6 +53,8 @@ open class HKVKeyStoreServiceTest : AnnotationSpec() {//: KeyStoreServiceTest() 
         keyId1 shouldBe key1.keyId
         keyId2 shouldBe key2.keyId
 
+        hkvKeyStoreService.listKeys().size shouldBe 2
+
         hkvKeyStoreService.delete(keyId1.id)
         hkvKeyStoreService.delete(keyId2.id)
     }
