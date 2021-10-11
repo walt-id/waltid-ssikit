@@ -15,8 +15,6 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.api.assertThrows
-import java.lang.IllegalStateException
-import java.lang.NullPointerException
 
 class CustodianPresentTest : StringSpec() {
     lateinit var did: String
@@ -36,19 +34,21 @@ class CustodianPresentTest : StringSpec() {
             "VerifiableDiploma", ProofConfig(
                 issuerDid = did,
                 subjectDid = did,
-                issuerVerificationMethod = "Ed25519Signature2018", proofType = ProofType.LD_PROOF)
+                issuerVerificationMethod = "Ed25519Signature2018", proofType = ProofType.LD_PROOF
+            )
         )
 
         vcJwt = Signatory.getService().issue(
             "VerifiableDiploma", ProofConfig(
                 issuerDid = did,
                 subjectDid = did,
-                issuerVerificationMethod = "Ed25519Signature2018", proofType = ProofType.JWT)
+                issuerVerificationMethod = "Ed25519Signature2018", proofType = ProofType.JWT
+            )
         )
     }
 
     init {
-        "1: json ld presentation" {
+        "Json ld presentation" {
             val presStr = CustodianService.getService().createPresentation(listOf(vcJsonLd), did, did, null, null)
             println("Created VP: ${presStr}")
 
@@ -57,30 +57,29 @@ class CustodianPresentTest : StringSpec() {
             VerifiablePresentation::class.java.isAssignableFrom(pres::class.java) shouldBe true
         }
 
-        "2: jwt presentation" {
+        "Jwt presentation" {
             val presStr = CustodianService.getService().createPresentation(listOf(vcJwt), did, did, null, "abcd")
             println("Created VP: ${presStr}")
 
-            VcLibManager.isJWT(presStr) shouldBe true
-
-            val pres = presStr.toCredential()
-
-            VerifiablePresentation::class.java.isAssignableFrom(pres::class.java) shouldBe true
-            pres.jwt shouldNotBe null
-            pres.jwt shouldBe presStr
+            checkVerifiablePresentation(presStr)
         }
 
         "Jwt presentation without audience or nonce" {
-            assertThrows<NullPointerException> {
-                CustodianService
-                    .getService()
-                    .createPresentation(listOf(vcJwt), did, null, null, "abcd")
-            }
-            assertThrows<NullPointerException> {
-                CustodianService
-                    .getService()
-                    .createPresentation(listOf(vcJwt), did, did, null, null)
-            }
+            val presStr = CustodianService
+                .getService()
+                .createPresentation(listOf(vcJwt), did, null, null, "abcd")
+            println("Created VP: ${presStr}")
+
+            checkVerifiablePresentation(presStr)
+        }
+
+        "Jwt presentation without nonce" {
+            val presStr = CustodianService
+                .getService()
+                .createPresentation(listOf(vcJwt), did, did, null)
+            println("Created VP: ${presStr}")
+
+            checkVerifiablePresentation(presStr)
         }
 
         "Json ld and jwt presentation" {
@@ -90,5 +89,15 @@ class CustodianPresentTest : StringSpec() {
                     .createPresentation(listOf(vcJsonLd, vcJwt), did, did, null, "abcd")
             }
         }
+    }
+
+    private fun checkVerifiablePresentation(presStr: String) {
+        VcLibManager.isJWT(presStr) shouldBe true
+
+        val pres = presStr.toCredential()
+
+        VerifiablePresentation::class.java.isAssignableFrom(pres::class.java) shouldBe true
+        pres.jwt shouldNotBe null
+        pres.jwt shouldBe presStr
     }
 }

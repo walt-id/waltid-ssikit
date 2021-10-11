@@ -9,15 +9,9 @@ import id.walt.services.keystore.KeyStoreService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
 import id.walt.services.vcstore.VcStoreService
-import id.walt.signatory.ProofConfig
-import id.walt.signatory.ProofType
-import id.walt.vclib.Helpers.encode
-import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.VcLibManager
 import id.walt.vclib.model.VerifiableCredential
-import id.walt.vclib.vclist.VerifiablePresentation
 import mu.KotlinLogging
-import java.util.*
 
 private val log = KotlinLogging.logger {}
 
@@ -37,7 +31,7 @@ abstract class CustodianService : WaltIdService() {
     open fun deleteCredential(alias: String): Boolean = implementation.deleteCredential(alias)
 
     open fun createPresentation(
-        vcs: List<String>, holderDid: String, verifierDid: String?, domain: String?, challenge: String?
+        vcs: List<String>, holderDid: String, verifierDid: String? = null, domain: String? = null, challenge: String? = null
     ): String = implementation.createPresentation(vcs, holderDid, verifierDid, domain, challenge)
 
     companion object : ServiceProvider {
@@ -68,7 +62,7 @@ open class WaltCustodianService : CustodianService() {
     override fun createPresentation(
         vcs: List<String>, holderDid: String, verifierDid: String?, domain: String?, challenge: String?
     ): String = when {
-        vcs.stream().allMatch { VcLibManager.isJWT(it) } -> jwtCredentialService.present(vcs, holderDid, verifierDid!!, challenge!!)
+        vcs.stream().allMatch { VcLibManager.isJWT(it) } -> jwtCredentialService.present(vcs, holderDid, verifierDid, challenge)
         vcs.stream().noneMatch { VcLibManager.isJWT(it) } -> jsonLdCredentialService.present(vcs, holderDid, domain, challenge)
         else -> throw IllegalStateException("All verifiable credentials must be of the same proof type.")
     }
