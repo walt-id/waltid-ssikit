@@ -24,11 +24,4 @@ abstract class HKVStoreService : WaltIdService() {
     abstract fun delete(key: HKVKey, recursive: Boolean = false): Boolean
 
     fun search(search: String): List<HKVKey> = listChildKeys(HKVKey("root"), true).filter { getAsString(it)!!.contains(search) }
-
-    companion object : ServiceProvider {
-        val implementation get() = ServiceRegistry.getService<HKVStoreService>()
-        override fun getService(): HKVStoreService {
-            return implementation
-        }
-    }
 }

@@ -25,8 +25,4 @@ abstract class KeyStoreService : WaltIdService() {
     // fun saveKeyPair(keys: Keys)
     // fun loadKeyPair(keyId: String): Keys?
     //fun addAlias(keyId: String, alias: String)
-
-    companion object : ServiceProvider {
-        override fun getService() = object : KeyStoreService() {}
-    }
 }

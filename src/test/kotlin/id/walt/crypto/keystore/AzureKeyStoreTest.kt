@@ -11,6 +11,7 @@ import io.kotest.core.spec.style.AnnotationSpec
 import io.mockk.*
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import id.walt.model.DidMethod
+import id.walt.services.context.WaltContext
 import id.walt.services.did.DidService
 import id.walt.services.keystore.KeyStoreService
 import id.walt.services.keystore.KeyType
@@ -27,7 +28,8 @@ import java.security.spec.ECGenParameterSpec
 class AzureKeyStoreTest : AnnotationSpec() {
 
     private lateinit var did: String
-    private val keyStore = KeyStoreService.getService()
+    private val keyStore
+        get() =  WaltContext.keyStore
 
     private val keyPair = KeyPairGenerator.getInstance("EC", BouncyCastleProvider()).let {
         it.initialize(ECGenParameterSpec("secp256k1"), SecureRandom())

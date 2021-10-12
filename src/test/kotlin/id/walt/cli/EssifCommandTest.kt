@@ -5,6 +5,7 @@ import id.walt.crypto.KeyAlgorithm
 import id.walt.model.DidMethod
 import id.walt.model.DidUrl
 import id.walt.servicematrix.ServiceMatrix
+import id.walt.services.context.WaltContext
 import id.walt.services.did.DidService
 import id.walt.services.hkvstore.HKVKey
 import id.walt.services.hkvstore.HKVStoreService
@@ -92,7 +93,7 @@ class EssifCommandTest : StringSpec({
                 EssifDidRegisterCommand().parse(listOf("--did", did, "--eth-key", ethKey.id))
             }
         }
-        HKVStoreService.getService().delete(HKVKey("ebsi", identifier), true)
+        WaltContext.hkvStore.delete(HKVKey("ebsi", identifier), true)
     }
 
     "essif tir get -r" {

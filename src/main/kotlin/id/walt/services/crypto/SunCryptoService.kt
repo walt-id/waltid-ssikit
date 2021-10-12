@@ -4,6 +4,7 @@ import com.nimbusds.jose.crypto.impl.AESGCM
 import com.nimbusds.jose.jwk.ECKey
 import id.walt.crypto.*
 import id.walt.services.CryptoProvider
+import id.walt.services.context.WaltContext
 import id.walt.services.keystore.KeyStoreService
 import id.walt.services.keystore.KeyType
 import org.web3j.crypto.ECDSASignature
@@ -18,12 +19,17 @@ import javax.crypto.spec.GCMParameterSpec
 
 open class SunCryptoService : CryptoService() {
 
-    private var keyStore: KeyStoreService = KeyStoreService.getService()
+    private var _customKeyStore: KeyStoreService? = null
+    private val keyStore: KeyStoreService
+        get() = when(_customKeyStore) {
+            null -> WaltContext.keyStore
+            else -> _customKeyStore!!
+        }
 
     var ecJWK: ECKey? = null
 
     fun setKeyStore(newKeyStore: KeyStoreService) {
-        keyStore = newKeyStore
+        _customKeyStore = newKeyStore
     }
 
     override fun generateKey(algorithm: KeyAlgorithm): KeyId {

@@ -19,6 +19,7 @@ import mu.KotlinLogging
 import org.json.JSONObject
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.LdSigner
+import id.walt.services.context.WaltContext
 import id.walt.services.did.DidService
 import id.walt.services.essif.EssifServer.nonce
 import id.walt.services.essif.TrustedIssuerClient.domain
@@ -35,7 +36,8 @@ private val log = KotlinLogging.logger {}
 
 open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
 
-    private var keyStore: KeyStoreService = KeyStoreService.getService()
+    private val keyStore: KeyStoreService
+        get() = WaltContext.keyStore
 
     init {
         Ed25519Provider.set(TinkEd25519Provider())

@@ -4,6 +4,7 @@ import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyId
 import id.walt.crypto.buildKey
 import id.walt.servicematrix.ServiceMatrix
+import id.walt.services.context.WaltContext
 import id.walt.services.essif.didebsi.DidEbsiService
 import id.walt.services.essif.didebsi.UnsignedTransaction
 import id.walt.services.hkvstore.HKVKey
@@ -32,7 +33,8 @@ class DidEbsiServiceTest : AnnotationSpec() {
     }
 
     private val didEbsiService = DidEbsiService.getService()
-    private val keyStore = KeyStoreService.getService()
+    private val keyStore
+        get() =  WaltContext.keyStore
     private val key = buildKey(
         KEY_ID.id,
         KeyAlgorithm.ECDSA_Secp256k1.name,
@@ -43,7 +45,7 @@ class DidEbsiServiceTest : AnnotationSpec() {
 
     @Before
     fun setup() {
-        HKVStoreService.getService().put(
+        WaltContext.hkvStore.put(
             HKVKey("did", "created", DID),
             Path.of("src", "test", "resources", "ebsi", DID_FILENAME).toFile().readText())
         keyStore.store(key)
@@ -53,7 +55,7 @@ class DidEbsiServiceTest : AnnotationSpec() {
 
     @After
     fun clean() {
-        HKVStoreService.getService().delete(HKVKey("did", "created", DID))
+        WaltContext.hkvStore.delete(HKVKey("did", "created", DID))
         keyStore.delete(KEY_ID.id)
     }
 

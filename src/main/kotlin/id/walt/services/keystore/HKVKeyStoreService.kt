@@ -1,6 +1,7 @@
 package id.walt.services.keystore
 
 import id.walt.crypto.*
+import id.walt.services.context.WaltContext
 import id.walt.services.hkvstore.HKVKey
 import id.walt.services.hkvstore.HKVStoreService
 import mu.KotlinLogging
@@ -9,7 +10,7 @@ open class HKVKeyStoreService : KeyStoreService() {
 
     private val log = KotlinLogging.logger {}
     open val hkvStore
-        get() = HKVStoreService.getService() // lazy load!
+        get() = WaltContext.hkvStore // lazy load!
 
     //TODO: get key format from config
     private val KEY_FORMAT = KeyFormat.PEM
