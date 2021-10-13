@@ -4,6 +4,7 @@ import id.walt.custodian.CustodianService
 import id.walt.servicematrix.BaseService
 import id.walt.servicematrix.ServiceConfiguration
 import id.walt.servicematrix.ServiceProvider
+import id.walt.services.context.WaltContext
 import id.walt.services.vc.JwtCredentialService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vcstore.VcStoreService
@@ -67,7 +68,6 @@ abstract class Signatory : BaseService(), ISignatory {
 
 class WaltSignatory(configurationPath: String) : Signatory() {
 
-    private val vcStore = VcStoreService.getService()
     private val VC_GROUP = "signatory"
     override val configuration: SignatoryConfig = fromConfiguration(configurationPath)
 
@@ -91,7 +91,7 @@ class WaltSignatory(configurationPath: String) : Signatory() {
             ProofType.LD_PROOF -> JsonLdCredentialService.getService().sign(vcRequest.encode(), config)
             ProofType.JWT -> JwtCredentialService.getService().sign(vcRequest.encode(), config)
         }
-        vcStore.storeCredential(configDP.id!!, signedVc.toCredential(), VC_GROUP)
+        WaltContext.vcStore.storeCredential(configDP.id!!, signedVc.toCredential(), VC_GROUP)
         return signedVc
     }
 

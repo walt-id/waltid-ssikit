@@ -1,5 +1,6 @@
 package id.walt.services.vcstore
 
+import id.walt.services.context.WaltContext
 import id.walt.services.hkvstore.HKVKey
 import id.walt.services.hkvstore.HKVStoreService
 import id.walt.vclib.Helpers.encode
@@ -12,7 +13,7 @@ import java.nio.file.Path
 class HKVVcStoreService : VcStoreService() {
 
     private val hkvStore
-        get() =  HKVStoreService.getService() // lazy load!
+        get() =  WaltContext.hkvStore // lazy load!
 
     private val vcRoot = "vc"
 

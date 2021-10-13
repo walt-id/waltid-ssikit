@@ -4,6 +4,7 @@ import com.nimbusds.jwt.SignedJWT
 import id.walt.custodian.CustodianService
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
+import id.walt.services.context.WaltContext
 import id.walt.services.did.DidService
 import id.walt.services.jwt.JwtService
 import id.walt.services.vc.JsonLdCredentialService
@@ -112,7 +113,7 @@ class SignatoryServiceTest : StringSpec({
         val vcObj = vc.toCredential()
         vcObj should beInstanceOf<VerifiableId>()
         (vcObj as VerifiableId).id.isNullOrBlank() shouldNotBe true
-        val cred = VcStoreService.getService().getCredential(vcObj.id!!, "signatory")
+        val cred = WaltContext.vcStore.getCredential(vcObj.id!!, "signatory")
         cred should beInstanceOf<VerifiableId>()
         (cred as VerifiableId).id shouldBe vcObj.id
     }

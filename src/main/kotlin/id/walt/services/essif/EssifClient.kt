@@ -3,6 +3,7 @@ package id.walt.services.essif
 import mu.KotlinLogging
 import id.walt.common.readEssifBearerToken
 import id.walt.services.WaltIdServices
+import id.walt.services.context.WaltContext
 import id.walt.services.essif.didebsi.DidEbsiService
 import id.walt.services.essif.enterprisewallet.EnterpriseWalletService
 import id.walt.services.essif.mock.RelyingParty
@@ -75,7 +76,7 @@ object EssifClient {
         log.debug { "Verifiable Authorization received:\n${verifiableAuthorization}" }
 
 
-        HKVStoreService.getService().put(HKVKey("ebsi", did.substringAfterLast(":"), verifiableAuthorizationFile), verifiableAuthorization)
+        WaltContext.hkvStore.put(HKVKey("ebsi", did.substringAfterLast(":"), verifiableAuthorizationFile), verifiableAuthorization)
 
 
         ///////////////////////////////////////////////////////////////////////////
@@ -237,7 +238,7 @@ object EssifClient {
 
         log.debug { "EBSI Access Token received:\n${accessToken}" }
 
-        HKVStoreService.getService().put(HKVKey("ebsi", did.substringAfterLast(":"), ebsiAccessTokenFile), accessToken)
+        WaltContext.hkvStore.put(HKVKey("ebsi", did.substringAfterLast(":"), ebsiAccessTokenFile), accessToken)
 
         ///////////////////////////////////////////////////////////////////////////
         // Protected resource can now be accessed

@@ -4,6 +4,7 @@ import id.walt.crypto.Key
 import id.walt.crypto.KeyAlgorithm
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
+import id.walt.services.context.WaltContext
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyStoreService
 import id.walt.services.vc.JsonLdCredentialService
@@ -42,22 +43,20 @@ abstract class CustodianService : WaltIdService() {
 open class WaltCustodianService : CustodianService() {
     private val VC_GROUP = "custodian"
     private val keyService = KeyService.getService()
-    private val keystore = KeyStoreService.getService()
-    private val vcStore = VcStoreService.getService()
     private val jwtCredentialService = JwtCredentialService.getService()
     private val jsonLdCredentialService = JsonLdCredentialService.getService()
 
-    override fun generateKey(keyAlgorithm: KeyAlgorithm): Key = keystore.load(keyService.generate(keyAlgorithm).id)
-    override fun getKey(alias: String): Key = keystore.load(alias)
-    override fun listKeys(): List<Key> = keystore.listKeys()
-    override fun storeKey(key: Key) = keystore.store(key)
-    override fun deleteKey(id: String) = keystore.delete(id)
+    override fun generateKey(keyAlgorithm: KeyAlgorithm): Key = WaltContext.keyStore.load(keyService.generate(keyAlgorithm).id)
+    override fun getKey(alias: String): Key = WaltContext.keyStore.load(alias)
+    override fun listKeys(): List<Key> = WaltContext.keyStore.listKeys()
+    override fun storeKey(key: Key) = WaltContext.keyStore.store(key)
+    override fun deleteKey(id: String) = WaltContext.keyStore.delete(id)
 
-    override fun getCredential(id: String) = vcStore.getCredential(id, VC_GROUP)
-    override fun listCredentials(): List<VerifiableCredential> = vcStore.listCredentials(VC_GROUP)
-    override fun listCredentialIds(): List<String> = vcStore.listCredentialIds(VC_GROUP)
-    override fun storeCredential(alias: String, vc: VerifiableCredential) = vcStore.storeCredential(alias, vc, VC_GROUP)
-    override fun deleteCredential(alias: String) = vcStore.deleteCredential(alias, VC_GROUP)
+    override fun getCredential(id: String) = WaltContext.vcStore.getCredential(id, VC_GROUP)
+    override fun listCredentials(): List<VerifiableCredential> = WaltContext.vcStore.listCredentials(VC_GROUP)
+    override fun listCredentialIds(): List<String> = WaltContext.vcStore.listCredentialIds(VC_GROUP)
+    override fun storeCredential(alias: String, vc: VerifiableCredential) = WaltContext.vcStore.storeCredential(alias, vc, VC_GROUP)
+    override fun deleteCredential(alias: String) = WaltContext.vcStore.deleteCredential(alias, VC_GROUP)
 
     override fun createPresentation(
         vcs: List<String>, holderDid: String, verifierDid: String?, domain: String?, challenge: String?
