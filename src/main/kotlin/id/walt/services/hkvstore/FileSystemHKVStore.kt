@@ -11,9 +11,18 @@ data class FilesystemStoreConfig(
     val dataDirectory: Path = Path.of(dataRoot)
 }
 
-class FileSystemHKVStore(configurationPath: String) : HKVStoreService() {
+class FileSystemHKVStore(configPath: String) : HKVStoreService() {
 
-    override val configuration: FilesystemStoreConfig = fromConfiguration(configurationPath)
+    lateinit override var configuration: FilesystemStoreConfig
+
+    init {
+      if (configPath.isNotEmpty())
+          configuration = fromConfiguration(configPath)
+    }
+
+    constructor(config: FilesystemStoreConfig) : this("") {
+        configuration = config
+    }
 
     override fun put(key: HKVKey, value: ByteArray) {
         dataDirCombinePath(key.toPath()).apply {
