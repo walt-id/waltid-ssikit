@@ -21,7 +21,7 @@ class WaltContextTest: AnnotationSpec() {
 
   @AfterAll
   fun cleanup() {
-    //File(TEST_CONTEXT_DATA_ROOT).deleteRecursively()
+    File(TEST_CONTEXT_DATA_ROOT).deleteRecursively()
   }
 
   @Test
