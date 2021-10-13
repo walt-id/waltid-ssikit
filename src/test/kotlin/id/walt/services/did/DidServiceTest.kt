@@ -101,6 +101,7 @@ class DidServiceTest : AnnotationSpec() {
     }
 
     @Test
+    @Ignore // TODO: ESSIF backend issue
     fun resolveDidEbsiTest() {
         val did = "did:ebsi:22S7TBCJxzPS2Vv1UniBSdzFD2ZDFjZeYvQuFQWSeAQN5nTG"
         val didDoc = DidService.resolveDidEbsi(did)
@@ -109,6 +110,7 @@ class DidServiceTest : AnnotationSpec() {
     }
 
     @Test
+    @Ignore // TODO: ESSIF backend issue
     fun resolveDidEbsiRawTest() {
         val did = "did:ebsi:22S7TBCJxzPS2Vv1UniBSdzFD2ZDFjZeYvQuFQWSeAQN5nTG"
         val didDoc = DidService.resolveDidEbsiRaw(did)
