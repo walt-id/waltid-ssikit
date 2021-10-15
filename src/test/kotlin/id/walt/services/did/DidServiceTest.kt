@@ -10,6 +10,7 @@ import id.walt.model.DidMethod
 import id.walt.model.DidUrl
 import id.walt.services.key.KeyService
 import id.walt.test.RESOURCES_PATH
+import io.kotest.matchers.collections.shouldBeOneOf
 import java.io.File
 
 class DidServiceTest : AnnotationSpec() {
@@ -73,7 +74,7 @@ class DidServiceTest : AnnotationSpec() {
         val didUrl = DidUrl.generateDidEbsiV2DidUrl()
         val did = didUrl.did
         "did:ebsi:" shouldBe did.substring(0, 9)
-        17 shouldBe didUrl.identifier.length
+        didUrl.identifier.length shouldBeOneOf listOf(23, 24)
     }
 
     @Test

@@ -29,7 +29,7 @@ data class DidUrl(
         }.getOrThrow<DidUrl>()
 
         fun generateDidEbsiV2DidUrl() =
-            DidUrl(DidMethod.ebsi.name, (ByteArray(1){0x01.toByte()}.plus(Random.nextBytes(16)).encodeBase58().substring(0, 17)))
+            DidUrl(DidMethod.ebsi.name, "z" + (ByteArray(1){0x01.toByte()}.plus(Random.nextBytes(16)).encodeBase58()))
     }
 }
 
