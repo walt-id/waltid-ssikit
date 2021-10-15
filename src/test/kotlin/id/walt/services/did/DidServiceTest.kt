@@ -73,7 +73,7 @@ class DidServiceTest : AnnotationSpec() {
         val didUrl = DidUrl.generateDidEbsiV2DidUrl()
         val did = didUrl.did
         "did:ebsi:" shouldBe did.substring(0, 9)
-        48 shouldBe didUrl.identifier.length
+        17 shouldBe didUrl.identifier.length
     }
 
     @Test
