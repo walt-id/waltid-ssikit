@@ -1,16 +1,17 @@
 package id.walt.services.did
 
 import com.beust.klaxon.Klaxon
-import id.walt.servicematrix.ServiceMatrix
-import io.kotest.core.spec.style.AnnotationSpec
-import io.kotest.matchers.shouldBe
 import id.walt.common.prettyPrint
 import id.walt.crypto.KeyAlgorithm
+import id.walt.crypto.decodeBase58
 import id.walt.model.DidMethod
 import id.walt.model.DidUrl
+import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.key.KeyService
 import id.walt.test.RESOURCES_PATH
+import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.collections.shouldBeOneOf
+import io.kotest.matchers.shouldBe
 import java.io.File
 
 class DidServiceTest : AnnotationSpec() {
@@ -73,8 +74,11 @@ class DidServiceTest : AnnotationSpec() {
     fun createDidEbsiV2Identifier() {
         val didUrl = DidUrl.generateDidEbsiV2DidUrl()
         val did = didUrl.did
-        "did:ebsi:" shouldBe did.substring(0, 9)
+        did.substring(0, 9) shouldBe  "did:ebsi:"
         didUrl.identifier.length shouldBeOneOf listOf(23, 24)
+        didUrl.identifier[0] shouldBe 'z'
+        didUrl.identifier.substring(1).decodeBase58()[0] shouldBe 0x01
+        didUrl.method shouldBe "ebsi"
     }
 
     @Test
@@ -83,11 +87,6 @@ class DidServiceTest : AnnotationSpec() {
         // Create
         val keyId = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
         val did = ds.create(DidMethod.ebsi, keyId.id)
-        println(did)
-        val didUrl = DidUrl.from(did)
-        did shouldBe didUrl.did
-        "ebsi" shouldBe didUrl.method
-        print(did)
 
         // Load
         val resolvedDid = ds.loadDidEbsi(did)
