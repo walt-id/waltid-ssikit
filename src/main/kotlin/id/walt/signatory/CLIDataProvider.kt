@@ -2,12 +2,14 @@ package id.walt.signatory
 
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.vclist.VerifiableDiploma
+import id.walt.vclib.vclist.VerifiableId
 import java.util.*
 
 object CLIDataProviders {
     fun getCLIDataProviderFor(templateId: String): SignatoryDataProvider? {
         return when(templateId) {
             "VerifiableDiploma" -> VerifiableDiplomaCLIDataProvider()
+            "VerifiableId" -> VerifiableIDCLIDataProvider()
             else -> null
         }
     }
@@ -87,5 +89,28 @@ class VerifiableDiplomaCLIDataProvider : CLIDataProvider() {
         vc.credentialSubject!!.learningSpecification?.nqfLevel = listOf(prompt("NQF Level", vc.credentialSubject!!.learningSpecification?.nqfLevel?.get(0)) ?: "")
         return vc
     }
+}
 
+class VerifiableIDCLIDataProvider : CLIDataProvider() {
+    override fun populate(vc: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
+        vc as VerifiableId
+        vc.id = proofConfig.id ?: "education#higherEducation#${UUID.randomUUID()}"
+        vc.issuer = proofConfig.issuerDid
+        if (proofConfig.issueDate != null) vc.issuanceDate = dateFormat.format(proofConfig.issueDate)
+        if (proofConfig.expirationDate != null) vc.expirationDate = dateFormat.format(proofConfig.expirationDate)
+        vc.validFrom = vc.issuanceDate
+        vc.credentialSubject!!.id = proofConfig.subjectDid
+
+        println()
+        println("Subject personal data, ID: ${proofConfig.subjectDid}")
+        println("----------------------")
+        vc.credentialSubject!!.firstName = prompt("First name", vc.credentialSubject!!.firstName)
+        vc.credentialSubject!!.familyName = prompt("Family name", vc.credentialSubject!!.familyName)
+        vc.credentialSubject!!.dateOfBirth = prompt("Date of birth", vc.credentialSubject!!.dateOfBirth)
+        vc.credentialSubject!!.gender = prompt("Gender", vc.credentialSubject!!.gender)
+        vc.credentialSubject!!.placeOfBirth = prompt("Place of birth", vc.credentialSubject!!.placeOfBirth)
+        vc.credentialSubject!!.currentAddress = prompt("Current address", vc.credentialSubject!!.currentAddress)
+
+        return vc
+    }
 }
