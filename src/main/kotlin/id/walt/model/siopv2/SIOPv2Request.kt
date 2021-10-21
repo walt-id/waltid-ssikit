@@ -69,13 +69,9 @@ data class  LdpVpFormat(
   val proof_type: Set<String> = setOf("Ed25519Signature2018")
 )
 
-data class InputSchema (
-  val uri: String
-    )
-
 data class InputDescriptor (
   val id: String,
-  val schema: List<InputSchema>
+  val schema: String
     )
 
 data class PresentationDefinition (
@@ -83,12 +79,8 @@ data class PresentationDefinition (
   val input_descriptors: List<InputDescriptor>
     )
 
-data class VerifiablePresentations (
-  val presentation_definition: PresentationDefinition
-    )
-
 data class VpTokenClaim (
-  val verifiable_presentations: VerifiablePresentations
+  val presentation_definition: PresentationDefinition
     )
 
 data class Claims (
