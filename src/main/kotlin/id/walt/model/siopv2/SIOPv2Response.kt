@@ -17,9 +17,6 @@ data class SIOPv2Response (
   val id_token: SIOPv2IDToken,
   val vp_token: SIOPv2VPToken
     ) {
-  init {
-    DidService.importKey(did)
-  }
   fun getIdToken(): String {
     return JwtService.getService().sign(did, Klaxon().toJsonString(id_token))
   }
