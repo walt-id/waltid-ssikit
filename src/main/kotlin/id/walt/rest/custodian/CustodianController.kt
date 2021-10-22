@@ -111,10 +111,15 @@ object CustodianController {
 //    )
     fun listCredentialsDocs() = document()
         .operation { it.summary("Lists all credentials the custodian knows of").operationId("listCredentials").addTagsItem("Credentials") }
+        .queryParam<String>("id", isRepeatable = true)
         .json<String>("200") { it.description("Credentials list") }
 
     fun listCredentials(ctx: Context) {
-        ctx.json(ListCredentialsResponse(custodian.listCredentials()))
+        val ids = ctx.queryParams("id").toSet()
+        if(ids.isEmpty())
+            ctx.json(ListCredentialsResponse(custodian.listCredentials()))
+        else
+            ctx.json(ListCredentialsResponse(custodian.listCredentials().filter { it.id != null && ids.contains(it.id!!)}))
     }
 
     //    @OpenApi(
