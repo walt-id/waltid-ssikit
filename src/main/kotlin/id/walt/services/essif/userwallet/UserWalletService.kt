@@ -258,7 +258,7 @@ object UserWalletService {
 
         val accessTokenBytes = c.doFinal(encryptedPayload.cipherText)
 
-        var endInx = accessTokenBytes.findFirst { b -> (b.toInt() == 5) }
+        val endInx = accessTokenBytes.findFirst { b -> (b.toInt() in 1..16) }
 
         val accessTokenRespStr = String(accessTokenBytes.slice(0 until endInx).toByteArray())
 

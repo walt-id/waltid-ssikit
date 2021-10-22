@@ -6,7 +6,7 @@ import id.walt.common.prettyPrint
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-const val DID_CONTEXT_URL: String = "https://w3id.org/did/v1"
+const val DID_CONTEXT_URL: String = "https://www.w3.org/ns/did/v1"
 
 enum class DidMethod {
     key,
