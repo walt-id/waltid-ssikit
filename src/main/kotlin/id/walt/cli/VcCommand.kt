@@ -59,6 +59,7 @@ class VcIssueCommand : CliktCommand(
     val dest: File? by argument().file().optional()
     val template: String by option("-t", "--template", help = "VC template [VerifiableDiploma]").default("VerifiableDiploma")
     val issuerDid: String by option("-i", "--issuer-did", help = "DID of the issuer (associated with signing key)").required()
+    val issuerVerificationMethod: String? by option("-v", "--issuer-verification-method", help = "KeyId of the issuers' signing key")
     val subjectDid: String by option("-s", "--subject-did", help = "DID of the VC subject (receiver of VC)").required()
     val proofType: ProofType by option("-p", "--proof-type", help = "Proof type to be used [LD_PROOF]").enum<ProofType>().default(ProofType.LD_PROOF)
     val interactive: Boolean by option("--interactive", help = "Interactively prompt for VC data to fill in").flag(default = false)
@@ -80,7 +81,7 @@ class VcIssueCommand : CliktCommand(
         // Loading VC template
         log.debug { "Loading credential template: ${template}" }
 
-        val vcStr = signatory.issue(template, ProofConfig(issuerDid, subjectDid, "Ed25519Signature2018", null, proofType))
+        val vcStr = signatory.issue(template, ProofConfig(issuerDid, subjectDid, "Ed25519Signature2018", issuerVerificationMethod, proofType))
 
         echo("Generated Credential:\n\n$vcStr")
 

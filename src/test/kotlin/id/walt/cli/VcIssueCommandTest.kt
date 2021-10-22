@@ -55,6 +55,11 @@ class VcIssueCommandTest : StringSpec({
         VcIssueCommand().parse(listOf("-i", didIssuer, "-s", didSubject, "-t", "VerifiableDiploma", "-p", "LD_PROOF"))
     }
 
+    "vc issue VerifiableDiploma LD_PROOF incl. issuerVerificationMethod " {
+        val issuerVerificationMethod = DidService.loadDidEbsi(didIssuer).verificationMethod?.get(0)?.id!!
+        VcIssueCommand().parse(listOf("-i", didIssuer, "-s", didSubject, "-t", "VerifiableDiploma", "-p", "LD_PROOF", "-v", issuerVerificationMethod))
+    }
+
     "vc issue VerifiableAttestation LD_PROOF" {
         //VcIssueCommand().parse(listOf("-i", didIssuer, "-s", didSubject, "-t", "VerifiableAttestation"))
     }
