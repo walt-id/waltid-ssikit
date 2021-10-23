@@ -2,6 +2,7 @@ package id.walt.auditor.rest
 
 import id.walt.auditor.PolicyRegistry
 import id.walt.auditor.VerificationPolicy
+import id.walt.auditor.VerificationResult
 import io.javalin.http.Context
 import io.javalin.plugin.openapi.dsl.document
 import org.apache.http.HttpStatus
@@ -27,5 +28,5 @@ object AuditorRestController {
         .operation { it.summary("Verify a W3C VerifiableCredential or VerifiablePresentation").operationId("verifyVP").addTagsItem("Verification Policies") }
         .body<String> { it.description("VC or VP to be verified") }
         .queryParam<String>("policyList") { it.description("Optional comma-separated list for setting the policies to be verified.") }
-        .json<String>("200") { it.description("Request processed successfully (VP might not be valid)") }
+        .json<VerificationResult>("200") { it.description("Request processed successfully (VP might not be valid)") }
 }
