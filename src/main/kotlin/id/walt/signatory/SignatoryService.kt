@@ -39,7 +39,8 @@ data class ProofConfig(
     val credentialId: String? = null,
     val issueDate: Date? = null, // issue date from json-input or current system time if null
     val validDate: Date? = null, // valid date from json-input or current system time if null
-    val expirationDate: Date? = null
+    val expirationDate: Date? = null,
+    val dataProviderIdentifier: String? = null // may be used for mapping data-sets from a custom data-provider
 )
 
 data class SignatoryConfig(
