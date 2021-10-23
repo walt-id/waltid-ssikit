@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.5.20"
+    kotlin("jvm") version "1.5.31"
     kotlin("plugin.serialization") version "1.5.20"
     id("com.github.kkdad.dependency-license-report") version "1.16.6"
     id("org.owasp.dependencycheck") version "6.1.6"
@@ -39,7 +39,7 @@ dependencies {
     implementation("org.web3j:core:5.0.0")
     implementation("org.web3j:crypto:5.0.0")
 
-    implementation("com.google.guava:guava:30.1.1-jre")
+    implementation("com.google.guava:guava:31.0.1-jre")
 
     // VC
     implementation("id.walt:waltid-ssikit-vclib:1.4.9")
@@ -54,22 +54,22 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.0.0")
 
     // CLI
-    implementation("com.github.ajalt.clikt:clikt-jvm:3.2.0")
-    implementation("com.github.ajalt.clikt:clikt:3.2.0")
+    implementation("com.github.ajalt.clikt:clikt-jvm:3.3.0")
+    implementation("com.github.ajalt.clikt:clikt:3.3.0")
 
     // Misc
     implementation("commons-io:commons-io:2.11.0")
 
     // HTTP
-    implementation("io.ktor:ktor-client-core:1.6.3")
-    implementation("io.ktor:ktor-client-cio:1.6.3")
-    implementation("io.ktor:ktor-client-serialization:1.6.3")
-    implementation("io.ktor:ktor-client-logging:1.6.3")
+    implementation("io.ktor:ktor-client-core:1.6.4")
+    implementation("io.ktor:ktor-client-cio:1.6.4")
+    implementation("io.ktor:ktor-client-serialization:1.6.4")
+    implementation("io.ktor:ktor-client-logging:1.6.4")
     implementation("io.github.rybalkinsd", "kohttp", "0.12.0")
 
 
     // REST
-    implementation("io.javalin:javalin-bundle:4.0.0")
+    implementation("io.javalin:javalin-bundle:4.1.1")
 
     // Logging
     implementation("org.slf4j:slf4j-api:2.0.0-alpha2")
@@ -79,9 +79,9 @@ dependencies {
     implementation("io.github.microutils:kotlin-logging-jvm:2.0.11")
 
     // Config
-    implementation("com.sksamuel.hoplite:hoplite-core:1.4.7")
-    implementation("com.sksamuel.hoplite:hoplite-yaml:1.4.7")
-    implementation("com.sksamuel.hoplite:hoplite-hikaricp:1.4.7")
+    implementation("com.sksamuel.hoplite:hoplite-core:1.4.9")
+    implementation("com.sksamuel.hoplite:hoplite-yaml:1.4.9")
+    implementation("com.sksamuel.hoplite:hoplite-hikaricp:1.4.9")
 
     // Service-Matrix
     implementation("id.walt.servicematrix:WaltID-ServiceMatrix:1.0.1")
@@ -93,9 +93,9 @@ dependencies {
     //testImplementation(kotlin("test-junit"))
     testImplementation("io.mockk:mockk:1.12.0")
 
-    testImplementation("io.kotest:kotest-runner-junit5:4.6.1")
-    testImplementation("io.kotest:kotest-assertions-core:4.6.1")
-    testImplementation("io.kotest:kotest-assertions-json:4.6.1")
+    testImplementation("io.kotest:kotest-runner-junit5:4.6.3")
+    testImplementation("io.kotest:kotest-assertions-core:4.6.3")
+    testImplementation("io.kotest:kotest-assertions-json:4.6.3")
 }
 
 tasks.withType<Test> {
