@@ -20,13 +20,13 @@ object DateAsTimestampSerializer : KSerializer<Date> {
 
 @Serializer(forClass = LocalDateTime::class)
 object DateAsIso8601UtcStringSerializer : KSerializer<LocalDateTime> {
-    override fun serialize(output: Encoder, dateTime: LocalDateTime) {
-        val inDateEpochSeconds = Instant.ofEpochSecond(ZonedDateTime.of(dateTime, ZoneOffset.UTC).toEpochSecond())
-        output.encodeString(DateTimeFormatter.ISO_INSTANT.format(inDateEpochSeconds))
+    override fun serialize(encoder: Encoder, value: LocalDateTime) {
+        val inDateEpochSeconds = Instant.ofEpochSecond(ZonedDateTime.of(value, ZoneOffset.UTC).toEpochSecond())
+        encoder.encodeString(DateTimeFormatter.ISO_INSTANT.format(inDateEpochSeconds))
     }
 
-    override fun deserialize(input: Decoder): LocalDateTime {
-        return LocalDateTime.parse(input.decodeString(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"))
+    override fun deserialize(decoder: Decoder): LocalDateTime {
+        return LocalDateTime.parse(decoder.decodeString(), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'"))
     }
 }
 
