@@ -8,7 +8,6 @@ import id.walt.Values
 import id.walt.rest.ErrorResponse
 import id.walt.rest.OpenAPIUtils.documentedIgnored
 import id.walt.rest.RootController
-import id.walt.rest.core.KeyController
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.core.util.RouteOverviewPlugin
@@ -40,7 +39,6 @@ object SignatoryRestAPI {
     ) {
 
         signatoryApi = Javalin.create {
-
             it.apply {
                 registerPlugin(RouteOverviewPlugin("/api-routes"))
 
@@ -92,7 +90,7 @@ object SignatoryRestAPI {
             get("health", documented(RootController.healthDocs(), RootController::health))
             path("v1") {
                 path("credentials") {
-                    post("issue", KeyController::import) // FIXME? Signatory Credential Issue is set to KeyController import?
+                    post("issue", documented(SignatoryController.issueCredentialDocs(), SignatoryController::issueCredential))
                 }
                 path("templates") {
                     get("", documented(SignatoryController.listTemplatesDocs(), SignatoryController::listTemplates))
