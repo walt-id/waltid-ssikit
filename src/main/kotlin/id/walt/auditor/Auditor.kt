@@ -10,6 +10,7 @@ import id.walt.services.vc.VcUtils
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.vclist.VerifiablePresentation
+import kotlinx.serialization.Serializable
 import mu.KotlinLogging
 
 // the following validation policies can be applied
@@ -25,6 +26,9 @@ import mu.KotlinLogging
 // - HOLDER_BINDING (only for VPs)
 
 val log = KotlinLogging.logger {}
+
+@Serializable
+data class VerificationPolicyMetadata(val description: String, val id: String)
 
 interface VerificationPolicy {
     val id: String
