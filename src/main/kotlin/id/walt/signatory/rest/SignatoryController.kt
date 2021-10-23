@@ -1,5 +1,7 @@
-package id.walt.signatory
+package id.walt.signatory.rest
 
+import id.walt.signatory.ProofConfig
+import id.walt.signatory.Signatory
 import id.walt.vclib.Helpers.encode
 import io.javalin.http.Context
 import io.javalin.plugin.openapi.dsl.document
@@ -7,6 +9,8 @@ import io.javalin.plugin.openapi.dsl.document
 data class IssueCredentialRequest(val templateId: String, val config: ProofConfig)
 
 object SignatoryController {
+    val signatory = Signatory.getService()
+
     fun listTemplates(ctx: Context) {
         ctx.json(Signatory.getService().listTemplates())
     }
@@ -22,8 +26,6 @@ object SignatoryController {
     fun loadTemplateDocs() = document().operation {
         it.summary("Load a VC template").operationId("loadTemplate").addTagsItem("Verifiable Credentials")
     }.pathParam<String>("id") { it.description("Retrieves a single VC template form the data store") }.json<String>("200")
-
-    val signatory = Signatory.getService()
 
     fun issueCredential(ctx: Context) {
         val req = ctx.bodyAsClass<IssueCredentialRequest>()

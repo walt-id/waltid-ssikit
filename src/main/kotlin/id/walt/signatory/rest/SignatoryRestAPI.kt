@@ -1,4 +1,4 @@
-package id.walt.signatory
+package id.walt.signatory.rest
 
 import cc.vileda.openapi.dsl.components
 import cc.vileda.openapi.dsl.externalDocs

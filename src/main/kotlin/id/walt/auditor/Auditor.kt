@@ -148,18 +148,18 @@ data class VerificationResult(
 
 interface IAuditor {
 
-    fun verify(vc: String, policies: List<VerificationPolicy>): VerificationResult
+    fun verify(vcJson: String, policies: List<VerificationPolicy>): VerificationResult
 
 //    fun verifyVc(vc: String, config: AuditorConfig) = VerificationStatus(true)
 //    fun verifyVp(vp: String, config: AuditorConfig) = VerificationStatus(true)
 }
 
-object AuditorService : IAuditor {
+object Auditor : IAuditor {
 
     private fun allAccepted(policyResults: Map<String, Boolean>) = policyResults.values.all { it }
 
-    override fun verify(vcStr: String, policies: List<VerificationPolicy>): VerificationResult {
-        val vc = vcStr.toCredential()
+    override fun verify(vcJson: String, policies: List<VerificationPolicy>): VerificationResult {
+        val vc = vcJson.toCredential()
         val policyResults = policies.associateBy(keySelector = VerificationPolicy::id) { policy ->
             policy.verify(vc) &&
                     when (vc) {

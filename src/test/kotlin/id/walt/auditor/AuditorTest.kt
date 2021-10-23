@@ -1,14 +1,9 @@
 package id.walt.auditor
 
-import com.github.fge.jsonschema.main.JsonSchema
-import id.walt.auditor.AuditorService
-import id.walt.auditor.JsonSchemaPolicy
-import id.walt.auditor.SignaturePolicy
-import id.walt.custodian.CustodianService
+import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
-import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
@@ -32,7 +27,7 @@ class AuditorCommandTest : StringSpec() {
         ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
 
         val signatory = Signatory.getService()
-        val custodian = CustodianService.getService()
+        val custodian = Custodian.getService()
 
         did = DidService.create(DidMethod.key)
 
@@ -63,7 +58,7 @@ class AuditorCommandTest : StringSpec() {
     init {
 
         "1. verify vp" {
-            val res = AuditorService.verify(vpStr, listOf(SignaturePolicy(), JsonSchemaPolicy()))
+            val res = Auditor.verify(vpStr, listOf(SignaturePolicy(), JsonSchemaPolicy()))
 
             res.overallStatus shouldBe true
 
@@ -78,7 +73,7 @@ class AuditorCommandTest : StringSpec() {
         }
 
         "2. verify vc" {
-            val res = AuditorService.verify(vcStr, listOf(SignaturePolicy(), JsonSchemaPolicy()))
+            val res = Auditor.verify(vcStr, listOf(SignaturePolicy(), JsonSchemaPolicy()))
 
             res.overallStatus shouldBe true
             res.policyResults.keys shouldBeSameSizeAs listOf(SignaturePolicy(), JsonSchemaPolicy())
@@ -92,7 +87,7 @@ class AuditorCommandTest : StringSpec() {
         }
 
         "3. verify vc jwt" {
-            val res = AuditorService.verify(vcJwt, listOf(SignaturePolicy(), JsonSchemaPolicy()))
+            val res = Auditor.verify(vcJwt, listOf(SignaturePolicy(), JsonSchemaPolicy()))
 
             res.overallStatus shouldBe true
             res.policyResults.keys shouldBeSameSizeAs listOf(SignaturePolicy(), JsonSchemaPolicy())
@@ -106,7 +101,7 @@ class AuditorCommandTest : StringSpec() {
         }
 
         "4. verify vp jwt" {
-            val res = AuditorService.verify(vpJwt, listOf(SignaturePolicy(), JsonSchemaPolicy()))
+            val res = Auditor.verify(vpJwt, listOf(SignaturePolicy(), JsonSchemaPolicy()))
 
             res.overallStatus shouldBe true
 

@@ -4,6 +4,8 @@ import com.beust.klaxon.Klaxon
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
+import id.walt.signatory.rest.IssueCredentialRequest
+import id.walt.signatory.rest.SignatoryRestAPI
 import id.walt.test.RESOURCES_PATH
 import id.walt.vclib.Helpers.encode
 import id.walt.vclib.vclist.Europass

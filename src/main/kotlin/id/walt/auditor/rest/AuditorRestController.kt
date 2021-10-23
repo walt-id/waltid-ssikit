@@ -1,10 +1,12 @@
-package id.walt.auditor
+package id.walt.auditor.rest
 
+import id.walt.auditor.PolicyRegistry
+import id.walt.auditor.VerificationPolicy
 import io.javalin.http.Context
 import io.javalin.plugin.openapi.dsl.document
 import org.apache.http.HttpStatus
 
-object AuditorController {
+object AuditorRestController {
 
     fun listPolicies(ctx: Context) {
         ctx.json(PolicyRegistry.listPolicies())
@@ -15,15 +17,9 @@ object AuditorController {
     }.json<Array<VerificationPolicy>>("200")
 
     fun verifyVP(ctx: Context) {
-
-        val policyList = ctx.queryParams("policyList").let { if (it.isNotEmpty()) {it[0].split(",").map { it.trim() }} else listOf() }
-        val policies = policyList.ifEmpty { listOf(PolicyRegistry.defaultPolicyId) }
-        if (policies.any { !PolicyRegistry.contains(it) }) {
-            ctx.status(HttpStatus.SC_BAD_REQUEST).result("Unknown policy given")
-        } else {
-            ctx.json(
-                AuditorService.verify(ctx.body(), policies.map { PolicyRegistry.getPolicy(it) })
-            )
+        when (val res = AuditorRestService.verifyVP(ctx.queryParams("policyList"), ctx.body())) {
+            null -> ctx.status(HttpStatus.SC_BAD_REQUEST).result("Unknown policy given")
+            else -> ctx.json(res)
         }
     }
 

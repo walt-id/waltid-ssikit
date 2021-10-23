@@ -14,7 +14,7 @@ import io.kotest.matchers.shouldBe
 class InMemoryVcStoreTests : StringSpec({
 
     ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
-    val custodian = CustodianService.getService()
+    val custodian = Custodian.getService()
     ServiceRegistry.registerService<VcStoreService>(InMemoryVcStoreService())
 
     val vc = Europass.template!!.invoke()

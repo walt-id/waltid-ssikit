@@ -2,12 +2,11 @@ package id.walt.cli
 
 import com.github.ajalt.clikt.core.PrintHelpMessage
 import id.walt.auditor.PolicyRegistry
-import id.walt.custodian.CustodianService
+import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
 import id.walt.services.vc.JsonLdCredentialService
-import id.walt.services.vc.JwtCredentialService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
@@ -53,7 +52,7 @@ class VcVerifyCommandTest : StringSpec({
         val vcJwt = Signatory.getService().issue(
             "VerifiableDiploma", ProofConfig(issuerDid = did, subjectDid = did, issuerVerificationMethod = "Ed25519Signature2018", proofType = ProofType.JWT)
         )
-        val vpJwt = CustodianService.getService().createPresentation(listOf(vcJwt), did, did, null ,"abcd")
+        val vpJwt = Custodian.getService().createPresentation(listOf(vcJwt), did, did, null ,"abcd")
         val vpFile = File.createTempFile("vpr", ".jwt")
         try {
             vpFile.writeText(vpJwt)

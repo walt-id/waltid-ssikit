@@ -7,7 +7,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
 import id.walt.auditor.AuditorRestAPI
 import id.walt.rest.essif.EssifAPI
-import id.walt.signatory.SignatoryRestAPI
+import id.walt.signatory.rest.SignatoryRestAPI
 import id.walt.rest.core.CoreAPI
 import id.walt.rest.custodian.CustodianAPI
 
@@ -33,7 +33,8 @@ class ServeCommand : CliktCommand(
 ) {
     private val apiPort: Int by option(help = "Core API port [${CoreAPI.DEFAULT_CORE_API_PORT}]", names = arrayOf("-p", "--port")).int().default(
         CoreAPI.DEFAULT_CORE_API_PORT)
-    private val signatoryPort: Int by option(help = "Signatory API port [${SignatoryRestAPI.SIGNATORY_API_PORT}]", names = arrayOf("-s", "--signatory-port")).int().default(SignatoryRestAPI.SIGNATORY_API_PORT)
+    private val signatoryPort: Int by option(help = "Signatory API port [${SignatoryRestAPI.SIGNATORY_API_PORT}]", names = arrayOf("-s", "--signatory-port")).int().default(
+        SignatoryRestAPI.SIGNATORY_API_PORT)
     private val custodianPort: Int by option(help = "Custodian API port [${CustodianAPI.DEFAULT_Custodian_API_PORT}]", names = arrayOf("-c", "--custodian-port")).int().default(
         CustodianAPI.DEFAULT_Custodian_API_PORT)
     private val auditorPort: Int by option(help = "Auditor API port [${AuditorRestAPI.AUDITOR_API_PORT}]", names = arrayOf("-a", "--auditor-port")).int().default(AuditorRestAPI.AUDITOR_API_PORT)

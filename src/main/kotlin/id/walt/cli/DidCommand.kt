@@ -64,7 +64,7 @@ class CreateDidCommand : CliktCommand(
         echo("DID document (below, JSON):\n\n$encodedDid")
 
         //TODO replace the following with
-        //CustodianService.getService().storeDid(did, didDoc)
+        //Custodian.getService().storeDid(did, didDoc)
 
         dest?.let {
             echo("\nSaving DID to file: ${it.absolutePath}")

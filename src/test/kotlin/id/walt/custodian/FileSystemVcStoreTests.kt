@@ -14,7 +14,7 @@ import io.kotest.matchers.shouldNotBe
 class FileSystemVcStoreTests : StringSpec({
 
     ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
-    val custodian = CustodianService.getService()
+    val custodian = Custodian.getService()
     ServiceRegistry.registerService<VcStoreService>(FileSystemVcStoreService())
 
     val vc = Europass.template!!.invoke()
