@@ -1,5 +1,6 @@
 package id.walt.signatory
 
+import com.beust.klaxon.Json
 import id.walt.servicematrix.BaseService
 import id.walt.servicematrix.ServiceConfiguration
 import id.walt.servicematrix.ServiceProvider
@@ -10,7 +11,7 @@ import id.walt.vclib.Helpers.encode
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.templates.VcTemplateManager
-import java.text.SimpleDateFormat
+import java.time.LocalDateTime
 import java.util.*
 
 // JWT are using the IANA types of signatures: alg=EdDSA oder ES256 oder ES256K oder RS256
@@ -30,18 +31,18 @@ enum class ProofType {
 
 data class ProofConfig(
     val issuerDid: String,
-    val subjectDid: String? = null,
-    val verifierDid: String? = null,
-    val issuerVerificationMethod: String? = null, // DID URL that defines key ID; if null the issuers' default key is used
+    @Json(serializeNull = false) val subjectDid: String? = null,
+    @Json(serializeNull = false) val verifierDid: String? = null,
+    @Json(serializeNull = false) val issuerVerificationMethod: String? = null, // DID URL that defines key ID; if null the issuers' default key is used
     val proofType: ProofType = ProofType.LD_PROOF,
-    val domain: String? = null,
-    val nonce: String? = null,
-    val proofPurpose: String? = null,
-    val credentialId: String? = null,
-    val issueDate: Date? = null, // issue date from json-input or current system time if null
-    val validDate: Date? = null, // valid date from json-input or current system time if null
-    val expirationDate: Date? = null,
-    val dataProviderIdentifier: String? = null // may be used for mapping data-sets from a custom data-provider
+    @Json(serializeNull = false) val domain: String? = null,
+    @Json(serializeNull = false) val nonce: String? = null,
+    @Json(serializeNull = false) val proofPurpose: String? = null,
+    @Json(serializeNull = false) val credentialId: String? = null,
+    @Json(serializeNull = false) val issueDate: LocalDateTime? = null, // issue date from json-input or current system time if null
+    @Json(serializeNull = false) val validDate: LocalDateTime? = null, // valid date from json-input or current system time if null
+    @Json(serializeNull = false) val expirationDate: LocalDateTime? = null,
+    @Json(serializeNull = false) val dataProviderIdentifier: String? = null // may be used for mapping data-sets from a custom data-provider
 )
 
 data class SignatoryConfig(
@@ -73,10 +74,9 @@ class WaltSignatory(configurationPath: String) : Signatory() {
 
     override fun issue(templateId: String, config: ProofConfig): String {
 
-        val currentDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(Date())
-
         // TODO: load proof-conf from signatory.conf and optionally substitute values on request basis
         val vcTemplate = VcTemplateManager.loadTemplate(templateId)
+
         val configDP = when (config.credentialId.isNullOrBlank()) {
             true -> ProofConfig(
                 issuerDid = config.issuerDid,
@@ -88,13 +88,14 @@ class WaltSignatory(configurationPath: String) : Signatory() {
                 nonce = config.nonce,
                 proofPurpose = config.proofPurpose,
                 config.credentialId ?: "identity#${templateId}#${UUID.randomUUID()}",
-                issueDate = config.issueDate ?: Date(),
-                validDate = config.validDate ?: Date(),
+                issueDate = config.issueDate ?: LocalDateTime.now(),
+                validDate = config.validDate ?: LocalDateTime.MAX,
                 expirationDate = config.expirationDate,
                 dataProviderIdentifier = config.dataProviderIdentifier
             )
             else -> config
         }
+
         val dataProvider = DataProviderRegistry.getProvider(vcTemplate::class) // vclib.getUniqueId(vcTemplate)
         val vcRequest = dataProvider.populate(vcTemplate, configDP)
 

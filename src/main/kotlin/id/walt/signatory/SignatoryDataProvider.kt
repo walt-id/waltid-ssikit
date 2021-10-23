@@ -4,7 +4,7 @@ import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.vclist.Europass
 import id.walt.vclib.vclist.VerifiableDiploma
 import id.walt.vclib.vclist.VerifiableId
-import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.reflect.KClass
 
@@ -12,7 +12,7 @@ interface SignatoryDataProvider {
     fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential
 }
 
-val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
+val dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
 
 class EuropassDataProvider : SignatoryDataProvider {
 
