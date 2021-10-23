@@ -65,6 +65,8 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:1.6.3")
     implementation("io.ktor:ktor-client-serialization:1.6.3")
     implementation("io.ktor:ktor-client-logging:1.6.3")
+    implementation("io.github.rybalkinsd", "kohttp", "0.12.0")
+
 
     // REST
     implementation("io.javalin:javalin-bundle:4.0.0")
