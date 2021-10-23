@@ -14,8 +14,6 @@ import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.*
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.maps.shouldContainKey
-import java.nio.file.Files
-import java.nio.file.Path
 import java.util.*
 
 class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
@@ -48,7 +46,7 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
         val credential = credentialService.sign(
             Europass().encode(),
             ProofConfig(
-                id = id,
+                credentialId = id,
                 issuerDid = issuerDid,
                 subjectDid = subjectDid,
                 issueDate = issueDate,

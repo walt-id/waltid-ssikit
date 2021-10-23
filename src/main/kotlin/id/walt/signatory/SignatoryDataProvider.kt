@@ -18,7 +18,7 @@ class EuropassDataProvider : SignatoryDataProvider {
 
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): Europass {
         val vc = template as Europass
-        vc.id = proofConfig.id
+        vc.id = proofConfig.credentialId
         vc.issuer = proofConfig.issuerDid
         vc.credentialSubject!!.id = proofConfig.subjectDid
 
@@ -31,7 +31,7 @@ class VerifiableIdDataProvider : SignatoryDataProvider {
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableId {
         val vc = template as VerifiableId
 
-        vc.id = proofConfig.id ?: "identity#verifiableID#${UUID.randomUUID()}"
+        vc.id = proofConfig.credentialId ?: "identity#verifiableID#${UUID.randomUUID()}"
         vc.issuer = proofConfig.issuerDid
         if (proofConfig.issueDate != null) vc.issuanceDate = dateFormat.format(proofConfig.issueDate)
         if (proofConfig.validDate != null) vc.validFrom = dateFormat.format(proofConfig.validDate)
@@ -49,7 +49,7 @@ class VerifiableDiplomaDataProvider : SignatoryDataProvider {
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableDiploma {
         val vc = template as VerifiableDiploma
 
-        vc.id = proofConfig.id ?: "education#higherEducation#${UUID.randomUUID()}"
+        vc.id = proofConfig.credentialId ?: "education#higherEducation#${UUID.randomUUID()}"
         vc.issuer = proofConfig.issuerDid
         if (proofConfig.issueDate != null) vc.issuanceDate = dateFormat.format(proofConfig.issueDate)
         if (proofConfig.validDate != null) vc.validFrom = dateFormat.format(proofConfig.validDate)

@@ -29,7 +29,7 @@ class VcIssueCommandTest : StringSpec({
         override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableAttestation =
             (template as VerifiableAttestation).apply {
                 issuer = "NEW ISSUER"
-                id = proofConfig.id ?: ""
+                id = proofConfig.credentialId ?: ""
             }
     })
 

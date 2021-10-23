@@ -32,7 +32,7 @@ abstract class CLIDataProvider : SignatoryDataProvider {
 class VerifiableDiplomaCLIDataProvider : CLIDataProvider() {
     override fun populate(vc: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
         vc as VerifiableDiploma
-        vc.id = proofConfig.id ?: "education#higherEducation#${UUID.randomUUID()}"
+        vc.id = proofConfig.credentialId ?: "education#higherEducation#${UUID.randomUUID()}"
         vc.issuer = proofConfig.issuerDid
         if (proofConfig.issueDate != null) vc.issuanceDate = dateFormat.format(proofConfig.issueDate)
         if (proofConfig.expirationDate != null) vc.expirationDate = dateFormat.format(proofConfig.expirationDate)

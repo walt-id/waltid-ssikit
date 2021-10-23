@@ -33,7 +33,7 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
         val issueDate = config.issueDate ?: Date()
         val validDate = config.validDate ?: Date()
         val jwtClaimsSet = JWTClaimsSet.Builder()
-            .jwtID(config.id)
+            .jwtID(config.credentialId)
             .issuer(issuerDid)
             .issueTime(issueDate)
             .notBeforeTime(validDate)
@@ -82,7 +82,7 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
         log.debug { "Creating a presentation for VCs:\n$vcs" }
 
         val id = "urn:uuid:${UUID.randomUUID()}"
-        val config = ProofConfig(issuerDid = holderDid, verifierDid = verifierDid, proofType = ProofType.JWT, nonce = challenge, id = id)
+        val config = ProofConfig(issuerDid = holderDid, verifierDid = verifierDid, proofType = ProofType.JWT, nonce = challenge, credentialId = id)
         val vpReqStr = VerifiablePresentation(verifiableCredential = vcs.map { it.toCredential() }).encode()
 
         log.trace { "VP request: $vpReqStr" }

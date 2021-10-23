@@ -1,13 +1,11 @@
 package id.walt.signatory
 
-import id.walt.custodian.CustodianService
 import id.walt.servicematrix.BaseService
 import id.walt.servicematrix.ServiceConfiguration
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.context.WaltContext
-import id.walt.services.vc.JwtCredentialService
 import id.walt.services.vc.JsonLdCredentialService
-import id.walt.services.vcstore.VcStoreService
+import id.walt.services.vc.JwtCredentialService
 import id.walt.vclib.Helpers.encode
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.model.VerifiableCredential
@@ -31,16 +29,16 @@ enum class ProofType {
 
 data class ProofConfig(
     val issuerDid: String,
-    val subjectDid: String? = null, // if null and ProofType.LD_PROOF -> subject DID from json-input
+    val subjectDid: String? = null,
     val verifierDid: String? = null,
-    val issuerVerificationMethod: String? = null, // DID URL => defines key type; if null and ProofType.LD_PROOF -> issuerDid default key
+    val issuerVerificationMethod: String? = null, // DID URL that defines key ID; if null the issuers' default key is used
     val proofType: ProofType = ProofType.LD_PROOF,
     val domain: String? = null,
     val nonce: String? = null,
     val proofPurpose: String? = null,
-    val id: String? = null, // if null and ProofType.LD_PROOF -> generated with UUID random value
-    val issueDate: Date? = null, // if null and ProofType.LD_PROOF -> issue date from json-input or now if null as well
-    val validDate: Date? = null, // if null and ProofType.LD_PROOF -> valid date from json-input or now if null as well
+    val credentialId: String? = null,
+    val issueDate: Date? = null, // issue date from json-input or current system time if null
+    val validDate: Date? = null, // valid date from json-input or current system time if null
     val expirationDate: Date? = null
 )
 
@@ -75,7 +73,7 @@ class WaltSignatory(configurationPath: String) : Signatory() {
 
         // TODO: load proof-conf from signatory.conf and optionally substitute values on request basis
         val vcTemplate = VcTemplateManager.loadTemplate(templateId)
-        val configDP = when (config.id.isNullOrBlank()) {
+        val configDP = when (config.credentialId.isNullOrBlank()) {
             true -> ProofConfig(
                 config.issuerDid, config.subjectDid, null, config.issuerVerificationMethod, config.proofType,
                 config.domain, config.nonce, config.proofPurpose,
@@ -91,7 +89,7 @@ class WaltSignatory(configurationPath: String) : Signatory() {
             ProofType.LD_PROOF -> JsonLdCredentialService.getService().sign(vcRequest.encode(), config)
             ProofType.JWT -> JwtCredentialService.getService().sign(vcRequest.encode(), config)
         }
-        WaltContext.vcStore.storeCredential(configDP.id!!, signedVc.toCredential(), VC_GROUP)
+        WaltContext.vcStore.storeCredential(configDP.credentialId!!, signedVc.toCredential(), VC_GROUP)
         return signedVc
     }
 
