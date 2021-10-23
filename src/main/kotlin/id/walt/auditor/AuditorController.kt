@@ -16,7 +16,7 @@ object AuditorController {
 
     fun verifyVP(ctx: Context) {
 
-        val policyList = ctx.queryParams("policyList")?.let { it[0].split(",").map { it.trim() } }
+        val policyList = ctx.queryParams("policyList").let { if (it.isNotEmpty()) {it[0].split(",").map { it.trim() }} else listOf() }
         val policies = policyList.ifEmpty { listOf(PolicyRegistry.defaultPolicyId) }
         if (policies.any { !PolicyRegistry.contains(it) }) {
             ctx.status(HttpStatus.SC_BAD_REQUEST).result("Unknown policy given")
