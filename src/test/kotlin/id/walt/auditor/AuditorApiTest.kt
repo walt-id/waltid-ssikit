@@ -56,12 +56,12 @@ class AuditorApiTest : AnnotationSpec() {
 
     @Test
     fun testListVerificationPolicies() = runBlocking {
-        val templates = client.get<List<VerificationPolicyMetadata>>("$Auditor_API_URL/v1/policies") {
+        val policies = client.get<List<VerificationPolicyMetadata>>("$Auditor_API_URL/v1/policies") {
             contentType(ContentType.Application.Json)
         }
 
-        templates shouldContain VerificationPolicyMetadata("Verify by signature", "SignaturePolicy")
-        templates shouldContain VerificationPolicyMetadata("Verify by JSON schema", "JsonSchemaPolicy")
+        policies shouldContain VerificationPolicyMetadata("Verify by signature", "SignaturePolicy")
+        policies shouldContain VerificationPolicyMetadata("Verify by JSON schema", "JsonSchemaPolicy")
     }
 
     @Test
@@ -69,7 +69,7 @@ class AuditorApiTest : AnnotationSpec() {
         val signatory = Signatory.getService()
         val did = DidService.create(DidMethod.key)
 
-        val uploadVc = signatory.issue(
+        val vcToVerify = signatory.issue(
             "VerifiableId", ProofConfig(
                 subjectDid = did,
                 issuerDid = did,
@@ -78,20 +78,19 @@ class AuditorApiTest : AnnotationSpec() {
             )
         )
 
-        val res = httpPost {
+        val verificationResultJson = httpPost {
             host = Auditor_API_URL.drop(Auditor_API_URL.indexOf("/") + 2).split(":").first()
             port = Auditor_API_PORT
             path = "/v1/verify"
 
             body {
-                json(uploadVc)
+                json(vcToVerify)
             }
         }.asString()!!
 
-        println(res)
+        println(verificationResultJson)
 
-        val vr = Klaxon().parse<VerificationResult>(res)!!
-
+        val vr = Klaxon().parse<VerificationResult>(verificationResultJson)!!
         vr.overallStatus shouldBe true
     }
 }
