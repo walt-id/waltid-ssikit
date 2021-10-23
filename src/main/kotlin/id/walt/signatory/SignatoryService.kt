@@ -10,6 +10,7 @@ import id.walt.vclib.Helpers.encode
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.templates.VcTemplateManager
+import java.text.SimpleDateFormat
 import java.util.*
 
 // JWT are using the IANA types of signatures: alg=EdDSA oder ES256 oder ES256K oder RS256
@@ -72,14 +73,25 @@ class WaltSignatory(configurationPath: String) : Signatory() {
 
     override fun issue(templateId: String, config: ProofConfig): String {
 
+        val currentDate = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(Date())
+
         // TODO: load proof-conf from signatory.conf and optionally substitute values on request basis
         val vcTemplate = VcTemplateManager.loadTemplate(templateId)
         val configDP = when (config.credentialId.isNullOrBlank()) {
             true -> ProofConfig(
-                config.issuerDid, config.subjectDid, null, config.issuerVerificationMethod, config.proofType,
-                config.domain, config.nonce, config.proofPurpose,
-                "identity#${templateId}#${UUID.randomUUID()}",
-                config.issueDate, config.expirationDate
+                issuerDid = config.issuerDid,
+                subjectDid = config.subjectDid,
+                null,
+                issuerVerificationMethod = config.issuerVerificationMethod,
+                proofType = config.proofType,
+                domain = config.domain,
+                nonce = config.nonce,
+                proofPurpose = config.proofPurpose,
+                config.credentialId ?: "identity#${templateId}#${UUID.randomUUID()}",
+                issueDate = config.issueDate ?: Date(),
+                validDate = config.validDate ?: Date(),
+                expirationDate = config.expirationDate,
+                dataProviderIdentifier = config.dataProviderIdentifier
             )
             else -> config
         }
