@@ -43,9 +43,13 @@ class SignaturePolicy : VerificationPolicy {
     override val description: String = "Verify by signature"
 
     override fun verify(vc: VerifiableCredential): Boolean {
-        return DidService.importKey(VcUtils.getIssuer(vc)) && when (vc.jwt) {
-            null -> jsonLdCredentialService.verify(vc.json!!).verified
-            else -> jwtCredentialService.verify(vc.jwt!!).verified
+        return try {
+            DidService.importKey(VcUtils.getIssuer(vc)) && when (vc.jwt) {
+                null -> jsonLdCredentialService.verify(vc.json!!).verified
+                else -> jwtCredentialService.verify(vc.jwt!!).verified
+            }
+        } catch (e: Exception) {
+            false
         }
     }
 }
