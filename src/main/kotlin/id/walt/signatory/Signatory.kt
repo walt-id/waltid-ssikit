@@ -11,6 +11,7 @@ import id.walt.vclib.Helpers.encode
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.templates.VcTemplateManager
+import mu.KotlinLogging
 import java.time.LocalDateTime
 import java.util.*
 
@@ -72,6 +73,8 @@ class WaltSignatory(configurationPath: String) : Signatory() {
     private val VC_GROUP = "signatory"
     override val configuration: SignatoryConfig = fromConfiguration(configurationPath)
 
+    private val log = KotlinLogging.logger {}
+
     override fun issue(templateId: String, config: ProofConfig): String {
 
         // TODO: load proof-conf from signatory.conf and optionally substitute values on request basis
@@ -99,10 +102,13 @@ class WaltSignatory(configurationPath: String) : Signatory() {
         val dataProvider = DataProviderRegistry.getProvider(vcTemplate::class) // vclib.getUniqueId(vcTemplate)
         val vcRequest = dataProvider.populate(vcTemplate, configDP)
 
+        log.info { "Signing credential with proof using ${config.proofType.name}..." }
+        log.debug { "Signing credential with proof using ${config.proofType.name}, credential is: $vcRequest" }
         val signedVc = when (config.proofType) {
             ProofType.LD_PROOF -> JsonLdCredentialService.getService().sign(vcRequest.encode(), config)
             ProofType.JWT -> JwtCredentialService.getService().sign(vcRequest.encode(), config)
         }
+        log.debug { "Signed VC is: $signedVc" }
         WaltContext.vcStore.storeCredential(configDP.credentialId!!, signedVc.toCredential(), VC_GROUP)
         return signedVc
     }
