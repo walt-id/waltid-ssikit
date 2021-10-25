@@ -30,8 +30,6 @@ import kotlin.io.path.readText
 
 private val log = KotlinLogging.logger {}
 
-private val credentialService = JsonLdCredentialService.getService()
-
 class VcCommand : CliktCommand(
     name = "vc",
     help = """Verifiable Credentials (VCs).
