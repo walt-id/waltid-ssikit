@@ -47,6 +47,7 @@ dependencies {
     // JSON
     implementation("org.json:json:20210307")
     implementation("com.beust:klaxon:5.5")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.0")
     //implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
 
     // DB
