@@ -1,5 +1,6 @@
 package id.walt.signatory
 
+import deltadao.GaiaxCredential
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.vclist.VerifiableDiploma
 import java.util.*
@@ -8,6 +9,7 @@ object CLIDataProviders {
     fun getCLIDataProviderFor(templateId: String): SignatoryDataProvider? {
         return when(templateId) {
             "VerifiableDiploma" -> VerifiableDiplomaCLIDataProvider()
+            "GaiaxCredential" -> GaiaxCLIDataProvider()
             else -> null
         }
     }
@@ -102,6 +104,67 @@ class VerifiableDiplomaCLIDataProvider : CLIDataProvider() {
             }
         }
        
+        return template
+    }
+}
+
+class GaiaxCLIDataProvider : CLIDataProvider() {
+    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
+        template as GaiaxCredential
+
+        template.apply {
+            println()
+            println("> Subject information")
+            println()
+            credentialSubject.apply {
+                legallyBindingName = prompt("Legally binding name", "deltaDAO AG") ?: ""
+                brandName = prompt("Brand name", "deltaDAO") ?: ""
+                legalRegistrationNumber = prompt("Legal registration number", "HRB 170364") ?: ""
+                corporateEmailAddress = prompt("Corporate email address", "contact@delta-dao.com") ?: ""
+                individualContactLegal = prompt("Individual contact legal", "legal@delta-dao.com") ?: ""
+                individualContactTechnical = prompt("Individual contact technical", "support@delta-dao.com") ?: ""
+                legalForm = prompt("Legal form", "Stock Company") ?: ""
+                jurisdiction = prompt("Jurisdiction", "Germany") ?: ""
+                trustState = prompt("Trust state", "trusted") ?: ""
+
+                println()
+                println("Legally binding address")
+                println("----------------------")
+                legallyBindingAddress.apply {
+                    streetAddress = prompt("Street address", "Geibelstr. 46B") ?: ""
+                    postalCode = prompt("Postal code", "22303") ?: ""
+                    locality = prompt("Locality", "Hamburg") ?: ""
+                    countryName = prompt("Country", "Germany") ?: ""
+                }
+
+                println()
+                println("Web address")
+                println("----------------------")
+                webAddress.apply {
+                    url = prompt("Web address URL", "https://www.delta-dao.com/") ?: ""
+                }
+
+                println()
+                println("Commercial register")
+                println("----------------------")
+                commercialRegister.apply {
+                    organizationName = prompt("Organization name", "Amtsgericht Hamburg (-Mitte)") ?: ""
+                    organizationUnit = prompt("Organization unit", "Registergericht") ?: ""
+                    streetAddress = prompt("Street address", "Caffamacherreihe 20") ?: ""
+                    postalCode = prompt("Postal code", "20355") ?: ""
+                    locality = prompt("Locality", "Hamburg") ?: ""
+                    countryName = prompt("Country name", "Germany") ?: ""
+                }
+
+                println()
+                println("Etherium address")
+                println("----------------------")
+                ethereumAddress.apply {
+                    id = prompt("Id", "0x4C84a36fCDb7Bc750294A7f3B5ad5CA8F74C4A52") ?: ""
+                }
+            }
+        }
+
         return template
     }
 }
