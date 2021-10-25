@@ -8,8 +8,12 @@ import id.walt.vclib.registry.VerifiableCredentialMetadata
 data class GaiaxCredential(
     @Json(name = "@context")
     var context: List<String> = listOf("https://www.w3.org/2018/credentials/v1"),
+    override var id: String?,
+    var issuer: String,
+    @Json(serializeNull = false) var issuanceDate: String? = null,
+    @Json(serializeNull = false) var validFrom: String? = null,
+    @Json(serializeNull = false) var expirationDate: String? = null,
     @Json(serializeNull = false) var credentialSubject: CustomCredentialSubject,
-    @Json(serializeNull = false) var issuer: String? = null,
     @Json(serializeNull = false) var proof: Proof? = null,
 ) : VerifiableCredential(type) {
     data class CustomCredentialSubject(
@@ -56,6 +60,9 @@ data class GaiaxCredential(
         type = listOf("VerifiableCredential", "GaiaxCredential"),
         template = {
             GaiaxCredential(
+                id = "did:ebsi-eth:00000001/credentials/1872",
+                issuer = "did:example:456",
+                issuanceDate = "2020-08-24T14:13:44Z",
                 credentialSubject = CustomCredentialSubject(
                     legallyBindingName = "deltaDAO AG",
                     brandName = "deltaDAO",
@@ -86,19 +93,8 @@ data class GaiaxCredential(
                         id = "0x4C84a36fCDb7Bc750294A7f3B5ad5CA8F74C4A52"
                     ),
                     trustState = "trusted"
-                ),
-                issuer = "did:example:456",
-                proof = Proof(
-                    "Ed25519Signature2018",
-                    "2020-04-22T10:37:22Z",
-                    "assertionMethod",
-                    "did:example:456#key-1",
-                    "eyJjcml0IjpbImI2NCJdLCJiNjQiOmZhbHNlLCJhbGciOiJFZERTQSJ9..BhWew0x-txcroGjgdtK-yBCqoetg9DD9SgV4245TmXJi-PmqFzux6Cwaph0r-mbqzlE17yLebjfqbRT275U1AA"
                 )
             )
         }
     )
-
-    @Json(serializeNull = false)
-    override var id: String? = null
 }
