@@ -12,7 +12,7 @@ object SignatoryController {
     val signatory = Signatory.getService()
 
     fun listTemplates(ctx: Context) {
-        ctx.json(Signatory.getService().listTemplates())
+        ctx.json(signatory.listTemplates())
     }
 
     fun listTemplatesDocs() = document().operation {
@@ -29,6 +29,10 @@ object SignatoryController {
 
     fun issueCredential(ctx: Context) {
         val req = ctx.bodyAsClass<IssueCredentialRequest>()
+        if (!signatory.listTemplates().contains(req.templateId)) {
+            ctx.status(404).result("Template with supplied id does not exist.")
+            return
+        }
 
         ctx.result(signatory.issue(req.templateId, req.config))
     }

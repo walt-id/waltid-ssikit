@@ -4,6 +4,8 @@ import cc.vileda.openapi.dsl.components
 import cc.vileda.openapi.dsl.externalDocs
 import cc.vileda.openapi.dsl.info
 import cc.vileda.openapi.dsl.securityScheme
+import com.beust.klaxon.Klaxon
+import com.fasterxml.jackson.databind.ObjectMapper
 import id.walt.Values
 import id.walt.rest.ErrorResponse
 import id.walt.rest.OpenAPIUtils.documentedIgnored
@@ -11,6 +13,8 @@ import id.walt.rest.RootController
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.core.util.RouteOverviewPlugin
+import io.javalin.plugin.json.JavalinJackson
+import io.javalin.plugin.json.JsonMapper
 import io.javalin.plugin.openapi.InitialConfigurationCreator
 import io.javalin.plugin.openapi.OpenApiOptions
 import io.javalin.plugin.openapi.OpenApiPlugin
@@ -79,6 +83,20 @@ object SignatoryRestAPI {
                     swagger(SwaggerOptions("/v1/swagger").title("walt.id Signatory API"))
                     reDoc(ReDocOptions("/v1/redoc").title("walt.id Signatory API"))
                 }))
+
+                val mapper: ObjectMapper = com.fasterxml.jackson.databind.json.JsonMapper.builder()
+                    .findAndAddModules()
+                    .build()
+
+                this.jsonMapper(object : JsonMapper {
+                    override fun toJsonString(obj: Any): String {
+                        return Klaxon().toJsonString(obj)
+                    }
+
+                    override fun <T : Any?> fromJsonString(json: String, targetClass: Class<T>): T {
+                        return JavalinJackson(mapper).fromJsonString(json, targetClass)
+                    }
+                })
 
             }
 
