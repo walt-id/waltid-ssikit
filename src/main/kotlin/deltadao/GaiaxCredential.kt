@@ -8,47 +8,47 @@ import id.walt.vclib.registry.VerifiableCredentialMetadata
 data class GaiaxCredential(
     @Json(name = "@context")
     var context: List<String> = listOf("https://www.w3.org/2018/credentials/v1"),
-    @Json(serializeNull = false) var credentialSubject: CustomCredentialSubject? = null,
+    @Json(serializeNull = false) var credentialSubject: CustomCredentialSubject,
     @Json(serializeNull = false) var issuer: String? = null,
     @Json(serializeNull = false) var proof: Proof? = null,
 ) : VerifiableCredential(type) {
     data class CustomCredentialSubject(
-        val legallyBindingName: String, // deltaDAO AG
-        val brandName: String, // deltaDAO
-        val legallyBindingAddress: LegallyBindingAddress,
-        val webAddress: WebAddress,
-        val corporateEmailAddress: String, // contact@delta-dao.com
-        val individualContactLegal: String, // legal@delta-dao.com
-        val individualContactTechnical: String, // support@delta-dao.com
-        val legalForm: String, // Stock Company
-        val jurisdiction: String, // Germany
-        val commercialRegister: CommercialRegister,
-        val legalRegistrationNumber: String, // HRB 170364
-        val ethereumAddress: EthereumAddress,
-        val trustState: String // trusted
+        var legallyBindingName: String, // deltaDAO AG
+        var brandName: String, // deltaDAO
+        var legallyBindingAddress: LegallyBindingAddress,
+        var webAddress: WebAddress,
+        var corporateEmailAddress: String, // contact@delta-dao.com
+        var individualContactLegal: String, // legal@delta-dao.com
+        var individualContactTechnical: String, // support@delta-dao.com
+        var legalForm: String, // Stock Company
+        var jurisdiction: String, // Germany
+        var commercialRegister: CommercialRegister,
+        var legalRegistrationNumber: String, // HRB 170364
+        var ethereumAddress: EthereumAddress,
+        var trustState: String // trusted
     ) {
         data class LegallyBindingAddress(
-            val streetAddress: String, // Geibelstr. 46B
-            val postalCode: String, // 22303
-            val locality: String, // Hamburg
-            val countryName: String // Germany
+            var streetAddress: String, // Geibelstr. 46B
+            var postalCode: String, // 22303
+            var locality: String, // Hamburg
+            var countryName: String // Germany
         )
 
         data class WebAddress(
-            val url: String // https://www.delta-dao.com/
+            var url: String // https://www.delta-dao.com/
         )
 
         data class CommercialRegister(
-            val organizationName: String, // Amtsgericht Hamburg (-Mitte)
-            val organizationUnit: String, // Registergericht
-            val streetAddress: String, // Caffamacherreihe 20
-            val postalCode: String, // 20355
-            val locality: String, // Hamburg
-            val countryName: String // Germany
+            var organizationName: String, // Amtsgericht Hamburg (-Mitte)
+            var organizationUnit: String, // Registergericht
+            var streetAddress: String, // Caffamacherreihe 20
+            var postalCode: String, // 20355
+            var locality: String, // Hamburg
+            var countryName: String // Germany
         )
 
         data class EthereumAddress(
-            val id: String // 0x4C84a36fCDb7Bc750294A7f3B5ad5CA8F74C4A52
+            var id: String // 0x4C84a36fCDb7Bc750294A7f3B5ad5CA8F74C4A52
         )
     }
 
