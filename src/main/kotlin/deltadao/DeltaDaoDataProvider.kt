@@ -17,7 +17,8 @@ class DeltaDaoDataProvider : SignatoryDataProvider {
             template.apply {
                 id = "identity#verifiableID#${UUID.randomUUID()}"
                 issuer = proofConfig.issuerDid
-                credentialSubject?.apply {
+                credentialSubject.apply {
+                    if (proofConfig.subjectDid != null) id = proofConfig.subjectDid
                     legallyBindingName = "deltaDAO AG"
                     brandName = "deltaDAO"
                     legallyBindingAddress = GaiaxCredential.CustomCredentialSubject.LegallyBindingAddress(

@@ -17,6 +17,7 @@ data class GaiaxCredential(
     @Json(serializeNull = false) var proof: Proof? = null,
 ) : VerifiableCredential(type) {
     data class CustomCredentialSubject(
+        var id: String, // did:key
         var legallyBindingName: String, // deltaDAO AG
         var brandName: String, // deltaDAO
         var legallyBindingAddress: LegallyBindingAddress,
@@ -64,6 +65,7 @@ data class GaiaxCredential(
                 issuer = "did:example:456",
                 issuanceDate = "2020-08-24T14:13:44Z",
                 credentialSubject = CustomCredentialSubject(
+                    id = "did:key:dummy",
                     legallyBindingName = "deltaDAO AG",
                     brandName = "deltaDAO",
                     legallyBindingAddress = CustomCredentialSubject.LegallyBindingAddress(

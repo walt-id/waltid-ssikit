@@ -8,7 +8,6 @@ import id.walt.services.crypto.CryptoService
 import id.walt.services.did.DidService
 import id.walt.services.essif.EssifClient
 import id.walt.services.hkvstore.HKVKey
-import id.walt.services.hkvstore.HKVStoreService
 import id.walt.services.key.KeyService
 import io.ktor.client.request.*
 import io.ktor.http.*
@@ -42,11 +41,12 @@ open class WaltIdDidEbsiService : DidEbsiService() {
         DidResponse
 
     override fun registerDid(did: String, ethKeyAlias: String) = runBlocking {
-        log.debug { "Running EBSI DID registration ... " }
+        log.debug { "Running EBSI DID registration... " }
         //TODO run auth-flow, if file is not present
         //TODO re-run auth-flow, if token is expired -> io.ktor.client.features.ClientRequestException: Client request(https://api.preprod.ebsi.eu/did-registry/v2/jsonrpc) invalid: 401 Unauthorized. Text: "{"title":"Unauthorized","status":401,"type":"about:blank","detail":"Invalid JWT: JWT has expired: exp: 1623244001 < now: 1623245358"}"
         // val token = readWhenContent(EssifClient.ebsiAccessTokenFile)
-        val token = WaltContext.hkvStore.getAsString(HKVKey("ebsi", did.substringAfterLast(":"), EssifClient.ebsiAccessTokenFile))!!
+        val token =
+            WaltContext.hkvStore.getAsString(HKVKey("ebsi", did.substringAfterLast(":"), EssifClient.ebsiAccessTokenFile))!!
 
         // Insert DID document request
         val insertDocumentParams = buildInsertDocumentParams(did, ethKeyAlias)

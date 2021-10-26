@@ -116,7 +116,9 @@ class GaiaxCLIDataProvider : CLIDataProvider() {
             println()
             println("> Subject information")
             println()
+            issuer = proofConfig.issuerDid
             credentialSubject.apply {
+                if (proofConfig.subjectDid != null) id = proofConfig.subjectDid
                 legallyBindingName = prompt("Legally binding name", "deltaDAO AG") ?: ""
                 brandName = prompt("Brand name", "deltaDAO") ?: ""
                 legalRegistrationNumber = prompt("Legal registration number", "HRB 170364") ?: ""

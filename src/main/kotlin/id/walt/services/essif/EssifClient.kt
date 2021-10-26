@@ -1,6 +1,5 @@
 package id.walt.services.essif
 
-import mu.KotlinLogging
 import id.walt.common.readEssifBearerToken
 import id.walt.services.WaltIdServices
 import id.walt.services.context.WaltContext
@@ -9,7 +8,7 @@ import id.walt.services.essif.enterprisewallet.EnterpriseWalletService
 import id.walt.services.essif.mock.RelyingParty
 import id.walt.services.essif.userwallet.UserWalletService
 import id.walt.services.hkvstore.HKVKey
-import id.walt.services.hkvstore.HKVStoreService
+import mu.KotlinLogging
 import java.io.File
 
 
@@ -76,7 +75,10 @@ object EssifClient {
         log.debug { "Verifiable Authorization received:\n${verifiableAuthorization}" }
 
 
-        WaltContext.hkvStore.put(HKVKey("ebsi", did.substringAfterLast(":"), verifiableAuthorizationFile), verifiableAuthorization)
+        WaltContext.hkvStore.put(
+            HKVKey("ebsi", did.substringAfterLast(":"), verifiableAuthorizationFile),
+            verifiableAuthorization
+        )
 
 
         ///////////////////////////////////////////////////////////////////////////
@@ -248,19 +250,18 @@ object EssifClient {
     }
 
     fun registerDid(did: String, ethKeyAlias: String) {
-        val maxTries = 3
-        for (i in 1..maxTries) {
+        val maxTries = 6
+
+        for (i in 1 until maxTries) {
             try {
-                didEbsiService.registerDid(did, ethKeyAlias)
-                break
-            }catch (e: Exception) {
-                log.debug { "Trying register DID EBSI failed (fail count: $i)" }
+                return didEbsiService.registerDid(did, ethKeyAlias)
+            } catch (e: Exception) {
+                log.debug { "Trying register DID EBSI failed (fail count: $i): did=$did, ethKeyAlias=$ethKeyAlias" }
                 log.debug { e }
-                if (i == maxTries) {
-                    throw e
-                }
             }
         }
+
+        throw Exception("Could not register DID (after $maxTries tries to contact EBSI)!")
     }
 
     // https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/VC-Issuance+Flow

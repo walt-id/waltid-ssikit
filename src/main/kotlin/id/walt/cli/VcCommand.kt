@@ -13,7 +13,6 @@ import id.walt.auditor.Auditor
 import id.walt.auditor.PolicyRegistry
 import id.walt.common.prettyPrint
 import id.walt.custodian.Custodian
-import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.*
 import id.walt.vclib.Helpers.encode
 import id.walt.vclib.Helpers.toCredential
@@ -98,7 +97,7 @@ class VcIssueCommand : CliktCommand(
         echo("⇓ issued a \"$template\" to ⇓")
         echo("Holder \"$subjectDid\"")
 
-        echo("Credential document (below, JSON):\n\n$vcStr")
+        echo("\nCredential document (below, JSON):\n\n$vcStr")
 
         dest?.run {
             log.debug { "Writing VC to DEST file $dest" }
@@ -187,9 +186,6 @@ class VerifyVcCommand : CliktCommand(
             )
         }
 
-
-        echo("\nResults:\n")
-
 //        val type = when (verificationResult.verificationType) {
 //            VerificationType.VERIFIABLE_PRESENTATION -> "verifiable presentation"
 //            VerificationType.VERIFIABLE_CREDENTIAL -> "verifiable credential"
@@ -203,6 +199,8 @@ class VerifyVcCommand : CliktCommand(
 //        )
 
         val verificationResult = Auditor.verify(src.readText(), policies.map { PolicyRegistry.getPolicy(it) })
+
+        echo("\nResults:\n")
 
         verificationResult.policyResults.forEach { (policy, result) ->
             echo("$policy:\t\t $result")
