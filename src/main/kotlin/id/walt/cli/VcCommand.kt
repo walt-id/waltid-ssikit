@@ -59,10 +59,18 @@ class VcIssueCommand : CliktCommand(
     val dest: File? by argument().file().optional()
     val template: String by option("-t", "--template", help = "VC template [VerifiableDiploma]").default("VerifiableDiploma")
     val issuerDid: String by option("-i", "--issuer-did", help = "DID of the issuer (associated with signing key)").required()
-    val issuerVerificationMethod: String? by option("-v", "--issuer-verification-method", help = "KeyId of the issuers' signing key")
+    val issuerVerificationMethod: String? by option(
+        "-v",
+        "--issuer-verification-method",
+        help = "KeyId of the issuers' signing key"
+    )
     val subjectDid: String by option("-s", "--subject-did", help = "DID of the VC subject (receiver of VC)").required()
-    val proofType: ProofType by option("-p", "--proof-type", help = "Proof type to be used [LD_PROOF]").enum<ProofType>().default(ProofType.LD_PROOF)
-    val interactive: Boolean by option("--interactive", help = "Interactively prompt for VC data to fill in").flag(default = false)
+    val proofType: ProofType by option("-p", "--proof-type", help = "Proof type to be used [LD_PROOF]").enum<ProofType>()
+        .default(ProofType.LD_PROOF)
+    val interactive: Boolean by option(
+        "--interactive",
+        help = "Interactively prompt for VC data to fill in"
+    ).flag(default = false)
 
     private val signatory = Signatory.getService()
 
@@ -76,14 +84,23 @@ class VcIssueCommand : CliktCommand(
             val templ = VcTemplateManager.loadTemplate(template)
             DataProviderRegistry.register(templ::class, cliDataProvider)
         }
-        echo("Issuing a verifiable credential (using template ${template})")
+        echo("Issuing a verifiable credential (using template ${template})...")
 
         // Loading VC template
-        log.debug { "Loading credential template: ${template}" }
+        log.debug { "Loading credential template: $template" }
 
-        val vcStr = signatory.issue(template, ProofConfig(issuerDid, subjectDid, "Ed25519Signature2018", issuerVerificationMethod, proofType))
+        val vcStr = signatory.issue(
+            template,
+            ProofConfig(issuerDid, subjectDid, "Ed25519Signature2018", issuerVerificationMethod, proofType)
+        )
 
-        echo("Generated Credential:\n\n$vcStr")
+        echo("\nResults:\n")
+
+        echo("Issuer \"$issuerDid\"")
+        echo("⇓ issued a \"$template\" to ⇓")
+        echo("Holder \"$subjectDid\"")
+
+        echo("Credential document (below, JSON):\n\n$vcStr")
 
         dest?.run {
             log.debug { "Writing VC to DEST file $dest" }
@@ -123,8 +140,9 @@ class PresentVcCommand : CliktCommand(
     val challenge: String? by option("-c", "--challenge", help = "Challenge to be used in the LD proof")
 
     override fun run() {
-        echo("Creating verifiable presentation from files:")
-        src.forEach { vc -> echo("- $vc") }
+        echo("Creating a verifiable presentation for DID \"$holderDid\"...")
+        echo("Using ${src.size} ${if (src.size > 1) "VCs" else "VC"}:")
+        src.forEachIndexed { index, vc -> echo("- ${index + 1}. $vc (${vc.readText().toCredential().type.last()})") }
 
         val vcStrList = src.stream().map { vc -> vc.readText() }.collect(Collectors.toList())
 
@@ -133,11 +151,15 @@ class PresentVcCommand : CliktCommand(
 
         log.debug { "Presentation created:\n$vp" }
 
+        echo("\nResults:\n")
+        echo("Verifiable presentation generated for holder DID: \"$holderDid\"")
+        echo("Verifiable presentation document (below, JSON):\n\n$vp")
+
         // Storing VP
         val vpFileName = "data/vc/presented/vp-${Timestamp.valueOf(LocalDateTime.now()).time}.json"
         log.debug { "Writing VP to file $vpFileName" }
         File(vpFileName).writeText(vp)
-        echo("\nSaved verifiable presentation to: \"$vpFileName\"")
+        echo("\nVerifiable presentation was saved to file: \"$vpFileName\"")
     }
 }
 
@@ -158,16 +180,15 @@ class VerifyVcCommand : CliktCommand(
     ).multiple(default = listOf(PolicyRegistry.defaultPolicyId))
 
     override fun run() {
-        echo("Verifying from file $src ...\n")
+        echo("Verifying from file \"$src\"...\n")
 
-        if (!src.exists()) {
-            throw Exception("Could not load file $src")
-        }
-        if (policies.any { !PolicyRegistry.contains(it) }) {
-            throw Exception("Unknown verification policy specified")
+        when {
+            !src.exists() -> throw Exception("Could not load file: \"$src\".")
+            policies.any { !PolicyRegistry.contains(it) } -> throw Exception(
+                "Unknown verification policy specified: ${policies.minus(PolicyRegistry.listPolicies()).joinToString()}"
+            )
         }
 
-        val verificationResult = Auditor.verify(src.readText(), policies.map { PolicyRegistry.getPolicy(it) })
 
         echo("\nResults:\n")
 
@@ -183,6 +204,8 @@ class VerifyVcCommand : CliktCommand(
 //            }
 //        )
 
+        val verificationResult = Auditor.verify(src.readText(), policies.map { PolicyRegistry.getPolicy(it) })
+
         verificationResult.policyResults.forEach { (policy, result) ->
             echo("$policy:\t\t $result")
         }
@@ -195,8 +218,8 @@ class ListVerificationPoliciesCommand : CliktCommand(
     help = "List verification policies"
 ) {
     override fun run() {
-        PolicyRegistry.listPolicies().forEach { verificationPolicy ->
-            echo("${verificationPolicy.id}: ${verificationPolicy.description}")
+        PolicyRegistry.listPolicies().forEachIndexed { index, verificationPolicy ->
+            echo("- ${index + 1}. ${verificationPolicy.id}: ${verificationPolicy.description}")
         }
     }
 }

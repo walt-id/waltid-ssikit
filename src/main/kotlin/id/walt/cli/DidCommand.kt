@@ -103,14 +103,16 @@ class ResolveDidCommand : CliktCommand(
 
         val encodedDid = resolveDidHelper(did, raw)
 
-        echo("\nResult:\n")
+        echo("\nResults:\n")
+        echo("DID resolved: \"$did\"")
+        echo("DID document (below, JSON):\n")
 
         echo(encodedDid)
 
         val didFileName = "${did.replace(":", "-").replace(".", "_")}.json"
         val destFile = File(config.dataDir + "/did/resolved/" + didFileName)
-        echo("\nSaving DID to file: ${destFile.absolutePath}")
         destFile.writeText(encodedDid)
+        echo("\nDID document was saved to file: ${destFile.absolutePath}")
     }
 }
 
