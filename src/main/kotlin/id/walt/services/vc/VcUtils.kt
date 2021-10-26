@@ -3,8 +3,12 @@ package id.walt.services.vc
 import com.nimbusds.jwt.SignedJWT
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.vclist.*
+import java.text.SimpleDateFormat
+import java.util.*
 
 object VcUtils {
+
+    private val dateFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
 
     fun getIssuer(vcObj: VerifiableCredential): String = when (vcObj) {
         is Europass -> vcObj.issuer!!
@@ -32,4 +36,16 @@ object VcUtils {
         else -> ""
     }
 
+    fun getIssuanceDate(vc: VerifiableCredential): Date? {
+        val dateString = when (vc) {
+            is Europass -> vc.issuanceDate
+            is VerifiableId -> vc.issuanceDate
+            is VerifiableDiploma -> vc.issuanceDate
+            is UniversityDegree -> vc.issuanceDate
+            is VerifiableAttestation -> vc.issuanceDate
+            is VerifiableAuthorization -> vc.issuanceDate
+            else -> ""
+        }
+        return try { dateFormatter.parse(dateString) } catch (e: Exception) { null }
+    }
 }

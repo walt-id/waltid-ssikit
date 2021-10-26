@@ -33,7 +33,7 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
 
         val issuerDid = config.issuerDid
         val issueDate = config.issueDate ?: LocalDateTime.now()
-        val validDate = config.validDate ?: LocalDateTime.now().plusDays(5)
+        val validDate = config.validDate ?: LocalDateTime.now()
         val jwtClaimsSet = JWTClaimsSet.Builder()
             .jwtID(config.credentialId)
             .issuer(issuerDid)

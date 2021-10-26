@@ -12,6 +12,8 @@ import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.vclist.VerifiablePresentation
 import kotlinx.serialization.Serializable
 import mu.KotlinLogging
+import java.util.*
+import kotlin.collections.LinkedHashMap
 
 // the following validation policies can be applied
 // - SIGNATURE
@@ -122,6 +124,16 @@ class TrustedSubjectDidPolicy : VerificationPolicy {
     }
 }
 
+class IssuanceDateBeforePolicy : VerificationPolicy {
+    override val description: String = "Verify by issuance date"
+    override fun verify(vc: VerifiableCredential): Boolean {
+        return when (vc) {
+            is VerifiablePresentation -> true
+            else -> VcUtils.getIssuanceDate(vc).let { it != null && it.before(Date()) }
+        }
+    }
+}
+
 object PolicyRegistry {
     private val policies = LinkedHashMap<String, VerificationPolicy>()
     val defaultPolicyId: String
@@ -136,9 +148,10 @@ object PolicyRegistry {
         defaultPolicyId = sigPol.id
         register(sigPol)
         register(JsonSchemaPolicy())
-        register(TrustedSubjectDidPolicy())
         register(TrustedIssuerDidPolicy())
         register(TrustedIssuerRegistryPolicy())
+        register(TrustedSubjectDidPolicy())
+        register(IssuanceDateBeforePolicy())
     }
 }
 
