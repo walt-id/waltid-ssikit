@@ -134,6 +134,16 @@ class IssuanceDateBeforePolicy : VerificationPolicy {
     }
 }
 
+class ValidFromBeforePolicy : VerificationPolicy {
+    override val description: String = "Verify by valid from"
+    override fun verify(vc: VerifiableCredential): Boolean {
+        return when (vc) {
+            is VerifiablePresentation -> true
+            else -> VcUtils.getValidFrom(vc).let { it != null && it.before(Date()) }
+        }
+    }
+}
+
 object PolicyRegistry {
     private val policies = LinkedHashMap<String, VerificationPolicy>()
     val defaultPolicyId: String
@@ -152,6 +162,7 @@ object PolicyRegistry {
         register(TrustedIssuerRegistryPolicy())
         register(TrustedSubjectDidPolicy())
         register(IssuanceDateBeforePolicy())
+        register(ValidFromBeforePolicy())
     }
 }
 

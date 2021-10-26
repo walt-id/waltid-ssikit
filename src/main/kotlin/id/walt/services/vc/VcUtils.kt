@@ -48,4 +48,16 @@ object VcUtils {
         }
         return try { dateFormatter.parse(dateString) } catch (e: Exception) { null }
     }
+
+    fun getValidFrom(vc: VerifiableCredential): Date? {
+        val dateString = when (vc) {
+            is Europass -> vc.validFrom
+            is VerifiableId -> vc.validFrom
+            is VerifiableDiploma -> vc.validFrom
+            is VerifiableAttestation -> vc.validFrom
+            is VerifiableAuthorization -> vc.validFrom
+            else -> ""
+        }
+        return try { dateFormatter.parse(dateString) } catch (e: Exception) { null }
+    }
 }
