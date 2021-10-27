@@ -36,8 +36,7 @@ object VcUtils {
         else -> ""
     }
 
-    fun getIssuanceDate(vc: VerifiableCredential): Date? {
-        val dateString = when (vc) {
+    fun getIssuanceDate(vc: VerifiableCredential) = when (vc) {
             is Europass -> vc.issuanceDate
             is VerifiableId -> vc.issuanceDate
             is VerifiableDiploma -> vc.issuanceDate
@@ -45,19 +44,28 @@ object VcUtils {
             is VerifiableAttestation -> vc.issuanceDate
             is VerifiableAuthorization -> vc.issuanceDate
             else -> ""
-        }
-        return try { dateFormatter.parse(dateString) } catch (e: Exception) { null }
-    }
+        }.let { parseDate(it) }
 
-    fun getValidFrom(vc: VerifiableCredential): Date? {
-        val dateString = when (vc) {
+    fun getValidFrom(vc: VerifiableCredential) = when (vc) {
             is Europass -> vc.validFrom
             is VerifiableId -> vc.validFrom
             is VerifiableDiploma -> vc.validFrom
             is VerifiableAttestation -> vc.validFrom
             is VerifiableAuthorization -> vc.validFrom
             else -> ""
-        }
-        return try { dateFormatter.parse(dateString) } catch (e: Exception) { null }
+        }.let { parseDate(it) }
+
+    fun getExpirationDate(vc: VerifiableCredential) = when (vc) {
+            is Europass -> vc.expirationDate
+            is VerifiableId -> vc.expirationDate
+            is VerifiableDiploma -> vc.expirationDate
+            is VerifiableAuthorization -> vc.expirationDate
+            else -> ""
+        }.let { parseDate(it) }
+
+    private fun parseDate(date: String?) = try {
+        dateFormatter.parse(date)
+    } catch (e: Exception) {
+        null
     }
 }

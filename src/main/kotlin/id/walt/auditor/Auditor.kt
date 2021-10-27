@@ -144,6 +144,16 @@ class ValidFromBeforePolicy : VerificationPolicy {
     }
 }
 
+class ExpirationDateAfterPolicy : VerificationPolicy {
+    override val description: String = "Verify by expiration date"
+    override fun verify(vc: VerifiableCredential): Boolean {
+        return when (vc) {
+            is VerifiablePresentation -> true
+            else -> VcUtils.getExpirationDate(vc).let { it == null || it.after(Date()) }
+        }
+    }
+}
+
 object PolicyRegistry {
     private val policies = LinkedHashMap<String, VerificationPolicy>()
     val defaultPolicyId: String
@@ -163,6 +173,7 @@ object PolicyRegistry {
         register(TrustedSubjectDidPolicy())
         register(IssuanceDateBeforePolicy())
         register(ValidFromBeforePolicy())
+        register(ExpirationDateAfterPolicy())
     }
 }
 
