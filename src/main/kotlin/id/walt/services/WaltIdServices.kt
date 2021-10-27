@@ -35,7 +35,7 @@ object WaltIdServices {
     const val keyDir = "$dataDir/key/"
     const val ebsiDir = "$dataDir/ebsi/"
 
-    val httpLogging = true
+    val httpLogging = false
     private val log = KotlinLogging.logger {}
 
     val http = HttpClient(CIO) {

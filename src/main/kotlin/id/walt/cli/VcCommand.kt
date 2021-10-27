@@ -203,7 +203,7 @@ class VerifyVcCommand : CliktCommand(
         echo("\nResults:\n")
 
         verificationResult.policyResults.forEach { (policy, result) ->
-            echo("$policy:\t\t $result")
+            echo("$policy:\t $result")
         }
         echo("Verified:\t\t ${verificationResult.overallStatus}")
     }

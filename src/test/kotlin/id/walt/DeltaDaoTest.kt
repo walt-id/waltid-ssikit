@@ -9,13 +9,13 @@ import id.walt.crypto.KeyId
 import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
-import id.walt.services.WaltIdServices
 import id.walt.services.did.DidService
 import id.walt.services.essif.EssifClient
 import id.walt.signatory.*
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.templates.VcTemplateManager
 import io.kotest.assertions.throwables.shouldNotThrowAny
+import io.kotest.core.annotation.Ignored
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.shouldBe
@@ -31,6 +31,7 @@ import kotlin.io.path.exists
 import kotlin.io.path.moveTo
 import kotlin.io.path.readText
 
+@Ignored
 class DeltaDaoTest : StringSpec({
     if (Path("data/bearer-token.txt").exists())
         Path("data/bearer-token.txt").moveTo(Path("bearer-token.txt"))

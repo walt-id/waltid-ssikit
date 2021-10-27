@@ -262,6 +262,7 @@ object UserWalletService {
 
         val accessTokenRespStr = String(accessTokenBytes.slice(0 until endInx).toByteArray())
 
+        log.debug { "Accesstoken: $accessTokenRespStr" }
         val decAccesTokenResp = Klaxon().parse<DecryptedAccessTokenResponse>(accessTokenRespStr)!!
 
         keyService.delete(emphKeyId.id)

@@ -62,7 +62,7 @@ class EssifAuthCommand : CliktCommand(
 
         EssifClient.authApi(did)
 
-        echo("EBSI Authentication API flow was performed successfully.")
+        echo("EBSI Authentication API flow for DID $did was performed successfully.")
     }
 }
 
