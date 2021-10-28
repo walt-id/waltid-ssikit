@@ -4,7 +4,6 @@ import com.nimbusds.jwt.SignedJWT
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.vclist.*
 import java.text.SimpleDateFormat
-import java.util.*
 
 object VcUtils {
 
@@ -67,5 +66,14 @@ object VcUtils {
         dateFormatter.parse(date)
     } catch (e: Exception) {
         null
+    }
+
+    fun getCredentialSchema(vc: VerifiableCredential) = when (vc) {
+        is Europass -> vc.credentialSchema
+        is VerifiableId -> vc.credentialSchema
+        is VerifiableDiploma -> vc.credentialSchema
+        is VerifiableAttestation ->  vc.credentialSchema
+        is VerifiableAuthorization -> vc.credentialSchema
+        else -> null
     }
 }
