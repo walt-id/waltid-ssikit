@@ -11,7 +11,7 @@ import io.kotest.core.spec.style.StringSpec
 class CustodianSqlKeyTests : StringSpec({
 
     ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
-    val custodian = CustodianService.getService()
+    val custodian = Custodian.getService()
 
     ServiceRegistry.registerService<KeyStoreService>(SqlKeyStoreService())
     standardKeyTests(custodian)

@@ -2,14 +2,14 @@ package id.walt.rest.custodian
 
 import id.walt.crypto.Key
 import id.walt.crypto.KeyAlgorithm
-import id.walt.custodian.CustodianService
+import id.walt.custodian.Custodian
 import id.walt.vclib.model.VerifiableCredential
 import io.javalin.http.Context
 import io.javalin.plugin.openapi.dsl.document
 
 object CustodianController {
 
-    private val custodian = CustodianService.getService()
+    private val custodian = Custodian.getService()
 
     /* Keys */
 

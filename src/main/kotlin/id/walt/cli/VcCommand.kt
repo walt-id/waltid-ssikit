@@ -9,10 +9,10 @@ import com.github.ajalt.clikt.parameters.options.*
 import com.github.ajalt.clikt.parameters.types.enum
 import com.github.ajalt.clikt.parameters.types.file
 import com.github.ajalt.clikt.parameters.types.path
-import id.walt.auditor.AuditorService
+import id.walt.auditor.Auditor
 import id.walt.auditor.PolicyRegistry
 import id.walt.common.prettyPrint
-import id.walt.custodian.CustodianService
+import id.walt.custodian.Custodian
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.*
 import id.walt.vclib.Helpers.encode
@@ -59,6 +59,7 @@ class VcIssueCommand : CliktCommand(
     val dest: File? by argument().file().optional()
     val template: String by option("-t", "--template", help = "VC template [VerifiableDiploma]").default("VerifiableDiploma")
     val issuerDid: String by option("-i", "--issuer-did", help = "DID of the issuer (associated with signing key)").required()
+    val issuerVerificationMethod: String? by option("-v", "--issuer-verification-method", help = "KeyId of the issuers' signing key")
     val subjectDid: String by option("-s", "--subject-did", help = "DID of the VC subject (receiver of VC)").required()
     val proofType: ProofType by option("-p", "--proof-type", help = "Proof type to be used [LD_PROOF]").enum<ProofType>().default(ProofType.LD_PROOF)
     val interactive: Boolean by option("--interactive", help = "Interactively prompt for VC data to fill in").flag(default = false)
@@ -80,7 +81,7 @@ class VcIssueCommand : CliktCommand(
         // Loading VC template
         log.debug { "Loading credential template: ${template}" }
 
-        val vcStr = signatory.issue(template, ProofConfig(issuerDid, subjectDid, "Ed25519Signature2018", null, proofType))
+        val vcStr = signatory.issue(template, ProofConfig(issuerDid, subjectDid, "Ed25519Signature2018", issuerVerificationMethod, proofType))
 
         echo("Generated Credential:\n\n$vcStr")
 
@@ -103,7 +104,7 @@ class VcImportCommand : CliktCommand(
         if (src.exists()) {
             val cred = src.readText().toCredential()
             val storeId = cred.id ?: "custodian#${UUID.randomUUID()}"
-            CustodianService.getService().storeCredential(storeId, cred)
+            Custodian.getService().storeCredential(storeId, cred)
             println("Credential stored as $storeId")
         }
     }
@@ -128,7 +129,7 @@ class PresentVcCommand : CliktCommand(
         val vcStrList = src.stream().map { vc -> vc.readText() }.collect(Collectors.toList())
 
         // Creating the Verifiable Presentation
-        val vp = CustodianService.getService().createPresentation(vcStrList, holderDid, verifierDid, domain, challenge)
+        val vp = Custodian.getService().createPresentation(vcStrList, holderDid, verifierDid, domain, challenge)
 
         log.debug { "Presentation created:\n$vp" }
 
@@ -166,7 +167,7 @@ class VerifyVcCommand : CliktCommand(
             throw Exception("Unknown verification policy specified")
         }
 
-        val verificationResult = AuditorService.verify(src.readText(), policies.map { PolicyRegistry.getPolicy(it) })
+        val verificationResult = Auditor.verify(src.readText(), policies.map { PolicyRegistry.getPolicy(it) })
 
         echo("\nResults:\n")
 
@@ -212,7 +213,7 @@ class ListVcCommand : CliktCommand(
 
         echo("\nResults:\n")
 
-        CustodianService.getService().listCredentials().forEachIndexed { index, vc -> echo("- ${index + 1}: $vc") }
+        Custodian.getService().listCredentials().forEachIndexed { index, vc -> echo("- ${index + 1}: $vc") }
     }
 }
 

@@ -12,7 +12,7 @@ object CustodianKeyTestUtils {
     private lateinit var key1: Key
     private lateinit var key2: Key
 
-    fun StringSpec.standardKeyTests(custodian: CustodianService) {
+    fun StringSpec.standardKeyTests(custodian: Custodian) {
         "1.1: Generate EdDSA_Ed25519 key" {
             key1 = custodian.generateKey(KeyAlgorithm.EdDSA_Ed25519)
         }

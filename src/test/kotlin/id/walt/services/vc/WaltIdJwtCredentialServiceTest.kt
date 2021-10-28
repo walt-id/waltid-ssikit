@@ -14,8 +14,8 @@ import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.*
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.maps.shouldContainKey
-import java.nio.file.Files
-import java.nio.file.Path
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.util.*
 
 class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
@@ -31,9 +31,9 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
     private val id = "education#higherEducation#51e42fda-cb0a-4333-b6a6-35cb147e1a88"
     private val issuerDid = DidService.create(DidMethod.ebsi, keyId.id)
     private val subjectDid = "did:ebsi:22AhtW7XMssv7es4YcQTdV2MCM3c8b1VsiBfi5weHsjcCY9o"
-    private val issueDate = Date()
-    private val validDate = Date(Date().time - (1000 * 60 * 60 * 24))
-    private val expirationDate = Date(Date().time + (1000 * 60 * 60 * 24))
+    private val issueDate = LocalDateTime.now()
+    private val validDate = issueDate.minusDays(1)
+    private val expirationDate = issueDate.plusDays(1)
 
     @AfterAll
     fun tearDown() {
@@ -48,7 +48,7 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
         val credential = credentialService.sign(
             Europass().encode(),
             ProofConfig(
-                id = id,
+                credentialId = id,
                 issuerDid = issuerDid,
                 subjectDid = subjectDid,
                 issueDate = issueDate,
@@ -61,9 +61,9 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
         claims["jti"] shouldBe id
         claims["iss"] shouldBe issuerDid
         claims["sub"] shouldBe subjectDid
-        (claims["iat"] as Date).toInstant().epochSecond shouldBe issueDate.toInstant().epochSecond
-        (claims["nbf"] as Date).toInstant().epochSecond shouldBe validDate.toInstant().epochSecond
-        (claims["exp"] as Date).toInstant().epochSecond shouldBe expirationDate.toInstant().epochSecond
+        (claims["iat"] as Date).toInstant().epochSecond shouldBe issueDate.toInstant(ZoneOffset.UTC).epochSecond
+        (claims["nbf"] as Date).toInstant().epochSecond shouldBe validDate.toInstant(ZoneOffset.UTC).epochSecond
+        (claims["exp"] as Date).toInstant().epochSecond shouldBe expirationDate.toInstant(ZoneOffset.UTC).epochSecond
         claims shouldContainKey "vc"
         claims["vc"].let {
             it as Map<*, *>

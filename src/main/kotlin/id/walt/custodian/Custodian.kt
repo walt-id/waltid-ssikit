@@ -6,18 +6,14 @@ import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
 import id.walt.services.context.WaltContext
 import id.walt.services.key.KeyService
-import id.walt.services.keystore.KeyStoreService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
-import id.walt.services.vcstore.VcStoreService
 import id.walt.vclib.VcLibManager
 import id.walt.vclib.model.VerifiableCredential
 import mu.KotlinLogging
 
-private val log = KotlinLogging.logger {}
-
-abstract class CustodianService : WaltIdService() {
-    override val implementation get() = serviceImplementation<CustodianService>()
+abstract class Custodian : WaltIdService() {
+    override val implementation get() = serviceImplementation<Custodian>()
 
     open fun generateKey(keyAlgorithm: KeyAlgorithm): Key = implementation.generateKey(keyAlgorithm)
     open fun getKey(alias: String): Key = implementation.getKey(alias)
@@ -36,11 +32,11 @@ abstract class CustodianService : WaltIdService() {
     ): String = implementation.createPresentation(vcs, holderDid, verifierDid, domain, challenge)
 
     companion object : ServiceProvider {
-        override fun getService() = object : CustodianService() {}
+        override fun getService() = object : Custodian() {}
     }
 }
 
-open class WaltCustodianService : CustodianService() {
+open class WaltCustodian : Custodian() {
     private val VC_GROUP = "custodian"
     private val keyService = KeyService.getService()
     private val jwtCredentialService = JwtCredentialService.getService()

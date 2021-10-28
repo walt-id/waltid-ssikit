@@ -15,6 +15,8 @@ import info.weboftrust.ldsignatures.LdProof
 import mu.KotlinLogging
 import java.nio.file.Files
 import java.nio.file.Path
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.util.*
 
 private val log = KotlinLogging.logger {}
@@ -30,14 +32,16 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
         log.debug { "Signing JWT object with config: $config" }
 
         val issuerDid = config.issuerDid
-        val issueDate = config.issueDate ?: Date()
-        val validDate = config.validDate ?: Date()
+        val issueDate = config.issueDate ?: LocalDateTime.now()
+        val validDate = config.validDate ?: LocalDateTime.now().plusDays(5)
         val jwtClaimsSet = JWTClaimsSet.Builder()
-            .jwtID(config.id)
+            .jwtID(config.credentialId)
             .issuer(issuerDid)
-            .issueTime(issueDate)
-            .notBeforeTime(validDate)
-            .expirationTime(config.expirationDate)
+            .issueTime(Date.from(issueDate.toInstant(ZoneOffset.UTC)))
+            .notBeforeTime(Date.from(validDate.toInstant(ZoneOffset.UTC)))
+
+        if (config.expirationDate != null)
+            jwtClaimsSet.expirationTime(Date.from(config.expirationDate.toInstant(ZoneOffset.UTC)))
 
         config.verifierDid?.let { jwtClaimsSet.audience(config.verifierDid) }
         config.nonce?.let { jwtClaimsSet.claim("nonce", config.nonce) }
@@ -82,7 +86,13 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
         log.debug { "Creating a presentation for VCs:\n$vcs" }
 
         val id = "urn:uuid:${UUID.randomUUID()}"
-        val config = ProofConfig(issuerDid = holderDid, verifierDid = verifierDid, proofType = ProofType.JWT, nonce = challenge, id = id)
+        val config = ProofConfig(
+            issuerDid = holderDid,
+            verifierDid = verifierDid,
+            proofType = ProofType.JWT,
+            nonce = challenge,
+            credentialId = id
+        )
         val vpReqStr = VerifiablePresentation(verifiableCredential = vcs.map { it.toCredential() }).encode()
 
         log.trace { "VP request: $vpReqStr" }

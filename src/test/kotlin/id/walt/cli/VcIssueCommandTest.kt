@@ -29,7 +29,7 @@ class VcIssueCommandTest : StringSpec({
         override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableAttestation =
             (template as VerifiableAttestation).apply {
                 issuer = "NEW ISSUER"
-                id = proofConfig.id ?: ""
+                id = proofConfig.credentialId ?: ""
             }
     })
 
@@ -53,6 +53,11 @@ class VcIssueCommandTest : StringSpec({
 
     "vc issue VerifiableDiploma LD_PROOF" {
         VcIssueCommand().parse(listOf("-i", didIssuer, "-s", didSubject, "-t", "VerifiableDiploma", "-p", "LD_PROOF"))
+    }
+
+    "vc issue VerifiableDiploma LD_PROOF incl. issuerVerificationMethod " {
+        val issuerVerificationMethod = DidService.loadDidEbsi(didIssuer).verificationMethod?.get(0)?.id!!
+        VcIssueCommand().parse(listOf("-i", didIssuer, "-s", didSubject, "-t", "VerifiableDiploma", "-p", "LD_PROOF", "-v", issuerVerificationMethod))
     }
 
     "vc issue VerifiableAttestation LD_PROOF" {

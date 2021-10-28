@@ -5,9 +5,18 @@ import id.walt.auditor.AuditorRestAPI
 import id.walt.rest.core.CoreAPI
 import id.walt.rest.custodian.CustodianAPI
 import id.walt.rest.essif.EssifAPI
-import id.walt.signatory.SignatoryRestAPI
+import id.walt.servicematrix.ServiceMatrix
+import id.walt.signatory.rest.SignatoryRestAPI
+import mu.KotlinLogging
+
+private val log = KotlinLogging.logger {}
 
 fun main() {
+
+    log.debug { "SSI Kit starting to serve REST APIs" }
+
+    ServiceMatrix("service-matrix.properties")
+
     val bindAddress = "127.0.0.1"
     CoreAPI.start(7000, bindAddress)
     SignatoryRestAPI.start(7001, bindAddress)

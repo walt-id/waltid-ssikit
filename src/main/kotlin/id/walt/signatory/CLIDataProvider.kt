@@ -17,7 +17,7 @@ object CLIDataProviders {
 
 abstract class CLIDataProvider : SignatoryDataProvider {
     fun prompt(prompt: String, default: String?): String? {
-        System.out.print("$prompt [$default]: ")
+        print("$prompt [$default]: ")
         val input = readLine()
         return when(input.isNullOrBlank()) {
             true -> default
@@ -25,76 +25,93 @@ abstract class CLIDataProvider : SignatoryDataProvider {
         }
     }
 
-    fun promptInt(prompt: String, default: Int?): Int? {
+    fun promptInt(prompt: String, default: Int?): Int {
         val str = prompt(prompt, default.let { it.toString() })
         return str.let { Integer.parseInt(it) }
     }
 }
 
 class VerifiableDiplomaCLIDataProvider : CLIDataProvider() {
-    override fun populate(vc: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
-        vc as VerifiableDiploma
-        vc.id = proofConfig.id ?: "education#higherEducation#${UUID.randomUUID()}"
-        vc.issuer = proofConfig.issuerDid
-        if (proofConfig.issueDate != null) vc.issuanceDate = dateFormat.format(proofConfig.issueDate)
-        if (proofConfig.expirationDate != null) vc.expirationDate = dateFormat.format(proofConfig.expirationDate)
-        vc.validFrom = vc.issuanceDate
-        vc.credentialSubject!!.id = proofConfig.subjectDid
-        vc.credentialSubject!!.awardingOpportunity!!.awardingBody.id = proofConfig.issuerDid
+    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
+        template as VerifiableDiploma
 
-        println()
-        println("Subject personal data, ID: ${proofConfig.subjectDid}")
-        println("----------------------")
-        vc.credentialSubject!!.identifier = prompt("Identifier", vc.credentialSubject!!.identifier)
-        vc.credentialSubject!!.familyName = prompt("Family name", vc.credentialSubject!!.familyName)
-        vc.credentialSubject!!.givenNames = prompt("Given names", vc.credentialSubject!!.givenNames)
-        vc.credentialSubject!!.dateOfBirth = prompt("Date of birth", vc.credentialSubject!!.dateOfBirth)
+        template.apply {
+            id = proofConfig.credentialId ?: "education#higherEducation#${UUID.randomUUID()}"
+            issuer = proofConfig.issuerDid
+            if (proofConfig.issueDate != null) issuanceDate = dateFormat.format(proofConfig.issueDate)
+            if (proofConfig.expirationDate != null) expirationDate = dateFormat.format(proofConfig.expirationDate)
+            validFrom = issuanceDate
 
-        println()
-        println("Awarding Opportunity")
-        println("----------------------")
-        vc.credentialSubject!!.awardingOpportunity!!.id = prompt("Opportunity ID", vc.credentialSubject!!.awardingOpportunity!!.id) ?: ""
-        vc.credentialSubject!!.awardingOpportunity!!.identifier = prompt("Identifier", vc.credentialSubject!!.awardingOpportunity!!.identifier) ?: ""
-        vc.credentialSubject!!.awardingOpportunity!!.location = prompt("Location", vc.credentialSubject!!.awardingOpportunity!!.location) ?: ""
-        vc.credentialSubject!!.awardingOpportunity!!.startedAtTime = prompt("Started at", vc.credentialSubject!!.awardingOpportunity!!.startedAtTime) ?: ""
-        vc.credentialSubject!!.awardingOpportunity!!.endedAtTime = prompt("Ended at", vc.credentialSubject!!.awardingOpportunity!!.endedAtTime) ?: ""
+            credentialSubject!!.apply {
+                id = proofConfig.subjectDid
 
-        println()
-        println("Awarding Body, ID: ${proofConfig.issuerDid}")
-        vc.credentialSubject!!.awardingOpportunity!!.awardingBody.preferredName = prompt("Preferred name", vc.credentialSubject!!.awardingOpportunity!!.awardingBody.preferredName) ?: ""
-        vc.credentialSubject!!.awardingOpportunity!!.awardingBody.homepage = prompt("Homepage", vc.credentialSubject!!.awardingOpportunity!!.awardingBody.homepage) ?: ""
-        vc.credentialSubject!!.awardingOpportunity!!.awardingBody.registration = prompt("Registration", vc.credentialSubject!!.awardingOpportunity!!.awardingBody.registration) ?: ""
+                println()
+                println("Subject personal data, ID: ${proofConfig.subjectDid}")
+                println("----------------------")
+                identifier = prompt("Identifier", identifier)
+                familyName = prompt("Family name", familyName)
+                givenNames = prompt("Given names", givenNames)
+                dateOfBirth = prompt("Date of birth", dateOfBirth)
 
-        println()
-        println("Grading scheme")
-        println("----------------------")
-        vc.credentialSubject!!.gradingScheme?.id = prompt("Grading Scheme ID", vc.credentialSubject!!.gradingScheme?.id) ?: ""
-        vc.credentialSubject!!.gradingScheme?.title = prompt("Title", vc.credentialSubject!!.gradingScheme?.title) ?: ""
+                println()
+                println("Awarding Opportunity")
+                println("----------------------")
+                awardingOpportunity!!.apply {
+                    id = prompt("Opportunity ID", id) ?: ""
+                    identifier = prompt("Identifier", identifier) ?: ""
+                    location = prompt("Location", location) ?: ""
+                    startedAtTime = prompt("Started at", startedAtTime) ?: ""
+                    endedAtTime = prompt("Ended at", endedAtTime) ?: ""
 
-        println()
-        println("Learning Achievement")
-        println("----------------------")
-        vc.credentialSubject!!.learningAchievement?.id = prompt("Learning achievement ID", vc.credentialSubject!!.learningAchievement?.id) ?: ""
-        vc.credentialSubject!!.learningAchievement?.title = prompt("Title", vc.credentialSubject!!.learningAchievement?.title) ?: ""
-        vc.credentialSubject!!.learningAchievement?.description = prompt("Description", vc.credentialSubject!!.learningAchievement?.description) ?: ""
-        vc.credentialSubject!!.learningAchievement?.additionalNote = listOf(prompt("Additional note", vc.credentialSubject!!.learningAchievement?.additionalNote?.get(0)) ?: "")
+                    println()
+                    println("Awarding Body, ID: ${proofConfig.issuerDid}")
+                    awardingBody.apply {
+                        id = proofConfig.issuerDid
+                        preferredName = prompt("Preferred name", preferredName) ?: ""
+                        homepage = prompt("Homepage", homepage) ?: ""
+                        registration = prompt("Registration", registration) ?: ""
+                    }
+                }
 
-        println()
-        println("Learning Specification")
-        println("----------------------")
-        vc.credentialSubject!!.learningSpecification?.id = prompt("Learning specification ID", vc.credentialSubject!!.learningSpecification?.id) ?: ""
-        vc.credentialSubject!!.learningSpecification?.ectsCreditPoints = promptInt("ECTS credit points", vc.credentialSubject!!.learningSpecification?.ectsCreditPoints)
-        vc.credentialSubject!!.learningSpecification?.eqfLevel = promptInt("EQF Level", vc.credentialSubject!!.learningSpecification?.eqfLevel)
-        vc.credentialSubject!!.learningSpecification?.iscedfCode = listOf(prompt("ISCEDF Code", vc.credentialSubject!!.learningSpecification?.iscedfCode?.get(0)) ?: "")
-        vc.credentialSubject!!.learningSpecification?.nqfLevel = listOf(prompt("NQF Level", vc.credentialSubject!!.learningSpecification?.nqfLevel?.get(0)) ?: "")
-        return vc
+                println()
+                println("Grading scheme")
+                println("----------------------")
+                gradingScheme?.apply {
+                    id = prompt("Grading Scheme ID", id) ?: ""
+                    title = prompt("Title", title) ?: ""
+                }
+
+                println()
+                println("Learning Achievement")
+                println("----------------------")
+                learningAchievement?.apply {
+                    id = prompt("Learning achievement ID", id) ?: ""
+                    title = prompt("Title", title) ?: ""
+                    description = prompt("Description", description) ?: ""
+                    additionalNote = listOf(prompt("Additional note", additionalNote?.get(0)) ?: "")
+                }
+
+                println()
+                println("Learning Specification")
+                println("----------------------")
+                learningSpecification?.apply {
+                    id = prompt("Learning specification ID", id) ?: ""
+                    ectsCreditPoints = promptInt("ECTS credit points", ectsCreditPoints)
+                    eqfLevel = promptInt("EQF Level", eqfLevel)
+                    iscedfCode = listOf(prompt("ISCEDF Code", iscedfCode[0]) ?: "")
+                    nqfLevel = listOf(prompt("NQF Level", nqfLevel[0]) ?: "")
+                }
+            }
+        }
+
+        return template
     }
 }
 
 class VerifiableIDCLIDataProvider : CLIDataProvider() {
     override fun populate(vc: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
         vc as VerifiableId
-        vc.id = proofConfig.id ?: "education#higherEducation#${UUID.randomUUID()}"
+        vc.id = proofConfig.credentialId ?: "education#higherEducation#${UUID.randomUUID()}"
         vc.issuer = proofConfig.issuerDid
         if (proofConfig.issueDate != null) vc.issuanceDate = dateFormat.format(proofConfig.issueDate)
         if (proofConfig.expirationDate != null) vc.expirationDate = dateFormat.format(proofConfig.expirationDate)
