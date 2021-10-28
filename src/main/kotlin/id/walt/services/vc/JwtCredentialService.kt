@@ -11,10 +11,7 @@ import info.weboftrust.ldsignatures.LdProof
 abstract class JwtCredentialService : WaltIdService() {
     override val implementation get() = ServiceRegistry.getService<JwtCredentialService>()
 
-    open fun sign(
-        jsonCred: String,
-        config: ProofConfig
-    ): String = implementation.sign(jsonCred, config)
+    open fun sign(jsonCred: String, config: ProofConfig): String = implementation.sign(jsonCred, config)
 
     open fun verify(vcOrVp: String): VerificationResult = implementation.verify(vcOrVp)
     open fun verifyVc(issuerDid: String, vc: String): Boolean = implementation.verifyVc(issuerDid, vc)
@@ -28,8 +25,9 @@ abstract class JwtCredentialService : WaltIdService() {
 
     open fun defaultVcTemplate(): VerifiableCredential = implementation.defaultVcTemplate()
 
-    open fun addProof(credMap: Map<String, String>, ldProof: LdProof): String =
-        implementation.addProof(credMap, ldProof)
+    open fun addProof(credMap: Map<String, String>, ldProof: LdProof): String = implementation.addProof(credMap, ldProof)
+
+    open fun validateSchema(vc: String): Boolean = implementation.validateSchema(vc)
 
     companion object : ServiceProvider {
         override fun getService() = object : JwtCredentialService() {}

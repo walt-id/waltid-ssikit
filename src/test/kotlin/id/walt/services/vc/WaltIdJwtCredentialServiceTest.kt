@@ -6,10 +6,13 @@ import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
 import id.walt.services.jwt.JwtService
 import id.walt.services.key.KeyService
-import id.walt.signatory.ProofConfig
+import id.walt.signatory.*
 import id.walt.test.RESOURCES_PATH
 import id.walt.vclib.Helpers.encode
+import id.walt.vclib.model.Proof
+import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.vclist.Europass
+import id.walt.vclib.vclist.VerifiableId
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.*
 import io.kotest.matchers.collections.shouldContain
@@ -106,4 +109,40 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
         credentialService.sign(Europass().encode(), ProofConfig(issuerDid = issuerDid)
         )
     ) shouldBe false
+
+    @Test
+    fun testValidateSchema() {
+        // Required at the moment because EBSI did not upgrade V_ID schema with necessary changes.
+        DataProviderRegistry.register(VerifiableId::class, DummySignatoryDataProvider())
+
+        val noSchemaVc = VerifiableId().encode()
+        val validVc = Signatory.getService().issue("VerifiableId", ProofConfig(issuerDid = issuerDid, subjectDid = issuerDid, proofType = ProofType.JWT))
+        val invalidDataVc = Signatory.getService().issue("VerifiableId", ProofConfig(issuerDid = issuerDid, proofType = ProofType.JWT))
+        val notParsableVc = ""
+
+        credentialService.validateSchema(noSchemaVc) shouldBe true
+        credentialService.validateSchema(validVc) shouldBe true
+        credentialService.validateSchema(invalidDataVc) shouldBe false
+        credentialService.validateSchema(notParsableVc) shouldBe false
+    }
+
+    class DummySignatoryDataProvider: SignatoryDataProvider {
+        override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
+            check(template is VerifiableId) { "The template's type is not VerifiableId." }
+            return template.also {
+                VerifiableIdDataProvider().populate(it, proofConfig)
+                it.evidence!!.id = "Dummy test value (waiting for EBSI schema update)"
+                it.proof = Proof(
+                    type = "Dummy test value (waiting for EBSI schema update)",
+                    created = "2021-10-28T16:20:00Z", // Dummy test value (waiting for EBSI schema update)
+                    creator = "Dummy test value (waiting for EBSI schema update)",
+                    domain = "Dummy test value (waiting for EBSI schema update)",
+                    proofPurpose = "Dummy test value (waiting for EBSI schema update)",
+                    verificationMethod = "Dummy test value (waiting for EBSI schema update)",
+                    jws = "Dummy test value (waiting for EBSI schema update)",
+                    nonce = "Dummy test value (waiting for EBSI schema update)"
+                )
+            }
+        }
+    }
 }
