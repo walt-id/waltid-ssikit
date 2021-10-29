@@ -7,6 +7,7 @@ import id.walt.services.essif.TrustedIssuerClient
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
 import id.walt.services.vc.VcUtils
+import id.walt.vclib.Helpers.encode
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.vclist.VerifiablePresentation
@@ -29,6 +30,9 @@ import kotlin.collections.LinkedHashMap
 
 val log = KotlinLogging.logger {}
 
+private val jsonLdCredentialService = JsonLdCredentialService.getService()
+private val jwtCredentialService = JwtCredentialService.getService()
+
 @Serializable
 data class VerificationPolicyMetadata(val description: String, val id: String)
 
@@ -40,10 +44,7 @@ interface VerificationPolicy {
 }
 
 class SignaturePolicy : VerificationPolicy {
-    private val jsonLdCredentialService = JsonLdCredentialService.getService()
-    private val jwtCredentialService = JwtCredentialService.getService()
     override val description: String = "Verify by signature"
-
     override fun verify(vc: VerifiableCredential): Boolean {
         return DidService.importKey(VcUtils.getIssuer(vc)) && when (vc.jwt) {
             null -> jsonLdCredentialService.verify(vc.json!!).verified
@@ -52,15 +53,17 @@ class SignaturePolicy : VerificationPolicy {
     }
 }
 
-class JsonSchemaPolicy : VerificationPolicy { // Schema already validated by json-ld?
+class JsonSchemaPolicy : VerificationPolicy {
     override val description: String = "Verify by JSON schema"
-    override fun verify(vc: VerifiableCredential) = true // TODO validate policy
+    override fun verify(vc: VerifiableCredential) = when (vc.jwt) {
+        null -> jsonLdCredentialService.validateSchema(vc.encode()) // Schema already validated by json-ld?
+        else -> jwtCredentialService.validateSchema(vc.encode())
+    }
 }
 
 class TrustedIssuerDidPolicy : VerificationPolicy {
     override val description: String = "Verify by trusted issuer did"
     override fun verify(vc: VerifiableCredential): Boolean {
-
         return when (vc) {
             is VerifiablePresentation -> true
             else -> DidService.loadOrResolveAnyDid(VcUtils.getIssuer(vc)) != null

@@ -122,6 +122,7 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
             return schema.validateBasic(it.json!!).valid
         }
     } catch (e: Exception) {
+        e.printStackTrace()
         false
     }
 }

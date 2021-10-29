@@ -4,10 +4,10 @@ import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
-import id.walt.signatory.ProofConfig
-import id.walt.signatory.ProofType
-import id.walt.signatory.Signatory
+import id.walt.signatory.*
+import id.walt.test.DummySignatoryDataProvider
 import id.walt.test.RESOURCES_PATH
+import id.walt.vclib.vclist.VerifiableDiploma
 import io.kotest.core.spec.Spec
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldBeSameSizeAs
@@ -26,18 +26,22 @@ class AuditorCommandTest : StringSpec() {
 
         ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
 
+        // Required at the moment because EBSI did not upgrade V_ID schema with necessary changes.
+        DataProviderRegistry.register(VerifiableDiploma::class, DummySignatoryDataProvider())
+
         val signatory = Signatory.getService()
         val custodian = Custodian.getService()
 
         did = DidService.create(DidMethod.key)
 
         println("Generated: $did")
-
         vcStr = signatory.issue(
             "VerifiableDiploma", ProofConfig(
                 issuerDid = did,
                 subjectDid = did,
-                issuerVerificationMethod = "Ed25519Signature2018", proofType = ProofType.LD_PROOF
+                issuerVerificationMethod = "Ed25519Signature2018",
+                proofPurpose = "Testing",
+                proofType = ProofType.LD_PROOF
             )
         )
 
@@ -114,5 +118,11 @@ class AuditorCommandTest : StringSpec() {
                 it shouldBe true
             }
         }
+    }
+
+    override fun afterSpec(spec: Spec) {
+        super.afterSpec(spec)
+        // Required at the moment because EBSI did not upgrade V_ID schema with necessary changes.
+        DataProviderRegistry.register(VerifiableDiploma::class, VerifiableDiplomaDataProvider())
     }
 }

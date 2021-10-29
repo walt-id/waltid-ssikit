@@ -6,9 +6,7 @@ import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.WaltIdServices
 import id.walt.services.did.DidService
 import id.walt.signatory.*
-import id.walt.test.RESOURCES_PATH
-import id.walt.test.getTemplate
-import id.walt.test.readCredOffer
+import id.walt.test.*
 import id.walt.vclib.Helpers.encode
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.model.CredentialSchema
@@ -288,17 +286,6 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
         credentialService.validateSchema(invalidDataVc) shouldBe false
         credentialService.validateSchema(notParsableVc) shouldBe false
     }
-
-    class DummySignatoryDataProvider: SignatoryDataProvider {
-        override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
-            check(template is VerifiableId) { "The template's type is not VerifiableId." }
-            return template.also {
-                VerifiableIdDataProvider().populate(it, proofConfig)
-                it.evidence!!.id = "Dummy test value (waiting for EBSI schema update)"
-            }
-        }
-    }
-
 
 /*@Test
 fun signCredentialInvalidDataTest() {
