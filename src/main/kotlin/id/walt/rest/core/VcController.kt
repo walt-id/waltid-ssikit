@@ -1,11 +1,8 @@
 package id.walt.rest.core
 
-import id.walt.rest.ErrorResponse
 import id.walt.services.vc.JsonLdCredentialService
-import id.walt.services.vc.VerificationResult
 import id.walt.signatory.ProofConfig
 import io.javalin.http.Context
-import io.javalin.plugin.openapi.annotations.*
 import io.javalin.plugin.openapi.dsl.document
 import kotlinx.serialization.Serializable
 

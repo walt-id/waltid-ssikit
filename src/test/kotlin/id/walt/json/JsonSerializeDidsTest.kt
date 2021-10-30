@@ -1,14 +1,12 @@
 package id.walt.services.data
 
 import com.beust.klaxon.Klaxon
-import io.kotest.assertions.json.shouldEqualJson
-import io.kotest.core.spec.style.AnnotationSpec
-import io.kotest.matchers.shouldBe
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import id.walt.model.DidEbsi
 import id.walt.model.DidWeb
 import id.walt.test.readDid
+import io.kotest.assertions.json.shouldEqualJson
+import io.kotest.core.spec.style.AnnotationSpec
+import io.kotest.matchers.shouldBe
 
 
 class JsonSerializeDidsTest : AnnotationSpec() {

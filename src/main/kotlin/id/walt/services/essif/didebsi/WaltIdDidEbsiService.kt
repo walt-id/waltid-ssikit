@@ -8,7 +8,6 @@ import id.walt.services.crypto.CryptoService
 import id.walt.services.did.DidService
 import id.walt.services.essif.EssifClient
 import id.walt.services.hkvstore.HKVKey
-import id.walt.services.hkvstore.HKVStoreService
 import id.walt.services.key.KeyService
 import io.ktor.client.request.*
 import io.ktor.http.*

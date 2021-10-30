@@ -1,9 +1,8 @@
 package id.walt.cli
 
 import id.walt.servicematrix.ServiceMatrix
-import io.kotest.core.spec.style.StringSpec
-import id.walt.cli.*
 import id.walt.test.RESOURCES_PATH
+import io.kotest.core.spec.style.StringSpec
 
 
 class VcTemplatesCommandTest : StringSpec({

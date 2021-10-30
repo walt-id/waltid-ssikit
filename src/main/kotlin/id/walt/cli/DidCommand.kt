@@ -14,7 +14,6 @@ import com.github.ajalt.clikt.parameters.types.file
 import id.walt.common.prettyPrint
 import id.walt.model.DidMethod
 import id.walt.model.DidUrl
-import id.walt.model.encodePretty
 import id.walt.services.did.DidService
 import java.io.File
 

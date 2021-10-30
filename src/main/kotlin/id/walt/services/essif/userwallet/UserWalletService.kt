@@ -19,10 +19,8 @@ import id.walt.services.essif.EbsiVaVp
 import id.walt.services.essif.EssifClient
 import id.walt.services.essif.LegalEntityClient
 import id.walt.services.essif.enterprisewallet.EnterpriseWalletService
-import id.walt.services.essif.mock.AuthorizationApi
 import id.walt.services.essif.mock.DidRegistry
 import id.walt.services.hkvstore.HKVKey
-import id.walt.services.hkvstore.HKVStoreService
 import id.walt.services.jwt.InMemoryJwtService
 import id.walt.services.key.InMemoryKeyService
 import id.walt.services.keystore.KeyType

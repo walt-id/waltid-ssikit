@@ -5,8 +5,6 @@ import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.WaltIdServices
 import id.walt.services.did.DidService
-import id.walt.services.essif.EssifServer.nonce
-import id.walt.services.essif.TrustedIssuerClient.domain
 import id.walt.signatory.ProofConfig
 import id.walt.test.RESOURCES_PATH
 import id.walt.test.getTemplate

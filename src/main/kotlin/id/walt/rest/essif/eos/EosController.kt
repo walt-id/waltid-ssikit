@@ -1,13 +1,9 @@
 package id.walt.rest.essif.eos
 
-import io.javalin.http.Context
-import io.javalin.plugin.openapi.annotations.OpenApi
-import io.javalin.plugin.openapi.annotations.OpenApiContent
-import io.javalin.plugin.openapi.annotations.OpenApiRequestBody
-import io.javalin.plugin.openapi.annotations.OpenApiResponse
 import id.walt.model.AuthRequestResponse
 import id.walt.rest.ErrorResponse
 import id.walt.services.essif.TrustedIssuerClient
+import io.javalin.http.Context
 import io.javalin.plugin.openapi.dsl.document
 
 /**
@@ -42,7 +38,7 @@ object EosController {
 //    )
     fun onboardsDocs() = document()
     .operation { it.summary("Request Verifiable Authorization. Returns the DID ownership request.").operationId("onboards").addTagsItem("ESSIF Enterprise Wallet")   }
-    .body<String>() { it.description("DID to be registered") }
+    .body<String> { it.description("DID to be registered") }
     .json<String>("200") { it.description("Request DID ownership") }
     .json<ErrorResponse>("400") { it.description("Bad request") }
     .json<ErrorResponse>("500") { it.description("Server Error") }
@@ -67,7 +63,7 @@ object EosController {
 //    )
     fun signedChallengeDocs() = document()
     .operation { it.summary("Processes the signed challenge in the scope of DID Auth and if successful, returns the Verifiable Authorization").operationId("signedChallenge").addTagsItem("ESSIF Enterprise Wallet")   }
-    .body<String>() { it.description("Signed challenge") }
+    .body<String> { it.description("Signed challenge") }
     .json<String>("200") { it.description("Verifiable Authorization") }
     .json<ErrorResponse>("400") { it.description("Bad request") }
     .json<ErrorResponse>("500") { it.description("Server Error") }
@@ -131,7 +127,7 @@ object EosController {
 //    )
     fun requestVerifiableCredentialDocs() = document()
     .operation { it.summary("Returns the DID ownership request").operationId("requestVerifiableCredential").addTagsItem("ESSIF Enterprise Wallet")   }
-    .body<String>() { it.description("Credential request URI") }
+    .body<String> { it.description("Credential request URI") }
     .json<String>("200") { it.description("DID ownership request") }
     .json<ErrorResponse>("400") { it.description("Bad request") }
     .json<ErrorResponse>("500") { it.description("Server Error") }

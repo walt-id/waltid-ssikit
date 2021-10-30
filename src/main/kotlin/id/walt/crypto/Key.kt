@@ -1,9 +1,9 @@
 package id.walt.crypto
 
 import com.google.crypto.tink.KeysetHandle
-import kotlinx.serialization.Serializable
 import id.walt.services.CryptoProvider
 import id.walt.services.keystore.TinkKeyStoreService
+import kotlinx.serialization.Serializable
 import java.security.KeyPair
 import java.security.PublicKey
 import java.security.interfaces.ECPublicKey

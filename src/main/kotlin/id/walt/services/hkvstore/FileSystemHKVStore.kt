@@ -13,7 +13,7 @@ data class FilesystemStoreConfig(
 
 class FileSystemHKVStore(configPath: String) : HKVStoreService() {
 
-    lateinit override var configuration: FilesystemStoreConfig
+    override lateinit var configuration: FilesystemStoreConfig
 
     init {
       if (configPath.isNotEmpty())

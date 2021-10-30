@@ -1,11 +1,11 @@
 package id.walt.services.data
 
 import com.beust.klaxon.Klaxon
+import id.walt.model.*
 import id.walt.vclib.model.Proof
 import id.walt.vclib.model.VerifiableCredential
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import id.walt.model.*
 import java.io.File
 import java.time.Instant
 import java.time.LocalDateTime

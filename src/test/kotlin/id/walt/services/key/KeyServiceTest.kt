@@ -7,9 +7,7 @@ import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jose.jwk.KeyUse
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator
-import com.nimbusds.jose.util.Base64URL
 import id.walt.crypto.KeyAlgorithm
-import id.walt.crypto.encBase64Str
 import id.walt.crypto.newKeyId
 import id.walt.model.Jwk
 import id.walt.servicematrix.ServiceMatrix

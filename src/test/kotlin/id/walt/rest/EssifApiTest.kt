@@ -1,5 +1,8 @@
 package id.walt.rest
 
+import id.walt.model.AuthRequestResponse
+import id.walt.rest.essif.EssifAPI
+import id.walt.services.essif.mock.RelyingParty
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.*
@@ -10,9 +13,6 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
-import id.walt.model.AuthRequestResponse
-import id.walt.rest.essif.EssifAPI
-import id.walt.services.essif.mock.RelyingParty
 
 class EssifApiTest : AnnotationSpec() {
 

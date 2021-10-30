@@ -1,6 +1,5 @@
 package id.walt.services.hkvstore
 
-import id.walt.servicematrix.ServiceProvider
 import id.walt.servicematrix.ServiceRegistry
 import id.walt.services.WaltIdService
 import java.nio.charset.StandardCharsets

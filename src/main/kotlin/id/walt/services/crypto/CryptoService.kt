@@ -1,9 +1,9 @@
 package id.walt.services.crypto
 
-import id.walt.servicematrix.ServiceProvider
-import id.walt.servicematrix.ServiceRegistry
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyId
+import id.walt.servicematrix.ServiceProvider
+import id.walt.servicematrix.ServiceRegistry
 import id.walt.services.WaltIdService
 import org.web3j.crypto.ECDSASignature
 

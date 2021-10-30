@@ -9,9 +9,7 @@ import id.walt.services.WaltIdServices
 import id.walt.services.context.WaltContext
 import id.walt.services.crypto.CryptoService
 import id.walt.services.hkvstore.HKVKey
-import id.walt.services.hkvstore.HKVStoreService
 import id.walt.services.key.KeyService
-import id.walt.services.keystore.KeyStoreService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.ProofConfig
 import io.ktor.client.request.*
@@ -19,8 +17,6 @@ import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.bouncycastle.asn1.ASN1BitString
 import org.bouncycastle.asn1.ASN1Sequence
-import java.nio.file.Files
-import java.nio.file.Path
 import java.util.*
 
 private val log = KotlinLogging.logger {}
@@ -91,7 +87,7 @@ object DidService {
     fun loadDidEbsi(did: String): DidEbsi = loadDidEbsi(DidUrl.from(did))
     fun loadDidEbsi(didUrl: DidUrl): DidEbsi = Klaxon().parse<DidEbsi>(loadDid(didUrl.did)!!)!!
 
-    fun updateDidEbsi(did: DidEbsi) = storeDid(did.id!!, Klaxon().toJsonString(did))
+    fun updateDidEbsi(did: DidEbsi) = storeDid(did.id, Klaxon().toJsonString(did))
     // Private methods
 
     private fun createDidEbsi(keyAlias: String?): String {
@@ -345,7 +341,7 @@ object DidService {
                 DidMethod.ebsi -> {
                     this as DidEbsi
                     val pubKeyJwk = verificationMethod!![0].publicKeyJwk
-                    KeyService.getService().delete(id!!)
+                    KeyService.getService().delete(id)
                     pubKeyJwk!!.kid = id
                     WaltIdServices.log.debug { "Importing key: ${pubKeyJwk.kid}" }
                     val keyId = KeyService.getService().import(Klaxon().toJsonString(pubKeyJwk))

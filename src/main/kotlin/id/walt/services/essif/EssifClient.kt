@@ -1,6 +1,5 @@
 package id.walt.services.essif
 
-import mu.KotlinLogging
 import id.walt.common.readEssifBearerToken
 import id.walt.services.WaltIdServices
 import id.walt.services.context.WaltContext
@@ -9,7 +8,7 @@ import id.walt.services.essif.enterprisewallet.EnterpriseWalletService
 import id.walt.services.essif.mock.RelyingParty
 import id.walt.services.essif.userwallet.UserWalletService
 import id.walt.services.hkvstore.HKVKey
-import id.walt.services.hkvstore.HKVStoreService
+import mu.KotlinLogging
 import java.io.File
 
 

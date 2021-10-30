@@ -9,14 +9,14 @@ import com.nimbusds.jose.crypto.impl.ECDSA
 import com.nimbusds.jose.jca.JCAContext
 import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.util.Base64URL
+import id.walt.services.crypto.CryptoService
 import info.weboftrust.ldsignatures.LdProof
+import info.weboftrust.ldsignatures.canonicalizer.Canonicalizers
 import info.weboftrust.ldsignatures.signer.LdSigner
 import info.weboftrust.ldsignatures.suites.EcdsaSecp256k1Signature2019SignatureSuite
 import info.weboftrust.ldsignatures.suites.Ed25519Signature2018SignatureSuite
 import info.weboftrust.ldsignatures.suites.SignatureSuites
 import info.weboftrust.ldsignatures.util.JWSUtil
-import id.walt.services.crypto.CryptoService
-import info.weboftrust.ldsignatures.canonicalizer.Canonicalizers
 import java.security.InvalidKeyException
 import java.security.PrivateKey
 import java.security.SecureRandom

@@ -1,6 +1,5 @@
 package id.walt.crypto
 
-import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
@@ -12,6 +11,8 @@ import com.nimbusds.jose.crypto.impl.ECDSA
 import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.util.Base64URL
+import id.walt.model.EncryptedAke1Payload
+import id.walt.services.CryptoProvider
 import io.ipfs.multibase.Base58
 import io.ipfs.multibase.Multibase
 import org.bouncycastle.asn1.DEROctetString
@@ -22,8 +23,6 @@ import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.math.ec.ECPoint
 import org.bouncycastle.util.encoders.Hex
-import id.walt.model.EncryptedAke1Payload
-import id.walt.services.CryptoProvider
 import org.web3j.crypto.ECDSASignature
 import org.web3j.utils.Numeric
 import java.math.BigInteger

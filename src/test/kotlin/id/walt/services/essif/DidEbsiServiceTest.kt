@@ -8,12 +8,8 @@ import id.walt.services.context.WaltContext
 import id.walt.services.essif.didebsi.DidEbsiService
 import id.walt.services.essif.didebsi.UnsignedTransaction
 import id.walt.services.hkvstore.HKVKey
-import id.walt.services.hkvstore.HKVStoreService
-import id.walt.services.keystore.KeyStoreService
-import id.walt.test.RESOURCES_PATH
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import java.nio.file.Files
 import java.nio.file.Path
 
 class DidEbsiServiceTest : AnnotationSpec() {

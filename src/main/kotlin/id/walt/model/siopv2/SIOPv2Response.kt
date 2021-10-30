@@ -2,15 +2,9 @@ package id.walt.model.siopv2
 
 import com.beust.klaxon.Json
 import com.beust.klaxon.Klaxon
-import id.walt.services.did.DidService
 import id.walt.services.jwt.JwtService
-import id.walt.services.vc.VcUtils
-import id.walt.vclib.Helpers.encode
 import id.walt.vclib.VcLibManager
-import id.walt.vclib.vclist.VerifiablePresentation
 import java.time.Instant
-import java.time.temporal.Temporal
-import java.util.*
 
 data class SIOPv2Response (
   val did: String,

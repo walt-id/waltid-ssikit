@@ -31,4 +31,8 @@ data class ErrorResponse(
         result = 31 * result + details.contentHashCode()
         return result
     }
+
+    override fun toString(): String {
+        return "ErrorResponse(title='$title', status=$status, type=$type, details=${details.contentToString()})"
+    }
 }

@@ -1,8 +1,8 @@
 package id.walt.services.essif.didebsi
 
 import id.walt.servicematrix.ServiceProvider
-import kotlinx.serialization.Serializable
 import id.walt.services.WaltIdService
+import kotlinx.serialization.Serializable
 
 @Serializable
 sealed class JsonRpcParams

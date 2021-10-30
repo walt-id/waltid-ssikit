@@ -6,10 +6,10 @@ import com.github.ajalt.clikt.parameters.options.multiple
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
 import id.walt.auditor.AuditorRestAPI
-import id.walt.rest.essif.EssifAPI
-import id.walt.signatory.rest.SignatoryRestAPI
 import id.walt.rest.core.CoreAPI
 import id.walt.rest.custodian.CustodianAPI
+import id.walt.rest.essif.EssifAPI
+import id.walt.signatory.rest.SignatoryRestAPI
 
 /**
  * CLI Command to run the walt.id SSI KIT as RESTful service.
