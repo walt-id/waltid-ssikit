@@ -394,49 +394,49 @@ object UserWalletService {
     }
 
 
-    private fun didAuthAuthorizationApi(): AuthenticationRequestPayload {
-        val authenticationRequest = Klaxon().toJsonString(mapOf("scope" to "ebsi user profile"))
-
-        println("Request an access request token from the Authorisation API (POST /authentication-requests):\n${authenticationRequest}\n")
-
-        val authenticationRequestResponse = AuthorizationApi.getAuthorizationRequest(authenticationRequest)
-
-
-        // https://github.com/Baeldung/kotlin-tutorials/tree/master/kotlin-libraries-http/src/main/kotlin/com/baeldung/fuel
-        //val resp = post("$ESSIF_BASE_URL/authentication-requests", json = mapOf("scope" to "ebsi user profile"))
-
-        println("3. [UWallet] 200 <Authorization Request> received. (response of /authentication-requests):\n$authenticationRequestResponse")
-
-        val oidcReqUri = jsonToOidcAuthenticationRequestUri(authenticationRequestResponse)
-
-        log.debug { "OidcReqUri: $oidcReqUri" }
-
-        if (false) {//!jwtService.verify(oidcReqUri.request)) {
-            log.error { "Could not verify Authentication Request Token signature: " + oidcReqUri.request }
-            throw Exception("Could not verify Authentication Request Token signature: " + oidcReqUri.request)
-        } else {
-            println("\nJWT signature of Authentication Request Token Verified successfully ✔\n")
-        }
-
-        val claims = jwtService.parseClaims(oidcReqUri.request)!!
-
-        // println(claims?.get("claims")!!.toString())
-
-        val claim = Klaxon().parse<Claim>(claims["claims"].toString())!!
-
-        val arp = AuthenticationRequestPayload(
-            claims["scope"].toString(),
-            claims["iss"].toString(),
-            claims["response_type"].toString(),
-            claims["client_id"].toString(),
-            claims["nonce"].toString(),
-            Klaxon().parse(claims["registration"].toString())!!,
-            claim
-        )
-
-        println("Decoded Authorization Request:\n" + Klaxon().toJsonString(arp) + "\n")
-        return arp
-    }
+//    private fun didAuthAuthorizationApi(): AuthenticationRequestPayload {
+//        val authenticationRequest = Klaxon().toJsonString(mapOf("scope" to "ebsi user profile"))
+//
+//        println("Request an access request token from the Authorisation API (POST /authentication-requests):\n${authenticationRequest}\n")
+//
+//        val authenticationRequestResponse = AuthorizationApi.getAuthorizationRequest(authenticationRequest)
+//
+//
+//        // https://github.com/Baeldung/kotlin-tutorials/tree/master/kotlin-libraries-http/src/main/kotlin/com/baeldung/fuel
+//        //val resp = post("$ESSIF_BASE_URL/authentication-requests", json = mapOf("scope" to "ebsi user profile"))
+//
+//        println("3. [UWallet] 200 <Authorization Request> received. (response of /authentication-requests):\n$authenticationRequestResponse")
+//
+//        val oidcReqUri = jsonToOidcAuthenticationRequestUri(authenticationRequestResponse)
+//
+//        log.debug { "OidcReqUri: $oidcReqUri" }
+//
+//        if (false) {//!jwtService.verify(oidcReqUri.request)) {
+//            log.error { "Could not verify Authentication Request Token signature: " + oidcReqUri.request }
+//            throw Exception("Could not verify Authentication Request Token signature: " + oidcReqUri.request)
+//        } else {
+//            println("\nJWT signature of Authentication Request Token Verified successfully ✔\n")
+//        }
+//
+//        val claims = jwtService.parseClaims(oidcReqUri.request)!!
+//
+//        // println(claims?.get("claims")!!.toString())
+//
+//        val claim = Klaxon().parse<Claim>(claims["claims"].toString())!!
+//
+//        val arp = AuthenticationRequestPayload(
+//            claims["scope"].toString(),
+//            claims["iss"].toString(),
+//            claims["response_type"].toString(),
+//            claims["client_id"].toString(),
+//            claims["nonce"].toString(),
+//            Klaxon().parse(claims["registration"].toString())!!,
+//            claim
+//        )
+//
+//        println("Decoded Authorization Request:\n" + Klaxon().toJsonString(arp) + "\n")
+//        return arp
+//    }
 
     private fun jsonToOidcAuthenticationRequestUri(authenticationRequestResponseJson: String): OidcAuthenticationRequestUri {
         try {
