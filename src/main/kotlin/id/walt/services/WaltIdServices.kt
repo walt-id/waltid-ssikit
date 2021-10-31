@@ -36,7 +36,7 @@ object WaltIdServices {
     const val ebsiDir = "$dataDir/ebsi/"
 
     val httpLogging = false
-    val log = KotlinLogging.logger {}
+    private val log = KotlinLogging.logger {}
 
     val http = HttpClient(CIO) {
         install(JsonFeature) {

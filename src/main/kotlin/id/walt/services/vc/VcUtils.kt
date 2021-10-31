@@ -1,8 +1,12 @@
 package id.walt.services.vc
 
 import com.nimbusds.jwt.SignedJWT
+import deltadao.GaiaxCredential
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.vclist.*
+import mu.KotlinLogging
+
+private val log = KotlinLogging.logger("SSIKIT VcUtils")
 
 object VcUtils {
 
@@ -18,7 +22,11 @@ object VcUtils {
             null -> vcObj.proof!!.creator!!
             else -> SignedJWT.parse(vcObj.jwt).jwtClaimsSet.issuer
         }
-        else -> ""
+        is GaiaxCredential -> vcObj.issuer
+        else -> {
+            log.warn { "No getIssuer for ${vcObj.type.last()}!" }
+            ""
+        }
     }
 
     fun getHolder(vcObj: VerifiableCredential): String = when (vcObj) {
@@ -29,7 +37,11 @@ object VcUtils {
         is UniversityDegree -> vcObj.credentialSubject.id
         is VerifiableAttestation -> vcObj.credentialSubject!!.id
         is VerifiableAuthorization -> vcObj.credentialSubject.id
-        else -> ""
+        is GaiaxCredential -> vcObj.credentialSubject.id
+        else -> {
+            log.warn { "No getHolder for ${vcObj.type.last()}!" }
+            ""
+        }
     }
 
 }

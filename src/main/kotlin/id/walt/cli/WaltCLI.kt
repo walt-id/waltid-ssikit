@@ -38,7 +38,7 @@ class Walt : CliktCommand(
     init {
         versionOption(Values.version, message = {
             """
-            SSI Kit: $it${if (Values.isSnapshot) " - SNAPSHOT VERSION, use only for demo and testing purposes)" else " - stable release"}
+            SSI Kit: $it${if (Values.isSnapshot) " - SNAPSHOT VERSION, use only for demo and testing purposes" else " - stable release"}
             Environment: ${System.getProperty("java.runtime.name")} of ${System.getProperty("java.vm.name")} (${
                 System.getProperty(
                     "java.version.date"
