@@ -8,7 +8,6 @@ import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.context.WaltContext
 import id.walt.services.did.DidService
 import id.walt.services.hkvstore.HKVKey
-import id.walt.services.hkvstore.HKVStoreService
 import id.walt.services.key.KeyService
 import io.kotest.assertions.retry
 import io.kotest.assertions.throwables.shouldNotThrowAny
@@ -17,6 +16,7 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import java.io.File
+import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 import kotlin.time.minutes
 import kotlin.time.seconds
@@ -87,7 +87,7 @@ class EssifCommandTest : StringSpec({
     }
 
     "did register --did".config(enabled = enableTests) {
-        retry(9, 2.minutes, delay = 4.seconds) {
+        retry(9, Duration.minutes(2), delay = Duration.seconds(4)) {
             println("Registering did")
             shouldNotThrowAny {
                 EssifDidRegisterCommand().parse(listOf("--did", did, "--eth-key", ethKey.id))

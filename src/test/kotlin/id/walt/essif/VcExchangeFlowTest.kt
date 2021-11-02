@@ -1,7 +1,7 @@
 package id.walt.essif
 
-import io.kotest.core.spec.style.AnnotationSpec
 import id.walt.services.essif.EssifClient
+import io.kotest.core.spec.style.AnnotationSpec
 
 class VcExchangeFlowTest : AnnotationSpec() {
 

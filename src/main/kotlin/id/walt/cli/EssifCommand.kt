@@ -39,7 +39,7 @@ class EssifOnboardingCommand : CliktCommand(
 
     override fun run() {
 
-        echo("ESSIF onboarding of $did\n")
+        echo("ESSIF onboarding for DID $did running...\n")
 
         EssifClient.onboard(did, bearerTokenFile.readText().replace("\n", ""))
 
@@ -49,20 +49,20 @@ class EssifOnboardingCommand : CliktCommand(
 
 class EssifAuthCommand : CliktCommand(
     name = "auth-api",
-    help = """ESSIF Authorization flow
+    help = """ESSIF EBSI Authentication flow
 
-        ESSIF Authorization flow"""
+        ESSIF EBSI Authentication flow"""
 ) {
 
     val did: String by option("-d", "--did", help = "DID to be onboarded").required()
 
     override fun run() {
 
-        echo("Running EBSI Authentication API flow ...\n")
+        echo("EBSI Authentication API flow for DID $did running...\n")
 
         EssifClient.authApi(did)
 
-        echo("EBSI Authorization flow was performed successfully.")
+        echo("EBSI Authentication API flow for DID $did was performed successfully.")
     }
 }
 
@@ -86,11 +86,11 @@ class EssifDidRegisterCommand : CliktCommand(
 
     override fun run() {
 
-        echo("Registering DID $did on the EBSI ledger.\n")
+        echo("EBSI ledger registration for DID $did running...\n")
 
         EssifClient.registerDid(did, ethKeyAlias ?: did)
 
-        echo("DID registration was performed successfully. Call command: 'did resolve --did $did' in order to retrieve the DID document from the EBSI ledger.")
+        echo("EBSI ledger registration for DID $did was performed successfully.\nCall command: 'did resolve --did $did' in order to retrieve the DID document from the EBSI ledger.")
     }
 }
 

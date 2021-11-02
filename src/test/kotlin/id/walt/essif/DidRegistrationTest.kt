@@ -1,9 +1,9 @@
 package id.walt.essif
 
-import io.kotest.core.spec.style.AnnotationSpec
-import mu.KotlinLogging
 import id.walt.services.essif.enterprisewallet.EnterpriseWalletService
 import id.walt.services.essif.mock.DidRegistry
+import io.kotest.core.spec.style.AnnotationSpec
+import mu.KotlinLogging
 
 private val log = KotlinLogging.logger {}
 

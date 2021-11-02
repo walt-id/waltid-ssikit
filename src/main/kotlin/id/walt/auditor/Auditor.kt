@@ -1,7 +1,6 @@
 package id.walt.auditor
 
 import id.walt.model.TrustedIssuer
-import id.walt.services.WaltIdServices.log
 import id.walt.services.did.DidService
 import id.walt.services.essif.TrustedIssuerClient
 import id.walt.services.vc.JsonLdCredentialService
@@ -28,7 +27,7 @@ import kotlin.collections.LinkedHashMap
 // - SECURE_CRYPTO
 // - HOLDER_BINDING (only for VPs)
 
-val log = KotlinLogging.logger {}
+private val log = KotlinLogging.logger {}
 
 private val jsonLdCredentialService = JsonLdCredentialService.getService()
 private val jwtCredentialService = JwtCredentialService.getService()
@@ -46,9 +45,16 @@ interface VerificationPolicy {
 class SignaturePolicy : VerificationPolicy {
     override val description: String = "Verify by signature"
     override fun verify(vc: VerifiableCredential): Boolean {
-        return DidService.importKey(VcUtils.getIssuer(vc)) && when (vc.jwt) {
-            null -> jsonLdCredentialService.verify(vc.json!!).verified
-            else -> jwtCredentialService.verify(vc.jwt!!).verified
+        return try {
+            log.debug { "is jwt: ${vc.jwt != null}" }
+
+            DidService.importKey(VcUtils.getIssuer(vc)) && when (vc.jwt) {
+                null -> jsonLdCredentialService.verify(vc.json!!).verified
+                else -> jwtCredentialService.verify(vc.jwt!!).verified
+            }
+        } catch (e: Exception) {
+            log.error(e.localizedMessage)
+            false
         }
     }
 }
@@ -82,7 +88,8 @@ class TrustedIssuerRegistryPolicy : VerificationPolicy {
 
         val issuerDid = VcUtils.getIssuer(vc)
 
-        val resolvedIssuerDid = DidService.loadOrResolveAnyDid(issuerDid) ?: throw Exception("Could not resolve issuer DID $issuerDid")
+        val resolvedIssuerDid =
+            DidService.loadOrResolveAnyDid(issuerDid) ?: throw Exception("Could not resolve issuer DID $issuerDid")
 
         if (resolvedIssuerDid.id != issuerDid) {
             log.debug { "Resolved DID ${resolvedIssuerDid.id} does not match the issuer DID $issuerDid" }
@@ -202,15 +209,17 @@ object Auditor : IAuditor {
 
     override fun verify(vcJson: String, policies: List<VerificationPolicy>): VerificationResult {
         val vc = vcJson.toCredential()
-        val policyResults = policies.associateBy(keySelector = VerificationPolicy::id) { policy ->
-            policy.verify(vc) &&
-                    when (vc) {
-                        is VerifiablePresentation -> vc.verifiableCredential.all { cred ->
-                            policy.verify(cred)
-                        }
-                        else -> true
+        val policyResults = policies
+            .associateBy(keySelector = VerificationPolicy::id) { policy ->
+                log.debug { "Verifying vc with ${policy.id}..." }
+                policy.verify(vc) && when (vc) {
+                    is VerifiablePresentation -> vc.verifiableCredential.all { cred ->
+                        log.debug { "Verifying ${cred.type.last()} in VP with ${policy.id}..." }
+                        policy.verify(cred)
                     }
-        }
+                    else -> true
+                }
+            }
 
         return VerificationResult(allAccepted(policyResults), policyResults)
     }

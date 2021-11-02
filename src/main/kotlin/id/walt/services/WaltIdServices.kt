@@ -6,6 +6,7 @@ import com.sksamuel.hoplite.PropertySource
 import com.sksamuel.hoplite.hikari.HikariDataSourceDecoder
 import com.sksamuel.hoplite.yaml.YamlParser
 import com.zaxxer.hikari.HikariDataSource
+import id.walt.Values
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.json.*
@@ -17,7 +18,6 @@ import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.core.LoggerContext
 import org.apache.logging.log4j.core.config.LoggerConfig
 import org.bouncycastle.jce.provider.BouncyCastleProvider
-import id.walt.Values
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
@@ -36,7 +36,7 @@ object WaltIdServices {
     const val ebsiDir = "$dataDir/ebsi/"
 
     val httpLogging = false
-    val log = KotlinLogging.logger {}
+    private val log = KotlinLogging.logger {}
 
     val http = HttpClient(CIO) {
         install(JsonFeature) {

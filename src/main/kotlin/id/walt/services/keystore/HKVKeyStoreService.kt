@@ -3,7 +3,6 @@ package id.walt.services.keystore
 import id.walt.crypto.*
 import id.walt.services.context.WaltContext
 import id.walt.services.hkvstore.HKVKey
-import id.walt.services.hkvstore.HKVStoreService
 import mu.KotlinLogging
 
 open class HKVKeyStoreService : KeyStoreService() {

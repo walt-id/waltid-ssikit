@@ -1,5 +1,6 @@
 package id.walt.crypto
 
+import id.walt.services.WaltIdServices
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import org.bouncycastle.asn1.DEROctetString
@@ -8,7 +9,6 @@ import org.bouncycastle.asn1.pkcs.PrivateKeyInfo
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
 import org.bouncycastle.util.encoders.Hex
-import id.walt.services.WaltIdServices
 import org.web3j.crypto.ECDSASignature
 import java.math.BigInteger
 import java.security.KeyFactory

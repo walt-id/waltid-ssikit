@@ -3,7 +3,6 @@ package id.walt.services.keystore.azure
 import com.microsoft.azure.keyvault.KeyVaultClient
 import com.microsoft.azure.keyvault.webkey.JsonWebKey
 import com.microsoft.azure.keyvault.webkey.JsonWebKeyCurveName
-import org.bouncycastle.jce.provider.BouncyCastleProvider
 import id.walt.crypto.AzureKeyVaultConfig
 import id.walt.crypto.Key
 import id.walt.crypto.KeyAlgorithm
@@ -11,6 +10,7 @@ import id.walt.crypto.KeyId
 import id.walt.services.CryptoProvider
 import id.walt.services.keystore.KeyStoreService
 import id.walt.services.keystore.KeyType
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.io.File
 
 //azureKeyVaultConfig:

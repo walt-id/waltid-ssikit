@@ -10,7 +10,6 @@ import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
 import id.walt.vclib.VcLibManager
 import id.walt.vclib.model.VerifiableCredential
-import mu.KotlinLogging
 
 abstract class Custodian : WaltIdService() {
     override val implementation get() = serviceImplementation<Custodian>()

@@ -7,9 +7,9 @@ import com.nimbusds.jose.jwk.OctetKeyPair
 import com.nimbusds.jose.jwk.gen.OctetKeyPairGenerator
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
-import mu.KotlinLogging
 import id.walt.crypto.*
 import id.walt.services.key.KeyService
+import mu.KotlinLogging
 import java.security.Provider
 import java.security.interfaces.ECPublicKey
 import java.util.*

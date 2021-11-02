@@ -5,6 +5,7 @@ import cc.vileda.openapi.dsl.externalDocs
 import cc.vileda.openapi.dsl.info
 import cc.vileda.openapi.dsl.securityScheme
 import com.beust.klaxon.Klaxon
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.exc.InvalidFormatException
 import id.walt.Values
 import id.walt.rest.ErrorResponse
@@ -100,6 +101,9 @@ object CoreAPI {
 //                }
                 }))
 
+                val mapper: ObjectMapper = com.fasterxml.jackson.databind.json.JsonMapper.builder()
+                    .findAndAddModules()
+                    .build()
 
                 this.jsonMapper(object : JsonMapper {
                     override fun toJsonString(obj: Any): String {
@@ -107,9 +111,8 @@ object CoreAPI {
                     }
 
                     override fun <T : Any?> fromJsonString(json: String, targetClass: Class<T>): T {
-                        return JavalinJackson().fromJsonString(json, targetClass)
+                        return JavalinJackson(mapper).fromJsonString(json, targetClass)
                     }
-
                 })
 
                 //addStaticFiles("/static")

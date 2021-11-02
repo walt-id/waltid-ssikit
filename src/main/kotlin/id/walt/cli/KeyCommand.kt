@@ -8,15 +8,12 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.enum
 import com.github.ajalt.clikt.parameters.types.file
+import id.walt.cli.logic.KeyCommandLogic
 import id.walt.common.readWhenContent
-import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyId
 import id.walt.services.key.KeyFormat
-import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
 import java.io.File
-
-private val keyService = KeyService.getService()
 
 class KeyCommand : CliktCommand(
     help = """Key Management.
@@ -45,11 +42,9 @@ class GenKeyCommand : CliktCommand(
 
     override fun run() {
         echo("Generating $algorithm key pair...")
-        val keyId = when (algorithm) {
-            "Ed25519" -> keyService.generate(KeyAlgorithm.EdDSA_Ed25519)
-            "Secp256k1" -> keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
-            else -> throw IllegalArgumentException("Algorithm not supported")
-        }
+
+        val keyId = KeyCommandLogic.genKey(algorithm)
+
         echo("Key \"$keyId\" generated.")
     }
 }
@@ -67,7 +62,9 @@ class ImportKeyCommand : CliktCommand(
     override fun run() {
         val keyStr = readWhenContent(keyFile)
         echo("Importing key: $keyStr")
-        val keyId: KeyId = keyService.import(keyStr)
+
+
+        val keyId: KeyId = KeyCommandLogic.import(keyStr)
 
         echo("\nResults:\n")
 
@@ -91,7 +88,7 @@ class ExportKeyCommand : CliktCommand(
         val exportKeyType = if (!exportPrivate) KeyType.PUBLIC else KeyType.PRIVATE
 
         echo("Exporting $exportPrivate key \"$keyId\"...")
-        val jwk = keyService.export(keyId, keyFormat, exportKeyType)
+        val jwk = KeyCommandLogic.export(keyId, keyFormat, exportKeyType)
 
         echo("\nResults:\n")
 
@@ -111,7 +108,7 @@ class ListKeysCommand : CliktCommand(
 
         echo("\nResults:\n")
 
-        keyService.listKeys().forEachIndexed { index, (keyId, algorithm, cryptoProvider) ->
+        KeyCommandLogic.listKeys().forEachIndexed { index, (keyId, algorithm, cryptoProvider) ->
             echo("- ${index + 1}: \"${keyId}\" (Algorithm: \"${algorithm.name}\", provided by \"${cryptoProvider.name}\")")
         }
     }

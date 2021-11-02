@@ -1,14 +1,14 @@
 package id.walt.common
 
 import com.nimbusds.jose.util.Base64
-import id.walt.servicematrix.ServiceMatrix
-import io.kotest.core.spec.style.AnnotationSpec
-import io.kotest.matchers.shouldBe
-import org.bouncycastle.jce.provider.BouncyCastleProvider
 import id.walt.crypto.KeyAlgorithm
+import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
 import id.walt.test.RESOURCES_PATH
+import io.kotest.core.spec.style.AnnotationSpec
+import io.kotest.matchers.shouldBe
+import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.Security
 
 class SQLiteTest : AnnotationSpec() {

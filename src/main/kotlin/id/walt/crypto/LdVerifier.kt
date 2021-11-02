@@ -3,14 +3,14 @@ package id.walt.crypto
 import com.nimbusds.jose.JWSObject
 import com.nimbusds.jose.crypto.ECDSAVerifier
 import com.nimbusds.jose.crypto.Ed25519Verifier
+import id.walt.services.key.KeyService
 import info.weboftrust.ldsignatures.LdProof
+import info.weboftrust.ldsignatures.canonicalizer.Canonicalizers
 import info.weboftrust.ldsignatures.suites.EcdsaSecp256k1Signature2019SignatureSuite
 import info.weboftrust.ldsignatures.suites.Ed25519Signature2018SignatureSuite
 import info.weboftrust.ldsignatures.suites.SignatureSuites
 import info.weboftrust.ldsignatures.util.JWSUtil
 import info.weboftrust.ldsignatures.verifier.LdVerifier
-import id.walt.services.key.KeyService
-import info.weboftrust.ldsignatures.canonicalizer.Canonicalizers
 import java.security.PublicKey
 import java.security.interfaces.ECPublicKey
 
