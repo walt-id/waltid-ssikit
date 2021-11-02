@@ -6,11 +6,15 @@ import id.walt.services.essif.TrustedIssuerClient
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
 import id.walt.services.vc.VcUtils
+import id.walt.vclib.Helpers.encode
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.vclist.VerifiablePresentation
 import kotlinx.serialization.Serializable
 import mu.KotlinLogging
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.LinkedHashMap
 
 // the following validation policies can be applied
 // - SIGNATURE
@@ -26,6 +30,11 @@ import mu.KotlinLogging
 
 private val log = KotlinLogging.logger {}
 
+private val jsonLdCredentialService = JsonLdCredentialService.getService()
+private val jwtCredentialService = JwtCredentialService.getService()
+private val dateFormatter =
+    SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").also { it.timeZone = TimeZone.getTimeZone("UTC") }
+
 @Serializable
 data class VerificationPolicyMetadata(val description: String, val id: String)
 
@@ -37,10 +46,7 @@ interface VerificationPolicy {
 }
 
 class SignaturePolicy : VerificationPolicy {
-    private val jsonLdCredentialService = JsonLdCredentialService.getService()
-    private val jwtCredentialService = JwtCredentialService.getService()
     override val description: String = "Verify by signature"
-
     override fun verify(vc: VerifiableCredential): Boolean {
         return try {
             log.debug { "is jwt: ${vc.jwt != null}" }
@@ -56,19 +62,20 @@ class SignaturePolicy : VerificationPolicy {
     }
 }
 
-class JsonSchemaPolicy : VerificationPolicy { // Schema already validated by json-ld?
+class JsonSchemaPolicy : VerificationPolicy {
     override val description: String = "Verify by JSON schema"
-    override fun verify(vc: VerifiableCredential) = true // TODO validate policy
+    override fun verify(vc: VerifiableCredential): Boolean {
+        return when (vc.jwt) {
+            null -> jsonLdCredentialService.validateSchema(vc.encode()) // Schema already validated by json-ld?
+            else -> jwtCredentialService.validateSchema(vc.encode())
+        }
+    }
 }
 
 class TrustedIssuerDidPolicy : VerificationPolicy {
     override val description: String = "Verify by trusted issuer did"
     override fun verify(vc: VerifiableCredential): Boolean {
-
-        return when (vc) {
-            is VerifiablePresentation -> true
-            else -> DidService.loadOrResolveAnyDid(VcUtils.getIssuer(vc)) != null
-        }
+        return DidService.loadOrResolveAnyDid(VcUtils.getIssuer(vc)) != null
     }
 }
 
@@ -120,13 +127,47 @@ class TrustedIssuerRegistryPolicy : VerificationPolicy {
 class TrustedSubjectDidPolicy : VerificationPolicy {
     override val description: String = "Verify by trusted subject did"
     override fun verify(vc: VerifiableCredential): Boolean {
-
-        //TODO complete PoC implementation
-        return when (vc) {
-            is VerifiablePresentation -> true
-            else -> DidService.loadOrResolveAnyDid(VcUtils.getHolder(vc)) != null
+        return VcUtils.getSubject(vc).let {
+            if (it.isEmpty()) true
+            else DidService.loadOrResolveAnyDid(it) != null
         }
     }
+}
+
+class IssuanceDateBeforePolicy : VerificationPolicy {
+    override val description: String = "Verify by issuance date"
+    override fun verify(vc: VerifiableCredential): Boolean {
+        return when (vc) {
+            is VerifiablePresentation -> true
+            else -> parseDate(VcUtils.getIssuanceDate(vc)).let { it != null && it.before(Date()) }
+        }
+    }
+}
+
+class ValidFromBeforePolicy : VerificationPolicy {
+    override val description: String = "Verify by valid from"
+    override fun verify(vc: VerifiableCredential): Boolean {
+        return when (vc) {
+            is VerifiablePresentation -> true
+            else -> parseDate(VcUtils.getValidFrom(vc)).let { it != null && it.before(Date()) }
+        }
+    }
+}
+
+class ExpirationDateAfterPolicy : VerificationPolicy {
+    override val description: String = "Verify by expiration date"
+    override fun verify(vc: VerifiableCredential): Boolean {
+        return when (vc) {
+            is VerifiablePresentation -> true
+            else -> parseDate(VcUtils.getExpirationDate(vc)).let { it == null || it.after(Date()) }
+        }
+    }
+}
+
+private fun parseDate(date: String?) = try {
+    dateFormatter.parse(date)
+} catch (e: Exception) {
+    null
 }
 
 object PolicyRegistry {
@@ -143,9 +184,12 @@ object PolicyRegistry {
         defaultPolicyId = sigPol.id
         register(sigPol)
         register(JsonSchemaPolicy())
-        register(TrustedSubjectDidPolicy())
         register(TrustedIssuerDidPolicy())
         register(TrustedIssuerRegistryPolicy())
+        register(TrustedSubjectDidPolicy())
+        register(IssuanceDateBeforePolicy())
+        register(ValidFromBeforePolicy())
+        register(ExpirationDateAfterPolicy())
     }
 }
 
@@ -161,8 +205,8 @@ interface IAuditor {
 
     fun verify(vcJson: String, policies: List<VerificationPolicy>): VerificationResult
 
-//    fun verifyVc(vc: String, config: AuditorConfig) = VerificationStatus(true)
-//    fun verifyVp(vp: String, config: AuditorConfig) = VerificationStatus(true)
+    //    fun verifyVc(vc: String, config: AuditorConfig) = VerificationStatus(true)
+    //    fun verifyVp(vp: String, config: AuditorConfig) = VerificationStatus(true)
 }
 
 object Auditor : IAuditor {

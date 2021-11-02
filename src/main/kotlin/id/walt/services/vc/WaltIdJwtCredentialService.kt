@@ -13,6 +13,8 @@ import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.vclist.VerifiablePresentation
 import info.weboftrust.ldsignatures.LdProof
 import mu.KotlinLogging
+import net.pwall.json.schema.JSONSchema
+import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.LocalDateTime
@@ -33,7 +35,7 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
 
         val issuerDid = config.issuerDid
         val issueDate = config.issueDate ?: LocalDateTime.now()
-        val validDate = config.validDate ?: LocalDateTime.now().plusDays(5)
+        val validDate = config.validDate ?: LocalDateTime.now()
         val jwtClaimsSet = JWTClaimsSet.Builder()
             .jwtID(config.credentialId)
             .issuer(issuerDid)
@@ -112,4 +114,15 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
 
     override fun defaultVcTemplate(): VerifiableCredential =
         TODO("Not implemented yet.")
+
+    override fun validateSchema(vc: String) = try {
+        vc.toCredential().let {
+            val credentialSchema = VcUtils.getCredentialSchema(it) ?: return true
+            val schema = JSONSchema.parse(URL(credentialSchema.id).readText())
+            return schema.validateBasic(it.json!!).valid
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        false
+    }
 }

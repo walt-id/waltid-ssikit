@@ -6,10 +6,12 @@ import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
 import id.walt.services.jwt.JwtService
 import id.walt.services.key.KeyService
-import id.walt.signatory.ProofConfig
+import id.walt.signatory.*
+import id.walt.test.DummySignatoryDataProvider
 import id.walt.test.RESOURCES_PATH
 import id.walt.vclib.Helpers.encode
 import id.walt.vclib.vclist.Europass
+import id.walt.vclib.vclist.VerifiableId
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.maps.shouldContainKey
@@ -107,4 +109,20 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
         credentialService.sign(Europass().encode(), ProofConfig(issuerDid = issuerDid)
         )
     ) shouldBe false
+
+    @Test
+    fun testValidateSchema() {
+        // Required at the moment because EBSI did not upgrade V_ID schema with necessary changes.
+        DataProviderRegistry.register(VerifiableId::class, DummySignatoryDataProvider())
+
+        val noSchemaVc = VerifiableId().encode()
+        val validVc = Signatory.getService().issue("VerifiableId", ProofConfig(issuerDid = issuerDid, subjectDid = issuerDid, proofType = ProofType.JWT))
+        val invalidDataVc = Signatory.getService().issue("VerifiableId", ProofConfig(issuerDid = issuerDid, proofType = ProofType.JWT))
+        val notParsableVc = ""
+
+        credentialService.validateSchema(noSchemaVc) shouldBe true
+        credentialService.validateSchema(validVc) shouldBe true
+        credentialService.validateSchema(invalidDataVc) shouldBe false
+        credentialService.validateSchema(notParsableVc) shouldBe false
+    }
 }

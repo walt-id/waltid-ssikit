@@ -29,7 +29,7 @@ object VcUtils {
         }
     }
 
-    fun getHolder(vcObj: VerifiableCredential): String = when (vcObj) {
+    fun getSubject(vcObj: VerifiableCredential): String = when (vcObj) {
         is Europass -> vcObj.credentialSubject!!.id!!
         is VerifiableId -> vcObj.credentialSubject!!.id!!
         is VerifiableDiploma -> vcObj.credentialSubject!!.id!!
@@ -44,4 +44,51 @@ object VcUtils {
         }
     }
 
+    fun getIssuanceDate(vc: VerifiableCredential) = when (vc) {
+        is Europass -> vc.issuanceDate
+        is VerifiableId -> vc.issuanceDate
+        is VerifiableDiploma -> vc.issuanceDate
+        is UniversityDegree -> vc.issuanceDate
+        is VerifiableAttestation -> vc.issuanceDate
+        is VerifiableAuthorization -> vc.issuanceDate
+        else -> {
+            log.warn { "No getIssuanceDate for ${vc.type.last()}!" }
+            ""
+        }
+    }
+
+    fun getValidFrom(vc: VerifiableCredential) = when (vc) {
+        is Europass -> vc.validFrom
+        is VerifiableId -> vc.validFrom
+        is VerifiableDiploma -> vc.validFrom
+        is VerifiableAttestation -> vc.validFrom
+        is VerifiableAuthorization -> vc.validFrom
+        else -> {
+            log.warn { "No getValidFrom for ${vc.type.last()}!" }
+            ""
+        }
+    }
+
+    fun getExpirationDate(vc: VerifiableCredential) = when (vc) {
+        is Europass -> vc.expirationDate
+        is VerifiableId -> vc.expirationDate
+        is VerifiableDiploma -> vc.expirationDate
+        is VerifiableAuthorization -> vc.expirationDate
+        else -> {
+            log.warn { "No getExpirationDate for ${vc.type.last()}!" }
+            ""
+        }
+    }
+
+    fun getCredentialSchema(vc: VerifiableCredential) = when (vc) {
+        is Europass -> vc.credentialSchema
+        is VerifiableId -> vc.credentialSchema
+        is VerifiableDiploma -> vc.credentialSchema
+        is VerifiableAttestation -> vc.credentialSchema
+        is VerifiableAuthorization -> vc.credentialSchema
+        else -> {
+            log.warn { "No getCredentialSchema for ${vc.type.last()}!" }
+            null
+        }
+    }
 }

@@ -42,12 +42,13 @@ dependencies {
     implementation("com.google.guava:guava:31.0.1-jre")
 
     // VC
-    implementation("id.walt:waltid-ssikit-vclib:1.4.9")
+    implementation("id.walt:waltid-ssikit-vclib:1.5.0")
 
     // JSON
     implementation("org.json:json:20210307")
     implementation("com.beust:klaxon:5.5")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.0")
+    implementation("net.pwall.json:json-kotlin-schema:0.23")
     //implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
 
     // DB

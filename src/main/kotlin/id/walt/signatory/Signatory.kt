@@ -92,7 +92,7 @@ class WaltSignatory(configurationPath: String) : Signatory() {
                 proofPurpose = config.proofPurpose,
                 config.credentialId ?: "identity#${templateId}#${UUID.randomUUID()}",
                 issueDate = config.issueDate ?: LocalDateTime.now(),
-                validDate = config.validDate ?: LocalDateTime.MAX,
+                validDate = config.validDate ?: LocalDateTime.now(),
                 expirationDate = config.expirationDate,
                 dataProviderIdentifier = config.dataProviderIdentifier
             )
