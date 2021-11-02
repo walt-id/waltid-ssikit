@@ -22,6 +22,7 @@ import org.web3j.rlp.RlpEncoder
 import org.web3j.rlp.RlpList
 import org.web3j.utils.Numeric
 import java.math.BigInteger
+import java.util.*
 import kotlin.random.Random
 
 open class WaltIdDidEbsiService : DidEbsiService() {
@@ -114,7 +115,12 @@ open class WaltIdDidEbsiService : DidEbsiService() {
             .add(chainId.multiply(BigInteger.TWO))
             .add(BigInteger.valueOf(35L))
 
-        signatureData = Sign.SignatureData(v.toByteArray(), sig.r.toByteArray(), sig.s.toByteArray())
+        var sigR = sig.r.toByteArray()
+        if (sigR.size == 33) {
+            sigR = Arrays.copyOfRange(sigR, 1, 33)
+        }
+
+        signatureData = Sign.SignatureData(v.toByteArray(), sigR, sig.s.toByteArray())
         rlpList = RlpList(TransactionEncoder.asRlpValues(rawTransaction, signatureData))
 
         return SignedTransaction(
