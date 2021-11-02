@@ -70,10 +70,7 @@ class JsonSchemaPolicy : VerificationPolicy {
 class TrustedIssuerDidPolicy : VerificationPolicy {
     override val description: String = "Verify by trusted issuer did"
     override fun verify(vc: VerifiableCredential): Boolean {
-        return when (vc) {
-            is VerifiablePresentation -> true
-            else -> DidService.loadOrResolveAnyDid(VcUtils.getIssuer(vc)) != null
-        }
+        return DidService.loadOrResolveAnyDid(VcUtils.getIssuer(vc)) != null
     }
 }
 
