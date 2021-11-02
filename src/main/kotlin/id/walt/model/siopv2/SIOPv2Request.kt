@@ -11,6 +11,7 @@ data class SIOPv2Request(
   val response_type: String = "id_token",
   val client_id: String,
   val redirect_uri: String,
+  val response_mode: String = "fragment",
   val scope: String = "openid",
   val nonce: String,
   val registration: Registration = Registration(),
@@ -35,6 +36,7 @@ data class SIOPv2Request(
         ctx.queryParam("response_type") ?: "id_token",
         ctx.queryParam("client_id")!!,
         ctx.queryParam("redirect_uri")!!,
+        ctx.queryParam("response_mode")!!,
         ctx.queryParam("scope") ?: "openid",
         ctx.queryParam("nonce")!!,
         Klaxon().parse<Registration>(ctx.queryParam("registration")!!)!!,
@@ -69,9 +71,13 @@ data class  LdpVpFormat(
   val proof_type: Set<String> = setOf("Ed25519Signature2018")
 )
 
+data class VpSchema (
+  val uri: String
+)
+
 data class InputDescriptor (
   val id: String,
-  val schema: String
+  val schema: VpSchema
     )
 
 data class PresentationDefinition (
