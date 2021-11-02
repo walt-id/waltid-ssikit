@@ -4,14 +4,11 @@ import com.nimbusds.jwt.SignedJWT
 import deltadao.GaiaxCredential
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.vclist.*
-import java.text.SimpleDateFormat
 import mu.KotlinLogging
 
 private val log = KotlinLogging.logger("SSIKIT VcUtils")
 
 object VcUtils {
-
-    private val dateFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
 
     fun getIssuer(vcObj: VerifiableCredential): String = when (vcObj) {
         is Europass -> vcObj.issuer!!
@@ -48,52 +45,46 @@ object VcUtils {
     }
 
     fun getIssuanceDate(vc: VerifiableCredential) = when (vc) {
-            is Europass -> vc.issuanceDate
-            is VerifiableId -> vc.issuanceDate
-            is VerifiableDiploma -> vc.issuanceDate
-            is UniversityDegree -> vc.issuanceDate
-            is VerifiableAttestation -> vc.issuanceDate
-            is VerifiableAuthorization -> vc.issuanceDate
-            else -> {
-                log.warn { "No getIssuanceDate for ${vc.type.last()}!" }
-                ""
-            }
-        }.let { parseDate(it) }
+        is Europass -> vc.issuanceDate
+        is VerifiableId -> vc.issuanceDate
+        is VerifiableDiploma -> vc.issuanceDate
+        is UniversityDegree -> vc.issuanceDate
+        is VerifiableAttestation -> vc.issuanceDate
+        is VerifiableAuthorization -> vc.issuanceDate
+        else -> {
+            log.warn { "No getIssuanceDate for ${vc.type.last()}!" }
+            ""
+        }
+    }
 
     fun getValidFrom(vc: VerifiableCredential) = when (vc) {
-            is Europass -> vc.validFrom
-            is VerifiableId -> vc.validFrom
-            is VerifiableDiploma -> vc.validFrom
-            is VerifiableAttestation -> vc.validFrom
-            is VerifiableAuthorization -> vc.validFrom
-            else -> {
-                log.warn { "No getValidFrom for ${vc.type.last()}!" }
-                ""
-            }
-        }.let { parseDate(it) }
+        is Europass -> vc.validFrom
+        is VerifiableId -> vc.validFrom
+        is VerifiableDiploma -> vc.validFrom
+        is VerifiableAttestation -> vc.validFrom
+        is VerifiableAuthorization -> vc.validFrom
+        else -> {
+            log.warn { "No getValidFrom for ${vc.type.last()}!" }
+            ""
+        }
+    }
 
     fun getExpirationDate(vc: VerifiableCredential) = when (vc) {
-            is Europass -> vc.expirationDate
-            is VerifiableId -> vc.expirationDate
-            is VerifiableDiploma -> vc.expirationDate
-            is VerifiableAuthorization -> vc.expirationDate
-            else -> {
-                log.warn { "No getExpirationDate for ${vc.type.last()}!" }
-                ""
-            }
-        }.let { parseDate(it) }
-
-    private fun parseDate(date: String?) = try {
-        dateFormatter.parse(date)
-    } catch (e: Exception) {
-        null
+        is Europass -> vc.expirationDate
+        is VerifiableId -> vc.expirationDate
+        is VerifiableDiploma -> vc.expirationDate
+        is VerifiableAuthorization -> vc.expirationDate
+        else -> {
+            log.warn { "No getExpirationDate for ${vc.type.last()}!" }
+            ""
+        }
     }
 
     fun getCredentialSchema(vc: VerifiableCredential) = when (vc) {
         is Europass -> vc.credentialSchema
         is VerifiableId -> vc.credentialSchema
         is VerifiableDiploma -> vc.credentialSchema
-        is VerifiableAttestation ->  vc.credentialSchema
+        is VerifiableAttestation -> vc.credentialSchema
         is VerifiableAuthorization -> vc.credentialSchema
         else -> {
             log.warn { "No getCredentialSchema for ${vc.type.last()}!" }

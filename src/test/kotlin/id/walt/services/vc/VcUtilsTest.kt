@@ -4,17 +4,16 @@ import id.walt.vclib.model.CredentialSchema
 import id.walt.vclib.vclist.VerifiableDiploma
 import io.kotest.core.spec.style.StringSpec
 import org.junit.jupiter.api.Assertions.assertEquals
-import java.util.*
 
 class VcUtilsTest : StringSpec({
+    val date = "2019-06-22T14:11:44Z"
+
     "getIssuanceDate returns null when it does not exist" {
         assertEquals(null, VcUtils.getIssuanceDate(VerifiableDiploma()))
     }
 
     "getIssuanceDate returns the issuance date when it exists" {
-        val expected = Date(1561205504000)
-        val actual = VcUtils.getIssuanceDate(VerifiableDiploma(issuanceDate = "2019-06-22T14:11:44Z"))
-        assertEquals(expected, actual)
+        assertEquals(date, VcUtils.getIssuanceDate(VerifiableDiploma(issuanceDate = date)))
     }
 
     "getValidFrom returns null when it does not exist" {
@@ -22,9 +21,7 @@ class VcUtilsTest : StringSpec({
     }
 
     "getValidFrom returns valid from when it exists" {
-        val expected = Date(1561205504000)
-        val actual = VcUtils.getValidFrom(VerifiableDiploma(validFrom = "2019-06-22T14:11:44Z"))
-        assertEquals(expected, actual)
+        assertEquals(date, VcUtils.getValidFrom(VerifiableDiploma(validFrom = date)))
     }
 
     "getExpirationDate returns null when it does not exist" {
@@ -32,9 +29,7 @@ class VcUtilsTest : StringSpec({
     }
 
     "getExpirationDate returns the expiration date when it exists" {
-        val expected = Date(1561205504000)
-        val actual = VcUtils.getExpirationDate(VerifiableDiploma(expirationDate = "2019-06-22T14:11:44Z"))
-        assertEquals(expected, actual)
+        assertEquals(date, VcUtils.getExpirationDate(VerifiableDiploma(expirationDate = date)))
     }
 
     "getCredentialSchema returns the credentialSchema attribute value when it exists" {

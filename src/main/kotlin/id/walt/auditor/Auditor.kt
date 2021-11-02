@@ -12,6 +12,7 @@ import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.vclist.VerifiablePresentation
 import kotlinx.serialization.Serializable
 import mu.KotlinLogging
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.LinkedHashMap
 
@@ -31,6 +32,8 @@ private val log = KotlinLogging.logger {}
 
 private val jsonLdCredentialService = JsonLdCredentialService.getService()
 private val jwtCredentialService = JwtCredentialService.getService()
+private val dateFormatter =
+    SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").also { it.timeZone = TimeZone.getTimeZone("UTC") }
 
 @Serializable
 data class VerificationPolicyMetadata(val description: String, val id: String)
@@ -136,7 +139,7 @@ class IssuanceDateBeforePolicy : VerificationPolicy {
     override fun verify(vc: VerifiableCredential): Boolean {
         return when (vc) {
             is VerifiablePresentation -> true
-            else -> VcUtils.getIssuanceDate(vc).let { it != null && it.before(Date()) }
+            else -> parseDate(VcUtils.getIssuanceDate(vc)).let { it != null && it.before(Date()) }
         }
     }
 }
@@ -146,7 +149,7 @@ class ValidFromBeforePolicy : VerificationPolicy {
     override fun verify(vc: VerifiableCredential): Boolean {
         return when (vc) {
             is VerifiablePresentation -> true
-            else -> VcUtils.getValidFrom(vc).let { it != null && it.before(Date()) }
+            else -> parseDate(VcUtils.getValidFrom(vc)).let { it != null && it.before(Date()) }
         }
     }
 }
@@ -156,9 +159,15 @@ class ExpirationDateAfterPolicy : VerificationPolicy {
     override fun verify(vc: VerifiableCredential): Boolean {
         return when (vc) {
             is VerifiablePresentation -> true
-            else -> VcUtils.getExpirationDate(vc).let { it == null || it.after(Date()) }
+            else -> parseDate(VcUtils.getExpirationDate(vc)).let { it == null || it.after(Date()) }
         }
     }
+}
+
+private fun parseDate(date: String?) = try {
+    dateFormatter.parse(date)
+} catch (e: Exception) {
+    null
 }
 
 object PolicyRegistry {
@@ -196,8 +205,8 @@ interface IAuditor {
 
     fun verify(vcJson: String, policies: List<VerificationPolicy>): VerificationResult
 
-//    fun verifyVc(vc: String, config: AuditorConfig) = VerificationStatus(true)
-//    fun verifyVp(vp: String, config: AuditorConfig) = VerificationStatus(true)
+    //    fun verifyVc(vc: String, config: AuditorConfig) = VerificationStatus(true)
+    //    fun verifyVp(vp: String, config: AuditorConfig) = VerificationStatus(true)
 }
 
 object Auditor : IAuditor {
