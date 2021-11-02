@@ -11,7 +11,6 @@ import id.walt.vclib.Helpers.encode
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.model.CredentialSchema
 import id.walt.vclib.model.CredentialStatus
-import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.vclist.*
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
@@ -51,7 +50,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
 
         vcVerified.verificationType shouldBe VerificationType.VERIFIABLE_CREDENTIAL
 
-        val holderDid = VcUtils.getHolder(vc)
+        val holderDid = VcUtils.getSubject(vc)
         val vpStr = credentialService.present(listOf(vcStr), holderDid, "domain.com", "nonce")
         println("Presentation generated: $vpStr")
 
@@ -111,7 +110,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
     fun presentVa() {
         val vaStr = File("$VC_PATH/vc-ebsi-verifiable-authorisation.json").readText()
 
-        val vp = credentialService.present(listOf(vaStr), VcUtils.getHolder(vaStr.toCredential()), null, null)
+        val vp = credentialService.present(listOf(vaStr), VcUtils.getSubject(vaStr.toCredential()), null, null)
 
         println(vp)
     }
@@ -191,7 +190,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
         val vcSigned = vc.toCredential()
         println(vcSigned.toString())
 
-        val vp = credentialService.present(listOf(vc), VcUtils.getHolder(vcSigned), domain, challenge)
+        val vp = credentialService.present(listOf(vc), VcUtils.getSubject(vcSigned), domain, challenge)
         println("Presentation generated: $vp")
 
         val vpVerified = credentialService.verifyVp(vp)

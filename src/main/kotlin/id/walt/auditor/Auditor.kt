@@ -61,9 +61,11 @@ class SignaturePolicy : VerificationPolicy {
 
 class JsonSchemaPolicy : VerificationPolicy {
     override val description: String = "Verify by JSON schema"
-    override fun verify(vc: VerifiableCredential) = when (vc.jwt) {
-        null -> jsonLdCredentialService.validateSchema(vc.encode()) // Schema already validated by json-ld?
-        else -> jwtCredentialService.validateSchema(vc.encode())
+    override fun verify(vc: VerifiableCredential): Boolean {
+        return when (vc.jwt) {
+            null -> jsonLdCredentialService.validateSchema(vc.encode()) // Schema already validated by json-ld?
+            else -> jwtCredentialService.validateSchema(vc.encode())
+        }
     }
 }
 
@@ -122,11 +124,9 @@ class TrustedIssuerRegistryPolicy : VerificationPolicy {
 class TrustedSubjectDidPolicy : VerificationPolicy {
     override val description: String = "Verify by trusted subject did"
     override fun verify(vc: VerifiableCredential): Boolean {
-
-        //TODO complete PoC implementation
-        return when (vc) {
-            is VerifiablePresentation -> true
-            else -> DidService.loadOrResolveAnyDid(VcUtils.getHolder(vc)) != null
+        return VcUtils.getSubject(vc).let {
+            if (it.isEmpty()) true
+            else DidService.loadOrResolveAnyDid(it) != null
         }
     }
 }

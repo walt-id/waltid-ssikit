@@ -32,7 +32,7 @@ object VcUtils {
         }
     }
 
-    fun getHolder(vcObj: VerifiableCredential): String = when (vcObj) {
+    fun getSubject(vcObj: VerifiableCredential): String = when (vcObj) {
         is Europass -> vcObj.credentialSubject!!.id!!
         is VerifiableId -> vcObj.credentialSubject!!.id!!
         is VerifiableDiploma -> vcObj.credentialSubject!!.id!!
