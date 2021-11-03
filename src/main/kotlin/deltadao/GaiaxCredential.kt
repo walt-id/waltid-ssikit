@@ -22,6 +22,7 @@ data class GaiaxCredential(
         var brandName: String, // deltaDAO
         var legallyBindingAddress: LegallyBindingAddress,
         var webAddress: WebAddress,
+        var DNSpublicKey: String, // 04:8B:CA:33:B1:A1:3A:69:E6:A2:1E:BE:CB:4E:DF:75:A9:70:8B:AA:51:83:AB:A1:B0:5A:35:20:3D:B4:29:09:AD:67:B4:12:19:3B:6A:B5:7C:12:3D:C4:CA:DD:A5:E0:DA:05:1E:5E:1A:4B:D1:F2:BA:8F:07:4D:C7:B6:AA:23:46
         var corporateEmailAddress: String, // contact@delta-dao.com
         var individualContactLegal: String, // legal@delta-dao.com
         var individualContactTechnical: String, // support@delta-dao.com
@@ -39,6 +40,10 @@ data class GaiaxCredential(
             var countryName: String // Germany
         )
 
+        data class DNSpublicKey(
+            var DNSpublicKey: String // 04:8B:CA:33:B1:A1:3A:69:E6:A2:1E:BE:CB:4E:DF:75:A9:70:8B:AA:51:83:AB:A1:B0:5A:35:20:3D:B4:29:09:AD:67:B4:12:19:3B:6A:B5:7C:12:3D:C4:CA:DD:A5:E0:DA:05:1E:5E:1A:4B:D1:F2:BA:8F:07:4D:C7:B6:AA:23:46
+        )    
+        
         data class WebAddress(
             var url: String // https://www.delta-dao.com/
         )
@@ -94,6 +99,7 @@ data class GaiaxCredential(
                     ethereumAddress = CustomCredentialSubject.EthereumAddress(
                         id = "0x4C84a36fCDb7Bc750294A7f3B5ad5CA8F74C4A52"
                     ),
+                    DNSpublicKey = "04:8B:CA:33:B1:A1:3A:69:E6:A2:1E:BE:CB:4E:DF:75:A9:70:8B:AA:51:83:AB:A1:B0:5A:35:20:3D:B4:29:09:AD:67:B4:12:19:3B:6A:B5:7C:12:3D:C4:CA:DD:A5:E0:DA:05:1E:5E:1A:4B:D1:F2:BA:8F:07:4D:C7:B6:AA:23:46",
                     trustState = "trusted"
                 )
             )
