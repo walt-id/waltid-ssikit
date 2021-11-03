@@ -22,7 +22,7 @@ data class SIOPv2Request(
   ) {
   private fun enc(str: String): String = URLEncoder.encode(str, StandardCharsets.UTF_8)
   fun toUriQueryString(): String {
-    return "response_type=${enc(response_type)}&client_id=${enc(client_id)}&redirect_uri=${enc(redirect_uri)}" +
+    return "response_type=${enc(response_type)}&response_mode=${enc(response_mode)}&client_id=${enc(client_id)}&redirect_uri=${enc(redirect_uri)}" +
            "&scope=${enc(scope)}&nonce=${enc(nonce)}&registration=${enc(Klaxon().toJsonString(registration))}" +
            "&exp=$expiration&iat=$issuedAt&claims=${enc(Klaxon().toJsonString(claims))}"
   }
@@ -36,7 +36,7 @@ data class SIOPv2Request(
         ctx.queryParam("response_type") ?: "id_token",
         ctx.queryParam("client_id")!!,
         ctx.queryParam("redirect_uri")!!,
-        ctx.queryParam("response_mode")!!,
+        ctx.queryParam("response_mode") ?: "fragment",
         ctx.queryParam("scope") ?: "openid",
         ctx.queryParam("nonce")!!,
         Klaxon().parse<Registration>(ctx.queryParam("registration")!!)!!,
