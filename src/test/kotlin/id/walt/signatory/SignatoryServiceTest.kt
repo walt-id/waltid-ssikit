@@ -109,7 +109,7 @@ class SignatoryServiceTest : StringSpec({
         val vc = signatory.issue("VerifiableId", ProofConfig(subjectDid = did, issuerDid = did, proofType = ProofType.LD_PROOF))
         val vcObj = vc.toCredential()
         vcObj should beInstanceOf<VerifiableId>()
-        (vcObj as VerifiableId).id.isNullOrBlank() shouldNotBe true
+        (vcObj as VerifiableId).id.isNullOrBlank() shouldBe false
         val cred = WaltContext.vcStore.getCredential(vcObj.id!!, "signatory")
         cred should beInstanceOf<VerifiableId>()
         (cred as VerifiableId).id shouldBe vcObj.id

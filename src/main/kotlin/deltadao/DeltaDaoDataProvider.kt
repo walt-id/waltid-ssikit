@@ -68,7 +68,7 @@ class IdData(
     val placeOfBirth: String,
     val currentAddress: String,
     val gender: String
-) {}
+)
 
 object DeltaDaoDatabase {
     var mockedIds: Map<String, IdData>

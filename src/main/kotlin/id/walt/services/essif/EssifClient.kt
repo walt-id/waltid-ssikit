@@ -354,7 +354,7 @@ object EssifClient {
         println("20 Process completed successfully")
 
         ///////////////////////////////////////////////////////////////////////////
-        // Finally the mutual authenticated session is established and the VC may be
+        // Finally, the mutual authenticated session is established and the VC may be
         // obtained.
         ///////////////////////////////////////////////////////////////////////////
         val credential =

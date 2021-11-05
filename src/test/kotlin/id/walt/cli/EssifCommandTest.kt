@@ -18,8 +18,6 @@ import io.kotest.matchers.string.shouldContain
 import java.io.File
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
-import kotlin.time.minutes
-import kotlin.time.seconds
 
 
 // CLI KIT Options
@@ -54,7 +52,7 @@ class EssifCommandTest : StringSpec({
     // DID used for onboarding
     val key = KeyService.getService().generate(KeyAlgorithm.EdDSA_Ed25519)
     val ethKey = KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1)
-    var did = DidService.create(DidMethod.ebsi, keyAlias = key.id)
+    val did = DidService.create(DidMethod.ebsi, keyAlias = key.id)
     val identifier = DidUrl.from(did).identifier
 
     "onboard --help" {

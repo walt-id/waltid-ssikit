@@ -6,7 +6,7 @@ class UserAgent {
 
     fun requestAccess(): Boolean {
         println("2. [UA] Sign-On")
-        var authReq = RelyingParty.signOn()
+        val authReq = RelyingParty.signOn()
 
         println("6. [UA] Process Authentication Request: 302 openid://")
         println("7. [UA] Process Authentication Request: openid://")

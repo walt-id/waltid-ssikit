@@ -207,9 +207,7 @@ object DidService {
     }
 
     private fun signDid(issuerDid: String, verificationMethod: String, edDidStr: String): String {
-        val signedDid =
-            credentialService.sign(edDidStr, ProofConfig(issuerDid = issuerDid, issuerVerificationMethod = verificationMethod))
-        return signedDid
+        return credentialService.sign(edDidStr, ProofConfig(issuerDid = issuerDid, issuerVerificationMethod = verificationMethod))
     }
 
     private fun resolveDidKey(didUrl: DidUrl): Did {

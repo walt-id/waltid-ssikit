@@ -22,7 +22,6 @@ import java.util.*
 class VcIssuanceFlowTest : AnnotationSpec() {
 
     private val keyService = KeyService.getService()
-    private val jwtService = JwtService.getService()
 
     init {
         ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")

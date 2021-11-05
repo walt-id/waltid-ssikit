@@ -8,7 +8,7 @@ private val log = KotlinLogging.logger("DidUrl")
 
 /**
 scheme did:, a method identifier, and a unique, method-specific identifier
-specified by the DID method. DIDs are resolvable to DID documents. A DID URL
+specified by the DID method. DIDs are resolvable to DID document. A DID URL
 extends the syntax of a basic DID to incorporate other standard URI components
 such as path, query, and fragment in order to locate a particular resource
  */

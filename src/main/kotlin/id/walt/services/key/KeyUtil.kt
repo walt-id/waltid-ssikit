@@ -16,7 +16,7 @@ object KeyUtil {
     // Thx to jrichter for providing this code withing lib: json-webkey-generator
     fun make(keyPair: KeyPair, keyCurve: Curve, keyUse: KeyUse?, keyAlg: Algorithm?, kid: String): OctetKeyPair {
 
-        // Java only gives us the keys in ASN.1 format so we need to parse them back out to get the raw numbers
+        // Java only gives us the keys in ASN.1 format, so we need to parse them back out to get the raw numbers
 
         /*
               * Public key is:
@@ -46,7 +46,7 @@ object KeyUtil {
         var d = (privPrim.getObjectAt(2) as ASN1OctetString).octets
 
         // Both the public and private keys should be the same length.
-        // For some reason, sometimes the private key is double-wrapped in OctetStrings and we need to unpack that.
+        // For some reason, sometimes the private key is double-wrapped in OctetStrings, and we need to unpack that.
         if (x.size < d.size) {
             d = (ASN1OctetString.fromByteArray(d) as ASN1OctetString).octets
         }

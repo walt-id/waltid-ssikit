@@ -26,7 +26,7 @@ class WaltContextTest: AnnotationSpec() {
 
   @Test
   fun testContext() {
-    var context = TestContext("userA")
+    val context = TestContext("userA")
     ServiceRegistry.registerService<WaltContext>(context)
     val did1 = DidService.create(DidMethod.key)
 
