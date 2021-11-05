@@ -106,7 +106,7 @@ class CryptoServiceTest : AnnotationSpec() {
         val keyId = sunCryptoService.generateKey(KeyAlgorithm.ECDSA_Secp256k1)
 
         for (i in 1..10) {
-            var signature = sunCryptoService.sign(keyId, data)
+            val signature = sunCryptoService.sign(keyId, data)
             val verify = sunCryptoService.verify(keyId, signature, data)
             verify shouldBe true
         }

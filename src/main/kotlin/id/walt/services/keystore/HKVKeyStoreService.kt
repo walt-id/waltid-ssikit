@@ -40,7 +40,7 @@ open class HKVKeyStoreService : KeyStoreService() {
     override fun addAlias(keyId: KeyId, alias: String) {
         hkvStore.put(HKVKey.combine(ALIAS_ROOT, alias), keyId.id)
         val aliases = hkvStore.getAsString(HKVKey.combine(KEYS_ROOT, keyId.id, "aliases"))?.split("\n")?.plus(alias) ?: listOf(alias)
-        hkvStore.put(HKVKey.combine(KEYS_ROOT, keyId.id, "aliases"), "${aliases.joinToString("\n")}")
+        hkvStore.put(HKVKey.combine(KEYS_ROOT, keyId.id, "aliases"), aliases.joinToString("\n"))
     }
 
     override fun store(key: Key) {
@@ -59,7 +59,7 @@ open class HKVKeyStoreService : KeyStoreService() {
         if(keyId.isNullOrEmpty())
             return
         val aliases = hkvStore.getAsString(HKVKey.combine(KEYS_ROOT, keyId, "aliases")) ?: ""
-        aliases.split("\n").forEach({a -> hkvStore.delete(HKVKey.combine(ALIAS_ROOT, a), recursive = false)})
+        aliases.split("\n").forEach { a -> hkvStore.delete(HKVKey.combine(ALIAS_ROOT, a), recursive = false) }
         hkvStore.delete(HKVKey.combine(KEYS_ROOT, keyId), recursive = true)
     }
 

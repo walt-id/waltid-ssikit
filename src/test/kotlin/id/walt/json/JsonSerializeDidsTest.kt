@@ -1,4 +1,4 @@
-package id.walt.services.data
+package id.walt.json
 
 import com.beust.klaxon.Klaxon
 import id.walt.model.DidEbsi

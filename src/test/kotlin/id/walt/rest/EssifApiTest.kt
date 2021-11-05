@@ -42,7 +42,7 @@ class EssifApiTest : AnnotationSpec() {
 
     @Test
     fun testRealEbsi() = runBlocking {
-        var authResp = client.post<AuthRequestResponse>("$ESSIF_API_URL/test/enterprise/wallet/authentication-requests") {
+        val authResp = client.post<AuthRequestResponse>("$ESSIF_API_URL/test/enterprise/wallet/authentication-requests") {
             contentType(ContentType.Application.Json)
             headers {
                 append(HttpHeaders.Accept, "application/json")

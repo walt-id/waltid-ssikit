@@ -113,12 +113,12 @@ class TrustedIssuerRegistryPolicy : VerificationPolicy {
 
         if (tirRecord.attributes[0].body != "eyJAY29udGV4dCI6Imh0dHBzOi8vZWJzaS5ldSIsInR5cGUiOiJhdHRyaWJ1dGUiLCJuYW1lIjoiaXNzdWVyIiwiZGF0YSI6IjVkNTBiM2ZhMThkZGUzMmIzODRkOGM2ZDA5Njg2OWRlIn0=") {
             issuerRecordValid = false
-            log.debug { "Body of TIR record ${tirRecord} not valid." }
+            log.debug { "Body of TIR record $tirRecord not valid." }
         }
 
         if (tirRecord.attributes[0].hash != "14f2d3c3320f65b6fd9413608e4c17f831e3c595ad61222ec12f899752348718") {
             issuerRecordValid = false
-            log.debug { "Body of TIR record ${tirRecord} not valid." }
+            log.debug { "Body of TIR record $tirRecord not valid." }
         }
         return issuerRecordValid
     }
