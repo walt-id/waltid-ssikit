@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="ERROR">
+    <Properties>
+        <Property name="basePath">logs</Property>
+    </Properties>
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
         </Console>
-        <RollingFile name="RollingFile" fileName="walt.log"
-                     filePattern="logs/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log.gz">
+        <RollingFile name="RollingFile" fileName="${basePath}/walt.log"
+                     filePattern="${basePath}/$${date:yyyy-MM}/walt-%d{MM-dd-yyyy}-%i.log.gz">
             <PatternLayout>
                 <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
             </PatternLayout>
@@ -17,7 +20,7 @@
     </Appenders>
     <Loggers>
         <Root level="ERROR">
-            <AppenderRef ref="Console"/>
+            <AppenderRef ref="RollingFile"/>
         </Root>
         <Logger name="id.walt" level="ERROR">
             <AppenderRef ref="Console"/>

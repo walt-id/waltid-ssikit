@@ -360,6 +360,7 @@ object DidService {
                     pubKeyJwk!!.kid = id
                     log.debug { "Importing key: ${pubKeyJwk.kid}" }
                     val keyId = KeyService.getService().import(Klaxon().toJsonString(pubKeyJwk))
+                    WaltContext.keyStore.delete(keyId.id)
                     WaltContext.keyStore.addAlias(keyId, didStr)
                     return true
                 }
