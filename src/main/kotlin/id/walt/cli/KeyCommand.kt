@@ -87,7 +87,7 @@ class ExportKeyCommand : CliktCommand(
     override fun run() {
         val exportKeyType = if (!exportPrivate) KeyType.PUBLIC else KeyType.PRIVATE
 
-        echo("Exporting $exportPrivate key \"$keyId\"...")
+        echo("Exporting $exportKeyType key \"$keyId\"...")
         val jwk = KeyCommandLogic.export(keyId, keyFormat, exportKeyType)
 
         echo("\nResults:\n")
