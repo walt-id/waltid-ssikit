@@ -36,7 +36,7 @@ abstract class KeyService : WaltIdService() {
     ): String =
         implementation.export(keyAlias, format, exportKeyType)
 
-    open fun import(keyStr: String): KeyId = implementation.import(keyStr)
+    open fun importKey(keyStr: String): KeyId = implementation.importKey(keyStr)
 
     open fun toJwk(keyAlias: String, keyType: KeyType = KeyType.PUBLIC, jwkKeyId: String? = null): JWK =
         implementation.toJwk(keyAlias, keyType, jwkKeyId)

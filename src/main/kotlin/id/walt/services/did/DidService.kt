@@ -357,7 +357,7 @@ object DidService {
                     KeyService.getService().delete(id)
                     pubKeyJwk!!.kid = id
                     log.debug { "Importing key: ${pubKeyJwk.kid}" }
-                    val keyId = KeyService.getService().import(Klaxon().toJsonString(pubKeyJwk))
+                    val keyId = KeyService.getService().importKey(Klaxon().toJsonString(pubKeyJwk))
                     WaltContext.keyStore.addAlias(keyId, didStr)
                     return true
                 }

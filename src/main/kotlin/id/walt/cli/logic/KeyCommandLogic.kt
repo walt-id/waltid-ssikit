@@ -17,7 +17,7 @@ object KeyCommandLogic {
         else -> throw IllegalArgumentException("Algorithm not supported")
     }
 
-    fun import(keyStr: String) = keyService.import(keyStr)
+    fun import(keyStr: String) = keyService.importKey(keyStr)
     fun export(keyId: String, keyFormat: KeyFormat, exportKeyType: KeyType) = keyService.export(keyId, keyFormat, exportKeyType)
     fun listKeys() = keyService.listKeys()
 }

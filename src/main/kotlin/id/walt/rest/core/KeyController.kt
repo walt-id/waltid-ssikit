@@ -96,7 +96,7 @@ object KeyController {
 
     fun import(ctx: Context) {
         // val req = ctx.bodyAsClass(ImportKeyRequest::class.java)
-        ctx.json(keyService.import(ctx.body()))
+        ctx.json(keyService.importKey(ctx.body()))
     }
 
     fun importDocs() = document().operation {
