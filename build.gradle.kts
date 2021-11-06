@@ -48,7 +48,7 @@ dependencies {
     implementation("org.json:json:20210307")
     implementation("com.beust:klaxon:5.5")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.0")
-    implementation("net.pwall.json:json-kotlin-schema:0.23")
+    implementation("net.pwall.json:json-kotlin-schema:0.29")
     //implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
 
     // DB
@@ -81,9 +81,9 @@ dependencies {
     implementation("io.github.microutils:kotlin-logging-jvm:2.0.11")
 
     // Config
-    implementation("com.sksamuel.hoplite:hoplite-core:1.4.9")
-    implementation("com.sksamuel.hoplite:hoplite-yaml:1.4.9")
-    implementation("com.sksamuel.hoplite:hoplite-hikaricp:1.4.9")
+    implementation("com.sksamuel.hoplite:hoplite-core:1.4.11")
+    implementation("com.sksamuel.hoplite:hoplite-yaml:1.4.11")
+    implementation("com.sksamuel.hoplite:hoplite-hikaricp:1.4.11")
 
     // Service-Matrix
     implementation("id.walt.servicematrix:WaltID-ServiceMatrix:1.0.1")
