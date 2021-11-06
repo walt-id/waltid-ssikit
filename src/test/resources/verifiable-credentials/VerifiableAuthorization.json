@@ -1,0 +1,22 @@
+{
+  "@context" : [ "https://www.w3.org/2018/credentials/v1" ],
+  "credentialSubject" : {
+    "id" : "did:ebsi:zfSwy9D7XWgDzsUHEue7hsA",
+    "naturalPerson" : {
+      "did" : "did:example:00001111"
+    }
+  },
+  "id" : "identity#VerifiableAuthorization#451a48c7-0f17-4bf2-8309-66af2a6d1f6c",
+  "issuanceDate" : "2020-08-24T14:13:44Z",
+  "issuer" : "did:ebsi:zfSwy9D7XWgDzsUHEue7hsA",
+  "type" : [ "VerifiableCredential", "VerifiableAuthorization" ],
+  "proof" : {
+    "type" : "Ed25519Signature2018",
+    "creator" : "did:ebsi:zfSwy9D7XWgDzsUHEue7hsA",
+    "created" : "2021-11-06T19:49:49Z",
+    "domain" : "https://api.preprod.ebsi.eu",
+    "nonce" : "fde5284b-f518-4b4a-953b-d0b076454872",
+    "verificationMethod" : "did:ebsi:zfSwy9D7XWgDzsUHEue7hsA#key-1",
+    "jws" : "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..MxiFgf0-wNNtye8-ZC_AjV8iMpTjG26C4_9W431egnkC8LJcv0c56GcfaBfAugQ6mPtmA8Si3qIKXwGu66uEBQ"
+  }
+}

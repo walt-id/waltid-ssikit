@@ -66,23 +66,6 @@ class AuditorApiTest : AnnotationSpec() {
         policies shouldContain VerificationPolicyMetadata("Verify by JSON schema", "JsonSchemaPolicy")
     }
 
-    @Test
-    fun testCredentialVerification() = runBlocking {
-        val signatory = Signatory.getService()
-        val did = DidService.create(DidMethod.key)
-
-        val vcToVerify = signatory.issue(
-            "VerifiableId", ProofConfig(
-                subjectDid = did,
-                issuerDid = did,
-                issueDate = LocalDateTime.of(2020, 11, 3, 0, 0),
-                issuerVerificationMethod = "Ed25519Signature2018"
-            )
-        )
-
-        postAndVerify(vcToVerify)
-    }
-
     private fun postAndVerify(vcToVerify: String) {
         val verificationResultJson = httpPost {
             host = Auditor_HOST
@@ -101,12 +84,43 @@ class AuditorApiTest : AnnotationSpec() {
     }
 
     @Test
+    fun testCredentialVerification() = runBlocking {
+        val signatory = Signatory.getService()
+        val did = DidService.create(DidMethod.key)
+
+        val vcToVerify = signatory.issue(
+            "VerifiableId", ProofConfig(
+                subjectDid = did,
+                issuerDid = did,
+                issueDate = LocalDateTime.of(2020, 11, 3, 0, 0)
+            )
+        )
+
+        postAndVerify(vcToVerify)
+    }
+
+    @Test
     fun testDeqarCredential() {
         postAndVerify(readVerifiableCredential("DeqarCredential"))
     }
 
-    // @Test
+    @Test
     fun testGaiaxCredential() {
         postAndVerify(readVerifiableCredential("GaiaxCredential"))
+    }
+
+    // TODO @Test
+    fun testVerifiableAuthorizationCredential() {
+        postAndVerify(readVerifiableCredential("VerifiableAuthorization"))
+    }
+
+    // TODO @Test
+    fun testVerifiableAttestationCredential() {
+        postAndVerify(readVerifiableCredential("VerifiableAttestation"))
+    }
+
+    // TODO @Test
+    fun testPermanentResidentCardCredential() {
+        postAndVerify(readVerifiableCredential("PermanentResidentCard"))
     }
 }

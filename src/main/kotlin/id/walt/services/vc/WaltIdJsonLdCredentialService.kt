@@ -26,13 +26,13 @@ import id.walt.vclib.vclist.VerifiablePresentation
 import info.weboftrust.ldsignatures.LdProof
 import info.weboftrust.ldsignatures.jsonld.LDSecurityContexts
 import mu.KotlinLogging
+import net.pwall.json.schema.JSONSchema
 import org.json.JSONObject
 import java.net.URI
 import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.*
-import net.pwall.json.schema.JSONSchema
 
 private val log = KotlinLogging.logger {}
 

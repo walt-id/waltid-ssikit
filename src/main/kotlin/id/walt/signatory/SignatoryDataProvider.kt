@@ -3,10 +3,7 @@ package id.walt.signatory
 import id.walt.model.DidMethod
 import id.walt.services.did.DidService
 import id.walt.vclib.model.VerifiableCredential
-import id.walt.vclib.vclist.Europass
-import id.walt.vclib.vclist.GaiaxCredential
-import id.walt.vclib.vclist.VerifiableDiploma
-import id.walt.vclib.vclist.VerifiableId
+import id.walt.vclib.vclist.*
 import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.reflect.KClass
@@ -16,6 +13,59 @@ interface SignatoryDataProvider {
 }
 
 val dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
+
+
+object DataProviderRegistry {
+    val providers = HashMap<KClass<out VerifiableCredential>, SignatoryDataProvider>()
+
+    fun register(credentialType: KClass<out VerifiableCredential>, provider: SignatoryDataProvider) =
+        providers.put(credentialType, provider)
+
+    fun getProvider(credentialType: KClass<out VerifiableCredential>) =
+        providers[credentialType] ?: throw NoSuchDataProviderException(credentialType)
+
+    init {
+        // Init default providers
+        register(VerifiableAttestation::class, VerifiableAttestationDataProvider())
+        register(VerifiableAuthorization::class, VerifiableAuthorizationDataProvider())
+        register(VerifiableDiploma::class, VerifiableDiplomaDataProvider())
+        register(VerifiableId::class, VerifiableIdDataProvider())
+        register(Europass::class, EuropassDataProvider())
+        register(GaiaxCredential::class, DeltaDaoDataProvider())
+        register(PermanentResidentCard::class, PermanentResidentCardDataProvider())
+    }
+}
+
+
+class VerifiableAttestationDataProvider : SignatoryDataProvider {
+    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableAttestation {
+        val vc = template as VerifiableAttestation
+        vc.id = proofConfig.credentialId
+        vc.issuer = proofConfig.issuerDid
+        vc.credentialSubject!!.id = proofConfig.subjectDid!!
+        return vc
+    }
+}
+
+class VerifiableAuthorizationDataProvider : SignatoryDataProvider {
+    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableAuthorization {
+        val vc = template as VerifiableAuthorization
+        vc.id = proofConfig.credentialId
+        vc.issuer = proofConfig.issuerDid
+        vc.credentialSubject.id = proofConfig.subjectDid!!
+        return vc
+    }
+}
+
+class PermanentResidentCardDataProvider : SignatoryDataProvider {
+    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): PermanentResidentCard {
+        val vc = template as PermanentResidentCard
+        vc.id = proofConfig.credentialId
+        vc.issuer = proofConfig.issuerDid
+        vc.credentialSubject!!.id = proofConfig.subjectDid!!
+        return vc
+    }
+}
 
 class EuropassDataProvider : SignatoryDataProvider {
 
@@ -67,24 +117,6 @@ class VerifiableDiplomaDataProvider : SignatoryDataProvider {
 class NoSuchDataProviderException(credentialType: KClass<out VerifiableCredential>) :
     Exception("No data provider is registered for ${credentialType.simpleName}")
 
-object DataProviderRegistry {
-    val providers = HashMap<KClass<out VerifiableCredential>, SignatoryDataProvider>()
-
-    // TODO register via unique stringId
-    fun register(credentialType: KClass<out VerifiableCredential>, provider: SignatoryDataProvider) =
-        providers.put(credentialType, provider)
-
-    fun getProvider(credentialType: KClass<out VerifiableCredential>) =
-        providers[credentialType] ?: throw NoSuchDataProviderException(credentialType)
-
-    init {
-        // Init default providers
-        register(VerifiableDiploma::class, VerifiableDiplomaDataProvider())
-        register(VerifiableId::class, VerifiableIdDataProvider())
-        register(Europass::class, EuropassDataProvider())
-        register(GaiaxCredential::class, DeltaDaoDataProvider())
-    }
-}
 
 class DeltaDaoDataProvider : SignatoryDataProvider {
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {

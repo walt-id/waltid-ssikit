@@ -3,6 +3,7 @@ package id.walt.auditor
 import id.walt.model.TrustedIssuer
 import id.walt.services.did.DidService
 import id.walt.services.essif.TrustedIssuerClient
+import id.walt.services.key.KeyService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
 import id.walt.services.vc.VcUtils
@@ -51,7 +52,17 @@ class SignaturePolicy : VerificationPolicy {
         return try {
             log.debug { "is jwt: ${vc.jwt != null}" }
 
-            DidService.importKey(VcUtils.getIssuer(vc)) && when (vc.jwt) {
+            val issuerDid = VcUtils.getIssuer(vc)
+
+            try {
+                // Check if key is already in keystore
+                KeyService.getService().load(issuerDid)
+            } catch (e: Exception) {
+                // Resolve DID and import key
+                DidService.importKey(issuerDid)
+            }
+
+            when (vc.jwt) {
                 null -> jsonLdCredentialService.verify(vc.json!!).verified
                 else -> jwtCredentialService.verify(vc.jwt!!).verified
             }

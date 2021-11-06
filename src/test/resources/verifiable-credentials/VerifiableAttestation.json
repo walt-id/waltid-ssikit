@@ -1,0 +1,36 @@
+{
+  "@context" : [ "https://www.w3.org/2018/credentials/v1" ],
+  "credentialSchema" : {
+    "id" : "https://essif.europa.eu/tsr-vid/verifiableid1.json",
+    "type" : "JsonSchemaValidator2018"
+  },
+  "credentialStatus" : {
+    "id" : "https://essif.europa.eu/status/identity#verifiableID#1dee355d-0432-4910-ac9c-70d89e8d674e",
+    "type" : "CredentialStatusList2020"
+  },
+  "credentialSubject" : {
+    "id" : "did:key:z6MkpUP5AwyfSsMiywfBwYJMtJjPubTZAM1ZviFN4d3s8RzC"
+  },
+  "evidence" : [ {
+    "documentPresence" : "Physical",
+    "evidenceDocument" : "Passport",
+    "id" : "https://essif.europa.eu/tsr-va/evidence/f2aeec97-fc0d-42bf-8ca7-0548192d5678",
+    "subjectPresence" : "Physical",
+    "type" : [ "DocumentVerification" ],
+    "verifier" : "did:ebsi:2962fb784df61baa267c8132497539f8c674b37c1244a7a"
+  } ],
+  "id" : "identity#VerifiableAttestation#0d534daf-a400-45ef-b3fc-38b7487087b3",
+  "issuanceDate" : "2019-06-22T14:11:44Z",
+  "issuer" : "did:key:z6MkpUP5AwyfSsMiywfBwYJMtJjPubTZAM1ZviFN4d3s8RzC",
+  "validFrom" : "2019-06-22T14:11:44Z",
+  "type" : [ "VerifiableCredential", "VerifiableAttestation" ],
+  "proof" : {
+    "type" : "Ed25519Signature2018",
+    "creator" : "did:key:z6MkpUP5AwyfSsMiywfBwYJMtJjPubTZAM1ZviFN4d3s8RzC",
+    "created" : "2021-11-06T20:37:13Z",
+    "domain" : "https://api.preprod.ebsi.eu",
+    "nonce" : "192a1dd8-2767-490f-9330-1046d02acbd3",
+    "verificationMethod" : "did:key:z6MkpUP5AwyfSsMiywfBwYJMtJjPubTZAM1ZviFN4d3s8RzC#key-1",
+    "jws" : "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..CeY85MmyWO2V4GRNGxqoNBeSNMd-dzrXmQsPqvKaYlSKShiKp3AWX6xhfwVB_6tKglm7sjkI0_MGqGw0z-7SCw"
+  }
+}

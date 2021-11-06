@@ -8,6 +8,7 @@ import id.walt.model.*
 import id.walt.services.WaltIdServices
 import id.walt.services.context.WaltContext
 import id.walt.services.crypto.CryptoService
+
 import id.walt.services.hkvstore.HKVKey
 import id.walt.services.key.KeyService
 import id.walt.services.vc.JsonLdCredentialService
@@ -18,6 +19,7 @@ import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.bouncycastle.asn1.ASN1BitString
 import org.bouncycastle.asn1.ASN1Sequence
+
 import java.util.*
 
 private val log = KotlinLogging.logger {}
@@ -347,26 +349,55 @@ object DidService {
         }
     }
 
-    fun importKey(didStr: String): Boolean {
-        val anyDid = loadOrResolveAnyDid(didStr)
-        return anyDid?.run {
-            return when (method) {
-                DidMethod.ebsi -> {
-                    this as DidEbsi
-                    val pubKeyJwk = verificationMethod!![0].publicKeyJwk
-                    KeyService.getService().delete(id)
-                    pubKeyJwk!!.kid = id
-                    log.debug { "Importing key: ${pubKeyJwk.kid}" }
-                    val keyId = KeyService.getService().importKey(Klaxon().toJsonString(pubKeyJwk))
-                    WaltContext.keyStore.addAlias(keyId, didStr)
-                    return true
-                }
-                else -> {
-                    // TODO: implement other did types
-                    return true
-                }
+    fun importKey(didUrl: String) {
+        val did = loadOrResolveAnyDid(didUrl) ?: throw Exception("Could not load or resolve $didUrl")
+
+        val verificationMethod = when (did) {
+            is DidEbsi -> did.verificationMethod
+            is Did -> did.verificationMethod
+            else -> throw Exception("Did not supported")
+        } ?: throw Exception("Could not import key as no verification method was found")
+
+        verificationMethod.forEach { vm ->
+            if (!booleanArrayOf(
+                    importJwk(didUrl, vm.publicKeyJwk),
+                    importKeyBase58(didUrl, vm.publicKeyBase58),
+                    importKeyPem(didUrl, vm.publicKeyPem)
+                ).contains(true)
+            ) {
+                throw Exception("Could not import any key")
             }
-        } ?: return false
+        }
+    }
+
+    private fun importKeyPem(didUrl: String, keyPem: String?): Boolean {
+
+        keyPem ?: return false
+
+        // TODO implement
+
+        return false
+    }
+
+    private fun importKeyBase58(didUrl: String, keyBase58: String?): Boolean {
+
+        keyBase58 ?: return false
+
+        // TODO implement
+
+        return false
+    }
+
+    private fun importJwk(didUrl: String, publicKeyJwk: Jwk?): Boolean {
+
+        publicKeyJwk ?: return false
+
+        KeyService.getService().delete(didUrl)
+        publicKeyJwk.kid = didUrl
+        log.debug { "Importing key: ${publicKeyJwk.kid}" }
+        val keyId = KeyService.getService().importKey(Klaxon().toJsonString(publicKeyJwk))
+        WaltContext.keyStore.addAlias(keyId, didUrl)
+        return true
     }
 
     // TODO: consider the methods below. They might be deprecated!
@@ -433,3 +464,5 @@ object DidService {
 //    }
 
 }
+
+
