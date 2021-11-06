@@ -1,7 +1,6 @@
 package id.walt.services.vc
 
 import com.nimbusds.jwt.SignedJWT
-import deltadao.GaiaxCredential
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.vclist.*
 import mu.KotlinLogging

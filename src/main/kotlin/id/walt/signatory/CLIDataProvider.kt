@@ -1,7 +1,7 @@
 package id.walt.signatory
 
-import deltadao.GaiaxCredential
 import id.walt.vclib.model.VerifiableCredential
+import id.walt.vclib.vclist.GaiaxCredential
 import id.walt.vclib.vclist.VerifiableDiploma
 import id.walt.vclib.vclist.VerifiableId
 import java.util.*
@@ -112,9 +112,7 @@ class VerifiableDiplomaCLIDataProvider : CLIDataProvider() {
 
 class GaiaxCLIDataProvider : CLIDataProvider() {
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
-        template as GaiaxCredential
-
-        template.apply {
+        (template as GaiaxCredential).apply {
             println()
             println("> Subject information")
             println()

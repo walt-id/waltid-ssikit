@@ -1,6 +1,5 @@
 package id.walt
 
-import deltadao.DeltaDao
 import id.walt.auditor.Auditor
 import id.walt.auditor.PolicyRegistry
 import id.walt.cli.logic.KeyCommandLogic
@@ -40,10 +39,6 @@ class DeltaDaoTest : StringSpec({
 
     println("Registering services")
     ServiceMatrix("service-matrix.properties")
-
-    DeltaDao.registerDeltaDaoCredentials()
-
-    DeltaDao.registerDeltaDaoDataProvider()
 
     if (Path("bearer-token.txt").exists())
         Path("bearer-token.txt").moveTo(Path("data/bearer-token.txt"))
