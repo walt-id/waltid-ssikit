@@ -7,6 +7,7 @@ import id.walt.services.did.DidService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.Signatory
 import id.walt.test.RESOURCES_PATH
+import id.walt.test.readVerifiableCredential
 import io.github.rybalkinsd.kohttp.dsl.httpPost
 import io.github.rybalkinsd.kohttp.ext.asString
 import io.kotest.core.spec.style.AnnotationSpec
@@ -28,8 +29,9 @@ class AuditorApiTest : AnnotationSpec() {
         ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
     }
 
+    val Auditor_HOST = "localhost"
     val Auditor_API_PORT = 7001
-    val Auditor_API_URL = "http://localhost:$Auditor_API_PORT"
+    val Auditor_API_URL = "http://$Auditor_HOST:$Auditor_API_PORT"
 
     val client = HttpClient(CIO) {
         install(JsonFeature) {
@@ -78,8 +80,12 @@ class AuditorApiTest : AnnotationSpec() {
             )
         )
 
+        postAndVerify(vcToVerify)
+    }
+
+    private fun postAndVerify(vcToVerify: String) {
         val verificationResultJson = httpPost {
-            host = Auditor_API_URL.drop(Auditor_API_URL.indexOf("/") + 2).split(":").first()
+            host = Auditor_HOST
             port = Auditor_API_PORT
             path = "/v1/verify"
 
@@ -92,5 +98,15 @@ class AuditorApiTest : AnnotationSpec() {
 
         val vr = Klaxon().parse<VerificationResult>(verificationResultJson)!!
         vr.overallStatus shouldBe true
+    }
+
+    @Test
+    fun testDeqarCredential() {
+        postAndVerify(readVerifiableCredential("DeqarCredential"))
+    }
+
+    // @Test
+    fun testGaiaxCredential() {
+        postAndVerify(readVerifiableCredential("GaiaxCredential"))
     }
 }

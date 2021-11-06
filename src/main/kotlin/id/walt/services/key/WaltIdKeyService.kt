@@ -9,6 +9,7 @@ import id.walt.services.context.WaltContext
 import id.walt.services.crypto.CryptoService
 import id.walt.services.keystore.KeyStoreService
 import id.walt.services.keystore.KeyType
+import mu.KotlinLogging
 import org.bouncycastle.asn1.ASN1BitString
 import org.bouncycastle.asn1.ASN1OctetString
 import org.bouncycastle.asn1.ASN1Sequence
@@ -24,6 +25,8 @@ import java.security.KeyFactory
 import java.security.KeyPair
 import java.security.interfaces.ECPublicKey
 import java.util.*
+
+private val log = KotlinLogging.logger {}
 
 open class WaltIdKeyService : KeyService() {
 
@@ -46,16 +49,8 @@ open class WaltIdKeyService : KeyService() {
         }
 
     override fun import(keyStr: String): KeyId {
-
         val key = parseJwkKey(keyStr)
-//        PEM keys are currently not supported
-//        val key = with(keyStr.trim()) {
-//            when {
-//                startsWith("---") -> parsePemKey(this)
-//                startsWith("{") -> parseJwkKey(this)
-//                else -> throw IllegalArgumentException("Invalid key format (must be PEM or JWK)")
-//            }
-//        }
+        log.debug { "Importing key ${key.keyId}" }
         keyStore.store(key)
         return key.keyId
     }
@@ -176,10 +171,6 @@ open class WaltIdKeyService : KeyService() {
     override fun delete(alias: String) = keyStore.delete(alias)
 
     // TODO: consider deprecated methods below
-
-    @Deprecated(message = "outdated")
-    private fun generateKeyId(): String = "Walt-Key-${UUID.randomUUID().toString().replace("-", "")}"
-
 
     @Deprecated(message = "outdated")
     override fun getSupportedCurveNames(): List<String> {
