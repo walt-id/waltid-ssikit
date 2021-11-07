@@ -149,7 +149,7 @@ publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             pom {
-                name.set("Walt.ID SSI-Kit")
+                name.set("walt.id SSI Kit")
                 description.set("Kotlin/Java library for SSI core services, with primary focus on European EBSI/ESSIF ecosystem.")
                 url.set("https://walt.id")
             }
