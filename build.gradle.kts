@@ -5,14 +5,12 @@ plugins {
     kotlin("plugin.serialization") version "1.5.20"
     id("com.github.kkdad.dependency-license-report") version "1.16.6"
     id("org.owasp.dependencycheck") version "6.1.6"
-    //id("org.sonatype.gradle.plugins.scan") version "2.0.9"
-    //id("org.sonarqube") version "3.2.0"
     application
     `maven-publish`
 }
 
 group = "id.walt"
-version = "1.0-SNAPSHOT"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
