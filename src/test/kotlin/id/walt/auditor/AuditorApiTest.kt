@@ -33,6 +33,8 @@ class AuditorApiTest : AnnotationSpec() {
     val Auditor_API_PORT = 7001
     val Auditor_API_URL = "http://$Auditor_HOST:$Auditor_API_PORT"
 
+    val DEFAULT_POLICIES = "SignaturePolicy, JsonSchemaPolicy"
+
     val client = HttpClient(CIO) {
         install(JsonFeature) {
             serializer = KotlinxSerializer()
@@ -66,7 +68,7 @@ class AuditorApiTest : AnnotationSpec() {
         policies shouldContain VerificationPolicyMetadata("Verify by JSON schema", "JsonSchemaPolicy")
     }
 
-    private fun postAndVerify(vcToVerify: String, policyList: String = "SignaturePolicy") {
+    private fun postAndVerify(vcToVerify: String, policyList: String = DEFAULT_POLICIES) {
         val verificationResultJson = httpPost {
             host = Auditor_HOST
             port = Auditor_API_PORT
