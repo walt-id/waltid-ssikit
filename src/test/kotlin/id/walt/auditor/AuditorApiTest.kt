@@ -66,12 +66,14 @@ class AuditorApiTest : AnnotationSpec() {
         policies shouldContain VerificationPolicyMetadata("Verify by JSON schema", "JsonSchemaPolicy")
     }
 
-    private fun postAndVerify(vcToVerify: String) {
+    private fun postAndVerify(vcToVerify: String, policyList: String = "SignaturePolicy") {
         val verificationResultJson = httpPost {
             host = Auditor_HOST
             port = Auditor_API_PORT
             path = "/v1/verify"
-
+            param {
+                "policyList" to policyList
+            }
             body {
                 json(vcToVerify)
             }
@@ -96,7 +98,27 @@ class AuditorApiTest : AnnotationSpec() {
             )
         )
 
-        postAndVerify(vcToVerify)
+        postAndVerify(vcToVerify, "SignaturePolicy")
+    }
+
+    @Test
+    fun testVerifiableAuthorizationCredential() {
+        postAndVerify(readVerifiableCredential("VerifiableAuthorization"), "SignaturePolicy,JsonSchemaPolicy,TrustedSubjectDidPolicy,TrustedIssuerDidPolicy")
+    }
+
+    @Test
+    fun testVerifiableAttestationCredential() {
+        postAndVerify(readVerifiableCredential("VerifiableAttestation"))
+    }
+
+    @Test
+    fun testVerifiableDiploma() {
+        postAndVerify(readVerifiableCredential("VerifiableDiploma"))
+    }
+
+    @Test
+    fun testVerifiableId() {
+        postAndVerify(readVerifiableCredential("VerifiableId"))
     }
 
     @Test
@@ -109,18 +131,9 @@ class AuditorApiTest : AnnotationSpec() {
         postAndVerify(readVerifiableCredential("GaiaxCredential"))
     }
 
-    // TODO @Test
-    fun testVerifiableAuthorizationCredential() {
-        postAndVerify(readVerifiableCredential("VerifiableAuthorization"))
-    }
-
-    // TODO @Test
-    fun testVerifiableAttestationCredential() {
-        postAndVerify(readVerifiableCredential("VerifiableAttestation"))
-    }
-
-    // TODO @Test
+   @Test
     fun testPermanentResidentCardCredential() {
         postAndVerify(readVerifiableCredential("PermanentResidentCard"))
     }
+
 }

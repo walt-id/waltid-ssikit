@@ -1,0 +1,38 @@
+{
+  "@context" : [ "https://www.w3.org/2018/credentials/v1" ],
+  "credentialSchema" : {
+    "id" : "https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0x2488fd38783d65e4fd46e7889eb113743334dbc772b05df382b8eadce763101b",
+    "type" : "JsonSchemaValidator2018"
+  },
+  "credentialSubject" : {
+    "currentAddress" : "1 Boulevard de la Liberté, 59800 Lille",
+    "dateOfBirth" : "1993-04-08",
+    "familyName" : "DOE",
+    "firstName" : "Jane",
+    "gender" : "FEMALE",
+    "id" : "did:ebsi:zhhdvx3tS4hJsA23gXs7Qc9",
+    "nameAndFamilyNameAtBirth" : "Jane DOE",
+    "personalIdentifier" : "0904008084H",
+    "placeOfBirth" : "LILLE, FRANCE"
+  },
+  "evidence" : {
+    "documentPresence" : [ "Physical" ],
+    "evidenceDocument" : [ "Passport" ],
+    "subjectPresence" : "Physical",
+    "type" : [ "DocumentVerification" ],
+    "verifier" : "did:ebsi:zhhdvx3tS4hJsA23gXs7Qc9"
+  },
+  "id" : "identity#VerifiableId#e29996e1-8338-49ba-b00f-5356e04b984d",
+  "issuanceDate" : "2021-11-07T10:45:09Z",
+  "issuer" : "did:ebsi:zhhdvx3tS4hJsA23gXs7Qc9",
+  "validFrom" : "2021-11-07T10:45:09Z",
+  "type" : [ "VerifiableCredential", "VerifiableAttestation", "VerifiableId" ],
+  "proof" : {
+    "type" : "EcdsaSecp256k1Signature2019",
+    "creator" : "did:ebsi:zhhdvx3tS4hJsA23gXs7Qc9",
+    "created" : "2021-11-07T10:45:10Z",
+    "domain" : "https://api.preprod.ebsi.eu",
+    "nonce" : "a3a5968f-9c57-4a73-bc7d-c8fab2167cf2",
+    "jws" : "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFUzI1NksifQ..tsGDiv3pfS7HPXXBGEmWauie6R4SurKTwIzfv53Moj5jYxcEV6NUxeWeaekQQePaJiAznapjehc5re7NJfnifQ"
+  }
+}

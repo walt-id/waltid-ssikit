@@ -9,7 +9,7 @@
     "type" : "CredentialStatusList2020"
   },
   "credentialSubject" : {
-    "id" : "did:key:z6MkpUP5AwyfSsMiywfBwYJMtJjPubTZAM1ZviFN4d3s8RzC"
+    "id" : "did:ebsi:zhhdvx3tS4hJsA23gXs7Qc9"
   },
   "evidence" : [ {
     "documentPresence" : "Physical",
@@ -19,18 +19,17 @@
     "type" : [ "DocumentVerification" ],
     "verifier" : "did:ebsi:2962fb784df61baa267c8132497539f8c674b37c1244a7a"
   } ],
-  "id" : "identity#VerifiableAttestation#0d534daf-a400-45ef-b3fc-38b7487087b3",
+  "id" : "identity#VerifiableAttestation#98ff728d-21f1-42e0-8bae-20084f1f0407",
   "issuanceDate" : "2019-06-22T14:11:44Z",
-  "issuer" : "did:key:z6MkpUP5AwyfSsMiywfBwYJMtJjPubTZAM1ZviFN4d3s8RzC",
+  "issuer" : "did:ebsi:zhhdvx3tS4hJsA23gXs7Qc9",
   "validFrom" : "2019-06-22T14:11:44Z",
   "type" : [ "VerifiableCredential", "VerifiableAttestation" ],
   "proof" : {
-    "type" : "Ed25519Signature2018",
-    "creator" : "did:key:z6MkpUP5AwyfSsMiywfBwYJMtJjPubTZAM1ZviFN4d3s8RzC",
-    "created" : "2021-11-06T20:37:13Z",
+    "type" : "EcdsaSecp256k1Signature2019",
+    "creator" : "did:ebsi:zhhdvx3tS4hJsA23gXs7Qc9",
+    "created" : "2021-11-07T10:16:28Z",
     "domain" : "https://api.preprod.ebsi.eu",
-    "nonce" : "192a1dd8-2767-490f-9330-1046d02acbd3",
-    "verificationMethod" : "did:key:z6MkpUP5AwyfSsMiywfBwYJMtJjPubTZAM1ZviFN4d3s8RzC#key-1",
-    "jws" : "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..CeY85MmyWO2V4GRNGxqoNBeSNMd-dzrXmQsPqvKaYlSKShiKp3AWX6xhfwVB_6tKglm7sjkI0_MGqGw0z-7SCw"
+    "nonce" : "367ad00d-6870-4af6-a504-8272b2341954",
+    "jws" : "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFUzI1NksifQ..Mag0eKM9EsSfeghYroRlDlQcIReaXHRYRkEwGnGUhYnEjF-r66l_2IdzLdNYAna7xj-M6o3j2uJR5BN-l8F9aA"
   }
 }

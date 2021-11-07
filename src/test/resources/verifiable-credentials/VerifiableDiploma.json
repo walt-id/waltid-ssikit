@@ -1,0 +1,57 @@
+{
+  "@context" : [ "https://www.w3.org/2018/credentials/v1" ],
+  "credentialSchema" : {
+    "id" : "https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0xbf78fc08a7a9f28f5479f58dea269d3657f54f13ca37d380cd4e92237fb691dd",
+    "type" : "JsonSchemaValidator2018"
+  },
+  "credentialSubject" : {
+    "awardingOpportunity" : {
+      "awardingBody" : {
+        "homepage" : "https://leaston.bcdiploma.com/",
+        "id" : "did:ebsi:zhhdvx3tS4hJsA23gXs7Qc9",
+        "preferredName" : "Leaston University",
+        "registration" : "0597065J"
+      },
+      "endedAtTime" : "2020-06-26T00:00:00Z",
+      "id" : "https://leaston.bcdiploma.com/law-economics-management#AwardingOpportunity",
+      "identifier" : "https://certificate-demo.bcdiploma.com/check/87ED2F2270E6C41456E94B86B9D9115B4E35BCCAD200A49B846592C14F79C86BV1Fnbllta0NZTnJkR3lDWlRmTDlSRUJEVFZISmNmYzJhUU5sZUJ5Z2FJSHpWbmZZ",
+      "location" : "FRANCE",
+      "startedAtTime" : "2019-09-02T00:00:00Z"
+    },
+    "dateOfBirth" : "1993-04-08",
+    "familyName" : "DOE",
+    "givenNames" : "Jane",
+    "gradingScheme" : {
+      "id" : "https://leaston.bcdiploma.com/law-economics-management#GradingScheme",
+      "title" : "Lower Second-Class Honours"
+    },
+    "id" : "did:ebsi:zhhdvx3tS4hJsA23gXs7Qc9",
+    "identifier" : "0904008084H",
+    "learningAchievement" : {
+      "additionalNote" : [ "DISTRIBUTION MANAGEMENT" ],
+      "description" : "MARKETING AND SALES",
+      "id" : "https://leaston.bcdiploma.com/law-economics-management#LearningAchievment",
+      "title" : "MASTERS LAW, ECONOMICS AND MANAGEMENT"
+    },
+    "learningSpecification" : {
+      "ectsCreditPoints" : 120,
+      "eqfLevel" : 7,
+      "id" : "https://leaston.bcdiploma.com/law-economics-management#LearningSpecification",
+      "iscedfCode" : [ "7" ],
+      "nqfLevel" : [ "7" ]
+    }
+  },
+  "id" : "identity#VerifiableDiploma#77cac54c-ac51-4b2e-9fca-26ea2653f955",
+  "issuanceDate" : "2021-11-07T10:38:46Z",
+  "issuer" : "did:ebsi:zhhdvx3tS4hJsA23gXs7Qc9",
+  "validFrom" : "2021-11-07T10:38:46Z",
+  "type" : [ "VerifiableCredential", "VerifiableAttestation", "VerifiableDiploma" ],
+  "proof" : {
+    "type" : "EcdsaSecp256k1Signature2019",
+    "creator" : "did:ebsi:zhhdvx3tS4hJsA23gXs7Qc9",
+    "created" : "2021-11-07T10:38:47Z",
+    "domain" : "https://api.preprod.ebsi.eu",
+    "nonce" : "635e00b6-9abe-4037-b3cc-d174d89ae77e",
+    "jws" : "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFUzI1NksifQ..ScGveYrGr0EzBTn8M9dKBR9OO_KsulBGqp1CSAaYVRG7v88NCOlEadNotLYe2Z46fwnyzJen1W-58Q3VzxMs0g"
+  }
+}
