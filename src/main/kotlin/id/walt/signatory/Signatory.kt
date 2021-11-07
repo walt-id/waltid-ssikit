@@ -12,8 +12,11 @@ import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.templates.VcTemplateManager
 import mu.KotlinLogging
+import net.pwall.yaml.YAMLSimple.log
 import java.time.LocalDateTime
 import java.util.*
+
+private val log = KotlinLogging.logger {}
 
 enum class ProofType {
     JWT,
@@ -56,8 +59,6 @@ class WaltSignatory(configurationPath: String) : Signatory() {
 
     private val VC_GROUP = "signatory"
     override val configuration: SignatoryConfig = fromConfiguration(configurationPath)
-
-    private val log = KotlinLogging.logger {}
 
     override fun issue(templateId: String, config: ProofConfig): String {
 

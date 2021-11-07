@@ -203,7 +203,7 @@ class DeltaDaoTest : StringSpec({
 //            }
 //        )
 
-        val verificationResult = Auditor.verify(src.readText(), policies.map { PolicyRegistry.getPolicy(it) })
+        val verificationResult = Auditor.getService().verify(src.readText(), policies.map { PolicyRegistry.getPolicy(it) })
 
         println("\nResults:\n")
 

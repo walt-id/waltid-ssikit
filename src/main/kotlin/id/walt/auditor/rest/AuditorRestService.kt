@@ -16,7 +16,7 @@ object AuditorRestService {
 
         return when {
             policies.any { !PolicyRegistry.contains(it) } -> null
-            else -> Auditor.verify(body, policies.map { PolicyRegistry.getPolicy(it) })
+            else -> Auditor.getService().verify(body, policies.map { PolicyRegistry.getPolicy(it) })
         }
     }
 

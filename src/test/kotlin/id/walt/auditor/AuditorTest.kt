@@ -62,7 +62,7 @@ class AuditorCommandTest : StringSpec() {
     init {
 
         "1. verify vp" {
-            val res = Auditor.verify(vpStr, listOf(SignaturePolicy(), JsonSchemaPolicy()))
+            val res = Auditor.getService().verify(vpStr, listOf(SignaturePolicy(), JsonSchemaPolicy()))
 
             res.overallStatus shouldBe true
 
@@ -77,7 +77,7 @@ class AuditorCommandTest : StringSpec() {
         }
 
         "2. verify vc" {
-            val res = Auditor.verify(vcStr, listOf(SignaturePolicy(), JsonSchemaPolicy()))
+            val res = Auditor.getService().verify(vcStr, listOf(SignaturePolicy(), JsonSchemaPolicy()))
 
             res.overallStatus shouldBe true
             res.policyResults.keys shouldBeSameSizeAs listOf(SignaturePolicy(), JsonSchemaPolicy())
@@ -91,7 +91,7 @@ class AuditorCommandTest : StringSpec() {
         }
 
         "3. verify vc jwt" {
-            val res = Auditor.verify(vcJwt, listOf(SignaturePolicy(), JsonSchemaPolicy()))
+            val res = Auditor.getService().verify(vcJwt, listOf(SignaturePolicy(), JsonSchemaPolicy()))
 
             res.overallStatus shouldBe true
             res.policyResults.keys shouldBeSameSizeAs listOf(SignaturePolicy(), JsonSchemaPolicy())
@@ -105,7 +105,7 @@ class AuditorCommandTest : StringSpec() {
         }
 
         "4. verify vp jwt" {
-            val res = Auditor.verify(vpJwt, listOf(SignaturePolicy(), JsonSchemaPolicy()))
+            val res = Auditor.getService().verify(vpJwt, listOf(SignaturePolicy(), JsonSchemaPolicy()))
 
             res.overallStatus shouldBe true
 
