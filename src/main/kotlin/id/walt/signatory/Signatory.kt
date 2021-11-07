@@ -55,7 +55,7 @@ abstract class Signatory : WaltIdService() {
     open fun loadTemplate(templateId: String): VerifiableCredential = implementation.loadTemplate(templateId)
 }
 
-class WaltSignatory(configurationPath: String) : Signatory() {
+class WaltIdSignatory(configurationPath: String) : Signatory() {
 
     private val VC_GROUP = "signatory"
     override val configuration: SignatoryConfig = fromConfiguration(configurationPath)

@@ -35,7 +35,7 @@ abstract class Custodian : WaltIdService() {
     }
 }
 
-open class WaltCustodian : Custodian() {
+open class WaltIdCustodian : Custodian() {
     private val VC_GROUP = "custodian"
     private val keyService = KeyService.getService()
     private val jwtCredentialService = JwtCredentialService.getService()
