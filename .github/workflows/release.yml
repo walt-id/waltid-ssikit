@@ -8,9 +8,7 @@ on:
         required: true
 
 jobs:
-
   gradle:
-    needs: verify-wrapper
     name: "Build"
     strategy:
       matrix:
@@ -30,7 +28,7 @@ jobs:
         arguments: build --no-daemon
 
   release:
-    needs: [verify-wrapper, gradle]
+    needs: [gradle]
     name: "Release"
     runs-on: "ubuntu-latest"
     steps:
