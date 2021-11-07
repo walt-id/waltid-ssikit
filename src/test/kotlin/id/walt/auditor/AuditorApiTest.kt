@@ -128,7 +128,7 @@ class AuditorApiTest : AnnotationSpec() {
 
     @Test
     fun testGaiaxCredential() {
-        postAndVerify(readVerifiableCredential("GaiaxCredential"))
+        postAndVerify(readVerifiableCredential("GaiaxCredential"), "JsonSchemaPolicy")
     }
 
    @Test
