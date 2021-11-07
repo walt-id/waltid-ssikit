@@ -172,7 +172,7 @@ class CredentialServiceTest : AnnotationSpec() {
     @Test
     fun issuePermanentResidentCardCredential() {
 
-        val credOffer = readCredOffer("PermanentResidentCard")
+        val credOffer = readCredOffer("PermanentResidentCardExample")
 
         val issuerDid = DidService.create(DidMethod.key)
         val domain = "example.com"
