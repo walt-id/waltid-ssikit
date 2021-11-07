@@ -86,7 +86,7 @@ class CryptoServiceTest : AnnotationSpec() {
             val info: String = p.info
             println(p.toString() + " - " + info)
 
-            if (p.toString().contains("Walt version 1.0", true)) {
+            if (p.toString().contains("Walt", true)) {
                 waltIdProviderFound = true
             }
 
