@@ -14,17 +14,13 @@ import org.bouncycastle.asn1.ASN1BitString
 import org.bouncycastle.asn1.ASN1OctetString
 import org.bouncycastle.asn1.ASN1Sequence
 import org.bouncycastle.jcajce.provider.digest.Keccak
-import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.util.encoders.Hex
 import org.web3j.crypto.ECDSASignature
 import org.web3j.crypto.Hash
 import org.web3j.crypto.Keys
 import org.web3j.crypto.Sign
 import org.web3j.utils.Numeric
-import java.security.KeyFactory
-import java.security.KeyPair
 import java.security.interfaces.ECPublicKey
-import java.util.*
 
 private val log = KotlinLogging.logger {}
 

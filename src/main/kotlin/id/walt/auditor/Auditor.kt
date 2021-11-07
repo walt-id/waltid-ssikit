@@ -24,7 +24,7 @@ abstract class Auditor : WaltIdService() {
 
 }
 
-class WaltIdAuditor(): Auditor() {
+class WaltIdAuditor : Auditor() {
     override fun verify(vcJson: String, policies: List<VerificationPolicy>): VerificationResult {
         val vc = vcJson.toCredential()
         val policyResults = policies

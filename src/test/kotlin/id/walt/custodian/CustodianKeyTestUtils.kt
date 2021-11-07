@@ -3,8 +3,6 @@ package id.walt.custodian
 import id.walt.crypto.Key
 import id.walt.crypto.KeyAlgorithm
 import io.kotest.core.spec.style.StringSpec
-import io.kotest.matchers.ints.shouldBeExactly
-import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.shouldBe
 
 object CustodianKeyTestUtils {

@@ -5,8 +5,14 @@ import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.WaltIdServices
 import id.walt.services.did.DidService
-import id.walt.signatory.*
-import id.walt.test.*
+import id.walt.signatory.DataProviderRegistry
+import id.walt.signatory.ProofConfig
+import id.walt.signatory.ProofType
+import id.walt.signatory.Signatory
+import id.walt.test.DummySignatoryDataProvider
+import id.walt.test.RESOURCES_PATH
+import id.walt.test.getTemplate
+import id.walt.test.readCredOffer
 import id.walt.vclib.Helpers.encode
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.model.CredentialSchema
