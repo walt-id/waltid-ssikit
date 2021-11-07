@@ -1,4 +1,4 @@
-name: Snapshot release workflow for Walt.ID SSI-Kit
+name: Snapshot release workflow for walt.id SSI Kit
 
 on:
   push:

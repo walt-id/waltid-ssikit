@@ -52,7 +52,7 @@ object WaltIdServices {
 
     init {
         val javaVersion = System.getProperty("java.runtime.version")
-        println("Walt.ID SSI-Kit ${Values.version} (running on Java $javaVersion)")
+        println("walt.id SSI Kit ${Values.version} (running on Java $javaVersion)")
 
         if (Runtime.version().feature() < 16) {
             log.error { "Java version 16+ is required!" }
