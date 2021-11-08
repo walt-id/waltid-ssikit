@@ -45,7 +45,6 @@ class ContextConverter: Converter {
 
     override fun toJson(value: Any): String {
         val ebsiContext = value as EbsiContext
-        lateinit var ebsiContextStr: String
         return if (ebsiContext is EbsiContextList) ebsiContext.value.joinToString("\", \"", "[\"", "\"]", ) else "\"${(ebsiContext as EbsiContextStr).value}\""
     }
 }
