@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.0.1] - 2021-11-08
+
 ## [1.0.0] - 2021-11-07
 
 -   Roadmap Items
@@ -35,6 +37,8 @@ All notable changes to this project will be documented in this file.
     -   Fixed the way of finding the padding <https://github.com/walt-id/waltid-ssikit/pull/43>
     -   SignaturePolicy fails for issuers using did:ebsi <https://github.com/walt-id/waltid-ssikit/issues/52>
 
-[Unreleased]: https://github.com/walt-id/waltid-ssikit/compare/1.0.0...HEAD
+[Unreleased]: https://github.com/walt-id/waltid-ssikit/compare/1.0.1...HEAD
+
+[1.0.1]: https://github.com/walt-id/waltid-ssikit/compare/1.0.0...1.0.1
 
 [1.0.0]: https://github.com/walt-id/waltid-ssikit/compare/2be9d92014df8b7da68ccccc96bdd1024f2ce50e...1.0.0
