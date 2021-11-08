@@ -9,6 +9,7 @@ import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.decBase64
+import id.walt.model.ContextConverter
 import id.walt.model.DidEbsi
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
@@ -436,7 +437,7 @@ class JwtServiceTest : AnnotationSpec() {
 
     // @Test
     fun ake1DecryptPayload() {
-        val ebsiDid = Klaxon().parse<DidEbsi>(File("src/test/resources/ebsi/ake1-did.json").readText())!!
+        val ebsiDid = Klaxon().converter(ContextConverter()).parse<DidEbsi>(File("src/test/resources/ebsi/ake1-did.json").readText())!!
         val jwkStr = Klaxon().toJsonString(ebsiDid.verificationMethod!![0].publicKeyJwk)
         println(jwkStr)
         val publicKey = JWK.parse(jwkStr) as ECKey

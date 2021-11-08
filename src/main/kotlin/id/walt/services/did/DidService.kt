@@ -87,7 +87,7 @@ object DidService {
                 log.debug { "Resolving did:ebsi at: https://api.preprod.ebsi.eu/did-registry/v2/identifiers/${didUrl.did}" }
                 didDoc = WaltIdServices.http.get("https://api.preprod.ebsi.eu/did-registry/v2/identifiers/${didUrl.did}")
                 log.debug { "Result: $didDoc" }
-                return@runBlocking Klaxon().parse<DidEbsi>(didDoc)!!
+                return@runBlocking Klaxon().converter(ContextConverter()).parse<DidEbsi>(didDoc)!!
             } catch (e: ClientRequestException) {
                 log.debug { "Resolving did ebsi failed: fail $i" }
                 Thread.sleep(100)
@@ -99,9 +99,9 @@ object DidService {
     }
 
     fun loadDidEbsi(did: String): DidEbsi = loadDidEbsi(DidUrl.from(did))
-    fun loadDidEbsi(didUrl: DidUrl): DidEbsi = Klaxon().parse<DidEbsi>(loadDid(didUrl.did)!!)!!
+    fun loadDidEbsi(didUrl: DidUrl): DidEbsi = Klaxon().converter(ContextConverter()).parse<DidEbsi>(loadDid(didUrl.did)!!)!!
 
-    fun updateDidEbsi(did: DidEbsi) = storeDid(did.id, Klaxon().toJsonString(did))
+    fun updateDidEbsi(did: DidEbsi) = storeDid(did.id, Klaxon().converter(ContextConverter()).toJsonString(did))
     // Private methods
 
     private fun createDidEbsi(keyAlias: String?): String {
@@ -126,12 +126,12 @@ object DidService {
         )
 
         val did = DidEbsi(
-            listOf(DID_CONTEXT_URL), // TODO Context not working "https://ebsi.org/ns/did/v1"
+            EbsiContextList(listOf(DID_CONTEXT_URL)), // TODO Context not working "https://ebsi.org/ns/did/v1"
             didUrlStr,
             verificationMethods,
             listOf(kid)
         )
-        val ebsiDid = Klaxon().toJsonString(did)
+        val ebsiDid = Klaxon().converter(ContextConverter()).toJsonString(did)
 
 //        val ebsiDid = if (key.algorithm == EdDSA_Ed25519) {
 //            val pubKeyBytes = key.getPublicKey().encoded
@@ -239,7 +239,7 @@ object DidService {
         )
 
         return DidEbsi(
-            listOf(DID_CONTEXT_URL), // TODO Context not working "https://ebsi.org/ns/did/v1"
+            EbsiContextList(listOf(DID_CONTEXT_URL)), // TODO Context not working "https://ebsi.org/ns/did/v1"
             didUrl.did,
             verificationMethods,
             keyRef,

@@ -4,6 +4,7 @@ import com.beust.klaxon.Klaxon
 import id.walt.common.prettyPrint
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.decodeBase58
+import id.walt.model.ContextConverter
 import id.walt.model.DidMethod
 import id.walt.model.DidUrl
 import id.walt.servicematrix.ServiceMatrix
@@ -50,7 +51,7 @@ class DidServiceTest : AnnotationSpec() {
 
         // Resolve
         val resolvedDid = ds.resolve(did)
-        val encoded = Klaxon().toJsonString(resolvedDid)
+        val encoded = Klaxon().converter(ContextConverter()).toJsonString(resolvedDid)
         println(encoded)
     }
 
@@ -66,7 +67,7 @@ class DidServiceTest : AnnotationSpec() {
 
         // Resolve
         val resolvedDid = ds.resolve(did)
-        val encoded = Klaxon().toJsonString(resolvedDid)
+        val encoded = Klaxon().converter(ContextConverter()).toJsonString(resolvedDid)
         println(encoded)
     }
 
@@ -90,22 +91,22 @@ class DidServiceTest : AnnotationSpec() {
 
         // Load
         val resolvedDid = ds.loadDidEbsi(did)
-        val encoded = Klaxon().toJsonString(resolvedDid)
+        println(resolvedDid)
+        val encoded = Klaxon().converter(ContextConverter()).toJsonString(resolvedDid)
         println(encoded)
 
         // Update
         resolvedDid.assertionMethod = listOf(resolvedDid.verificationMethod!!.get(0).id)
         ds.updateDidEbsi(resolvedDid)
-        val encodedUpd = Klaxon().toJsonString(resolvedDid)
+        val encodedUpd = Klaxon().converter(ContextConverter()).toJsonString(resolvedDid)
         println(encodedUpd)
     }
 
     @Test
-    @Ignore // TODO: ESSIF backend issue
     fun resolveDidEbsiTest() {
-        val did = "did:ebsi:22S7TBCJxzPS2Vv1UniBSdzFD2ZDFjZeYvQuFQWSeAQN5nTG"
+        val did = "did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k"
         val didDoc = DidService.resolveDidEbsi(did)
-        val encDidEbsi = Klaxon().toJsonString(didDoc)
+        val encDidEbsi = Klaxon().converter(ContextConverter()).toJsonString(didDoc)
         println(encDidEbsi)
     }
 

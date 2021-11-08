@@ -21,14 +21,14 @@ abstract class BaseDid {
     @Json(ignored = true) val method: DidMethod
         get() = DidMethod.valueOf(url.method)
 
-    fun encode() = Klaxon().toJsonString(this)
-    fun encodePretty() = Klaxon().toJsonString(this).prettyPrint()
+    fun encode() = Klaxon().converter(ContextConverter()).toJsonString(this)
+    fun encodePretty() = Klaxon().converter(ContextConverter()).toJsonString(this).prettyPrint()
 
     companion object {
         fun decode(id: String, didDoc: String): BaseDid? {
             return when(DidUrl.from(id).method) {
                 "key" -> Klaxon().parse<Did>(didDoc)
-                "ebsi" -> Klaxon().parse<DidEbsi>(didDoc)
+                "ebsi" -> Klaxon().converter(ContextConverter()).parse<DidEbsi>(didDoc)
                 // TODO: support did:web
                 else -> null
             }
