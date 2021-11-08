@@ -1,10 +1,14 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+Notable changes since the last release of the [SSI Kit](https://github.com/walt-id/waltid-ssikit). 
 
 ## [Unreleased]
 
 ## [1.0.1] - 2021-11-08
+
+- Features
+    - Create did:web for other domains https://github.com/walt-id/waltid-ssikit/issues/51
+    - SIOPv2 data structures  <https://github.com/walt-id/waltid-ssikit/pull/59>
 
 ## [1.0.0] - 2021-11-07
 

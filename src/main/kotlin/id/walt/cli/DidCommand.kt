@@ -3,18 +3,18 @@ package id.walt.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.requireObject
-import com.github.ajalt.clikt.parameters.arguments.argument
-import com.github.ajalt.clikt.parameters.arguments.optional
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
-import com.github.ajalt.clikt.parameters.types.file
 import id.walt.common.prettyPrint
+import id.walt.crypto.KeyAlgorithm
 import id.walt.model.DidMethod
 import id.walt.model.DidUrl
+import id.walt.services.crypto.CryptoService
 import id.walt.services.did.DidService
+import id.walt.services.did.DidService.DidCreationOption
 import java.io.File
 
 class DidCommand : CliktCommand(
@@ -36,25 +36,35 @@ class CreateDidCommand : CliktCommand(
 
         Creates a DID document based on the corresponding SSI ecosystem (DID method). 
         Optionally the associated asymmetric keypair is also created.
-        
+
         """
 ) {
     val config: CliConfig by requireObject()
-    val dest: File? by argument().file().optional()
     val method: String by option("-m", "--did-method", help = "Specify DID method [key]").choice(
         "key",
         "web",
         "ebsi"
     ).default("key")
-    val keyAlias: String by option("-k", "--key", help = "Specific key (ID or alias)").default("new")
+    val keyAlias: String? by option("-k", "--key", help = "Specific key (ID or alias)")
+    val domain: String by option("-d", "--domain", help = "Domain for did:web").default("walt.id")
+    val path: String? by option("-p", "--path", help = "Path for did:web")
+    val outFile: String? by option("-o", "--out", help = "Output file")
 
     override fun run() {
 
-        echo("Creating did:${method} (key: ${keyAlias})...")
+        val keyId = keyAlias ?: when (method) {
+            "ebsi" -> CryptoService.getService().generateKey(KeyAlgorithm.ECDSA_Secp256k1).id
+            else -> CryptoService.getService().generateKey(KeyAlgorithm.EdDSA_Ed25519).id
+        }
 
-        val keyId = if (keyAlias == "new") null else keyAlias
+        echo("Creating did:${method} (key: ${keyId})")
 
-        val did = DidService.create(DidMethod.valueOf(method), keyId)
+        val options = mapOf(
+            DidCreationOption.DID_WEB_DOMAIN to domain,
+            DidCreationOption.DID_WEB_PATH to path
+        )
+
+        val did = DidService.create(DidMethod.valueOf(method), keyId, options)
 
         echo("\nResults:\n")
         echo("DID created: $did")
@@ -62,12 +72,14 @@ class CreateDidCommand : CliktCommand(
         val encodedDid = loadDidHelper(did)
         echo("DID document (below, JSON):\n\n$encodedDid")
 
-        //TODO replace the following with
-        //Custodian.getService().storeDid(did, didDoc)
+        outFile?.let {
+            val didFile = File(outFile)
+            echo("\nSaving DID to file: ${didFile.absolutePath}")
+            didFile.writeText(encodedDid)
+        }
 
-        dest?.let {
-            echo("\nSaving DID to file: ${it.absolutePath}")
-            it.writeText(encodedDid)
+        when (method) {
+            "web" -> echo("Install this did:web at: https://$domain/${path?.replace(":", "/")?.plus("/") ?: ""}.well-known/did.json")
         }
     }
 }

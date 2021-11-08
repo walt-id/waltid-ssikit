@@ -56,14 +56,17 @@ class DidServiceTest : AnnotationSpec() {
 
     @Test
     fun createResolveDidWebTest() {
-        val ds = DidService
-        val did = ds.create(DidMethod.web)
-        did shouldNotBe null
-        (30 < did.length) shouldBe true
-        "did:web:" shouldBe did.substring(0, 8)
+
+        val options = mapOf(
+            DidService.DidCreationOption.DID_WEB_DOMAIN to "walt.id",
+            DidService.DidCreationOption.DID_WEB_PATH to "asdf"
+        )
+
+        val did = DidService.create(DidMethod.web, null, options)
+        did shouldBe "did:web:walt.id:asdf"
         print(did)
 
-        val didWeb = ds.resolve(did)
+        val didWeb = DidService.resolve(did)
         val encoded = Klaxon().toJsonString(didWeb)
         println(encoded)
     }

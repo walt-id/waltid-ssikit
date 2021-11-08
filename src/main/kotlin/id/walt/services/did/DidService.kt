@@ -29,16 +29,21 @@ private val log = KotlinLogging.logger {}
  */
 object DidService {
 
+    enum class DidCreationOption {
+        DID_WEB_DOMAIN,
+        DID_WEB_PATH
+    }
+
     private val credentialService = JsonLdCredentialService.getService()
     private val cryptoService = CryptoService.getService()
     private val keyService = KeyService.getService()
 
     // Public methods
 
-    fun create(method: DidMethod, keyAlias: String? = null): String {
+    fun create(method: DidMethod, keyAlias: String? = null, options: Map<DidCreationOption, String?>? = null): String {
         val didUrl = when (method) {
             DidMethod.key -> createDidKey(keyAlias)
-            DidMethod.web -> createDidWeb(keyAlias)
+            DidMethod.web -> createDidWeb(keyAlias, options)
             DidMethod.ebsi -> createDidEbsi(keyAlias)
             else -> throw Exception("DID method $method not supported")
         }
@@ -190,17 +195,16 @@ object DidService {
         return didUrl
     }
 
-    private fun createDidWeb(keyAlias: String?): String {
-        val keyId = cryptoService.generateKey(ECDSA_Secp256k1)
-        val key = WaltContext.keyStore.load(keyId.id)
+    private fun createDidWeb(keyAlias: String?, options: Map<DidCreationOption, String?>?): String {
 
-        val domain = "walt.id"
-        val username = UUID.randomUUID().toString().replace("-", "")
-        val path = ":user:$username"
+        val key = keyAlias?.let { WaltContext.keyStore.load(it) } ?: cryptoService.generateKey(EdDSA_Ed25519).let { WaltContext.keyStore.load(it.id) }
 
-        val didUrl = DidUrl("web", "" + domain + path)
+        val domain = options?.get(DidCreationOption.DID_WEB_DOMAIN) ?: "walt.id"
+        val path = options?.get(DidCreationOption.DID_WEB_PATH)?.apply { replace("/", ":") }?.let { ":$it" } ?: ""
 
-        WaltContext.keyStore.addAlias(keyId, didUrl.did)
+        val didUrl = DidUrl("web", "$domain$path")
+
+        WaltContext.keyStore.addAlias(key.keyId, didUrl.did)
 
         //resolveAndStore(didUrl.did)
         storeDid(didUrl.did, resolveDidWebDummy(didUrl).toString())
