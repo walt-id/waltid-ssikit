@@ -14,7 +14,6 @@ import com.github.ajalt.clikt.parameters.types.file
 import id.walt.common.prettyPrint
 import id.walt.model.DidMethod
 import id.walt.model.DidUrl
-import id.walt.model.encodePretty
 import id.walt.services.did.DidService
 import java.io.File
 
@@ -51,7 +50,7 @@ class CreateDidCommand : CliktCommand(
 
     override fun run() {
 
-        echo("Creating did:${method} (key: ${keyAlias})")
+        echo("Creating did:${method} (key: ${keyAlias})...")
 
         val keyId = if (keyAlias == "new") null else keyAlias
 
@@ -103,14 +102,16 @@ class ResolveDidCommand : CliktCommand(
 
         val encodedDid = resolveDidHelper(did, raw)
 
-        echo("\nResult:\n")
+        echo("\nResults:\n")
+        echo("DID resolved: \"$did\"")
+        echo("DID document (below, JSON):\n")
 
         echo(encodedDid)
 
         val didFileName = "${did.replace(":", "-").replace(".", "_")}.json"
         val destFile = File(config.dataDir + "/did/resolved/" + didFileName)
-        echo("\nSaving DID to file: ${destFile.absolutePath}")
         destFile.writeText(encodedDid)
+        echo("\nDID document was saved to file: ${destFile.absolutePath}")
     }
 }
 

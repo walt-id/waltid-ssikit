@@ -2,7 +2,6 @@ package id.walt.model.siopv2
 
 import com.beust.klaxon.Json
 import com.beust.klaxon.Klaxon
-import id.walt.model.Claim
 import io.javalin.http.Context
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets

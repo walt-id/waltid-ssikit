@@ -1,9 +1,9 @@
 package id.walt.signatory
 
 import com.beust.klaxon.Json
-import id.walt.servicematrix.BaseService
 import id.walt.servicematrix.ServiceConfiguration
 import id.walt.servicematrix.ServiceProvider
+import id.walt.services.WaltIdService
 import id.walt.services.context.WaltContext
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
@@ -11,19 +11,13 @@ import id.walt.vclib.Helpers.encode
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.templates.VcTemplateManager
+import mu.KotlinLogging
+import net.pwall.yaml.YAMLSimple.log
 import java.time.LocalDateTime
 import java.util.*
 
-// JWT are using the IANA types of signatures: alg=EdDSA oder ES256 oder ES256K oder RS256
-//enum class ProofType {
-//    JWT_EdDSA,
-//    JWT_ES256,
-//    JWT_ES256K,
-//    LD_PROOF_Ed25519Signature2018,
-//    LD_PROOF_EcdsaSecp256k1Signature2019
-//}
+private val log = KotlinLogging.logger {}
 
-// Assuming the detailed algorithm will be derived from the issuer key algorithm
 enum class ProofType {
     JWT,
     LD_PROOF
@@ -49,25 +43,19 @@ data class SignatoryConfig(
     val proofConfig: ProofConfig
 ) : ServiceConfiguration
 
-interface ISignatory {
-
-    fun issue(templateId: String, config: ProofConfig): String
-
-}
-
-abstract class Signatory : BaseService(), ISignatory {
+abstract class Signatory : WaltIdService() {
     override val implementation: Signatory get() = serviceImplementation()
 
     companion object : ServiceProvider {
         override fun getService() = object : Signatory() {}
     }
 
-    override fun issue(templateId: String, config: ProofConfig): String = implementation.issue(templateId, config)
+    open fun issue(templateId: String, config: ProofConfig): String = implementation.issue(templateId, config)
     open fun listTemplates(): List<String> = implementation.listTemplates()
     open fun loadTemplate(templateId: String): VerifiableCredential = implementation.loadTemplate(templateId)
 }
 
-class WaltSignatory(configurationPath: String) : Signatory() {
+class WaltIdSignatory(configurationPath: String) : Signatory() {
 
     private val VC_GROUP = "signatory"
     override val configuration: SignatoryConfig = fromConfiguration(configurationPath)
@@ -89,20 +77,23 @@ class WaltSignatory(configurationPath: String) : Signatory() {
                 proofPurpose = config.proofPurpose,
                 config.credentialId ?: "identity#${templateId}#${UUID.randomUUID()}",
                 issueDate = config.issueDate ?: LocalDateTime.now(),
-                validDate = config.validDate ?: LocalDateTime.MAX,
+                validDate = config.validDate ?: LocalDateTime.now(),
                 expirationDate = config.expirationDate,
                 dataProviderIdentifier = config.dataProviderIdentifier
             )
             else -> config
         }
 
-        val dataProvider = DataProviderRegistry.getProvider(vcTemplate::class) // vclib.getUniqueId(vcTemplate)
+        val dataProvider = DataProviderRegistry.getProvider(vcTemplate::class)
         val vcRequest = dataProvider.populate(vcTemplate, configDP)
 
+        log.info { "Signing credential with proof using ${config.proofType.name}..." }
+        log.debug { "Signing credential with proof using ${config.proofType.name}, credential is: $vcRequest" }
         val signedVc = when (config.proofType) {
             ProofType.LD_PROOF -> JsonLdCredentialService.getService().sign(vcRequest.encode(), config)
             ProofType.JWT -> JwtCredentialService.getService().sign(vcRequest.encode(), config)
         }
+        log.debug { "Signed VC is: $signedVc" }
         WaltContext.vcStore.storeCredential(configDP.credentialId!!, signedVc.toCredential(), VC_GROUP)
         return signedVc
     }

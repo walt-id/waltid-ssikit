@@ -8,17 +8,7 @@ on:
         required: true
 
 jobs:
-  verify-wrapper:
-    name: "Verification"
-    runs-on: "ubuntu-latest"
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Validate gradle wrapper
-        uses: gradle/wrapper-validation-action@v1
-
   gradle:
-    needs: verify-wrapper
     name: "Build"
     strategy:
       matrix:
@@ -38,7 +28,7 @@ jobs:
         arguments: build --no-daemon
 
   release:
-    needs: [verify-wrapper, gradle]
+    needs: [gradle]
     name: "Release"
     runs-on: "ubuntu-latest"
     steps:
@@ -61,7 +51,7 @@ jobs:
       - name: Running gradle build
         uses: eskatos/gradle-command-action@v1.3.3
         with:
-          arguments: build publish --no-daemon
+          arguments: build --no-daemon
       - name: Bump version and push tag
         id: tag_version
         uses: mathieudutour/github-tag-action@v5.5
@@ -76,7 +66,7 @@ jobs:
         uses: actions-js/push@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          message: Automatic relase commits for ${{ github.event.inputs.versionName }}
+          message: Automatic release commits for ${{ github.event.inputs.versionName }}
           branch: master
       - name: Docker Build and Push
         uses: philpotisk/github-action-docker-build-push@master

@@ -1,14 +1,13 @@
 package id.walt.deprecated
 
 import com.beust.klaxon.Klaxon
+import id.walt.model.DidMethod
+import id.walt.model.DidUrl
 import id.walt.servicematrix.ServiceMatrix
+import id.walt.services.did.DidService
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import id.walt.model.Did
-import id.walt.model.DidMethod
-import id.walt.model.DidUrl
-import id.walt.services.did.DidService
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
@@ -34,7 +33,6 @@ class DidServiceTest : AnnotationSpec() {
     fun parseDidUrlTest() {
 
         val didUrl = DidUrl("method", "identifier", "key1")
-        val did = Did("context", didUrl.did)
 
         "did:method:identifier#key1" shouldBe didUrl.url
 

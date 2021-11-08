@@ -3,14 +3,14 @@ package id.walt.services.key
 import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jose.jwk.OctetKeyPair
-import id.walt.servicematrix.ServiceProvider
-import id.walt.servicematrix.ServiceRegistry
-import org.bouncycastle.jce.ECNamedCurveTable
 import id.walt.crypto.Key
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyId
+import id.walt.servicematrix.ServiceProvider
+import id.walt.servicematrix.ServiceRegistry
 import id.walt.services.WaltIdService
 import id.walt.services.keystore.KeyType
+import org.bouncycastle.jce.ECNamedCurveTable
 import org.web3j.crypto.ECDSASignature
 
 enum class KeyFormat {
@@ -36,7 +36,7 @@ abstract class KeyService : WaltIdService() {
     ): String =
         implementation.export(keyAlias, format, exportKeyType)
 
-    open fun import(keyStr: String): KeyId = implementation.import(keyStr)
+    open fun importKey(keyStr: String): KeyId = implementation.importKey(keyStr)
 
     open fun toJwk(keyAlias: String, keyType: KeyType = KeyType.PUBLIC, jwkKeyId: String? = null): JWK =
         implementation.toJwk(keyAlias, keyType, jwkKeyId)

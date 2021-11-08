@@ -78,7 +78,7 @@ function extract() {
     exit
   fi
 
-  if [[ ! -f build/distributions/waltid-ssi-kit-1.0-SNAPSHOT.tar ]]; then
+  if [[ ! -f build/distributions/waltid-ssi-kit-1.1-SNAPSHOT.tar ]]; then
     echo "The build files do not exist (directory ./build/distributions)."
     echo "Have you run \"./ssikit.sh build\" yet?"
     echo
@@ -87,7 +87,7 @@ function extract() {
 
   (
     cd build/distributions
-    if tar xf waltid-ssi-kit-1.0-SNAPSHOT.tar; then
+    if tar xf waltid-ssi-kit-1.1-SNAPSHOT.tar; then
       echo "Extraction successful."
     else
       echo "Extracting was unsuccessful."
@@ -99,8 +99,8 @@ function extract() {
 }
 
 function execute() {
-  if [[ -f build/distributions/waltid-ssi-kit-1.0-SNAPSHOT/bin/waltid-ssi-kit ]]; then
-    build/distributions/waltid-ssi-kit-1.0-SNAPSHOT/bin/waltid-ssi-kit "$@"
+  if [[ -f build/distributions/waltid-ssi-kit-1.1-SNAPSHOT/bin/waltid-ssi-kit ]]; then
+    build/distributions/waltid-ssi-kit-1.1-SNAPSHOT/bin/waltid-ssi-kit "$@"
   else
     header
     echo "Cannot run walt.id: Runscript does not exist."

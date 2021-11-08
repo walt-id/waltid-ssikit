@@ -50,7 +50,7 @@ class CustodianPresentTest : StringSpec() {
     init {
         "Json ld presentation" {
             val presStr = Custodian.getService().createPresentation(listOf(vcJsonLd), did, did, null, null)
-            println("Created VP: ${presStr}")
+            println("Created VP: $presStr")
 
             val pres = presStr.toCredential()
 
@@ -59,7 +59,7 @@ class CustodianPresentTest : StringSpec() {
 
         "Jwt presentation" {
             val presStr = Custodian.getService().createPresentation(listOf(vcJwt), did, did, null, "abcd")
-            println("Created VP: ${presStr}")
+            println("Created VP: $presStr")
 
             checkVerifiablePresentation(presStr)
         }
@@ -68,7 +68,7 @@ class CustodianPresentTest : StringSpec() {
             val presStr = Custodian
                 .getService()
                 .createPresentation(listOf(vcJwt), did, null, null, "abcd")
-            println("Created VP: ${presStr}")
+            println("Created VP: $presStr")
 
             checkVerifiablePresentation(presStr)
         }
@@ -77,7 +77,7 @@ class CustodianPresentTest : StringSpec() {
             val presStr = Custodian
                 .getService()
                 .createPresentation(listOf(vcJwt), did, did, null)
-            println("Created VP: ${presStr}")
+            println("Created VP: $presStr")
 
             checkVerifiablePresentation(presStr)
         }

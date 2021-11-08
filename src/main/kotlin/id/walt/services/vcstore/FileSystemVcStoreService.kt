@@ -7,7 +7,7 @@ import java.io.File
 
 open class FileSystemVcStoreService : VcStoreService() {
 
-    val store = File("credential-store").apply { mkdir() }
+    val store = File("data/credential-store").apply { mkdir() }
 
     private fun getGroupDir(group: String) = File(store.absolutePath, group).apply { mkdirs() }
     private fun getFileById(id: String, group: String) = File(getGroupDir(group),"${id}.cred")

@@ -4,6 +4,16 @@ import com.danubetech.keyformats.crypto.provider.Ed25519Provider
 import com.danubetech.keyformats.crypto.provider.impl.TinkEd25519Provider
 import foundation.identity.jsonld.ConfigurableDocumentLoader
 import foundation.identity.jsonld.JsonLDObject
+import id.walt.crypto.KeyAlgorithm
+import id.walt.crypto.LdSigner
+import id.walt.services.context.WaltContext
+import id.walt.services.did.DidService
+import id.walt.services.essif.EssifServer.nonce
+import id.walt.services.essif.TrustedIssuerClient.domain
+import id.walt.services.keystore.KeyStoreService
+import id.walt.services.vc.VcUtils.getIssuer
+import id.walt.signatory.ProofConfig
+import id.walt.signatory.ProofType
 import id.walt.vclib.Helpers.encode
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.VcLibManager
@@ -16,18 +26,10 @@ import id.walt.vclib.vclist.VerifiablePresentation
 import info.weboftrust.ldsignatures.LdProof
 import info.weboftrust.ldsignatures.jsonld.LDSecurityContexts
 import mu.KotlinLogging
+import net.pwall.json.schema.JSONSchema
 import org.json.JSONObject
-import id.walt.crypto.KeyAlgorithm
-import id.walt.crypto.LdSigner
-import id.walt.services.context.WaltContext
-import id.walt.services.did.DidService
-import id.walt.services.essif.EssifServer.nonce
-import id.walt.services.essif.TrustedIssuerClient.domain
-import id.walt.services.keystore.KeyStoreService
-import id.walt.services.vc.VcUtils.getIssuer
-import id.walt.signatory.ProofConfig
-import id.walt.signatory.ProofType
 import java.net.URI
+import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Path
 import java.util.*
@@ -43,10 +45,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
         Ed25519Provider.set(TinkEd25519Provider())
     }
 
-    override fun sign(
-        jsonCred: String,
-        config: ProofConfig
-    ): String {
+    override fun sign(jsonCred: String, config: ProofConfig): String {
         log.debug { "Signing jsonLd object with: issuerDid (${config.issuerDid}), domain (${config.domain}), nonce (${config.nonce}" }
 
         val jsonLdObject: JsonLDObject = JsonLDObject.fromJson(jsonCred)
@@ -352,6 +351,16 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
                 jws = "HG21J4fdlnBvBA+y6D...amP7O="
             )
         )
+    }
+
+    override fun validateSchema(vc: String) = try {
+        vc.toCredential().let {
+            val credentialSchema = VcUtils.getCredentialSchema(it) ?: return true
+            val schema = JSONSchema.parse(URL(credentialSchema.id).readText())
+            return schema.validateBasic(it.json!!).valid
+        }
+    } catch (e: Exception) {
+        false
     }
 
     /*override fun listTemplates(): List<String> {

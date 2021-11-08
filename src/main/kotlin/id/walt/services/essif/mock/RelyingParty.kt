@@ -19,8 +19,8 @@ object RelyingParty {
 
     fun callback(authResp: String): Boolean {
         println("12. [RP] Authentication Response: Callback /callback")
-        return enterpriseWalletService.token(authResp)
         print("15. [RP] Success")
+        return enterpriseWalletService.token(authResp)
     }
 
     fun getSession(sessionId: String) {

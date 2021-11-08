@@ -303,7 +303,7 @@ class CoreApiTest : AnnotationSpec() {
         println("OUR VC STR: $vcStr")
         val vc = vcStr.toCredential()
 
-        println("Credential generated: ${vc}")
+        println("Credential generated: $vc")
 
         val vp = client.post<String>("$CORE_API_URL/v1/vc/present") {
             contentType(ContentType.Application.Json)

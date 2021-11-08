@@ -7,9 +7,7 @@ import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jose.jwk.KeyUse
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator
-import com.nimbusds.jose.util.Base64URL
 import id.walt.crypto.KeyAlgorithm
-import id.walt.crypto.encBase64Str
 import id.walt.crypto.newKeyId
 import id.walt.model.Jwk
 import id.walt.servicematrix.ServiceMatrix
@@ -348,7 +346,7 @@ class KeyServiceTest : AnnotationSpec() {
         val kid = newKeyId()
         val jwkImport =
             "{\"kty\":\"OKP\",\"d\":\"NzNkDxp2OPyplpxvxSmKtHCul2tQ_7QNuameOTKd6uY\",\"use\":\"sig\",\"crv\":\"Ed25519\",\"kid\":\"${kid}\",\"x\":\"4t6ROMKS2g9hwguVM-u9LzR06spoS__YyaOOvrtSFiI\",\"alg\":\"EdDSA\"}"
-        keyService.import(jwkImport)
+        keyService.importKey(jwkImport)
         println(jwkImport)
         val jwkExported = keyService.export(kid.id, KeyFormat.JWK, KeyType.PRIVATE)
         print(jwkExported)
@@ -360,7 +358,7 @@ class KeyServiceTest : AnnotationSpec() {
         val kid = newKeyId()
         val jwkImport =
             "{\"kty\":\"OKP\",\"use\":\"sig\",\"crv\":\"Ed25519\",\"kid\":\"${kid}\",\"x\":\"cU4CewjU2Adq8pxjfObrVg9u8svRP2JRC72zZdvFftI\",\"alg\":\"EdDSA\"}"
-        keyService.import(jwkImport)
+        keyService.importKey(jwkImport)
         println(jwkImport)
         val jwkExported = keyService.export(kid.id, KeyFormat.JWK)
         print(jwkExported)
@@ -372,7 +370,7 @@ class KeyServiceTest : AnnotationSpec() {
         val kid = newKeyId()
         val jwkImport =
             "{\"kty\":\"EC\",\"use\":\"sig\",\"crv\":\"secp256k1\",\"kid\":\"${kid}\",\"x\":\"ZxPG-mkME3AE19H-_-Z0vQacNTtD_4rChcUJqoiJZ5w\",\"y\":\"EPS4M1CiFoi-psyUNR8otGoNOCm0OvQY_i4fxf4shJY\",\"alg\":\"ES256K\"}"
-        keyService.import(jwkImport)
+        keyService.importKey(jwkImport)
         println(jwkImport)
         val jwkExported = keyService.export(kid.id, KeyFormat.JWK)
         print(jwkExported)

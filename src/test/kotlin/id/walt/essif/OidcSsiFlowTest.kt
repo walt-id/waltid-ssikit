@@ -1,9 +1,9 @@
 package id.walt.essif
 
 
+import id.walt.services.essif.mock.UserAgent
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
-import id.walt.services.essif.mock.UserAgent
 
 // https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/2.+OIDC-SSI+Flow
 class OidcSsiFlowTest : AnnotationSpec() {

@@ -1,0 +1,35 @@
+{
+  "@context" : [ "https://www.w3.org/2018/credentials/v1" ],
+  "credentialSchema" : {
+    "id" : "https://essif.europa.eu/tsr-vid/verifiableid1.json",
+    "type" : "JsonSchemaValidator2018"
+  },
+  "credentialStatus" : {
+    "id" : "https://essif.europa.eu/status/identity#verifiableID#1dee355d-0432-4910-ac9c-70d89e8d674e",
+    "type" : "CredentialStatusList2020"
+  },
+  "credentialSubject" : {
+    "id" : "did:ebsi:zhhdvx3tS4hJsA23gXs7Qc9"
+  },
+  "evidence" : [ {
+    "documentPresence" : "Physical",
+    "evidenceDocument" : "Passport",
+    "id" : "https://essif.europa.eu/tsr-va/evidence/f2aeec97-fc0d-42bf-8ca7-0548192d5678",
+    "subjectPresence" : "Physical",
+    "type" : [ "DocumentVerification" ],
+    "verifier" : "did:ebsi:2962fb784df61baa267c8132497539f8c674b37c1244a7a"
+  } ],
+  "id" : "identity#VerifiableAttestation#98ff728d-21f1-42e0-8bae-20084f1f0407",
+  "issuanceDate" : "2019-06-22T14:11:44Z",
+  "issuer" : "did:ebsi:zhhdvx3tS4hJsA23gXs7Qc9",
+  "validFrom" : "2019-06-22T14:11:44Z",
+  "type" : [ "VerifiableCredential", "VerifiableAttestation" ],
+  "proof" : {
+    "type" : "EcdsaSecp256k1Signature2019",
+    "creator" : "did:ebsi:zhhdvx3tS4hJsA23gXs7Qc9",
+    "created" : "2021-11-07T10:16:28Z",
+    "domain" : "https://api.preprod.ebsi.eu",
+    "nonce" : "367ad00d-6870-4af6-a504-8272b2341954",
+    "jws" : "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFUzI1NksifQ..Mag0eKM9EsSfeghYroRlDlQcIReaXHRYRkEwGnGUhYnEjF-r66l_2IdzLdNYAna7xj-M6o3j2uJR5BN-l8F9aA"
+  }
+}

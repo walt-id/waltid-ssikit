@@ -1,7 +1,5 @@
 package id.walt.services.hkvstore
 
-import kotlin.collections.HashMap
-
 open class InMemoryHKVStore : HKVStoreService() {
 
     val store = HashMap<HKVKey, ByteArray>()

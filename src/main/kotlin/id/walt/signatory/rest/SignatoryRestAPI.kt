@@ -115,7 +115,6 @@ object SignatoryRestAPI {
                     get("{id}", documented(SignatoryController.loadTemplateDocs(), SignatoryController::loadTemplate))
                 }
             }
-
         }.exception(IllegalArgumentException::class.java) { e, ctx ->
             log.error(e.stackTraceToString())
             ctx.json(ErrorResponse(e.message ?: " Unknown application error", 400))

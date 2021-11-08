@@ -1,32 +1,20 @@
 {
-  "@context": [
-    "https://www.w3.org/2018/credentials/v1",
-    "https://w3id.org/citizenship/v1"
-  ],
-  "type": [
-    "VerifiableCredential",
-    "PermanentResidentCard"
-  ],
-  "credentialSubject": {
-    "id": "did:key:z6Mkte9e5E2GRozAgYyhktX7eTt9woCR4yJLnaqC88FQCSyY",
-    "type": [
-      "PermanentResident",
-      "Person"
-    ],
-    "givenName": "JOHN",
-    "familyName": "SMITH",
-    "gender": "Male",
-    "image": "data:image/png;base64,iVBORw0KGgo...kJggg==",
-    "residentSince": "2015-01-01",
-    "lprCategory": "C09",
-    "lprNumber": "000-000-204",
-    "commuterClassification": "C1",
-    "birthCountry": "Bahamas",
-    "birthDate": "1958-08-17"
+  "@context" : [ "https://www.w3.org/2018/credentials/v1", "https://w3id.org/citizenship/v1" ],
+  "credentialSubject" : {
+    "birthDate" : "1958-08-17",
+    "givenName" : "JOHN",
+    "id" : "did:ebsi:zhhdvx3tS4hJsA23gXs7Qc9",
+    "type" : [ "PermanentResident", "Person" ]
   },
-  "issuer": "did:sov:staging:PiEVD2uU2qKEQ5oxx1BJ6A",
-  "issuanceDate": "2020-04-22T10:37:22Z",
-  "identifier": "83627465",
-  "name": "Permanent Resident Card",
-  "description": "Government of Example Permanent Resident Card."
+  "id" : "identity#PermanentResidentCard#b2dad6e9-6f2d-4ea7-a7e0-de61f12444a7",
+  "issuer" : "did:ebsi:zhhdvx3tS4hJsA23gXs7Qc9",
+  "type" : [ "VerifiableCredential", "PermanentResidentCard" ],
+  "proof" : {
+    "type" : "EcdsaSecp256k1Signature2019",
+    "creator" : "did:ebsi:zhhdvx3tS4hJsA23gXs7Qc9",
+    "created" : "2021-11-07T10:17:28Z",
+    "domain" : "https://api.preprod.ebsi.eu",
+    "nonce" : "af64f8fa-d919-443b-b07e-d5bda9f09cef",
+    "jws" : "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFUzI1NksifQ..qwiS77CsUzgBQnofeh4rVkovm3H8RFAAAFTtcm_j2wm0CFO2ROFmpohF3JMmknQtNfXoBCUnY7rsQk1xNA_UWw"
+  }
 }

@@ -5,14 +5,12 @@ plugins {
     kotlin("plugin.serialization") version "1.5.20"
     id("com.github.kkdad.dependency-license-report") version "1.16.6"
     id("org.owasp.dependencycheck") version "6.1.6"
-    //id("org.sonatype.gradle.plugins.scan") version "2.0.9"
-    //id("org.sonarqube") version "3.2.0"
     application
     `maven-publish`
 }
 
 group = "id.walt"
-version = "1.0-SNAPSHOT"
+version = "1.1-SNAPSHOT"
 
 repositories {
     mavenCentral()
@@ -42,12 +40,13 @@ dependencies {
     implementation("com.google.guava:guava:31.0.1-jre")
 
     // VC
-    implementation("id.walt:waltid-ssikit-vclib:1.4.9")
+    implementation("id.walt:waltid-ssikit-vclib:1.5.3")
 
     // JSON
     implementation("org.json:json:20210307")
     implementation("com.beust:klaxon:5.5")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.0")
+    implementation("net.pwall.json:json-kotlin-schema:0.29")
     //implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
 
     // DB
@@ -80,9 +79,9 @@ dependencies {
     implementation("io.github.microutils:kotlin-logging-jvm:2.0.11")
 
     // Config
-    implementation("com.sksamuel.hoplite:hoplite-core:1.4.9")
-    implementation("com.sksamuel.hoplite:hoplite-yaml:1.4.9")
-    implementation("com.sksamuel.hoplite:hoplite-hikaricp:1.4.9")
+    implementation("com.sksamuel.hoplite:hoplite-core:1.4.11")
+    implementation("com.sksamuel.hoplite:hoplite-yaml:1.4.11")
+    implementation("com.sksamuel.hoplite:hoplite-hikaricp:1.4.11")
 
     // Service-Matrix
     implementation("id.walt.servicematrix:WaltID-ServiceMatrix:1.0.1")
@@ -150,7 +149,7 @@ publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             pom {
-                name.set("Walt.ID SSI-Kit")
+                name.set("walt.id SSI Kit")
                 description.set("Kotlin/Java library for SSI core services, with primary focus on European EBSI/ESSIF ecosystem.")
                 url.set("https://walt.id")
             }

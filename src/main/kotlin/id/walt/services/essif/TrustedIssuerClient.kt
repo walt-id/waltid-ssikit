@@ -1,16 +1,16 @@
 package id.walt.services.essif
 
 import com.beust.klaxon.Klaxon
+import id.walt.common.readEssif
+import id.walt.model.AuthRequestResponse
+import id.walt.model.TrustedIssuer
+import id.walt.services.WaltIdServices
+import id.walt.services.essif.enterprisewallet.EnterpriseWalletService
+import id.walt.services.essif.mock.DidRegistry
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
-import id.walt.common.readEssif
-import id.walt.model.AuthRequestResponse
-import id.walt.services.WaltIdServices
-import id.walt.services.essif.enterprisewallet.EnterpriseWalletService
-import id.walt.services.essif.mock.DidRegistry
-import id.walt.model.TrustedIssuer
 
 private val log = KotlinLogging.logger {}
 

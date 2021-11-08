@@ -187,7 +187,7 @@ open class FileSystemKeyStoreService : KeyStoreService() {
 //    }>
 
     private fun saveKeyFile(keyId: String, suffix: String, data: ByteArray): Unit =
-        FileOutputStream("${Companion.KEY_DIR_PATH}/$keyId.$suffix").use { it.write(data) }
+        FileOutputStream("${KEY_DIR_PATH}/$keyId.$suffix").use { it.write(data) }
 
     private fun saveEncPublicKey(keyId: String, encodedPublicKey: PublicKey) =
         saveKeyFile(keyId, "enc-pubkey", X509EncodedKeySpec(encodedPublicKey.encoded).encoded)
@@ -203,15 +203,15 @@ open class FileSystemKeyStoreService : KeyStoreService() {
 
 
     private fun loadKeyFile(keyId: String, suffix: String): ByteArray =
-        File("${Companion.KEY_DIR_PATH}/$keyId.$suffix").readBytes()
+        File("${KEY_DIR_PATH}/$keyId.$suffix").readBytes()
 
-    private fun deleteKeyFile(keyId: String, suffix: String) = File("${Companion.KEY_DIR_PATH}/$keyId.$suffix").delete()
+    private fun deleteKeyFile(keyId: String, suffix: String) = File("${KEY_DIR_PATH}/$keyId.$suffix").delete()
 
     private fun deleteKeyAlias(alias: String) = File("${KEY_DIR_PATH}/Alias-$alias").delete()
 
-    fun getKeyIdList() = File(Companion.KEY_DIR_PATH).listFiles()!!.map { it.nameWithoutExtension }.distinct()
+    fun getKeyIdList() = File(KEY_DIR_PATH).listFiles()!!.map { it.nameWithoutExtension }.distinct()
 
-    private fun keyFileExists(keyId: String, suffix: String) = File("${Companion.KEY_DIR_PATH}/$keyId.$suffix").exists()
+    private fun keyFileExists(keyId: String, suffix: String) = File("${KEY_DIR_PATH}/$keyId.$suffix").exists()
 
     private fun loadRawPublicKey(keyId: String): ByteArray = loadKeyFile(keyId, "raw-pubkey")
 

@@ -7,8 +7,8 @@ import com.microsoft.azure.keyvault.webkey.JsonWebKeySignatureAlgorithm
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.crypto.impl.ECDSA
 import id.walt.servicematrix.ServiceConfiguration
-import id.walt.services.keystore.azure.TokenKeyVaultCredentials
 import id.walt.services.crypto.CryptoService
+import id.walt.services.keystore.azure.TokenKeyVaultCredentials
 import org.web3j.crypto.ECDSASignature
 import org.web3j.crypto.Hash
 import java.math.BigInteger
