@@ -9,7 +9,6 @@ import id.walt.services.vc.JwtCredentialService
 import id.walt.services.vc.VcUtils
 import id.walt.vclib.Helpers.encode
 import id.walt.vclib.model.VerifiableCredential
-import id.walt.vclib.vclist.GaiaxCredential
 import id.walt.vclib.vclist.VerifiablePresentation
 import kotlinx.serialization.Serializable
 import mu.KotlinLogging
@@ -159,31 +158,6 @@ class ExpirationDateAfterPolicy : VerificationPolicy {
             is VerifiablePresentation -> true
             else -> parseDate(VcUtils.getExpirationDate(vc)).let { it == null || it.after(Date()) }
         }
-    }
-}
-
-class GaiaxTrustedPolicy : VerificationPolicy {
-    override val description: String = "Verify Gaiax trusted fields"
-    override fun verify(vc: VerifiableCredential): Boolean {
-        // VPs are not considered
-        if (vc is VerifiablePresentation) {
-            return true
-        }
-
-        val gaiaxVc = vc as GaiaxCredential
-
-        // TODO: validate trusted fields properly
-        if (gaiaxVc.credentialSubject.DNSpublicKey.length < 0) {
-            log.debug { "DNS Public key not valid." }
-            return false
-        }
-
-        if (gaiaxVc.credentialSubject.ethereumAddress.id.length < 0) {
-            log.debug { "ETH address not valid." }
-            return false
-        }
-
-        return true
     }
 }
 

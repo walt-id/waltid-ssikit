@@ -20,6 +20,5 @@ object PolicyRegistry {
         register(IssuanceDateBeforePolicy())
         register(ValidFromBeforePolicy())
         register(ExpirationDateAfterPolicy())
-        register(GaiaxTrustedPolicy())
     }
 }
