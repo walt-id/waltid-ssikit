@@ -1,10 +1,16 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+Notable changes since the last release of the [SSI Kit](https://github.com/walt-id/waltid-ssikit). 
 
 ## [Unreleased]
 
+- Features
+    - Parameterize did:web creation https://github.com/walt-id/waltid-ssikit/issues/51
+
 ## [1.0.1] - 2021-11-08
+
+- Features
+    - SIOPv2 data structures  <https://github.com/walt-id/waltid-ssikit/pull/59>
 
 ## [1.0.0] - 2021-11-07
 
