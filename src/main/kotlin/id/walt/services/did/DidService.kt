@@ -8,7 +8,6 @@ import id.walt.model.*
 import id.walt.services.WaltIdServices
 import id.walt.services.context.WaltContext
 import id.walt.services.crypto.CryptoService
-
 import id.walt.services.hkvstore.HKVKey
 import id.walt.services.key.KeyService
 import id.walt.services.vc.JsonLdCredentialService
@@ -19,7 +18,6 @@ import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.bouncycastle.asn1.ASN1BitString
 import org.bouncycastle.asn1.ASN1Sequence
-
 import java.util.*
 
 private val log = KotlinLogging.logger {}
@@ -29,10 +27,10 @@ private val log = KotlinLogging.logger {}
  */
 object DidService {
 
-    enum class DidCreationOption {
-        DID_WEB_DOMAIN,
-        DID_WEB_PATH
-    }
+    sealed class DidOptions
+    data class DidWebOptions(val domain: String?, val path: String? = null) : DidOptions()
+    data class DidEbsiOptions(val addEidasKey: Boolean) : DidOptions()
+
 
     private val credentialService = JsonLdCredentialService.getService()
     private val cryptoService = CryptoService.getService()
@@ -40,11 +38,11 @@ object DidService {
 
     // Public methods
 
-    fun create(method: DidMethod, keyAlias: String? = null, options: Map<DidCreationOption, String?>? = null): String {
+    fun create(method: DidMethod, keyAlias: String? = null, options: DidOptions? = null): String {
         val didUrl = when (method) {
             DidMethod.key -> createDidKey(keyAlias)
-            DidMethod.web -> createDidWeb(keyAlias, options)
-            DidMethod.ebsi -> createDidEbsi(keyAlias)
+            DidMethod.web -> createDidWeb(keyAlias, options?.let { it as DidWebOptions } ?: DidWebOptions("walt.id", UUID.randomUUID().toString()))
+            DidMethod.ebsi -> createDidEbsi(keyAlias, options as? DidEbsiOptions)
             else -> throw Exception("DID method $method not supported")
         }
 
@@ -109,7 +107,7 @@ object DidService {
     fun updateDidEbsi(did: DidEbsi) = storeDid(did.id, Klaxon().toJsonString(did))
     // Private methods
 
-    private fun createDidEbsi(keyAlias: String?): String {
+    private fun createDidEbsi(keyAlias: String?, didEbsiOptions: DidEbsiOptions?): String {
         val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(EdDSA_Ed25519)
         val key = WaltContext.keyStore.load(keyId.id)
 
@@ -195,18 +193,21 @@ object DidService {
         return didUrl
     }
 
-    private fun createDidWeb(keyAlias: String?, options: Map<DidCreationOption, String?>?): String {
+    private fun createDidWeb(keyAlias: String?, options: DidWebOptions?): String {
 
         val key = keyAlias?.let { WaltContext.keyStore.load(it) } ?: cryptoService.generateKey(EdDSA_Ed25519).let { WaltContext.keyStore.load(it.id) }
 
-        val domain = options?.get(DidCreationOption.DID_WEB_DOMAIN) ?: "walt.id"
-        val path = options?.get(DidCreationOption.DID_WEB_PATH)?.apply { replace("/", ":") }?.let { ":$it" } ?: ""
+        val domain = options?.domain ?: throw Exception("Missing 'domain' parameter for creating did:web")
+        var path = options?.path?.apply { replace("/", ":") }?.let { ":$it" } ?: ""
 
         val didUrl = DidUrl("web", "$domain$path")
 
-        WaltContext.keyStore.addAlias(key.keyId, didUrl.did)
+        try {
+            WaltContext.keyStore.addAlias(key.keyId, didUrl.did)
+        } catch (e: Exception) {
+            throw Exception("Could not store key alias ${didUrl.did} for key ${key.keyId}", e)
+        }
 
-        //resolveAndStore(didUrl.did)
         storeDid(didUrl.did, resolveDidWebDummy(didUrl).toString())
 
         return didUrl.did

@@ -57,13 +57,8 @@ class DidServiceTest : AnnotationSpec() {
     @Test
     fun createResolveDidWebTest() {
 
-        val options = mapOf(
-            DidService.DidCreationOption.DID_WEB_DOMAIN to "walt.id",
-            DidService.DidCreationOption.DID_WEB_PATH to "asdf"
-        )
-
-        val did = DidService.create(DidMethod.web, null, options)
-        did shouldBe "did:web:walt.id:asdf"
+        val did = DidService.create(DidMethod.web, null, DidService.DidWebOptions("example.com", "asdf"))
+        did shouldBe "did:web:example.com:asdf"
         print(did)
 
         val didWeb = DidService.resolve(did)

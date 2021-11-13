@@ -14,7 +14,7 @@ import id.walt.model.DidMethod
 import id.walt.model.DidUrl
 import id.walt.services.crypto.CryptoService
 import id.walt.services.did.DidService
-import id.walt.services.did.DidService.DidCreationOption
+
 import java.io.File
 
 class DidCommand : CliktCommand(
@@ -59,12 +59,7 @@ class CreateDidCommand : CliktCommand(
 
         echo("Creating did:${method} (key: ${keyId})")
 
-        val options = mapOf(
-            DidCreationOption.DID_WEB_DOMAIN to domain,
-            DidCreationOption.DID_WEB_PATH to path
-        )
-
-        val did = DidService.create(DidMethod.valueOf(method), keyId, options)
+        val did = DidService.create(DidMethod.valueOf(method), keyId, DidService.DidWebOptions(domain, path))
 
         echo("\nResults:\n")
         echo("DID created: $did")

@@ -11,8 +11,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class CreateDidRequest(
     val method: DidMethod,
-    val keyAlias: String? = null
-)
+    val keyAlias: String? = null,
+    val didWebDomain: String? = null,
+    val didWebPath: String? = null,
+
+    )
 
 @Serializable
 data class ResolveDidRequest(
@@ -52,9 +55,15 @@ object DidController {
     }.body<String> { it.description("ID of the DID to be deleted") }.json<String>("200")
 
     fun create(ctx: Context) {
-        val createDidReq = ctx.bodyAsClass(CreateDidRequest::class.java)
+        val req = ctx.bodyAsClass(CreateDidRequest::class.java)
 
-        ctx.result(DidService.create(createDidReq.method, createDidReq.keyAlias))
+        ctx.result(
+            DidService.create(
+                req.method,
+                req.keyAlias,
+                DidService.DidWebOptions(req.didWebDomain ?: "walt.id", req.didWebPath)
+            )
+        )
     }
 
     fun createDocs() = document().operation {

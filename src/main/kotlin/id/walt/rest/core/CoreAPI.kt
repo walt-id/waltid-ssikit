@@ -77,7 +77,7 @@ object CoreAPI {
                             *apiTargetUrls.map { Server().url(it) }.toTypedArray()
                         )
                         externalDocs {
-                            description = "walt.id Docs"
+                            description = "walt.id docs"
                             url = "https://docs.walt.id"
                         }
 
