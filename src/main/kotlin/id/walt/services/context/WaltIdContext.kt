@@ -8,9 +8,12 @@ import id.walt.services.vcstore.VcStoreService
 import io.javalin.http.Context
 
 object WaltIdContext : id.walt.services.context.Context {
-  override val keyStore: KeyStoreService = ServiceRegistry.getService()
+  override val keyStore: KeyStoreService
+    get() = ServiceRegistry.getService()
 
-  override val vcStore: VcStoreService = ServiceRegistry.getService()
+  override val vcStore: VcStoreService
+    get() = ServiceRegistry.getService()
 
-  override val hkvStore: HKVStoreService = ServiceRegistry.getService()
+  override val hkvStore: HKVStoreService
+    get() = ServiceRegistry.getService()
 }
