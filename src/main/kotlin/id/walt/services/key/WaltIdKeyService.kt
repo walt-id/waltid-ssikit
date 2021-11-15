@@ -5,7 +5,7 @@ import com.nimbusds.jose.jwk.*
 import com.nimbusds.jose.util.Base64URL
 import id.walt.crypto.*
 import id.walt.services.CryptoProvider
-import id.walt.services.context.WaltContext
+import id.walt.services.context.ContextManager
 import id.walt.services.crypto.CryptoService
 import id.walt.services.keystore.KeyStoreService
 import id.walt.services.keystore.KeyType
@@ -29,7 +29,7 @@ open class WaltIdKeyService : KeyService() {
     open val cryptoService: CryptoService = CryptoService.getService()
 
     open val keyStore: KeyStoreService
-        get() = WaltContext.keyStore
+        get() = ContextManager.keyStore
 
     override fun generate(keyAlgorithm: KeyAlgorithm) = cryptoService.generateKey(keyAlgorithm)
 

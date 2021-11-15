@@ -6,7 +6,7 @@ import id.walt.crypto.KeyAlgorithm.ECDSA_Secp256k1
 import id.walt.crypto.KeyAlgorithm.EdDSA_Ed25519
 import id.walt.model.*
 import id.walt.services.WaltIdServices
-import id.walt.services.context.WaltContext
+import id.walt.services.context.ContextManager
 import id.walt.services.crypto.CryptoService
 import id.walt.services.hkvstore.HKVKey
 import id.walt.services.key.KeyService
@@ -109,14 +109,14 @@ object DidService {
 
     private fun createDidEbsi(keyAlias: String?, didEbsiOptions: DidEbsiOptions?): String {
         val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(EdDSA_Ed25519)
-        val key = WaltContext.keyStore.load(keyId.id)
+        val key = ContextManager.keyStore.load(keyId.id)
 
         // Created identifier
         val didUrlStr = DidUrl.generateDidEbsiV2DidUrl().did
-        WaltContext.keyStore.addAlias(keyId, didUrlStr)
+        ContextManager.keyStore.addAlias(keyId, didUrlStr)
 
         val kid = didUrlStr + "#" + key.keyId
-        WaltContext.keyStore.addAlias(keyId, kid)
+        ContextManager.keyStore.addAlias(keyId, kid)
 
         val keyType = when (key.algorithm) {
             EdDSA_Ed25519 -> "Ed25519VerificationKey2018"
@@ -175,7 +175,7 @@ object DidService {
 
     private fun createDidKey(keyAlias: String?): String {
         val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(EdDSA_Ed25519)
-        val key = WaltContext.keyStore.load(keyId.id)
+        val key = ContextManager.keyStore.load(keyId.id)
 
         if (key.algorithm != EdDSA_Ed25519)
             throw Exception("DID KEY can only be created with an EdDSA Ed25519 key.")
@@ -186,7 +186,7 @@ object DidService {
         val identifier = convertEd25519PublicKeyToMultiBase58Btc(x)
         val didUrl = "did:key:$identifier"
 
-        WaltContext.keyStore.addAlias(keyId, didUrl)
+        ContextManager.keyStore.addAlias(keyId, didUrl)
 
         resolveAndStore(didUrl)
 
@@ -195,7 +195,7 @@ object DidService {
 
     private fun createDidWeb(keyAlias: String?, options: DidWebOptions?): String {
 
-        val key = keyAlias?.let { WaltContext.keyStore.load(it) } ?: cryptoService.generateKey(EdDSA_Ed25519).let { WaltContext.keyStore.load(it.id) }
+        val key = keyAlias?.let { ContextManager.keyStore.load(it) } ?: cryptoService.generateKey(EdDSA_Ed25519).let { ContextManager.keyStore.load(it.id) }
 
         val domain = options?.domain ?: throw Exception("Missing 'domain' parameter for creating did:web")
         var path = options?.path?.apply { replace("/", ":") }?.let { ":$it" } ?: ""
@@ -203,7 +203,7 @@ object DidService {
         val didUrl = DidUrl("web", "$domain$path")
 
         try {
-            WaltContext.keyStore.addAlias(key.keyId, didUrl.did)
+            ContextManager.keyStore.addAlias(key.keyId, didUrl.did)
         } catch (e: Exception) {
             throw Exception("Could not store key alias ${didUrl.did} for key ${key.keyId}", e)
         }
@@ -294,8 +294,8 @@ object DidService {
 
     fun resolveDidWebDummy(didUrl: DidUrl): Did {
         log.warn { "DID WEB implementation is not finalized yet. Use it only for demo purpose." }
-        WaltContext.keyStore.getKeyId(didUrl.did).let {
-            WaltContext.keyStore.load(it!!).let {
+        ContextManager.keyStore.getKeyId(didUrl.did).let {
+            ContextManager.keyStore.load(it!!).let {
                 val pubKeyId = didUrl.identifier + "#key-1"
                 val verificationMethods = listOf(
                     VerificationMethod(
@@ -328,14 +328,14 @@ object DidService {
     private fun resolveAndStore(didUrl: String) = storeDid(didUrl, resolve(didUrl).encodePretty())
 
     private fun storeDid(didUrlStr: String, didDoc: String) =
-        WaltContext.hkvStore.put(HKVKey("did", "created", didUrlStr), didDoc)
+        ContextManager.hkvStore.put(HKVKey("did", "created", didUrlStr), didDoc)
 
     private fun loadDid(didUrlStr: String) =
-        WaltContext.hkvStore.getAsString(HKVKey("did", "created", didUrlStr))
+        ContextManager.hkvStore.getAsString(HKVKey("did", "created", didUrlStr))
 
 
     fun listDids(): List<String> =
-        WaltContext.hkvStore.listChildKeys(HKVKey("did", "created")).map { it.name }.toList()
+        ContextManager.hkvStore.listChildKeys(HKVKey("did", "created")).map { it.name }.toList()
 
     fun loadOrResolveAnyDid(didStr: String): BaseDid? {
         log.debug { "Loading or resolving \"$didStr\"..." }
@@ -401,7 +401,7 @@ object DidService {
         publicKeyJwk.kid = didUrl
         log.debug { "Importing key: ${publicKeyJwk.kid}" }
         val keyId = KeyService.getService().importKey(Klaxon().toJsonString(publicKeyJwk))
-        WaltContext.keyStore.addAlias(keyId, didUrl)
+        ContextManager.keyStore.addAlias(keyId, didUrl)
         return true
     }
 

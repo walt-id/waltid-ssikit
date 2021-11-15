@@ -5,7 +5,7 @@ import id.walt.crypto.KeyAlgorithm
 import id.walt.model.DidMethod
 import id.walt.model.DidUrl
 import id.walt.servicematrix.ServiceMatrix
-import id.walt.services.context.WaltContext
+import id.walt.services.context.ContextManager
 import id.walt.services.did.DidService
 import id.walt.services.hkvstore.HKVKey
 import id.walt.services.key.KeyService
@@ -91,7 +91,7 @@ class EssifCommandTest : StringSpec({
                 EssifDidRegisterCommand().parse(listOf("--did", did, "--eth-key", ethKey.id))
             }
         }
-        WaltContext.hkvStore.delete(HKVKey("ebsi", identifier), true)
+        ContextManager.hkvStore.delete(HKVKey("ebsi", identifier), true)
     }
 
     // TODO: ESSIF backend issue

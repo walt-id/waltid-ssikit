@@ -12,7 +12,7 @@ import com.nimbusds.jwt.JWTClaimsSet
 import id.walt.common.toParamMap
 import id.walt.crypto.*
 import id.walt.model.*
-import id.walt.services.context.WaltContext
+import id.walt.services.context.ContextManager
 import id.walt.services.did.DidService
 import id.walt.services.essif.EbsiVAWrapper
 import id.walt.services.essif.EbsiVaVp
@@ -103,7 +103,7 @@ object UserWalletService {
 
         log.debug { "Loading Verifiable Authorization from HKV Store." }
 
-        val verifiableAuthorization = WaltContext.hkvStore.getAsString(HKVKey("ebsi", did.substringAfterLast(":"), EssifClient.verifiableAuthorizationFile))!!
+        val verifiableAuthorization = ContextManager.hkvStore.getAsString(HKVKey("ebsi", did.substringAfterLast(":"), EssifClient.verifiableAuthorizationFile))!!
 
         // val verifiableAuthorization = readWhenContent(EssifClient.verifiableAuthorizationFile)
 
@@ -225,7 +225,7 @@ object UserWalletService {
 
         //ake1EncFile.writeText(siopResponse)
 
-        WaltContext.hkvStore.put(HKVKey("ebsi", did.substringAfterLast(":"), EssifClient.ake1EncFile), siopResponse)
+        ContextManager.hkvStore.put(HKVKey("ebsi", did.substringAfterLast(":"), EssifClient.ake1EncFile), siopResponse)
 
         ///////////////////////////////////////////////////////////////////////////
         // Decrypt Access Token
@@ -316,7 +316,7 @@ object UserWalletService {
         log.debug { "Verifiable Presentation generated:\n$vp" }
 
         //verifiablePresentationFile.writeText(vp)
-        WaltContext.hkvStore.put(HKVKey("ebsi", holderDid.substringAfterLast(":"), EssifClient.verifiablePresentationFile), vp)
+        ContextManager.hkvStore.put(HKVKey("ebsi", holderDid.substringAfterLast(":"), EssifClient.verifiablePresentationFile), vp)
 
         val vpCan = canonicalize(vp)
 

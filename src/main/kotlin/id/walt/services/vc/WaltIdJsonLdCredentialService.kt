@@ -6,7 +6,7 @@ import foundation.identity.jsonld.ConfigurableDocumentLoader
 import foundation.identity.jsonld.JsonLDObject
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.LdSigner
-import id.walt.services.context.WaltContext
+import id.walt.services.context.ContextManager
 import id.walt.services.did.DidService
 import id.walt.services.essif.EssifServer.nonce
 import id.walt.services.essif.TrustedIssuerClient.domain
@@ -39,7 +39,7 @@ private val log = KotlinLogging.logger {}
 open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
 
     private val keyStore: KeyStoreService
-        get() = WaltContext.keyStore
+        get() = ContextManager.keyStore
 
     init {
         Ed25519Provider.set(TinkEd25519Provider())

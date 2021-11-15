@@ -4,7 +4,7 @@ import id.walt.crypto.Key
 import id.walt.crypto.KeyAlgorithm
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
-import id.walt.services.context.WaltContext
+import id.walt.services.context.ContextManager
 import id.walt.services.key.KeyService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
@@ -41,17 +41,17 @@ open class WaltIdCustodian : Custodian() {
     private val jwtCredentialService = JwtCredentialService.getService()
     private val jsonLdCredentialService = JsonLdCredentialService.getService()
 
-    override fun generateKey(keyAlgorithm: KeyAlgorithm): Key = WaltContext.keyStore.load(keyService.generate(keyAlgorithm).id)
-    override fun getKey(alias: String): Key = WaltContext.keyStore.load(alias)
-    override fun listKeys(): List<Key> = WaltContext.keyStore.listKeys()
-    override fun storeKey(key: Key) = WaltContext.keyStore.store(key)
-    override fun deleteKey(id: String) = WaltContext.keyStore.delete(id)
+    override fun generateKey(keyAlgorithm: KeyAlgorithm): Key = ContextManager.keyStore.load(keyService.generate(keyAlgorithm).id)
+    override fun getKey(alias: String): Key = ContextManager.keyStore.load(alias)
+    override fun listKeys(): List<Key> = ContextManager.keyStore.listKeys()
+    override fun storeKey(key: Key) = ContextManager.keyStore.store(key)
+    override fun deleteKey(id: String) = ContextManager.keyStore.delete(id)
 
-    override fun getCredential(id: String) = WaltContext.vcStore.getCredential(id, VC_GROUP)
-    override fun listCredentials(): List<VerifiableCredential> = WaltContext.vcStore.listCredentials(VC_GROUP)
-    override fun listCredentialIds(): List<String> = WaltContext.vcStore.listCredentialIds(VC_GROUP)
-    override fun storeCredential(alias: String, vc: VerifiableCredential) = WaltContext.vcStore.storeCredential(alias, vc, VC_GROUP)
-    override fun deleteCredential(alias: String) = WaltContext.vcStore.deleteCredential(alias, VC_GROUP)
+    override fun getCredential(id: String) = ContextManager.vcStore.getCredential(id, VC_GROUP)
+    override fun listCredentials(): List<VerifiableCredential> = ContextManager.vcStore.listCredentials(VC_GROUP)
+    override fun listCredentialIds(): List<String> = ContextManager.vcStore.listCredentialIds(VC_GROUP)
+    override fun storeCredential(alias: String, vc: VerifiableCredential) = ContextManager.vcStore.storeCredential(alias, vc, VC_GROUP)
+    override fun deleteCredential(alias: String) = ContextManager.vcStore.deleteCredential(alias, VC_GROUP)
 
     override fun createPresentation(
         vcs: List<String>, holderDid: String, verifierDid: String?, domain: String?, challenge: String?
