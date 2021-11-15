@@ -42,7 +42,7 @@ abstract class ContextManager: BaseService() {
   }
 }
 
-class WaltIdContextManager : ContextManager() {
+open class WaltIdContextManager : ContextManager() {
 
   val threadContexts: HashMap<Long, Context> = HashMap()
 
