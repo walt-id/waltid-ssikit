@@ -37,6 +37,7 @@ object VcUtils {
         is VerifiableAttestation -> vcObj.credentialSubject!!.id
         is VerifiableAuthorization -> vcObj.credentialSubject.id
         is GaiaxCredential -> vcObj.credentialSubject.id
+        is VerifiablePresentation -> vcObj.holder!!
         else -> {
             log.warn { "No getHolder for ${vcObj.type.last()}!" }
             ""
