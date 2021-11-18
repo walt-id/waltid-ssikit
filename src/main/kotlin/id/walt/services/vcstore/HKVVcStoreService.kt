@@ -1,6 +1,6 @@
 package id.walt.services.vcstore
 
-import id.walt.services.context.WaltContext
+import id.walt.services.context.ContextManager
 import id.walt.services.hkvstore.HKVKey
 import id.walt.vclib.Helpers.encode
 import id.walt.vclib.Helpers.toCredential
@@ -10,7 +10,7 @@ import id.walt.vclib.model.VerifiableCredential
 class HKVVcStoreService : VcStoreService() {
 
     private val hkvStore
-        get() =  WaltContext.hkvStore // lazy load!
+        get() =  ContextManager.hkvStore // lazy load!
 
     private val vcRoot = "vc"
 

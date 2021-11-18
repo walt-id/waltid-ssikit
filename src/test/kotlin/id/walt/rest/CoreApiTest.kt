@@ -286,7 +286,7 @@ class CoreApiTest : AnnotationSpec() {
     @Test
     fun testPresentVerifyVC() = runBlocking {
         val credOffer = getTemplate("europass") as Europass
-        val issuerDid = DidService.create(DidMethod.web)
+        val issuerDid = DidService.create(DidMethod.web, options = DidService.DidWebOptions("example.com"))
         val subjectDid = DidService.create(DidMethod.key)
 
         credOffer.id = Timestamp.valueOf(LocalDateTime.now()).time.toString()

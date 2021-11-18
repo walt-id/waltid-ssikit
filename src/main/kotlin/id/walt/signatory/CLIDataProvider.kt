@@ -145,6 +145,7 @@ class GaiaxCLIDataProvider : CLIDataProvider() {
                 webAddress.apply {
                     url = prompt("Web address URL", "https://www.delta-dao.com/") ?: ""
                 }
+                DNSpublicKey = prompt("DNS Public Key", "04:8B:CA:33:B1:A1:3A:69:E6:A2:1E:BE:CB:4E:DF:75:A9:70:8B:AA:51:83:AB:A1:B0:5A:35:20:3D:B4:29:09:AD:67:B4:12:19:3B:6A:B5:7C:12:3D:C4:CA:DD:A5:E0:DA:05:1E:5E:1A:4B:D1:F2:BA:8F:07:4D:C7:B6:AA:23:46") ?: ""
 
                 println()
                 println("Commercial register")

@@ -4,7 +4,7 @@ import com.nimbusds.jose.crypto.impl.AESGCM
 import com.nimbusds.jose.jwk.ECKey
 import id.walt.crypto.*
 import id.walt.services.CryptoProvider
-import id.walt.services.context.WaltContext
+import id.walt.services.context.ContextManager
 import id.walt.services.keystore.KeyStoreService
 import id.walt.services.keystore.KeyType
 import org.web3j.crypto.ECDSASignature
@@ -22,7 +22,7 @@ open class SunCryptoService : CryptoService() {
     private var _customKeyStore: KeyStoreService? = null
     private val keyStore: KeyStoreService
         get() = when(_customKeyStore) {
-            null -> WaltContext.keyStore
+            null -> ContextManager.keyStore
             else -> _customKeyStore!!
         }
 

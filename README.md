@@ -25,9 +25,13 @@ The ESSIF/EBSI functions are in the scope of:
 
 The library is written in **Kotlin/Java based library** and can be directly integrated as Maven/Gradle dependency. Alternatively the library or the additional **Docker container** can be run as RESTful webservice.
 
-The **CLI tool** conveniently allows running all included functions manually. Please see for yourself by just running the following command:
+## Getting Started
+
+The easiest way to getting your hands diry and to "play" with the functions the SSI Kit provides is by running the **CLI tool** with Docker.
 
     docker run -itv $(pwd)/data:/app/data waltid/ssikit -h
+    
+Please go ahead and find further CLI commands and well as other ways how to use the SSI Kit in the documentation section below.
 
 ## Documentation
 
@@ -38,7 +42,7 @@ Direct links for using the SSI Kit are:
 - Quick Start (running the SSI Kit with Docker or with **ssikit.sh**): https://docs.walt.id/ssikit/ssikit-usage.html#quick-start
 - Building the SSI Kit with Gradle or with Docker: https://docs.walt.id/ssikit/ssikit-usage.html#build
 - CLI Tool: https://docs.walt.id/ssikit/ssikit-usage.html#cli
-- APIs: https://docs.walt.id/ssikit/ssikit-usage.html#apis
+- APIs: https://docs.walt.id/ssikit/ssikit-usage.html#rest-apis
 - Configuration: https://docs.walt.id/ssikit/ssikit-usage.html#configuration
 
 ## Examples

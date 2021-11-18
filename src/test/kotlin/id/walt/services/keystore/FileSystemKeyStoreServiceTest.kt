@@ -16,14 +16,14 @@ open class FileSystemKeyStoreServiceTest : AnnotationSpec() {//: KeyStoreService
     private val sqlKeyStoreService = SqlKeyStoreService()
     private val keyService = KeyService.getService()
 
-    @Before
+    @BeforeAll
     fun setUp() {
         ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
         ServiceRegistry.registerService<KeyStoreService>(FileSystemKeyStoreService())
         sunCryptoService.setKeyStore(fileSystemKeyStoreService)
     }
 
-    @After
+    @AfterAll
     fun tearDown() {
         sunCryptoService.setKeyStore(sqlKeyStoreService)
     }

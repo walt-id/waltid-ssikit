@@ -1,7 +1,7 @@
 package id.walt.services.hkvstore
 
 import id.walt.servicematrix.ServiceRegistry
-import id.walt.services.context.WaltContext
+import id.walt.services.context.ContextManager
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
@@ -9,7 +9,7 @@ import io.kotest.matchers.shouldBe
 class HKVStoreTest : StringSpec({
 
     fun hkvTest() {
-        val hkvStore = WaltContext.hkvStore
+        val hkvStore = ContextManager.hkvStore
         val testData = "test data"
 
         println("Adding items...")

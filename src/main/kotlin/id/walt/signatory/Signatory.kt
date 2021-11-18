@@ -4,7 +4,7 @@ import com.beust.klaxon.Json
 import id.walt.servicematrix.ServiceConfiguration
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
-import id.walt.services.context.WaltContext
+import id.walt.services.context.ContextManager
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
 import id.walt.vclib.Helpers.encode
@@ -94,7 +94,7 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
             ProofType.JWT -> JwtCredentialService.getService().sign(vcRequest.encode(), config)
         }
         log.debug { "Signed VC is: $signedVc" }
-        WaltContext.vcStore.storeCredential(configDP.credentialId!!, signedVc.toCredential(), VC_GROUP)
+        ContextManager.vcStore.storeCredential(configDP.credentialId!!, signedVc.toCredential(), VC_GROUP)
         return signedVc
     }
 

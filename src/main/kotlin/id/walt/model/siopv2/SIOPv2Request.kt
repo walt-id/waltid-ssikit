@@ -10,6 +10,7 @@ data class SIOPv2Request(
   val response_type: String = "id_token",
   val client_id: String,
   val redirect_uri: String,
+  val response_mode: String = "fragment",
   val scope: String = "openid",
   val nonce: String,
   val registration: Registration = Registration(),
@@ -20,7 +21,7 @@ data class SIOPv2Request(
   ) {
   private fun enc(str: String): String = URLEncoder.encode(str, StandardCharsets.UTF_8)
   fun toUriQueryString(): String {
-    return "response_type=${enc(response_type)}&client_id=${enc(client_id)}&redirect_uri=${enc(redirect_uri)}" +
+    return "response_type=${enc(response_type)}&response_mode=${enc(response_mode)}&client_id=${enc(client_id)}&redirect_uri=${enc(redirect_uri)}" +
            "&scope=${enc(scope)}&nonce=${enc(nonce)}&registration=${enc(Klaxon().toJsonString(registration))}" +
            "&exp=$expiration&iat=$issuedAt&claims=${enc(Klaxon().toJsonString(claims))}"
   }
@@ -34,6 +35,7 @@ data class SIOPv2Request(
         ctx.queryParam("response_type") ?: "id_token",
         ctx.queryParam("client_id")!!,
         ctx.queryParam("redirect_uri")!!,
+        ctx.queryParam("response_mode") ?: "fragment",
         ctx.queryParam("scope") ?: "openid",
         ctx.queryParam("nonce")!!,
         Klaxon().parse<Registration>(ctx.queryParam("registration")!!)!!,
@@ -68,9 +70,13 @@ data class  LdpVpFormat(
   val proof_type: Set<String> = setOf("Ed25519Signature2018")
 )
 
+data class VpSchema (
+  val uri: String
+)
+
 data class InputDescriptor (
   val id: String,
-  val schema: String
+  val schema: VpSchema
     )
 
 data class PresentationDefinition (

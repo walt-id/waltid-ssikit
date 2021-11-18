@@ -6,7 +6,7 @@ import com.microsoft.azure.keyvault.webkey.JsonWebKey
 import com.microsoft.azure.keyvault.webkey.JsonWebKeyCurveName
 import com.sksamuel.hoplite.PropertySource
 import id.walt.model.DidMethod
-import id.walt.services.context.WaltContext
+import id.walt.services.context.ContextManager
 import id.walt.services.did.DidService
 import id.walt.services.keystore.KeyType
 import id.walt.test.RESOURCES_PATH
@@ -28,7 +28,7 @@ class AzureKeyStoreTest : AnnotationSpec() {
 
     private lateinit var did: String
     private val keyStore
-        get() =  WaltContext.keyStore
+        get() =  ContextManager.keyStore
 
     private val keyPair = KeyPairGenerator.getInstance("EC", BouncyCastleProvider()).let {
         it.initialize(ECGenParameterSpec("secp256k1"), SecureRandom())
