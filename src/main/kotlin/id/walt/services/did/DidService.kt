@@ -398,7 +398,7 @@ object DidService {
         publicKeyJwk ?: return false
 
         kotlin.runCatching { KeyService.getService().load(keyAlias) }
-            .getOrNull() ?: throw Exception("Could not import key, as key alias \"$keyAlias\" is already existing.")
+            .getOrNull()?.let { throw Exception("Could not import key, as key alias \"$keyAlias\" is already existing.") }
 
         publicKeyJwk.kid = keyAlias
         log.debug { "Importing key: ${publicKeyJwk.kid}" }

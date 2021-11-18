@@ -354,12 +354,54 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
     }
 
     override fun validateSchema(vc: String) = try {
+
         vc.toCredential().let {
-            val credentialSchema = VcUtils.getCredentialSchema(it) ?: return true
-            val schema = JSONSchema.parse(URL(credentialSchema.id).readText())
-            return schema.validateBasic(it.json!!).valid
+
+            if (it is VerifiablePresentation) return true
+
+            val credentialSchema = VcUtils.getCredentialSchema(it)
+
+            if (credentialSchema == null) {
+                log.debug { "Credential has no associated credentialSchema property" }
+                return false
+            }
+
+            val loadedSchema = try {
+                URL(credentialSchema.id).readText()
+            } catch (e: Exception) {
+                if (log.isDebugEnabled) {
+                    log.debug { "Could not load schema from ${credentialSchema.id}" }
+                    e.printStackTrace()
+                }
+                return false
+            }
+
+            val parsedSchema = try {
+                JSONSchema.parse(loadedSchema)
+            } catch (e: Exception) {
+                if (log.isDebugEnabled) {
+                    log.debug { "Could not parse schema from ${credentialSchema.id}" }
+                    e.printStackTrace()
+                }
+                return false
+            }
+
+            val basicOutput = parsedSchema.validateBasic(it.json!!)
+
+            if (!basicOutput.valid) {
+                log.debug { "Could not validate vc against schema from ${credentialSchema.id}. The validation errors are:" }
+                basicOutput.errors?.forEach { e -> log.debug { " - ${e.error}" } }
+                return false
+            }
+
+            return true
+
         }
     } catch (e: Exception) {
+        if (log.isDebugEnabled) {
+            log.debug { "Could not validate schema" }
+            e.printStackTrace()
+        }
         false
     }
 

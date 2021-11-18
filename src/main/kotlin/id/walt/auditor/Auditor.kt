@@ -29,7 +29,7 @@ class WaltIdAuditor : Auditor() {
         val vc = vcJson.toCredential()
         val policyResults = policies
             .associateBy(keySelector = VerificationPolicy::id) { policy ->
-                log.debug { "Verifying vc with ${policy.id}..." }
+                log.debug { "Verifying vc with ${policy.id} ..." }
                 policy.verify(vc) && when (vc) {
                     is VerifiablePresentation -> vc.verifiableCredential.all { cred ->
                         log.debug { "Verifying ${cred.type.last()} in VP with ${policy.id}..." }

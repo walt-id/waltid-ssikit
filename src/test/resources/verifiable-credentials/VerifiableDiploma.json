@@ -7,8 +7,9 @@
   "credentialSubject" : {
     "awardingOpportunity" : {
       "awardingBody" : {
+        "eidasLegalIdentifier" : "unknown",
         "homepage" : "https://leaston.bcdiploma.com/",
-        "id" : "did:ebsi:zhhdvx3tS4hJsA23gXs7Qc9",
+        "id" : "did:ebsi:zqCnHCDSZbcHZquNN7vgnq7",
         "preferredName" : "Leaston University",
         "registration" : "0597065J"
       },
@@ -25,7 +26,7 @@
       "id" : "https://leaston.bcdiploma.com/law-economics-management#GradingScheme",
       "title" : "Lower Second-Class Honours"
     },
-    "id" : "did:ebsi:zhhdvx3tS4hJsA23gXs7Qc9",
+    "id" : "did:ebsi:zqCnHCDSZbcHZquNN7vgnq7",
     "identifier" : "0904008084H",
     "learningAchievement" : {
       "additionalNote" : [ "DISTRIBUTION MANAGEMENT" ],
@@ -41,17 +42,27 @@
       "nqfLevel" : [ "7" ]
     }
   },
-  "id" : "identity#VerifiableDiploma#77cac54c-ac51-4b2e-9fca-26ea2653f955",
-  "issuanceDate" : "2021-11-07T10:38:46Z",
-  "issuer" : "did:ebsi:zhhdvx3tS4hJsA23gXs7Qc9",
-  "validFrom" : "2021-11-07T10:38:46Z",
+  "evidence" : {
+    "documentPresence" : [ "Physical" ],
+    "evidenceDocument" : [ "Passport" ],
+    "id" : "https://essif.europa.eu/tsr-va/evidence/f2aeec97-fc0d-42bf-8ca7-0548192d5678",
+    "subjectPresence" : "Physical",
+    "type" : [ "DocumentVerification" ],
+    "verifier" : "did:ebsi:2962fb784df61baa267c8132497539f8c674b37c1244a7a"
+  },
+  "id" : "identity#VerifiableDiploma#3927ea59-4394-487d-a919-f26c4d54dd98",
+  "issuanceDate" : "2021-11-18T22:37:16Z",
+  "issuer" : "did:ebsi:zqCnHCDSZbcHZquNN7vgnq7",
+  "validFrom" : "2021-11-18T22:37:16Z",
   "type" : [ "VerifiableCredential", "VerifiableAttestation", "VerifiableDiploma" ],
   "proof" : {
-    "type" : "EcdsaSecp256k1Signature2019",
-    "creator" : "did:ebsi:zhhdvx3tS4hJsA23gXs7Qc9",
-    "created" : "2021-11-07T10:38:47Z",
+    "type" : "Ed25519Signature2018",
+    "creator" : "did:ebsi:zqCnHCDSZbcHZquNN7vgnq7",
+    "created" : "2021-11-18T21:37:36Z",
     "domain" : "https://api.preprod.ebsi.eu",
-    "nonce" : "635e00b6-9abe-4037-b3cc-d174d89ae77e",
-    "jws" : "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFUzI1NksifQ..ScGveYrGr0EzBTn8M9dKBR9OO_KsulBGqp1CSAaYVRG7v88NCOlEadNotLYe2Z46fwnyzJen1W-58Q3VzxMs0g"
+    "nonce" : "95064042-b2c8-4a9f-b049-1dd18eefc109",
+    "proofPurpose" : "assertion",
+    "verificationMethod" : "did:ebsi:zqCnHCDSZbcHZquNN7vgnq7#01704e2cfc15479cae006ef318bfbe2e",
+    "jws" : "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..uV-Z5qWNyPXkXfrilDHH-iU9Z6F6fGpDj3EBjJvIqLe-Jbrs_Ob5Hpoomsnj18FnVpn9MOhI2lUBH9ASMYR-Bw"
   }
 }

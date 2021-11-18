@@ -72,6 +72,7 @@ class VerifiableDiplomaCLIDataProvider : CLIDataProvider() {
                         preferredName = prompt("Preferred name", preferredName) ?: ""
                         homepage = prompt("Homepage", homepage) ?: ""
                         registration = prompt("Registration", registration) ?: ""
+                        eidasLegalIdentifier = prompt("EIDAS Legal Identifier", eidasLegalIdentifier) ?: ""
                     }
                 }
 
@@ -103,6 +104,15 @@ class VerifiableDiplomaCLIDataProvider : CLIDataProvider() {
                     iscedfCode = listOf(prompt("ISCEDF Code", iscedfCode[0]) ?: "")
                     nqfLevel = listOf(prompt("NQF Level", nqfLevel[0]) ?: "")
                 }
+            }
+
+            evidence?.apply {
+                id = prompt("Evidence ID", id) ?: ""
+                type = listOf(prompt("Evidence type", type?.get(0)) ?: "")
+                verifier = prompt("Verifier", verifier) ?: ""
+                evidenceDocument = listOf(prompt("Evidence document", evidenceDocument?.get(0)) ?: "")
+                subjectPresence = prompt("Subject presence", subjectPresence) ?: ""
+                documentPresence = listOf(prompt("Document presence", documentPresence?.get(0)) ?: "")
             }
         }
 
@@ -173,25 +183,25 @@ class GaiaxCLIDataProvider : CLIDataProvider() {
 }
 
 class VerifiableIDCLIDataProvider : CLIDataProvider() {
-    override fun populate(vc: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
-        vc as VerifiableId
-        vc.id = proofConfig.credentialId ?: "education#higherEducation#${UUID.randomUUID()}"
-        vc.issuer = proofConfig.issuerDid
-        if (proofConfig.issueDate != null) vc.issuanceDate = dateFormat.format(proofConfig.issueDate)
-        if (proofConfig.expirationDate != null) vc.expirationDate = dateFormat.format(proofConfig.expirationDate)
-        vc.validFrom = vc.issuanceDate
-        vc.credentialSubject!!.id = proofConfig.subjectDid
+    override fun populate(template : VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
+        template as VerifiableId
+        template.id = proofConfig.credentialId ?: "education#higherEducation#${UUID.randomUUID()}"
+        template.issuer = proofConfig.issuerDid
+        if (proofConfig.issueDate != null) template.issuanceDate = dateFormat.format(proofConfig.issueDate)
+        if (proofConfig.expirationDate != null) template.expirationDate = dateFormat.format(proofConfig.expirationDate)
+        template.validFrom = template.issuanceDate
+        template.credentialSubject!!.id = proofConfig.subjectDid
 
         println()
         println("Subject personal data, ID: ${proofConfig.subjectDid}")
         println("----------------------")
-        vc.credentialSubject!!.firstName = prompt("First name", vc.credentialSubject!!.firstName)
-        vc.credentialSubject!!.familyName = prompt("Family name", vc.credentialSubject!!.familyName)
-        vc.credentialSubject!!.dateOfBirth = prompt("Date of birth", vc.credentialSubject!!.dateOfBirth)
-        vc.credentialSubject!!.gender = prompt("Gender", vc.credentialSubject!!.gender)
-        vc.credentialSubject!!.placeOfBirth = prompt("Place of birth", vc.credentialSubject!!.placeOfBirth)
-        vc.credentialSubject!!.currentAddress = prompt("Current address", vc.credentialSubject!!.currentAddress)
+        template.credentialSubject!!.firstName = prompt("First name", template.credentialSubject!!.firstName)
+        template.credentialSubject!!.familyName = prompt("Family name", template.credentialSubject!!.familyName)
+        template.credentialSubject!!.dateOfBirth = prompt("Date of birth", template.credentialSubject!!.dateOfBirth)
+        template.credentialSubject!!.gender = prompt("Gender", template.credentialSubject!!.gender)
+        template.credentialSubject!!.placeOfBirth = prompt("Place of birth", template.credentialSubject!!.placeOfBirth)
+        template.credentialSubject!!.currentAddress = prompt("Current address", template.credentialSubject!!.currentAddress)
 
-        return vc
+        return template
     }
 }

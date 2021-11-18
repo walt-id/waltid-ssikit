@@ -286,7 +286,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
             proofType = ProofType.LD_PROOF))
         val notParsableVc = ""
 
-        credentialService.validateSchema(noSchemaVc) shouldBe true
+        credentialService.validateSchema(noSchemaVc) shouldBe false
         credentialService.validateSchema(validVc) shouldBe true
         credentialService.validateSchema(invalidDataVc) shouldBe false
         credentialService.validateSchema(notParsableVc) shouldBe false
