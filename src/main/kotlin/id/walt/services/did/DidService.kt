@@ -375,7 +375,7 @@ object DidService {
         }
     }
 
-    private fun importKeyPem(didUrl: String, keyPem: String?): Boolean {
+    private fun importKeyPem(keyAlias: String, keyPem: String?): Boolean {
 
         keyPem ?: return false
 
@@ -384,7 +384,7 @@ object DidService {
         return false
     }
 
-    private fun importKeyBase58(didUrl: String, keyBase58: String?): Boolean {
+    private fun importKeyBase58(keyAlias: String, keyBase58: String?): Boolean {
 
         keyBase58 ?: return false
 
@@ -393,15 +393,17 @@ object DidService {
         return false
     }
 
-    private fun importJwk(didUrl: String, publicKeyJwk: Jwk?): Boolean {
+    private fun importJwk(keyAlias: String, publicKeyJwk: Jwk?): Boolean {
 
         publicKeyJwk ?: return false
 
-        KeyService.getService().delete(didUrl)
-        publicKeyJwk.kid = didUrl
+        kotlin.runCatching { KeyService.getService().load(keyAlias) }
+            .getOrNull() ?: throw Exception("Could not import key, as key alias \"$keyAlias\" is already existing.")
+
+        publicKeyJwk.kid = keyAlias
         log.debug { "Importing key: ${publicKeyJwk.kid}" }
         val keyId = KeyService.getService().importKey(Klaxon().toJsonString(publicKeyJwk))
-        ContextManager.keyStore.addAlias(keyId, didUrl)
+        ContextManager.keyStore.addAlias(keyId, keyAlias)
         return true
     }
 
