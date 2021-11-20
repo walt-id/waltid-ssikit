@@ -2,14 +2,15 @@ package id.walt
 
 import id.walt.auditor.Auditor
 import id.walt.auditor.PolicyRegistry
-import id.walt.cli.logic.KeyCommandLogic
 import id.walt.cli.resolveDidHelper
+import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyId
 import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
 import id.walt.services.essif.EssifClient
+import id.walt.services.key.KeyService
 import id.walt.signatory.*
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.templates.VcTemplateManager
@@ -20,6 +21,8 @@ import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.nio.file.Path
 import java.sql.Timestamp
@@ -56,9 +59,11 @@ class DeltaDaoTest : StringSpec({
 
         println("Generating $algorithm key pair...")
 
-        keyId = KeyCommandLogic.genKey(algorithm)
+        keyId = KeyService.getService().generate(KeyAlgorithm.fromString(algorithm))
 
         println("Key \"$keyId\" generated.")
+
+
     }
 
     lateinit var didEbsi: String

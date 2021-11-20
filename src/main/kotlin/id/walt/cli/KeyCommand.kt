@@ -1,5 +1,6 @@
 package id.walt.cli
 
+
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.options.default
@@ -8,10 +9,11 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.enum
 import com.github.ajalt.clikt.parameters.types.file
-import id.walt.cli.logic.KeyCommandLogic
 import id.walt.common.readWhenContent
+import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyId
 import id.walt.services.key.KeyFormat
+import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
 import java.io.File
 
@@ -43,7 +45,7 @@ class GenKeyCommand : CliktCommand(
     override fun run() {
         echo("Generating $algorithm key pair...")
 
-        val keyId = KeyCommandLogic.genKey(algorithm)
+        val keyId = KeyService.getService().generate(KeyAlgorithm.fromString(algorithm))
 
         echo("Key \"$keyId\" generated.")
     }
@@ -64,7 +66,7 @@ class ImportKeyCommand : CliktCommand(
         echo("Importing key: $keyStr")
 
 
-        val keyId: KeyId = KeyCommandLogic.import(keyStr)
+        val keyId: KeyId = KeyService.getService().importKey(keyStr)
 
         echo("\nResults:\n")
 
@@ -88,7 +90,7 @@ class ExportKeyCommand : CliktCommand(
         val exportKeyType = if (!exportPrivate) KeyType.PUBLIC else KeyType.PRIVATE
 
         echo("Exporting $exportKeyType key \"$keyId\"...")
-        val jwk = KeyCommandLogic.export(keyId, keyFormat, exportKeyType)
+        val jwk = KeyService.getService().export(keyId, keyFormat, exportKeyType)
 
         echo("\nResults:\n")
 
@@ -108,7 +110,7 @@ class ListKeysCommand : CliktCommand(
 
         echo("\nResults:\n")
 
-        KeyCommandLogic.listKeys().forEachIndexed { index, (keyId, algorithm, cryptoProvider) ->
+        KeyService.getService().listKeys().forEachIndexed { index, (keyId, algorithm, cryptoProvider) ->
             echo("- ${index + 1}: \"${keyId}\" (Algorithm: \"${algorithm.name}\", provided by \"${cryptoProvider.name}\")")
         }
     }

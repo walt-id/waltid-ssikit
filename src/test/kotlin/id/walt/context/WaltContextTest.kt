@@ -2,14 +2,8 @@ package id.walt.context
 
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
-import id.walt.servicematrix.ServiceRegistry
-import id.walt.services.context.*
+import id.walt.services.context.ContextManager
 import id.walt.services.did.DidService
-import id.walt.services.hkvstore.HKVStoreService
-import id.walt.services.keystore.HKVKeyStoreService
-import id.walt.services.keystore.KeyStoreService
-import id.walt.services.vcstore.HKVVcStoreService
-import id.walt.services.vcstore.VcStoreService
 import id.walt.test.RESOURCES_PATH
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.collections.shouldHaveSize
