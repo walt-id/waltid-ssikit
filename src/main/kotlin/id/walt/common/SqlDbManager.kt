@@ -30,7 +30,7 @@ object SqlDbManager {
         // Logger.getLogger("").level = ALL
 
         //  ds = HikariDataSource(config)
-
+        dataSource = WaltIdServices.loadHikariDataSource()
         createDatabase()
     }
 

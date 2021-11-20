@@ -1,8 +1,9 @@
-package id.walt
+package id.walt.essif
 
 import id.walt.auditor.Auditor
 import id.walt.auditor.PolicyRegistry
 import id.walt.cli.resolveDidHelper
+import id.walt.common.SqlDbManager
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyId
 import id.walt.custodian.Custodian
@@ -11,6 +12,7 @@ import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
 import id.walt.services.essif.EssifClient
 import id.walt.services.key.KeyService
+import id.walt.services.keystore.KeyType
 import id.walt.signatory.*
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.templates.VcTemplateManager
@@ -21,36 +23,32 @@ import io.kotest.core.test.TestCaseOrder
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.nio.file.Path
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.util.stream.Collectors
-import kotlin.io.path.Path
-import kotlin.io.path.exists
-import kotlin.io.path.moveTo
-import kotlin.io.path.readText
+import kotlin.io.path.*
 
 @Ignored
-class DeltaDaoTest : StringSpec({
-    if (Path("data/bearer-token.txt").exists())
-        Path("data/bearer-token.txt").moveTo(Path("bearer-token.txt"))
+class EssifIntTest : StringSpec({
 
-    println("Dir was deleted: " + File("data").deleteRecursively())
+    resetDataDir()
 
     println("Registering services")
     ServiceMatrix("service-matrix.properties")
 
-    if (Path("bearer-token.txt").exists())
-        Path("bearer-token.txt").moveTo(Path("data/bearer-token.txt"))
 
-    println("Checking for bearer token...")
-    while (!File("data/bearer-token.txt").exists()) {
-        println("https://app.preprod.ebsi.eu/users-onboarding")
-        println(File("data/bearer-token.txt").absolutePath)
-        Thread.sleep(1000)
+    "1 Inti integration test" {
+
+        println("Checking for bearer token...")
+        if (!Path("data/bearer-token.txt").exists()) {
+            if (!Path("bearer-token.txt").exists()) {
+                throw Exception("Place token from https://app.preprod.ebsi.eu/users-onboarding in file bearer-token.txt")
+            }
+            Path("bearer-token.txt").copyTo(Path("data/bearer-token.txt"))
+        }
+
     }
 
     lateinit var keyId: KeyId
@@ -63,7 +61,7 @@ class DeltaDaoTest : StringSpec({
 
         println("Key \"$keyId\" generated.")
 
-
+        KeyService.getService().export(keyId.id, exportKeyType = KeyType.PRIVATE) shouldContain "\"d\":"
     }
 
     lateinit var didEbsi: String
@@ -72,6 +70,8 @@ class DeltaDaoTest : StringSpec({
         didEbsi = DidService.create(DidMethod.valueOf("ebsi"), keyId.id)
         didEbsi shouldStartWith "did:ebsi:"
         println("DID created: $didEbsi")
+
+        KeyService.getService().export(didEbsi, exportKeyType = KeyType.PRIVATE) shouldContain "\"d\":"
     }
 
     "3.1 Onboarding flow:" {
@@ -95,8 +95,10 @@ class DeltaDaoTest : StringSpec({
     }
 
     "3.4 Try out DID resolving via CLI:" {
+        //didEbsi = "did:ebsi:zd2KH6TazJCKG8GRxztsjhg"
         println("RESOLVING: $didEbsi")
         lateinit var res: String
+        Thread.sleep(1000)
         shouldNotThrowAny {
             res = resolveDidHelper(didEbsi, false)
         }
@@ -105,19 +107,24 @@ class DeltaDaoTest : StringSpec({
         println("Also try https://api.preprod.ebsi.eu/docs/?urls.primaryName=DID%20Registry%20API#/DID%20Registry/get-did-registry-v2-identifier")
     }
 
-    lateinit var didKey: String
+    lateinit var holderDid: String
     "4.1. Creating a DID for the recipient (holder) of the credential" {
-        didKey = DidService.create(DidMethod.valueOf("key"), null)
-        didKey shouldStartWith "did:key:"
-        println("Generated: $didKey")
+//        holderDid = DidService.create(DidMethod.valueOf("key"), null)
+//        holderDid shouldStartWith "did:key:"
+//        println("Generated: $holderDid")
+
+        // for a self-signed credential:
+        holderDid = didEbsi
     }
 
+    lateinit var vcFileName: String
     "4.2. Issuing W3C Verifiable Credential" {
         val interactive = true
         val template = "GaiaxCredential"
         val issuerDid = didEbsi
-        val subjectDid = didKey
-        val dest = File("data/vc.json")
+        val subjectDid = holderDid
+        vcFileName = "vc-${Timestamp.valueOf(LocalDateTime.now()).time}.json"
+        val dest = File(vcFileName)
 
         if (interactive) {
             val cliDataProvider = CLIDataProviders.getCLIDataProviderFor(template)
@@ -156,10 +163,8 @@ class DeltaDaoTest : StringSpec({
 
     lateinit var vpFileName: String
     "4.3. Creating a W3C Verifiable Presentation" {
-        val src: List<Path> = listOf(Path("data/vc.json"))
-        val holderDid: String = didKey
-
-
+        vpFileName = "vp-${Timestamp.valueOf(LocalDateTime.now()).time}.json"
+        val src: List<Path> = listOf(Path(vcFileName))
 
         println("Creating a verifiable presentation for DID \"$holderDid\"...")
         println("Using ${src.size} ${if (src.size > 1) "VCs" else "VC"}:")
@@ -175,51 +180,74 @@ class DeltaDaoTest : StringSpec({
         println("Verifiable presentation document (below, JSON):\n\n$vp")
 
         // Storing VP
-        vpFileName = "data/vc/presented/vp-${Timestamp.valueOf(LocalDateTime.now()).time}.json"
         File(vpFileName).writeText(vp)
         println("\nVerifiable presentation was saved to file: \"$vpFileName\"")
 
         Path(vpFileName).readText() shouldContain "proof"
     }
 
-    "4.4. Verifying the VP" {
+    "4.4. Verifying the VC" {
+        val src = File(vcFileName)
+        verifyCredential(src)
+        // To make sure that the private key is remaining in key store
+        KeyService.getService().export(keyId.id, exportKeyType = KeyType.PRIVATE) shouldContain "\"d\":"
+        KeyService.getService().export(didEbsi, exportKeyType = KeyType.PRIVATE) shouldContain "\"d\":"
+    }
+
+    "4.5. Verifying the VP" {
         val src = File(vpFileName)
-        val policies = listOf("SignaturePolicy", "JsonSchemaPolicy", "TrustedSubjectDidPolicy")
+        verifyCredential(src)
+        // To make sure that the private key is remaining in key store
+        KeyService.getService().export(keyId.id, exportKeyType = KeyType.PRIVATE) shouldContain "\"d\":"
+        KeyService.getService().export(didEbsi, exportKeyType = KeyType.PRIVATE) shouldContain "\"d\":"
+    }
 
+    "4.6. Verifying the VC after removed keystore" {
+        val src = File(vcFileName)
+        resetDataDir()
+        kotlin.runCatching { KeyService.getService().export(keyId.id, exportKeyType = KeyType.PRIVATE) }.isFailure shouldBe true
+        verifyCredential(src)
+    }
 
-        println("Verifying from file \"$src\"...\n")
-
-        when {
-            !src.exists() -> throw Exception("Could not load file: \"$src\".")
-            policies.any { !PolicyRegistry.contains(it) } -> throw Exception(
-                "Unknown verification policy specified: ${policies.minus(PolicyRegistry.listPolicies()).joinToString()}"
-            )
-        }
-
-//        val type = when (verificationResult.verificationType) {
-//            VerificationType.VERIFIABLE_PRESENTATION -> "verifiable presentation"
-//            VerificationType.VERIFIABLE_CREDENTIAL -> "verifiable credential"
-//        }
-
-//        println(
-//            when (verificationResult.verified) {
-//                true -> "The $type was verified successfully."
-//                false -> "The $type is not valid or could not be verified."
-//            }
-//        )
-
-        val verificationResult = Auditor.getService().verify(src.readText(), policies.map { PolicyRegistry.getPolicy(it) })
-
-        println("\nResults:\n")
-
-        verificationResult.policyResults.forEach { (policy, result) ->
-            println("$policy:\t\t $result")
-            result shouldBe true
-        }
-        println("Verified:\t\t ${verificationResult.overallStatus}")
-
-        verificationResult.overallStatus shouldBe true
+    "4.7. Verifying the VP after removed keystore" {
+        val src = File(vpFileName)
+        resetDataDir()
+        kotlin.runCatching { KeyService.getService().export(keyId.id, exportKeyType = KeyType.PRIVATE) }.isFailure shouldBe true
+        verifyCredential(src)
     }
 }) {
     override fun testCaseOrder(): TestCaseOrder = TestCaseOrder.Sequential
+}
+
+private fun resetDataDir() {
+    SqlDbManager.stop()
+    if (!File("data").deleteRecursively()) throw Exception("Could not delete data-dir!")
+    File("data").mkdir()
+    SqlDbManager.start()
+}
+
+private fun verifyCredential(src: File) {
+    val policies = listOf("SignaturePolicy", "JsonSchemaPolicy", "TrustedSubjectDidPolicy")
+
+    println("Verifying from file \"$src\"...\n")
+
+    when {
+        !src.exists() -> throw Exception("Could not load file: \"$src\".")
+        policies.any { !PolicyRegistry.contains(it) } -> throw Exception(
+            "Unknown verification policy specified: ${policies.minus(PolicyRegistry.listPolicies()).joinToString()}"
+        )
+    }
+
+    val verificationResult = Auditor.getService().verify(src.readText(), policies.map { PolicyRegistry.getPolicy(it) })
+
+    println("\nResults:\n")
+
+    verificationResult.policyResults.forEach { (policy, result) ->
+        println("$policy:\t\t $result")
+        result shouldBe true
+    }
+    println("Verified:\t\t ${verificationResult.overallStatus}")
+
+    verificationResult.overallStatus shouldBe true
+
 }
