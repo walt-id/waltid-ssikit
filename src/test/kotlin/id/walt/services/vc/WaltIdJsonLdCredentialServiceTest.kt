@@ -125,7 +125,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
     fun presentEuropassTest() {
 
         val domain = "example.com"
-        val challenge: String = "asdf"
+        val challenge = "asdf"
 
         val template = Europass(
             id = "education#higherEducation#51e42fda-cb0a-4333-b6a6-35cb147e1a88",
@@ -270,7 +270,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
     }
 
     @Test
-    fun testValidateSchema() {
+    fun testValidateSchemaTsr() {
         // Required at the moment because EBSI did not upgrade V_ID schema with necessary changes.
         DataProviderRegistry.register(VerifiableId::class, DummySignatoryDataProvider())
 
@@ -286,10 +286,10 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
             proofType = ProofType.LD_PROOF))
         val notParsableVc = ""
 
-        credentialService.validateSchema(noSchemaVc) shouldBe false
-        credentialService.validateSchema(validVc) shouldBe true
-        credentialService.validateSchema(invalidDataVc) shouldBe false
-        credentialService.validateSchema(notParsableVc) shouldBe false
+        credentialService.validateSchemaTsr(noSchemaVc) shouldBe false
+        credentialService.validateSchemaTsr(validVc) shouldBe true
+        credentialService.validateSchemaTsr(invalidDataVc) shouldBe false
+        credentialService.validateSchemaTsr(notParsableVc) shouldBe false
     }
 
 /*@Test

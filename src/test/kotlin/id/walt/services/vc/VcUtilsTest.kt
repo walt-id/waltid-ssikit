@@ -33,9 +33,9 @@ class VcUtilsTest : StringSpec({
     }
 
     "getCredentialSchema returns the credentialSchema attribute value when it exists" {
-        assertEquals(null, VcUtils.getCredentialSchema(VerifiableDiploma()))
+        assertEquals(null, VcUtils.getCredentialSchemaUrl(VerifiableDiploma()))
         CredentialSchema(id = "id", type = "type").let {
-            assertEquals(it, VcUtils.getCredentialSchema(VerifiableDiploma(credentialSchema = it)))
+            assertEquals(it, VcUtils.getCredentialSchemaUrl(VerifiableDiploma(credentialSchema = it)))
         }
     }
 })

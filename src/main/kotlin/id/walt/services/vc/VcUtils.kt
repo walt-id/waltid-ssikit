@@ -80,7 +80,7 @@ object VcUtils {
         }
     }
 
-    fun getCredentialSchema(vc: VerifiableCredential) = when (vc) {
+    fun getCredentialSchemaUrl(vc: VerifiableCredential) = when (vc) {
         is Europass -> vc.credentialSchema
         is VerifiableId -> vc.credentialSchema
         is VerifiableDiploma -> vc.credentialSchema

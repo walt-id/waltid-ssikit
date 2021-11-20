@@ -14,6 +14,7 @@ object PolicyRegistry {
         defaultPolicyId = sigPol.id
         register(sigPol)
         register(JsonSchemaPolicy())
+        register(TrustedSchemaRegistryPolicy())
         register(TrustedIssuerDidPolicy())
         register(TrustedIssuerRegistryPolicy())
         register(TrustedSubjectDidPolicy())

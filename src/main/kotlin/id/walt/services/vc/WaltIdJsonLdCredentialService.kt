@@ -353,49 +353,53 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
         )
     }
 
-    override fun validateSchema(vc: String) = try {
+    override fun validateSchema(vc: VerifiableCredential, schema: String) : Boolean {
+
+        val parsedSchema = try {
+            JSONSchema.parse(schema)
+        } catch (e: Exception) {
+            if (log.isDebugEnabled) {
+                log.debug { "Could not parse schema" }
+                e.printStackTrace()
+            }
+            return false
+        }
+
+        val basicOutput = parsedSchema.validateBasic(vc.json!!)
+
+        if (!basicOutput.valid) {
+            log.debug { "Could not validate vc against schema . The validation errors are:" }
+            basicOutput.errors?.forEach { e -> log.debug { " - ${e.error}" } }
+            return false
+        }
+
+        return true
+    }
+
+    override fun validateSchemaTsr(vc: String) = try {
 
         vc.toCredential().let {
 
             if (it is VerifiablePresentation) return true
 
-            val credentialSchema = VcUtils.getCredentialSchema(it)
+            val credentialSchemaUrl = VcUtils.getCredentialSchemaUrl(it)
 
-            if (credentialSchema == null) {
+            if (credentialSchemaUrl == null) {
                 log.debug { "Credential has no associated credentialSchema property" }
                 return false
             }
 
             val loadedSchema = try {
-                URL(credentialSchema.id).readText()
+                URL(credentialSchemaUrl.id).readText()
             } catch (e: Exception) {
                 if (log.isDebugEnabled) {
-                    log.debug { "Could not load schema from ${credentialSchema.id}" }
+                    log.debug { "Could not load schema from ${credentialSchemaUrl.id}" }
                     e.printStackTrace()
                 }
                 return false
             }
 
-            val parsedSchema = try {
-                JSONSchema.parse(loadedSchema)
-            } catch (e: Exception) {
-                if (log.isDebugEnabled) {
-                    log.debug { "Could not parse schema from ${credentialSchema.id}" }
-                    e.printStackTrace()
-                }
-                return false
-            }
-
-            val basicOutput = parsedSchema.validateBasic(it.json!!)
-
-            if (!basicOutput.valid) {
-                log.debug { "Could not validate vc against schema from ${credentialSchema.id}. The validation errors are:" }
-                basicOutput.errors?.forEach { e -> log.debug { " - ${e.error}" } }
-                return false
-            }
-
-            return true
-
+            return validateSchema(it, loadedSchema)
         }
     } catch (e: Exception) {
         if (log.isDebugEnabled) {

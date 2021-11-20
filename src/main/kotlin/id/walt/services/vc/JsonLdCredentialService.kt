@@ -35,7 +35,8 @@ abstract class JsonLdCredentialService : WaltIdService() {
 
     open fun addProof(credMap: Map<String, String>, ldProof: LdProof): String = implementation.addProof(credMap, ldProof)
 
-    open fun validateSchema(vc: String): Boolean = implementation.validateSchema(vc)
+    open fun validateSchema(vc: VerifiableCredential, schema: String): Boolean = implementation.validateSchema(vc, schema)
+    open fun validateSchemaTsr(vc: String): Boolean = implementation.validateSchemaTsr(vc)
 
     companion object : ServiceProvider {
         override fun getService() = object : JsonLdCredentialService() {}

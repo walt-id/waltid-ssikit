@@ -66,6 +66,7 @@ class AuditorApiTest : AnnotationSpec() {
 
         policies shouldContain VerificationPolicyMetadata("Verify by signature", "SignaturePolicy")
         policies shouldContain VerificationPolicyMetadata("Verify by JSON schema", "JsonSchemaPolicy")
+        policies shouldContain VerificationPolicyMetadata("Verify by EBSI Trusted Schema Registry", "TrustedSchemaRegistryPolicy")
     }
 
     private fun postAndVerify(vcToVerify: String, policyList: String = DEFAULT_POLICIES) {
@@ -115,7 +116,7 @@ class AuditorApiTest : AnnotationSpec() {
 
     @Test
     fun testVerifiableDiploma() {
-        postAndVerify(readVerifiableCredential("VerifiableDiploma"), "SignaturePolicy,TrustedSubjectDidPolicy,TrustedIssuerDidPolicy")
+        postAndVerify(readVerifiableCredential("VerifiableDiploma"), "SignaturePolicy,TrustedSubjectDidPolicy,TrustedIssuerDidPolicy,TrustedSchemaRegistryPolicy")
     }
 
     @Test

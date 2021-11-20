@@ -63,9 +63,22 @@ class SignaturePolicy : VerificationPolicy {
 class JsonSchemaPolicy : VerificationPolicy {
     override val description: String = "Verify by JSON schema"
     override fun verify(vc: VerifiableCredential): Boolean {
+        log.error { "JsonSchemaPolicy is currently disabled" }
+        // TODO: laad schema
+        return true
+//        return when (vc.jwt) {
+//            null -> jsonLdCredentialService.validateSchema(vc, vc.encode()) // Schema already validated by json-ld?
+//            else -> jwtCredentialService.validateSchema(vc.encode())
+//        }
+    }
+}
+
+class TrustedSchemaRegistryPolicy : VerificationPolicy {
+    override val description: String = "Verify by EBSI Trusted Schema Registry"
+    override fun verify(vc: VerifiableCredential): Boolean {
         return when (vc.jwt) {
-            null -> jsonLdCredentialService.validateSchema(vc.encode()) // Schema already validated by json-ld?
-            else -> jwtCredentialService.validateSchema(vc.encode())
+            null -> jsonLdCredentialService.validateSchemaTsr(vc.encode()) // Schema already validated by json-ld?
+            else -> jwtCredentialService.validateSchemaTsr(vc.encode())
         }
     }
 }
