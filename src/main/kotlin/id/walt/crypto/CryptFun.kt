@@ -40,7 +40,14 @@ import java.util.*
 // Supported key algorithms
 enum class KeyAlgorithm {
     EdDSA_Ed25519,
-    ECDSA_Secp256k1
+    ECDSA_Secp256k1;
+    companion object {
+        fun fromString(algorithm: String): KeyAlgorithm = when(algorithm) {
+            "Ed25519", "EdDSA_Ed25519" -> EdDSA_Ed25519
+            "Secp256k1", "ECDSA_Secp256k1" -> ECDSA_Secp256k1
+            else -> throw IllegalArgumentException("Algorithm not supported")
+        }
+    }
 }
 
 enum class KeyFormat {
