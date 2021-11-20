@@ -93,7 +93,7 @@ object DidService {
                 return@runBlocking Klaxon().parse<DidEbsi>(didDoc)!!
             } catch (e: ClientRequestException) {
                 log.debug { "Resolving did ebsi failed: fail $i" }
-                Thread.sleep(100)
+                Thread.sleep(1000)
                 lastEx = e
             }
         }
@@ -198,7 +198,7 @@ object DidService {
         val key = keyAlias?.let { ContextManager.keyStore.load(it) } ?: cryptoService.generateKey(EdDSA_Ed25519).let { ContextManager.keyStore.load(it.id) }
 
         val domain = options?.domain ?: throw Exception("Missing 'domain' parameter for creating did:web")
-        var path = options?.path?.apply { replace("/", ":") }?.let { ":$it" } ?: ""
+        val path = options?.path?.apply { replace("/", ":") }?.let { ":$it" } ?: ""
 
         val didUrl = DidUrl("web", "$domain$path")
 
