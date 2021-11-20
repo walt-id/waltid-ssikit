@@ -34,7 +34,9 @@ import kotlin.io.path.exists
 import kotlin.io.path.readText
 
 @Ignored
-class EssifIntTest : StringSpec({
+class EssifIntTest() : StringSpec({
+
+    val bearerTokenFile = "data/bearer-token.txt"
 
     resetDataDir()
 
@@ -42,16 +44,15 @@ class EssifIntTest : StringSpec({
     ServiceMatrix("service-matrix.properties")
 
 
-    "1 Inti integration test" {
+    "1 Init integration test" {
 
         println("Checking for bearer token...")
-        if (!Path("data/bearer-token.txt").exists()) {
+        if (!Path(bearerTokenFile).exists()) {
             if (!Path("bearer-token.txt").exists()) {
                 throw Exception("Place token from https://app.preprod.ebsi.eu/users-onboarding in file bearer-token.txt")
             }
-            Path("bearer-token.txt").copyTo(Path("data/bearer-token.txt"))
+            Path("bearer-token.txt").copyTo(Path(bearerTokenFile))
         }
-
     }
 
     lateinit var keyId: KeyId
@@ -64,46 +65,45 @@ class EssifIntTest : StringSpec({
 
         println("Key \"$keyId\" generated.")
 
-        KeyService.getService().export(keyId.id, exportKeyType = KeyType.PRIVATE) shouldContain "\"d\":"
+        privateKeyExists(keyId.id) shouldBe true
     }
 
-    lateinit var didEbsi: String
+    lateinit var issuerDid: String
     "2.2 DID EBSI creation" {
         println("Creating did...")
-        didEbsi = DidService.create(DidMethod.valueOf("ebsi"), keyId.id)
-        didEbsi shouldStartWith "did:ebsi:"
-        println("DID created: $didEbsi")
+        issuerDid = DidService.create(DidMethod.valueOf("ebsi"), keyId.id)
+        issuerDid shouldStartWith "did:ebsi:"
+        println("DID created: $issuerDid")
 
-        KeyService.getService().export(didEbsi, exportKeyType = KeyType.PRIVATE) shouldContain "\"d\":"
+        privateKeyExists(issuerDid) shouldBe true
     }
 
     "3.1 Onboarding flow:" {
         shouldNotThrowAny {
-            val res = EssifClient.onboard(didEbsi, File("data/bearer-token.txt").readText().replace("\n", ""))
+            val res = EssifClient.onboard(issuerDid, File(bearerTokenFile).readText().replace("\n", ""))
             println(res)
         }
     }
 
     "3.2 Authentication API flow:" {
         shouldNotThrowAny {
-            EssifClient.authApi(didEbsi)
+            EssifClient.authApi(issuerDid)
         }
         println("done")
     }
 
     "3.3 Writing to ledger (signing of ETH transaction):"  {
         shouldNotThrowAny {
-            EssifClient.registerDid(didEbsi, didEbsi)
+            EssifClient.registerDid(issuerDid, issuerDid)
         }
     }
 
     "3.4 Try out DID resolving via CLI:" {
-        //didEbsi = "did:ebsi:zd2KH6TazJCKG8GRxztsjhg"
-        println("RESOLVING: $didEbsi")
+        println("RESOLVING: $issuerDid")
         lateinit var res: String
         Thread.sleep(2000)
         shouldNotThrowAny {
-            res = resolveDidHelper(didEbsi, false)
+            res = resolveDidHelper(issuerDid, false)
         }
         println(res)
         res shouldContain "{"
@@ -117,14 +117,13 @@ class EssifIntTest : StringSpec({
 //        println("Generated: $holderDid")
 
         // for a self-signed credential:
-        holderDid = didEbsi
+        holderDid = issuerDid
     }
 
     lateinit var vcFileName: String
     "4.2. Issuing W3C Verifiable Credential" {
         val interactive = true
         val template = "GaiaxCredential"
-        val issuerDid = didEbsi
         val subjectDid = holderDid
         vcFileName = "vc-${Timestamp.valueOf(LocalDateTime.now()).time}.json"
         val dest = File(vcFileName)
@@ -146,9 +145,6 @@ class EssifIntTest : StringSpec({
             template,
             ProofConfig(issuerDid, subjectDid, "Ed25519Signature2018", null, ProofType.LD_PROOF)
         )
-
-
-        println("\nResults:\n")
 
         println("Issuer \"$issuerDid\"")
         println("⇓ issued a \"$template\" to ⇓")
@@ -178,7 +174,6 @@ class EssifIntTest : StringSpec({
         // Creating the Verifiable Presentation
         val vp = Custodian.getService().createPresentation(vcStrList, holderDid, null, null, null)
 
-        println("\nResults:\n")
         println("Verifiable presentation generated for holder DID: \"$holderDid\"")
         println("Verifiable presentation document (below, JSON):\n\n$vp")
 
@@ -194,7 +189,7 @@ class EssifIntTest : StringSpec({
         verifyCredential(src)
         // To make sure that the private key is remaining in key store
         privateKeyExists(keyId.id) shouldBe true
-        privateKeyExists(keyId.id) shouldBe true
+        privateKeyExists(issuerDid) shouldBe true
     }
 
     "4.5. Verifying the VP" {
@@ -202,7 +197,7 @@ class EssifIntTest : StringSpec({
         verifyCredential(src)
         // To make sure that the private key is remaining in key store
         privateKeyExists(keyId.id) shouldBe true
-        privateKeyExists(keyId.id) shouldBe true
+        privateKeyExists(issuerDid) shouldBe true
     }
 
     "4.6. Verifying the VC after removed keystore" {
@@ -243,8 +238,6 @@ private fun verifyCredential(src: File) {
 
     val verificationResult = Auditor.getService().verify(src.readText(), policies.map { PolicyRegistry.getPolicy(it) })
 
-    println("\nResults:\n")
-
     verificationResult.policyResults.forEach { (policy, result) ->
         println("$policy:\t\t $result")
         result shouldBe true
@@ -256,6 +249,3 @@ private fun verifyCredential(src: File) {
 
 private fun privateKeyExists(keyAlias: String) =
     runCatching { KeyService.getService().export(keyAlias, exportKeyType = KeyType.PRIVATE).contains("\"d\":") }.getOrElse { false }
-
-
-
