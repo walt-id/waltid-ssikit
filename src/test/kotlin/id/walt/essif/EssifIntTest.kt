@@ -28,7 +28,10 @@ import java.nio.file.Path
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.util.stream.Collectors
-import kotlin.io.path.*
+import kotlin.io.path.Path
+import kotlin.io.path.copyTo
+import kotlin.io.path.exists
+import kotlin.io.path.readText
 
 @Ignored
 class EssifIntTest : StringSpec({
@@ -98,7 +101,7 @@ class EssifIntTest : StringSpec({
         //didEbsi = "did:ebsi:zd2KH6TazJCKG8GRxztsjhg"
         println("RESOLVING: $didEbsi")
         lateinit var res: String
-        Thread.sleep(1000)
+        Thread.sleep(2000)
         shouldNotThrowAny {
             res = resolveDidHelper(didEbsi, false)
         }
@@ -190,29 +193,29 @@ class EssifIntTest : StringSpec({
         val src = File(vcFileName)
         verifyCredential(src)
         // To make sure that the private key is remaining in key store
-        KeyService.getService().export(keyId.id, exportKeyType = KeyType.PRIVATE) shouldContain "\"d\":"
-        KeyService.getService().export(didEbsi, exportKeyType = KeyType.PRIVATE) shouldContain "\"d\":"
+        privateKeyExists(keyId.id) shouldBe true
+        privateKeyExists(keyId.id) shouldBe true
     }
 
     "4.5. Verifying the VP" {
         val src = File(vpFileName)
         verifyCredential(src)
         // To make sure that the private key is remaining in key store
-        KeyService.getService().export(keyId.id, exportKeyType = KeyType.PRIVATE) shouldContain "\"d\":"
-        KeyService.getService().export(didEbsi, exportKeyType = KeyType.PRIVATE) shouldContain "\"d\":"
+        privateKeyExists(keyId.id) shouldBe true
+        privateKeyExists(keyId.id) shouldBe true
     }
 
     "4.6. Verifying the VC after removed keystore" {
         val src = File(vcFileName)
         resetDataDir()
-        kotlin.runCatching { KeyService.getService().export(keyId.id, exportKeyType = KeyType.PRIVATE) }.isFailure shouldBe true
+        privateKeyExists(keyId.id) shouldBe false
         verifyCredential(src)
     }
 
     "4.7. Verifying the VP after removed keystore" {
         val src = File(vpFileName)
         resetDataDir()
-        kotlin.runCatching { KeyService.getService().export(keyId.id, exportKeyType = KeyType.PRIVATE) }.isFailure shouldBe true
+        privateKeyExists(keyId.id) shouldBe false
         verifyCredential(src)
     }
 }) {
@@ -249,5 +252,10 @@ private fun verifyCredential(src: File) {
     println("Verified:\t\t ${verificationResult.overallStatus}")
 
     verificationResult.overallStatus shouldBe true
-
 }
+
+private fun privateKeyExists(keyAlias: String) =
+    runCatching { KeyService.getService().export(keyAlias, exportKeyType = KeyType.PRIVATE).contains("\"d\":") }.getOrElse { false }
+
+
+
