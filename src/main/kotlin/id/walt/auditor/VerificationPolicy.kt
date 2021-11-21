@@ -1,5 +1,6 @@
 package id.walt.auditor
 
+import id.walt.model.AttributeInfo
 import id.walt.model.TrustedIssuer
 import id.walt.services.did.DidService
 import id.walt.services.essif.TrustedIssuerClient
@@ -16,12 +17,13 @@ import mu.KotlinLogging
 import java.text.SimpleDateFormat
 import java.util.*
 
+private const val TIR_TYPE_ATTRIBUTE = "attribute"
+private const val TIR_NAME_ISSUER = "issuer"
 private val log = KotlinLogging.logger {}
 private val jsonLdCredentialService = JsonLdCredentialService.getService()
 private val jwtCredentialService = JwtCredentialService.getService()
 private val dateFormatter =
     SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").also { it.timeZone = TimeZone.getTimeZone("UTC") }
-
 
 @Serializable
 data class VerificationPolicyMetadata(val description: String, val id: String)
@@ -102,23 +104,18 @@ class TrustedIssuerRegistryPolicy : VerificationPolicy {
             throw Exception("Could not resolve issuer TIR record of $issuerDid", e)
         }
 
-        return validTrustedIssuerRecord(tirRecord)
+        return isValidTrustedIssuerRecord(tirRecord)
 
     }
 
-    private fun validTrustedIssuerRecord(tirRecord: TrustedIssuer): Boolean {
-        var issuerRecordValid = true
-
-        if (tirRecord.attributes[0].body != "eyJAY29udGV4dCI6Imh0dHBzOi8vZWJzaS5ldSIsInR5cGUiOiJhdHRyaWJ1dGUiLCJuYW1lIjoiaXNzdWVyIiwiZGF0YSI6IjVkNTBiM2ZhMThkZGUzMmIzODRkOGM2ZDA5Njg2OWRlIn0=") {
-            issuerRecordValid = false
-            log.debug { "Body of TIR record $tirRecord not valid." }
+    private fun isValidTrustedIssuerRecord(tirRecord: TrustedIssuer): Boolean {
+        for (attribute in tirRecord.attributes) {
+            val attributeInfo = AttributeInfo.from(attribute.body)
+            if(TIR_TYPE_ATTRIBUTE.equals(attributeInfo?.type) && TIR_NAME_ISSUER.equals(attributeInfo?.name)) {
+                return true
+            }
         }
-
-        if (tirRecord.attributes[0].hash != "14f2d3c3320f65b6fd9413608e4c17f831e3c595ad61222ec12f899752348718") {
-            issuerRecordValid = false
-            log.debug { "Body of TIR record $tirRecord not valid." }
-        }
-        return issuerRecordValid
+        return false
     }
 }
 
