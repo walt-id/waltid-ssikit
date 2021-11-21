@@ -115,7 +115,7 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
     override fun defaultVcTemplate(): VerifiableCredential =
         TODO("Not implemented yet.")
 
-    override fun validateSchema(vc: String, schema: String): Boolean = TODO("Not implemented yet.")
+    override fun validateSchema(vc: VerifiableCredential, schema: String): Boolean = TODO("Not implemented yet.")
 
     override fun validateSchemaTsr(vc: String) = try {
         vc.toCredential().let {

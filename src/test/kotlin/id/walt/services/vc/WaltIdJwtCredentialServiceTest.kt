@@ -123,9 +123,9 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
         val invalidDataVc = Signatory.getService().issue("VerifiableId", ProofConfig(issuerDid = issuerDid, proofType = ProofType.JWT))
         val notParsableVc = ""
 
-        credentialService.validateSchema(noSchemaVc) shouldBe true
-        credentialService.validateSchema(validVc) shouldBe true
-        credentialService.validateSchema(invalidDataVc) shouldBe false
-        credentialService.validateSchema(notParsableVc) shouldBe false
+        credentialService.validateSchemaTsr(noSchemaVc) shouldBe true
+        credentialService.validateSchemaTsr(validVc) shouldBe true
+        credentialService.validateSchemaTsr(invalidDataVc) shouldBe false
+        credentialService.validateSchemaTsr(notParsableVc) shouldBe false
     }
 }

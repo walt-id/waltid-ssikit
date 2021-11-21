@@ -9,8 +9,8 @@ import id.walt.services.vc.JwtCredentialService
 import id.walt.services.vc.VcUtils
 import id.walt.vclib.Helpers.encode
 import id.walt.vclib.model.VerifiableCredential
-import id.walt.vclib.vclist.GaiaxCredential
-import id.walt.vclib.vclist.VerifiablePresentation
+import id.walt.vclib.schema.SchemaService
+import id.walt.vclib.vclist.*
 import kotlinx.serialization.Serializable
 import mu.KotlinLogging
 import java.text.SimpleDateFormat
@@ -64,12 +64,13 @@ class JsonSchemaPolicy : VerificationPolicy {
     override val description: String = "Verify by JSON schema"
     override fun verify(vc: VerifiableCredential): Boolean {
         log.error { "JsonSchemaPolicy is currently disabled" }
-        // TODO: laad schema
-        return true
-//        return when (vc.jwt) {
-//            null -> jsonLdCredentialService.validateSchema(vc, vc.encode()) // Schema already validated by json-ld?
-//            else -> jwtCredentialService.validateSchema(vc.encode())
-//        }
+
+        val schema = SchemaService.generateSchema(vc)
+
+        return when (vc.jwt) {
+            null -> jsonLdCredentialService.validateSchema(vc, schema)
+            else -> jwtCredentialService.validateSchema(vc, schema)
+        }
     }
 }
 

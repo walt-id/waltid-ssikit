@@ -33,7 +33,7 @@ import kotlin.io.path.copyTo
 import kotlin.io.path.exists
 import kotlin.io.path.readText
 
-// @Ignored
+@Ignored
 class EssifIntTest() : StringSpec({
 
     val bearerTokenFile = "data/bearer-token.txt"

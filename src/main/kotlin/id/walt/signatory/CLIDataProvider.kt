@@ -82,6 +82,7 @@ class VerifiableDiplomaCLIDataProvider : CLIDataProvider() {
                 gradingScheme?.apply {
                     id = prompt("Grading Scheme ID", id) ?: ""
                     title = prompt("Title", title) ?: ""
+                    description = prompt("Description", description) ?: ""
                 }
 
                 println()

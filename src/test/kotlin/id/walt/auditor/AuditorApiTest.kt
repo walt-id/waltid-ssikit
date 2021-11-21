@@ -116,7 +116,7 @@ class AuditorApiTest : AnnotationSpec() {
 
     @Test
     fun testVerifiableDiploma() {
-        postAndVerify(readVerifiableCredential("VerifiableDiploma"), "SignaturePolicy,TrustedSubjectDidPolicy,TrustedIssuerDidPolicy,TrustedSchemaRegistryPolicy")
+        postAndVerify(readVerifiableCredential("VerifiableDiploma"), "JsonSchemaPolicy,SignaturePolicy,TrustedSubjectDidPolicy,TrustedIssuerDidPolicy,TrustedSchemaRegistryPolicy")
     }
 
     @Test
