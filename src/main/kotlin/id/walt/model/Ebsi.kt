@@ -2,13 +2,17 @@
 
 package id.walt.model
 
+import com.beust.klaxon.Json
 import com.beust.klaxon.Klaxon
+import com.beust.klaxon.KlaxonException
 import com.nimbusds.jose.jwk.ECKey
 import id.walt.common.prettyPrint
+import id.walt.crypto.decBase64
 import id.walt.vclib.model.Proof
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
+import mu.KotlinLogging
 import java.time.LocalDateTime
 
 
@@ -98,6 +102,31 @@ data class Attribute(
     val hash: String,
     val body: String,
 )
+
+private val attributeInfoLog = KotlinLogging.logger("AttributeInfo")
+
+@Serializable
+data class AttributeInfo(
+    @SerialName("@context")
+    @Json(name = "@context")
+    val context: String = "",
+    val type: String = "",
+    val name: String = "",
+    val data: String = ""
+) {
+
+    companion object {
+        fun from(base64Body: String): AttributeInfo? {
+            val decodedAttributeBody = String(decBase64(base64Body))
+            try {
+                return Klaxon().parse<AttributeInfo>(decodedAttributeBody)
+            } catch(e: KlaxonException) {
+                attributeInfoLog.debug("Klaxon error (${e.message}) for attribute body ($base64Body)")
+                return AttributeInfo()
+            }
+        }
+    }
+}
 
 @Serializable
 data class TrustedIssuer(
