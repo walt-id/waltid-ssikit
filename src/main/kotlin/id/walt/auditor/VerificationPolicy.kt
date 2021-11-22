@@ -63,14 +63,15 @@ class SignaturePolicy : VerificationPolicy {
 class JsonSchemaPolicy : VerificationPolicy {
     override val description: String = "Verify by JSON schema"
     override fun verify(vc: VerifiableCredential): Boolean {
-        log.error { "JsonSchemaPolicy is currently disabled" }
 
-        val schema = SchemaService.generateSchema(vc)
+        SchemaService.validateSchema(vc.json!!).apply {
+            if(valid)
+                return true
 
-        return when (vc.jwt) {
-            null -> jsonLdCredentialService.validateSchema(vc, schema)
-            else -> jwtCredentialService.validateSchema(vc, schema)
+            log.error { "Credential not valid according the json-schema of type ${vc.type}. The validation errors are:" }
+            errors?.forEach{ error -> log.error { error }}
         }
+        return false
     }
 }
 

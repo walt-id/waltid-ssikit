@@ -33,7 +33,7 @@ class AuditorApiTest : AnnotationSpec() {
     val Auditor_API_PORT = 7001
     val Auditor_API_URL = "http://$Auditor_HOST:$Auditor_API_PORT"
 
-    val DEFAULT_POLICIES = "SignaturePolicy"
+    val DEFAULT_POLICIES = "SignaturePolicy, JsonSchemaPolicy"
 
     val client = HttpClient(CIO) {
         install(JsonFeature) {
@@ -101,12 +101,12 @@ class AuditorApiTest : AnnotationSpec() {
             )
         )
 
-        postAndVerify(vcToVerify, "SignaturePolicy")
+        postAndVerify(vcToVerify)
     }
 
     @Test
     fun testVerifiableAuthorizationCredential() {
-        postAndVerify(readVerifiableCredential("VerifiableAuthorization"), "SignaturePolicy,TrustedSubjectDidPolicy,TrustedIssuerDidPolicy")
+        postAndVerify(readVerifiableCredential("VerifiableAuthorization"), "JsonSchemaPolicy, SignaturePolicy,TrustedSubjectDidPolicy,TrustedIssuerDidPolicy")
     }
 
     @Test
