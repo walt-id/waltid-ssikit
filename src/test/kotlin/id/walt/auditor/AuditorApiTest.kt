@@ -126,7 +126,7 @@ class AuditorApiTest : AnnotationSpec() {
 
     @Test
     fun testDeqarCredential() {
-        postAndVerify(readVerifiableCredential("DeqarCredential"))
+        postAndVerify(readVerifiableCredential("DeqarCredential"), "SignaturePolicy")
     }
 
     @Test
