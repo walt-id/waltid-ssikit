@@ -4,14 +4,18 @@ import com.beust.klaxon.Klaxon
 import id.walt.common.prettyPrint
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.decodeBase58
+import id.walt.model.Did
+import id.walt.model.DidEbsi
 import id.walt.model.DidMethod
 import id.walt.model.DidUrl
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.key.KeyService
 import id.walt.test.RESOURCES_PATH
+import io.kotest.assertions.json.shouldMatchJson
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.collections.shouldBeOneOf
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import java.io.File
 
 class DidServiceTest : AnnotationSpec() {
@@ -129,4 +133,45 @@ class DidServiceTest : AnnotationSpec() {
         dids.forEach { s -> s shouldBe DidUrl.from(s).did }
     }
 
+    @Test
+    fun parseDidWithSingleValueContext() {
+        val didDoc = "{\n" +
+            "  \"@context\": \"https://www.w3.org/ns/did/v1\",\n" +
+            "  \"id\": \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k\",\n" +
+            "  \"verificationMethod\": [\n" +
+            "    {\n" +
+            "      \"id\": \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k#keys-1\",\n" +
+            "      \"type\": \"Secp256k1VerificationKey2018\",\n" +
+            "      \"controller\": \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k\",\n" +
+            "      \"publicKeyJwk\": {\n" +
+            "        \"kty\": \"EC\",\n" +
+            "        \"crv\": \"secp256k1\",\n" +
+            "        \"x\": \"Iq579rsuHREntinz8NnlG_e8gDjNNQt4DbChj9mBt7Y\",\n" +
+            "        \"y\": \"V-Tr9B56eA7H_UJN9q6dyMWlYkQkHFvtvDDlE66LXkk\"\n" +
+            "      }\n" +
+            "    }\n" +
+            "  ],\n" +
+            "  \"authentication\": [\n" +
+            "    \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k#keys-1\"\n" +
+            "  ],\n" +
+            "  \"assertionMethod\": [\n" +
+            "    \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k#keys-1\"\n" +
+            "  ]\n" +
+            "}"
+        val did = Did.decode(didDoc)
+        did shouldNotBe null
+        did?.javaClass shouldBe DidEbsi::class.java
+        println(did?.encodePretty())
+        did?.encodePretty() shouldMatchJson didDoc
+    }
+
+    @Test
+    fun parseDidWithContextArray() {
+        val didDoc = "{\"authentication\" : [\"did:ebsi:zuffrvD4gvopW2dgTWDYTXv#87d651a26f3a416bba58770de899e8fe\"], \"@context\" : [\"https://www.w3.org/ns/did/v1\", \"https://www.w3.org/ns/did/v2\"], \"id\" : \"did:ebsi:zuffrvD4gvopW2dgTWDYTXv\", \"verificationMethod\" : [{\"controller\" : \"did:ebsi:zuffrvD4gvopW2dgTWDYTXv\", \"id\" : \"did:ebsi:zuffrvD4gvopW2dgTWDYTXv#87d651a26f3a416bba58770de899e8fe\", \"publicKeyJwk\" : {\"alg\" : \"EdDSA\", \"crv\" : \"Ed25519\", \"kid\" : \"87d651a26f3a416bba58770de899e8fe\", \"kty\" : \"OKP\", \"use\" : \"sig\", \"x\" : \"tP7zl2umgGKVMao41TkvjHBgu6EPebcnTmF9MuJqzlc\"}, \"type\" : \"Ed25519VerificationKey2018\"}]}"
+        val did = Did.decode(didDoc)
+        did shouldNotBe null
+        did?.javaClass shouldBe DidEbsi::class.java
+        println(did?.encodePretty())
+        did?.encodePretty() shouldMatchJson didDoc
+    }
 }

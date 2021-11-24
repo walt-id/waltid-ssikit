@@ -120,6 +120,11 @@ class AuditorApiTest : AnnotationSpec() {
     }
 
     @Test
+    fun testTrustedIssuerRegistryPolicy() {
+        postAndVerify(readVerifiableCredential("VerifiableDiplomaWithIssuerTirRecord"), "TrustedIssuerRegistryPolicy")
+    }
+
+    @Test
     fun testVerifiableId() {
         postAndVerify(readVerifiableCredential("VerifiableId"))
     }

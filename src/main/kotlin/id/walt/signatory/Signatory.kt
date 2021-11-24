@@ -50,7 +50,7 @@ abstract class Signatory : WaltIdService() {
         override fun getService() = object : Signatory() {}
     }
 
-    open fun issue(templateId: String, config: ProofConfig): String = implementation.issue(templateId, config)
+    open fun issue(templateId: String, config: ProofConfig, dataProvider: SignatoryDataProvider? = null): String = implementation.issue(templateId, config, dataProvider)
     open fun listTemplates(): List<String> = implementation.listTemplates()
     open fun loadTemplate(templateId: String): VerifiableCredential = implementation.loadTemplate(templateId)
 }
@@ -60,7 +60,7 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
     private val VC_GROUP = "signatory"
     override val configuration: SignatoryConfig = fromConfiguration(configurationPath)
 
-    override fun issue(templateId: String, config: ProofConfig): String {
+    override fun issue(templateId: String, config: ProofConfig, dataProvider: SignatoryDataProvider?): String {
 
         // TODO: load proof-conf from signatory.conf and optionally substitute values on request basis
         val vcTemplate = VcTemplateManager.loadTemplate(templateId)
@@ -84,8 +84,8 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
             else -> config
         }
 
-        val dataProvider = DataProviderRegistry.getProvider(vcTemplate::class)
-        val vcRequest = dataProvider.populate(vcTemplate, configDP)
+        val selectedDataProvider = dataProvider ?: DataProviderRegistry.getProvider(vcTemplate::class)
+        val vcRequest = selectedDataProvider.populate(vcTemplate, configDP)
 
         log.info { "Signing credential with proof using ${config.proofType.name}..." }
         log.debug { "Signing credential with proof using ${config.proofType.name}, credential is: $vcRequest" }
