@@ -337,7 +337,7 @@ object DidService {
     fun listDids(): List<String> =
         ContextManager.hkvStore.listChildKeys(HKVKey("did", "created")).map { it.name }.toList()
 
-    fun loadOrResolveAnyDid(didStr: String): BaseDid? {
+    fun loadOrResolveAnyDid(didStr: String): Did? {
         log.debug { "Loading or resolving \"$didStr\"..." }
         val url = DidUrl.from(didStr)
         val storedDid = loadDid(didStr)
@@ -350,7 +350,7 @@ object DidService {
                 // TODO: implement did:web
                 else -> null
             }?.apply { storeDid(didStr, this.encodePretty()) }
-            else -> BaseDid.decode(didStr, storedDid)
+            else -> Did.decode(storedDid)
         }
     }
 

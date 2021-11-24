@@ -1,55 +1,92 @@
 package id.walt.model
 
-import com.beust.klaxon.Json
-import com.beust.klaxon.Klaxon
+import com.beust.klaxon.*
 import id.walt.common.prettyPrint
+import id.walt.vclib.adapter.VCTypeAdapter
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlin.reflect.KClass
 
 const val DID_CONTEXT_URL: String = "https://www.w3.org/ns/did/v1"
+
+@Target(AnnotationTarget.FIELD)
+annotation class ListOrSingleValue
+
+val listOrSingleValueConverter = object: Converter {
+    override fun canConvert(cls: Class<*>) = cls == List::class.java
+
+    override fun fromJson(jv: JsonValue) =
+        if (jv.array == null) {
+            listOf(jv.inside)
+        } else {
+            jv.array
+        }
+
+    override fun toJson(o: Any)
+        = when((o as List<*>)?.size) {
+            1 -> Klaxon().toJsonString(o.first())
+            else -> Klaxon().toJsonString(o)
+        }
+}
+
+class DidTypeAdapter : TypeAdapter<Did> {
+    override fun classFor(id: Any): KClass<out Did> = when(DidUrl.from(id.toString()).method) {
+        DidMethod.key.name -> DidKey::class
+        DidMethod.ebsi.name -> DidEbsi::class
+        // TODO: implement for DidWeb
+        else -> throw IllegalArgumentException("Unsupported did method for $id")
+    }
+
+}
 
 enum class DidMethod {
     key,
     web,
     ebsi
 }
+@Serializable
+@TypeFor(field = "id", adapter = DidTypeAdapter::class)
+open class Did (
+    @SerialName("@context")
+    @Json(name = "@context")
+    @ListOrSingleValue
+    val context: List<String>,
+    val id: String,
+    @Json(serializeNull = false) var verificationMethod: List<VerificationMethod>? = null,
+    @Json(serializeNull = false) var authentication: List<String>? = null,
+    @Json(serializeNull = false) var assertionMethod: List<String>? = null,
+    @Json(serializeNull = false) var capabilityDelegation: List<String>? = null,
+    @Json(serializeNull = false) var capabilityInvocation: List<String>? = null,
+    @Json(serializeNull = false) var keyAgreement: List<String>? = null,
+    @Json(serializeNull = false) var serviceEndpoint: List<VerificationMethod>? = null
+) {
+    constructor( // secondary constructor with context as string
+        context: String,
+        id: String,
+        verificationMethod: List<VerificationMethod>? = null,
+        authentication: List<String>? = null,
+        assertionMethod: List<String>? = null,
+        capabilityDelegation: List<String>? = null,
+        capabilityInvocation: List<String>? = null,
+        keyAgreement: List<String>? = null,
+        serviceEndpoint: List<VerificationMethod>? = null
+    ) : this(listOf(context), id, verificationMethod, authentication, assertionMethod, capabilityDelegation, capabilityInvocation, keyAgreement, serviceEndpoint) {
+    }
 
-abstract class BaseDid {
-    abstract val id: String
     @Json(ignored = true) val url: DidUrl
         get() = DidUrl.from(id)
     @Json(ignored = true) val method: DidMethod
         get() = DidMethod.valueOf(url.method)
 
-    fun encode() = Klaxon().toJsonString(this)
-    fun encodePretty() = Klaxon().toJsonString(this).prettyPrint()
+    fun encode() = Klaxon().fieldConverter(ListOrSingleValue::class, listOrSingleValueConverter).toJsonString(this)
+    fun encodePretty() = Klaxon().fieldConverter(ListOrSingleValue::class, listOrSingleValueConverter).toJsonString(this).prettyPrint()
 
     companion object {
-        fun decode(id: String, didDoc: String): BaseDid? {
-            return when(DidUrl.from(id).method) {
-                "key" -> Klaxon().parse<Did>(didDoc)
-                "ebsi" -> Klaxon().parse<DidEbsi>(didDoc)
-                // TODO: support did:web
-                else -> null
-            }
+        fun decode(didDoc: String): Did? {
+            return Klaxon().fieldConverter(ListOrSingleValue::class, listOrSingleValueConverter).parse<Did>(didDoc)
         }
     }
 }
-
-@Serializable
-data class Did (
-    @SerialName("@context")
-    @Json(name = "@context")
-    val context: String,
-    override val id: String,
-    @Json(serializeNull = false) val verificationMethod: List<VerificationMethod>? = null,
-    @Json(serializeNull = false) val authentication: List<String>? = null,
-    @Json(serializeNull = false) val assertionMethod: List<String>? = null,
-    @Json(serializeNull = false) val capabilityDelegation: List<String>? = null,
-    @Json(serializeNull = false) val capabilityInvocation: List<String>? = null,
-    @Json(serializeNull = false) val keyAgreement: List<String>? = null,
-    @Json(serializeNull = false) val serviceEndpoint: List<VerificationMethod>? = null,
-) : BaseDid ()
 
 @Serializable
 data class VerificationMethod(

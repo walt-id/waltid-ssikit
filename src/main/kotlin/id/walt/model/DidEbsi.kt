@@ -3,16 +3,36 @@ package id.walt.model
 import com.beust.klaxon.Json
 import id.walt.vclib.model.Proof
 
-data class DidEbsi (
-    @Json(name = "@context")
-    val context: List<String>,
-    override val id: String,
-    @Json(serializeNull = false) val verificationMethod: List<VerificationMethod>? = null,
-    @Json(serializeNull = false) val authentication: List<String>? = null,
-    @Json(serializeNull = false) var assertionMethod: List<String>? = null,
-    @Json(serializeNull = false) val capabilityDelegation: List<String>? = null,
-    @Json(serializeNull = false) val capabilityInvocation: List<String>? = null,
-    @Json(serializeNull = false) val keyAgreement: List<String>? = null,
-    @Json(serializeNull = false) val serviceEndpoint: List<VerificationMethod>? = null,
-    @Json(serializeNull = false) var proof: Proof? = null,
-) : BaseDid()
+class DidEbsi(
+    context: List<String>,
+    id: String,
+    verificationMethod: List<VerificationMethod>? = null,
+    authentication: List<String>? = null,
+    assertionMethod: List<String>? = null,
+    capabilityDelegation: List<String>? = null,
+    capabilityInvocation: List<String>? = null,
+    keyAgreement: List<String>? = null,
+    serviceEndpoint: List<VerificationMethod>? = null,
+    @Json(serializeNull = false) var proof: Proof? = null
+) : Did(
+    context,
+    id,
+    verificationMethod,
+    authentication,
+    assertionMethod,
+    capabilityDelegation,
+    capabilityInvocation,
+    keyAgreement,
+    serviceEndpoint
+) {
+    constructor(context: String,
+                id: String,
+                verificationMethod: List<VerificationMethod>? = null,
+                authentication: List<String>? = null,
+                assertionMethod: List<String>? = null,
+                capabilityDelegation: List<String>? = null,
+                capabilityInvocation: List<String>? = null,
+                keyAgreement: List<String>? = null,
+                serviceEndpoint: List<VerificationMethod>? = null,
+                proof: Proof? = null) : this(listOf(context), id, verificationMethod, authentication, assertionMethod, capabilityDelegation, capabilityInvocation, keyAgreement, serviceEndpoint, proof)
+}
