@@ -83,9 +83,11 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
     }
 
     override fun verifyVc(issuerDid: String, vc: String): Boolean {
-        log.trace { "Loading verification key for:  $issuerDid" }
+        log.debug { "Loading verification key for:  $issuerDid" }
 
         val publicKey = keyStore.load(issuerDid)
+
+        log.debug { "Verification key for:  $issuerDid is: $publicKey" }
 
         val confLoader = LDSecurityContexts.DOCUMENT_LOADER as ConfigurableDocumentLoader
 
@@ -94,11 +96,11 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
         confLoader.isEnableFile = true
         confLoader.isEnableLocalCache = true
 
-        log.trace { "Document loader config: isEnableHttp (${confLoader.isEnableHttp}), isEnableHttps (${confLoader.isEnableHttps}), isEnableFile (${confLoader.isEnableFile}), isEnableLocalCache (${confLoader.isEnableLocalCache})" }
+        log.debug { "Document loader config: isEnableHttp (${confLoader.isEnableHttp}), isEnableHttps (${confLoader.isEnableHttps}), isEnableFile (${confLoader.isEnableFile}), isEnableLocalCache (${confLoader.isEnableLocalCache})" }
 
         val jsonLdObject = JsonLDObject.fromJson(vc)
         jsonLdObject.documentLoader = LDSecurityContexts.DOCUMENT_LOADER
-        log.trace { "Decoded Json LD object: $jsonLdObject" }
+        log.debug { "Decoded Json LD object: $jsonLdObject" }
 
         val verifier = when (publicKey.algorithm) {
             KeyAlgorithm.ECDSA_Secp256k1 -> id.walt.crypto.LdVerifier.EcdsaSecp256k1Signature2019(publicKey.getPublicKey())
@@ -106,9 +108,13 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
             else -> throw Exception("Signature for key algorithm ${publicKey.algorithm} not supported")
         }
 
-        log.trace { "Loaded Json LD verifier with signature suite: ${verifier.signatureSuite}" }
+        log.debug { "Loaded Json LD verifier with signature suite: ${verifier.signatureSuite}" }
 
-        return verifier.verify(jsonLdObject)
+        val verificatioResult = verifier.verify(jsonLdObject)
+
+        log.debug { "Json LD verifier returned: $verificatioResult" }
+
+        return verificatioResult
     }
 
 
@@ -194,15 +200,10 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
     override fun verifyVc(vcJson: String): Boolean {
         log.debug { "Verifying VC:\n$vcJson" }
 
-        //val vcObj = Klaxon().parse<VerifiableCredential>(vc)
         val vcObj = vcJson.toCredential()
-        log.trace { "VC decoded: $vcObj" }
-
-        //        val signatureType = SignatureType.valueOf(vcObj.proof!!.type)
-        //        log.debug { "Issuer: ${vcObj.issuer}" }
-        //        log.debug { "Signature type: $signatureType" }
 
         val issuer = getIssuer(vcObj)
+        log.debug { "VC decoded: $vcObj" }
 
         val vcVerified = verifyVc(issuer, vcJson)
         log.debug { "Verification of LD-Proof returned: $vcVerified" }
@@ -353,7 +354,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
         )
     }
 
-    override fun validateSchema(vc: VerifiableCredential, schema: String) : Boolean {
+    override fun validateSchema(vc: VerifiableCredential, schema: String): Boolean {
 
         val parsedSchema = try {
             JSONSchema.parse(schema)

@@ -209,9 +209,12 @@ private fun parseDate(date: String?) = try {
 }
 
 data class VerificationResult(
-    val overallStatus: Boolean = false,
+    /***
+     * Validation status over all policy results.
+     */
+    val valid: Boolean = false,
     val policyResults: Map<String, Boolean>
 ) {
     override fun toString() =
-        "VerificationResult(overallStatus=$overallStatus, policyResults={${policyResults.entries.joinToString { it.key + "=" + it.value }}})"
+        "VerificationResult(valid=$valid, policyResults={${policyResults.entries.joinToString { it.key + "=" + it.value }}})"
 }

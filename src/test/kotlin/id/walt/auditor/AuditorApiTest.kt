@@ -85,7 +85,7 @@ class AuditorApiTest : AnnotationSpec() {
         println(verificationResultJson)
 
         val vr = Klaxon().parse<VerificationResult>(verificationResultJson)!!
-        vr.overallStatus shouldBe true
+        vr.valid shouldBe true
     }
 
     @Test
