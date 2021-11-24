@@ -13,8 +13,8 @@ import id.walt.signatory.Signatory
 import id.walt.test.DummySignatoryDataProvider
 import id.walt.test.RESOURCES_PATH
 import id.walt.vclib.Helpers.encode
-import id.walt.vclib.vclist.Europass
-import id.walt.vclib.vclist.VerifiableId
+import id.walt.vclib.credentials.Europass
+import id.walt.vclib.credentials.VerifiableId
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.maps.shouldContainKey

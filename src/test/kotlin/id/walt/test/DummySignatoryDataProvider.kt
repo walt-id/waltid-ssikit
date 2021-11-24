@@ -3,8 +3,8 @@ package id.walt.test
 import id.walt.signatory.*
 import id.walt.vclib.model.Proof
 import id.walt.vclib.model.VerifiableCredential
-import id.walt.vclib.vclist.VerifiableDiploma
-import id.walt.vclib.vclist.VerifiableId
+import id.walt.vclib.credentials.VerifiableDiploma
+import id.walt.vclib.credentials.VerifiableId
 
 class DummySignatoryDataProvider : SignatoryDataProvider {
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {

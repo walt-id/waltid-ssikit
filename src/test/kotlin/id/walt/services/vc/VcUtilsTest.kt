@@ -1,7 +1,8 @@
 package id.walt.services.vc
 
+import id.walt.vclib.VcUtils
 import id.walt.vclib.model.CredentialSchema
-import id.walt.vclib.vclist.VerifiableDiploma
+import id.walt.vclib.credentials.VerifiableDiploma
 import io.kotest.core.spec.style.StringSpec
 import org.junit.jupiter.api.Assertions.assertEquals
 

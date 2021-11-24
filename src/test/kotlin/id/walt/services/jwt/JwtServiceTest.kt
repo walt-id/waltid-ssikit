@@ -18,7 +18,7 @@ import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
 import id.walt.test.RESOURCES_PATH
 import id.walt.vclib.Helpers.toCredential
-import id.walt.vclib.vclist.Europass
+import id.walt.vclib.credentials.Europass
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import org.bouncycastle.jce.provider.BouncyCastleProvider

@@ -7,7 +7,7 @@ import id.walt.services.did.DidService
 import id.walt.signatory.*
 import id.walt.test.DummySignatoryDataProvider
 import id.walt.test.RESOURCES_PATH
-import id.walt.vclib.vclist.VerifiableDiploma
+import id.walt.vclib.credentials.VerifiableDiploma
 import io.kotest.core.spec.Spec
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldBeSameSizeAs

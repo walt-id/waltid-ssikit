@@ -1,9 +1,9 @@
 package id.walt.signatory
 
 import id.walt.vclib.model.VerifiableCredential
-import id.walt.vclib.vclist.GaiaxCredential
-import id.walt.vclib.vclist.VerifiableDiploma
-import id.walt.vclib.vclist.VerifiableId
+import id.walt.vclib.credentials.GaiaxCredential
+import id.walt.vclib.credentials.VerifiableDiploma
+import id.walt.vclib.credentials.VerifiableId
 import java.util.*
 
 object CLIDataProviders {

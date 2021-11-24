@@ -6,11 +6,12 @@ import id.walt.services.essif.TrustedIssuerClient
 import id.walt.services.key.KeyService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
-import id.walt.services.vc.VcUtils
 import id.walt.vclib.Helpers.encode
+import id.walt.vclib.VcUtils
+import id.walt.vclib.credentials.GaiaxCredential
+import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.schema.SchemaService
-import id.walt.vclib.vclist.*
 import kotlinx.serialization.Serializable
 import mu.KotlinLogging
 import java.text.SimpleDateFormat

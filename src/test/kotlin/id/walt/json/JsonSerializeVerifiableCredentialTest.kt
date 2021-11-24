@@ -6,9 +6,9 @@ import id.walt.vclib.model.CredentialSchema
 import id.walt.vclib.model.CredentialStatus
 import id.walt.vclib.model.Proof
 import id.walt.vclib.model.VerifiableCredential
-import id.walt.vclib.vclist.Europass
-import id.walt.vclib.vclist.PermanentResidentCard
-import id.walt.vclib.vclist.VerifiableAttestation
+import id.walt.vclib.credentials.Europass
+import id.walt.vclib.credentials.PermanentResidentCard
+import id.walt.vclib.credentials.VerifiableAttestation
 import io.kotest.assertions.fail
 import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.AnnotationSpec

@@ -3,7 +3,7 @@ package id.walt.signatory
 import id.walt.model.DidMethod
 import id.walt.services.did.DidService
 import id.walt.vclib.model.VerifiableCredential
-import id.walt.vclib.vclist.*
+import id.walt.vclib.credentials.*
 import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.reflect.KClass
