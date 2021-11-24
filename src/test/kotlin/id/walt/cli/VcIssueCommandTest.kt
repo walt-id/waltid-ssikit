@@ -11,7 +11,7 @@ import id.walt.signatory.ProofConfig
 import id.walt.signatory.SignatoryDataProvider
 import id.walt.test.RESOURCES_PATH
 import id.walt.vclib.model.VerifiableCredential
-import id.walt.vclib.vclist.VerifiableAttestation
+import id.walt.vclib.credentials.VerifiableAttestation
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.string.shouldContain

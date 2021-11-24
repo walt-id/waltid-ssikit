@@ -15,9 +15,10 @@ import id.walt.test.getTemplate
 import id.walt.test.readCredOffer
 import id.walt.vclib.Helpers.encode
 import id.walt.vclib.Helpers.toCredential
+import id.walt.vclib.VcUtils
 import id.walt.vclib.model.CredentialSchema
 import id.walt.vclib.model.CredentialStatus
-import id.walt.vclib.vclist.*
+import id.walt.vclib.credentials.*
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -125,7 +126,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
     fun presentEuropassTest() {
 
         val domain = "example.com"
-        val challenge: String = "asdf"
+        val challenge = "asdf"
 
         val template = Europass(
             id = "education#higherEducation#51e42fda-cb0a-4333-b6a6-35cb147e1a88",
@@ -166,12 +167,12 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
                 ),
                 learningSpecification = Europass.CredentialSubject.LearningSpecification(
                     id = "https://leaston.bcdiploma.com/law-economics-management#LearningSpecification",
-                    iSCEDFCode = listOf(
+                    ISCEDFCode = listOf(
                         "7"
                     ),
-                    eCTSCreditPoints = 120,
-                    eQFLevel = 7,
-                    nQFLevel = listOf(
+                    ECTSCreditPoints = 120,
+                    EQFLevel = 7,
+                    NQFLevel = listOf(
                         "7"
                     )
                 )
@@ -270,7 +271,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
     }
 
     @Test
-    fun testValidateSchema() {
+    fun testValidateSchemaTsr() {
         // Required at the moment because EBSI did not upgrade V_ID schema with necessary changes.
         DataProviderRegistry.register(VerifiableId::class, DummySignatoryDataProvider())
 
@@ -286,10 +287,10 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
             proofType = ProofType.LD_PROOF))
         val notParsableVc = ""
 
-        credentialService.validateSchema(noSchemaVc) shouldBe true
-        credentialService.validateSchema(validVc) shouldBe true
-        credentialService.validateSchema(invalidDataVc) shouldBe false
-        credentialService.validateSchema(notParsableVc) shouldBe false
+        credentialService.validateSchemaTsr(noSchemaVc) shouldBe false
+        credentialService.validateSchemaTsr(validVc) shouldBe true
+        credentialService.validateSchemaTsr(invalidDataVc) shouldBe false
+        credentialService.validateSchemaTsr(notParsableVc) shouldBe false
     }
 
 /*@Test

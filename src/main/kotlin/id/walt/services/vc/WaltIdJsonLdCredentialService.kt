@@ -11,18 +11,19 @@ import id.walt.services.did.DidService
 import id.walt.services.essif.EssifServer.nonce
 import id.walt.services.essif.TrustedIssuerClient.domain
 import id.walt.services.keystore.KeyStoreService
-import id.walt.services.vc.VcUtils.getIssuer
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.vclib.Helpers.encode
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.VcLibManager
+import id.walt.vclib.VcUtils
+
+import id.walt.vclib.credentials.VerifiableAttestation
+import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.CredentialSchema
 import id.walt.vclib.model.CredentialStatus
 import id.walt.vclib.model.Proof
 import id.walt.vclib.model.VerifiableCredential
-import id.walt.vclib.vclist.VerifiableAttestation
-import id.walt.vclib.vclist.VerifiablePresentation
 import info.weboftrust.ldsignatures.LdProof
 import info.weboftrust.ldsignatures.jsonld.LDSecurityContexts
 import mu.KotlinLogging
@@ -83,9 +84,11 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
     }
 
     override fun verifyVc(issuerDid: String, vc: String): Boolean {
-        log.trace { "Loading verification key for:  $issuerDid" }
+        log.debug { "Loading verification key for:  $issuerDid" }
 
         val publicKey = keyStore.load(issuerDid)
+
+        log.debug { "Verification key for:  $issuerDid is: $publicKey" }
 
         val confLoader = LDSecurityContexts.DOCUMENT_LOADER as ConfigurableDocumentLoader
 
@@ -94,11 +97,11 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
         confLoader.isEnableFile = true
         confLoader.isEnableLocalCache = true
 
-        log.trace { "Document loader config: isEnableHttp (${confLoader.isEnableHttp}), isEnableHttps (${confLoader.isEnableHttps}), isEnableFile (${confLoader.isEnableFile}), isEnableLocalCache (${confLoader.isEnableLocalCache})" }
+        log.debug { "Document loader config: isEnableHttp (${confLoader.isEnableHttp}), isEnableHttps (${confLoader.isEnableHttps}), isEnableFile (${confLoader.isEnableFile}), isEnableLocalCache (${confLoader.isEnableLocalCache})" }
 
         val jsonLdObject = JsonLDObject.fromJson(vc)
         jsonLdObject.documentLoader = LDSecurityContexts.DOCUMENT_LOADER
-        log.trace { "Decoded Json LD object: $jsonLdObject" }
+        log.debug { "Decoded Json LD object: $jsonLdObject" }
 
         val verifier = when (publicKey.algorithm) {
             KeyAlgorithm.ECDSA_Secp256k1 -> id.walt.crypto.LdVerifier.EcdsaSecp256k1Signature2019(publicKey.getPublicKey())
@@ -106,9 +109,13 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
             else -> throw Exception("Signature for key algorithm ${publicKey.algorithm} not supported")
         }
 
-        log.trace { "Loaded Json LD verifier with signature suite: ${verifier.signatureSuite}" }
+        log.debug { "Loaded Json LD verifier with signature suite: ${verifier.signatureSuite}" }
 
-        return verifier.verify(jsonLdObject)
+        val verificatioResult = verifier.verify(jsonLdObject)
+
+        log.debug { "Json LD verifier returned: $verificatioResult" }
+
+        return verificatioResult
     }
 
 
@@ -194,15 +201,10 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
     override fun verifyVc(vcJson: String): Boolean {
         log.debug { "Verifying VC:\n$vcJson" }
 
-        //val vcObj = Klaxon().parse<VerifiableCredential>(vc)
         val vcObj = vcJson.toCredential()
-        log.trace { "VC decoded: $vcObj" }
 
-        //        val signatureType = SignatureType.valueOf(vcObj.proof!!.type)
-        //        log.debug { "Issuer: ${vcObj.issuer}" }
-        //        log.debug { "Signature type: $signatureType" }
-
-        val issuer = getIssuer(vcObj)
+        val issuer = VcUtils.getIssuer(vcObj)
+        log.debug { "VC decoded: $vcObj" }
 
         val vcVerified = verifyVc(issuer, vcJson)
         log.debug { "Verification of LD-Proof returned: $vcVerified" }
@@ -353,13 +355,59 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
         )
     }
 
-    override fun validateSchema(vc: String) = try {
+    override fun validateSchema(vc: VerifiableCredential, schema: String): Boolean {
+
+        val parsedSchema = try {
+            JSONSchema.parse(schema)
+        } catch (e: Exception) {
+            if (log.isDebugEnabled) {
+                log.debug { "Could not parse schema" }
+                e.printStackTrace()
+            }
+            return false
+        }
+
+        val basicOutput = parsedSchema.validateBasic(vc.json!!)
+
+        if (!basicOutput.valid) {
+            log.debug { "Could not validate vc against schema . The validation errors are:" }
+            basicOutput.errors?.forEach { e -> log.debug { " - ${e.error}" } }
+            return false
+        }
+
+        return true
+    }
+
+    override fun validateSchemaTsr(vc: String) = try {
+
         vc.toCredential().let {
-            val credentialSchema = VcUtils.getCredentialSchema(it) ?: return true
-            val schema = JSONSchema.parse(URL(credentialSchema.id).readText())
-            return schema.validateBasic(it.json!!).valid
+
+            if (it is VerifiablePresentation) return true
+
+            val credentialSchemaUrl = VcUtils.getCredentialSchemaUrl(it)
+
+            if (credentialSchemaUrl == null) {
+                log.debug { "Credential has no associated credentialSchema property" }
+                return false
+            }
+
+            val loadedSchema = try {
+                URL(credentialSchemaUrl.id).readText()
+            } catch (e: Exception) {
+                if (log.isDebugEnabled) {
+                    log.debug { "Could not load schema from ${credentialSchemaUrl.id}" }
+                    e.printStackTrace()
+                }
+                return false
+            }
+
+            return validateSchema(it, loadedSchema)
         }
     } catch (e: Exception) {
+        if (log.isDebugEnabled) {
+            log.debug { "Could not validate schema" }
+            e.printStackTrace()
+        }
         false
     }
 

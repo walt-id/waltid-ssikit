@@ -9,7 +9,7 @@ import id.walt.signatory.rest.SignatoryRestAPI
 import id.walt.test.RESOURCES_PATH
 import id.walt.vclib.Helpers.encode
 import id.walt.vclib.Helpers.toCredential
-import id.walt.vclib.vclist.*
+import id.walt.vclib.credentials.*
 import io.github.rybalkinsd.kohttp.dsl.httpPost
 import io.github.rybalkinsd.kohttp.ext.asString
 import io.kotest.assertions.json.shouldEqualJson

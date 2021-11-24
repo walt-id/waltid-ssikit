@@ -9,8 +9,9 @@ import id.walt.vclib.Helpers.encode
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.Helpers.toMap
 import id.walt.vclib.VcLibManager
+import id.walt.vclib.VcUtils
+import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.VerifiableCredential
-import id.walt.vclib.vclist.VerifiablePresentation
 import info.weboftrust.ldsignatures.LdProof
 import mu.KotlinLogging
 import net.pwall.json.schema.JSONSchema
@@ -115,9 +116,11 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
     override fun defaultVcTemplate(): VerifiableCredential =
         TODO("Not implemented yet.")
 
-    override fun validateSchema(vc: String) = try {
+    override fun validateSchema(vc: VerifiableCredential, schema: String): Boolean = TODO("Not implemented yet.")
+
+    override fun validateSchemaTsr(vc: String) = try {
         vc.toCredential().let {
-            val credentialSchema = VcUtils.getCredentialSchema(it) ?: return true
+            val credentialSchema = VcUtils.getCredentialSchemaUrl(it) ?: return true
             val schema = JSONSchema.parse(URL(credentialSchema.id).readText())
             return schema.validateBasic(it.json!!).valid
         }

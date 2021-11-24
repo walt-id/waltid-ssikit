@@ -1,7 +1,8 @@
 package id.walt.services.vc
 
+import id.walt.vclib.VcUtils
 import id.walt.vclib.model.CredentialSchema
-import id.walt.vclib.vclist.VerifiableDiploma
+import id.walt.vclib.credentials.VerifiableDiploma
 import io.kotest.core.spec.style.StringSpec
 import org.junit.jupiter.api.Assertions.assertEquals
 
@@ -33,9 +34,9 @@ class VcUtilsTest : StringSpec({
     }
 
     "getCredentialSchema returns the credentialSchema attribute value when it exists" {
-        assertEquals(null, VcUtils.getCredentialSchema(VerifiableDiploma()))
+        assertEquals(null, VcUtils.getCredentialSchemaUrl(VerifiableDiploma()))
         CredentialSchema(id = "id", type = "type").let {
-            assertEquals(it, VcUtils.getCredentialSchema(VerifiableDiploma(credentialSchema = it)))
+            assertEquals(it, VcUtils.getCredentialSchemaUrl(VerifiableDiploma(credentialSchema = it)))
         }
     }
 })

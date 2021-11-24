@@ -23,8 +23,8 @@ import id.walt.test.readCredOffer
 import id.walt.vclib.Helpers.encode
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.VcLibManager
-import id.walt.vclib.vclist.Europass
-import id.walt.vclib.vclist.VerifiableAttestation
+import id.walt.vclib.credentials.Europass
+import id.walt.vclib.credentials.VerifiableAttestation
 import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe

@@ -53,18 +53,11 @@ class VcIssueCommand : CliktCommand(
     val dest: File? by argument().file().optional()
     val template: String by option("-t", "--template", help = "VC template [VerifiableDiploma]").default("VerifiableDiploma")
     val issuerDid: String by option("-i", "--issuer-did", help = "DID of the issuer (associated with signing key)").required()
-    val issuerVerificationMethod: String? by option(
-        "-v",
-        "--issuer-verification-method",
-        help = "KeyId of the issuers' signing key"
-    )
     val subjectDid: String by option("-s", "--subject-did", help = "DID of the VC subject (receiver of VC)").required()
-    val proofType: ProofType by option("-p", "--proof-type", help = "Proof type to be used [LD_PROOF]").enum<ProofType>()
-        .default(ProofType.LD_PROOF)
-    val interactive: Boolean by option(
-        "--interactive",
-        help = "Interactively prompt for VC data to fill in"
-    ).flag(default = false)
+    val issuerVerificationMethod: String? by option("-v", "--issuer-verification-method", help = "KeyId of the issuers' signing key")
+    val proofType: ProofType by option("-y", "--proof-type", help = "Proof type to be used [LD_PROOF]").enum<ProofType>().default(ProofType.LD_PROOF)
+    val proofPurpose: String by option("-p", "--proof-purpose", help = "Proof purpose to be used [assertion]").default("assertion")
+    val interactive: Boolean by option("--interactive", help = "Interactively prompt for VC data to fill in").flag(default = false)
 
     private val signatory = Signatory.getService()
 
@@ -85,7 +78,7 @@ class VcIssueCommand : CliktCommand(
 
         val vcStr = signatory.issue(
             template,
-            ProofConfig(issuerDid, subjectDid, "Ed25519Signature2018", issuerVerificationMethod, proofType)
+            ProofConfig(issuerDid = issuerDid, subjectDid = subjectDid, issuerVerificationMethod = issuerVerificationMethod, proofType = proofType, proofPurpose = proofPurpose)
         )
 
         echo("\nResults:\n")
@@ -183,18 +176,6 @@ class VerifyVcCommand : CliktCommand(
             )
         }
 
-//        val type = when (verificationResult.verificationType) {
-//            VerificationType.VERIFIABLE_PRESENTATION -> "verifiable presentation"
-//            VerificationType.VERIFIABLE_CREDENTIAL -> "verifiable credential"
-//        }
-
-//        echo(
-//            when (verificationResult.verified) {
-//                true -> "The $type was verified successfully."
-//                false -> "The $type is not valid or could not be verified."
-//            }
-//        )
-
         val verificationResult = Auditor.getService().verify(src.readText(), policies.map { PolicyRegistry.getPolicy(it) })
 
         echo("\nResults:\n")
@@ -202,7 +183,7 @@ class VerifyVcCommand : CliktCommand(
         verificationResult.policyResults.forEach { (policy, result) ->
             echo("$policy:\t $result")
         }
-        echo("Verified:\t\t ${verificationResult.overallStatus}")
+        echo("Verified:\t\t ${verificationResult.valid}")
     }
 }
 

@@ -13,8 +13,8 @@ import id.walt.signatory.Signatory
 import id.walt.test.DummySignatoryDataProvider
 import id.walt.test.RESOURCES_PATH
 import id.walt.vclib.Helpers.encode
-import id.walt.vclib.vclist.Europass
-import id.walt.vclib.vclist.VerifiableId
+import id.walt.vclib.credentials.Europass
+import id.walt.vclib.credentials.VerifiableId
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.maps.shouldContainKey
@@ -123,9 +123,9 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
         val invalidDataVc = Signatory.getService().issue("VerifiableId", ProofConfig(issuerDid = issuerDid, proofType = ProofType.JWT))
         val notParsableVc = ""
 
-        credentialService.validateSchema(noSchemaVc) shouldBe true
-        credentialService.validateSchema(validVc) shouldBe true
-        credentialService.validateSchema(invalidDataVc) shouldBe false
-        credentialService.validateSchema(notParsableVc) shouldBe false
+        credentialService.validateSchemaTsr(noSchemaVc) shouldBe true
+        credentialService.validateSchemaTsr(validVc) shouldBe true
+        credentialService.validateSchemaTsr(invalidDataVc) shouldBe false
+        credentialService.validateSchemaTsr(notParsableVc) shouldBe false
     }
 }

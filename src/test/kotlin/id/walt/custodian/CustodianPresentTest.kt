@@ -9,7 +9,7 @@ import id.walt.signatory.Signatory
 import id.walt.test.RESOURCES_PATH
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.VcLibManager
-import id.walt.vclib.vclist.VerifiablePresentation
+import id.walt.vclib.credentials.VerifiablePresentation
 import io.kotest.core.spec.Spec
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe

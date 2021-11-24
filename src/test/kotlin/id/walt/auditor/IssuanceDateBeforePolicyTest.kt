@@ -1,7 +1,7 @@
 package id.walt.auditor
 
-import id.walt.vclib.vclist.VerifiableDiploma
-import id.walt.vclib.vclist.VerifiablePresentation
+import id.walt.vclib.credentials.VerifiableDiploma
+import id.walt.vclib.credentials.VerifiablePresentation
 import io.kotest.core.spec.style.StringSpec
 import org.junit.jupiter.api.Assertions.assertEquals
 

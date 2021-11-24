@@ -3,7 +3,8 @@ package id.walt.auditor
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
 import id.walt.vclib.Helpers.toCredential
-import id.walt.vclib.vclist.VerifiablePresentation
+import id.walt.vclib.credentials.VerifiablePresentation
+
 import mu.KotlinLogging
 
 
@@ -29,7 +30,7 @@ class WaltIdAuditor : Auditor() {
         val vc = vcJson.toCredential()
         val policyResults = policies
             .associateBy(keySelector = VerificationPolicy::id) { policy ->
-                log.debug { "Verifying vc with ${policy.id}..." }
+                log.debug { "Verifying vc with ${policy.id} ..." }
                 policy.verify(vc) && when (vc) {
                     is VerifiablePresentation -> vc.verifiableCredential.all { cred ->
                         log.debug { "Verifying ${cred.type.last()} in VP with ${policy.id}..." }

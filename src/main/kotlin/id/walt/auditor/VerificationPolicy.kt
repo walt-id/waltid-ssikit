@@ -7,11 +7,12 @@ import id.walt.services.essif.TrustedIssuerClient
 import id.walt.services.key.KeyService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
-import id.walt.services.vc.VcUtils
 import id.walt.vclib.Helpers.encode
+import id.walt.vclib.VcUtils
+import id.walt.vclib.credentials.GaiaxCredential
+import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.VerifiableCredential
-import id.walt.vclib.vclist.GaiaxCredential
-import id.walt.vclib.vclist.VerifiablePresentation
+import id.walt.vclib.schema.SchemaService
 import kotlinx.serialization.Serializable
 import mu.KotlinLogging
 import java.text.SimpleDateFormat
@@ -65,9 +66,24 @@ class SignaturePolicy : VerificationPolicy {
 class JsonSchemaPolicy : VerificationPolicy {
     override val description: String = "Verify by JSON schema"
     override fun verify(vc: VerifiableCredential): Boolean {
+
+        SchemaService.validateSchema(vc.json!!).apply {
+            if(valid)
+                return true
+
+            log.error { "Credential not valid according the json-schema of type ${vc.type}. The validation errors are:" }
+            errors?.forEach{ error -> log.error { error }}
+        }
+        return false
+    }
+}
+
+class TrustedSchemaRegistryPolicy : VerificationPolicy {
+    override val description: String = "Verify by EBSI Trusted Schema Registry"
+    override fun verify(vc: VerifiableCredential): Boolean {
         return when (vc.jwt) {
-            null -> jsonLdCredentialService.validateSchema(vc.encode()) // Schema already validated by json-ld?
-            else -> jwtCredentialService.validateSchema(vc.encode())
+            null -> jsonLdCredentialService.validateSchemaTsr(vc.encode()) // Schema already validated by json-ld?
+            else -> jwtCredentialService.validateSchemaTsr(vc.encode())
         }
     }
 }
@@ -191,9 +207,12 @@ private fun parseDate(date: String?) = try {
 }
 
 data class VerificationResult(
-    val overallStatus: Boolean = false,
+    /***
+     * Validation status over all policy results.
+     */
+    val valid: Boolean = false,
     val policyResults: Map<String, Boolean>
 ) {
     override fun toString() =
-        "VerificationResult(overallStatus=$overallStatus, policyResults={${policyResults.entries.joinToString { it.key + "=" + it.value }}})"
+        "VerificationResult(valid=$valid, policyResults={${policyResults.entries.joinToString { it.key + "=" + it.value }}})"
 }

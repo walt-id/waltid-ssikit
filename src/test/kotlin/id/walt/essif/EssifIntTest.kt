@@ -38,6 +38,8 @@ class EssifIntTest() : StringSpec({
 
     val bearerTokenFile = "data/bearer-token.txt"
 
+    val template = "VerifiableDiploma"
+
     resetDataDir()
 
     println("Registering services")
@@ -123,7 +125,6 @@ class EssifIntTest() : StringSpec({
     lateinit var vcFileName: String
     "4.2. Issuing W3C Verifiable Credential" {
         val interactive = true
-        val template = "GaiaxCredential"
         val subjectDid = holderDid
         vcFileName = "vc-${Timestamp.valueOf(LocalDateTime.now()).time}.json"
         val dest = File(vcFileName)
@@ -143,7 +144,13 @@ class EssifIntTest() : StringSpec({
 
         val vcStr = Signatory.getService().issue(
             template,
-            ProofConfig(issuerDid, subjectDid, "Ed25519Signature2018", null, ProofType.LD_PROOF)
+            ProofConfig(
+                issuerDid = issuerDid,
+                subjectDid = subjectDid,
+                issuerVerificationMethod = issuerDid + "#" + keyId.id,
+                proofPurpose = "assertion",
+                proofType = ProofType.LD_PROOF
+            )
         )
 
         println("Issuer \"$issuerDid\"")
@@ -225,7 +232,7 @@ private fun resetDataDir() {
 }
 
 private fun verifyCredential(src: File) {
-    val policies = listOf("SignaturePolicy", "JsonSchemaPolicy", "TrustedSubjectDidPolicy")
+    val policies = listOf("SignaturePolicy", "TrustedSchemaRegistryPolicy", "TrustedSubjectDidPolicy")
 
     println("Verifying from file \"$src\"...\n")
 
@@ -242,9 +249,9 @@ private fun verifyCredential(src: File) {
         println("$policy:\t\t $result")
         result shouldBe true
     }
-    println("Verified:\t\t ${verificationResult.overallStatus}")
+    println("Verified:\t\t ${verificationResult.valid}")
 
-    verificationResult.overallStatus shouldBe true
+    verificationResult.valid shouldBe true
 }
 
 private fun privateKeyExists(keyAlias: String) =
