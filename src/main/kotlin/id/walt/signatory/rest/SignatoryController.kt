@@ -1,12 +1,13 @@
 package id.walt.signatory.rest
 
+import id.walt.signatory.MergingDataProvider
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.Signatory
 import id.walt.vclib.Helpers.encode
 import io.javalin.http.Context
 import io.javalin.plugin.openapi.dsl.document
 
-data class IssueCredentialRequest(val templateId: String, val config: ProofConfig)
+data class IssueCredentialRequest(val templateId: String, val config: ProofConfig, val credentialData: Map<String, Any>? = null)
 
 object SignatoryController {
     val signatory = Signatory.getService()
@@ -34,7 +35,7 @@ object SignatoryController {
             return
         }
 
-        ctx.result(signatory.issue(req.templateId, req.config))
+        ctx.result(signatory.issue(req.templateId, req.config, req.credentialData?.let { MergingDataProvider(req.credentialData) }))
     }
 
     fun issueCredentialDocs() = document().operation {
