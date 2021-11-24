@@ -90,7 +90,7 @@ object DidService {
                 log.debug { "Resolving did:ebsi at: https://api.preprod.ebsi.eu/did-registry/v2/identifiers/${didUrl.did}" }
                 didDoc = WaltIdServices.http.get("https://api.preprod.ebsi.eu/did-registry/v2/identifiers/${didUrl.did}")
                 log.debug { "Result: $didDoc" }
-                return@runBlocking Klaxon().parse<DidEbsi>(didDoc)!!
+                return@runBlocking Did.decode(didDoc)!! as DidEbsi
             } catch (e: ClientRequestException) {
                 log.debug { "Resolving did ebsi failed: fail $i" }
                 Thread.sleep(1000)
@@ -102,9 +102,9 @@ object DidService {
     }
 
     fun loadDidEbsi(did: String): DidEbsi = loadDidEbsi(DidUrl.from(did))
-    fun loadDidEbsi(didUrl: DidUrl): DidEbsi = Klaxon().parse<DidEbsi>(loadDid(didUrl.did)!!)!!
+    fun loadDidEbsi(didUrl: DidUrl): DidEbsi = Did.decode(loadDid(didUrl.did)!!)!! as DidEbsi
 
-    fun updateDidEbsi(did: DidEbsi) = storeDid(did.id, Klaxon().toJsonString(did))
+    fun updateDidEbsi(did: DidEbsi) = storeDid(did.id, did.encode())
     // Private methods
 
     private fun createDidEbsi(keyAlias: String?, didEbsiOptions: DidEbsiOptions?): String {
@@ -134,7 +134,7 @@ object DidService {
             verificationMethods,
             listOf(kid)
         )
-        val ebsiDid = Klaxon().toJsonString(did)
+        val ebsiDid = did.encode()
 
 //        val ebsiDid = if (key.algorithm == EdDSA_Ed25519) {
 //            val pubKeyBytes = key.getPublicKey().encoded
