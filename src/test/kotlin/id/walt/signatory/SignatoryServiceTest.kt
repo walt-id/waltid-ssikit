@@ -9,6 +9,7 @@ import id.walt.services.jwt.JwtService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.test.RESOURCES_PATH
 import id.walt.vclib.Helpers.toCredential
+import id.walt.vclib.templates.VcTemplateManager
 import id.walt.vclib.vclist.VerifiableDiploma
 import id.walt.vclib.vclist.VerifiableId
 import io.kotest.core.spec.style.StringSpec
@@ -112,5 +113,17 @@ class SignatoryServiceTest : StringSpec({
         val cred = ContextManager.vcStore.getCredential(vcObj.id!!, "signatory")
         cred should beInstanceOf<VerifiableId>()
         (cred as VerifiableId).id shouldBe vcObj.id
+    }
+
+    "merging data provider" {
+        val templ = VcTemplateManager.loadTemplate("VerifiableId")
+        val data = mapOf(Pair("credentialSubject", mapOf(Pair("firstName", "Yves"))))
+        val populated = MergingDataProvider(data).populate(templ, ProofConfig(subjectDid = did, issuerDid = did, proofType = ProofType.LD_PROOF))
+
+        populated.javaClass shouldBe VerifiableId::class.java
+
+        (populated as VerifiableId).credentialSubject?.firstName shouldBe "Yves"
+        populated.credentialSubject?.id shouldBe did
+        populated.issuer shouldBe did
     }
 })
