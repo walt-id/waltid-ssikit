@@ -11,6 +11,7 @@ import id.walt.vclib.Helpers.encode
 import id.walt.vclib.VcUtils
 import id.walt.vclib.credentials.GaiaxCredential
 import id.walt.vclib.credentials.VerifiablePresentation
+import id.walt.vclib.credentials.GaiaxSD
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.schema.SchemaService
 import kotlinx.serialization.Serializable
@@ -196,6 +197,13 @@ class GaiaxTrustedPolicy : VerificationPolicy {
             return false
         }
 
+        return true
+    }
+}
+
+class GaiaxSDPolicy : VerificationPolicy {
+    override val description: String = "Verify Gaiax SD fields"
+    override fun verify(vc: VerifiableCredential): Boolean {
         return true
     }
 }
