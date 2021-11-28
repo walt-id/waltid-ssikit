@@ -1,4 +1,4 @@
-package id.walt.auditor.rest
+package id.walt.rest.auditor
 
 import id.walt.auditor.PolicyRegistry
 import id.walt.auditor.VerificationPolicy
