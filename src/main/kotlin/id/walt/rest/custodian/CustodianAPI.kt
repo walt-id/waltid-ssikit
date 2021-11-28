@@ -7,6 +7,7 @@ import id.walt.Values
 import id.walt.rest.ErrorResponse
 import id.walt.rest.OpenAPIUtils
 import id.walt.rest.RootController
+import id.walt.rest.core.DidController
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.core.util.RouteOverviewPlugin
@@ -114,6 +115,15 @@ object CustodianAPI {
                 post("generate", documented(CustodianController.generateKeyDocs(), CustodianController::generateKey))
                 put("store", documented(CustodianController.storeKeysDocs(), CustodianController::storeKey))
                 delete("{id}", documented(CustodianController.deleteKeysDocs(), CustodianController::deleteKey))
+            }
+
+            path("did") {
+                get("", documented(DidController.listDocs(), DidController::list))
+                get("{id}", documented(DidController.loadDocs(), DidController::load))
+                delete("{id}", documented(DidController.deleteDocs(), DidController::delete))
+                post("create", documented(DidController.createDocs(), DidController::create))
+                post("resolve", documented(DidController.resolveDocs(), DidController::resolve))
+                post("import", documented(DidController.importDocs(), DidController::import))
             }
 
             path("credentials") {
