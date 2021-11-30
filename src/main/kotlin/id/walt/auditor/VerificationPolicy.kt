@@ -68,11 +68,11 @@ class JsonSchemaPolicy : VerificationPolicy {
     override fun verify(vc: VerifiableCredential): Boolean {
 
         SchemaService.validateSchema(vc.json!!).apply {
-            if(valid)
+            if (valid)
                 return true
 
             log.error { "Credential not valid according the json-schema of type ${vc.type}. The validation errors are:" }
-            errors?.forEach{ error -> log.error { error }}
+            errors?.forEach { error -> log.error { error } }
         }
         return false
     }
@@ -127,7 +127,7 @@ class TrustedIssuerRegistryPolicy : VerificationPolicy {
     private fun isValidTrustedIssuerRecord(tirRecord: TrustedIssuer): Boolean {
         for (attribute in tirRecord.attributes) {
             val attributeInfo = AttributeInfo.from(attribute.body)
-            if(TIR_TYPE_ATTRIBUTE.equals(attributeInfo?.type) && TIR_NAME_ISSUER.equals(attributeInfo?.name)) {
+            if (TIR_TYPE_ATTRIBUTE.equals(attributeInfo?.type) && TIR_NAME_ISSUER.equals(attributeInfo?.name)) {
                 return true
             }
         }
@@ -186,16 +186,23 @@ class GaiaxTrustedPolicy : VerificationPolicy {
         val gaiaxVc = vc as GaiaxCredential
 
         // TODO: validate trusted fields properly
-        if (gaiaxVc.credentialSubject.DNSpublicKey.length < 0) {
+        if (gaiaxVc.credentialSubject.DNSpublicKey.length < 1) {
             log.debug { "DNS Public key not valid." }
             return false
         }
 
-        if (gaiaxVc.credentialSubject.ethereumAddress.id.length < 0) {
+        if (gaiaxVc.credentialSubject.ethereumAddress.id.length < 1) {
             log.debug { "ETH address not valid." }
             return false
         }
 
+        return true
+    }
+}
+
+class GaiaxSDPolicy : VerificationPolicy {
+    override val description: String = "Verify Gaiax SD fields"
+    override fun verify(vc: VerifiableCredential): Boolean {
         return true
     }
 }

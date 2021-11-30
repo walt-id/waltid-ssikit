@@ -39,6 +39,17 @@ object SignatoryController {
     }
 
     fun issueCredentialDocs() = document().operation {
-        it.summary("Issue a credential").operationId("issue").addTagsItem("Credentials")
+        it.summary("Issue a credential").operationId("issue").addTagsItem("Credentials").description("Based on a template (maintained in the VcLib), this call creates a W3C Verifiable Credential. Note that the '<b>templateId</b>, <b>issuerDid</b>, and the <b>subjectDid</b>, are mandatory parameters. All other parameters are optional. <br><br> This is a example request, that also demonstrates how to populate the credential with custom data: the <br><br>{<br>" +
+                "  \"templateId\": \"VerifiableId\",<br>" +
+                "  \"config\": {<br>" +
+                " &nbsp;&nbsp;&nbsp;&nbsp;   \"issuerDid\": \"did:ebsi:zuathxHtXTV8psijTjtuZD7\",<br>" +
+                " &nbsp;&nbsp;&nbsp;&nbsp;   \"subjectDid\": \"did:key:z6MkwfgBDSMRqXaJtw5DjhkJdDsDmRNSrvrM1L6UMBDtvaSX\"<br>" +
+                " &nbsp;&nbsp;&nbsp;&nbsp; },<br>" +
+                "  \"credentialData\": {<br>" +
+                " &nbsp;&nbsp;&nbsp;&nbsp;   \"credentialSubject\": {<br>" +
+                " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;     \"firstName\": \"Severin\"<br>" +
+                " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   }<br>" +
+                " &nbsp;&nbsp;&nbsp;&nbsp; }<br>" +
+                "}<br>")
     }.body<IssueCredentialRequest>().json<String>("200")
 }

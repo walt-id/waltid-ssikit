@@ -1,6 +1,7 @@
 package id.walt.signatory
 
 import id.walt.vclib.model.VerifiableCredential
+import id.walt.vclib.credentials.GaiaxSelfDescription
 import id.walt.vclib.credentials.GaiaxCredential
 import id.walt.vclib.credentials.VerifiableDiploma
 import id.walt.vclib.credentials.VerifiableId
@@ -12,6 +13,7 @@ object CLIDataProviders {
             "VerifiableDiploma" -> VerifiableDiplomaCLIDataProvider()
             "VerifiableId" -> VerifiableIDCLIDataProvider()
             "GaiaxCredential" -> GaiaxCLIDataProvider()
+            "GaiaxSelfDescription" -> GaiaxSDProvider()
             else -> null
         }
     }
@@ -182,6 +184,33 @@ class GaiaxCLIDataProvider : CLIDataProvider() {
         return template
     }
 }
+
+
+class GaiaxSDProvider : CLIDataProvider() {
+    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
+        (template as GaiaxSelfDescription).apply {
+            println()
+            println("> Subject information")
+            println()
+            issuer = proofConfig.issuerDid
+            credentialSubject.apply {
+                if (proofConfig.subjectDid != null) id = proofConfig.subjectDid
+                type = prompt("Type", "Service") ?: ""
+                hasName = prompt("Name", "AIS") ?: ""
+                description = prompt("Description", "AIS demonstrates machine learning application use case.") ?:""
+                hasVersion = prompt("Version", "0.1.0") ?: ""
+                providedBy = prompt("Provided by", "GAIA-X") ?: ""
+                hasMarketingImage = prompt("Marketing Image", "https://www.data-infrastructure.eu/GAIAX/Redaktion/EN/Bilder/UseCases/ai-marketplace-for-product-development.jpg?__blob=normal") ?: ""
+                hasCertifications = listOf(prompt("Certifications", hasCertifications?.get(0)) ?: "")
+                utilizes = listOf(prompt("Utilizes", utilizes?.get(0)) ?: "")
+                dependsOn = listOf(prompt("Depends on", dependsOn?.get(0)) ?: "")
+            }
+        }
+
+        return template
+    }
+}
+
 
 class VerifiableIDCLIDataProvider : CLIDataProvider() {
     override fun populate(template : VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
