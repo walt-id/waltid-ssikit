@@ -7,6 +7,7 @@ import id.walt.Values
 import id.walt.rest.ErrorResponse
 import id.walt.rest.OpenAPIUtils
 import id.walt.rest.RootController
+import id.walt.rest.core.DidController
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.core.util.RouteOverviewPlugin
@@ -116,12 +117,22 @@ object CustodianAPI {
                 delete("{id}", documented(CustodianController.deleteKeysDocs(), CustodianController::deleteKey))
             }
 
+            path("did") {
+                get("", documented(DidController.listDocs(), DidController::list))
+                get("{id}", documented(DidController.loadDocs(), DidController::load))
+                delete("{id}", documented(DidController.deleteDocs(), DidController::delete))
+                post("create", documented(DidController.createDocs(), DidController::create))
+                post("resolve", documented(DidController.resolveDocs(), DidController::resolve))
+                post("import", documented(DidController.importDocs(), DidController::import))
+            }
+
             path("credentials") {
                 get("/", documented(CustodianController.listCredentialsDocs(), CustodianController::listCredentials))
                 get("{id}",  documented(CustodianController.getCredentialDocs(), CustodianController::getCredential))
                 get("listCredentialIds",  documented(CustodianController.listCredentialIdsDocs(), CustodianController::listCredentialIds))
                 put("{alias}",  documented(CustodianController.storeCredenitalsDocs(),CustodianController::storeCredential))
                 delete("{alias}", documented(CustodianController.deleteCredentialDocs(), CustodianController::deleteCredential))
+                post("present", documented(CustodianController.presentCredentialsDocs(), CustodianController::presentCredentials))
             }
         }.exception(IllegalArgumentException::class.java) { e, ctx ->
             log.error { e.stackTraceToString() }

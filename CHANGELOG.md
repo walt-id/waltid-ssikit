@@ -4,13 +4,20 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
 
 ## [Unreleased]
 
-- Features
-    - Parameterize did:web creation https://github.com/walt-id/waltid-ssikit/issues/51
+## [1.1.0] - 2021-11-25
+
+-   Features
+    -   Parameterize did:web creation <https://github.com/walt-id/waltid-ssikit/issues/51>
+    -   Automatic deployment of test-system at <https://[core|signatory|custodian|auditor|essif].ssikit.walt.id>
+    -   Introduced TrustedSchemaRegistry Policy for validating Json-schemas against the EBSI TSR
+    -   JsonSchemaPolicy now validates against Json-schemas maintained in the VcLib
+    -   Did Document context can be a single string or a list of strings <https://github.com/walt-id/waltid-ssikit/pull/60>
+    -   Merging Data Provider - Signatory API now takes credential data as well <https://github.com/walt-id/waltid-ssikit/pull/74>
 
 ## [1.0.1] - 2021-11-08
 
-- Features
-    - SIOPv2 data structures  <https://github.com/walt-id/waltid-ssikit/pull/59>
+-   Features
+    -   SIOPv2 data structures  <https://github.com/walt-id/waltid-ssikit/pull/59>
 
 ## [1.0.0] - 2021-11-07
 
@@ -43,7 +50,9 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
     -   Fixed the way of finding the padding <https://github.com/walt-id/waltid-ssikit/pull/43>
     -   SignaturePolicy fails for issuers using did:ebsi <https://github.com/walt-id/waltid-ssikit/issues/52>
 
-[Unreleased]: https://github.com/walt-id/waltid-ssikit/compare/1.0.1...HEAD
+[Unreleased]: https://github.com/walt-id/waltid-ssikit/compare/1.1.0...HEAD
+
+[1.1.0]: https://github.com/walt-id/waltid-ssikit/compare/1.0.1...1.1.0
 
 [1.0.1]: https://github.com/walt-id/waltid-ssikit/compare/1.0.0...1.0.1
 

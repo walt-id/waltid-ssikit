@@ -80,7 +80,7 @@ object VcController {
     }
 
     fun presentDocs() = document().operation {
-        it.summary("Present VC").operationId("presentVc")
+        it.summary("Present VC").operationId("presentVc").addTagsItem("Verifiable Credentials")
     }.body<PresentVcRequest> { it.description("Defines the VC to be presented") }
         .json<String>("200") { it.description("The signed presentation") }
 
