@@ -32,7 +32,7 @@ object DataProviderRegistry {
         register(VerifiableId::class, VerifiableIdDataProvider())
         register(Europass::class, EuropassDataProvider())
         register(GaiaxCredential::class, DeltaDaoDataProvider())
-        register(GaiaxSD::class, SdDataProvider())
+        register(GaiaxSelfDescription::class, SdDataProvider())
         register(PermanentResidentCard::class, PermanentResidentCardDataProvider())
     }
 }
@@ -122,11 +122,11 @@ class NoSuchDataProviderException(credentialType: KClass<out VerifiableCredentia
 
 class SdDataProvider : SignatoryDataProvider {
 
-    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): GaiaxSD {
-        val vc = template as GaiaxSD
+    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): GaiaxSelfDescription {
+        val vc = template as GaiaxSelfDescription
         vc.id = proofConfig.credentialId
         vc.issuer = proofConfig.issuerDid
-        vc.credentialSubject!!.id = proofConfig.subjectDid!!
+        vc.credentialSubject.id = proofConfig.subjectDid!!
         return vc
     }
 }

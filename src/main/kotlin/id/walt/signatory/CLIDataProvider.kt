@@ -1,7 +1,7 @@
 package id.walt.signatory
 
 import id.walt.vclib.model.VerifiableCredential
-import id.walt.vclib.credentials.GaiaxSD
+import id.walt.vclib.credentials.GaiaxSelfDescription
 import id.walt.vclib.credentials.GaiaxCredential
 import id.walt.vclib.credentials.VerifiableDiploma
 import id.walt.vclib.credentials.VerifiableId
@@ -13,7 +13,7 @@ object CLIDataProviders {
             "VerifiableDiploma" -> VerifiableDiplomaCLIDataProvider()
             "VerifiableId" -> VerifiableIDCLIDataProvider()
             "GaiaxCredential" -> GaiaxCLIDataProvider()
-            "GaiaxSD" -> GaiaxSDProvider()
+            "GaiaxSelfDescription" -> GaiaxSDProvider()
             else -> null
         }
     }
@@ -188,7 +188,7 @@ class GaiaxCLIDataProvider : CLIDataProvider() {
 
 class GaiaxSDProvider : CLIDataProvider() {
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
-        (template as GaiaxSD).apply {
+        (template as GaiaxSelfDescription).apply {
             println()
             println("> Subject information")
             println()
