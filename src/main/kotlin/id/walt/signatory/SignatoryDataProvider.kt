@@ -8,36 +8,36 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.reflect.KClass
 
-interface SignatoryDataProvider {
+interface SignatoryServiceOffering {
     fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential
 }
 
 val dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
 
 
-object DataProviderRegistry {
-    val providers = HashMap<KClass<out VerifiableCredential>, SignatoryDataProvider>()
+object ServiceOfferingRegistry {
+    val providers = HashMap<KClass<out VerifiableCredential>, SignatoryServiceOffering>()
 
-    fun register(credentialType: KClass<out VerifiableCredential>, provider: SignatoryDataProvider) =
+    fun register(credentialType: KClass<out VerifiableCredential>, provider: SignatoryServiceOffering) =
         providers.put(credentialType, provider)
 
     fun getProvider(credentialType: KClass<out VerifiableCredential>) =
-        providers[credentialType] ?: throw NoSuchDataProviderException(credentialType)
+        providers[credentialType] ?: throw NoSuchServiceOfferingException(credentialType)
 
     init {
         // Init default providers
-        register(VerifiableAttestation::class, VerifiableAttestationDataProvider())
-        register(VerifiableAuthorization::class, VerifiableAuthorizationDataProvider())
-        register(VerifiableDiploma::class, VerifiableDiplomaDataProvider())
-        register(VerifiableId::class, VerifiableIdDataProvider())
-        register(Europass::class, EuropassDataProvider())
-        register(GaiaxCredential::class, DeltaDaoDataProvider())
-        register(PermanentResidentCard::class, PermanentResidentCardDataProvider())
+        register(VerifiableAttestation::class, VerifiableAttestationServiceOffering())
+        register(VerifiableAuthorization::class, VerifiableAuthorizationServiceOffering())
+        register(VerifiableDiploma::class, VerifiableDiplomaServiceOffering())
+        register(VerifiableId::class, VerifiableIdServiceOffering())
+        register(Europass::class, EuropassServiceOffering())
+        register(GaiaxCredential::class, DeltaDaoServiceOffering())
+        register(PermanentResidentCard::class, PermanentResidentCardServiceOffering())
     }
 }
 
 
-class VerifiableAttestationDataProvider : SignatoryDataProvider {
+class VerifiableAttestationServiceOffering : SignatoryServiceOffering {
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableAttestation {
         val vc = template as VerifiableAttestation
         vc.id = proofConfig.credentialId
@@ -47,7 +47,7 @@ class VerifiableAttestationDataProvider : SignatoryDataProvider {
     }
 }
 
-class VerifiableAuthorizationDataProvider : SignatoryDataProvider {
+class VerifiableAuthorizationServiceOffering : SignatoryServiceOffering {
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableAuthorization {
         val vc = template as VerifiableAuthorization
         vc.id = proofConfig.credentialId
@@ -57,7 +57,7 @@ class VerifiableAuthorizationDataProvider : SignatoryDataProvider {
     }
 }
 
-class PermanentResidentCardDataProvider : SignatoryDataProvider {
+class PermanentResidentCardServiceOffering : SignatoryServiceOffering {
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): PermanentResidentCard {
         val vc = template as PermanentResidentCard
         vc.id = proofConfig.credentialId
@@ -67,7 +67,7 @@ class PermanentResidentCardDataProvider : SignatoryDataProvider {
     }
 }
 
-class EuropassDataProvider : SignatoryDataProvider {
+class EuropassServiceOffering : SignatoryServiceOffering {
 
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): Europass {
         val vc = template as Europass
@@ -79,7 +79,7 @@ class EuropassDataProvider : SignatoryDataProvider {
     }
 }
 
-class VerifiableIdDataProvider : SignatoryDataProvider {
+class VerifiableIdServiceOffering : SignatoryServiceOffering {
 
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableId {
         val vc = template as VerifiableId
@@ -97,7 +97,7 @@ class VerifiableIdDataProvider : SignatoryDataProvider {
     }
 }
 
-class VerifiableDiplomaDataProvider : SignatoryDataProvider {
+class VerifiableDiplomaServiceOffering : SignatoryServiceOffering {
 
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableDiploma {
         val vc = template as VerifiableDiploma
@@ -114,56 +114,38 @@ class VerifiableDiplomaDataProvider : SignatoryDataProvider {
     }
 }
 
-class NoSuchDataProviderException(credentialType: KClass<out VerifiableCredential>) :
-    Exception("No data provider is registered for ${credentialType.simpleName}")
+class NoSuchServiceOfferingException(credentialType: KClass<out VerifiableCredential>) :
+    Exception("No service offering is registered for ${credentialType.simpleName}")
 
 
-class DeltaDaoDataProvider : SignatoryDataProvider {
+class GaiaXserviceOffering : SignatoryServiceOffering {
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
         if (template is GaiaxCredential) {
 
             // TODO: Load and replace data wherever required
-            // val idData = DeltaDaoDatabase.get(proofConfig.dataProviderIdentifier!!) ?: throw Exception("No ID data found for the given data-povider identifier")
+            // val idData = DeltaDaoDatabase.get(proofConfig.serviceOfferingIdentifier!!) ?: throw Exception("No ID data found for the given service offering identifier")
 
             template.apply {
                 id = "identity#verifiableID#${UUID.randomUUID()}"
                 issuer = proofConfig.issuerDid
                 credentialSubject.apply {
                     if (proofConfig.subjectDid != null) id = proofConfig.subjectDid
-                    legallyBindingName = "deltaDAO AG"
+                    hasServiceTitle = "Gaia-X Hackathon Registration"
+                    hasServiceDescription = "This service can be used to register for the Gaia-X Hackathon #2, which runs from 02-12-2021 to 03-12-2021."
+                    providedBy = "Cloud and Heat"
+                    hasKeywords = "Gaia-X, Hackathon, Registration"
                     brandName = "deltaDAO"
-                    legallyBindingAddress = GaiaxCredential.CustomCredentialSubject.LegallyBindingAddress(
-                        streetAddress = "Geibelstr. 46B",
-                        postalCode = "22303",
-                        locality = "Hamburg",
-                        countryName = "Germany"
-                    )
                     webAddress = GaiaxCredential.CustomCredentialSubject.WebAddress(
-                        url = "https://www.delta-dao.com/"
+                        url = "https://mautic.cloudandheat.com/gaiaxhackathon2"
                     )
-                    corporateEmailAddress = "contact@delta-dao.com"
-                    individualContactLegal = "legal@delta-dao.com"
-                    individualContactTechnical = "support@delta-dao.com"
-                    legalForm = "Stock Company"
-                    jurisdiction = "Germany"
-                    commercialRegister = GaiaxCredential.CustomCredentialSubject.CommercialRegister(
-                        organizationName = "Amtsgericht Hamburg (-Mitte)",
-                        organizationUnit = "Registergericht",
-                        streetAddress = "Caffamacherreihe 20",
-                        postalCode = "20355",
-                        locality = "Hamburg",
-                        countryName = "Germany"
-                    )
-                    legalRegistrationNumber = "HRB 170364"
-                    ethereumAddress = GaiaxCredential.CustomCredentialSubject.EthereumAddress(
-                        id = "0x4C84a36fCDb7Bc750294A7f3B5ad5CA8F74C4A52"
-                    )
+                    hasProvisionType = "undefined"
+                    hasServiceModel = "undefined"
                     trustState = "trusted"
                 }
             }
             return template
         } else {
-            throw IllegalArgumentException("Only VerifiableId is supported by this data provider")
+            throw IllegalArgumentException("Only VerifiableId is supported by this service offering")
         }
     }
 }
