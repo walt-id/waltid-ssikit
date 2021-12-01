@@ -130,7 +130,7 @@ object CustodianAPI {
                 get("/", documented(CustodianController.listCredentialsDocs(), CustodianController::listCredentials))
                 get("{id}",  documented(CustodianController.getCredentialDocs(), CustodianController::getCredential))
                 get("listCredentialIds",  documented(CustodianController.listCredentialIdsDocs(), CustodianController::listCredentialIds))
-                put("{alias}",  documented(CustodianController.storeCredenitalsDocs(),CustodianController::storeCredential))
+                put("{alias}",  documented(CustodianController.storeCredentialsDocs(),CustodianController::storeCredential))
                 delete("{alias}", documented(CustodianController.deleteCredentialDocs(), CustodianController::deleteCredential))
                 post("present", documented(CustodianController.presentCredentialsDocs(), CustodianController::presentCredentials))
             }

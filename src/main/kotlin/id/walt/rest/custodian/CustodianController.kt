@@ -1,5 +1,6 @@
 package id.walt.rest.custodian
 
+import com.beust.klaxon.Klaxon
 import id.walt.crypto.Key
 import id.walt.crypto.KeyAlgorithm
 import id.walt.custodian.Custodian
@@ -147,13 +148,15 @@ object CustodianController {
 //        requestBody = OpenApiRequestBody([OpenApiContent(StoreCredentialRequest::class)], true, "Store Credential Request"),
 //        responses = [OpenApiResponse("200")]
 //    )
-    fun storeCredenitalsDocs() = document()
+    fun storeCredentialsDocs() = document()
         .operation { it.summary("Stores a credential").operationId("storeCredential").addTagsItem("Credentials") }
-        .body<StoreCredentialRequest> { it.description("Store Credential Request") }
-        .json<String>("200") { it.description("Http OK") }
+        .body<VerifiableCredential> { it.description("the vc") }
+        .json<Int>("201") { it.description("Http OK") }
 
     fun storeCredential(ctx: Context) {
-        ctx.bodyAsClass<StoreCredentialRequest>().run { custodian.storeCredential(alias, vc) }
+        val vc = Klaxon().parse<VerifiableCredential>(ctx.body())!!
+
+        custodian.storeCredential(ctx.pathParam("alias"), vc)
     }
 
     //    @OpenApi(
