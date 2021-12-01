@@ -8,6 +8,7 @@ import id.walt.signatory.ProofConfig
 import id.walt.signatory.Signatory
 import id.walt.test.RESOURCES_PATH
 import id.walt.test.readVerifiableCredential
+import id.walt.test.readVerifiablePresentation
 import io.github.rybalkinsd.kohttp.dsl.httpPost
 import io.github.rybalkinsd.kohttp.ext.asString
 import io.kotest.core.spec.style.AnnotationSpec
@@ -142,6 +143,16 @@ class AuditorApiTest : AnnotationSpec() {
     @Test
     fun testPermanentResidentCardCredential() {
         postAndVerify(readVerifiableCredential("PermanentResidentCard"))
+    }
+
+    @Test
+    fun testGaiaxCredentialVp() {
+        postAndVerify(readVerifiablePresentation("vp-GaiaxCredential-techquartier_fbdc"), "JsonSchemaPolicy")
+    }
+
+    @Test
+    fun testVerifiableIdVp() {
+        postAndVerify(readVerifiablePresentation("vp-VerifiableId"), "JsonSchemaPolicy")
     }
 
 }

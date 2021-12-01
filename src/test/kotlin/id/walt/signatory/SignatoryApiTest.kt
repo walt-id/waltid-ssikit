@@ -10,12 +10,14 @@ import id.walt.test.RESOURCES_PATH
 import id.walt.vclib.Helpers.encode
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.credentials.*
+import id.walt.vclib.templates.VcTemplateManager
 import io.github.rybalkinsd.kohttp.dsl.httpPost
 import io.github.rybalkinsd.kohttp.ext.asString
 import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
@@ -65,12 +67,28 @@ class SignatoryApiTest : AnnotationSpec() {
             contentType(ContentType.Application.Json)
         }
 
+        VcTemplateManager.getTemplateList().forEach { templateName -> templates shouldContain templateName }
+
         templates shouldContain "Europass"
         templates shouldContain "VerifiablePresentation"
     }
 
+
     @Test
-    fun testGetVcDefaultTemplate() = runBlocking {
+    fun testLoadVcTemplates() = runBlocking {
+
+        VcTemplateManager.getTemplateList().forEach { templateName ->
+
+            val templateJson = client.get<String>("$SIGNATORY_API_URL/v1/templates/$templateName") {
+                contentType(ContentType.Application.Json)
+            }
+
+            templateJson shouldContain templateName
+        }
+    }
+
+    @Test
+    fun testLoadEuropass() = runBlocking {
         val europassJson = client.get<String>("$SIGNATORY_API_URL/v1/templates/Europass") {
             contentType(ContentType.Application.Json)
         }
@@ -140,7 +158,6 @@ class SignatoryApiTest : AnnotationSpec() {
         println(vc)
         vc shouldStartWith "ey"
     }
-
 
     @Test
     fun testIssueEuropassJsonLd() = runBlocking {

@@ -62,14 +62,14 @@ class AuditorCommandTest : StringSpec() {
     init {
 
         "1. verify vp" {
-            val res = Auditor.getService().verify(vpStr, listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy()))
+            val policyList = listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy())
+            val res = Auditor.getService().verify(vpStr, policyList)
 
             res.valid shouldBe true
 
-            res.policyResults.keys shouldBeSameSizeAs listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy())
+            res.policyResults.keys shouldBeSameSizeAs policyList
 
-            res.policyResults.keys shouldContainAll
-                    listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy()).map { it.id }
+            res.policyResults.keys shouldContainAll policyList.map { it.id }
 
             res.policyResults.values.forEach {
                 it shouldBe true
@@ -77,10 +77,10 @@ class AuditorCommandTest : StringSpec() {
         }
 
         "2. verify vc" {
-            val res = Auditor.getService().verify(vcStr, listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy()))
+            val res = Auditor.getService().verify(vcStr, listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy()))
 
             res.valid shouldBe true
-            res.policyResults.keys shouldBeSameSizeAs listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy())
+            res.policyResults.keys shouldBeSameSizeAs listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy())
 
             res.policyResults.keys shouldContainAll
                     listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy()).map { it.id }
@@ -91,10 +91,10 @@ class AuditorCommandTest : StringSpec() {
         }
 
         "3. verify vc jwt" {
-            val res = Auditor.getService().verify(vcJwt, listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy()))
+            val res = Auditor.getService().verify(vcJwt, listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy()))
 
             res.valid shouldBe true
-            res.policyResults.keys shouldBeSameSizeAs listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy())
+            res.policyResults.keys shouldBeSameSizeAs listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy())
 
             res.policyResults.keys shouldContainAll
                     listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy()).map { it.id }
@@ -105,11 +105,11 @@ class AuditorCommandTest : StringSpec() {
         }
 
         "4. verify vp jwt" {
-            val res = Auditor.getService().verify(vpJwt, listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy()))
+            val res = Auditor.getService().verify(vpJwt, listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy()))
 
             res.valid shouldBe true
 
-            res.policyResults.keys shouldBeSameSizeAs listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy())
+            res.policyResults.keys shouldBeSameSizeAs listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy())
 
             res.policyResults.keys shouldContainAll
                     listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy()).map { it.id }

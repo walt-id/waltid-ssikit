@@ -1,0 +1,54 @@
+{
+  "@context" : [ "https://www.w3.org/2018/credentials/v1" ],
+  "holder" : "did:ebsi:zvJVYLTMMEUYFd1QmoSXd3o",
+  "id" : "urn:uuid:697b7a88-32f5-40d6-bc79-5af2aba6977f",
+  "verifiableCredential" : [ {
+    "@context" : [ "https://www.w3.org/2018/credentials/v1" ],
+    "credentialSchema" : {
+      "id" : "https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0x2488fd38783d65e4fd46e7889eb113743334dbc772b05df382b8eadce763101b",
+      "type" : "JsonSchemaValidator2018"
+    },
+    "credentialSubject" : {
+      "currentAddress" : "1 Boulevard de la Liberté, 59800 Lille",
+      "dateOfBirth" : "1993-04-08",
+      "familyName" : "DOE",
+      "firstName" : "Severin",
+      "gender" : "FEMALE",
+      "id" : "did:ebsi:zvJVYLTMMEUYFd1QmoSXd3o",
+      "nameAndFamilyNameAtBirth" : "Jane DOE",
+      "personalIdentifier" : "0904008084H",
+      "placeOfBirth" : "LILLE, FRANCE"
+    },
+    "evidence" : {
+      "documentPresence" : [ "Physical" ],
+      "evidenceDocument" : [ "Passport" ],
+      "subjectPresence" : "Physical",
+      "type" : [ "DocumentVerification" ],
+      "verifier" : "did:ebsi:zvJVYLTMMEUYFd1QmoSXd3o"
+    },
+    "id" : "identity#VerifiableId#70a27cb9-461e-4766-837d-d9ff4afc0a41",
+    "issuanceDate" : "2021-12-01T08:46:54Z",
+    "issuer" : "did:ebsi:zvJVYLTMMEUYFd1QmoSXd3o",
+    "proof" : {
+      "created" : "2021-12-01T08:46:55Z",
+      "creator" : "did:ebsi:zvJVYLTMMEUYFd1QmoSXd3o",
+      "domain" : "https://api.preprod.ebsi.eu",
+      "jws" : "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFUzI1NksifQ..c8uWjRDGBzAIMK_eZqh4kvOs-5FPNXh1Pb07KMjYxNakqu14MCoB7UohNpCNIJeg1_XcZsUkkBVRjzIc9EjmJA",
+      "nonce" : "5ea60b37-022b-42f1-a054-bfc0347f4068",
+      "type" : "EcdsaSecp256k1Signature2019"
+    },
+    "validFrom" : "2021-12-01T08:46:54Z",
+    "type" : [ "VerifiableCredential", "VerifiableAttestation", "VerifiableId" ]
+  } ],
+  "type" : [ "VerifiablePresentation" ],
+  "proof" : {
+    "type" : "EcdsaSecp256k1Signature2019",
+    "creator" : "did:ebsi:zvJVYLTMMEUYFd1QmoSXd3o",
+    "created" : "2021-12-01T08:56:08Z",
+    "domain" : "https://api.preprod.ebsi.eu",
+    "nonce" : "5ea60b37-022b-42f1-a054-bfc0347f4068",
+    "proofPurpose" : "authentication",
+    "verificationMethod" : "did:ebsi:zvJVYLTMMEUYFd1QmoSXd3o#759c22a515c04c9fb10765a7853784a1",
+    "jws" : "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFUzI1NksifQ..H3AVclrBowquBKJbyZng8TnCQ7Z-rZXb_ZOTwLVRs3rUoFrs-Ht15RKs0Tm6hDzgNTJGxmAW5AqvDI6rJSOLqQ"
+  }
+}
