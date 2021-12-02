@@ -1,10 +1,7 @@
 package id.walt.signatory
 
+import id.walt.vclib.credentials.*
 import id.walt.vclib.model.VerifiableCredential
-import id.walt.vclib.credentials.GaiaxSelfDescription
-import id.walt.vclib.credentials.GaiaxCredential
-import id.walt.vclib.credentials.VerifiableDiploma
-import id.walt.vclib.credentials.VerifiableId
 import java.util.*
 
 object CLIDataProviders {
@@ -14,7 +11,8 @@ object CLIDataProviders {
             "VerifiableId" -> VerifiableIDCLIDataProvider()
             "GaiaxCredential" -> GaiaxCLIDataProvider()
             "GaiaxSelfDescription" -> GaiaxSDProvider()
-            else -> null
+            "VerifiableVaccinationCertificate" -> VerifiableVaccinationCertificateCLIDataProvider()
+            else -> throw Exception("Could not load data provider for $templateId")
         }
     }
 }
@@ -38,6 +36,94 @@ abstract class CLIDataProvider : SignatoryDataProvider {
 class VerifiableDiplomaCLIDataProvider : CLIDataProvider() {
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
         template as VerifiableDiploma
+
+        template.apply {
+            id = proofConfig.credentialId ?: "education#higherEducation#${UUID.randomUUID()}"
+            issuer = proofConfig.issuerDid
+            if (proofConfig.issueDate != null) issuanceDate = dateFormat.format(proofConfig.issueDate)
+            if (proofConfig.expirationDate != null) expirationDate = dateFormat.format(proofConfig.expirationDate)
+            validFrom = issuanceDate
+
+            credentialSubject!!.apply {
+                id = proofConfig.subjectDid
+
+                println()
+                println("Subject personal data, ID: ${proofConfig.subjectDid}")
+                println("----------------------")
+                identifier = prompt("Identifier", identifier)
+                familyName = prompt("Family name", familyName)
+                givenNames = prompt("Given names", givenNames)
+                dateOfBirth = prompt("Date of birth", dateOfBirth)
+
+                println()
+                println("Awarding Opportunity")
+                println("----------------------")
+                awardingOpportunity!!.apply {
+                    id = prompt("Opportunity ID", id) ?: ""
+                    identifier = prompt("Identifier", identifier) ?: ""
+                    location = prompt("Location", location) ?: ""
+                    startedAtTime = prompt("Started at", startedAtTime) ?: ""
+                    endedAtTime = prompt("Ended at", endedAtTime) ?: ""
+
+                    println()
+                    println("Awarding Body, ID: ${proofConfig.issuerDid}")
+                    awardingBody.apply {
+                        id = proofConfig.issuerDid
+                        preferredName = prompt("Preferred name", preferredName) ?: ""
+                        homepage = prompt("Homepage", homepage) ?: ""
+                        registration = prompt("Registration", registration) ?: ""
+                        eidasLegalIdentifier = prompt("EIDAS Legal Identifier", eidasLegalIdentifier) ?: ""
+                    }
+                }
+
+                println()
+                println("Grading scheme")
+                println("----------------------")
+                gradingScheme?.apply {
+                    id = prompt("Grading Scheme ID", id) ?: ""
+                    title = prompt("Title", title) ?: ""
+                    description = prompt("Description", description) ?: ""
+                }
+
+                println()
+                println("Learning Achievement")
+                println("----------------------")
+                learningAchievement?.apply {
+                    id = prompt("Learning achievement ID", id) ?: ""
+                    title = prompt("Title", title) ?: ""
+                    description = prompt("Description", description) ?: ""
+                    additionalNote = listOf(prompt("Additional note", additionalNote?.get(0)) ?: "")
+                }
+
+                println()
+                println("Learning Specification")
+                println("----------------------")
+                learningSpecification?.apply {
+                    id = prompt("Learning specification ID", id) ?: ""
+                    ectsCreditPoints = promptInt("ECTS credit points", ectsCreditPoints)
+                    eqfLevel = promptInt("EQF Level", eqfLevel)
+                    iscedfCode = listOf(prompt("ISCEDF Code", iscedfCode[0]) ?: "")
+                    nqfLevel = listOf(prompt("NQF Level", nqfLevel[0]) ?: "")
+                }
+            }
+
+            evidence?.apply {
+                id = prompt("Evidence ID", id) ?: ""
+                type = listOf(prompt("Evidence type", type?.get(0)) ?: "")
+                verifier = prompt("Verifier", verifier) ?: ""
+                evidenceDocument = listOf(prompt("Evidence document", evidenceDocument?.get(0)) ?: "")
+                subjectPresence = prompt("Subject presence", subjectPresence) ?: ""
+                documentPresence = listOf(prompt("Document presence", documentPresence?.get(0)) ?: "")
+            }
+        }
+
+        return template
+    }
+}
+
+class VerifiableVaccinationCertificateCLIDataProvider : CLIDataProvider() {
+    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
+        template as VerifiableVaccinationCertificate
 
         template.apply {
             id = proofConfig.credentialId ?: "education#higherEducation#${UUID.randomUUID()}"
@@ -185,7 +271,6 @@ class GaiaxCLIDataProvider : CLIDataProvider() {
     }
 }
 
-
 class GaiaxSDProvider : CLIDataProvider() {
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
         (template as GaiaxSelfDescription).apply {
@@ -210,7 +295,6 @@ class GaiaxSDProvider : CLIDataProvider() {
         return template
     }
 }
-
 
 class VerifiableIDCLIDataProvider : CLIDataProvider() {
     override fun populate(template : VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {

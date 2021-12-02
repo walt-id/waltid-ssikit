@@ -6,6 +6,7 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
 
 - Features
   - Added GaiaxSelfDecription credential https://github.com/dNationCloud/waltid-ssikit/pull/1 thx to https://github.com/dNationCloud & https://github.com/matofeder
+  - Added VerifiableVaccinationCertificate 
 
 ## [1.1.0] - 2021-11-25
 
