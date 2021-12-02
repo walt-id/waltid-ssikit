@@ -5,11 +5,13 @@ import id.walt.crypto.*
 import id.walt.crypto.KeyAlgorithm.ECDSA_Secp256k1
 import id.walt.crypto.KeyAlgorithm.EdDSA_Ed25519
 import id.walt.model.*
+import id.walt.services.CryptoProvider
 import id.walt.services.WaltIdServices
 import id.walt.services.context.ContextManager
 import id.walt.services.crypto.CryptoService
 import id.walt.services.hkvstore.HKVKey
 import id.walt.services.key.KeyService
+import id.walt.services.keystore.KeyStoreService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.ProofConfig
 import io.ktor.client.features.*
@@ -18,6 +20,14 @@ import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.bouncycastle.asn1.ASN1BitString
 import org.bouncycastle.asn1.ASN1Sequence
+import org.bouncycastle.asn1.edec.EdECObjectIdentifiers
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
+import java.security.KeyFactory
+import java.security.KeyPair
+import java.security.KeyPairGenerator
+import java.security.PublicKey
+import java.security.spec.X509EncodedKeySpec
 import java.util.*
 
 private val log = KotlinLogging.logger {}
@@ -357,53 +367,56 @@ object DidService {
     fun importKey(didUrl: String) {
         val did = loadOrResolveAnyDid(didUrl) ?: throw Exception("Could not load or resolve $didUrl")
 
-        val verificationMethod = when (did) {
-            is DidEbsi -> did.verificationMethod
-            is Did -> did.verificationMethod
-            else -> throw Exception("Did not supported")
-        } ?: throw Exception("Could not import key as no verification method was found")
+        kotlin.runCatching { KeyService.getService().load(didUrl) }
+            .getOrNull()?.let { throw Exception("Could not import key, as key alias \"${didUrl}\" is already existing.") }
 
-        verificationMethod.forEach { vm ->
-            if (!booleanArrayOf(
-                    importJwk(didUrl, vm.publicKeyJwk),
-                    importKeyBase58(didUrl, vm.publicKeyBase58),
-                    importKeyPem(didUrl, vm.publicKeyPem)
-                ).contains(true)
-            ) {
-                throw Exception("Could not import any key")
-            }
+        if(did.verificationMethod?.flatMap { vm ->
+            listOf(
+                tryImportJwk(didUrl, vm),
+                tryImportKeyBase58(didUrl, vm),
+                tryImportKeyPem(didUrl, vm)
+            )
+        }?.reduce { acc, b -> acc || b } != true) {
+            throw Exception("Could not import any key")
         }
     }
 
-    private fun importKeyPem(keyAlias: String, keyPem: String?): Boolean {
+    private fun tryImportKeyPem(did: String, vm: VerificationMethod): Boolean {
 
-        keyPem ?: return false
-
-        // TODO implement
-
-        return false
-    }
-
-    private fun importKeyBase58(keyAlias: String, keyBase58: String?): Boolean {
-
-        keyBase58 ?: return false
+        vm.publicKeyPem ?: return false
 
         // TODO implement
 
         return false
     }
 
-    private fun importJwk(keyAlias: String, publicKeyJwk: Jwk?): Boolean {
+    private fun tryImportKeyBase58(did: String, vm: VerificationMethod): Boolean {
 
-        publicKeyJwk ?: return false
+        vm.publicKeyBase58 ?: return false
+        if (vm.type != "Ed25519VerificationKey2018") {
+            return false
+        }
 
-        kotlin.runCatching { KeyService.getService().load(keyAlias) }
-            .getOrNull()?.let { throw Exception("Could not import key, as key alias \"$keyAlias\" is already existing.") }
+        val keyFactory = KeyFactory.getInstance("Ed25519")
 
-        publicKeyJwk.kid = keyAlias
-        log.debug { "Importing key: ${publicKeyJwk.kid}" }
-        val keyId = KeyService.getService().importKey(Klaxon().toJsonString(publicKeyJwk))
-        ContextManager.keyStore.addAlias(keyId, keyAlias)
+        val pubKeyInfo = SubjectPublicKeyInfo(AlgorithmIdentifier(EdECObjectIdentifiers.id_Ed25519), vm.publicKeyBase58.decodeBase58())
+        val x509KeySpec = X509EncodedKeySpec(pubKeyInfo.encoded)
+
+        val pubKey = keyFactory.generatePublic(x509KeySpec)
+        val keyId = KeyId(vm.id)
+        ContextManager.keyStore.store(Key(keyId, EdDSA_Ed25519, CryptoProvider.SUN, KeyPair(pubKey, null)))
+        ContextManager.keyStore.addAlias(keyId, did)
+
+        return true
+    }
+
+    private fun tryImportJwk(did: String, vm: VerificationMethod): Boolean {
+
+        vm.publicKeyJwk ?: return false
+
+        log.debug { "Importing key: ${vm.id}" }
+        val keyId = KeyService.getService().importKey(Klaxon().toJsonString(vm.publicKeyJwk))
+        ContextManager.keyStore.addAlias(keyId, did)
         return true
     }
 
@@ -417,7 +430,7 @@ object DidService {
 //            "web" -> resolveDidWebDummy(didUrl)
 //            else -> TODO("did:${didUrl.method} implemented yet")
 //        }
-//    }
+//    }String
 
 // TODO: include once working
 //    internal fun resolveDidWeb(didUrl: DidUrl): DidWeb {

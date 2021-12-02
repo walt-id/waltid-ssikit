@@ -1,9 +1,13 @@
 package id.walt.context
 
+import id.walt.auditor.Auditor
+import id.walt.auditor.SignaturePolicy
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.context.ContextManager
 import id.walt.services.did.DidService
+import id.walt.signatory.ProofConfig
+import id.walt.signatory.Signatory
 import id.walt.test.RESOURCES_PATH
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.collections.shouldHaveSize
@@ -24,10 +28,11 @@ class WaltContextTest: AnnotationSpec() {
     File(TEST_CONTEXT_DATA_ROOT).deleteRecursively()
   }
 
+  val userAContext = TestContext("userA")
+  val userBContext = TestContext("userB")
+
   @Test
   fun testContext() {
-    val userAContext = TestContext("userA")
-    val userBContext = TestContext("userB")
 
     var did1: String? = null
     ContextManager.runWith(userAContext) {
@@ -46,6 +51,23 @@ class WaltContextTest: AnnotationSpec() {
       didList1 shouldHaveSize 1
       did1 shouldNotBe null
       didList1.first() shouldBe did1
+    }
+  }
+
+  @Test
+  fun testDidKeyImport() {
+    var cred: String = ""
+    ContextManager.runWith(userAContext) {
+      // create did:key with new key in user A context
+      val did = DidService.create(DidMethod.key)
+      // issue credential using created did
+      cred = Signatory.getService().issue("VerifiableId", ProofConfig(did, did))
+    }
+
+    ContextManager.runWith(userBContext) {
+      // verify credential in user B context, importing key from did on the fly
+      val result = Auditor.getService().verify(cred, listOf(SignaturePolicy()))
+      result.valid shouldBe true
     }
   }
 }
