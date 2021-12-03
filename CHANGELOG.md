@@ -6,6 +6,11 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
 
 - Features
   - Added GaiaxSelfDecription credential https://github.com/dNationCloud/waltid-ssikit/pull/1 thx to https://github.com/dNationCloud & https://github.com/matofeder
+  - Added GaiaxServiceOffering credential
+  - Added VerifiableVaccinationCertificate credential https://github.com/walt-id/waltid-ssikit/pull/80
+  - Creation of VerifiablePresentations via Custodian REST API https://github.com/walt-id/waltid-ssikit/issues/62
+  - Custodians REST API should also offer the management functionality for DIDs https://github.com/walt-id/waltid-ssikit/issues/71
+  - Import cryptographic key from did:key https://github.com/walt-id/waltid-ssikit/commit/4ed0b4c02ff75aad7032109b71414ff32756422a
 
 ## [1.1.0] - 2021-11-25
 
