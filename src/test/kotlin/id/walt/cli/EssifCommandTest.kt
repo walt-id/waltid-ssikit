@@ -7,6 +7,7 @@ import id.walt.model.DidUrl
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.context.ContextManager
 import id.walt.services.did.DidService
+import id.walt.services.essif.timestamp.WaltIdTimestampService
 import id.walt.services.hkvstore.HKVKey
 import id.walt.services.key.KeyService
 import io.kotest.assertions.retry
@@ -91,6 +92,10 @@ class EssifCommandTest : StringSpec({
                 EssifDidRegisterCommand().parse(listOf("--did", did, "--eth-key", ethKey.id))
             }
         }
+    }
+
+    "timestamp" {
+        WaltIdTimestampService().timestampHashes(did, ethKey.id, "{\"test\": \"this is a test\"}")
         ContextManager.hkvStore.delete(HKVKey("ebsi", identifier), true)
     }
 
