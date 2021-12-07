@@ -85,6 +85,9 @@ object DidController {
         .json<String>("200") { it.description("DID document of the resolved DID") }
 
     fun import(ctx: Context) {
+
+        // TODO Import DID
+
         ctx.json("todo")
     }
 
