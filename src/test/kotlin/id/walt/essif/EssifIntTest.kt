@@ -11,7 +11,6 @@ import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
 import id.walt.services.essif.EssifClient
-import id.walt.services.essif.timestamp.WaltIdTimestampService
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
 import id.walt.signatory.*
