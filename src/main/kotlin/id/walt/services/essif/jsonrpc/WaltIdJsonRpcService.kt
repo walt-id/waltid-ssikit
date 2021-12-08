@@ -30,7 +30,7 @@ class WaltIdJsonRpcService : JsonRpcService() {
         urlString: String,
         method: String,
         unsignedTransactionParams: List<JsonRpcParams>
-    ) {
+    ): SignedTransactionResponse {
         //TODO run auth-flow, if file is not present
         //TODO re-run auth-flow, if token is expired -> io.ktor.client.features.ClientRequestException: Client request(https://api.preprod.ebsi.eu/did-registry/v2/jsonrpc) invalid: 401 Unauthorized. Text: "{"title":"Unauthorized","status":401,"type":"about:blank","detail":"Invalid JWT: JWT has expired: exp: 1623244001 < now: 1623245358"}"
         // val token = readWhenContent(EssifClient.ebsiAccessTokenFile)
@@ -50,8 +50,10 @@ class WaltIdJsonRpcService : JsonRpcService() {
         log.debug { "Signed transaction params: $signedTransactionParams" }
 
         val sendTransactionResponse =
-            post<SignedTransactionResponse>(token, urlString, "signedTransaction", signedTransactionParams).result
+            post<SignedTransactionResponse>(token, urlString, "signedTransaction", signedTransactionParams)
         log.debug { "Send transaction response: $sendTransactionResponse" }
+
+        return sendTransactionResponse
     }
 
     override fun signTransaction(ethKeyAlias: String, unsignedTransaction: UnsignedTransaction): SignedTransaction {

@@ -73,7 +73,7 @@ open class JsonRpcService : WaltIdService() {
         urlString: String,
         method: String,
         unsignedTransactionParams: List<JsonRpcParams>
-    ): Unit =
+    ): SignedTransactionResponse =
         implementation.execute(did, ethKeyAlias, urlString, method, unsignedTransactionParams)
 
     open fun signTransaction(ethKeyAlias: String, unsignedTransaction: UnsignedTransaction): SignedTransaction =
