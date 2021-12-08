@@ -9,6 +9,7 @@ import id.walt.services.did.DidService
 import id.walt.services.essif.timestamp.Timestamp
 import id.walt.services.essif.timestamp.WaltIdTimestampService
 import id.walt.services.key.KeyService
+import id.walt.test.RESOURCES_PATH
 import io.kotest.assertions.retry
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
@@ -79,8 +80,11 @@ class EssifCommandTest : StringSpec({
     var transactionHash: String? = null
     "5. Insert timestamp".config(enabled = enableTests) {
         retry(9, Duration.minutes(2), delay = Duration.seconds(4)) {
-            println("Inserting timestamp")
+            println("Inserting timestamp.")
             shouldNotThrowAny {
+
+                EssifTimestampCreateCommand().parse(listOf("--did", did, "--eth-key", ethKey.id, "${RESOURCES_PATH}/ebsi/test-data.json"))
+
                 transactionHash = WaltIdTimestampService().createTimestamp(did, ethKey.id, "{\"test\": \"${UUID.randomUUID()}\"}")
                 transactionHash.shouldNotBeEmpty()
                 transactionHash.shouldNotBeBlank()
@@ -91,12 +95,16 @@ class EssifCommandTest : StringSpec({
     "6. Get timestamp transaction hash" {
         val timestamp = WaltIdTimestampService().getByTransactionHash("0x45680f0a1d2b54d5abe785a93b90e42ee1d37aa0a4c03ff2d07d5ac431232674"/*transactionHash!!*/)
         validateTimestamp(timestamp)
+
         WaltIdTimestampService().getByTransactionHash("do not exist") shouldBe null
+
+        EssifTimestampGetCommand().parse(listOf("--timestamp-hash", "0x45680f0a1d2b54d5abe785a93b90e42ee1d37aa0a4c03ff2d07d5ac431232674"))
     }
 
     "7. Get by timestamp Id" {
         val timestamp = WaltIdTimestampService().getByTimestampId("uEiCHMUGYdJ6Lu8ugrCaEymIUAq6kUJHq10clWEcDvUwHLQ"/*timestampId!!*/)
         validateTimestamp(timestamp)
+        EssifTimestampGetCommand().parse(listOf("--timestamp-id", "uEiCHMUGYdJ6Lu8ugrCaEymIUAq6kUJHq10clWEcDvUwHLQ"))
     }
 
     // TODO: ESSIF backend issue
