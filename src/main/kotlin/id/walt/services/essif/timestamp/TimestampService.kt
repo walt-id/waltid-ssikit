@@ -8,7 +8,9 @@ open class TimestampService : WaltIdService() {
 
     override val implementation get() = serviceImplementation<TimestampService>()
 
-    open fun timestampHashes(did: String, ethKeyAlias: String, data: String): Unit =
+    open suspend fun get(transactionHash: String): Timestamp? = implementation.get(transactionHash)
+
+    open fun timestampHashes(did: String, ethKeyAlias: String, data: String): String =
         implementation.timestampHashes(did, ethKeyAlias, data)
 
     open fun buildUnsignedTransactionParams(

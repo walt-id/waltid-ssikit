@@ -5,18 +5,20 @@ import id.walt.crypto.KeyAlgorithm
 import id.walt.model.DidMethod
 import id.walt.model.DidUrl
 import id.walt.servicematrix.ServiceMatrix
-import id.walt.services.context.ContextManager
 import id.walt.services.did.DidService
 import id.walt.services.essif.timestamp.WaltIdTimestampService
-import id.walt.services.hkvstore.HKVKey
 import id.walt.services.key.KeyService
 import io.kotest.assertions.retry
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldNotBeBlank
+import io.kotest.matchers.string.shouldNotBeEmpty
 import java.io.File
+import java.util.*
 import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 
@@ -73,9 +75,21 @@ class EssifCommandTest : StringSpec({
         }
     }
 
-    "5. timestamp" {
-        WaltIdTimestampService().timestampHashes(did, ethKey.id, "{\"test\": \"this is a test\"}")
-        ContextManager.hkvStore.delete(HKVKey("ebsi", identifier), true)
+    var transactionHash: String? = null
+    "Insert timestamp".config(enabled = enableTests) {
+        retry(9, Duration.minutes(2), delay = Duration.seconds(4)) {
+            println("Inserting timestamp")
+            shouldNotThrowAny {
+                transactionHash = WaltIdTimestampService().timestampHashes(did, ethKey.id, "{\"test\": \"${UUID.randomUUID()}\"}")
+                transactionHash.shouldNotBeEmpty()
+                transactionHash.shouldNotBeBlank()
+            }
+        }
+    }
+
+    "Get timestamp" {
+        WaltIdTimestampService().get("0x45680f0a1d2b54d5abe785a93b90e42ee1d37aa0a4c03ff2d07d5ac431232674"/*transactionHash!!*/) shouldNotBe null
+        WaltIdTimestampService().get("do not exist") shouldBe null
     }
 
     // TODO: ESSIF backend issue
