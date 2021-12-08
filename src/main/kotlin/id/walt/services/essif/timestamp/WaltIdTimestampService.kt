@@ -36,6 +36,8 @@ data class Links(
 
 @Serializable
 data class Timestamp(
+    var timestampId: String? = null,
+    var href: String? = null,
     val hash: String,
     val timestampedBy: String,
     val blockNumber: Int,
@@ -57,7 +59,15 @@ open class WaltIdTimestampService : TimestampService() {
     private val jsonRpcService = JsonRpcService.getService()
     private val keyService = KeyService.getService()
 
-    override suspend fun get(transactionHash: String): Timestamp? {
+    override suspend fun getByTimestampId(timestampId: String): Timestamp? {
+        val href = TIMESTAMPS + "/$timestampId"
+        return runBlocking { WaltIdServices.http.get<Timestamp>(href)?.also {
+            it.timestampId = timestampId
+            it.href = href
+        } }
+    }
+
+    override suspend fun getByTransactionHash(transactionHash: String): Timestamp? {
         var timestamps = WaltIdServices.http.get<Timestamps>(
             WaltIdServices.http.get<Timestamps>(TIMESTAMPS).links.last
         )
@@ -65,8 +75,13 @@ open class WaltIdTimestampService : TimestampService() {
         while (timestamps.self != timestamps.links.prev) {
             val timestampsIterator = timestamps.items.listIterator(timestamps.items.size)
             while (timestampsIterator.hasPrevious()) {
-                val timestamp = runBlocking { WaltIdServices.http.get<Timestamp>(timestampsIterator.previous().href) }
-                if (timestamp.transactionHash == transactionHash) return timestamp
+                val timestampItem = timestampsIterator.previous()
+                val timestamp = runBlocking { WaltIdServices.http.get<Timestamp>(timestampItem.href) }
+                if (timestamp.transactionHash == transactionHash) {
+                    timestamp.timestampId = timestampItem.timestampId
+                    timestamp.href = timestampItem.href
+                    return timestamp
+                }
             }
             timestamps = WaltIdServices.http.get(timestamps.links.prev)
         }
@@ -74,7 +89,7 @@ open class WaltIdTimestampService : TimestampService() {
         return null
     }
 
-    override fun timestampHashes(did: String, ethKeyAlias: String, data: String): String = runBlocking {
+    override fun createTimestamp(did: String, ethKeyAlias: String, data: String): String = runBlocking {
         log.debug { "Running EBSI timestamp hashes... " }
 
         // Insert timestamp request

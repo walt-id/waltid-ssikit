@@ -6,6 +6,7 @@ import id.walt.model.DidMethod
 import id.walt.model.DidUrl
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
+import id.walt.services.essif.timestamp.Timestamp
 import id.walt.services.essif.timestamp.WaltIdTimestampService
 import id.walt.services.key.KeyService
 import io.kotest.assertions.retry
@@ -76,29 +77,45 @@ class EssifCommandTest : StringSpec({
     }
 
     var transactionHash: String? = null
-    "Insert timestamp".config(enabled = enableTests) {
+    "5. Insert timestamp".config(enabled = enableTests) {
         retry(9, Duration.minutes(2), delay = Duration.seconds(4)) {
             println("Inserting timestamp")
             shouldNotThrowAny {
-                transactionHash = WaltIdTimestampService().timestampHashes(did, ethKey.id, "{\"test\": \"${UUID.randomUUID()}\"}")
+                transactionHash = WaltIdTimestampService().createTimestamp(did, ethKey.id, "{\"test\": \"${UUID.randomUUID()}\"}")
                 transactionHash.shouldNotBeEmpty()
                 transactionHash.shouldNotBeBlank()
             }
         }
     }
 
-    "Get timestamp" {
-        WaltIdTimestampService().get("0x45680f0a1d2b54d5abe785a93b90e42ee1d37aa0a4c03ff2d07d5ac431232674"/*transactionHash!!*/) shouldNotBe null
-        WaltIdTimestampService().get("do not exist") shouldBe null
+    "6. Get timestamp transaction hash" {
+        val timestamp = WaltIdTimestampService().getByTransactionHash("0x45680f0a1d2b54d5abe785a93b90e42ee1d37aa0a4c03ff2d07d5ac431232674"/*transactionHash!!*/)
+        validateTimestamp(timestamp)
+        WaltIdTimestampService().getByTransactionHash("do not exist") shouldBe null
+    }
+
+    "7. Get by timestamp Id" {
+        val timestamp = WaltIdTimestampService().getByTimestampId("uEiCHMUGYdJ6Lu8ugrCaEymIUAq6kUJHq10clWEcDvUwHLQ"/*timestampId!!*/)
+        validateTimestamp(timestamp)
     }
 
     // TODO: ESSIF backend issue
-    "6. essif tir get -r".config(enabled = false) {
+    "8. essif tir get -r".config(enabled = false) {
         EssifTirGetIssuerCommand().parse(listOf("--did", "did:ebsi:224AEY73SGS1gpTvbt5TNTTPdNj8GU6NAq2AVBFmasQbntCt", "-r"))
     }
 
     // TODO: ESSIF backend issue
-    "7. essif tir get -t".config(enabled = false) {
+    "9. essif tir get -t".config(enabled = false) {
         EssifTirGetIssuerCommand().parse(listOf("--did", "did:ebsi:224AEY73SGS1gpTvbt5TNTTPdNj8GU6NAq2AVBFmasQbntCt", "-t"))
     }
 })
+
+private fun validateTimestamp(timestamp: Timestamp?) {
+    println(timestamp)
+
+    timestamp shouldNotBe null
+    timestamp!!.timestampId shouldBe "uEiCHMUGYdJ6Lu8ugrCaEymIUAq6kUJHq10clWEcDvUwHLQ"
+    timestamp!!.hash shouldBe "mEiACz5o3HeOXrLZnpzc1vJSuaYO31XV1PqaESJObOqdFBw"
+    timestamp!!.transactionHash shouldBe "0x45680f0a1d2b54d5abe785a93b90e42ee1d37aa0a4c03ff2d07d5ac431232674"
+    timestamp!!.timestampedBy shouldBe "0xD39F93C93E0B9153d4b09B8263A3e553eaf6d2e0"
+}
