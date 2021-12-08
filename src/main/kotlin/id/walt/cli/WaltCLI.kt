@@ -114,13 +114,17 @@ object WaltCLI {
                     EssifCommand().subcommands(
                         EssifOnboardingCommand(),
                         EssifAuthCommand(),
-                        EssifVcIssuanceCommand(),
-                        EssifVcExchangeCommand(),
+//                        EssifVcIssuanceCommand(),
+//                        EssifVcExchangeCommand(),
                         EssifDidCommand().subcommands(
                             EssifDidRegisterCommand()
                         ),
                         EssifTirCommand().subcommands(
                             EssifTirGetIssuerCommand()
+                        ),
+                        EssifTimestampCommand().subcommands(
+                            EssifTimestampCreateCommand(),
+                            EssifTimestampGetCommand()
                         ),
                         EssifTaorCommand(),
                         EssifTsrCommand()

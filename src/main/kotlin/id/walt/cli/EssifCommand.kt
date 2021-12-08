@@ -14,7 +14,13 @@ import id.walt.services.did.DidService
 import id.walt.services.essif.EssifClient
 import id.walt.services.essif.EssifClientVcExchange
 import id.walt.services.essif.TrustedIssuerClient
+import id.walt.services.essif.timestamp.Timestamp
+import id.walt.services.essif.timestamp.WaltIdTimestampService
+import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.io.File
+import java.util.*
 
 class EssifCommand : CliktCommand(
     name = "essif",
@@ -94,45 +100,103 @@ class EssifDidRegisterCommand : CliktCommand(
     }
 }
 
-class EssifVcIssuanceCommand : CliktCommand(
-    name = "vc-issuance",
-    help = """ESSIF VC issuance flow
+//class EssifVcIssuanceCommand : CliktCommand(
+//    name = "vc-issuance",
+//    help = """ESSIF VC issuance flow
+//
+//        ESSIF VC issuance flow"""
+//) {
+//    override fun run() {
+//
+//        // Mocked flow:
+//        // EssifFlowRunner.vcIssuance()
+//
+//        // This runs everything: EssifClient.authenticate()
+//        val did: String = DidService.create(DidMethod.ebsi) // Client DID
+//
+//        val oidcReq = TrustedIssuerClient.generateAuthenticationRequest()
+//        echo("- Authentication request: \n$oidcReq\n\n")
+//
+//        val didAuthReq = EssifClientVcExchange.validateAuthenticationRequest(oidcReq)
+//        echo("- Parsed and validated authentication request: \n$didAuthReq\n\n")
+//
+//        val authResp = EssifClientVcExchange.generateAuthenticationResponse(did, didAuthReq)
+//        echo("- Authentication response JWT: \n$authResp\n\n")
+//
+//        val encAccessToken = TrustedIssuerClient.openSession(authResp)
+//        echo("- Received encrypted access token: \n$encAccessToken\n\n")
+//
+//        val accessToken = EssifClientVcExchange.decryptAccessToken(encAccessToken)
+//        echo("- Decrypted and verified access token: \n$accessToken\n\n")
+//
+//    }
+//}
+//
+//class EssifVcExchangeCommand : CliktCommand(
+//    name = "vc-exchange",
+//    help = """ESSIF VC exchange flow
+//
+//        ESSIF VC exchange flow"""
+//) {
+//    override fun run() = EssifClient.vcExchange()
+//}
 
-        ESSIF VC issuance flow"""
+class EssifTimestampCommand : CliktCommand(
+    name = "timestamp",
+    help = """EBSI Timestamp API operations.
+
+        Create and retrieve a timestamp on the EBSI ledger."""
 ) {
+    override fun run() {}
+}
+
+class EssifTimestampCreateCommand : CliktCommand(
+    name = "create",
+    help = """Create timestamp.
+
+        Create timestamp on the EBSI ledger."""
+) {
+    val dataFile: File by argument("DATA-FILE", help = "File containing data to be used for the timestamp").file()
+    val did: String by option("-d", "--did", help = "DID of the issuer.").required()
+    val ethKeyAlias: String? by option("-e", "--eth-key", help = "ETH key alias.")
+
     override fun run() {
+        echo("Creating timestamp")
 
-        // Mocked flow:
-        // EssifFlowRunner.vcIssuance()
+        if (!dataFile.exists()) throw Exception("File ${dataFile.absoluteFile} not found.")
 
-        // This runs everything: EssifClient.authenticate()
-        val did: String = DidService.create(DidMethod.ebsi) // Client DID
+        val transactionHash = WaltIdTimestampService().createTimestamp(did, ethKeyAlias ?: did, "{\"test\": \"${UUID.randomUUID()}\"}")
 
-        val oidcReq = TrustedIssuerClient.generateAuthenticationRequest()
-        echo("- Authentication request: \n$oidcReq\n\n")
+        echo("\nReturned transaction hash:\n")
 
-        val didAuthReq = EssifClientVcExchange.validateAuthenticationRequest(oidcReq)
-        echo("- Parsed and validated authentication request: \n$didAuthReq\n\n")
-
-        val authResp = EssifClientVcExchange.generateAuthenticationResponse(did, didAuthReq)
-        echo("- Authentication response JWT: \n$authResp\n\n")
-
-        val encAccessToken = TrustedIssuerClient.openSession(authResp)
-        echo("- Received encrypted access token: \n$encAccessToken\n\n")
-
-        val accessToken = EssifClientVcExchange.decryptAccessToken(encAccessToken)
-        echo("- Decrypted and verified access token: \n$accessToken\n\n")
-
+        echo(transactionHash)
     }
 }
 
-class EssifVcExchangeCommand : CliktCommand(
-    name = "vc-exchange",
-    help = """ESSIF VC exchange flow
+class EssifTimestampGetCommand : CliktCommand(
+    name = "get",
+    help = """Get timestamp.
 
-        ESSIF VC exchange flow"""
+        Get timestamp by its ID or transaction hash."""
 ) {
-    override fun run() = EssifClient.vcExchange()
+    val id: String? by option("-i", "--timestamp-id", help = "Timestamp ID.")
+    val hash: String? by option("-h", "--timestamp-hash", help = "Timestamp hash.")
+
+    override fun run() {
+        echo("Getting timestamp.")
+
+        val timestamp: Timestamp? = runBlocking {
+             when {
+                 id != null -> WaltIdTimestampService().getByTimestampId(id!!)
+                 hash != null -> WaltIdTimestampService().getByTransactionHash(hash!!)
+                 else -> throw Exception("Either timestamp ID or transaction hash need to be specified")
+             }
+        }
+
+        echo("\nResult:\n")
+
+        echo(Json.encodeToString(timestamp))
+    }
 }
 
 class EssifTirCommand : CliktCommand(
@@ -147,7 +211,7 @@ class EssifTirCommand : CliktCommand(
 fun getIssuerHelper(did: String, raw: Boolean) = when (raw) { 
     true -> TrustedIssuerClient.getIssuerRaw(did).prettyPrint()
     else -> TrustedIssuerClient.getIssuer(did).encodePretty()
- }
+}
 
 class EssifTirGetIssuerCommand : CliktCommand(
     name = "get",
