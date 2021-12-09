@@ -2,8 +2,8 @@ package id.walt.signatory
 
 import id.walt.model.DidMethod
 import id.walt.services.did.DidService
-import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.credentials.*
+import id.walt.vclib.model.VerifiableCredential
 import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.reflect.KClass
@@ -29,6 +29,7 @@ object DataProviderRegistry {
         register(VerifiableAttestation::class, VerifiableAttestationDataProvider())
         register(VerifiableAuthorization::class, VerifiableAuthorizationDataProvider())
         register(VerifiableDiploma::class, VerifiableDiplomaDataProvider())
+        register(VerifiableVaccinationCertificate::class, VerifiableVaccinationCertificateDataProvider())
         register(VerifiableId::class, VerifiableIdDataProvider())
         register(Europass::class, EuropassDataProvider())
         register(GaiaxCredential::class, DeltaDaoDataProvider())
@@ -99,6 +100,22 @@ class VerifiableIdDataProvider : SignatoryDataProvider {
     }
 }
 
+class VerifiableVaccinationCertificateDataProvider : SignatoryDataProvider {
+
+    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableVaccinationCertificate {
+        val vc = template as VerifiableVaccinationCertificate
+
+        vc.id = proofConfig.credentialId ?: "education#higherEducation#${UUID.randomUUID()}"
+        vc.issuer = proofConfig.issuerDid
+        if (proofConfig.issueDate != null) vc.issuanceDate = dateFormat.format(proofConfig.issueDate)
+        if (proofConfig.validDate != null) vc.validFrom = dateFormat.format(proofConfig.validDate)
+        if (proofConfig.expirationDate != null) vc.expirationDate = dateFormat.format(proofConfig.expirationDate)
+        vc.credentialSubject!!.id = proofConfig.subjectDid
+
+        return vc
+    }
+}
+
 class VerifiableDiplomaDataProvider : SignatoryDataProvider {
 
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableDiploma {
@@ -128,17 +145,6 @@ class GaiaxSelfDescriptionDataProvider : SignatoryDataProvider {
         vc.id = proofConfig.credentialId
         vc.issuer = proofConfig.issuerDid
         vc.credentialSubject.id = proofConfig.subjectDid!!
-        return vc
-    }
-}
-
-class VerifiableVaccinationCertificateDataProvider : SignatoryDataProvider {
-
-    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableVaccinationCertificate {
-        val vc = template as VerifiableVaccinationCertificate
-        vc.id = proofConfig.credentialId
-        vc.issuer = proofConfig.issuerDid
-        vc.credentialSubject!!.id = proofConfig.subjectDid!!
         return vc
     }
 }

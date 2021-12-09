@@ -12,7 +12,7 @@ object CLIDataProviders {
             "GaiaxCredential" -> GaiaxCLIDataProvider()
             "GaiaxSelfDescription" -> GaiaxSDProvider()
             "VerifiableVaccinationCertificate" -> VerifiableVaccinationCertificateCLIDataProvider()
-            else -> null
+            else -> throw Exception("Could not load data provider for $templateId")
         }
     }
 }
@@ -30,67 +30,6 @@ abstract class CLIDataProvider : SignatoryDataProvider {
     fun promptInt(prompt: String, default: Int?): Int {
         val str = prompt(prompt, default.let { it.toString() })
         return str.let { Integer.parseInt(it) }
-    }
-}
-
-class VerifiableVaccinationCertificateCLIDataProvider : CLIDataProvider() {
-    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
-        template as VerifiableVaccinationCertificate
-
-        template.apply {
-            id = proofConfig.credentialId ?: "education#higherEducation#${UUID.randomUUID()}"
-            issuer = proofConfig.issuerDid
-            if (proofConfig.issueDate != null) issuanceDate = dateFormat.format(proofConfig.issueDate)
-            if (proofConfig.expirationDate != null) expirationDate = dateFormat.format(proofConfig.expirationDate)
-            validFrom = issuanceDate
-
-            credentialSubject!!.apply {
-                id = proofConfig.subjectDid
-
-                println()
-                println("Subject personal data, ID: ${proofConfig.subjectDid}")
-                println("----------------------")
-                familyName = prompt("Family name", familyName)
-                givenNames = prompt("Given names", givenNames)
-                dateOfBirth = prompt("Date of birth", dateOfBirth)
-
-
-                println()
-                println("Vaccination Prophylaxis Information")
-                println("----------------------")
-
-                vaccinationProphylaxisInformation = listOf(
-                    VerifiableVaccinationCertificate.CredentialSubject.VaccinationProphylaxisInformation(
-                        diseaseOrAgentTargeted = VerifiableVaccinationCertificate.CredentialSubject.VaccinationProphylaxisInformation.DiseaseOrAgentTargeted(
-                            code = prompt("DiseaseOrAgentTargeted.Code", vaccinationProphylaxisInformation!!.get(0)!!.diseaseOrAgentTargeted.code)!!,
-                            system = prompt("DiseaseOrAgentTargeted.System", vaccinationProphylaxisInformation!!.get(0)!!.diseaseOrAgentTargeted.system),
-                            version = prompt("DiseaseOrAgentTargeted.version", vaccinationProphylaxisInformation!!.get(0)!!.diseaseOrAgentTargeted.version)
-                        ),
-                        vaccineOrProphylaxis = prompt("vaccineOrProphylaxis", vaccinationProphylaxisInformation!!.get(0)!!.vaccineOrProphylaxis),
-                        vaccineMedicinalProduct = prompt("vaccineMedicinalProduct", vaccinationProphylaxisInformation!!.get(0)!!.vaccineMedicinalProduct),
-                        marketingAuthorizationHolder = prompt("marketingAuthorizationHolder", vaccinationProphylaxisInformation!!.get(0)!!.marketingAuthorizationHolder),
-                        doseNumber = prompt("doseNumber", vaccinationProphylaxisInformation!!.get(0)!!.doseNumber),
-                        totalSeriesOfDoses = prompt("totalSeriesOfDoses", vaccinationProphylaxisInformation!!.get(0)!!.totalSeriesOfDoses),
-                        batchNumber = prompt("batchNumber", vaccinationProphylaxisInformation!!.get(0)!!.batchNumber),
-                        dateOfVaccination = prompt("dateOfVaccination", vaccinationProphylaxisInformation!!.get(0)!!.dateOfVaccination),
-                        administeringCentre = prompt("administeringCentre", vaccinationProphylaxisInformation!!.get(0)!!.administeringCentre),
-                        countryOfVaccination = prompt("countryOfVaccination", vaccinationProphylaxisInformation!!.get(0)!!.countryOfVaccination),
-                        nextVaccinationDate = prompt("nextVaccinationDate", vaccinationProphylaxisInformation!!.get(0)!!.nextVaccinationDate),
-                    )
-                )
-
-                evidence?.apply {
-                    id = prompt("Evidence ID", id) ?: ""
-                    type = listOf(prompt("Evidence type", type?.get(0)) ?: "")
-                    verifier = prompt("Verifier", verifier) ?: ""
-                    evidenceDocument = listOf(prompt("Evidence document", evidenceDocument?.get(0)) ?: "")
-                    subjectPresence = prompt("Subject presence", subjectPresence) ?: ""
-                    documentPresence = listOf(prompt("Document presence", documentPresence?.get(0)) ?: "")
-                }
-            }
-
-            return template
-        }
     }
 }
 
@@ -182,6 +121,44 @@ class VerifiableDiplomaCLIDataProvider : CLIDataProvider() {
     }
 }
 
+class VerifiableVaccinationCertificateCLIDataProvider : CLIDataProvider() {
+    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
+        template as VerifiableVaccinationCertificate
+
+        template.apply {
+            id = proofConfig.credentialId ?: "education#higherEducation#${UUID.randomUUID()}"
+            issuer = proofConfig.issuerDid
+            if (proofConfig.issueDate != null) issuanceDate = dateFormat.format(proofConfig.issueDate)
+            if (proofConfig.expirationDate != null) expirationDate = dateFormat.format(proofConfig.expirationDate)
+            validFrom = issuanceDate
+
+            credentialSubject!!.apply {
+                id = proofConfig.subjectDid
+
+                println()
+                println("Subject personal data, ID: ${proofConfig.subjectDid}")
+                println("----------------------")
+                familyName = prompt("Family name", familyName)
+                givenNames = prompt("Given names", givenNames)
+                dateOfBirth = prompt("Date of birth", dateOfBirth)
+
+
+            }
+
+            evidence?.apply {
+                id = prompt("Evidence ID", id) ?: ""
+                type = listOf(prompt("Evidence type", type?.get(0)) ?: "")
+                verifier = prompt("Verifier", verifier) ?: ""
+                evidenceDocument = listOf(prompt("Evidence document", evidenceDocument?.get(0)) ?: "")
+                subjectPresence = prompt("Subject presence", subjectPresence) ?: ""
+                documentPresence = listOf(prompt("Document presence", documentPresence?.get(0)) ?: "")
+            }
+        }
+
+        return template
+    }
+}
+
 class GaiaxCLIDataProvider : CLIDataProvider() {
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
         (template as GaiaxCredential).apply {
@@ -246,7 +223,6 @@ class GaiaxCLIDataProvider : CLIDataProvider() {
         return template
     }
 }
-
 
 class GaiaxSDProvider : CLIDataProvider() {
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
