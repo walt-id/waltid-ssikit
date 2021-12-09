@@ -138,61 +138,11 @@ class VerifiableVaccinationCertificateCLIDataProvider : CLIDataProvider() {
                 println()
                 println("Subject personal data, ID: ${proofConfig.subjectDid}")
                 println("----------------------")
-                identifier = prompt("Identifier", identifier)
                 familyName = prompt("Family name", familyName)
                 givenNames = prompt("Given names", givenNames)
                 dateOfBirth = prompt("Date of birth", dateOfBirth)
 
-                println()
-                println("Awarding Opportunity")
-                println("----------------------")
-                awardingOpportunity!!.apply {
-                    id = prompt("Opportunity ID", id) ?: ""
-                    identifier = prompt("Identifier", identifier) ?: ""
-                    location = prompt("Location", location) ?: ""
-                    startedAtTime = prompt("Started at", startedAtTime) ?: ""
-                    endedAtTime = prompt("Ended at", endedAtTime) ?: ""
 
-                    println()
-                    println("Awarding Body, ID: ${proofConfig.issuerDid}")
-                    awardingBody.apply {
-                        id = proofConfig.issuerDid
-                        preferredName = prompt("Preferred name", preferredName) ?: ""
-                        homepage = prompt("Homepage", homepage) ?: ""
-                        registration = prompt("Registration", registration) ?: ""
-                        eidasLegalIdentifier = prompt("EIDAS Legal Identifier", eidasLegalIdentifier) ?: ""
-                    }
-                }
-
-                println()
-                println("Grading scheme")
-                println("----------------------")
-                gradingScheme?.apply {
-                    id = prompt("Grading Scheme ID", id) ?: ""
-                    title = prompt("Title", title) ?: ""
-                    description = prompt("Description", description) ?: ""
-                }
-
-                println()
-                println("Learning Achievement")
-                println("----------------------")
-                learningAchievement?.apply {
-                    id = prompt("Learning achievement ID", id) ?: ""
-                    title = prompt("Title", title) ?: ""
-                    description = prompt("Description", description) ?: ""
-                    additionalNote = listOf(prompt("Additional note", additionalNote?.get(0)) ?: "")
-                }
-
-                println()
-                println("Learning Specification")
-                println("----------------------")
-                learningSpecification?.apply {
-                    id = prompt("Learning specification ID", id) ?: ""
-                    ectsCreditPoints = promptInt("ECTS credit points", ectsCreditPoints)
-                    eqfLevel = promptInt("EQF Level", eqfLevel)
-                    iscedfCode = listOf(prompt("ISCEDF Code", iscedfCode[0]) ?: "")
-                    nqfLevel = listOf(prompt("NQF Level", nqfLevel[0]) ?: "")
-                }
             }
 
             evidence?.apply {

@@ -110,7 +110,6 @@ class VerifiableVaccinationCertificateDataProvider : SignatoryDataProvider {
         if (proofConfig.validDate != null) vc.validFrom = dateFormat.format(proofConfig.validDate)
         if (proofConfig.expirationDate != null) vc.expirationDate = dateFormat.format(proofConfig.expirationDate)
         vc.credentialSubject!!.id = proofConfig.subjectDid
-        vc.credentialSubject!!.awardingOpportunity!!.awardingBody.id = proofConfig.issuerDid
 
         return vc
     }
