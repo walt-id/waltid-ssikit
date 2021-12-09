@@ -263,7 +263,7 @@ class VcTemplatesListCommand : CliktCommand(
 
         echo("\nResults:\n")
 
-        Signatory.getService().listTemplates().forEachIndexed { index, vc -> echo("- ${index + 1}: $vc") }
+        Signatory.getService().listTemplates().sorted().forEachIndexed { index, vc -> echo("- ${index + 1}: $vc") }
     }
 }
 

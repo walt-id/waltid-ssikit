@@ -33,7 +33,8 @@ object DataProviderRegistry {
         register(VerifiableId::class, VerifiableIdDataProvider())
         register(Europass::class, EuropassDataProvider())
         register(GaiaxCredential::class, DeltaDaoDataProvider())
-        register(GaiaxSelfDescription::class, SdDataProvider())
+        register(GaiaxSelfDescription::class, GaiaxSelfDescriptionDataProvider())
+        register(VerifiableVaccinationCertificate::class, VerifiableVaccinationCertificateDataProvider())
         register(PermanentResidentCard::class, PermanentResidentCardDataProvider())
     }
 }
@@ -136,7 +137,8 @@ class NoSuchDataProviderException(credentialType: KClass<out VerifiableCredentia
     Exception("No data provider is registered for ${credentialType.simpleName}")
 
 
-class SdDataProvider : SignatoryDataProvider {
+
+class GaiaxSelfDescriptionDataProvider : SignatoryDataProvider {
 
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): GaiaxSelfDescription {
         val vc = template as GaiaxSelfDescription
