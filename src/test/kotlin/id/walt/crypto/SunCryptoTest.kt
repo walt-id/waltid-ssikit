@@ -13,7 +13,7 @@ class SunCryptoTest : AnnotationSpec() {
         ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
     }
 
-    val sunCryptoService = SunCryptoService()
+    private val sunCryptoService = SunCryptoService()
     val data = "some data".toByteArray()
 
     @Test
@@ -28,6 +28,14 @@ class SunCryptoTest : AnnotationSpec() {
     @Test
     fun signEd25519Test() {
         val keyId = sunCryptoService.generateKey(KeyAlgorithm.EdDSA_Ed25519)
+        val sig = sunCryptoService.sign(keyId, data)
+        val res = sunCryptoService.verify(keyId, sig, data)
+        res shouldBe true
+    }
+
+    @Test
+    fun signRsaTest() {
+        val keyId = sunCryptoService.generateKey(KeyAlgorithm.RSA)
         val sig = sunCryptoService.sign(keyId, data)
         val res = sunCryptoService.verify(keyId, sig, data)
         res shouldBe true

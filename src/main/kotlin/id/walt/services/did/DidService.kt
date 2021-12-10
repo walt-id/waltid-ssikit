@@ -2,8 +2,7 @@ package id.walt.services.did
 
 import com.beust.klaxon.Klaxon
 import id.walt.crypto.*
-import id.walt.crypto.KeyAlgorithm.ECDSA_Secp256k1
-import id.walt.crypto.KeyAlgorithm.EdDSA_Ed25519
+import id.walt.crypto.KeyAlgorithm.*
 import id.walt.model.*
 import id.walt.services.CryptoProvider
 import id.walt.services.WaltIdServices
@@ -11,7 +10,6 @@ import id.walt.services.context.ContextManager
 import id.walt.services.crypto.CryptoService
 import id.walt.services.hkvstore.HKVKey
 import id.walt.services.key.KeyService
-import id.walt.services.keystore.KeyStoreService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.ProofConfig
 import io.ktor.client.features.*
@@ -25,8 +23,6 @@ import org.bouncycastle.asn1.x509.AlgorithmIdentifier
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
 import java.security.KeyFactory
 import java.security.KeyPair
-import java.security.KeyPairGenerator
-import java.security.PublicKey
 import java.security.spec.X509EncodedKeySpec
 import java.util.*
 
@@ -40,7 +36,6 @@ object DidService {
     sealed class DidOptions
     data class DidWebOptions(val domain: String?, val path: String? = null) : DidOptions()
     data class DidEbsiOptions(val addEidasKey: Boolean) : DidOptions()
-
 
     private val credentialService = JsonLdCredentialService.getService()
     private val cryptoService = CryptoService.getService()
@@ -131,6 +126,7 @@ object DidService {
         val keyType = when (key.algorithm) {
             EdDSA_Ed25519 -> "Ed25519VerificationKey2018"
             ECDSA_Secp256k1 -> "Secp256k1VerificationKey2018"
+            RSA -> "RsaSignature2018"
         }
         val publicKeyJwk = Klaxon().parse<Jwk>(keyService.toJwk(kid).toPublicJWK().toString())
 
@@ -370,13 +366,13 @@ object DidService {
         kotlin.runCatching { KeyService.getService().load(didUrl) }
             .getOrNull()?.let { throw Exception("Could not import key, as key alias \"${didUrl}\" is already existing.") }
 
-        if(did.verificationMethod?.flatMap { vm ->
-            listOf(
-                tryImportJwk(didUrl, vm),
-                tryImportKeyBase58(didUrl, vm),
-                tryImportKeyPem(didUrl, vm)
-            )
-        }?.reduce { acc, b -> acc || b } != true) {
+        if (did.verificationMethod?.flatMap { vm ->
+                listOf(
+                    tryImportJwk(didUrl, vm),
+                    tryImportKeyBase58(didUrl, vm),
+                    tryImportKeyPem(didUrl, vm)
+                )
+            }?.reduce { acc, b -> acc || b } != true) {
             throw Exception("Could not import any key")
         }
     }

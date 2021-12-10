@@ -40,11 +40,13 @@ import java.util.*
 // Supported key algorithms
 enum class KeyAlgorithm {
     EdDSA_Ed25519,
-    ECDSA_Secp256k1;
+    ECDSA_Secp256k1,
+    RSA;
     companion object {
         fun fromString(algorithm: String): KeyAlgorithm = when(algorithm) {
             "Ed25519", "EdDSA_Ed25519" -> EdDSA_Ed25519
             "Secp256k1", "ECDSA_Secp256k1" -> ECDSA_Secp256k1
+            "RSA" -> RSA
             else -> throw IllegalArgumentException("Algorithm not supported")
         }
     }
@@ -142,6 +144,7 @@ fun buildKey(
     val kf = when (KeyAlgorithm.valueOf(algorithm)) {
         KeyAlgorithm.ECDSA_Secp256k1 -> KeyFactory.getInstance("ECDSA")
         KeyAlgorithm.EdDSA_Ed25519 -> KeyFactory.getInstance("Ed25519")
+        KeyAlgorithm.RSA -> KeyFactory.getInstance("RSA")
     }
     val kp = when (format) {
         KeyFormat.PEM -> KeyPair(
@@ -256,6 +259,10 @@ fun keyPairGeneratorEd25519(): KeyPairGenerator {
     return KeyPairGenerator.getInstance("Ed25519")
 }
 
+fun keyPairGeneratorRsa(): KeyPairGenerator {
+    return KeyPairGenerator.getInstance("RSA")
+}
+
 fun localTimeSecondsUtc(): String {
     val inDateTime = ZonedDateTime.of(LocalDateTime.now(), ZoneOffset.UTC)
 
@@ -297,14 +304,6 @@ fun parseEncryptedAke1Payload(encryptedPayload: String): EncryptedAke1Payload {
         bytes.sliceArray(49..80),
         bytes.sliceArray(81 until bytes.size)
     )
-
-//    return EncryptedPayload(
-//        Hex.toHexString(bytes.sliceArray(0..15)),
-//        // https://bitcoinj.org/javadoc/0.15.10/org/bitcoinj/core/ECKey.html#decompress--
-//        org.bitcoinj.core.ECKey.fromPublicOnly(bytes.sliceArray(16..48)).decompress().publicKeyAsHex,
-//        Hex.toHexString(bytes.sliceArray(49..80)),
-//        Hex.toHexString(bytes.sliceArray(81 until bytes.size))
-//    )
 }
 
 // Returns the index of first match of the predicate or the full size of the array
