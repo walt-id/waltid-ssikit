@@ -290,8 +290,8 @@ object DidService {
 
         val dhKeyMb = convertX25519PublicKeyToMultiBase58Btc(dhKey)
 
-        val pubKeyId = didUrl.identifier + "#" + didUrl.identifier
-        val dhKeyId = didUrl.identifier + "#" + dhKeyMb
+        val pubKeyId = didUrl.did + "#" + didUrl.identifier
+        val dhKeyId = didUrl.did + "#" + dhKeyMb
 
         val verificationMethods = mutableListOf(
             VerificationMethod(pubKeyId, "Ed25519VerificationKey2018", didUrl.did, pubKey.encodeBase58()),
