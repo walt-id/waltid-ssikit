@@ -119,7 +119,7 @@ class EssifCommandTest : StringSpec({
 })
 
 private fun validateTimestamp(timestamp: Timestamp?) {
-    println(timestamp)
+    println("Validating timestamp: $timestamp")
 
     timestamp shouldNotBe null
     timestamp!!.timestampId shouldBe "uEiCHMUGYdJ6Lu8ugrCaEymIUAq6kUJHq10clWEcDvUwHLQ"
