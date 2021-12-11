@@ -1,4 +1,4 @@
-FROM docker.io/openjdk:16-slim-buster AS openjdk-gradle
+FROM docker.io/openjdk:17-slim-buster AS openjdk-gradle
 
 ENV GRADLE_HOME /opt/gradle
 
@@ -23,7 +23,7 @@ COPY ./ /opt
 RUN ./gradlew clean build
 RUN tar xf /opt/build/distributions/waltid-ssi-kit-*.tar -C /opt
 
-FROM openjdk:16-slim-buster
+FROM openjdk:17-slim-buster
 
 RUN mkdir /app
 COPY --from=walt-build /opt/waltid-ssi-kit-* /app/

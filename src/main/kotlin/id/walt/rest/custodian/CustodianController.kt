@@ -4,6 +4,7 @@ import com.beust.klaxon.Klaxon
 import id.walt.crypto.Key
 import id.walt.crypto.KeyAlgorithm
 import id.walt.custodian.Custodian
+import id.walt.vclib.Helpers.encode
 import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.VerifiableCredential
 import io.javalin.http.Context
@@ -185,6 +186,23 @@ object CustodianController {
     fun presentCredentials(ctx: Context) {
         val req = ctx.bodyAsClass<PresentCredentialsRequest>()
         ctx.result(custodian.createPresentation(req.vcs, req.holderDid, req.verifierDid, req.domain, req.challenge))
+    }
+
+    fun presentCredentialIdsDocs() = document()
+        .operation {
+            it.summary("Create a VerifiablePresentation from specific credential IDs)").operationId("presentCredentialIds")
+                .addTagsItem("Credentials")
+        }
+        .body<PresentCredentialIdsRequest>()
+        .json<VerifiablePresentation>("200") { it.description("The newly created VerifiablePresentation") }
+
+
+    fun presentCredentialIds(ctx: Context) {
+        val req = ctx.bodyAsClass<PresentCredentialIdsRequest>()
+
+        val ids = req.vcIds.map { custodian.getCredential(it)!!.encode() }
+
+        ctx.result(custodian.createPresentation(ids, req.holderDid, req.verifierDid, req.domain, req.challenge))
     }
 
 }

@@ -61,10 +61,10 @@ dependencies {
     implementation("commons-io:commons-io:2.11.0")
 
     // HTTP
-    implementation("io.ktor:ktor-client-core:1.6.4")
-    implementation("io.ktor:ktor-client-cio:1.6.4")
-    implementation("io.ktor:ktor-client-serialization:1.6.4")
-    implementation("io.ktor:ktor-client-logging:1.6.4")
+    implementation("io.ktor:ktor-client-core:1.6.6")
+    implementation("io.ktor:ktor-client-cio:1.6.6")
+    implementation("io.ktor:ktor-client-serialization:1.6.6")
+    implementation("io.ktor:ktor-client-logging:1.6.6")
     implementation("io.github.rybalkinsd", "kohttp", "0.12.0")
 
 
@@ -76,26 +76,26 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-core:2.14.1")
     implementation("org.apache.logging.log4j:log4j-api:2.14.1")
     implementation("org.apache.logging.log4j:log4j-slf4j18-impl:2.14.1")
-    implementation("io.github.microutils:kotlin-logging-jvm:2.0.11")
+    implementation("io.github.microutils:kotlin-logging-jvm:2.1.0")
 
     // Config
-    implementation("com.sksamuel.hoplite:hoplite-core:1.4.14")
-    implementation("com.sksamuel.hoplite:hoplite-yaml:1.4.14")
-    implementation("com.sksamuel.hoplite:hoplite-hikaricp:1.4.14")
+    implementation("com.sksamuel.hoplite:hoplite-core:1.4.15")
+    implementation("com.sksamuel.hoplite:hoplite-yaml:1.4.15")
+    implementation("com.sksamuel.hoplite:hoplite-hikaricp:1.4.15")
 
     // Service-Matrix
     implementation("id.walt.servicematrix:WaltID-ServiceMatrix:1.0.1")
 
     // Kotlin
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.5.21")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.6.0")
 
     // Testing
     //testImplementation(kotlin("test-junit"))
-    testImplementation("io.mockk:mockk:1.12.0")
+    testImplementation("io.mockk:mockk:1.12.1")
 
-    testImplementation("io.kotest:kotest-runner-junit5:4.6.3")
-    testImplementation("io.kotest:kotest-assertions-core:4.6.3")
-    testImplementation("io.kotest:kotest-assertions-json:4.6.3")
+    testImplementation("io.kotest:kotest-runner-junit5:5.0.1")
+    testImplementation("io.kotest:kotest-assertions-core:5.0.1")
+    testImplementation("io.kotest:kotest-assertions-json:5.0.1")
 }
 
 tasks.withType<Test> {
@@ -115,7 +115,7 @@ java {
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "15"
+    kotlinOptions.jvmTarget = "16"
 }
 
 tasks.named<CreateStartScripts>("startScripts") {
