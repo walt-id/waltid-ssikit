@@ -180,43 +180,13 @@ object DidService {
     }
 
     fun importDid(did: String) {
-        when {
-            did.startsWith("did_key_") -> importDidKey(did)
-            did.startsWith("did_web_") -> importDidWeb(did)
-            did.startsWith("did_ebsi_") -> importDidEbsi(did)
-        }
-    }
-
-    fun importDidWeb(did: String) {
-        TODO("did:web implementation cannot yet load keys from web address (is dummy)")
-    }
-
-    fun importDidEbsi(did: String) {
-        TODO()
-    }
-
-    fun importDidKey(did: String)/*: String*/ {
-
         val did2 = did.replace("-", ":")
-
-
         resolveAndStore(did2)
 
-        //val key = ContextManager.keyStore.load(keyId.id)
-
-        // if (key.algorithm != EdDSA_Ed25519) throw Exception("DID KEY can only be imported with an EdDSA Ed25519 key.")
-
-        // val pubPrim = ASN1Sequence.fromByteArray(key.getPublicKey().encoded) as ASN1Sequence
-        // val x = (pubPrim.getObjectAt(1) as ASN1BitString).octets
-
-        // val identifier = convertEd25519PublicKeyToMultiBase58Btc(x)
-        // val didUrl = "did:key:$identifier"
-
-        /*ContextManager.keyStore.addAlias(keyId, didUrl)
-
-        resolveAndStore(didUrl)
-
-        return didUrl*/
+        when {
+            did.startsWith("did_web_") -> println("TODO(did:web implementation cannot yet load keys from web address (is dummy))")
+            did.startsWith("did_ebsi_") -> println("TODO")
+        }
     }
 
     private fun createDidKey(keyAlias: String?): String {
