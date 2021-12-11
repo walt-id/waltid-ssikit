@@ -85,14 +85,12 @@ object DidController {
         .json<String>("200") { it.description("DID document of the resolved DID") }
 
     fun import(ctx: Context) {
-
-        // TODO Import DID
-
-        ctx.json("todo")
+        DidService.importDidAndKey(ctx.body())
+        ctx.status(201)
     }
 
     fun importDocs() = document().operation {
         it.summary("Import DID").operationId("importDid").addTagsItem("Decentralized Identifiers")
     }.body<String> { it.description("Imports the DID to the underlying data store") }
-        .json<String>("200")
+        .json<String>("201")
 }
