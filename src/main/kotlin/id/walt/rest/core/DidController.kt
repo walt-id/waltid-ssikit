@@ -39,12 +39,19 @@ object DidController {
     }.json<Array<String>>("200")
 
     fun load(ctx: Context) {
-        ctx.json("todo")
+        val resolved = DidService.loadOrResolveAnyDid(ctx.pathParam("id"))
+
+        ctx.status(
+            if (resolved != null) {
+                ctx.json(resolved)
+                200
+            } else 404
+        )
     }
 
     fun loadDocs() = document().operation {
         it.summary("Load DID").operationId("loadDid").addTagsItem("Decentralized Identifiers")
-    }.body<String> { it.description("ID of the DID to be loaded") }.json<String>("200")
+    }.json<String>("200")
 
     fun delete(ctx: Context) {
         ctx.json("todo")
