@@ -247,7 +247,7 @@ class CoreApiTest : AnnotationSpec() {
         val key = KeyService.getService().load(testDid)
         println(key.keyId)
 
-        key.keyId.id shouldBe "${testDid.removePrefix("did:key:")}#${testDid.removePrefix("did:key:")}"
+        key.keyId.id.removePrefix("did:key:") shouldBe "${testDid.removePrefix("did:key:")}#${testDid.removePrefix("did:key:")}"
     }
 
     // @Test - not possible, since all DID methods are supported now
