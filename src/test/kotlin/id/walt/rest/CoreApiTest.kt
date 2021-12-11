@@ -232,6 +232,24 @@ class CoreApiTest : AnnotationSpec() {
         DidMethod.web.name shouldBe didUrl.method
     }
 
+    @Test
+    fun testDidImport() = runBlocking {
+        val testDid = "did:key:z6MkrA4JMXgNWXEgQqYwSynWe7LVkj5kwgcCpLbvGLXjWXHD"
+
+        client.post<String>("$CORE_API_URL/v1/did/import") {
+            body = testDid
+        }
+
+        val newDid = DidService.load(testDid)
+        println("New DID: ${newDid.id}")
+        newDid.id shouldBe testDid
+
+        val key = KeyService.getService().load(testDid)
+        println(key.keyId)
+
+        key.keyId.id shouldBe "${testDid.removePrefix("did:key:")}#${testDid.removePrefix("did:key:")}"
+    }
+
     // @Test - not possible, since all DID methods are supported now
     fun testDidCreateMethodNotSupported() = runBlocking {
         val errorResp = client.post<HttpResponse>("$CORE_API_URL/v1/did/create") {
