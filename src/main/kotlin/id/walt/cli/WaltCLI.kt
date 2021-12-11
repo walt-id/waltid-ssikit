@@ -132,7 +132,9 @@ object WaltCLI {
 
         } catch (e: Exception) {
             TermUi.echo(e.message)
-            log.debug { e.printStackTrace() }
+
+            if (log.isDebugEnabled)
+                e.printStackTrace()
         }
     }
 }
