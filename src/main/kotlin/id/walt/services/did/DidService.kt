@@ -3,6 +3,7 @@ package id.walt.services.did
 import com.beust.klaxon.Klaxon
 import id.walt.crypto.*
 import id.walt.crypto.KeyAlgorithm.*
+import id.walt.crypto.LdVerificationKeyType.*
 import id.walt.model.*
 import id.walt.services.CryptoProvider
 import id.walt.services.WaltIdServices
@@ -126,14 +127,14 @@ object DidService {
         ContextManager.keyStore.addAlias(keyId, kid)
 
         val keyType = when (key.algorithm) {
-            EdDSA_Ed25519 -> "Ed25519VerificationKey2018"
-            ECDSA_Secp256k1 -> "Secp256k1VerificationKey2018"
-            RSA -> "RsaSignature2018"
+            EdDSA_Ed25519 -> Ed25519VerificationKey2019
+            ECDSA_Secp256k1 -> EcdsaSecp256k1VerificationKey2019
+            RSA -> RsaVerificationKey2018
         }
         val publicKeyJwk = Klaxon().parse<Jwk>(keyService.toJwk(kid).toPublicJWK().toString())
 
         val verificationMethods = mutableListOf(
-            VerificationMethod(kid, keyType, didUrlStr, null, null, publicKeyJwk),
+            VerificationMethod(kid, keyType.name, didUrlStr, null, null, publicKeyJwk),
         )
 
         val did = DidEbsi(

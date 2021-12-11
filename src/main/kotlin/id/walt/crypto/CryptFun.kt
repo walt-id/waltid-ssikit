@@ -59,11 +59,21 @@ enum class KeyFormat {
 }
 
 // Supported signatures
-enum class SignatureType {
+// https://w3c-ccg.github.io/ld-cryptosuite-registry/
+enum class LdSignatureType {
     Ed25519Signature2018,
-    EcdsaSecp256k1Signature2019,
+    Ed25519Signature2019,
     Ed25519Signature2020,
+    EcdsaSecp256k1Signature2019,
     RsaSignature2018
+}
+
+enum class LdVerificationKeyType {
+    Ed25519VerificationKey2018,
+    Ed25519VerificationKey2019,
+    Ed25519VerificationKey2020,
+    EcdsaSecp256k1VerificationKey2019,
+    RsaVerificationKey2018
 }
 
 fun newKeyId(): KeyId = KeyId(UUID.randomUUID().toString().replace("-", ""))
