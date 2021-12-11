@@ -17,8 +17,6 @@ import io.ktor.client.features.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
-import org.bouncycastle.asn1.ASN1BitString
-import org.bouncycastle.asn1.ASN1Sequence
 import org.bouncycastle.asn1.edec.EdECObjectIdentifiers
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
@@ -202,10 +200,9 @@ object DidService {
         val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(EdDSA_Ed25519)
         val key = ContextManager.keyStore.load(keyId.id)
 
-        if (key.algorithm != EdDSA_Ed25519) throw Exception("DID KEY can only be created with an EdDSA Ed25519 key.")
+        if (!setOf(EdDSA_Ed25519, RSA).contains(key.algorithm)) throw Exception("DID KEY can not be created with an ${key.algorithm} key.")
 
-        val pubPrim = ASN1Sequence.fromByteArray(key.getPublicKey().encoded) as ASN1Sequence
-        val x = (pubPrim.getObjectAt(1) as ASN1BitString).octets
+        val x = key.getPublicKeyBytes()
 
         val identifier = convertEd25519PublicKeyToMultiBase58Btc(x)
         val didUrl = "did:key:$identifier"

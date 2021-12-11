@@ -58,6 +58,23 @@ class DidServiceTest : AnnotationSpec() {
         println(encoded)
     }
 
+    // TODO @Test
+    fun createResolveDidKeyRsaTest() {
+        val keyId = KeyService.getService().generate(KeyAlgorithm.RSA)
+
+        // Create
+        val did = ds.create(DidMethod.key, keyId.id)
+        val didUrl = DidUrl.from(did)
+        did shouldBe didUrl.did
+        "key" shouldBe didUrl.method
+        print(did)
+
+        // Resolve
+        val resolvedDid = ds.resolve(did)
+        val encoded = Klaxon().toJsonString(resolvedDid)
+        println(encoded)
+    }
+
     @Test
     fun createResolveDidWebTest() {
 

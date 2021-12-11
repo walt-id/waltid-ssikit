@@ -1,9 +1,6 @@
 package id.walt.services.crypto
 
-import id.walt.crypto.KeyAlgorithm
-import id.walt.crypto.WaltIdProvider
-import id.walt.crypto.decBase64
-import id.walt.crypto.encBase64
+import id.walt.crypto.*
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.WaltIdServices
 import id.walt.test.RESOURCES_PATH
@@ -38,8 +35,18 @@ class CryptoServiceTest : AnnotationSpec() {
 
     @Test
     fun testGenEd255191Sun() {
-        val keyId = sunCryptoService.generateKey(KeyAlgorithm.EdDSA_Ed25519)
+        val keyId = sunCryptoService.generateKey(KeyAlgorithm.RSA)
         keyId.id shouldNotBe null
+    }
+
+    @Test
+    fun testHexEncoding() {
+        val inString = "my bytes"
+        val inBytes = inString.toByteArray()
+        val hex = inBytes.toHexString()
+        val outBytes = hex.fromHexString()
+        outBytes shouldBe inBytes
+        String(outBytes) shouldBe inString
     }
 
     @Test

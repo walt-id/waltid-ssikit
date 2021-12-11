@@ -203,7 +203,7 @@ fun String.decodeMultiBase58Btc(): ByteArray = Multibase.decode(this)
 
 fun ByteArray.toHexString() = this.joinToString("") { String.format("%02X ", (it.toInt() and 0xFF)) }
 
-fun String.byteArrayFromHexString() = this.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
+fun String.fromHexString() : ByteArray =  replace(" ", "").chunked(2).map { it.toInt(16).toByte() }.toByteArray()
 
 fun convertEd25519PublicKeyFromMultibase58Btc(mbase58: String): ByteArray {
 
@@ -211,7 +211,7 @@ fun convertEd25519PublicKeyFromMultibase58Btc(mbase58: String): ByteArray {
 
     val buffer = mbase58.substring(1).decodeBase58()
 
-    // Ed25519 public key - https://github.com/multiformats/multicodec#adding-new-multicodecs-to-the-table
+    // Ed25519 public key - https://github.com/multiformats/multicodec/blob/master/table.csv
     if (!(0xed.toByte() == buffer[0] && 0x01.toByte() == buffer[1])) throw RuntimeException("Invalid cryptonym encoding of ED25519 key")
 
     return buffer.copyOfRange(2, buffer.size)
@@ -227,6 +227,18 @@ fun convertX25519PublicKeyFromMultibase58Btc(mbase58: String): ByteArray {
 
     return buffer.copyOfRange(2, buffer.size)
 }
+
+// https://github.com/multiformats/multicodec
+// 0x1205 rsa-pub
+// 0xed ed25519-pub
+fun convertKeyToMultiBase58Btc(edPublicKey: ByteArray, code: Int): String {
+    val edPublicKeyCryptonym = ByteArray(edPublicKey.size + 2)
+    edPublicKeyCryptonym[0] = 0xed.toByte() // Ed25519 public key
+    edPublicKeyCryptonym[1] = 0x01.toByte()
+    edPublicKey.copyInto(edPublicKeyCryptonym, 2)
+    return edPublicKeyCryptonym.encodeMultiBase58Btc()
+}
+
 
 fun convertEd25519PublicKeyToMultiBase58Btc(edPublicKey: ByteArray): String {
     val edPublicKeyCryptonym = ByteArray(edPublicKey.size + 2)
