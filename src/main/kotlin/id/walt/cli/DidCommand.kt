@@ -10,18 +10,15 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
-import com.github.ajalt.clikt.parameters.types.file
 import com.github.ajalt.clikt.parameters.types.path
 import id.walt.common.prettyPrint
 import id.walt.crypto.KeyAlgorithm
-import id.walt.model.Did
 import id.walt.model.DidMethod
 import id.walt.model.DidUrl
 import id.walt.services.crypto.CryptoService
 import id.walt.services.did.DidService
 import java.io.File
 import java.nio.file.Path
-import java.util.*
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.writeText
 
@@ -148,15 +145,14 @@ class ImportDidCommand : CliktCommand(
     help = "Import DID to custodian store"
 ) {
 
-    val src: File by argument().file()
+    val did: String by argument()
 
     override fun run() {
-        val did = Did.decode(src.readText())
-        val storeId = did?.url?.url ?: "custodian#${UUID.randomUUID()}"
+        DidService.importDid(did)
+        echo("DID imported: $did")
 
-        // TODO Import DID
-
-        println("DID stored as $storeId")
+        DidService.importKey(did)
+        echo("Key imported for: $did")
     }
 }
 
