@@ -189,6 +189,14 @@ object DidService {
         }
     }
 
+    fun importDidAndKey(did: String) {
+        importDid(did)
+        log.debug { "DID imported: $did" }
+
+        importKey(did)
+        log.debug { "Key imported for: $did" }
+    }
+
     private fun createDidKey(keyAlias: String?): String {
         val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(EdDSA_Ed25519)
         val key = ContextManager.keyStore.load(keyId.id)
