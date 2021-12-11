@@ -62,7 +62,8 @@ enum class KeyFormat {
 enum class SignatureType {
     Ed25519Signature2018,
     EcdsaSecp256k1Signature2019,
-    Ed25519Signature2020
+    Ed25519Signature2020,
+    RsaSignature2018
 }
 
 fun newKeyId(): KeyId = KeyId(UUID.randomUUID().toString().replace("-", ""))
