@@ -139,3 +139,16 @@ class ListDidsCommand : CliktCommand(
         DidService.listDids().forEachIndexed { index, did -> echo("- ${index + 1}: $did") }
     }
 }
+
+class ImportDidCommand : CliktCommand(
+    name = "import",
+    help = "Import DID to custodian store"
+) {
+
+    val did: String by argument()
+
+    override fun run() {
+        DidService.importDidAndKey(did)
+    }
+}
+
