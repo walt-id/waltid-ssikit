@@ -110,12 +110,12 @@ tasks.withType<Test> {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion.set(JavaLanguageVersion.of(16))
     }
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "17"
+    kotlinOptions.jvmTarget = "16"
 }
 
 tasks.named<CreateStartScripts>("startScripts") {
