@@ -133,6 +133,7 @@ object CustodianAPI {
                 put("{alias}",  documented(CustodianController.storeCredentialsDocs(),CustodianController::storeCredential))
                 delete("{alias}", documented(CustodianController.deleteCredentialDocs(), CustodianController::deleteCredential))
                 post("present", documented(CustodianController.presentCredentialsDocs(), CustodianController::presentCredentials))
+                post("presentIds", documented(CustodianController.presentCredentialIdsDocs(), CustodianController::presentCredentialIds))
             }
         }.exception(IllegalArgumentException::class.java) { e, ctx ->
             log.error { e.stackTraceToString() }
