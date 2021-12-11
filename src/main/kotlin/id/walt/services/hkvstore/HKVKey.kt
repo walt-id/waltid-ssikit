@@ -18,11 +18,9 @@ class HKVKey(
             subKeys.addAll(moreKeys)
     }
 
-    private var didRegex1 = Regex("^did:(\\w+):\\w+\$")
-
     private fun forFS(value: String): String =
         URLEncoder.encode(value.run {
-            replace(didRegex1) { it.value.replace(":", "-") }
+            replace(":", "_")
         }, StandardCharsets.UTF_8)
 
     fun toPath(): Path = Path.of(forFS(rootKey), *subKeys.map { forFS(it) }.toTypedArray())
@@ -44,11 +42,9 @@ class HKVKey(
         get() = if (subKeys.isEmpty()) null else HKVKey(rootKey, *subKeys.subList(0, subKeys.size - 1).toTypedArray())
 
     companion object {
-        private var didRegex2 = Regex("^did-(\\w+)-\\w+\$")
-
-        private fun fromFS(value: String): String = URLDecoder.decode(value.run {
-            replace(didRegex2) { it.value.replace("-", ":") }
-        }, StandardCharsets.UTF_8)
+        private fun fromFS(value: String): String = URLDecoder.decode(
+            value.run { replace("_", ":") }, StandardCharsets.UTF_8
+        )
 
         fun fromPath(path: Path): HKVKey {
             return HKVKey(
