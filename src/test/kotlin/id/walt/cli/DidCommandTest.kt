@@ -4,7 +4,6 @@ import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
 import id.walt.services.key.KeyService
 import id.walt.test.RESOURCES_PATH
-import io.kotest.core.script.test
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 
