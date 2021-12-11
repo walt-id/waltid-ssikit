@@ -148,11 +148,7 @@ class ImportDidCommand : CliktCommand(
     val did: String by argument()
 
     override fun run() {
-        DidService.importDid(did)
-        echo("DID imported: $did")
-
-        DidService.importKey(did)
-        echo("Key imported for: $did")
+        DidService.importDidAndKey(did)
     }
 }
 
