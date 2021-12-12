@@ -200,11 +200,10 @@ object DidService {
         val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(EdDSA_Ed25519)
         val key = ContextManager.keyStore.load(keyId.id)
 
-        if (!setOf(EdDSA_Ed25519, RSA).contains(key.algorithm)) throw Exception("DID KEY can not be created with an ${key.algorithm} key.")
+        if (!setOf(EdDSA_Ed25519, RSA, ECDSA_Secp256k1).contains(key.algorithm)) throw Exception("DID KEY can not be created with an ${key.algorithm} key.")
 
-        val x = key.getPublicKeyBytes()
+        val identifier = convertRawKeyToMultiBase58Btc(key.getPublicKeyBytes(), getMulticodecKeyCode(key.algorithm))
 
-        val identifier = convertEd25519PublicKeyToMultiBase58Btc(x)
         val didUrl = "did:key:$identifier"
 
         ContextManager.keyStore.addAlias(keyId, didUrl)
@@ -242,12 +241,17 @@ object DidService {
     }
 
     private fun resolveDidKey(didUrl: DidUrl): Did {
-        val pubKey = convertEd25519PublicKeyFromMultibase58Btc(didUrl.identifier)
-        return ed25519Did(didUrl, pubKey)
+        // val pubEdKey = convertEd25519PublicKeyFromMultibase58Btc(didUrl.identifier)
+
+        val keyAlgorithm = getKeyAlgorithmFromMultibase(didUrl.identifier)
+
+        val pubKey = convertMultiBase58BtcToRawKey(didUrl.identifier)
+
+        return constructDidKey(didUrl, pubKey, keyAlgorithm)
     }
 
     private fun ebsiDid(didUrl: DidUrl, pubKey: ByteArray): DidEbsi {
-        val (dhKeyId, verificationMethods, keyRef) = generateEdParams(pubKey, didUrl)
+        val (keyAgreementKeys, verificationMethods, keyRef) = generateEdParams(pubKey, didUrl)
 
         // TODO Replace EIDAS dummy certificate with real one
 //        {
@@ -266,21 +270,39 @@ object DidService {
 
         return DidEbsi(
             listOf(DID_CONTEXT_URL), // TODO Context not working "https://ebsi.org/ns/did/v1"
-            didUrl.did, verificationMethods, keyRef, keyRef, keyRef, keyRef, listOf(dhKeyId), null
+            didUrl.did, verificationMethods, keyRef, keyRef, keyRef, keyRef, keyAgreementKeys, null
         )
     }
 
-    private fun ed25519Did(didUrl: DidUrl, pubKey: ByteArray): Did {
-        val (dhKeyId, verificationMethods, keyRef) = generateEdParams(pubKey, didUrl)
+    private fun constructDidKey(didUrl: DidUrl, pubKey: ByteArray, keyAlgorithm: KeyAlgorithm): Did {
+
+        val (keyAgreementKeys, verificationMethods, keyRef) = when (keyAlgorithm) {
+            EdDSA_Ed25519 -> generateEdParams(pubKey, didUrl)
+            else -> generateDidKeyParams(pubKey, didUrl)
+        }
 
         return Did(
-            DID_CONTEXT_URL, didUrl.did, verificationMethods, keyRef, keyRef, keyRef, keyRef, listOf(dhKeyId), null
+            DID_CONTEXT_URL, didUrl.did, verificationMethods, keyRef, keyRef, keyRef, keyRef, keyAgreementKeys, null
         )
+    }
+
+    private fun generateDidKeyParams(
+        pubKey: ByteArray, didUrl: DidUrl
+    ): Triple<List<String>?, MutableList<VerificationMethod>, List<String>> {
+
+        val pubKeyId = didUrl.did + "#" + didUrl.identifier
+
+        val verificationMethods = mutableListOf(
+            VerificationMethod(pubKeyId, RsaVerificationKey2018.name, didUrl.did, pubKey.encodeBase58()),
+        )
+
+        val keyRef = listOf(pubKeyId)
+        return Triple(null, verificationMethods, keyRef)
     }
 
     private fun generateEdParams(
         pubKey: ByteArray, didUrl: DidUrl
-    ): Triple<String, MutableList<VerificationMethod>, List<String>> {
+    ): Triple<List<String>?, MutableList<VerificationMethod>, List<String>> {
         val dhKey = convertPublicKeyEd25519ToCurve25519(pubKey)
 
         val dhKeyMb = convertX25519PublicKeyToMultiBase58Btc(dhKey)
@@ -289,12 +311,12 @@ object DidService {
         val dhKeyId = didUrl.did + "#" + dhKeyMb
 
         val verificationMethods = mutableListOf(
-            VerificationMethod(pubKeyId, "Ed25519VerificationKey2018", didUrl.did, pubKey.encodeBase58()),
+            VerificationMethod(pubKeyId, Ed25519VerificationKey2019.name, didUrl.did, pubKey.encodeBase58()),
             VerificationMethod(dhKeyId, "X25519KeyAgreementKey2019", didUrl.did, dhKey.encodeBase58())
         )
 
         val keyRef = listOf(pubKeyId)
-        return Triple(dhKeyId, verificationMethods, keyRef)
+        return Triple(listOf(dhKeyId), verificationMethods, keyRef)
     }
 
     fun resolveDidWebDummy(didUrl: DidUrl): Did {
