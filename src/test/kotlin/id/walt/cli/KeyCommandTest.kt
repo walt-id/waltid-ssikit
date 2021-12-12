@@ -19,7 +19,7 @@ class KeyCommandTest : StringSpec({
             GenKeyCommand().parse(listOf("--help"))
         }
         val message = e.command.getFormattedHelp()
-        message shouldContain "-a, --algorithm [Ed25519|Secp256k1]"
+        message shouldContain "-a, --algorithm [Ed25519|Secp256k1|RSA]"
     }
 
     "key gen Ed25519" {
@@ -28,6 +28,10 @@ class KeyCommandTest : StringSpec({
 
     "key gen Secp256k1" {
         GenKeyCommand().parse(listOf("-a", "Secp256k1"))
+    }
+
+    "key gen RSA" {
+        GenKeyCommand().parse(listOf("-a", "RSA"))
     }
 
     "key export Secp256k1" {

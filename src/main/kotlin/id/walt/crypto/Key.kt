@@ -4,6 +4,8 @@ import com.google.crypto.tink.KeysetHandle
 import id.walt.services.CryptoProvider
 import id.walt.services.keystore.TinkKeyStoreService
 import kotlinx.serialization.Serializable
+import org.bouncycastle.asn1.ASN1BitString
+import org.bouncycastle.asn1.ASN1Sequence
 import java.security.KeyPair
 import java.security.PublicKey
 import java.security.interfaces.ECPublicKey
@@ -18,6 +20,12 @@ data class Key(val keyId: KeyId, val algorithm: KeyAlgorithm, val cryptoProvider
         keyPair != null -> keyPair!!.public
         keysetHandle != null -> TinkKeyStoreService().loadPublicKey(this) as ECPublicKey
         else -> throw Exception("No public key for $keyId")
+    }
+
+    fun getPublicKeyBytes(): ByteArray {
+        val pubPrim = ASN1Sequence.fromByteArray(getPublicKey().encoded) as ASN1Sequence
+        val x = (pubPrim.getObjectAt(1) as ASN1BitString).octets
+        return x
     }
 
     constructor(keyId: KeyId, algorithm: KeyAlgorithm, cryptoProvider: CryptoProvider, keyPair: KeyPair) : this(

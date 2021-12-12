@@ -2,8 +2,8 @@ package id.walt.services.did
 
 import com.beust.klaxon.Klaxon
 import id.walt.crypto.*
-import id.walt.crypto.KeyAlgorithm.ECDSA_Secp256k1
-import id.walt.crypto.KeyAlgorithm.EdDSA_Ed25519
+import id.walt.crypto.KeyAlgorithm.*
+import id.walt.crypto.LdVerificationKeyType.*
 import id.walt.model.*
 import id.walt.services.CryptoProvider
 import id.walt.services.WaltIdServices
@@ -17,8 +17,6 @@ import io.ktor.client.features.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
-import org.bouncycastle.asn1.ASN1BitString
-import org.bouncycastle.asn1.ASN1Sequence
 import org.bouncycastle.asn1.edec.EdECObjectIdentifiers
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
@@ -127,13 +125,14 @@ object DidService {
         ContextManager.keyStore.addAlias(keyId, kid)
 
         val keyType = when (key.algorithm) {
-            EdDSA_Ed25519 -> "Ed25519VerificationKey2018"
-            ECDSA_Secp256k1 -> "Secp256k1VerificationKey2018"
+            EdDSA_Ed25519 -> Ed25519VerificationKey2019
+            ECDSA_Secp256k1 -> EcdsaSecp256k1VerificationKey2019
+            RSA -> RsaVerificationKey2018
         }
         val publicKeyJwk = Klaxon().parse<Jwk>(keyService.toJwk(kid).toPublicJWK().toString())
 
         val verificationMethods = mutableListOf(
-            VerificationMethod(kid, keyType, didUrlStr, null, null, publicKeyJwk),
+            VerificationMethod(kid, keyType.name, didUrlStr, null, null, publicKeyJwk),
         )
 
         val did = DidEbsi(
@@ -201,12 +200,10 @@ object DidService {
         val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(EdDSA_Ed25519)
         val key = ContextManager.keyStore.load(keyId.id)
 
-        if (key.algorithm != EdDSA_Ed25519) throw Exception("DID KEY can only be created with an EdDSA Ed25519 key.")
+        if (!setOf(EdDSA_Ed25519, RSA, ECDSA_Secp256k1).contains(key.algorithm)) throw Exception("DID KEY can not be created with an ${key.algorithm} key.")
 
-        val pubPrim = ASN1Sequence.fromByteArray(key.getPublicKey().encoded) as ASN1Sequence
-        val x = (pubPrim.getObjectAt(1) as ASN1BitString).octets
+        val identifier = convertRawKeyToMultiBase58Btc(key.getPublicKeyBytes(), getMulticodecKeyCode(key.algorithm))
 
-        val identifier = convertEd25519PublicKeyToMultiBase58Btc(x)
         val didUrl = "did:key:$identifier"
 
         ContextManager.keyStore.addAlias(keyId, didUrl)
@@ -244,12 +241,17 @@ object DidService {
     }
 
     private fun resolveDidKey(didUrl: DidUrl): Did {
-        val pubKey = convertEd25519PublicKeyFromMultibase58Btc(didUrl.identifier)
-        return ed25519Did(didUrl, pubKey)
+        // val pubEdKey = convertEd25519PublicKeyFromMultibase58Btc(didUrl.identifier)
+
+        val keyAlgorithm = getKeyAlgorithmFromMultibase(didUrl.identifier)
+
+        val pubKey = convertMultiBase58BtcToRawKey(didUrl.identifier)
+
+        return constructDidKey(didUrl, pubKey, keyAlgorithm)
     }
 
     private fun ebsiDid(didUrl: DidUrl, pubKey: ByteArray): DidEbsi {
-        val (dhKeyId, verificationMethods, keyRef) = generateEdParams(pubKey, didUrl)
+        val (keyAgreementKeys, verificationMethods, keyRef) = generateEdParams(pubKey, didUrl)
 
         // TODO Replace EIDAS dummy certificate with real one
 //        {
@@ -268,21 +270,39 @@ object DidService {
 
         return DidEbsi(
             listOf(DID_CONTEXT_URL), // TODO Context not working "https://ebsi.org/ns/did/v1"
-            didUrl.did, verificationMethods, keyRef, keyRef, keyRef, keyRef, listOf(dhKeyId), null
+            didUrl.did, verificationMethods, keyRef, keyRef, keyRef, keyRef, keyAgreementKeys, null
         )
     }
 
-    private fun ed25519Did(didUrl: DidUrl, pubKey: ByteArray): Did {
-        val (dhKeyId, verificationMethods, keyRef) = generateEdParams(pubKey, didUrl)
+    private fun constructDidKey(didUrl: DidUrl, pubKey: ByteArray, keyAlgorithm: KeyAlgorithm): Did {
+
+        val (keyAgreementKeys, verificationMethods, keyRef) = when (keyAlgorithm) {
+            EdDSA_Ed25519 -> generateEdParams(pubKey, didUrl)
+            else -> generateDidKeyParams(pubKey, didUrl)
+        }
 
         return Did(
-            DID_CONTEXT_URL, didUrl.did, verificationMethods, keyRef, keyRef, keyRef, keyRef, listOf(dhKeyId), null
+            DID_CONTEXT_URL, didUrl.did, verificationMethods, keyRef, keyRef, keyRef, keyRef, keyAgreementKeys, null
         )
+    }
+
+    private fun generateDidKeyParams(
+        pubKey: ByteArray, didUrl: DidUrl
+    ): Triple<List<String>?, MutableList<VerificationMethod>, List<String>> {
+
+        val pubKeyId = didUrl.did + "#" + didUrl.identifier
+
+        val verificationMethods = mutableListOf(
+            VerificationMethod(pubKeyId, RsaVerificationKey2018.name, didUrl.did, pubKey.encodeBase58()),
+        )
+
+        val keyRef = listOf(pubKeyId)
+        return Triple(null, verificationMethods, keyRef)
     }
 
     private fun generateEdParams(
         pubKey: ByteArray, didUrl: DidUrl
-    ): Triple<String, MutableList<VerificationMethod>, List<String>> {
+    ): Triple<List<String>?, MutableList<VerificationMethod>, List<String>> {
         val dhKey = convertPublicKeyEd25519ToCurve25519(pubKey)
 
         val dhKeyMb = convertX25519PublicKeyToMultiBase58Btc(dhKey)
@@ -291,12 +311,11 @@ object DidService {
         val dhKeyId = didUrl.did + "#" + dhKeyMb
 
         val verificationMethods = mutableListOf(
-            VerificationMethod(pubKeyId, "Ed25519VerificationKey2018", didUrl.did, pubKey.encodeBase58()),
+            VerificationMethod(pubKeyId, Ed25519VerificationKey2019.name, didUrl.did, pubKey.encodeBase58()),
             VerificationMethod(dhKeyId, "X25519KeyAgreementKey2019", didUrl.did, dhKey.encodeBase58())
         )
 
-        val keyRef = listOf(pubKeyId)
-        return Triple(dhKeyId, verificationMethods, keyRef)
+        return Triple(listOf(dhKeyId), verificationMethods, listOf(pubKeyId))
     }
 
     fun resolveDidWebDummy(didUrl: DidUrl): Did {
@@ -364,7 +383,7 @@ object DidService {
                     tryImportJwk(didUrl, vm), tryImportKeyBase58(didUrl, vm), tryImportKeyPem(didUrl, vm)
                 )
             }?.reduce { acc, b -> acc || b } != true) {
-            throw Exception("Could not import any key")
+            throw Exception("Could not import any key from $didUrl")
         }
     }
 
@@ -380,7 +399,10 @@ object DidService {
     private fun tryImportKeyBase58(did: String, vm: VerificationMethod): Boolean {
 
         vm.publicKeyBase58 ?: return false
-        if (vm.type != "Ed25519VerificationKey2018") {
+
+        if (!setOf(Ed25519VerificationKey2018.name, Ed25519VerificationKey2019.name, Ed25519VerificationKey2020.name).contains(vm.type)) {
+           log.error { "Key import does currently not support verification-key algorithm: ${vm.type}" }
+            // TODO: support RSA and Secp256k1
             return false
         }
 

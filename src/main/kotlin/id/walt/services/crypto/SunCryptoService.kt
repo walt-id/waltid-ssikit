@@ -37,6 +37,7 @@ open class SunCryptoService : CryptoService() {
         val generator = when (algorithm) {
             KeyAlgorithm.ECDSA_Secp256k1 -> keyPairGeneratorSecp256k1()
             KeyAlgorithm.EdDSA_Ed25519 -> keyPairGeneratorEd25519()
+            KeyAlgorithm.RSA -> keyPairGeneratorRsa()
         }
 
         val keyPair = generator.generateKeyPair()
@@ -74,21 +75,24 @@ open class SunCryptoService : CryptoService() {
 
     override fun sign(keyId: KeyId, data: ByteArray): ByteArray {
         val key = keyStore.load(keyId.id, KeyType.PRIVATE)
+        val signature = getSignature(key)
+        signature.initSign(key.keyPair!!.private)
+        signature.update(data)
+        return signature.sign()
+    }
+
+    private fun getSignature(key: Key): Signature {
         val sig = when (key.algorithm) {
             KeyAlgorithm.ECDSA_Secp256k1 -> Signature.getInstance("SHA256withECDSA")
             KeyAlgorithm.EdDSA_Ed25519 -> Signature.getInstance("Ed25519")
+            KeyAlgorithm.RSA -> Signature.getInstance("SHA256withRSA")
         }
-        sig.initSign(key.keyPair!!.private)
-        sig.update(data)
-        return sig.sign()
+        return sig
     }
 
     override fun verify(keyId: KeyId, sig: ByteArray, data: ByteArray): Boolean {
         val key = keyStore.load(keyId.id)
-        val signature = when (key.algorithm) {
-            KeyAlgorithm.ECDSA_Secp256k1 -> Signature.getInstance("SHA256withECDSA")
-            KeyAlgorithm.EdDSA_Ed25519 -> Signature.getInstance("Ed25519")
-        }
+        val signature = getSignature(key)
         signature.initVerify(key.keyPair!!.public)
         signature.update(data)
         return signature.verify(sig)
