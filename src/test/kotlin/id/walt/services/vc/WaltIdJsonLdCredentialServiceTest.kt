@@ -22,7 +22,7 @@ import id.walt.vclib.credentials.*
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import org.apache.logging.log4j.Level
+import org.slf4j.event.Level
 import java.io.File
 
 class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
@@ -47,7 +47,6 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
 
         val vc = vcStr.toCredential()
         println("Credential decoded: $vc")
-        WaltIdServices.setLogLevel(Level.DEBUG)
 
         println("Verifying...")
 
@@ -96,7 +95,6 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
         val credOffer = Klaxon().toJsonString(template)
 
         println("GENERIC SIGN VERIFY")
-        WaltIdServices.setLogLevel(Level.DEBUG)
         genericSignVerify(issuerKeyDid, credOffer)
     }
 

@@ -13,11 +13,8 @@ import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.features.logging.*
 import mu.KotlinLogging
-import org.apache.logging.log4j.Level
-import org.apache.logging.log4j.LogManager
-import org.apache.logging.log4j.core.LoggerContext
-import org.apache.logging.log4j.core.config.LoggerConfig
 import org.bouncycastle.jce.provider.BouncyCastleProvider
+import org.slf4j.event.Level
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
@@ -92,13 +89,5 @@ object WaltIdServices {
         .addDecoder(HikariDataSourceDecoder())
         .build()
         .loadConfigOrThrow<WaltIdConfig>()
-
-    fun setLogLevel(level: Level) {
-        val ctx: LoggerContext = LogManager.getContext(false) as LoggerContext
-        val logConfig: LoggerConfig = ctx.configuration.getLoggerConfig("id.walt")//(LogManager.ROOT_LOGGER_NAME)
-        logConfig.level = level
-        ctx.updateLoggers()
-        log.debug { "Set log-level to $level" }
-    }
 
 }

@@ -98,29 +98,46 @@ function extract() {
   )
 }
 
+function build_runscript_question() {
+  header
+  echo "Cannot run walt.id: Runscript does not exist."
+  echo "Have you built and extracted the buildfiles? ($0 build)"
+  echo
+  echo -n "Do you want to build ($0 build)? [y/n]: "
+  read -r ans
+}
+
+function execute_debug() {
+  if [[ -f build/distributions/waltid-ssi-kit-1.2.0/bin/waltid-ssi-kit ]]; then
+    JAVA_OPTS="-Dorg.slf4j.simpleLogger.defaultLogLevel=DEBUG" build/distributions/waltid-ssi-kit-1.2.0/bin/waltid-ssi-kit "$@"
+  else
+    build_runscript_question
+
+    if [[ $ans != "n" ]]; then
+      build_skip_tests
+      execute_debug "$@"
+    fi
+  fi
+}
+
 function execute() {
   if [[ -f build/distributions/waltid-ssi-kit-1.2.0/bin/waltid-ssi-kit ]]; then
     build/distributions/waltid-ssi-kit-1.2.0/bin/waltid-ssi-kit "$@"
   else
-    header
-    echo "Cannot run walt.id: Runscript does not exist."
-    echo "Have you built and extracted the buildfiles? ($0 build)"
-    echo
-    echo -n "Do you want to build ($0 build)? [y/n]: "
-    read -r ans
+    build_runscript_question
 
     if [[ $ans != "n" ]]; then
-      build
+      build_skip_tests
       execute "$@"
     fi
   fi
 }
 
 function help() {
-  echo "Usage: $0 {build|build-docker|build-podman|extract|execute (default)}"
+  echo "Usage: $0 {build|build-st|build-docker|build-podman|extract|--verbose|execute (default)}"
   echo
   echo "Use \"execute\" to execute waltid-ssi-kit with no arguments. If you don't supply any"
-  echo "arguments of {build|build-docker|build-podman|extract|execute}, waltid-ssi-kit will"
+  echo "arguments of {build|build-st|build-docker|build-podman|extract}, waltid-ssi-kit will"
   echo "be executed with the provided arguments."
 }
 
@@ -149,13 +166,17 @@ else
     header
     extract
     ;;
-  execute)
-    shift
-    execute "$@"
-    ;;
   help)
     header
     help
+    ;;
+  -v | --verbose | -d | --debug)
+    shift
+    execute_debug "$@"
+    ;;
+  execute)
+    shift
+    execute "$@"
     ;;
   *)
     execute "$@"
