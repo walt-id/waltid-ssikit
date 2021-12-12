@@ -245,14 +245,14 @@ fun getMulticodecKeyCode(algorithm: KeyAlgorithm) = when(algorithm) {
 
 fun getKeyAlgorithmFromMultibase(mb: String): KeyAlgorithm {
     val decoded = mb.decodeMultiBase58Btc()
-    println(decoded.toHexString())
-    val code = (decoded[0] * 256) + decoded[1]
+
+    val code = (decoded[0].toInt().shl(8) and 0xFFFF) + decoded[1]
 
     return when (code) {
         0xed01 -> KeyAlgorithm.EdDSA_Ed25519
         0xe701 -> KeyAlgorithm.ECDSA_Secp256k1
         0x1205 -> KeyAlgorithm.RSA
-        else ->  KeyAlgorithm.ECDSA_Secp256k1 // TODO: fix secp code - throw Exception("No multicodec algorithm for code $code")
+        else ->  throw Exception("No multicodec algorithm for code $code")
     }
 }
 

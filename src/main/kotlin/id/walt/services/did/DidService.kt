@@ -315,8 +315,7 @@ object DidService {
             VerificationMethod(dhKeyId, "X25519KeyAgreementKey2019", didUrl.did, dhKey.encodeBase58())
         )
 
-        val keyRef = listOf(pubKeyId)
-        return Triple(listOf(dhKeyId), verificationMethods, keyRef)
+        return Triple(listOf(dhKeyId), verificationMethods, listOf(pubKeyId))
     }
 
     fun resolveDidWebDummy(didUrl: DidUrl): Did {
@@ -384,7 +383,7 @@ object DidService {
                     tryImportJwk(didUrl, vm), tryImportKeyBase58(didUrl, vm), tryImportKeyPem(didUrl, vm)
                 )
             }?.reduce { acc, b -> acc || b } != true) {
-            throw Exception("Could not import any key")
+            throw Exception("Could not import any key from $didUrl")
         }
     }
 
@@ -400,7 +399,10 @@ object DidService {
     private fun tryImportKeyBase58(did: String, vm: VerificationMethod): Boolean {
 
         vm.publicKeyBase58 ?: return false
-        if (vm.type != "Ed25519VerificationKey2018") {
+
+        if (!setOf(Ed25519VerificationKey2018.name, Ed25519VerificationKey2019.name, Ed25519VerificationKey2020.name).contains(vm.type)) {
+           log.error { "Key import does currently not support verification-key algorithm: ${vm.type}" }
+            // TODO: support RSA and Secp256k1
             return false
         }
 
