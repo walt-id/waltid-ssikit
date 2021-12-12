@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "id.walt"
-version = "1.2-SNAPSHOT"
+version = "1.2.0"
 
 repositories {
     mavenCentral()
