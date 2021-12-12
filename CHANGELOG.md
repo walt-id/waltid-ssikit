@@ -4,13 +4,15 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
 
 ## [Unreleased]
 
-- Features
-    - Added generic jsonRpcService for working with the EBSI ledger https://github.com/walt-id/waltid-ssikit/pull/82
-    
 ## [1.2.0] - 2021-12-12
 
-- Roadmap Items
-    - EBSI Timestamping service https://github.com/walt-id/waltid-roadmap/issues/25
+-   Features
+    -   Added generic jsonRpcService for working with the EBSI ledger <https://github.com/walt-id/waltid-ssikit/pull/82>
+
+## [1.2.0] - 2021-12-12
+
+-   Roadmap Items
+    -   EBSI Timestamping service <https://github.com/walt-id/waltid-roadmap/issues/25>
 
 -   Features
     -   Generation of RSA keys
@@ -75,6 +77,8 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
     -   SignaturePolicy fails for issuers using did:ebsi <https://github.com/walt-id/waltid-ssikit/issues/52>
 
 [Unreleased]: https://github.com/walt-id/waltid-ssikit/compare/1.2.0...HEAD
+
+[1.2.0]: https://github.com/walt-id/waltid-ssikit/compare/1.2.0...1.2.0
 
 [1.2.0]: https://github.com/walt-id/waltid-ssikit/compare/1.1.1...1.2.0
 
