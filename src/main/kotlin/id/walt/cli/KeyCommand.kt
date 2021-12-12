@@ -39,7 +39,8 @@ class GenKeyCommand : CliktCommand(
 
     val algorithm: String by option("-a", "--algorithm", help = "Key algorithm [Ed25519]").choice(
         "Ed25519",
-        "Secp256k1"
+        "Secp256k1",
+        "RSA"
     ).default("Ed25519")
 
     override fun run() {

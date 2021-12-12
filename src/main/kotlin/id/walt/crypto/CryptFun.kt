@@ -16,6 +16,7 @@ import id.walt.services.CryptoProvider
 import io.ipfs.multibase.Base58
 import io.ipfs.multibase.Multibase
 import org.bouncycastle.asn1.DEROctetString
+import org.bouncycastle.asn1.bsi.BSIObjectIdentifiers.algorithm
 import org.bouncycastle.asn1.edec.EdECObjectIdentifiers
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier
@@ -40,11 +41,13 @@ import java.util.*
 // Supported key algorithms
 enum class KeyAlgorithm {
     EdDSA_Ed25519,
-    ECDSA_Secp256k1;
+    ECDSA_Secp256k1,
+    RSA;
     companion object {
         fun fromString(algorithm: String): KeyAlgorithm = when(algorithm) {
             "Ed25519", "EdDSA_Ed25519" -> EdDSA_Ed25519
             "Secp256k1", "ECDSA_Secp256k1" -> ECDSA_Secp256k1
+            "RSA" -> RSA
             else -> throw IllegalArgumentException("Algorithm not supported")
         }
     }
@@ -57,10 +60,21 @@ enum class KeyFormat {
 }
 
 // Supported signatures
-enum class SignatureType {
+// https://w3c-ccg.github.io/ld-cryptosuite-registry/
+enum class LdSignatureType {
     Ed25519Signature2018,
+    Ed25519Signature2019,
+    Ed25519Signature2020,
     EcdsaSecp256k1Signature2019,
-    Ed25519Signature2020
+    RsaSignature2018
+}
+
+enum class LdVerificationKeyType {
+    Ed25519VerificationKey2018,
+    Ed25519VerificationKey2019,
+    Ed25519VerificationKey2020,
+    EcdsaSecp256k1VerificationKey2019,
+    RsaVerificationKey2018
 }
 
 fun newKeyId(): KeyId = KeyId(UUID.randomUUID().toString().replace("-", ""))
@@ -142,6 +156,7 @@ fun buildKey(
     val kf = when (KeyAlgorithm.valueOf(algorithm)) {
         KeyAlgorithm.ECDSA_Secp256k1 -> KeyFactory.getInstance("ECDSA")
         KeyAlgorithm.EdDSA_Ed25519 -> KeyFactory.getInstance("Ed25519")
+        KeyAlgorithm.RSA -> KeyFactory.getInstance("RSA")
     }
     val kp = when (format) {
         KeyFormat.PEM -> KeyPair(
@@ -189,15 +204,16 @@ fun String.decodeMultiBase58Btc(): ByteArray = Multibase.decode(this)
 
 fun ByteArray.toHexString() = this.joinToString("") { String.format("%02X ", (it.toInt() and 0xFF)) }
 
-fun String.byteArrayFromHexString() = this.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
+fun String.fromHexString() : ByteArray =  replace(" ", "").chunked(2).map { it.toInt(16).toByte() }.toByteArray()
 
+@Deprecated("remove me")
 fun convertEd25519PublicKeyFromMultibase58Btc(mbase58: String): ByteArray {
 
     if (mbase58[0] != 'z') throw RuntimeException("Invalid multibase encoding of ED25519 key")
 
     val buffer = mbase58.substring(1).decodeBase58()
 
-    // Ed25519 public key - https://github.com/multiformats/multicodec#adding-new-multicodecs-to-the-table
+    // Ed25519 public key - https://github.com/multiformats/multicodec/blob/master/table.csv
     if (!(0xed.toByte() == buffer[0] && 0x01.toByte() == buffer[1])) throw RuntimeException("Invalid cryptonym encoding of ED25519 key")
 
     return buffer.copyOfRange(2, buffer.size)
@@ -212,6 +228,47 @@ fun convertX25519PublicKeyFromMultibase58Btc(mbase58: String): ByteArray {
     if (!(0xec.toByte() == buffer[0] && 0x01.toByte() == buffer[1])) throw RuntimeException("Invalid cryptonym encoding of Curve25519 key")
 
     return buffer.copyOfRange(2, buffer.size)
+}
+
+// https://github.com/multiformats/multicodec
+// https://github.com/multiformats/multicodec/blob/master/table.csv
+// 0x1205 rsa-pub
+// 0xed ed25519-pub
+// 0xe7 secp256k1-pub
+
+fun getMulticodecKeyCode(algorithm: KeyAlgorithm) = when(algorithm) {
+    KeyAlgorithm.EdDSA_Ed25519 -> 0xed01
+    KeyAlgorithm.ECDSA_Secp256k1 -> 0xe701
+    KeyAlgorithm.RSA -> 0x1205
+    else -> throw Exception("No multicodec for algorithm $algorithm")
+}
+
+fun getKeyAlgorithmFromMultibase(mb: String): KeyAlgorithm {
+    val decoded = mb.decodeMultiBase58Btc()
+
+    val code = (decoded[0].toInt().shl(8) and 0xFFFF) + decoded[1]
+
+    return when (code) {
+        0xed01 -> KeyAlgorithm.EdDSA_Ed25519
+        0xe701 -> KeyAlgorithm.ECDSA_Secp256k1
+        0x1205 -> KeyAlgorithm.RSA
+        else ->  throw Exception("No multicodec algorithm for code $code")
+    }
+}
+
+fun convertRawKeyToMultiBase58Btc(key: ByteArray, code: Int): String {
+    println(key.toHexString())
+    val multicodecAndRawKey = ByteArray(key.size + 2)
+    multicodecAndRawKey[0] = (code and 0xFF00).ushr(8).toByte()
+    multicodecAndRawKey[1] = (code and 0x00FF).toByte()
+    key.copyInto(multicodecAndRawKey, 2)
+    println(multicodecAndRawKey.toHexString())
+    return multicodecAndRawKey.encodeMultiBase58Btc()
+}
+
+fun convertMultiBase58BtcToRawKey(mb: String): ByteArray {
+    println(mb.decodeMultiBase58Btc().toHexString())
+    return mb.decodeMultiBase58Btc().drop(2).toByteArray()
 }
 
 fun convertEd25519PublicKeyToMultiBase58Btc(edPublicKey: ByteArray): String {
@@ -256,6 +313,10 @@ fun keyPairGeneratorEd25519(): KeyPairGenerator {
     return KeyPairGenerator.getInstance("Ed25519")
 }
 
+fun keyPairGeneratorRsa(): KeyPairGenerator {
+    return KeyPairGenerator.getInstance("RSA")
+}
+
 fun localTimeSecondsUtc(): String {
     val inDateTime = ZonedDateTime.of(LocalDateTime.now(), ZoneOffset.UTC)
 
@@ -297,14 +358,6 @@ fun parseEncryptedAke1Payload(encryptedPayload: String): EncryptedAke1Payload {
         bytes.sliceArray(49..80),
         bytes.sliceArray(81 until bytes.size)
     )
-
-//    return EncryptedPayload(
-//        Hex.toHexString(bytes.sliceArray(0..15)),
-//        // https://bitcoinj.org/javadoc/0.15.10/org/bitcoinj/core/ECKey.html#decompress--
-//        org.bitcoinj.core.ECKey.fromPublicOnly(bytes.sliceArray(16..48)).decompress().publicKeyAsHex,
-//        Hex.toHexString(bytes.sliceArray(49..80)),
-//        Hex.toHexString(bytes.sliceArray(81 until bytes.size))
-//    )
 }
 
 // Returns the index of first match of the predicate or the full size of the array
