@@ -72,10 +72,10 @@ dependencies {
     implementation("io.javalin:javalin-bundle:4.1.1")
 
     // Logging
-    implementation("org.slf4j:slf4j-api:2.0.0-alpha2")
-    implementation("org.apache.logging.log4j:log4j-core:2.14.1")
-    implementation("org.apache.logging.log4j:log4j-api:2.14.1")
-    implementation("org.apache.logging.log4j:log4j-slf4j18-impl:2.14.1")
+    implementation("org.slf4j:slf4j-api:2.0.0-alpha4")
+    implementation("org.apache.logging.log4j:log4j-core:2.15.0")
+    implementation("org.apache.logging.log4j:log4j-api:2.15.0")
+    implementation("org.apache.logging.log4j:log4j-slf4j18-impl:2.15.0")
     implementation("io.github.microutils:kotlin-logging-jvm:2.1.0")
 
     // Config
