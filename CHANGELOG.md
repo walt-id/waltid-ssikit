@@ -4,10 +4,12 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
 
 ## [Unreleased]
 
-- Features
-  - Generation of RSA keys
-  - Secp256k1 based did:key implementation
-  - RSA based did:key implementation
+## [1.2.0] - 2021-12-12
+
+-   Features
+    -   Generation of RSA keys
+    -   Secp256k1 based did:key implementation
+    -   RSA based did:key implementation
 
 ## [1.1.1] - 2021-12-03
 
@@ -65,7 +67,9 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
     -   Fixed the way of finding the padding <https://github.com/walt-id/waltid-ssikit/pull/43>
     -   SignaturePolicy fails for issuers using did:ebsi <https://github.com/walt-id/waltid-ssikit/issues/52>
 
-[Unreleased]: https://github.com/walt-id/waltid-ssikit/compare/1.1.1...HEAD
+[Unreleased]: https://github.com/walt-id/waltid-ssikit/compare/1.2.0...HEAD
+
+[1.2.0]: https://github.com/walt-id/waltid-ssikit/compare/1.1.1...1.2.0
 
 [1.1.1]: https://github.com/walt-id/waltid-ssikit/compare/1.1.0...1.1.1
 
