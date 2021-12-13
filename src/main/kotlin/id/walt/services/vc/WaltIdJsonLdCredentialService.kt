@@ -188,8 +188,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
         return JSONObject(signedCredMap).toString()
     }
 
-    fun verifyVerifiableCredential(json: String) =
-        VerificationResult(verifyVc(json), VerificationType.VERIFIABLE_CREDENTIAL)
+    fun verifyVerifiableCredential(json: String) = VerificationResult(verifyVc(json), VerificationType.VERIFIABLE_CREDENTIAL)
 
     fun verifyVerifiablePresentation(json: String) =
         VerificationResult(verifyVp(json), VerificationType.VERIFIABLE_PRESENTATION)
@@ -220,8 +219,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
         // val vpObj = Klaxon().parse<VerifiablePresentation>(vp)
         log.trace { "VC decoded: $vp" }
 
-        if (vp.proof == null)
-            return false
+        if (vp.proof == null) return false
 
         //        val signatureType = SignatureType.valueOf(vpObj.proof!!.type)
         //        val presenter = vpObj.proof.creator!!
@@ -293,11 +291,8 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
             nonce = challenge,
             credentialId = id
         )
-        val vpReqStr = VerifiablePresentation(
-            id = id,
-            holder = holderDid,
-            verifiableCredential = vcs.map { it.toCredential() }
-        ).encode()
+        val vpReqStr =
+            VerifiablePresentation(id = id, holder = holderDid, verifiableCredential = vcs.map { it.toCredential() }).encode()
 
         log.trace { "VP request: $vpReqStr" }
         log.trace { "Proof config: $$config" }
@@ -309,10 +304,8 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
     }
 
     override fun listVCs(): List<String> {
-        return Files.walk(Path.of("data/vc/created"))
-            .filter { Files.isRegularFile(it) }
-            .filter { it.toString().endsWith(".json") }
-            .map { it.fileName.toString() }.toList()
+        return Files.walk(Path.of("data/vc/created")).filter { Files.isRegularFile(it) }
+            .filter { it.toString().endsWith(".json") }.map { it.fileName.toString() }.toList()
     }
 
     override fun defaultVcTemplate(): VerifiableCredential {
@@ -334,8 +327,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
                 type = "CredentialStatusList2020"
             ),
             credentialSchema = CredentialSchema(
-                id = "https://essif.europa.eu/tsr-vid/verifiableid1.json",
-                type = "JsonSchemaValidator2018"
+                id = "https://essif.europa.eu/tsr-vid/verifiableid1.json", type = "JsonSchemaValidator2018"
             ),
             evidence = listOf(
                 VerifiableAttestation.Evidence(
