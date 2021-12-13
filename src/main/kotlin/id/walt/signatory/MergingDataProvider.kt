@@ -32,10 +32,9 @@ class MergingDataProvider(val partial: Map<String, Any>) : SignatoryDataProvider
 
   override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
     val defaultDP = DataProviderRegistry.getProvider(template::class)
-    var populated = defaultDP.populate(template, proofConfig)
-    var populatedJson = JsonObject(populated.toMap())
+    var populatedJson = JsonObject(template.toMap())
     var partialJson = Klaxon().parseJsonObject(StringReader(Klaxon().toJsonString(partial)))
     deepMerge(partialJson, populatedJson)
-    return populatedJson.toJsonString().toCredential()
+    return defaultDP.populate(populatedJson.toJsonString().toCredential(), proofConfig)
   }
 }
