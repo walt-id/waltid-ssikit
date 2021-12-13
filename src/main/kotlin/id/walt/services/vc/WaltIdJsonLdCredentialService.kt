@@ -63,6 +63,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
         val signer = when (key.algorithm) {
             KeyAlgorithm.ECDSA_Secp256k1 -> LdSigner.EcdsaSecp256k1Signature2019(key.keyId)
             KeyAlgorithm.EdDSA_Ed25519 -> LdSigner.Ed25519Signature2018(key.keyId)
+            KeyAlgorithm.RSA -> LdSigner.RsaSignature2018(key.keyId)
             else -> throw Exception("Signature for key algorithm ${key.algorithm} not supported")
         }
 
