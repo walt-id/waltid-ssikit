@@ -6,15 +6,11 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
 
 ## [1.2.0] - 2021-12-12
 
--   Features
-    -   Added generic jsonRpcService for working with the EBSI ledger <https://github.com/walt-id/waltid-ssikit/pull/82>
-
-## [1.2.0] - 2021-12-12
-
--   Roadmap Items
+- Roadmap Items
     -   EBSI Timestamping service <https://github.com/walt-id/waltid-roadmap/issues/25>
 
--   Features
+- Features
+    -   Added generic jsonRpcService for working with the EBSI ledger <https://github.com/walt-id/waltid-ssikit/pull/82>
     -   Generation of RSA keys
     -   Secp256k1 based did:key implementation
     -   RSA based did:key implementation
