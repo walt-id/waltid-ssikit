@@ -32,6 +32,8 @@ private val log = KotlinLogging.logger {}
  */
 object DidService {
 
+    val FILE_NAME_MAX_LENGTH = 100
+
     sealed class DidOptions
     data class DidWebOptions(val domain: String?, val path: String? = null) : DidOptions()
     data class DidEbsiOptions(val addEidasKey: Boolean) : DidOptions()
@@ -347,10 +349,20 @@ object DidService {
     private fun resolveAndStore(didUrl: String) = storeDid(didUrl, resolve(didUrl).encodePretty())
 
     private fun storeDid(didUrlStr: String, didDoc: String) {
-        ContextManager.hkvStore.put(HKVKey("did", "created", didUrlStr), didDoc)
+        var storeUrl = didUrlStr
+        if (didUrlStr.length > FILE_NAME_MAX_LENGTH) {
+            storeUrl = didUrlStr.substring(0, FILE_NAME_MAX_LENGTH)
+        }
+        ContextManager.hkvStore.put(HKVKey("did", "created", storeUrl), didDoc)
     }
 
-    private fun loadDid(didUrlStr: String) = ContextManager.hkvStore.getAsString(HKVKey("did", "created", didUrlStr))
+    private fun loadDid(didUrlStr: String): String? {
+        var storeUrl = didUrlStr
+        if (didUrlStr.length > FILE_NAME_MAX_LENGTH) {
+            storeUrl = didUrlStr.substring(0, FILE_NAME_MAX_LENGTH)
+        }
+        return ContextManager.hkvStore.getAsString(HKVKey("did", "created", storeUrl))
+    }
 
 
     fun listDids(): List<String> = ContextManager.hkvStore.listChildKeys(HKVKey("did", "created")).map { it.name }.toList()

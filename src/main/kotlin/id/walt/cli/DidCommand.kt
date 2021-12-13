@@ -37,7 +37,7 @@ class CreateDidCommand : CliktCommand(
     help = """Create DID.
 
         Creates a DID document based on the corresponding SSI ecosystem (DID method). 
-        Optionally the associated asymmetric keypair is also created.
+        Optionally the associated asymmetric key is also created.
 
         """
 ) {
@@ -62,10 +62,10 @@ class CreateDidCommand : CliktCommand(
         val did = DidService.create(DidMethod.valueOf(method), keyId, DidService.DidWebOptions(domain, path))
 
         echo("\nResults:\n")
-        echo("DID created: $did")
+        echo("\nDID created: $did\n")
 
         val encodedDid = loadDidHelper(did)
-        echo("DID document (below, JSON):\n\n$encodedDid")
+        echo("\nDID document (below, JSON):\n\n$encodedDid")
 
         dest?.let {
             echo("\nSaving DID to file: ${dest!!.absolutePathString()}")
@@ -74,7 +74,7 @@ class CreateDidCommand : CliktCommand(
 
         when (method) {
             "web" -> echo(
-                "Install this did:web at: https://$domain/${
+                "\nInstall this did:web at: https://$domain/${
                     path?.replace(":", "/")?.plus("/") ?: ""
                 }.well-known/did.json"
             )
