@@ -24,23 +24,17 @@ data class Key(val keyId: KeyId, val algorithm: KeyAlgorithm, val cryptoProvider
 
     fun getPublicKeyBytes(): ByteArray {
         val pubPrim = ASN1Sequence.fromByteArray(getPublicKey().encoded) as ASN1Sequence
-        val x = (pubPrim.getObjectAt(1) as ASN1BitString).octets
-        return x
+        return (pubPrim.getObjectAt(1) as ASN1BitString).octets
     }
 
     constructor(keyId: KeyId, algorithm: KeyAlgorithm, cryptoProvider: CryptoProvider, keyPair: KeyPair) : this(
-        keyId,
-        algorithm,
-        cryptoProvider
+        keyId, algorithm, cryptoProvider
     ) {
         this.keyPair = keyPair
     }
 
     constructor(
-        keyId: KeyId,
-        algorithm: KeyAlgorithm,
-        cryptoProvider: CryptoProvider,
-        keysetHandle: KeysetHandle
+        keyId: KeyId, algorithm: KeyAlgorithm, cryptoProvider: CryptoProvider, keysetHandle: KeysetHandle
     ) : this(keyId, algorithm, cryptoProvider) {
         this.keysetHandle = keysetHandle
     }
