@@ -107,6 +107,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
         val verifier = when (publicKey.algorithm) {
             KeyAlgorithm.ECDSA_Secp256k1 -> id.walt.crypto.LdVerifier.EcdsaSecp256k1Signature2019(publicKey.getPublicKey())
             KeyAlgorithm.EdDSA_Ed25519 -> id.walt.crypto.LdVerifier.Ed25519Signature2018(publicKey)
+            KeyAlgorithm.RSA -> id.walt.crypto.LdVerifier.RsaSignature2018(publicKey.getPublicKey())
             else -> throw Exception("Signature for key algorithm ${publicKey.algorithm} not supported")
         }
 
