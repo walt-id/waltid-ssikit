@@ -124,7 +124,7 @@ open class WaltIdKeyService : KeyService() {
         return builder.build()
     }
 
-    fun toRsaJwk(key: Key, jwkKeyId: String?): RSAKey { // TODO MAKE OVERRIDE
+    override fun toRsaJwk(key: Key, jwkKeyId: String?): RSAKey {
 
         val builder = RSAKey.Builder(key.keyPair!!.public as RSAPublicKey)
             .privateKey(key.keyPair!!.private as RSAPrivateKey) // TODO is needed?
