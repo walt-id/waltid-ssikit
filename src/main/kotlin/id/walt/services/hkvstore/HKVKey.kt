@@ -19,9 +19,7 @@ class HKVKey(
     }
 
     private fun forFS(value: String): String =
-        URLEncoder.encode(value.run {
-            replace(":", "_")
-        }, StandardCharsets.UTF_8)
+        URLEncoder.encode(value, StandardCharsets.UTF_8)
 
     fun toPath(): Path = Path.of(forFS(rootKey), *subKeys.map { forFS(it) }.toTypedArray())
 
@@ -43,7 +41,7 @@ class HKVKey(
 
     companion object {
         private fun fromFS(value: String): String = URLDecoder.decode(
-            value.run { replace("_", ":") }, StandardCharsets.UTF_8
+            value, StandardCharsets.UTF_8
         )
 
         fun fromPath(path: Path): HKVKey {
