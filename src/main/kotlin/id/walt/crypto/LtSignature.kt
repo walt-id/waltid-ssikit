@@ -27,7 +27,7 @@ open class LtSignature(val algorithm: String) : SignatureSpi() {
     }
 
     override fun engineInitSign(privateKey: PrivateKey?) {
-        keyId = (privateKey as PrivateKeyHandle).keyId
+        keyId = (privateKey as ECPrivateKeyHandle).keyId
     }
 
     override fun engineUpdate(b: Byte) {
