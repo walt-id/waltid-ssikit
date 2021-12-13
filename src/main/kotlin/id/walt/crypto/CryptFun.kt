@@ -101,14 +101,6 @@ fun PublicKey.toPEM(): String = "-----BEGIN PUBLIC KEY-----\n" +
         ) +
         "\n-----END PUBLIC KEY-----"
 
-fun toPem(privKey: PrivateKey): String {
-    return "-----BEGIN PUBLIC KEY-----\n" +
-            String(
-                Base64.getMimeEncoder(64, "\n".toByteArray()).encode(X509EncodedKeySpec(privKey.encoded).encoded)
-            ) +
-            "\n-----END PUBLIC KEY-----"
-}
-
 fun encBase64Str(data: String): String = String(Base64.getEncoder().encode(data.toByteArray()))
 
 fun decBase64Str(base64: String): String = String(Base64.getDecoder().decode(base64))

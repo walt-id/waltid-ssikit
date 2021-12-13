@@ -69,6 +69,12 @@ open class WaltIdKeyService : KeyService() {
                 CryptoProvider.SUN,
                 jwk.toECKey().toKeyPair()
             )
+            "RSA" -> Key(
+                KeyId(jwk.keyID),
+                KeyAlgorithm.RSA,
+                CryptoProvider.SUN,
+                jwk.toRSAKey().toKeyPair()
+            )
             else -> throw IllegalArgumentException("Algorithm ${jwk.algorithm} not supported")
         }
         return key

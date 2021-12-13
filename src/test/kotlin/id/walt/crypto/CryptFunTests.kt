@@ -45,6 +45,11 @@ class CryptFunTests : AnnotationSpec() {
     }
 
     @Test
+    fun decodeRsaFromOpenSSL() {
+
+    }
+
+    @Test
     fun base64EncodingTest() {
         val input = "Hello World!"
         val encoded = encBase64Str(input)

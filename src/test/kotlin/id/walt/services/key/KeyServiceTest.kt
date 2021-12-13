@@ -342,38 +342,75 @@ class KeyServiceTest : AnnotationSpec() {
     }
 
     @Test
-    fun testImportEd25519JwkPrivKey() {
+    fun testImportExportEd25519JwkPrivKey() {
         val kid = newKeyId()
         val jwkImport =
             "{\"kty\":\"OKP\",\"d\":\"NzNkDxp2OPyplpxvxSmKtHCul2tQ_7QNuameOTKd6uY\",\"use\":\"sig\",\"crv\":\"Ed25519\",\"kid\":\"${kid}\",\"x\":\"4t6ROMKS2g9hwguVM-u9LzR06spoS__YyaOOvrtSFiI\",\"alg\":\"EdDSA\"}"
         keyService.importKey(jwkImport)
-        println(jwkImport)
         val jwkExported = keyService.export(kid.id, KeyFormat.JWK, KeyType.PRIVATE)
-        print(jwkExported)
         jwkImport shouldBe jwkExported
     }
 
     @Test
-    fun testImportEd25519JwkPubKey() {
+    fun testImportExportEd25519JwkPubKey() {
         val kid = newKeyId()
         val jwkImport =
             "{\"kty\":\"OKP\",\"use\":\"sig\",\"crv\":\"Ed25519\",\"kid\":\"${kid}\",\"x\":\"cU4CewjU2Adq8pxjfObrVg9u8svRP2JRC72zZdvFftI\",\"alg\":\"EdDSA\"}"
         keyService.importKey(jwkImport)
+        val jwkExported = keyService.export(kid.id, KeyFormat.JWK)
+        jwkImport shouldBe jwkExported
+    }
+
+    @Test
+    fun testImportExportSecp256k1JwkPubKey() {
+        val kid = newKeyId()
+        val jwkImport =
+            "{\"kty\":\"EC\",\"use\":\"sig\",\"crv\":\"secp256k1\",\"kid\":\"${kid}\",\"x\":\"ZxPG-mkME3AE19H-_-Z0vQacNTtD_4rChcUJqoiJZ5w\",\"y\":\"EPS4M1CiFoi-psyUNR8otGoNOCm0OvQY_i4fxf4shJY\",\"alg\":\"ES256K\"}"
+        keyService.importKey(jwkImport)
+        val jwkExported = keyService.export(kid.id, KeyFormat.JWK)
+        jwkImport shouldBe jwkExported
+    }
+
+    @Test
+    fun testImportExportRsaJwkPrivKey() {
+        val kid = newKeyId()
+        val jwkImport = "{\"alg\":\"RSA\",\"p\":\"5_LP2MRAr_9M6PDONj3uU4qJfHZKVqTVyhadZKKxUg5a8DZgIac_Ies_XoDEs7UbxfFXQuWSSC0gwxOOkm6HkzoxxA7IxB_wn0vhnaf4iUiNGXCqCm-DlcP8eL9Lh6Y42AayNIPwTsaHBhZxCLx3l59EzNKweRRsEGZoS1dgQJE\",\"kty\":\"RSA\",\"q\":\"5vf-g7dpwpfHWT8Lo2mJKFL-5F0BAD4L8YnTV06I-D2Uylfxsqs6W4Sqq5qNzmnrs0mELdAqf37Xa4XP0mSVaI-gQ9knTf4uDkqADJD4u3Q5k_b2KtsmmVkyObw_c3KauGyTaT6Li_u1jmy4-98814-BlPTZgroSRe9dLaBmAVc\",\"d\":\"y-rPPW4ODc_kRfO45wOixXRIJg9xdWpy6NpFcA-t0lMUnxUpC_TdCuc2UxLXkppt1uEA_qh6uXVTDB_-fS-OblEek0MrlSG7ocG3K91GVjvAk5dNYy5m0KPa_lp95aD26gee3zGx8ppNHO0TAzt9HcRyXWfeGv21ogDF7cVcsI0PcJVJAdpSwnhzpjkoxTAwTr1rb_VLj_E_LyN68bggTD0cDKXQ6Bx3Mbg-5hthp0OhoBOS05t-QSH5cNX2mycVaP8Pje16nvEiw1ltCl2ugEj4UYFUybD75ZUHtCw47ee0hTJoVdbrKDNzgLqapyseZse0rCaXkb1ovc5puEfL4Q\",\"e\":\"AQAB\",\"kid\":\"d9f43e84-efc9-49eb-8715-63ae731008a3\",\"qi\":\"xPy0udiVAzNc-cgo3nd-iyzblvucps_g9TJfajFpCPYqBzde_doC31I-nXdIol9RxCdKBSkKlozV-Vsts2UAO4DtSbmP3cxtH-pSp9yIqUjOen97w_4gCuBcHtE4KKbuOgMCzozmVvn6sCjhkjh7oTCwNpjLMJLJPd1iqeJBsUg\",\"dp\":\"57xzJmolCvGyIIT-Mbk8VGD0LdJtQRWctzRS-gmFyaqn9pkNAHJ9I-FKRZu3aqhGYERYX3DH7q6PrfbrGaeuckzRDcWLlk8m87A3cHEyYc6HkmQ6rwRs3gOaSfUtfBB5eHNwNgGf5MR6gH2JXyYVAfpRHaZeRApAUT5Pcv6QHtE\",\"dq\":\"a6_cvtTZPp09mOLILlyaUm6_4QFr4g0LzIYSP3aibftoUB9I1aD4CIuGd5QL4d2Iw4LXWfTgm6ksDznId7Pl5WZxtrCcnsSP_KHHqhQ9pEjAP7i5danQCVeJD1oxy0X31VzqLfu3XIDzWYBfjy-6Ulbad_ThJQ5UTr8XlppedOk\",\"n\":\"0UTYnYwfTKiEshEUnJkn4QRU8iPodt2khsshXaTTVLxTJjTDW1R6vuM59ok-okGj7N2mHYzRwmLpsHiwRoufKDvMJRh146XOon6K5FiBSW2GbekEm6IXjzCOVX7hbROLbDuzhnE37TlmR2-XEb-hLNHQ9AbknKjVS0oFPt2egghPc3EWy9hjzRv84QwMFcg7s6QBxsUgQKcVAJuen5g9A2N1DVCe-FH8Q-61RZpueR403Dl1yBpDL7-jNB5SCUwzSgpxkD1L8_SNrAuZfT_sPLASF-c8UKQOnRmVoPSy6KDW_LGxb3fxJ-ZeIYdMUa3bud6Uj6igAzhNlbwja7yCRw\"}"
+        keyService.importKey(jwkImport)
         println(jwkImport)
         val jwkExported = keyService.export(kid.id, KeyFormat.JWK)
         print(jwkExported)
         jwkImport shouldBe jwkExported
     }
 
-    @Test
-    fun testImportSecp256k1JwkPubKey() {
-        val kid = newKeyId()
-        val jwkImport =
-            "{\"kty\":\"EC\",\"use\":\"sig\",\"crv\":\"secp256k1\",\"kid\":\"${kid}\",\"x\":\"ZxPG-mkME3AE19H-_-Z0vQacNTtD_4rChcUJqoiJZ5w\",\"y\":\"EPS4M1CiFoi-psyUNR8otGoNOCm0OvQY_i4fxf4shJY\",\"alg\":\"ES256K\"}"
-        keyService.importKey(jwkImport)
-        println(jwkImport)
-        val jwkExported = keyService.export(kid.id, KeyFormat.JWK)
-        print(jwkExported)
-        jwkImport shouldBe jwkExported
+    fun testImportExportRsaPemPrivKey() {
+        val key = "-----BEGIN RSA PRIVATE KEY-----\n" +
+                "MIIEowIBAAKCAQEAtzmiw+nf5UO+ogR2GT9JboMQz5tie3TXtquygsqdkk29UaLv\n" +
+                "51Im7w+Audj2TOoXp2ukA752BZo4wSLapGNZQxB32frfSqgZUxIpXWdMFzL9JwgR\n" +
+                "JMS8e/nuoZDL0Jy54TAO7IJmRHVM4i7JZmCH61WWLHwFCmzL+U2BdJig1gNPhRpN\n" +
+                "aXXiwAgH59WyviqF9rX80e3aMcaH+smHb8GUHscec5ctva88kH/VRdxjlhZqygIT\n" +
+                "dFZagjhSJ+djchD0gPYqRuuqHPWN0QgdoEf8nhi5DexcyJ1V6RgAv5lkzVICPIen\n" +
+                "OCu1q6J24KU35gSNqID3pF/Kr0DilDkKBcLu1QIDAQABAoIBAGkR5iLO5RQGCzXB\n" +
+                "tS+5ORTkmClVg94kHOemAlI6eq3BYsWD2Gsgky8YBsuMfYGR5Eqf0YhMGkYQMGeg\n" +
+                "4xzN1Aw/T1tzH8UiLJOUoJ/tcpcDKGTPnXUmVKgLpSqFbDuPBJD8DDLYfGjZk2NJ\n" +
+                "TTkmNgtgIyQTYpid10J5jbkdJW5Tst193y3B4mBEofiONOGLwMBw5n4/NSLaRcS9\n" +
+                "nJs74uIji84NA1geY5vCG475PZz6hBX7XCs8R3b8AVajYXekcpWr9OJjUAPppyGf\n" +
+                "/OfsaOKwPiopeOAedtETkLShB/bm4L/br6ti70itn/HEi9HNM6rcnOHwJVvGQAyH\n" +
+                "yqb+yUECgYEA5aygwGS+6EoUaJwXfQkGcAyMlWm/TodjC5h7NaByUhjbPTJn4c1G\n" +
+                "Hlvns5XZKKdlC9PHfHisUf9WS7JLbWEJusxcObnwl8ueqAAEaXDw7vZrMsEOsrl9\n" +
+                "b05YlrGpGXaOLOy7OQ83C+cFRM2SA4qrpr+2fGQQWMRmjG3HSRWBPckCgYEAzDoK\n" +
+                "ppCphHPcQZlCf4yC4E4C1E5Fmc5wxzmP6GKTpbTYQyt2l78U4q7lDgV7NXDL++3M\n" +
+                "twIJdh4gdbD2TFZi4hB9ClL4aYb9wHO2e2OTzw+aqe/K1FlukgTfXOuHAewPROkn\n" +
+                "42yUMLY8KhvfWyr9iFIV3LzPEzv71oh6/vmJvq0CgYB0QwGQwq7c+XsBRVqigaoP\n" +
+                "mFql28TqpKAfo41jJRgZtNluThDF/dprzcwpXUZzTOFarlbCDHf2fhGZ+eQytzds\n" +
+                "prxcwGIpBPsIQhH5qiFcZcL4C0A8eqcja/5uMfrOl/P6i89uX+RWkxhYrtMmFdE0\n" +
+                "dMGUkDayKKFcnsmNlmQ4+QKBgAnCjFfBehh2YQRRirgFwwttLv1ucC0VjJY4zgPR\n" +
+                "EjVNGzi6jwRZgWoD6bZt1KGNLnJvvuTQGBuo/Owi9OJZDoi3OQKRTIXeian03bev\n" +
+                "3pR6rm2IpCzZyUr5KKOMLfuNiH1Glz1rJvnc+6sXgekdeNhW8+yEqXDF4Rczlo0w\n" +
+                "58BRAoGBALyv4HL7fomfp/yo8OLl1PK3mswgOk/0cs/oJUN0aZ4foVAvYYLM6Wtk\n" +
+                "fFaphkjGh0ynGBLiJYXR1MMFtvUe50nE3gapck/GBC5g3q27o6cuGBinTl5kPH9j\n" +
+                "M9Gpr6eOFmn6wxxOs8raYkqTSSEGBIiJ2FCHYAwRgevhBsdmDfDt\n" +
+                "-----END RSA PRIVATE KEY-----"
+
+
     }
 }
