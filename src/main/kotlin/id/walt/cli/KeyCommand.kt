@@ -8,14 +8,18 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.enum
-import com.github.ajalt.clikt.parameters.types.file
+import com.github.ajalt.clikt.parameters.types.path
 import id.walt.common.readWhenContent
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyId
+import id.walt.crypto.convertPEMKeyToJWKKey
 import id.walt.services.key.KeyFormat
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
-import java.io.File
+import java.nio.file.Path
+import kotlin.io.path.extension
+
+private val keyService = KeyService.getService()
 
 class KeyCommand : CliktCommand(
     help = """Key Management.
@@ -29,8 +33,7 @@ class KeyCommand : CliktCommand(
 }
 
 class GenKeyCommand : CliktCommand(
-    name = "gen",
-    help = """Generate keys.
+    name = "gen", help = """Generate keys.
 
         Generates an asymmetric keypair by the specified algorithm. Supported algorithms are ECDSA Secp256k1 & EdDSA Ed25519 (default)
         
@@ -38,36 +41,41 @@ class GenKeyCommand : CliktCommand(
 ) {
 
     val algorithm: String by option("-a", "--algorithm", help = "Key algorithm [Ed25519]").choice(
-        "Ed25519",
-        "Secp256k1",
-        "RSA"
+        "Ed25519", "Secp256k1", "RSA"
     ).default("Ed25519")
 
     override fun run() {
         echo("Generating $algorithm key pair...")
 
-        val keyId = KeyService.getService().generate(KeyAlgorithm.fromString(algorithm))
+        val keyId = keyService.generate(KeyAlgorithm.fromString(algorithm))
 
         echo("Key \"$keyId\" generated.")
     }
 }
 
 class ImportKeyCommand : CliktCommand(
-    name = "import",
-    help = """Import key in JWK format.
+    name = "import", help = """Import key in JWK or PEM format.
 
-        Based on the JWK key ID and key material an internal key object will be
-        created and placed in the corresponding key store."""
+        For JWK Keys: Based on the JWK key ID and key material an internal key object will be
+        created and placed in the corresponding key store.
+        
+        For PEM keys: If there's no key ID in the PEM file (which is usually the case), a random key ID
+        will be generated for you and based on the key material an internal key object will be
+        created and placed in the corresponding key store. PEM files must have the file extension 'pem'.
+        """
 ) {
 
-    val keyFile: File by argument("JWK-FILE", help = "File containing the JWK key (e.g. jwk.json)").file()
+    val keyFile: Path by argument("file", help = "File containing the key (e.g. jwk.json or privkey.pem)").path()
 
     override fun run() {
-        val keyStr = readWhenContent(keyFile)
-        echo("Importing key: $keyStr")
+        echo("Importing key from \"$keyFile\"...")
+
+        var keyStr = readWhenContent(keyFile)
+
+        if (keyFile.extension.lowercase() == "pem") keyStr = convertPEMKeyToJWKKey(keyStr)
 
 
-        val keyId: KeyId = KeyService.getService().importKey(keyStr)
+        val keyId: KeyId = keyService.importKey(keyStr)
 
         echo("\nResults:\n")
 
@@ -76,8 +84,7 @@ class ImportKeyCommand : CliktCommand(
 }
 
 class ExportKeyCommand : CliktCommand(
-    name = "export",
-    help = """Export keys.
+    name = "export", help = """Export keys.
 
         Export key in JWK format."""
 ) {
@@ -91,7 +98,7 @@ class ExportKeyCommand : CliktCommand(
         val exportKeyType = if (!exportPrivate) KeyType.PUBLIC else KeyType.PRIVATE
 
         echo("Exporting $exportKeyType key \"$keyId\"...")
-        val jwk = KeyService.getService().export(keyId, keyFormat, exportKeyType)
+        val jwk = keyService.export(keyId, keyFormat, exportKeyType)
 
         echo("\nResults:\n")
 
@@ -100,8 +107,7 @@ class ExportKeyCommand : CliktCommand(
 }
 
 class ListKeysCommand : CliktCommand(
-    name = "list",
-    help = """List keys.
+    name = "list", help = """List keys.
 
         List all keys in the key store."""
 ) {
@@ -111,7 +117,7 @@ class ListKeysCommand : CliktCommand(
 
         echo("\nResults:\n")
 
-        KeyService.getService().listKeys().forEachIndexed { index, (keyId, algorithm, cryptoProvider) ->
+        keyService.listKeys().forEachIndexed { index, (keyId, algorithm, cryptoProvider) ->
             echo("- ${index + 1}: \"${keyId}\" (Algorithm: \"${algorithm.name}\", provided by \"${cryptoProvider.name}\")")
         }
     }
