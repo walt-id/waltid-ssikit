@@ -2,6 +2,7 @@ package id.walt.rest.core
 
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.ProofConfig
+import io.javalin.http.ContentType
 import io.javalin.http.Context
 import io.javalin.plugin.openapi.dsl.document
 import kotlinx.serialization.Serializable
