@@ -3,6 +3,7 @@ package id.walt.services.key
 import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jose.jwk.OctetKeyPair
+import com.nimbusds.jose.jwk.RSAKey
 import id.walt.crypto.Key
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyId
@@ -47,6 +48,8 @@ abstract class KeyService : WaltIdService() {
 
     open fun toEd25519Jwk(key: Key, jwkKeyId: String? = null): OctetKeyPair = implementation.toEd25519Jwk(key, jwkKeyId)
 
+    open fun toRsaJwk(key: Key, jwkKeyId: String?): RSAKey = implementation.toRsaJwk(key, jwkKeyId)
+
     open fun getEthereumAddress(keyAlias: String): String = implementation.getEthereumAddress(keyAlias)
 
     open fun getRecoveryId(keyAlias: String, data: ByteArray, sig: ECDSASignature): Int =
@@ -70,4 +73,5 @@ abstract class KeyService : WaltIdService() {
     companion object : ServiceProvider {
         override fun getService() = object : KeyService() {}
     }
+
 }

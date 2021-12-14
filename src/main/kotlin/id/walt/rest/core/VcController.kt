@@ -2,6 +2,7 @@ package id.walt.rest.core
 
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.ProofConfig
+import io.javalin.http.ContentType
 import io.javalin.http.Context
 import io.javalin.plugin.openapi.dsl.document
 import kotlinx.serialization.Serializable
@@ -51,7 +52,7 @@ object VcController {
 
     fun create(ctx: Context) {
         val createVcReq = ctx.bodyAsClass(CreateVcRequest::class.java)
-        ctx.result(
+        ctx.contentType(ContentType.JSON).result(
             credentialService.sign(
                 createVcReq.credentialOffer!!,
                 ProofConfig(
@@ -71,12 +72,14 @@ object VcController {
 
     fun present(ctx: Context) {
         val presentVcReq = ctx.bodyAsClass(PresentVcRequest::class.java)
-        ctx.result(credentialService.present(
-            listOf(presentVcReq.vc),
-            presentVcReq.holderDid,
-            presentVcReq.domain,
-            presentVcReq.challenge
-        ))
+        ctx.result(
+            credentialService.present(
+                listOf(presentVcReq.vc),
+                presentVcReq.holderDid,
+                presentVcReq.domain,
+                presentVcReq.challenge
+            )
+        )
     }
 
     fun presentDocs() = document().operation {
@@ -90,8 +93,9 @@ object VcController {
     }
 
     fun verifyDocs() = document().operation {
-        it.summary("Verify VC").operationId( "verifyVc").addTagsItem("Verifiable Credentials")
-    }.body<VerifyVcRequest> { it.description("VC to be verified") }.json<VerifyVcRequest>("200") { it.description("Verification result object") }
+        it.summary("Verify VC").operationId("verifyVc").addTagsItem("Verifiable Credentials")
+    }.body<VerifyVcRequest> { it.description("VC to be verified") }
+        .json<VerifyVcRequest>("200") { it.description("Verification result object") }
 
     fun list(ctx: Context) {
         ctx.json(credentialService.listVCs())

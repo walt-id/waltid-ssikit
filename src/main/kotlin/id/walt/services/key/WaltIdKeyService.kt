@@ -21,6 +21,8 @@ import org.web3j.crypto.Keys
 import org.web3j.crypto.Sign
 import org.web3j.utils.Numeric
 import java.security.interfaces.ECPublicKey
+import java.security.interfaces.RSAPrivateKey
+import java.security.interfaces.RSAPublicKey
 
 private val log = KotlinLogging.logger {}
 
@@ -54,22 +56,41 @@ open class WaltIdKeyService : KeyService() {
     private fun parseJwkKey(jwkKeyStr: String): Key {
         val jwk = JWK.parse(jwkKeyStr)
 
-        val key = when (jwk.algorithm.name) {
+        val key = when (jwk.algorithm?.name) {
             "EdDSA" -> buildKey(
-                jwk.keyID,
-                KeyAlgorithm.EdDSA_Ed25519.name,
-                CryptoProvider.SUN.name,
-                jwk.toOctetKeyPair().x.toString(),
-                jwk.toOctetKeyPair().d?.let { jwk.toOctetKeyPair().d.toString() },
-                id.walt.crypto.KeyFormat.BASE64_RAW
+                keyId = jwk.keyID,
+                algorithm = KeyAlgorithm.EdDSA_Ed25519.name,
+                provider = CryptoProvider.SUN.name,
+                publicPart = jwk.toOctetKeyPair().x.toString(),
+                privatePart = jwk.toOctetKeyPair().d?.let { jwk.toOctetKeyPair().d.toString() },
+                format = id.walt.crypto.KeyFormat.BASE64_RAW
             )
             "ES256K" -> Key(
-                KeyId(jwk.keyID),
-                KeyAlgorithm.ECDSA_Secp256k1,
-                CryptoProvider.SUN,
-                jwk.toECKey().toKeyPair()
+                keyId = KeyId(jwk.keyID),
+                algorithm = KeyAlgorithm.ECDSA_Secp256k1,
+                cryptoProvider = CryptoProvider.SUN,
+                keyPair = jwk.toECKey().toKeyPair()
             )
-            else -> throw IllegalArgumentException("Algorithm ${jwk.algorithm} not supported")
+            "RSA" -> Key(
+                keyId = KeyId(jwk.keyID),
+                algorithm = KeyAlgorithm.RSA,
+                cryptoProvider = CryptoProvider.SUN,
+                keyPair = jwk.toRSAKey().toKeyPair()
+            )
+            null -> {
+                when (jwk.keyType?.value) {
+                    "RSA" -> Key(
+                        keyId = KeyId(jwk.keyID ?: newKeyId().id),
+                        algorithm = KeyAlgorithm.RSA,
+                        cryptoProvider = CryptoProvider.SUN,
+                        keyPair = jwk.toRSAKey().toKeyPair()
+                    )
+                    else -> throw IllegalArgumentException("KeyType ${jwk.keyType} / Algorithm ${jwk.algorithm} not supported")
+                }
+            }
+            else -> {
+                throw IllegalArgumentException("Algorithm ${jwk.algorithm} / KeyType ${jwk.keyType} not supported")
+            }
         }
         return key
     }
@@ -79,6 +100,7 @@ open class WaltIdKeyService : KeyService() {
             when (it.algorithm) {
                 KeyAlgorithm.EdDSA_Ed25519 -> toEd25519Jwk(it, jwkKeyId)
                 KeyAlgorithm.ECDSA_Secp256k1 -> toSecp256Jwk(it, jwkKeyId)
+                KeyAlgorithm.RSA -> toRsaJwk(it, jwkKeyId)
                 else -> throw IllegalArgumentException("Algorithm not supported")
             }
         }
@@ -93,6 +115,21 @@ open class WaltIdKeyService : KeyService() {
         val builder = ECKey.Builder(Curve.SECP256K1, key.keyPair!!.public as ECPublicKey)
             .keyUse(KeyUse.SIGNATURE)
             .algorithm(JWSAlgorithm.ES256K)
+            .keyID(jwkKeyId ?: key.keyId.id)
+
+        key.keyPair!!.private?.let {
+            builder.privateKey(key.keyPair!!.private)
+        }
+
+        return builder.build()
+    }
+
+    override fun toRsaJwk(key: Key, jwkKeyId: String?): RSAKey {
+
+        val builder = RSAKey.Builder(key.keyPair!!.public as RSAPublicKey)
+            .privateKey(key.keyPair!!.private as RSAPrivateKey) // TODO is needed?
+            .keyUse(KeyUse.SIGNATURE)
+            .algorithm(JWSAlgorithm.RS256)
             .keyID(jwkKeyId ?: key.keyId.id)
 
         key.keyPair!!.private?.let {
@@ -158,12 +195,7 @@ open class WaltIdKeyService : KeyService() {
 
     override fun delete(alias: String) = keyStore.delete(alias)
 
-    companion object {
-        private const val RSA_KEY_SIZE = 4096
-    }
-
 }
-
 
 
 //    @Deprecated(message = "outdated")

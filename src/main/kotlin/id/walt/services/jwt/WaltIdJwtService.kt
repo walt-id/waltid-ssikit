@@ -20,25 +20,19 @@ open class WaltIdJwtService : JwtService() {
 
     private val log = KotlinLogging.logger {}
 
-    val encKey: OctetKeyPair = OctetKeyPairGenerator(Curve.X25519)
-        .keyID(keyId)
-        .generate()
+    val encKey: OctetKeyPair = OctetKeyPairGenerator(Curve.X25519).keyID(keyId).generate()
 
     open val keyService = KeyService.getService()
     open val provider: Provider = WaltIdProvider()
 
     override fun encrypt(
-        kid: String,
-        pubEncKey: OctetKeyPair,
-        payload: String?
+        kid: String, pubEncKey: OctetKeyPair, payload: String?
     ): String {
 
         val jweObject = JWEObject(
             JWEHeader.Builder(JWEAlgorithm.ECDH_ES, EncryptionMethod.A256GCM)
                 .contentType("JWT") // required to indicate nested JWT
-                .keyID(kid)
-                .build(),
-            Payload(payload)
+                .keyID(kid).build(), Payload(payload)
         )
 
         val pubEncKey = pubEncKey.toPublicJWK()
@@ -81,11 +75,8 @@ open class WaltIdJwtService : JwtService() {
 //            .build()
 
 
-        val claimsSet = if (payload != null) JWTClaimsSet.parse(payload) else JWTClaimsSet.Builder()
-            .subject(keyAlias)
-            .issuer("https://walt.id")
-            .expirationTime(Date(Date().time + 60 * 1000))
-            .build()
+        val claimsSet = if (payload != null) JWTClaimsSet.parse(payload) else JWTClaimsSet.Builder().subject(keyAlias)
+            .issuer("https://walt.id").expirationTime(Date(Date().time + 60 * 1000)).build()
 
         val issuerKey = keyService.load(keyAlias)
         if (issuerKey == null) {
@@ -96,8 +87,7 @@ open class WaltIdJwtService : JwtService() {
         val jwt = when (issuerKey.algorithm) {
             KeyAlgorithm.EdDSA_Ed25519 -> {
                 var jwt = SignedJWT(
-                    JWSHeader.Builder(JWSAlgorithm.EdDSA).keyID(keyAlias).type(JOSEObjectType.JWT).build(),
-                    claimsSet
+                    JWSHeader.Builder(JWSAlgorithm.EdDSA).keyID(keyAlias).type(JOSEObjectType.JWT).build(), claimsSet
                 )
                 //jwt.sign(Ed25519Signer(issuerKey.toOctetKeyPair()))
                 jwt.sign(LdSigner.JwsLtSigner(issuerKey.keyId))
@@ -105,10 +95,9 @@ open class WaltIdJwtService : JwtService() {
             }
             KeyAlgorithm.ECDSA_Secp256k1 -> {
                 val jwt = SignedJWT(
-                    JWSHeader.Builder(JWSAlgorithm.ES256K).keyID(keyAlias).type(JOSEObjectType.JWT).build(),
-                    claimsSet
+                    JWSHeader.Builder(JWSAlgorithm.ES256K).keyID(keyAlias).type(JOSEObjectType.JWT).build(), claimsSet
                 )
-                val jwsSigner = ECDSASigner(PrivateKeyHandle(issuerKey.keyId), Curve.SECP256K1)
+                val jwsSigner = ECDSASigner(ECPrivateKeyHandle(issuerKey.keyId), Curve.SECP256K1)
                 jwsSigner.jcaContext.provider = provider
                 jwt.sign(jwsSigner)
                 jwt
@@ -139,8 +128,7 @@ open class WaltIdJwtService : JwtService() {
         val res = when (verifierKey.algorithm) {
             KeyAlgorithm.EdDSA_Ed25519 -> jwt.verify(Ed25519Verifier(keyService.toEd25519Jwk(verifierKey)))
             KeyAlgorithm.ECDSA_Secp256k1 -> {
-                val verifier =
-                    ECDSAVerifier(PublicKeyHandle(verifierKey.keyId, verifierKey.getPublicKey() as ECPublicKey))
+                val verifier = ECDSAVerifier(PublicKeyHandle(verifierKey.keyId, verifierKey.getPublicKey() as ECPublicKey))
                 verifier.jcaContext.provider = provider
                 jwt.verify(verifier)
             }

@@ -10,6 +10,7 @@ import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.crypto.impl.ECDSA
 import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.jwk.ECKey
+import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jose.util.Base64URL
 import id.walt.model.EncryptedAke1Payload
 import id.walt.services.CryptoProvider
@@ -153,24 +154,24 @@ fun buildKey(
     privatePart: String?,
     format: KeyFormat = KeyFormat.PEM
 ): Key {
-    val kf = when (KeyAlgorithm.valueOf(algorithm)) {
+    val keyFactory = when (KeyAlgorithm.valueOf(algorithm)) {
         KeyAlgorithm.ECDSA_Secp256k1 -> KeyFactory.getInstance("ECDSA")
         KeyAlgorithm.EdDSA_Ed25519 -> KeyFactory.getInstance("Ed25519")
         KeyAlgorithm.RSA -> KeyFactory.getInstance("RSA")
     }
-    val kp = when (format) {
+    val keyPair = when (format) {
         KeyFormat.PEM -> KeyPair(
-            decodePubKeyPem(publicPart, kf),
-            privatePart?.let { decodePrivKeyPem(privatePart, kf) })
+            decodePubKeyPem(publicPart, keyFactory),
+            privatePart?.let { decodePrivKeyPem(privatePart, keyFactory) })
         KeyFormat.BASE64_DER -> KeyPair(
-            decodePubKeyBase64(publicPart, kf),
-            privatePart?.let { decodePrivKeyBase64(privatePart, kf) })
+            decodePubKeyBase64(publicPart, keyFactory),
+            privatePart?.let { decodePrivKeyBase64(privatePart, keyFactory) })
         KeyFormat.BASE64_RAW -> KeyPair(
-            decodeRawPubKeyBase64(publicPart, kf),
-            privatePart?.let { decodeRawPrivKey(privatePart, kf) })
+            decodeRawPubKeyBase64(publicPart, keyFactory),
+            privatePart?.let { decodeRawPrivKey(privatePart, keyFactory) })
     }
 
-    return Key(KeyId(keyId), KeyAlgorithm.valueOf(algorithm), CryptoProvider.valueOf(provider), kp)
+    return Key(KeyId(keyId), KeyAlgorithm.valueOf(algorithm), CryptoProvider.valueOf(provider), keyPair)
 }
 
 fun buildEd25519PubKey(base64: String): PublicKey {
@@ -375,3 +376,5 @@ fun toECDSASignature(jcaSignature: ByteArray, keyAlgorithm: KeyAlgorithm): ECDSA
         ).toCanonicalised()
     }
 }
+
+fun convertPEMKeyToJWKKey(keyStr: String): String = JWK.parseFromPEMEncodedObjects(keyStr).toJSONString()
