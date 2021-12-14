@@ -36,6 +36,7 @@ object DataProviderRegistry {
         register(GaiaxSelfDescription::class, GaiaxSelfDescriptionDataProvider())
         register(VerifiableVaccinationCertificate::class, VerifiableVaccinationCertificateDataProvider())
         register(PermanentResidentCard::class, PermanentResidentCardDataProvider())
+        register(ProofOfResidence::class, ProofOfResidenceDataProvider())
     }
 }
 
@@ -197,6 +198,23 @@ class DeltaDaoDataProvider : SignatoryDataProvider {
         } else {
             throw IllegalArgumentException("Only VerifiableId is supported by this data provider")
         }
+    }
+}
+
+class ProofOfResidenceDataProvider : SignatoryDataProvider {
+
+    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): ProofOfResidence {
+        val vc = template as ProofOfResidence
+
+        vc.id = proofConfig.credentialId ?: "identity#verifiableID#${UUID.randomUUID()}"
+        vc.issuer = proofConfig.issuerDid
+        if (proofConfig.issueDate != null) vc.issuanceDate = dateFormat.format(proofConfig.issueDate)
+        if (proofConfig.validDate != null) vc.validFrom = dateFormat.format(proofConfig.validDate)
+        if (proofConfig.expirationDate != null) vc.expirationDate = dateFormat.format(proofConfig.expirationDate)
+        vc.validFrom = vc.issuanceDate
+        vc.credentialSubject!!.id = proofConfig.subjectDid
+
+        return vc
     }
 }
 
