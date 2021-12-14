@@ -51,7 +51,7 @@ object VcController {
 
     fun create(ctx: Context) {
         val createVcReq = ctx.bodyAsClass(CreateVcRequest::class.java)
-        ctx.json(
+        ctx.result(
             credentialService.sign(
                 createVcReq.credentialOffer!!,
                 ProofConfig(
