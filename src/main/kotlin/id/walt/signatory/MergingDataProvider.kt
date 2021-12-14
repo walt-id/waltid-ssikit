@@ -13,7 +13,7 @@ class MergingDataProvider(val partial: Map<String, Any>) : SignatoryDataProvider
 
   fun deepMerge(source: JsonObject, target: JsonObject): JsonObject? {
     for (key in source.keys) {
-      val value: Any = source.get(key)!!
+      val value: Any? = source.get(key)
       if (!target.contains(key)) {
         // new value for "key":
         target.put(key, value)
