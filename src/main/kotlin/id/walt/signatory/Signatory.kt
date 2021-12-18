@@ -63,7 +63,10 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
     override fun issue(templateId: String, config: ProofConfig, dataProvider: SignatoryDataProvider?): String {
 
         // TODO: load proof-conf from signatory.conf and optionally substitute values on request basis
-        val vcTemplate = VcTemplateManager.loadTemplate(templateId)
+
+        val vcTemplate = kotlin.runCatching {
+            VcTemplateManager.loadTemplate(templateId)
+        }.getOrElse { throw Exception("Could not load template: $templateId") }
 
         val configDP = when (config.credentialId.isNullOrBlank()) {
             true -> ProofConfig(
