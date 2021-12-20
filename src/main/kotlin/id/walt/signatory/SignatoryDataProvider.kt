@@ -56,7 +56,7 @@ class VerifiableAuthorizationDataProvider : SignatoryDataProvider {
         val vc = template as VerifiableAuthorization
         vc.id = proofConfig.credentialId
         vc.issuer = proofConfig.issuerDid
-        vc.credentialSubject.id = proofConfig.subjectDid!!
+        vc.credentialSubject?.also { it.id = proofConfig.subjectDid!!}
         return vc
     }
 }
@@ -145,7 +145,7 @@ class GaiaxSelfDescriptionDataProvider : SignatoryDataProvider {
         val vc = template as GaiaxSelfDescription
         vc.id = proofConfig.credentialId
         vc.issuer = proofConfig.issuerDid
-        vc.credentialSubject.id = proofConfig.subjectDid!!
+        vc.credentialSubject?.also { it.id = proofConfig.subjectDid!! }
         return vc
     }
 }
@@ -161,17 +161,17 @@ class DeltaDaoDataProvider : SignatoryDataProvider {
             template.apply {
                 id = "identity#verifiableID#${UUID.randomUUID()}"
                 issuer = proofConfig.issuerDid
-                credentialSubject.apply {
+                credentialSubject?.apply {
                     if (proofConfig.subjectDid != null) id = proofConfig.subjectDid
                     legallyBindingName = "deltaDAO AG"
                     brandName = "deltaDAO"
-                    legallyBindingAddress = GaiaxCredential.CustomCredentialSubject.LegallyBindingAddress(
+                    legallyBindingAddress = GaiaxCredential.GaiaxCredentialSubject.LegallyBindingAddress(
                         streetAddress = "Geibelstr. 46B",
                         postalCode = "22303",
                         locality = "Hamburg",
                         countryName = "Germany"
                     )
-                    webAddress = GaiaxCredential.CustomCredentialSubject.WebAddress(
+                    webAddress = GaiaxCredential.GaiaxCredentialSubject.WebAddress(
                         url = "https://www.delta-dao.com/"
                     )
                     corporateEmailAddress = "contact@delta-dao.com"
@@ -179,7 +179,7 @@ class DeltaDaoDataProvider : SignatoryDataProvider {
                     individualContactTechnical = "support@delta-dao.com"
                     legalForm = "Stock Company"
                     jurisdiction = "Germany"
-                    commercialRegister = GaiaxCredential.CustomCredentialSubject.CommercialRegister(
+                    commercialRegister = GaiaxCredential.GaiaxCredentialSubject.CommercialRegister(
                         organizationName = "Amtsgericht Hamburg (-Mitte)",
                         organizationUnit = "Registergericht",
                         streetAddress = "Caffamacherreihe 20",
@@ -188,7 +188,7 @@ class DeltaDaoDataProvider : SignatoryDataProvider {
                         countryName = "Germany"
                     )
                     legalRegistrationNumber = "HRB 170364"
-                    ethereumAddress = GaiaxCredential.CustomCredentialSubject.EthereumAddress(
+                    ethereumAddress = GaiaxCredential.GaiaxCredentialSubject.EthereumAddress(
                         id = "0x4C84a36fCDb7Bc750294A7f3B5ad5CA8F74C4A52"
                     )
                     trustState = "trusted"

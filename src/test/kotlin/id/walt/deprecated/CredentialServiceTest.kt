@@ -191,7 +191,7 @@ class CredentialServiceTest : AnnotationSpec() {
     fun issueVerifiablePresentation() {
         println("Generating PermanentResidentCard...")
         val data2: VerifiableCredential = PermanentResidentCard(
-            credentialSubject = PermanentResidentCard.CredentialSubject2(
+            credentialSubject = PermanentResidentCard.PermanentResidentCardSubject(
                 id = "did:example:123",
                 type = listOf(
                     "PermanentResident",

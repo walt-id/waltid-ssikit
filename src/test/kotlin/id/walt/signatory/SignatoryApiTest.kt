@@ -254,7 +254,7 @@ class SignatoryApiTest : AnnotationSpec() {
         println(vc)
         val cred = vc?.toCredential() as VerifiableAuthorization
         cred.issuer shouldBe did
-        cred.credentialSubject.id shouldBe did
+        cred.credentialSubject?.id shouldBe did
         cred.proof?.verificationMethod shouldBe "$did#key-1"
     }
 

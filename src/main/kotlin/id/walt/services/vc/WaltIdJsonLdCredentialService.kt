@@ -204,7 +204,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
 
         val vcObj = vcJson.toCredential()
 
-        val issuer = VcUtils.getIssuer(vcObj)
+        val issuer = VcUtils.getIssuer(vcObj)!!
         log.debug { "VC decoded: $vcObj" }
 
         val vcVerified = verifyVc(issuer, vcJson)
@@ -319,7 +319,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
             issuer = "did:ebsi:2757945549477fc571663bee12042873fe555b674bd294a3",
             issuanceDate = "2019-06-22T14:11:44Z",
             validFrom = "2019-06-22T14:11:44Z",
-            credentialSubject = VerifiableAttestation.CredentialSubject(
+            credentialSubject = VerifiableAttestation.VerifiableAttestationSubject(
                 id = "id123"
             ),
             credentialStatus = CredentialStatus(
