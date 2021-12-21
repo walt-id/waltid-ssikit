@@ -17,7 +17,9 @@ import id.walt.services.did.DidService
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
 import id.walt.test.RESOURCES_PATH
+import id.walt.vclib.Helpers.encode
 import id.walt.vclib.Helpers.toCredential
+import id.walt.vclib.Helpers.toMap
 import id.walt.vclib.credentials.Europass
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
@@ -164,7 +166,7 @@ class JwtServiceTest : AnnotationSpec() {
             .issueTime(iat)
             .expirationTime(exp)
             .notBeforeTime(nbf)
-            .claim("vc", verifiableAttestationJsonLd) // TODO reduce payload of VA
+            .claim("vc", verifiableAttestationJsonLd.toMap()) // TODO reduce payload of VA
             .build().toString()
 
         println(payload)
