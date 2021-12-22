@@ -7,8 +7,8 @@ import id.walt.services.did.DidService
 import id.walt.signatory.rest.IssueCredentialRequest
 import id.walt.signatory.rest.SignatoryRestAPI
 import id.walt.test.RESOURCES_PATH
-import id.walt.vclib.Helpers.encode
-import id.walt.vclib.Helpers.toCredential
+
+import id.walt.vclib.model.toCredential
 import id.walt.vclib.credentials.*
 import id.walt.vclib.templates.VcTemplateManager
 import io.github.rybalkinsd.kohttp.dsl.httpPost

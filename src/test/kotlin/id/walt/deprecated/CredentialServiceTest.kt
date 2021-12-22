@@ -8,7 +8,7 @@ import id.walt.services.did.DidService
 import id.walt.services.key.KeyService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.ProofConfig
-import id.walt.vclib.Helpers.encode
+
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.credentials.PermanentResidentCard
 import info.weboftrust.ldsignatures.LdProof

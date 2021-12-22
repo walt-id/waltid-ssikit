@@ -12,7 +12,7 @@ import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.test.DummySignatoryDataProvider
 import id.walt.test.RESOURCES_PATH
-import id.walt.vclib.Helpers.encode
+
 import id.walt.vclib.credentials.Europass
 import id.walt.vclib.credentials.VerifiableId
 import io.kotest.core.spec.style.AnnotationSpec

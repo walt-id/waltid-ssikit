@@ -20,8 +20,8 @@ import id.walt.signatory.ProofConfig
 import id.walt.test.RESOURCES_PATH
 import id.walt.test.getTemplate
 import id.walt.test.readCredOffer
-import id.walt.vclib.Helpers.encode
-import id.walt.vclib.Helpers.toCredential
+
+import id.walt.vclib.model.toCredential
 import id.walt.vclib.VcLibManager
 import id.walt.vclib.credentials.Europass
 import id.walt.vclib.credentials.VerifiableAttestation

@@ -13,10 +13,10 @@ import id.walt.services.essif.TrustedIssuerClient.domain
 import id.walt.services.keystore.KeyStoreService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
-import id.walt.vclib.Helpers.encode
-import id.walt.vclib.Helpers.toCredential
+
+import id.walt.vclib.model.toCredential
 import id.walt.vclib.VcLibManager
-import id.walt.vclib.VcUtils
+
 
 import id.walt.vclib.credentials.VerifiableAttestation
 import id.walt.vclib.credentials.VerifiablePresentation
@@ -204,7 +204,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
 
         val vcObj = vcJson.toCredential()
 
-        val issuer = VcUtils.getIssuer(vcObj)!!
+        val issuer = vcObj.issuer!!
         log.debug { "VC decoded: $vcObj" }
 
         val vcVerified = verifyVc(issuer, vcJson)
@@ -378,7 +378,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
 
             if (it is VerifiablePresentation) return true
 
-            val credentialSchemaUrl = VcUtils.getCredentialSchemaUrl(it)
+            val credentialSchemaUrl = it.credentialSchema
 
             if (credentialSchemaUrl == null) {
                 log.debug { "Credential has no associated credentialSchema property" }

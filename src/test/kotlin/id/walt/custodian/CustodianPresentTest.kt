@@ -7,7 +7,7 @@ import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.test.RESOURCES_PATH
-import id.walt.vclib.Helpers.toCredential
+import id.walt.vclib.model.toCredential
 import id.walt.vclib.VcLibManager
 import id.walt.vclib.credentials.VerifiablePresentation
 import io.kotest.core.spec.Spec

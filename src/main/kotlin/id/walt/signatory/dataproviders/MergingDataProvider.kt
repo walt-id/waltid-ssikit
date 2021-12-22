@@ -3,8 +3,7 @@ package id.walt.signatory.dataproviders
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
 import id.walt.signatory.ProofConfig
-import id.walt.vclib.Helpers.toCredential
-import id.walt.vclib.Helpers.toMap
+import id.walt.vclib.model.toCredential
 import id.walt.vclib.model.VerifiableCredential
 import java.io.StringReader
 

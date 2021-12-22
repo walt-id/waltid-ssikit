@@ -15,8 +15,8 @@ import id.walt.common.prettyPrint
 import id.walt.custodian.Custodian
 import id.walt.signatory.*
 import id.walt.signatory.dataproviders.CLIDataProvider
-import id.walt.vclib.Helpers.encode
-import id.walt.vclib.Helpers.toCredential
+
+import id.walt.vclib.model.toCredential
 import io.ktor.util.date.*
 import mu.KotlinLogging
 import java.io.File

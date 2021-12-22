@@ -10,7 +10,7 @@ import id.walt.services.did.DidService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
-import id.walt.vclib.Helpers.toCredential
+import id.walt.vclib.model.toCredential
 import id.walt.vclib.credentials.VerifiablePresentation
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe

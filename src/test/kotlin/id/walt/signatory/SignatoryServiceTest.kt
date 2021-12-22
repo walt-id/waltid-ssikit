@@ -9,7 +9,7 @@ import id.walt.services.jwt.JwtService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.dataproviders.MergingDataProvider
 import id.walt.test.RESOURCES_PATH
-import id.walt.vclib.Helpers.toCredential
+import id.walt.vclib.model.toCredential
 import id.walt.vclib.templates.VcTemplateManager
 import id.walt.vclib.credentials.VerifiableDiploma
 import id.walt.vclib.credentials.VerifiableId

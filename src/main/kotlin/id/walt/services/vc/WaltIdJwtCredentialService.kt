@@ -5,11 +5,10 @@ import com.nimbusds.jwt.SignedJWT
 import id.walt.services.jwt.JwtService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
-import id.walt.vclib.Helpers.encode
-import id.walt.vclib.Helpers.toCredential
-import id.walt.vclib.Helpers.toMap
+
+import id.walt.vclib.model.toCredential
 import id.walt.vclib.VcLibManager
-import id.walt.vclib.VcUtils
+
 import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.VerifiableCredential
 import info.weboftrust.ldsignatures.LdProof
@@ -123,7 +122,7 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
         vc.toCredential().let {
             if (it is VerifiablePresentation) return true
 
-            val credentialSchema = VcUtils.getCredentialSchemaUrl(it) ?: return true
+            val credentialSchema = it.credentialSchema ?: return true
             val schema = JSONSchema.parse(URL(credentialSchema.id).readText())
             return schema.validateBasic(it.json!!).valid
         }

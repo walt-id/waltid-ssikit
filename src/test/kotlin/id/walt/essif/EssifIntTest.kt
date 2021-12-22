@@ -15,7 +15,7 @@ import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
 import id.walt.signatory.*
 import id.walt.signatory.dataproviders.CLIDataProvider
-import id.walt.vclib.Helpers.toCredential
+import id.walt.vclib.model.toCredential
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.annotation.Ignored
 import io.kotest.core.spec.style.StringSpec

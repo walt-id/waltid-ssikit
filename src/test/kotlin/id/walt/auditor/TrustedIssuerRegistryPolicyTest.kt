@@ -9,7 +9,7 @@ import id.walt.services.essif.TrustedIssuerClient
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
-import id.walt.vclib.Helpers.toCredential
+import id.walt.vclib.model.toCredential
 import id.walt.vclib.model.VerifiableCredential
 import io.kotest.core.spec.Spec
 import io.kotest.core.spec.style.AnnotationSpec

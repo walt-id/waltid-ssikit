@@ -1,7 +1,7 @@
 package id.walt.services.data
 
 import com.beust.klaxon.Klaxon
-import id.walt.vclib.Helpers.toCredential
+import id.walt.vclib.model.toCredential
 import id.walt.vclib.model.CredentialSchema
 import id.walt.vclib.model.CredentialStatus
 import id.walt.vclib.model.Proof
