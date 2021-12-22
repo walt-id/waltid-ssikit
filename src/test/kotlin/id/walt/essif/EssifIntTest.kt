@@ -14,8 +14,8 @@ import id.walt.services.essif.EssifClient
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
 import id.walt.signatory.*
+import id.walt.signatory.dataproviders.CLIDataProvider
 import id.walt.vclib.Helpers.toCredential
-import id.walt.vclib.templates.VcTemplateManager
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.annotation.Ignored
 import io.kotest.core.spec.style.StringSpec
@@ -124,20 +124,10 @@ class EssifIntTest() : StringSpec({
 
     lateinit var vcFileName: String
     "4.2. Issuing W3C Verifiable Credential" {
-        val interactive = true
         val subjectDid = holderDid
         vcFileName = "vc-${Timestamp.valueOf(LocalDateTime.now()).time}.json"
         val dest = File(vcFileName)
 
-        if (interactive) {
-            val cliDataProvider = CLIDataProviders.getCLIDataProviderFor(template)
-            if (cliDataProvider == null) {
-                println("No interactive data provider available for template: $template")
-                error("err")
-            }
-            val templ = VcTemplateManager.loadTemplate(template)
-            DataProviderRegistry.register(templ::class, cliDataProvider)
-        }
         println("Issuing a verifiable credential (using template ${template})...")
 
         // Loading VC template
@@ -150,7 +140,8 @@ class EssifIntTest() : StringSpec({
                 issuerVerificationMethod = issuerDid + "#" + keyId.id,
                 proofPurpose = "assertion",
                 proofType = ProofType.LD_PROOF
-            )
+            ),
+            CLIDataProvider
         )
 
         println("Issuer \"$issuerDid\"")

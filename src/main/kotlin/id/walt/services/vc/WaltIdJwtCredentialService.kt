@@ -18,6 +18,7 @@ import net.pwall.json.schema.JSONSchema
 import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Path
+import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.util.*
@@ -35,16 +36,16 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
         log.debug { "Signing JWT object with config: $config" }
 
         val issuerDid = config.issuerDid
-        val issueDate = config.issueDate ?: LocalDateTime.now()
-        val validDate = config.validDate ?: LocalDateTime.now()
+        val issueDate = config.issueDate ?: Instant.now()
+        val validDate = config.validDate ?: Instant.now()
         val jwtClaimsSet = JWTClaimsSet.Builder()
             .jwtID(config.credentialId)
             .issuer(issuerDid)
-            .issueTime(Date.from(issueDate.toInstant(ZoneOffset.UTC)))
-            .notBeforeTime(Date.from(validDate.toInstant(ZoneOffset.UTC)))
+            .issueTime(Date.from(issueDate))
+            .notBeforeTime(Date.from(validDate))
 
         if (config.expirationDate != null)
-            jwtClaimsSet.expirationTime(Date.from(config.expirationDate.toInstant(ZoneOffset.UTC)))
+            jwtClaimsSet.expirationTime(Date.from(config.expirationDate))
 
         config.verifierDid?.let { jwtClaimsSet.audience(config.verifierDid) }
         config.nonce?.let { jwtClaimsSet.claim("nonce", config.nonce) }

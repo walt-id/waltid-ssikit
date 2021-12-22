@@ -1,6 +1,6 @@
 package id.walt.signatory.rest
 
-import id.walt.signatory.MergingDataProvider
+import id.walt.signatory.dataproviders.MergingDataProvider
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.Signatory
 import id.walt.vclib.Helpers.encode

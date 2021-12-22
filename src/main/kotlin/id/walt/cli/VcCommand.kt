@@ -14,9 +14,9 @@ import id.walt.auditor.PolicyRegistry
 import id.walt.common.prettyPrint
 import id.walt.custodian.Custodian
 import id.walt.signatory.*
+import id.walt.signatory.dataproviders.CLIDataProvider
 import id.walt.vclib.Helpers.encode
 import id.walt.vclib.Helpers.toCredential
-import id.walt.vclib.templates.VcTemplateManager
 import io.ktor.util.date.*
 import mu.KotlinLogging
 import java.io.File
@@ -24,7 +24,6 @@ import java.nio.file.Path
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.util.*
-import java.util.stream.Collectors
 import kotlin.io.path.readText
 
 private val log = KotlinLogging.logger {}
@@ -74,15 +73,6 @@ class VcIssueCommand : CliktCommand(
     private val signatory = Signatory.getService()
 
     override fun run() {
-        if (interactive) {
-            val cliDataProvider = CLIDataProviders.getCLIDataProviderFor(template)
-            if (cliDataProvider == null) {
-                echo("No interactive data provider available for template: $template")
-                return
-            }
-            val templ = VcTemplateManager.loadTemplate(template)
-            DataProviderRegistry.register(templ::class, cliDataProvider)
-        }
         echo("Issuing a verifiable credential (using template ${template})...")
 
         // Loading VC template
@@ -96,7 +86,11 @@ class VcIssueCommand : CliktCommand(
                 issuerVerificationMethod = issuerVerificationMethod,
                 proofType = proofType,
                 proofPurpose = proofPurpose
-            )
+            ),
+            when(interactive){
+                true -> CLIDataProvider
+                else -> null
+            }
         )
 
         echo("\nResults:\n")
