@@ -1,4 +1,4 @@
-# Walt.ID SSI Kit
+# SSI Kit
 
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=walt-id_waltid-ssikit&metric=security_rating)](https://sonarcloud.io/dashboard?id=walt-id_waltid-ssikit)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=walt-id_waltid-ssikit&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=walt-id_waltid-ssikit)
@@ -9,7 +9,7 @@
   
 [![CI/CD Workflow for walt.id SSI Kit](https://github.com/walt-id/waltid-ssikit/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/walt-id/waltid-ssikit/actions/workflows/build.yml)
 
-The Walt.ID SSI Kit is a holistic SSI solution, with primarily focus on the European EBSI/ESSIF ecosystem.
+The **SSI Kit** by **walt.id** is a holistic Self-Sovereign-Identity solution, with primarily focus on the European EBSI/ESSIF ecosystem.
 
 The core services are in the scope of:
  - **Key Management** generation, import/export
@@ -26,6 +26,8 @@ The ESSIF/EBSI functions are in the scope of:
 The library is written in **Kotlin/Java based library** and can be directly integrated as Maven/Gradle dependency. Alternatively the library or the additional **Docker container** can be run as RESTful webservice.
 
 ## Getting Started
+
+### Via Docker
 
 The easiest way to getting your hands diry and to "play" with the functions the SSI Kit provides is by running the **CLI tool** with _Docker_.
 
