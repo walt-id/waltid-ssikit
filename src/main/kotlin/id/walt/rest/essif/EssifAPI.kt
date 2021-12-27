@@ -140,6 +140,7 @@ object EssifAPI {
                         "registerDid",
                         documented(EssifClientController.registerDidDocs(), EssifClientController::registerDid)
                     )
+                    post("timestamp", documented(EssifClientController.timestampDocs(), EssifClientController::timestamp))
                 }
             }
 

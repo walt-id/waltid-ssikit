@@ -8,11 +8,8 @@ import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.file
 import id.walt.Values
 import id.walt.common.prettyPrint
-import id.walt.model.DidMethod
 import id.walt.model.encodePretty
-import id.walt.services.did.DidService
 import id.walt.services.essif.EssifClient
-import id.walt.services.essif.EssifClientVcExchange
 import id.walt.services.essif.TrustedIssuerClient
 import id.walt.services.essif.timestamp.Timestamp
 import id.walt.services.essif.timestamp.WaltIdTimestampService
@@ -180,7 +177,7 @@ class EssifTimestampGetCommand : CliktCommand(
         Get timestamp by its ID or transaction hash."""
 ) {
     val id: String? by option("-i", "--timestamp-id", help = "Timestamp ID.")
-    val hash: String? by option("-h", "--timestamp-hash", help = "Timestamp hash.")
+    val hash: String? by option("-s", "--timestamp-hash", help = "Timestamp hash.")
 
     override fun run() {
         echo("Getting timestamp.")

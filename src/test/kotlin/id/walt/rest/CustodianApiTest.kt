@@ -39,7 +39,6 @@ class CustodianApiTest : StringSpec({
         CustodianAPI.start()
     }
 
-
     "Check Custodian Presentation generation LD_PROOF" {
         val did = DidService.create(DidMethod.key)
 

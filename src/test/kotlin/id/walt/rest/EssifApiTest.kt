@@ -1,10 +1,13 @@
 package id.walt.rest
 
 import id.walt.model.AuthRequestResponse
+import id.walt.rest.essif.EbsiTimestampRequest
 import id.walt.rest.essif.EssifAPI
+import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.essif.mock.RelyingParty
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldStartWith
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.json.*
@@ -24,6 +27,10 @@ class EssifApiTest : AnnotationSpec() {
         }
     }
 
+    init {
+        ServiceMatrix("service-matrix.properties")
+    }
+
     @BeforeClass
     fun startServer() {
         EssifAPI.start(7012)
@@ -38,6 +45,30 @@ class EssifApiTest : AnnotationSpec() {
     fun testHealth() = runBlocking {
         val response = client.get<HttpResponse>("$ESSIF_API_URL/health")
         "OK" shouldBe response.readText()
+    }
+
+    /** Sample request
+     *
+         {
+            "did": "did:ebsi:zukvwz73nsXdA2ra4CMwRU9",
+            "ethDidAlias": "did:ebsi:zukvwz73nsXdA2ra4CMwRU9",
+            "data": "{ \"my\": \"data\"}"
+        }
+     */
+
+    @Test
+    fun testTimestamp() = runBlocking {
+        // Make sure that this EBSI DID got registered before and that all the meta-data is stored in folder data/ebsi. Run EssifIntTest to initialize everything correctly.
+        val did = "did:ebsi:zukvwz73nsXdA2ra4CMwRU9"
+        val ethDidAlias = did
+        val resp = client.post<String>("$ESSIF_API_URL/v1/client/timestamp") {
+            contentType(ContentType.Application.Json)
+            headers {
+                append(HttpHeaders.Accept, "application/json")
+            }
+            body = EbsiTimestampRequest(did, ethDidAlias, "{ \"my\": \"data\"}")
+        }
+        resp shouldStartWith "0x"
     }
 
     @Test

@@ -39,24 +39,27 @@ open class HKVKeyStoreService : KeyStoreService() {
 
     override fun addAlias(keyId: KeyId, alias: String) {
         hkvStore.put(HKVKey.combine(ALIAS_ROOT, alias), keyId.id)
-        val aliases = hkvStore.getAsString(HKVKey.combine(KEYS_ROOT, keyId.id, "aliases"))?.split("\n")?.plus(alias) ?: listOf(alias)
+        val aliases =
+            hkvStore.getAsString(HKVKey.combine(KEYS_ROOT, keyId.id, "aliases"))?.split("\n")?.plus(alias) ?: listOf(
+                alias
+            )
         hkvStore.put(HKVKey.combine(KEYS_ROOT, keyId.id, "aliases"), aliases.joinToString("\n"))
     }
 
     override fun store(key: Key) {
         log.debug { "Storing key \"${key.keyId}\"." }
-        //hkvStore.put(HKVKey("keys", key.keyId.id), key.keyId.id)
         addAlias(key.keyId, key.keyId.id)
         storeKeyMetaData(key)
         storePublicKey(key)
         storePrivateKeyWhenExisting(key)
     }
 
-    override fun getKeyId(alias: String) = runCatching { hkvStore.getAsString(HKVKey.combine(ALIAS_ROOT, alias)) }.getOrNull()
+    override fun getKeyId(alias: String) =
+        runCatching { hkvStore.getAsString(HKVKey.combine(ALIAS_ROOT, alias)) }.getOrNull()
 
     override fun delete(alias: String) {
         val keyId = getKeyId(alias)
-        if(keyId.isNullOrEmpty())
+        if (keyId.isNullOrEmpty())
             return
         val aliases = hkvStore.getAsString(HKVKey.combine(KEYS_ROOT, keyId, "aliases")) ?: ""
         aliases.split("\n").forEach { a -> hkvStore.delete(HKVKey.combine(ALIAS_ROOT, a), recursive = false) }
@@ -91,5 +94,6 @@ open class HKVKeyStoreService : KeyStoreService() {
         hkvStore.put(HKVKey.combine(KEYS_ROOT, key.keyId.id, suffix), data)
 
     private fun loadKey(keyId: String, suffix: String): ByteArray =
-        hkvStore.getAsByteArray(HKVKey.combine(KEYS_ROOT, keyId, suffix))!!
+        HKVKey.combine(KEYS_ROOT, keyId, suffix)
+            .let { hkvStore.getAsByteArray(it) ?: throw Exception("Could not load key '$it' from HKV store") }
 }
