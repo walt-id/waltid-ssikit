@@ -47,19 +47,9 @@ class EssifApiTest : AnnotationSpec() {
         "OK" shouldBe response.readText()
     }
 
-    /** Sample request
-     *
-         {
-            "did": "did:ebsi:zukvwz73nsXdA2ra4CMwRU9",
-            "ethDidAlias": "did:ebsi:zukvwz73nsXdA2ra4CMwRU9",
-            "data": "{ \"my\": \"data\"}"
-        }
-     */
-
-    @Test
+    // @Test // Make sure that this EBSI DID got registered before and that all the meta-data is stored in folder data/ebsi.
     fun testTimestamp() = runBlocking {
-        // Make sure that this EBSI DID got registered before and that all the meta-data is stored in folder data/ebsi. Run EssifIntTest to initialize everything correctly.
-        val did = "did:ebsi:zukvwz73nsXdA2ra4CMwRU9"
+        val did = "did:ebsi:z22LYRkZSiFLnfydBWuraxBQ"
         val ethDidAlias = did
         val resp = client.post<String>("$ESSIF_API_URL/v1/client/timestamp") {
             contentType(ContentType.Application.Json)
@@ -69,6 +59,28 @@ class EssifApiTest : AnnotationSpec() {
             body = EbsiTimestampRequest(did, ethDidAlias, "{ \"my\": \"data\"}")
         }
         resp shouldStartWith "0x"
+    }
+
+    @Test
+    fun testTimestampByTxHash() = runBlocking {
+        val resp = client.get<String>("$ESSIF_API_URL/v1/client/timestamp/txhash/0x42348e1ee94cc78d5e5494f71b502416aa566b626151f8dee333804f061bda1d") {
+            contentType(ContentType.Application.Json)
+            headers {
+                append(HttpHeaders.Accept, "application/json")
+            }
+        }
+        println(resp)
+    }
+
+    @Test
+    fun testTimestampById() = runBlocking {
+        val resp = client.get<String>("$ESSIF_API_URL/v1/client/timestamp/id/uEiAUrAvVUpM5GymJQXsNUSvAPzIq_OaaX8uhdpSW5GjZJw") {
+            contentType(ContentType.Application.Json)
+            headers {
+                append(HttpHeaders.Accept, "application/json")
+            }
+        }
+        println(resp)
     }
 
     @Test

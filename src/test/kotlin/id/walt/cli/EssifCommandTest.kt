@@ -98,7 +98,7 @@ class EssifCommandTest : StringSpec({
 
         WaltIdTimestampService().getByTransactionHash("do not exist") shouldBe null
 
-        EssifTimestampGetCommand().parse(listOf("--timestamp-hash", "0x45680f0a1d2b54d5abe785a93b90e42ee1d37aa0a4c03ff2d07d5ac431232674"))
+        EssifTimestampGetCommand().parse(listOf("--timestamp-txhash", "0x45680f0a1d2b54d5abe785a93b90e42ee1d37aa0a4c03ff2d07d5ac431232674"))
     }
 
     "7. Get by timestamp Id" {

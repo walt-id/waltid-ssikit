@@ -50,16 +50,32 @@ object EssifClientController {
         it.summary("Registers DID on the EBSI Blockchain").operationId("registerDid").addTagsItem("ESSIF Client")
     }.body<String> { it.description("DID") }.json<String>("200") { it.description("DID registered successfully") }
 
-    fun timestamp(ctx: Context) {
+    fun createTimestamp(ctx: Context) {
         val req = ctx.bodyAsClass(EbsiTimestampRequest::class.java)
-        ctx.result(EssifClient.timestamp(req.did,req.ethDidAlias, req.data))
+        ctx.result(EssifClient.createTimestamp(req.did,req.ethDidAlias, req.data))
     }
 
-    fun timestampDocs() = document().operation {
+    fun createTimestampDocs() = document().operation {
         it.summary("Creates a timestamp on the EBSI ledger.")
-            .operationId("timestamp")
+            .operationId("createTimestamp")
             .addTagsItem("ESSIF Client")
     }
         .body<EbsiTimestampRequest> { it.description("The DID (or ETH key alias) indicates which key to be used for creating the timestamp. The data will be written to the data-field of the timestamp.") }
         .json<String>("200") { it.description("Transaction ID of the timestamp request") }
+
+    fun getByTransactionHash(ctx: Context) {
+        ctx.json(EssifClient.getByTransactionHash(ctx.pathParam("txhash")) ?: "")
+    }
+
+    fun getByTransactionHashDocs() = document().operation {
+        it.summary("Get a timestamp based on the transaction Hash").operationId("getByTransactionHash").addTagsItem("ESSIF Client")
+    }.json<String>("200") { it.description("The resolved timestamp") }
+
+    fun getByTimestampId(ctx: Context) {
+        ctx.json(EssifClient.getByTimestampId(ctx.pathParam("timestampId")) ?: "")
+    }
+
+    fun getByTimestampIdDocs() = document().operation {
+        it.summary("Get a timestamp based on the timestamp ID").operationId("getByTransactionId").addTagsItem("ESSIF Client")
+    }.json<String>("200") { it.description("The resolved timestamp") }
 }

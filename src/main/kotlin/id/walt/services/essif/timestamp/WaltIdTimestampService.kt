@@ -59,15 +59,15 @@ open class WaltIdTimestampService : TimestampService() {
     private val jsonRpcService = JsonRpcService.getService()
     private val keyService = KeyService.getService()
 
-    override suspend fun getByTimestampId(timestampId: String): Timestamp? {
+    override fun getByTimestampId(timestampId: String): Timestamp? = runBlocking{
         val href = TIMESTAMPS + "/$timestampId"
-        return runBlocking { WaltIdServices.http.get<Timestamp>(href)?.also {
+        return@runBlocking runBlocking { WaltIdServices.http.get<Timestamp>(href)?.also {
             it.timestampId = timestampId
             it.href = href
         } }
     }
 
-    override suspend fun getByTransactionHash(transactionHash: String): Timestamp? {
+    override fun getByTransactionHash(transactionHash: String): Timestamp?  = runBlocking {
         var timestamps = WaltIdServices.http.get<Timestamps>(
             WaltIdServices.http.get<Timestamps>(TIMESTAMPS).links.last
         )
@@ -80,13 +80,13 @@ open class WaltIdTimestampService : TimestampService() {
                 if (timestamp.transactionHash == transactionHash) {
                     timestamp.timestampId = timestampItem.timestampId
                     timestamp.href = timestampItem.href
-                    return timestamp
+                    return@runBlocking timestamp
                 }
             }
             timestamps = WaltIdServices.http.get(timestamps.links.prev)
         }
 
-        return null
+        return@runBlocking null
     }
 
     override fun createTimestamp(did: String, ethKeyAlias: String, data: String): String = runBlocking {

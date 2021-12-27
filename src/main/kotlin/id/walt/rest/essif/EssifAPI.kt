@@ -140,7 +140,11 @@ object EssifAPI {
                         "registerDid",
                         documented(EssifClientController.registerDidDocs(), EssifClientController::registerDid)
                     )
-                    post("timestamp", documented(EssifClientController.timestampDocs(), EssifClientController::timestamp))
+                    path("timestamp") {
+                        post("", documented(EssifClientController.createTimestampDocs(), EssifClientController::createTimestamp))
+                        get("id/{timestampId}", documented(EssifClientController.getByTimestampIdDocs(), EssifClientController::getByTimestampId))
+                        get("txhash/{txhash}", documented(EssifClientController.getByTransactionHashDocs(), EssifClientController::getByTransactionHash))
+                    }
                 }
             }
 

@@ -177,7 +177,7 @@ class EssifTimestampGetCommand : CliktCommand(
         Get timestamp by its ID or transaction hash."""
 ) {
     val id: String? by option("-i", "--timestamp-id", help = "Timestamp ID.")
-    val hash: String? by option("-s", "--timestamp-hash", help = "Timestamp hash.")
+    val txhash: String? by option("-s", "--timestamp-txhash", help = "Timestamp transaction hash.")
 
     override fun run() {
         echo("Getting timestamp.")
@@ -185,7 +185,7 @@ class EssifTimestampGetCommand : CliktCommand(
         val timestamp: Timestamp? = runBlocking {
              when {
                  id != null -> WaltIdTimestampService().getByTimestampId(id!!)
-                 hash != null -> WaltIdTimestampService().getByTransactionHash(hash!!)
+                 txhash != null -> WaltIdTimestampService().getByTransactionHash(txhash!!)
                  else -> throw Exception("Either timestamp ID or transaction hash need to be specified")
              }
         }
