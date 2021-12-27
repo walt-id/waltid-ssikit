@@ -4,6 +4,13 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
 
 ## [Unreleased]
 
+- Roadmap Items
+  - Support of RSA keys  https://github.com/walt-id/waltid-roadmap/issues/26
+  
+- Features
+    - Replaced log4j with slf4j-simple
+    - Creation of Timestamps via REST API https://github.com/walt-id/waltid-roadmap/issues/25
+  
 ## [1.2.0] - 2021-12-12
 
 - Roadmap Items

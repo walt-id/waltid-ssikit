@@ -27,9 +27,23 @@ The library is written in **Kotlin/Java based library** and can be directly inte
 
 ## Getting Started
 
-The easiest way to getting your hands diry and to "play" with the functions the SSI Kit provides is by running the **CLI tool** with Docker.
+The easiest way to getting your hands diry and to "play" with the functions the SSI Kit provides is by running the **CLI tool** with _Docker_.
 
     docker run -itv $(pwd)/data:/app/data waltid/ssikit -h
+
+### As dependency
+
+_Gradle_
+
+        implementation("id.walt:waltid-ssi-kit:1.3.0")
+
+_Maven_
+
+        <dependency>
+            <groupId>id.walt</groupId>
+            <artifactId>waltid-ssi-kit</artifactId>
+            <version>1.3.0</version>
+        </dependency>
     
 Please go ahead and find further CLI commands and well as other ways how to use the SSI Kit in the documentation section below.
 
