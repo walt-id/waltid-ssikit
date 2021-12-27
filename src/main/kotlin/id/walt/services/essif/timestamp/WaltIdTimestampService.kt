@@ -2,7 +2,8 @@ package id.walt.services.essif.timestamp
 
 import id.walt.crypto.canonicalize
 import id.walt.services.WaltIdServices
-import id.walt.services.essif.jsonrpc.*
+import id.walt.services.essif.jsonrpc.JsonRpcService
+import id.walt.services.essif.jsonrpc.TimestampHashesParams
 import id.walt.services.key.KeyService
 import io.ktor.client.request.*
 import kotlinx.coroutines.runBlocking

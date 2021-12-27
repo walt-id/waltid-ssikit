@@ -9,9 +9,9 @@ import id.walt.services.jwt.JwtService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.test.RESOURCES_PATH
 import id.walt.vclib.Helpers.toCredential
-import id.walt.vclib.templates.VcTemplateManager
 import id.walt.vclib.credentials.VerifiableDiploma
 import id.walt.vclib.credentials.VerifiableId
+import id.walt.vclib.templates.VcTemplateManager
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe

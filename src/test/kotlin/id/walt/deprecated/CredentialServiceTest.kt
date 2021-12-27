@@ -9,8 +9,8 @@ import id.walt.services.key.KeyService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.ProofConfig
 import id.walt.vclib.Helpers.encode
-import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.credentials.PermanentResidentCard
+import id.walt.vclib.model.VerifiableCredential
 import info.weboftrust.ldsignatures.LdProof
 import info.weboftrust.ldsignatures.jsonld.LDSecurityContexts
 import info.weboftrust.ldsignatures.signer.Ed25519Signature2018LdSigner

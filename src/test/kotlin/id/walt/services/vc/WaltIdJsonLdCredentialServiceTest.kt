@@ -3,7 +3,6 @@ package id.walt.services.vc
 import com.beust.klaxon.Klaxon
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
-import id.walt.services.WaltIdServices
 import id.walt.services.did.DidService
 import id.walt.signatory.DataProviderRegistry
 import id.walt.signatory.ProofConfig
@@ -16,13 +15,12 @@ import id.walt.test.readCredOffer
 import id.walt.vclib.Helpers.encode
 import id.walt.vclib.Helpers.toCredential
 import id.walt.vclib.VcUtils
+import id.walt.vclib.credentials.*
 import id.walt.vclib.model.CredentialSchema
 import id.walt.vclib.model.CredentialStatus
-import id.walt.vclib.credentials.*
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import org.slf4j.event.Level
 import java.io.File
 
 class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {

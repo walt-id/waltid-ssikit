@@ -27,21 +27,6 @@ data class TrustedAccreditationOrganizationRegistry(
     val proof: Proof
 )
 
-/*
-data class Proof(
-    //@Serializable(with = ProofTypeSerializer::class)
-    var type: String,
-    var created: LocalDateTime,
-    var creator: String? = null,
-    var proofPurpose: String? = null,
-    //@Serializable(with = VerificationMethodCertSerializer::class)
-    var verificationMethod: VerificationMethodCert? = null,
-    var proofValue: String? = null,
-    var domain: String? = null,
-    var nonce: String? = null,
-    var jws: String? = null
-)*/
-
 @Serializable
 data class RevocationRegistry(
     val id: String,
@@ -96,6 +81,14 @@ data class Issuer(
     val organizationInfo: OrganizationInfo,
     val proof: Proof
 )
+
+@Serializable
+data class ServiceEndpoint(
+    var id: String,
+    var type: String,
+    var serviceEndpoint: String,
+)
+
 
 @Serializable
 data class Attribute(

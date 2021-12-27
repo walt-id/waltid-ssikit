@@ -10,7 +10,6 @@ import org.bouncycastle.asn1.x509.AlgorithmIdentifier
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
 import org.bouncycastle.util.encoders.Hex
 import org.web3j.crypto.ECDSASignature
-import java.io.File
 import java.math.BigInteger
 import java.security.KeyFactory
 import java.security.KeyPairGenerator

@@ -3,7 +3,8 @@ package id.walt.services.essif.didebsi
 import com.beust.klaxon.Klaxon
 import id.walt.crypto.canonicalize
 import id.walt.services.did.DidService
-import id.walt.services.essif.jsonrpc.*
+import id.walt.services.essif.jsonrpc.InsertDidDocumentParams
+import id.walt.services.essif.jsonrpc.JsonRpcService
 import id.walt.services.key.KeyService
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
