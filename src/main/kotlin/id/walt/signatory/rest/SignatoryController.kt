@@ -74,9 +74,10 @@ object SignatoryController {
     fun revokeDocs()  = document().operation {
         it.summary("Revoke a credential").operationId("revoke").addTagsItem("Revocations")
             .description("Based on the <b>not-delegated</b> revocation-token, a credential with a specific delegated revocation-token can be revoked on this server.")
-    }.result<String>("200")
+    }.result<String>("201")
 
     fun revoke(ctx: Context) {
-        ctx.json(RevocationService.revokeToken(ctx.pathParam("id")))
+        RevocationService.revokeToken(ctx.pathParam("id"))
+        ctx.status(201)
     }
 }
