@@ -13,8 +13,7 @@ interface Context {
 }
 
 abstract class ContextManager : BaseService() {
-    override val implementation: ContextManager
-        get() = ServiceRegistry.getService()
+    override val implementation: ContextManager get() = ServiceRegistry.getService()
 
     abstract val keyStore: KeyStoreService
     abstract val vcStore: VcStoreService
