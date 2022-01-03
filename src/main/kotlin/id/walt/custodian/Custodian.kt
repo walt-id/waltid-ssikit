@@ -8,7 +8,6 @@ import id.walt.services.context.ContextManager
 import id.walt.services.key.KeyService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
-import id.walt.vclib.VcLibManager
 import id.walt.vclib.model.VerifiableCredential
 
 abstract class Custodian : WaltIdService() {
@@ -56,8 +55,8 @@ open class WaltIdCustodian : Custodian() {
     override fun createPresentation(
         vcs: List<String>, holderDid: String, verifierDid: String?, domain: String?, challenge: String?
     ): String = when {
-        vcs.stream().allMatch { VcLibManager.isJWT(it) } -> jwtCredentialService.present(vcs, holderDid, verifierDid, challenge)
-        vcs.stream().noneMatch { VcLibManager.isJWT(it) } -> jsonLdCredentialService.present(vcs, holderDid, domain, challenge)
+        vcs.stream().allMatch { VerifiableCredential.isJWT(it) } -> jwtCredentialService.present(vcs, holderDid, verifierDid, challenge)
+        vcs.stream().noneMatch { VerifiableCredential.isJWT(it) } -> jsonLdCredentialService.present(vcs, holderDid, domain, challenge)
         else -> throw IllegalStateException("All verifiable credentials must be of the same proof type.")
     }
 }

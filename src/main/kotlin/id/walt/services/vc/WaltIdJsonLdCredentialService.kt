@@ -13,11 +13,7 @@ import id.walt.services.essif.TrustedIssuerClient.domain
 import id.walt.services.keystore.KeyStoreService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
-
 import id.walt.vclib.model.toCredential
-import id.walt.vclib.VcLibManager
-
-
 import id.walt.vclib.credentials.VerifiableAttestation
 import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.CredentialSchema
@@ -193,7 +189,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
     fun verifyVerifiablePresentation(json: String) =
         VerificationResult(verifyVp(json), VerificationType.VERIFIABLE_PRESENTATION)
 
-    override fun verify(vcOrVp: String): VerificationResult = when (VcLibManager.getVerifiableCredential(vcOrVp)) {
+    override fun verify(vcOrVp: String): VerificationResult = when (VerifiableCredential.fromString(vcOrVp)) {
         is VerifiablePresentation -> verifyVerifiablePresentation(vcOrVp)
         else -> verifyVerifiableCredential(vcOrVp)
     }

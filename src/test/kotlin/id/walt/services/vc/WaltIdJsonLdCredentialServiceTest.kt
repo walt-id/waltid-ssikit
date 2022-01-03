@@ -295,7 +295,7 @@ fun signCredentialInvalidDataTest() {
 
     val vcStr = credentialService.sign(issuerDid, credOffer)
     println("Credential generated: $vcStr")
-    val vcInvalid = VcLibManager.getVerifiableCredential(vcStr)
+    val vcInvalid = VerifiableCredential.fromString(vcStr)
     vcInvalid.id = "INVALID ID"
     val vcInvalidStr = vcInvalid.encode()
     println("Credential generated: ${vcInvalidStr}")

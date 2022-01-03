@@ -3,7 +3,7 @@ package id.walt.model.siopv2
 import com.beust.klaxon.Json
 import com.beust.klaxon.Klaxon
 import id.walt.services.jwt.JwtService
-import id.walt.vclib.VcLibManager
+import id.walt.vclib.model.VerifiableCredential
 import java.time.Instant
 
 data class SIOPv2IDToken(
@@ -27,7 +27,7 @@ data class SIOPv2Presentation(
   companion object {
     fun createFromVPString(vpStr: String): SIOPv2Presentation {
       return SIOPv2Presentation(
-        format = when(VcLibManager.isJWT(vpStr)) {
+        format = when(VerifiableCredential.isJWT(vpStr)) {
         true -> "jwt_vp"
         else -> "ldp_vp"
       },
@@ -56,7 +56,7 @@ data class PresentationDescriptor (
   companion object {
     fun fromVP(id: String, vpStr: String) = PresentationDescriptor(
       id = id,
-      format = when(VcLibManager.isJWT(vpStr)) {
+      format = when(VerifiableCredential.isJWT(vpStr)) {
         true -> "jwt_vp"
         else -> "ldp_vp"
       },

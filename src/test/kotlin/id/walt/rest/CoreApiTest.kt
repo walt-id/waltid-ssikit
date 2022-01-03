@@ -20,11 +20,10 @@ import id.walt.signatory.ProofConfig
 import id.walt.test.RESOURCES_PATH
 import id.walt.test.getTemplate
 import id.walt.test.readCredOffer
-
 import id.walt.vclib.model.toCredential
-import id.walt.vclib.VcLibManager
 import id.walt.vclib.credentials.Europass
 import id.walt.vclib.credentials.VerifiableAttestation
+import id.walt.vclib.model.VerifiableCredential
 import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
@@ -295,7 +294,7 @@ class CoreApiTest : AnnotationSpec() {
             body = CreateVcRequest(didIssuer, didHolder, credOffer)
         }
         println("Credential received: $vc")
-        val vcDecoded = VcLibManager.getVerifiableCredential(vc)
+        val vcDecoded = VerifiableCredential.fromString(vc)
         println("Credential decoded: $vcDecoded")
         val vcEncoded = vcDecoded.encode()
         println("Credential encoded: $vcEncoded")

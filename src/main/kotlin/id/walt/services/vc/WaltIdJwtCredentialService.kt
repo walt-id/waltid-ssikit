@@ -5,10 +5,7 @@ import com.nimbusds.jwt.SignedJWT
 import id.walt.services.jwt.JwtService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
-
 import id.walt.vclib.model.toCredential
-import id.walt.vclib.VcLibManager
-
 import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.VerifiableCredential
 import info.weboftrust.ldsignatures.LdProof
@@ -72,7 +69,7 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
         TODO("Not implemented yet.")
 
     override fun verify(vcOrVp: String): VerificationResult =
-        when (VcLibManager.getVerifiableCredential(vcOrVp)) {
+        when (VerifiableCredential.fromString(vcOrVp)) {
             is VerifiablePresentation -> VerificationResult(verifyVp(vcOrVp), VerificationType.VERIFIABLE_PRESENTATION)
             else -> VerificationResult(verifyVc(vcOrVp), VerificationType.VERIFIABLE_CREDENTIAL)
         }
