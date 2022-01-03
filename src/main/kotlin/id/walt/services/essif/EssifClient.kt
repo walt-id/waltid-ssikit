@@ -6,6 +6,8 @@ import id.walt.services.context.ContextManager
 import id.walt.services.essif.didebsi.DidEbsiService
 import id.walt.services.essif.enterprisewallet.EnterpriseWalletService
 import id.walt.services.essif.mock.RelyingParty
+import id.walt.services.essif.timestamp.Timestamp
+import id.walt.services.essif.timestamp.WaltIdTimestampService
 import id.walt.services.essif.userwallet.UserWalletService
 import id.walt.services.hkvstore.HKVKey
 import mu.KotlinLogging
@@ -454,4 +456,15 @@ object EssifClient {
 
     }
 
+    fun createTimestamp(did: String, ethKeyAlias: String? = null, data: String): String {
+        return WaltIdTimestampService().createTimestamp(did, ethKeyAlias ?: did, data)
+    }
+
+    fun getByTimestampId(timestampId: String): Timestamp? {
+        return WaltIdTimestampService().getByTimestampId(timestampId)
+    }
+
+    fun getByTransactionHash(transactionHash: String): Timestamp? {
+        return WaltIdTimestampService().getByTransactionHash(transactionHash)
+    }
 }

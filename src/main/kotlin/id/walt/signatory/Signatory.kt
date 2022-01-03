@@ -12,16 +12,13 @@ import id.walt.vclib.model.toCredential
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.templates.VcTemplateManager
 import mu.KotlinLogging
-import net.pwall.yaml.YAMLSimple.log
 import java.time.Instant
-import java.time.LocalDateTime
 import java.util.*
 
 private val log = KotlinLogging.logger {}
 
 enum class ProofType {
-    JWT,
-    LD_PROOF
+    JWT, LD_PROOF
 }
 
 data class ProofConfig(
@@ -51,7 +48,9 @@ abstract class Signatory : WaltIdService() {
         override fun getService() = object : Signatory() {}
     }
 
-    open fun issue(templateId: String, config: ProofConfig, dataProvider: SignatoryDataProvider? = null): String = implementation.issue(templateId, config, dataProvider)
+    open fun issue(templateId: String, config: ProofConfig, dataProvider: SignatoryDataProvider? = null): String =
+        implementation.issue(templateId, config, dataProvider)
+
     open fun listTemplates(): List<String> = implementation.listTemplates()
     open fun loadTemplate(templateId: String): VerifiableCredential = implementation.loadTemplate(templateId)
 }
@@ -64,7 +63,10 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
     override fun issue(templateId: String, config: ProofConfig, dataProvider: SignatoryDataProvider?): String {
 
         // TODO: load proof-conf from signatory.conf and optionally substitute values on request basis
-        val vcTemplate = VcTemplateManager.loadTemplate(templateId)
+
+        val vcTemplate = kotlin.runCatching {
+            VcTemplateManager.loadTemplate(templateId)
+        }.getOrElse { throw Exception("Could not load template: $templateId") }
 
         val configDP = when (config.credentialId.isNullOrBlank()) {
             true -> ProofConfig(

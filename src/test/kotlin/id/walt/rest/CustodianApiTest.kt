@@ -20,8 +20,6 @@ import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 
 class CustodianApiTest : StringSpec({
 
@@ -38,7 +36,6 @@ class CustodianApiTest : StringSpec({
     "Starting Custodian API" {
         CustodianAPI.start()
     }
-
 
     "Check Custodian Presentation generation LD_PROOF" {
         val did = DidService.create(DidMethod.key)

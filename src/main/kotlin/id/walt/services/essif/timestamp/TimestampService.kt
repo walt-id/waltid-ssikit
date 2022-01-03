@@ -8,8 +8,8 @@ open class TimestampService : WaltIdService() {
 
     override val implementation get() = serviceImplementation<TimestampService>()
 
-    open suspend fun getByTimestampId(timestampId: String): Timestamp? = implementation.getByTimestampId(timestampId)
-    open suspend fun getByTransactionHash(transactionHash: String): Timestamp? = implementation.getByTransactionHash(transactionHash)
+    open fun getByTimestampId(timestampId: String): Timestamp? = implementation.getByTimestampId(timestampId)
+    open fun getByTransactionHash(transactionHash: String): Timestamp? = implementation.getByTransactionHash(transactionHash)
 
     open fun createTimestamp(did: String, ethKeyAlias: String, data: String): String =
         implementation.createTimestamp(did, ethKeyAlias, data)

@@ -14,7 +14,6 @@ import io.ktor.client.features.json.serializer.*
 import io.ktor.client.features.logging.*
 import mu.KotlinLogging
 import org.bouncycastle.jce.provider.BouncyCastleProvider
-import org.slf4j.event.Level
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path

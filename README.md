@@ -1,4 +1,4 @@
-# Walt.ID SSI Kit
+# SSI Kit
 
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=walt-id_waltid-ssikit&metric=security_rating)](https://sonarcloud.io/dashboard?id=walt-id_waltid-ssikit)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=walt-id_waltid-ssikit&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=walt-id_waltid-ssikit)
@@ -9,7 +9,7 @@
   
 [![CI/CD Workflow for walt.id SSI Kit](https://github.com/walt-id/waltid-ssikit/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/walt-id/waltid-ssikit/actions/workflows/build.yml)
 
-The Walt.ID SSI Kit is a holistic SSI solution, with primarily focus on the European EBSI/ESSIF ecosystem.
+The **SSI Kit** by **walt.id** is a holistic Self-Sovereign-Identity solution, with primarily focus on the European EBSI/ESSIF ecosystem.
 
 The core services are in the scope of:
  - **Key Management** generation, import/export
@@ -27,9 +27,25 @@ The library is written in **Kotlin/Java based library** and can be directly inte
 
 ## Getting Started
 
-The easiest way to getting your hands diry and to "play" with the functions the SSI Kit provides is by running the **CLI tool** with Docker.
+### Via Docker
+
+The easiest way to getting your hands diry and to "play" with the functions the SSI Kit provides is by running the **CLI tool** with _Docker_.
 
     docker run -itv $(pwd)/data:/app/data waltid/ssikit -h
+
+### As dependency
+
+_Gradle_
+
+        implementation("id.walt:waltid-ssi-kit:1.3.0")
+
+_Maven_
+
+        <dependency>
+            <groupId>id.walt</groupId>
+            <artifactId>waltid-ssi-kit</artifactId>
+            <version>1.3.0</version>
+        </dependency>
     
 Please go ahead and find further CLI commands and well as other ways how to use the SSI Kit in the documentation section below.
 

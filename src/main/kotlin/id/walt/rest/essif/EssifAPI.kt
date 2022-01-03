@@ -9,10 +9,6 @@ import id.walt.Values
 import id.walt.rest.ErrorResponse
 import id.walt.rest.OpenAPIUtils.documentedIgnored
 import id.walt.rest.RootController
-import id.walt.rest.essif.eos.EosController
-import id.walt.rest.essif.wallets.EnterpriseWalletController
-import id.walt.rest.essif.wallets.UserWalletController
-import id.walt.rest.essif.wallets.ti.TrustedIssuerController
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.core.util.RouteOverviewPlugin
@@ -129,10 +125,19 @@ object EssifAPI {
             get("health", documented(RootController.healthDocs(), RootController::health))
 
             path("v1") {
-                path("trusted-issuer") {
-                    post("generateAuthenticationRequest", documented(TrustedIssuerController.generateAuthenticationRequestDocs(), TrustedIssuerController::generateAuthenticationRequest))
-                    post("openSession", documented(TrustedIssuerController.openSessionDocs(), TrustedIssuerController::openSession))
-                }
+//                path("trusted-issuer") {
+//                    post(
+//                        "generateAuthenticationRequest",
+//                        documented(
+//                            TrustedIssuerController.generateAuthenticationRequestDocs(),
+//                            TrustedIssuerController::generateAuthenticationRequest
+//                        )
+//                    )
+//                    post(
+//                        "openSession",
+//                        documented(TrustedIssuerController.openSessionDocs(), TrustedIssuerController::openSession)
+//                    )
+//                }
                 path("client") {
                     post("onboard", documented(EssifClientController.onboardDocs(), EssifClientController::onboard))
                     post("auth", documented(EssifClientController.authApiDocs(), EssifClientController::authApi))
@@ -140,98 +145,121 @@ object EssifAPI {
                         "registerDid",
                         documented(EssifClientController.registerDidDocs(), EssifClientController::registerDid)
                     )
+                    path("timestamp") {
+                        post(
+                            "",
+                            documented(
+                                EssifClientController.createTimestampDocs(),
+                                EssifClientController::createTimestamp
+                            )
+                        )
+                        get(
+                            "id/{timestampId}",
+                            documented(
+                                EssifClientController.getByTimestampIdDocs(),
+                                EssifClientController::getByTimestampId
+                            )
+                        )
+                        get(
+                            "txhash/{txhash}",
+                            documented(
+                                EssifClientController.getByTransactionHashDocs(),
+                                EssifClientController::getByTransactionHash
+                            )
+                        )
+                    }
                 }
             }
 
-            path("test") {
-                path("user") {
-                    path("wallet") {
-                        post("createDid", documented(UserWalletController.createDidDocs(), UserWalletController::createDid))
-                        post(
-                            "requestAccessToken",
-                            documented(UserWalletController.requestAccessTokenDocs(), UserWalletController::requestAccessToken)
-                        )
-                        post(
-                            "validateDidAuthRequest",
-                            documented(
-                                UserWalletController.validateDidAuthRequestDocs(),
-                                UserWalletController::validateDidAuthRequest
-                            )
-                        )
-                        post(
-                            "didAuthResponse",
-                            documented(UserWalletController.didAuthResponseDocs(), UserWalletController::didAuthResponse)
-                        )
-                        post(
-                            "vcAuthResponse",
-                            documented(UserWalletController.vcAuthResponseDocs(), UserWalletController::vcAuthResponse)
-                        )
-                        post(
-                            "oidcAuthResponse",
-                            documented(UserWalletController.oidcAuthResponseDocs(), UserWalletController::oidcAuthResponse)
-                        )
-                    }
-                }
-                path("ti") {
-                    path("credentials") {
-                        post("", documented(EosController.getCredentialDocs(), EosController::getCredential))
-                        get("{credentialId}", documented(EosController.getCredentialDocs(), EosController::getCredential))
-                    }
-                    get("requestCredentialUri", documented(EosController.requestCredentialUriDocs(), EosController::requestCredentialUri))
-                    post("requestVerifiableCredential", documented(EosController.requestVerifiableCredentialDocs(), EosController::requestVerifiableCredential))
-                }
-                path("eos") {
-                    post("onboard", documented(EosController.onboardsDocs(), EosController::onboards))
-                    post("signedChallenge", documented(EosController.signedChallengeDocs(),EosController::signedChallenge))
-                }
-                path("enterprise") {
-                    path("wallet") {
-                        post(
-                            "createDid",
-                            documented(EnterpriseWalletController.createDidDocs(), EnterpriseWalletController::createDid)
-                        )
-                        post(
-                            "requestVerifiableAuthorization",
-                            documented(
-                                EnterpriseWalletController.requestVerifiableAuthorizationDocs(),
-                                EnterpriseWalletController::requestVerifiableAuthorization
-                            )
-                        )
-                        post(
-                            "requestVerifiableCredential",
-                            documented(
-                                EnterpriseWalletController.requestVerifiableCredentialDocs(),
-                                EnterpriseWalletController::requestVerifiableCredential
-                            )
-                        )
-                        post(
-                            "generateDidAuthRequest",
-                            documented(
-                                EnterpriseWalletController.generateDidAuthRequestDocs(),
-                                EnterpriseWalletController::generateDidAuthRequest
-                            )
-                        )
-                        // post("onboardTrustedIssuer", EnterpriseWalletController::onboardTrustedIssuer) not supported yet
-                        post(
-                            "validateDidAuthResponse",
-                            documented(
-                                EnterpriseWalletController.validateDidAuthResponseDocs(),
-                                EnterpriseWalletController::validateDidAuthResponse
-                            )
-                        )
-                        post(
-                            "getVerifiableCredential",
-                            documented(
-                                EnterpriseWalletController.getVerifiableCredentialDocs(),
-                                EnterpriseWalletController::getVerifiableCredential
-                            )
-                        )
-                        post("token", documented(EnterpriseWalletController.tokenDocs(), EnterpriseWalletController::token))
-                        post("authentication-requests", EosController::authReq)
-                    }
-
-                }
-            }
+//            path("test") {
+//                path("user") {
+//                    path("wallet") {
+//                        post("createDid", documented(UserWalletController.createDidDocs(), UserWalletController::createDid))
+//                        post(
+//                            "requestAccessToken",
+//                            documented(UserWalletController.requestAccessTokenDocs(), UserWalletController::requestAccessToken)
+//                        )
+//                        post(
+//                            "validateDidAuthRequest",
+//                            documented(
+//                                UserWalletController.validateDidAuthRequestDocs(),
+//                                UserWalletController::validateDidAuthRequest
+//                            )
+//                        )
+//                        post(
+//                            "didAuthResponse",
+//                            documented(UserWalletController.didAuthResponseDocs(), UserWalletController::didAuthResponse)
+//                        )
+//                        post(
+//                            "vcAuthResponse",
+//                            documented(UserWalletController.vcAuthResponseDocs(), UserWalletController::vcAuthResponse)
+//                        )
+//                        post(
+//                            "oidcAuthResponse",
+//                            documented(UserWalletController.oidcAuthResponseDocs(), UserWalletController::oidcAuthResponse)
+//                        )
+//                    }
+//                }
+//                path("ti") {
+//                    path("credentials") {
+//                        post("", documented(EosController.getCredentialDocs(), EosController::getCredential))
+//                        get("{credentialId}", documented(EosController.getCredentialDocs(), EosController::getCredential))
+//                    }
+//                    get("requestCredentialUri", documented(EosController.requestCredentialUriDocs(), EosController::requestCredentialUri))
+//                    post("requestVerifiableCredential", documented(EosController.requestVerifiableCredentialDocs(), EosController::requestVerifiableCredential))
+//                }
+//                path("eos") {
+//                    post("onboard", documented(EosController.onboardsDocs(), EosController::onboards))
+//                    post("signedChallenge", documented(EosController.signedChallengeDocs(),EosController::signedChallenge))
+//                }
+//                path("enterprise") {
+//                    path("wallet") {
+//                        post(
+//                            "createDid",
+//                            documented(EnterpriseWalletController.createDidDocs(), EnterpriseWalletController::createDid)
+//                        )
+//                        post(
+//                            "requestVerifiableAuthorization",
+//                            documented(
+//                                EnterpriseWalletController.requestVerifiableAuthorizationDocs(),
+//                                EnterpriseWalletController::requestVerifiableAuthorization
+//                            )
+//                        )
+//                        post(
+//                            "requestVerifiableCredential",
+//                            documented(
+//                                EnterpriseWalletController.requestVerifiableCredentialDocs(),
+//                                EnterpriseWalletController::requestVerifiableCredential
+//                            )
+//                        )
+//                        post(
+//                            "generateDidAuthRequest",
+//                            documented(
+//                                EnterpriseWalletController.generateDidAuthRequestDocs(),
+//                                EnterpriseWalletController::generateDidAuthRequest
+//                            )
+//                        )
+//                        // post("onboardTrustedIssuer", EnterpriseWalletController::onboardTrustedIssuer) not supported yet
+//                        post(
+//                            "validateDidAuthResponse",
+//                            documented(
+//                                EnterpriseWalletController.validateDidAuthResponseDocs(),
+//                                EnterpriseWalletController::validateDidAuthResponse
+//                            )
+//                        )
+//                        post(
+//                            "getVerifiableCredential",
+//                            documented(
+//                                EnterpriseWalletController.getVerifiableCredentialDocs(),
+//                                EnterpriseWalletController::getVerifiableCredential
+//                            )
+//                        )
+//                        post("token", documented(EnterpriseWalletController.tokenDocs(), EnterpriseWalletController::token))
+//                        post("authentication-requests", EosController::authReq)
+//                    }
+//
+//                }
+//            }
         }.exception(IllegalArgumentException::class.java) { e, ctx ->
             log.error { e.stackTraceToString() }
             ctx.json(ErrorResponse(e.message ?: " Illegal argument exception", 400))

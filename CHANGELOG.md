@@ -4,12 +4,20 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
 
 ## [Unreleased]
 
+## [1.3.0] - 2021-12-27
+
+-   Roadmap Items
+    -   Support of RSA keys  <https://github.com/walt-id/waltid-roadmap/issues/26>
+-   Features
+    -   Replaced log4j with slf4j-simple
+    -   Creation of Timestamps via REST API <https://github.com/walt-id/waltid-roadmap/issues/25>
+
 ## [1.2.0] - 2021-12-12
 
-- Roadmap Items
+-   Roadmap Items
     -   EBSI Timestamping service <https://github.com/walt-id/waltid-roadmap/issues/25>
 
-- Features
+-   Features
     -   Added generic jsonRpcService for working with the EBSI ledger <https://github.com/walt-id/waltid-ssikit/pull/82>
     -   Generation of RSA keys
     -   Secp256k1 based did:key implementation
@@ -72,7 +80,9 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
     -   Fixed the way of finding the padding <https://github.com/walt-id/waltid-ssikit/pull/43>
     -   SignaturePolicy fails for issuers using did:ebsi <https://github.com/walt-id/waltid-ssikit/issues/52>
 
-[Unreleased]: https://github.com/walt-id/waltid-ssikit/compare/1.2.0...HEAD
+[Unreleased]: https://github.com/walt-id/waltid-ssikit/compare/1.3.0...HEAD
+
+[1.3.0]: https://github.com/walt-id/waltid-ssikit/compare/1.2.0...1.3.0
 
 [1.2.0]: https://github.com/walt-id/waltid-ssikit/compare/1.2.0...1.2.0
 

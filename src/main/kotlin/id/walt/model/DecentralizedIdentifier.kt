@@ -2,7 +2,6 @@ package id.walt.model
 
 import com.beust.klaxon.*
 import id.walt.common.prettyPrint
-import id.walt.vclib.adapter.VCTypeAdapter
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.reflect.KClass
