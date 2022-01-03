@@ -12,9 +12,7 @@ import id.walt.test.DummySignatoryDataProvider
 import id.walt.test.RESOURCES_PATH
 import id.walt.test.getTemplate
 import id.walt.test.readCredOffer
-import id.walt.vclib.Helpers.encode
-import id.walt.vclib.Helpers.toCredential
-import id.walt.vclib.VcUtils
+import id.walt.vclib.model.toCredential
 import id.walt.vclib.credentials.*
 import id.walt.vclib.model.CredentialSchema
 import id.walt.vclib.model.CredentialStatus
@@ -54,7 +52,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
 
         vcVerified.verificationType shouldBe VerificationType.VERIFIABLE_CREDENTIAL
 
-        val holderDid = VcUtils.getSubject(vc)
+        val holderDid = vc.subject!!
         val vpStr = credentialService.present(listOf(vcStr), holderDid, "domain.com", "nonce")
         println("Presentation generated: $vpStr")
 
@@ -113,7 +111,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
     fun presentVa() {
         val vaStr = File("$VC_PATH/vc-ebsi-verifiable-authorisation.json").readText()
 
-        val vp = credentialService.present(listOf(vaStr), VcUtils.getSubject(vaStr.toCredential()), null, null)
+        val vp = credentialService.present(listOf(vaStr), vaStr.toCredential().subject!!, null, null)
 
         println(vp)
     }
@@ -129,17 +127,17 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
             issuer = "did:ebsi:2LGKvDMrNUPR6FhSNrXzQQ1h295zr4HwoX9UqvwAsenSKHe9",
             issuanceDate = "2020-11-03T00:00:00Z",
             validFrom = "2020-11-03T00:00:00Z",
-            credentialSubject = Europass.CredentialSubject(
+            credentialSubject = Europass.EuropassSubject(
                 id = "did:ebsi:22AhtW7XMssv7es4YcQTdV2MCM3c8b1VsiBfi5weHsjcCY9o",
                 identifier = "0904008084H",
                 givenNames = "Jane",
                 familyName = "DOE",
                 dateOfBirth = "1993-04-08T00:00:00Z",
-                gradingScheme = Europass.CredentialSubject.GradingScheme(
+                gradingScheme = Europass.EuropassSubject.GradingScheme(
                     id = "https://leaston.bcdiploma.com/law-economics-management#GradingScheme",
                     title = "Lower Second-Class Honours"
                 ),
-                learningAchievement = Europass.CredentialSubject.LearningAchievement(
+                learningAchievement = Europass.EuropassSubject.LearningAchievement(
                     id = "https://leaston.bcdiploma.com/law-economics-management#LearningAchievment",
                     title = "MASTERS LAW, ECONOMICS AND MANAGEMENT",
                     description = "MARKETING AND SALES",
@@ -147,10 +145,10 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
                         "DISTRIBUTION MANAGEMENT"
                     )
                 ),
-                awardingOpportunity = Europass.CredentialSubject.AwardingOpportunity(
+                awardingOpportunity = Europass.EuropassSubject.AwardingOpportunity(
                     id = "https://leaston.bcdiploma.com/law-economics-management#AwardingOpportunity",
                     identifier = "https://certificate-demo.bcdiploma.com/check/87ED2F2270E6C41456E94B86B9D9115B4E35BCCAD200A49B846592C14F79C86BV1Fnbllta0NZTnJkR3lDWlRmTDlSRUJEVFZISmNmYzJhUU5sZUJ5Z2FJSHpWbmZZ",
-                    awardingBody = Europass.CredentialSubject.AwardingOpportunity.AwardingBody(
+                    awardingBody = Europass.EuropassSubject.AwardingOpportunity.AwardingBody(
                         id = "did:ebsi:2LGKvDMrNUPR6FhSNrXzQQ1h295zr4HwoX9UqvwAsenSKHe9",
                         eidasLegalIdentifier = "Unknown",
                         registration = "0597065J",
@@ -161,7 +159,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
                     startedAtTime = "2015-11-03T00:00:00Z",
                     endedAtTime = "2020-11-03T00:00:00Z"
                 ),
-                learningSpecification = Europass.CredentialSubject.LearningSpecification(
+                learningSpecification = Europass.EuropassSubject.LearningSpecification(
                     id = "https://leaston.bcdiploma.com/law-economics-management#LearningSpecification",
                     ISCEDFCode = listOf(
                         "7"
@@ -193,7 +191,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
         val vcSigned = vc.toCredential()
         println(vcSigned.toString())
 
-        val vp = credentialService.present(listOf(vc), VcUtils.getSubject(vcSigned), domain, challenge)
+        val vp = credentialService.present(listOf(vc), vcSigned.subject!!, domain, challenge)
         println("Presentation generated: $vp")
 
         val vpVerified = credentialService.verifyVp(vp)
@@ -297,7 +295,7 @@ fun signCredentialInvalidDataTest() {
 
     val vcStr = credentialService.sign(issuerDid, credOffer)
     println("Credential generated: $vcStr")
-    val vcInvalid = VcLibManager.getVerifiableCredential(vcStr)
+    val vcInvalid = VerifiableCredential.fromString(vcStr)
     vcInvalid.id = "INVALID ID"
     val vcInvalidStr = vcInvalid.encode()
     println("Credential generated: ${vcInvalidStr}")

@@ -2,9 +2,10 @@ package id.walt.signatory
 
 import id.walt.model.DidMethod
 import id.walt.services.did.DidService
+import id.walt.signatory.dataproviders.AbstractDataProvider
+import id.walt.signatory.dataproviders.DefaultDataProvider
 import id.walt.vclib.credentials.*
 import id.walt.vclib.model.VerifiableCredential
-import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.reflect.KClass
 
@@ -12,212 +13,63 @@ interface SignatoryDataProvider {
     fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential
 }
 
-val dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'")
-
-
 object DataProviderRegistry {
+    var fallbackProvider: SignatoryDataProvider = DefaultDataProvider
     val providers = HashMap<KClass<out VerifiableCredential>, SignatoryDataProvider>()
 
     fun register(credentialType: KClass<out VerifiableCredential>, provider: SignatoryDataProvider) =
         providers.put(credentialType, provider)
 
     fun getProvider(credentialType: KClass<out VerifiableCredential>) =
-        providers[credentialType] ?: throw NoSuchDataProviderException(credentialType)
+        providers[credentialType] ?: fallbackProvider
 
     init {
         // Init default providers
-        register(VerifiableAttestation::class, VerifiableAttestationDataProvider())
-        register(VerifiableAuthorization::class, VerifiableAuthorizationDataProvider())
-        register(VerifiableDiploma::class, VerifiableDiplomaDataProvider())
-        register(VerifiableVaccinationCertificate::class, VerifiableVaccinationCertificateDataProvider())
-        register(VerifiableId::class, VerifiableIdDataProvider())
-        register(Europass::class, EuropassDataProvider())
         register(GaiaxCredential::class, DeltaDaoDataProvider())
-        register(GaiaxSelfDescription::class, GaiaxSelfDescriptionDataProvider())
-        register(VerifiableVaccinationCertificate::class, VerifiableVaccinationCertificateDataProvider())
-        register(PermanentResidentCard::class, PermanentResidentCardDataProvider())
-        register(ProofOfResidence::class, ProofOfResidenceDataProvider())
     }
 }
 
+class DeltaDaoDataProvider : AbstractDataProvider<GaiaxCredential>() {
+    override fun populateCustomData(template: GaiaxCredential, proofConfig: ProofConfig): GaiaxCredential {
+        // TODO: Load and replace data wherever required
+        // val idData = DeltaDaoDatabase.get(proofConfig.dataProviderIdentifier!!) ?: throw Exception("No ID data found for the given data-povider identifier")
 
-class VerifiableAttestationDataProvider : SignatoryDataProvider {
-    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableAttestation {
-        val vc = template as VerifiableAttestation
-        vc.id = proofConfig.credentialId
-        vc.issuer = proofConfig.issuerDid
-        vc.credentialSubject!!.id = proofConfig.subjectDid!!
-        return vc
-    }
-}
-
-class VerifiableAuthorizationDataProvider : SignatoryDataProvider {
-    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableAuthorization {
-        val vc = template as VerifiableAuthorization
-        vc.id = proofConfig.credentialId
-        vc.issuer = proofConfig.issuerDid
-        vc.credentialSubject.id = proofConfig.subjectDid!!
-        return vc
-    }
-}
-
-class PermanentResidentCardDataProvider : SignatoryDataProvider {
-    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): PermanentResidentCard {
-        val vc = template as PermanentResidentCard
-        vc.id = proofConfig.credentialId
-        vc.issuer = proofConfig.issuerDid
-        vc.credentialSubject!!.id = proofConfig.subjectDid!!
-        return vc
-    }
-}
-
-class EuropassDataProvider : SignatoryDataProvider {
-
-    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): Europass {
-        val vc = template as Europass
-        vc.id = proofConfig.credentialId
-        vc.issuer = proofConfig.issuerDid
-        vc.credentialSubject!!.id = proofConfig.subjectDid
-
-        return vc
-    }
-}
-
-class VerifiableIdDataProvider : SignatoryDataProvider {
-
-    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableId {
-        val vc = template as VerifiableId
-
-        vc.id = proofConfig.credentialId ?: "identity#verifiableID#${UUID.randomUUID()}"
-        vc.issuer = proofConfig.issuerDid
-        if (proofConfig.issueDate != null) vc.issuanceDate = dateFormat.format(proofConfig.issueDate)
-        if (proofConfig.validDate != null) vc.validFrom = dateFormat.format(proofConfig.validDate)
-        if (proofConfig.expirationDate != null) vc.expirationDate = dateFormat.format(proofConfig.expirationDate)
-        vc.validFrom = vc.issuanceDate
-        vc.credentialSubject!!.id = proofConfig.subjectDid
-        vc.evidence!!.verifier = proofConfig.issuerDid
-
-        return vc
-    }
-}
-
-class VerifiableVaccinationCertificateDataProvider : SignatoryDataProvider {
-
-    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableVaccinationCertificate {
-        val vc = template as VerifiableVaccinationCertificate
-
-        vc.id = proofConfig.credentialId ?: "education#higherEducation#${UUID.randomUUID()}"
-        vc.issuer = proofConfig.issuerDid
-        if (proofConfig.issueDate != null) vc.issuanceDate = dateFormat.format(proofConfig.issueDate)
-        if (proofConfig.validDate != null) vc.validFrom = dateFormat.format(proofConfig.validDate)
-        if (proofConfig.expirationDate != null) vc.expirationDate = dateFormat.format(proofConfig.expirationDate)
-        vc.credentialSubject!!.id = proofConfig.subjectDid
-
-        return vc
-    }
-}
-
-class VerifiableDiplomaDataProvider : SignatoryDataProvider {
-
-    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableDiploma {
-        val vc = template as VerifiableDiploma
-
-        vc.id = proofConfig.credentialId ?: "education#higherEducation#${UUID.randomUUID()}"
-        vc.issuer = proofConfig.issuerDid
-        if (proofConfig.issueDate != null) vc.issuanceDate = dateFormat.format(proofConfig.issueDate)
-        if (proofConfig.validDate != null) vc.validFrom = dateFormat.format(proofConfig.validDate)
-        if (proofConfig.expirationDate != null) vc.expirationDate = dateFormat.format(proofConfig.expirationDate)
-        vc.credentialSubject!!.id = proofConfig.subjectDid
-        vc.credentialSubject!!.awardingOpportunity!!.awardingBody.id = proofConfig.issuerDid
-
-        return vc
-    }
-}
-
-class NoSuchDataProviderException(credentialType: KClass<out VerifiableCredential>) :
-    Exception("No data provider is registered for ${credentialType.simpleName}")
-
-
-
-class GaiaxSelfDescriptionDataProvider : SignatoryDataProvider {
-
-    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): GaiaxSelfDescription {
-        val vc = template as GaiaxSelfDescription
-        vc.id = proofConfig.credentialId
-        vc.issuer = proofConfig.issuerDid
-        vc.credentialSubject.id = proofConfig.subjectDid!!
-        return vc
-    }
-}
-
-
-class DeltaDaoDataProvider : SignatoryDataProvider {
-    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
-        if (template is GaiaxCredential) {
-
-            // TODO: Load and replace data wherever required
-            // val idData = DeltaDaoDatabase.get(proofConfig.dataProviderIdentifier!!) ?: throw Exception("No ID data found for the given data-povider identifier")
-
-            template.apply {
-                id = "identity#verifiableID#${UUID.randomUUID()}"
-                issuer = proofConfig.issuerDid
-                credentialSubject.apply {
-                    if (proofConfig.subjectDid != null) id = proofConfig.subjectDid
-                    legallyBindingName = "deltaDAO AG"
-                    brandName = "deltaDAO"
-                    legallyBindingAddress = GaiaxCredential.CustomCredentialSubject.LegallyBindingAddress(
-                        streetAddress = "Geibelstr. 46B",
-                        postalCode = "22303",
-                        locality = "Hamburg",
-                        countryName = "Germany"
-                    )
-                    webAddress = GaiaxCredential.CustomCredentialSubject.WebAddress(
-                        url = "https://www.delta-dao.com/"
-                    )
-                    corporateEmailAddress = "contact@delta-dao.com"
-                    individualContactLegal = "legal@delta-dao.com"
-                    individualContactTechnical = "support@delta-dao.com"
-                    legalForm = "Stock Company"
-                    jurisdiction = "Germany"
-                    commercialRegister = GaiaxCredential.CustomCredentialSubject.CommercialRegister(
-                        organizationName = "Amtsgericht Hamburg (-Mitte)",
-                        organizationUnit = "Registergericht",
-                        streetAddress = "Caffamacherreihe 20",
-                        postalCode = "20355",
-                        locality = "Hamburg",
-                        countryName = "Germany"
-                    )
-                    legalRegistrationNumber = "HRB 170364"
-                    ethereumAddress = GaiaxCredential.CustomCredentialSubject.EthereumAddress(
-                        id = "0x4C84a36fCDb7Bc750294A7f3B5ad5CA8F74C4A52"
-                    )
-                    trustState = "trusted"
-                }
+        template.apply {
+            credentialSubject?.apply {
+                legallyBindingName = "deltaDAO AG"
+                brandName = "deltaDAO"
+                legallyBindingAddress = GaiaxCredential.GaiaxCredentialSubject.LegallyBindingAddress(
+                    streetAddress = "Geibelstr. 46B",
+                    postalCode = "22303",
+                    locality = "Hamburg",
+                    countryName = "Germany"
+                )
+                webAddress = GaiaxCredential.GaiaxCredentialSubject.WebAddress(
+                    url = "https://www.delta-dao.com/"
+                )
+                corporateEmailAddress = "contact@delta-dao.com"
+                individualContactLegal = "legal@delta-dao.com"
+                individualContactTechnical = "support@delta-dao.com"
+                legalForm = "Stock Company"
+                jurisdiction = "Germany"
+                commercialRegister = GaiaxCredential.GaiaxCredentialSubject.CommercialRegister(
+                    organizationName = "Amtsgericht Hamburg (-Mitte)",
+                    organizationUnit = "Registergericht",
+                    streetAddress = "Caffamacherreihe 20",
+                    postalCode = "20355",
+                    locality = "Hamburg",
+                    countryName = "Germany"
+                )
+                legalRegistrationNumber = "HRB 170364"
+                ethereumAddress = GaiaxCredential.GaiaxCredentialSubject.EthereumAddress(
+                    id = "0x4C84a36fCDb7Bc750294A7f3B5ad5CA8F74C4A52"
+                )
+                trustState = "trusted"
             }
-            return template
-        } else {
-            throw IllegalArgumentException("Only VerifiableId is supported by this data provider")
         }
+        return template
     }
 }
-
-class ProofOfResidenceDataProvider : SignatoryDataProvider {
-
-    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): ProofOfResidence {
-        val vc = template as ProofOfResidence
-
-        vc.id = proofConfig.credentialId ?: "identity#verifiableID#${UUID.randomUUID()}"
-        vc.issuer = proofConfig.issuerDid
-        if (proofConfig.issueDate != null) vc.issuanceDate = dateFormat.format(proofConfig.issueDate)
-        if (proofConfig.validDate != null) vc.validFrom = dateFormat.format(proofConfig.validDate)
-        if (proofConfig.expirationDate != null) vc.expirationDate = dateFormat.format(proofConfig.expirationDate)
-        vc.validFrom = vc.issuanceDate
-        vc.credentialSubject!!.id = proofConfig.subjectDid
-
-        return vc
-    }
-}
-
 
 class IdData(
     val did: String,

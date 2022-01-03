@@ -8,7 +8,7 @@ import id.walt.services.did.DidService
 import id.walt.services.key.KeyService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.ProofConfig
-import id.walt.vclib.Helpers.encode
+
 import id.walt.vclib.credentials.PermanentResidentCard
 import id.walt.vclib.model.VerifiableCredential
 import info.weboftrust.ldsignatures.LdProof
@@ -191,7 +191,7 @@ class CredentialServiceTest : AnnotationSpec() {
     fun issueVerifiablePresentation() {
         println("Generating PermanentResidentCard...")
         val data2: VerifiableCredential = PermanentResidentCard(
-            credentialSubject = PermanentResidentCard.CredentialSubject2(
+            credentialSubject = PermanentResidentCard.PermanentResidentCardSubject(
                 id = "did:example:123",
                 type = listOf(
                     "PermanentResident",

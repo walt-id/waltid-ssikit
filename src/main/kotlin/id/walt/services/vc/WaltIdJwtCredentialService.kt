@@ -5,11 +5,7 @@ import com.nimbusds.jwt.SignedJWT
 import id.walt.services.jwt.JwtService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
-import id.walt.vclib.Helpers.encode
-import id.walt.vclib.Helpers.toCredential
-import id.walt.vclib.Helpers.toMap
-import id.walt.vclib.VcLibManager
-import id.walt.vclib.VcUtils
+import id.walt.vclib.model.toCredential
 import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.VerifiableCredential
 import info.weboftrust.ldsignatures.LdProof
@@ -18,6 +14,7 @@ import net.pwall.json.schema.JSONSchema
 import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Path
+import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.util.*
@@ -35,16 +32,16 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
         log.debug { "Signing JWT object with config: $config" }
 
         val issuerDid = config.issuerDid
-        val issueDate = config.issueDate ?: LocalDateTime.now()
-        val validDate = config.validDate ?: LocalDateTime.now()
+        val issueDate = config.issueDate ?: Instant.now()
+        val validDate = config.validDate ?: Instant.now()
         val jwtClaimsSet = JWTClaimsSet.Builder()
             .jwtID(config.credentialId)
             .issuer(issuerDid)
-            .issueTime(Date.from(issueDate.toInstant(ZoneOffset.UTC)))
-            .notBeforeTime(Date.from(validDate.toInstant(ZoneOffset.UTC)))
+            .issueTime(Date.from(issueDate))
+            .notBeforeTime(Date.from(validDate))
 
         if (config.expirationDate != null)
-            jwtClaimsSet.expirationTime(Date.from(config.expirationDate.toInstant(ZoneOffset.UTC)))
+            jwtClaimsSet.expirationTime(Date.from(config.expirationDate))
 
         config.verifierDid?.let { jwtClaimsSet.audience(config.verifierDid) }
         config.nonce?.let { jwtClaimsSet.claim("nonce", config.nonce) }
@@ -72,7 +69,7 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
         TODO("Not implemented yet.")
 
     override fun verify(vcOrVp: String): VerificationResult =
-        when (VcLibManager.getVerifiableCredential(vcOrVp)) {
+        when (VerifiableCredential.fromString(vcOrVp)) {
             is VerifiablePresentation -> VerificationResult(verifyVp(vcOrVp), VerificationType.VERIFIABLE_PRESENTATION)
             else -> VerificationResult(verifyVc(vcOrVp), VerificationType.VERIFIABLE_CREDENTIAL)
         }
@@ -122,7 +119,7 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
         vc.toCredential().let {
             if (it is VerifiablePresentation) return true
 
-            val credentialSchema = VcUtils.getCredentialSchemaUrl(it) ?: return true
+            val credentialSchema = it.credentialSchema ?: return true
             val schema = JSONSchema.parse(URL(credentialSchema.id).readText())
             return schema.validateBasic(it.json!!).valid
         }

@@ -7,12 +7,12 @@ import id.walt.services.WaltIdService
 import id.walt.services.context.ContextManager
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
-import id.walt.vclib.Helpers.encode
-import id.walt.vclib.Helpers.toCredential
+
+import id.walt.vclib.model.toCredential
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.templates.VcTemplateManager
 import mu.KotlinLogging
-import java.time.LocalDateTime
+import java.time.Instant
 import java.util.*
 
 private val log = KotlinLogging.logger {}
@@ -31,9 +31,9 @@ data class ProofConfig(
     @Json(serializeNull = false) val nonce: String? = null,
     @Json(serializeNull = false) val proofPurpose: String? = null,
     @Json(serializeNull = false) val credentialId: String? = null,
-    @Json(serializeNull = false) val issueDate: LocalDateTime? = null, // issue date from json-input or current system time if null
-    @Json(serializeNull = false) val validDate: LocalDateTime? = null, // valid date from json-input or current system time if null
-    @Json(serializeNull = false) val expirationDate: LocalDateTime? = null,
+    @Json(serializeNull = false) val issueDate: Instant? = null, // issue date from json-input or current system time if null
+    @Json(serializeNull = false) val validDate: Instant? = null, // valid date from json-input or current system time if null
+    @Json(serializeNull = false) val expirationDate: Instant? = null,
     @Json(serializeNull = false) val dataProviderIdentifier: String? = null // may be used for mapping data-sets from a custom data-provider
 )
 
@@ -79,8 +79,8 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
                 nonce = config.nonce,
                 proofPurpose = config.proofPurpose,
                 config.credentialId ?: "identity#${templateId}#${UUID.randomUUID()}",
-                issueDate = config.issueDate ?: LocalDateTime.now(),
-                validDate = config.validDate ?: LocalDateTime.now(),
+                issueDate = config.issueDate ?: Instant.now(),
+                validDate = config.validDate ?: Instant.now(),
                 expirationDate = config.expirationDate,
                 dataProviderIdentifier = config.dataProviderIdentifier
             )

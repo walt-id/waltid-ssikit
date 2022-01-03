@@ -1,52 +1,45 @@
-package id.walt.signatory
+package id.walt.signatory.dataproviders
 
+import id.walt.signatory.ProofConfig
+import id.walt.signatory.SignatoryDataProvider
 import id.walt.vclib.credentials.*
 import id.walt.vclib.model.VerifiableCredential
-import java.util.*
 
-object CLIDataProviders {
-    fun getCLIDataProviderFor(templateId: String): SignatoryDataProvider? {
-        return when (templateId) {
-            "VerifiableDiploma" -> VerifiableDiplomaCLIDataProvider()
-            "VerifiableId" -> VerifiableIDCLIDataProvider()
-            "GaiaxCredential" -> GaiaxCLIDataProvider()
-            "GaiaxSelfDescription" -> GaiaxSDProvider()
-            "VerifiableVaccinationCertificate" -> VerifiableVaccinationCertificateCLIDataProvider()
-            else -> throw Exception("Could not load data provider for $templateId")
-        }
+fun prompt(prompt: String, default: String?): String? {
+    print("$prompt [$default]: ")
+    val input = readLine()
+    return when (input.isNullOrBlank()) {
+        true -> default
+        else -> input
     }
 }
 
-abstract class CLIDataProvider : SignatoryDataProvider {
-    fun prompt(prompt: String, default: String?): String? {
-        print("$prompt [$default]: ")
-        val input = readLine()
-        return when (input.isNullOrBlank()) {
-            true -> default
-            else -> input
-        }
-    }
-
-    fun promptInt(prompt: String, default: Int?): Int {
-        val str = prompt(prompt, default.let { it.toString() })
-        return str.let { Integer.parseInt(it) }
-    }
+fun promptInt(prompt: String, default: Int?): Int {
+    val str = prompt(prompt, default.let { it.toString() })
+    return str.let { Integer.parseInt(it) }
 }
 
-class VerifiableDiplomaCLIDataProvider : CLIDataProvider() {
+object CLIDataProvider : SignatoryDataProvider {
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
-        template as VerifiableDiploma
+        return when (template) {
+            is VerifiableDiploma -> VerifiableDiplomaCLIDataProvider
+            is VerifiableId -> VerifiableIDCLIDataProvider
+            is GaiaxCredential -> GaiaxCLIDataProvider
+            is GaiaxSelfDescription -> GaiaxSDProvider
+            is VerifiableVaccinationCertificate -> VerifiableVaccinationCertificateCLIDataProvider
+            else -> {
+                println("No CLI data provider defined for the given credential type. Only default meta data will be populated.")
+                DefaultDataProvider
+            }
+        }.populate(template, proofConfig)
+    }
+}
 
+object VerifiableDiplomaCLIDataProvider : AbstractDataProvider<VerifiableDiploma>() {
+    override fun populateCustomData(template: VerifiableDiploma, proofConfig: ProofConfig): VerifiableDiploma {
         template.apply {
-            id = proofConfig.credentialId ?: "education#higherEducation#${UUID.randomUUID()}"
-            issuer = proofConfig.issuerDid
-            if (proofConfig.issueDate != null) issuanceDate = dateFormat.format(proofConfig.issueDate)
-            if (proofConfig.expirationDate != null) expirationDate = dateFormat.format(proofConfig.expirationDate)
-            validFrom = issuanceDate
 
             credentialSubject!!.apply {
-                id = proofConfig.subjectDid
-
                 println()
                 println("Subject personal data, ID: ${proofConfig.subjectDid}")
                 println("----------------------")
@@ -68,7 +61,6 @@ class VerifiableDiplomaCLIDataProvider : CLIDataProvider() {
                     println()
                     println("Awarding Body, ID: ${proofConfig.issuerDid}")
                     awardingBody.apply {
-                        id = proofConfig.issuerDid
                         preferredName = prompt("Preferred name", preferredName) ?: ""
                         homepage = prompt("Homepage", homepage) ?: ""
                         registration = prompt("Registration", registration) ?: ""
@@ -121,19 +113,11 @@ class VerifiableDiplomaCLIDataProvider : CLIDataProvider() {
     }
 }
 
-class VerifiableVaccinationCertificateCLIDataProvider : CLIDataProvider() {
-    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
-        template as VerifiableVaccinationCertificate
-
+object VerifiableVaccinationCertificateCLIDataProvider : AbstractDataProvider<VerifiableVaccinationCertificate>() {
+    override fun populateCustomData(template: VerifiableVaccinationCertificate, proofConfig: ProofConfig): VerifiableVaccinationCertificate {
         template.apply {
-            id = proofConfig.credentialId ?: "education#higherEducation#${UUID.randomUUID()}"
-            issuer = proofConfig.issuerDid
-            if (proofConfig.issueDate != null) issuanceDate = dateFormat.format(proofConfig.issueDate)
-            if (proofConfig.expirationDate != null) expirationDate = dateFormat.format(proofConfig.expirationDate)
-            validFrom = issuanceDate
 
             credentialSubject!!.apply {
-                id = proofConfig.subjectDid
 
                 println()
                 println("Subject personal data, ID: ${proofConfig.subjectDid}")
@@ -159,15 +143,13 @@ class VerifiableVaccinationCertificateCLIDataProvider : CLIDataProvider() {
     }
 }
 
-class GaiaxCLIDataProvider : CLIDataProvider() {
-    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
-        (template as GaiaxCredential).apply {
+object GaiaxCLIDataProvider : AbstractDataProvider<GaiaxCredential>() {
+    override fun populateCustomData(template: GaiaxCredential, proofConfig: ProofConfig): GaiaxCredential {
+        template.apply {
             println()
             println("> Subject information")
             println()
-            issuer = proofConfig.issuerDid
-            credentialSubject.apply {
-                if (proofConfig.subjectDid != null) id = proofConfig.subjectDid
+            credentialSubject?.apply {
                 legallyBindingName = prompt("Legally binding name", "deltaDAO AG") ?: ""
                 brandName = prompt("Brand name", "deltaDAO") ?: ""
                 legalRegistrationNumber = prompt("Legal registration number", "HRB 170364") ?: ""
@@ -224,15 +206,13 @@ class GaiaxCLIDataProvider : CLIDataProvider() {
     }
 }
 
-class GaiaxSDProvider : CLIDataProvider() {
-    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
-        (template as GaiaxSelfDescription).apply {
+object GaiaxSDProvider : AbstractDataProvider<GaiaxSelfDescription>() {
+    override fun populateCustomData(template: GaiaxSelfDescription, proofConfig: ProofConfig): GaiaxSelfDescription {
+        template.apply {
             println()
             println("> Subject information")
             println()
-            issuer = proofConfig.issuerDid
-            credentialSubject.apply {
-                if (proofConfig.subjectDid != null) id = proofConfig.subjectDid
+            credentialSubject?.apply {
                 type = prompt("Type", "Service") ?: ""
                 hasName = prompt("Name", "AIS") ?: ""
                 description = prompt("Description", "AIS demonstrates machine learning application use case.") ?: ""
@@ -252,16 +232,8 @@ class GaiaxSDProvider : CLIDataProvider() {
 }
 
 
-class VerifiableIDCLIDataProvider : CLIDataProvider() {
-    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
-        template as VerifiableId
-        template.id = proofConfig.credentialId ?: "education#higherEducation#${UUID.randomUUID()}"
-        template.issuer = proofConfig.issuerDid
-        if (proofConfig.issueDate != null) template.issuanceDate = dateFormat.format(proofConfig.issueDate)
-        if (proofConfig.expirationDate != null) template.expirationDate = dateFormat.format(proofConfig.expirationDate)
-        template.validFrom = template.issuanceDate
-        template.credentialSubject!!.id = proofConfig.subjectDid
-
+object VerifiableIDCLIDataProvider : AbstractDataProvider<VerifiableId>() {
+    override fun populateCustomData(template: VerifiableId, proofConfig: ProofConfig): VerifiableId {
         println()
         println("Subject personal data, ID: ${proofConfig.subjectDid}")
         println("----------------------")

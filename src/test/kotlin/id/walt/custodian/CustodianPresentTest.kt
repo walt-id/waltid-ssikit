@@ -7,9 +7,9 @@ import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.test.RESOURCES_PATH
-import id.walt.vclib.Helpers.toCredential
-import id.walt.vclib.VcLibManager
+import id.walt.vclib.model.toCredential
 import id.walt.vclib.credentials.VerifiablePresentation
+import id.walt.vclib.model.VerifiableCredential
 import io.kotest.core.spec.Spec
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -92,7 +92,7 @@ class CustodianPresentTest : StringSpec() {
     }
 
     private fun checkVerifiablePresentation(presStr: String) {
-        VcLibManager.isJWT(presStr) shouldBe true
+        VerifiableCredential.isJWT(presStr) shouldBe true
 
         val pres = presStr.toCredential()
 

@@ -1,13 +1,13 @@
-package id.walt.signatory
+package id.walt.signatory.dataproviders
 
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
-import id.walt.vclib.Helpers.toCredential
-import id.walt.vclib.Helpers.toMap
+import id.walt.signatory.ProofConfig
+import id.walt.vclib.model.toCredential
 import id.walt.vclib.model.VerifiableCredential
 import java.io.StringReader
 
-class MergingDataProvider(val partial: Map<String, Any>) : SignatoryDataProvider {
+class MergingDataProvider(val partial: Map<String, Any>) : AbstractDataProvider<VerifiableCredential>() {
 
   fun deepMerge(source: JsonObject, target: JsonObject): JsonObject? {
     for (key in source.keys) {
@@ -28,11 +28,10 @@ class MergingDataProvider(val partial: Map<String, Any>) : SignatoryDataProvider
     return target
   }
 
-  override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
-    val defaultDP = DataProviderRegistry.getProvider(template::class)
+  override fun populateCustomData(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
     var populatedJson = JsonObject(template.toMap())
     var partialJson = Klaxon().parseJsonObject(StringReader(Klaxon().toJsonString(partial)))
     deepMerge(partialJson, populatedJson)
-    return defaultDP.populate(populatedJson.toJsonString().toCredential(), proofConfig)
+    return populatedJson.toJsonString().toCredential()
   }
 }

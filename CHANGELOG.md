@@ -4,6 +4,10 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
 
 ## [Unreleased]
 
+- adaptations for changes in VerifiableCredential data model of vclib version 1.7.0
+- refactoring of data providers
+- credential timestamps using UTC by default
+
 ## [1.3.0] - 2021-12-27
 
 -   Roadmap Items

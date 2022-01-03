@@ -7,8 +7,9 @@ import id.walt.services.context.ContextManager
 import id.walt.services.did.DidService
 import id.walt.services.jwt.JwtService
 import id.walt.services.vc.JsonLdCredentialService
+import id.walt.signatory.dataproviders.MergingDataProvider
 import id.walt.test.RESOURCES_PATH
-import id.walt.vclib.Helpers.toCredential
+import id.walt.vclib.model.toCredential
 import id.walt.vclib.credentials.VerifiableDiploma
 import id.walt.vclib.credentials.VerifiableId
 import id.walt.vclib.templates.VcTemplateManager
@@ -18,6 +19,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.types.beInstanceOf
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 class SignatoryServiceTest : StringSpec({
     ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
@@ -31,7 +33,7 @@ class SignatoryServiceTest : StringSpec({
             "VerifiableId", ProofConfig(
                 subjectDid = did,
                 issuerDid = did,
-                issueDate = LocalDateTime.of(2020, 11, 3, 0, 0),
+                issueDate = LocalDateTime.of(2020, 11, 3, 0, 0).toInstant(ZoneOffset.UTC),
                 issuerVerificationMethod = "Ed25519Signature2018"
             )
         )
@@ -71,7 +73,7 @@ class SignatoryServiceTest : StringSpec({
             "VerifiableDiploma", ProofConfig(
                 subjectDid = did,
                 issuerDid = did,
-                issueDate = LocalDateTime.of(2020, 11, 3, 0, 0),
+                issueDate = LocalDateTime.of(2020, 11, 3, 0, 0).toInstant(ZoneOffset.UTC),
                 issuerVerificationMethod = "Ed25519Signature2018"
             )
         )

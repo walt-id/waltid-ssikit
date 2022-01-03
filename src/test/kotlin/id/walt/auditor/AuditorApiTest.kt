@@ -23,6 +23,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 class AuditorApiTest : AnnotationSpec() {
 
@@ -98,7 +99,7 @@ class AuditorApiTest : AnnotationSpec() {
             "VerifiableId", ProofConfig(
                 subjectDid = did,
                 issuerDid = did,
-                issueDate = LocalDateTime.of(2020, 11, 3, 0, 0)
+                issueDate = LocalDateTime.of(2020, 11, 3, 0, 0).toInstant(ZoneOffset.UTC)
             )
         )
 

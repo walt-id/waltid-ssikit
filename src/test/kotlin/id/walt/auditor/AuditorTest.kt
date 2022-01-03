@@ -26,9 +26,6 @@ class AuditorCommandTest : StringSpec() {
 
         ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
 
-        // Required at the moment because EBSI did not upgrade V_ID schema with necessary changes.
-        DataProviderRegistry.register(VerifiableDiploma::class, DummySignatoryDataProvider())
-
         val signatory = Signatory.getService()
         val custodian = Custodian.getService()
 
@@ -42,7 +39,9 @@ class AuditorCommandTest : StringSpec() {
                 issuerVerificationMethod = "Ed25519Signature2018",
                 proofPurpose = "Testing",
                 proofType = ProofType.LD_PROOF
-            )
+            ),
+            // Required at the moment because EBSI did not upgrade V_ID schema with necessary changes.
+            DummySignatoryDataProvider()
         )
 
         vpStr =
@@ -53,7 +52,9 @@ class AuditorCommandTest : StringSpec() {
                 issuerDid = did,
                 subjectDid = did,
                 issuerVerificationMethod = "Ed25519Signature2018", proofType = ProofType.JWT
-            )
+            ),
+            // Required at the moment because EBSI did not upgrade V_ID schema with necessary changes.
+            DummySignatoryDataProvider()
         )
 
         vpJwt = custodian.createPresentation(listOf(vcJwt), did, did, null, "abcd")
@@ -118,11 +119,5 @@ class AuditorCommandTest : StringSpec() {
                 it shouldBe true
             }
         }
-    }
-
-    override fun afterSpec(spec: Spec) {
-        super.afterSpec(spec)
-        // Required at the moment because EBSI did not upgrade V_ID schema with necessary changes.
-        DataProviderRegistry.register(VerifiableDiploma::class, VerifiableDiplomaDataProvider())
     }
 }

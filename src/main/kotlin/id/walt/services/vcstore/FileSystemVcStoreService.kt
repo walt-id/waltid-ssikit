@@ -1,7 +1,7 @@
 package id.walt.services.vcstore
 
-import id.walt.vclib.Helpers.encode
-import id.walt.vclib.Helpers.toCredential
+
+import id.walt.vclib.model.toCredential
 import id.walt.vclib.model.VerifiableCredential
 import java.io.File
 
