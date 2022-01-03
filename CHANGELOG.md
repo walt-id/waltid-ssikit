@@ -4,9 +4,11 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
 
 ## [Unreleased]
 
-- adaptations for changes in VerifiableCredential data model of vclib version 1.7.0
-- refactoring of data providers
-- credential timestamps using UTC by default
+## [1.4.0] - 2022-01-03
+
+-   adaptations for changes in VerifiableCredential data model of vclib version 1.7.0
+-   refactoring of data providers
+-   credential timestamps using UTC by default
 
 ## [1.3.0] - 2021-12-27
 
@@ -84,7 +86,9 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
     -   Fixed the way of finding the padding <https://github.com/walt-id/waltid-ssikit/pull/43>
     -   SignaturePolicy fails for issuers using did:ebsi <https://github.com/walt-id/waltid-ssikit/issues/52>
 
-[Unreleased]: https://github.com/walt-id/waltid-ssikit/compare/1.3.0...HEAD
+[Unreleased]: https://github.com/walt-id/waltid-ssikit/compare/1.4.0...HEAD
+
+[1.4.0]: https://github.com/walt-id/waltid-ssikit/compare/1.3.0...1.4.0
 
 [1.3.0]: https://github.com/walt-id/waltid-ssikit/compare/1.2.0...1.3.0
 
