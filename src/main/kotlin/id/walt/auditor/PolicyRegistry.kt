@@ -23,5 +23,7 @@ object PolicyRegistry {
         register(ExpirationDateAfterPolicy())
         register(GaiaxTrustedPolicy())
         register(GaiaxSDPolicy())
+        register(ChallengePolicy(""))
+        register(VpTokenClaimPolicy(null))
     }
 }

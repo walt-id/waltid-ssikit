@@ -2,6 +2,7 @@ package id.walt.auditor
 
 import id.walt.model.AttributeInfo
 import id.walt.model.TrustedIssuer
+import id.walt.model.siopv2.VpTokenClaim
 import id.walt.services.did.DidService
 import id.walt.services.essif.TrustedIssuerClient
 import id.walt.services.key.KeyService
@@ -168,6 +169,24 @@ class ExpirationDateAfterPolicy : VerificationPolicy {
             is VerifiablePresentation -> true
             else -> parseDate(vc.expirationDate).let { it == null || it.after(Date()) }
         }
+    }
+}
+
+class ChallengePolicy(val challenge: String) : VerificationPolicy {
+    override val description: String = "Verify challenge"
+    override fun verify(vc: VerifiableCredential): Boolean = vc.challenge == challenge
+}
+
+class VpTokenClaimPolicy(val vpTokenClaim: VpTokenClaim?): VerificationPolicy {
+    override val description: String = "Verify verifiable presentation by OIDC/SIOPv2 VP token claim"
+    override fun verify(vc: VerifiableCredential): Boolean {
+        if(vpTokenClaim != null && vc is VerifiablePresentation) {
+            return vpTokenClaim.presentation_definition.input_descriptors.all { desc ->
+                vc.verifiableCredential.any { cred -> desc.schema.uri == cred.credentialSchema?.id }
+            }
+        }
+        // else: nothing to check
+        return true
     }
 }
 
