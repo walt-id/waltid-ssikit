@@ -195,6 +195,7 @@ open class WaltIdKeyService : KeyService() {
 
     override fun delete(alias: String) = keyStore.delete(alias)
 
+    override fun hasKey(alias: String): Boolean = keyStore.getKeyId(alias) != null
 }
 
 

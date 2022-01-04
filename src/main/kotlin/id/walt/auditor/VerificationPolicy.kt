@@ -44,11 +44,7 @@ class SignaturePolicy : VerificationPolicy {
 
             val issuerDid = vc.issuer!!
 
-            try {
-                // Check if key is already in keystore
-                KeyService.getService().load(issuerDid)
-            } catch (e: Exception) {
-                // Resolve DID and import key
+            if(!KeyService.getService().hasKey(issuerDid)) {
                 DidService.importKey(issuerDid)
             }
 

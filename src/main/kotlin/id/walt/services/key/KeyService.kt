@@ -59,6 +59,8 @@ abstract class KeyService : WaltIdService() {
 
     open fun delete(alias: String): Unit = implementation.delete(alias)
 
+    open fun hasKey(alias: String): Boolean = implementation.hasKey(alias)
+
     // TODO: consider deprecated methods below
 
     @Deprecated(message = "outdated")
