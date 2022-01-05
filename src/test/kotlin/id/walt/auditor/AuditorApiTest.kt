@@ -39,7 +39,9 @@ class AuditorApiTest : AnnotationSpec() {
 
     val client = HttpClient(CIO) {
         install(JsonFeature) {
-            serializer = KotlinxSerializer()
+            serializer = KotlinxSerializer(kotlinx.serialization.json.Json {
+                ignoreUnknownKeys = true
+            })
         }
         expectSuccess = false
     }
@@ -66,9 +68,9 @@ class AuditorApiTest : AnnotationSpec() {
             contentType(ContentType.Application.Json)
         }
 
-        policies shouldContain VerificationPolicyMetadata("Verify by signature", "SignaturePolicy")
-        policies shouldContain VerificationPolicyMetadata("Verify by JSON schema", "JsonSchemaPolicy")
-        policies shouldContain VerificationPolicyMetadata("Verify by EBSI Trusted Schema Registry", "TrustedSchemaRegistryPolicy")
+        policies shouldContain VerificationPolicyMetadata("Verify by signature", "SignaturePolicy", true, true)
+        policies shouldContain VerificationPolicyMetadata("Verify by JSON schema", "JsonSchemaPolicy", true, true)
+        policies shouldContain VerificationPolicyMetadata("Verify by EBSI Trusted Schema Registry", "TrustedSchemaRegistryPolicy", true, true)
     }
 
     private fun postAndVerify(vcToVerify: String, policyList: String = DEFAULT_POLICIES) {
