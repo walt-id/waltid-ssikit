@@ -12,7 +12,6 @@ import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.test.DummySignatoryDataProvider
 import id.walt.test.RESOURCES_PATH
-
 import id.walt.vclib.credentials.Europass
 import id.walt.vclib.credentials.VerifiableId
 import io.kotest.core.spec.style.AnnotationSpec
@@ -22,9 +21,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import java.time.Duration
 import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneOffset
-import java.time.temporal.TemporalAmount
 import java.util.*
 
 class WaltIdJwtCredentialServiceTest : AnnotationSpec() {

@@ -13,7 +13,9 @@ import id.walt.services.did.DidService
 import id.walt.services.essif.EssifClient
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
-import id.walt.signatory.*
+import id.walt.signatory.ProofConfig
+import id.walt.signatory.ProofType
+import id.walt.signatory.Signatory
 import id.walt.signatory.dataproviders.CLIDataProvider
 import id.walt.vclib.model.toCredential
 import io.kotest.assertions.throwables.shouldNotThrowAny

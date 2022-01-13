@@ -1,8 +1,8 @@
 package id.walt.services.vcstore
 
 
-import id.walt.vclib.model.toCredential
 import id.walt.vclib.model.VerifiableCredential
+import id.walt.vclib.model.toCredential
 import java.io.File
 
 open class FileSystemVcStoreService : VcStoreService() {

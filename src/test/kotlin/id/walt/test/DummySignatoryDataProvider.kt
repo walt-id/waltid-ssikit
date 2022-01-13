@@ -1,6 +1,8 @@
 package id.walt.test
 
-import id.walt.signatory.*
+import id.walt.signatory.ProofConfig
+import id.walt.signatory.ProofType
+import id.walt.signatory.SignatoryDataProvider
 import id.walt.signatory.dataproviders.DefaultDataProvider
 import id.walt.vclib.credentials.VerifiableDiploma
 import id.walt.vclib.credentials.VerifiableId

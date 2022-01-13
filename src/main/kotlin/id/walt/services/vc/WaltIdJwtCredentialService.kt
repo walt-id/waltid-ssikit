@@ -5,9 +5,9 @@ import com.nimbusds.jwt.SignedJWT
 import id.walt.services.jwt.JwtService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
-import id.walt.vclib.model.toCredential
 import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.VerifiableCredential
+import id.walt.vclib.model.toCredential
 import info.weboftrust.ldsignatures.LdProof
 import mu.KotlinLogging
 import net.pwall.json.schema.JSONSchema
@@ -15,8 +15,6 @@ import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneOffset
 import java.util.*
 
 private val log = KotlinLogging.logger {}

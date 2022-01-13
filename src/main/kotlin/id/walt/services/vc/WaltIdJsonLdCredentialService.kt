@@ -13,13 +13,9 @@ import id.walt.services.essif.TrustedIssuerClient.domain
 import id.walt.services.keystore.KeyStoreService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
-import id.walt.vclib.model.toCredential
 import id.walt.vclib.credentials.VerifiableAttestation
 import id.walt.vclib.credentials.VerifiablePresentation
-import id.walt.vclib.model.CredentialSchema
-import id.walt.vclib.model.CredentialStatus
-import id.walt.vclib.model.Proof
-import id.walt.vclib.model.VerifiableCredential
+import id.walt.vclib.model.*
 import info.weboftrust.ldsignatures.LdProof
 import info.weboftrust.ldsignatures.jsonld.LDSecurityContexts
 import mu.KotlinLogging

@@ -2,9 +2,8 @@ package id.walt.auditor
 
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
-import id.walt.vclib.model.toCredential
 import id.walt.vclib.credentials.VerifiablePresentation
-
+import id.walt.vclib.model.toCredential
 import mu.KotlinLogging
 
 
