@@ -2,9 +2,8 @@ package id.walt.services.vcstore
 
 import id.walt.services.context.ContextManager
 import id.walt.services.hkvstore.HKVKey
-
-import id.walt.vclib.model.toCredential
 import id.walt.vclib.model.VerifiableCredential
+import id.walt.vclib.model.toCredential
 
 
 class HKVVcStoreService : VcStoreService() {

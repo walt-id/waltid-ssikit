@@ -7,9 +7,8 @@ import id.walt.services.WaltIdService
 import id.walt.services.context.ContextManager
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
-
-import id.walt.vclib.model.toCredential
 import id.walt.vclib.model.VerifiableCredential
+import id.walt.vclib.model.toCredential
 import id.walt.vclib.templates.VcTemplateManager
 import mu.KotlinLogging
 import java.time.Instant

@@ -1,5 +1,6 @@
 package id.walt.auditor
 
+
 import id.walt.model.AttributeInfo
 import id.walt.model.TrustedIssuer
 import id.walt.model.oidc.VpTokenClaim
@@ -8,9 +9,7 @@ import id.walt.services.essif.TrustedIssuerClient
 import id.walt.services.key.KeyService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
-
-
-import id.walt.vclib.credentials.GaiaxCredential
+import id.walt.vclib.credentials.gaiax.GaiaxCredential
 import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.schema.SchemaService

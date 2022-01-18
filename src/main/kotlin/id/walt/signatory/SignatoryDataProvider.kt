@@ -4,9 +4,8 @@ import id.walt.model.DidMethod
 import id.walt.services.did.DidService
 import id.walt.signatory.dataproviders.AbstractDataProvider
 import id.walt.signatory.dataproviders.DefaultDataProvider
-import id.walt.vclib.credentials.*
+import id.walt.vclib.credentials.gaiax.GaiaxCredential
 import id.walt.vclib.model.VerifiableCredential
-import java.util.*
 import kotlin.reflect.KClass
 
 interface SignatoryDataProvider {

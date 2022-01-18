@@ -1,9 +1,8 @@
 package id.walt.signatory.rest
 
-import id.walt.signatory.dataproviders.MergingDataProvider
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.Signatory
-
+import id.walt.signatory.dataproviders.MergingDataProvider
 import io.javalin.http.Context
 import io.javalin.plugin.openapi.dsl.document
 

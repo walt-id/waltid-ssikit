@@ -3,7 +3,9 @@ package id.walt.signatory.dataproviders
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.SignatoryDataProvider
 import id.walt.vclib.credentials.*
+import id.walt.vclib.credentials.gaiax.*
 import id.walt.vclib.model.VerifiableCredential
+import org.bouncycastle.asn1.x500.style.RFC4519Style.description
 
 fun prompt(prompt: String, default: String?): String? {
     print("$prompt [$default]: ")
@@ -25,7 +27,7 @@ object CLIDataProvider : SignatoryDataProvider {
             is VerifiableDiploma -> VerifiableDiplomaCLIDataProvider
             is VerifiableId -> VerifiableIDCLIDataProvider
             is GaiaxCredential -> GaiaxCLIDataProvider
-            is GaiaxSelfDescription -> GaiaxSDProvider
+            is DataSelfDescription -> GaiaxSDProvider
             is VerifiableVaccinationCertificate -> VerifiableVaccinationCertificateCLIDataProvider
             else -> {
                 println("No CLI data provider defined for the given credential type. Only default meta data will be populated.")
@@ -206,8 +208,8 @@ object GaiaxCLIDataProvider : AbstractDataProvider<GaiaxCredential>() {
     }
 }
 
-object GaiaxSDProvider : AbstractDataProvider<GaiaxSelfDescription>() {
-    override fun populateCustomData(template: GaiaxSelfDescription, proofConfig: ProofConfig): GaiaxSelfDescription {
+object GaiaxSDProvider : AbstractDataProvider<DataSelfDescription>() {
+    override fun populateCustomData(template: DataSelfDescription, proofConfig: ProofConfig): DataSelfDescription {
         template.apply {
             println()
             println("> Subject information")

@@ -3,8 +3,8 @@ package id.walt.signatory.dataproviders
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
 import id.walt.signatory.ProofConfig
-import id.walt.vclib.model.toCredential
 import id.walt.vclib.model.VerifiableCredential
+import id.walt.vclib.model.toCredential
 import java.io.StringReader
 
 class MergingDataProvider(val partial: Map<String, Any>) : AbstractDataProvider<VerifiableCredential>() {

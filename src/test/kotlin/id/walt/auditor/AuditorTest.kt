@@ -4,10 +4,11 @@ import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
-import id.walt.signatory.*
+import id.walt.signatory.ProofConfig
+import id.walt.signatory.ProofType
+import id.walt.signatory.Signatory
 import id.walt.test.DummySignatoryDataProvider
 import id.walt.test.RESOURCES_PATH
-import id.walt.vclib.credentials.VerifiableDiploma
 import io.kotest.core.spec.Spec
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldBeSameSizeAs

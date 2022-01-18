@@ -12,10 +12,10 @@ import id.walt.test.DummySignatoryDataProvider
 import id.walt.test.RESOURCES_PATH
 import id.walt.test.getTemplate
 import id.walt.test.readCredOffer
-import id.walt.vclib.model.toCredential
 import id.walt.vclib.credentials.*
 import id.walt.vclib.model.CredentialSchema
 import id.walt.vclib.model.CredentialStatus
+import id.walt.vclib.model.toCredential
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
