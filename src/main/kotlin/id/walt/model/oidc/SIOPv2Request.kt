@@ -1,7 +1,8 @@
-package id.walt.model.siopv2
+package id.walt.model.oidc
 
 import com.beust.klaxon.Json
 import com.beust.klaxon.Klaxon
+import id.walt.model.dif.PresentationDefinition
 import io.javalin.http.Context
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -69,20 +70,6 @@ data class JwtVPFormat (
 data class  LdpVpFormat(
   val proof_type: Set<String> = setOf("Ed25519Signature2018")
 )
-
-data class VpSchema (
-  val uri: String
-)
-
-data class InputDescriptor (
-  val id: String,
-  val schema: VpSchema
-    )
-
-data class PresentationDefinition (
-  val id: String,
-  val input_descriptors: List<InputDescriptor>
-    )
 
 data class VpTokenClaim (
   val presentation_definition: PresentationDefinition

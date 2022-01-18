@@ -2,7 +2,7 @@ package id.walt.auditor
 
 import id.walt.model.AttributeInfo
 import id.walt.model.TrustedIssuer
-import id.walt.model.siopv2.VpTokenClaim
+import id.walt.model.oidc.VpTokenClaim
 import id.walt.services.did.DidService
 import id.walt.services.essif.TrustedIssuerClient
 import id.walt.services.key.KeyService
