@@ -2,10 +2,14 @@ package id.walt.model.oidc
 
 import com.beust.klaxon.Json
 import com.beust.klaxon.Klaxon
+import id.walt.model.ListOrSingleValue
 import id.walt.model.dif.PresentationDefinition
+import id.walt.model.listOrSingleValueConverter
 import io.javalin.http.Context
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+
+val klaxon = Klaxon().fieldConverter(ListOrSingleValue::class, listOrSingleValueConverter)
 
 data class SIOPv2Request(
   val response_type: String = "id_token",
@@ -14,7 +18,7 @@ data class SIOPv2Request(
   val response_mode: String = "fragment",
   val scope: String = "openid",
   val nonce: String,
-  val registration: Registration = Registration(),
+  val registration: Registration,
   @Json("exp") val expiration: Long,
   @Json("iat") val issuedAt: Long,
   val claims: Claims
@@ -23,8 +27,8 @@ data class SIOPv2Request(
   private fun enc(str: String): String = URLEncoder.encode(str, StandardCharsets.UTF_8)
   fun toUriQueryString(): String {
     return "response_type=${enc(response_type)}&response_mode=${enc(response_mode)}&client_id=${enc(client_id)}&redirect_uri=${enc(redirect_uri)}" +
-           "&scope=${enc(scope)}&nonce=${enc(nonce)}&registration=${enc(Klaxon().toJsonString(registration))}" +
-           "&exp=$expiration&iat=$issuedAt&claims=${enc(Klaxon().toJsonString(claims))}"
+           "&scope=${enc(scope)}&nonce=${enc(nonce)}&registration=${enc(klaxon.toJsonString(registration))}" +
+           "&exp=$expiration&iat=$issuedAt&claims=${enc(klaxon.toJsonString(claims))}"
   }
 
   companion object {
@@ -42,7 +46,7 @@ data class SIOPv2Request(
         Klaxon().parse<Registration>(ctx.queryParam("registration")!!)!!,
         ctx.queryParam("exp")!!.toLong(),
         ctx.queryParam("iat")!!.toLong(),
-        Klaxon().parse<Claims>(ctx.queryParam("claims")!!)!!
+        klaxon.parse<Claims>(ctx.queryParam("claims")!!)!!
       )
     }
   }
@@ -70,11 +74,3 @@ data class JwtVPFormat (
 data class  LdpVpFormat(
   val proof_type: Set<String> = setOf("Ed25519Signature2018")
 )
-
-data class VpTokenClaim (
-  val presentation_definition: PresentationDefinition
-    )
-
-data class Claims (
-  val vp_token: VpTokenClaim? = null
-    )
