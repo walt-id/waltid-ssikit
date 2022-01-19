@@ -17,18 +17,19 @@ data class SIOPv2Request(
   val redirect_uri: String,
   val response_mode: String = "fragment",
   val scope: String = "openid",
-  val nonce: String,
-  val registration: Registration,
+  val nonce: String? = null,
+  val registration: Registration?,
   @Json("exp") val expiration: Long,
   @Json("iat") val issuedAt: Long,
-  val claims: Claims
+  val claims: Claims,
+  val state: String? = null
 
   ) {
   private fun enc(str: String): String = URLEncoder.encode(str, StandardCharsets.UTF_8)
   fun toUriQueryString(): String {
     return "response_type=${enc(response_type)}&response_mode=${enc(response_mode)}&client_id=${enc(client_id)}&redirect_uri=${enc(redirect_uri)}" +
-           "&scope=${enc(scope)}&nonce=${enc(nonce)}&registration=${enc(klaxon.toJsonString(registration))}" +
-           "&exp=$expiration&iat=$issuedAt&claims=${enc(klaxon.toJsonString(claims))}"
+           "&scope=${enc(scope)}${ nonce?.let { "&nonce=${enc(nonce)}" } ?: ""}${registration?.let { "&registration=${enc(klaxon.toJsonString(it))}" } ?: ""}" +
+           "&exp=$expiration&iat=$issuedAt&claims=${enc(klaxon.toJsonString(claims))}${state?.let { "&state=$it" } ?: ""}"
   }
 
   companion object {
