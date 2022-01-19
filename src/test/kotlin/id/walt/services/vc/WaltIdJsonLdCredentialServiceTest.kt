@@ -122,68 +122,10 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
         val domain = "example.com"
         val challenge = "asdf"
 
-        val template = Europass(
-            id = "education#higherEducation#51e42fda-cb0a-4333-b6a6-35cb147e1a88",
-            issuer = "did:ebsi:2LGKvDMrNUPR6FhSNrXzQQ1h295zr4HwoX9UqvwAsenSKHe9",
-            issuanceDate = "2020-11-03T00:00:00Z",
-            validFrom = "2020-11-03T00:00:00Z",
-            credentialSubject = Europass.EuropassSubject(
-                id = "did:ebsi:22AhtW7XMssv7es4YcQTdV2MCM3c8b1VsiBfi5weHsjcCY9o",
-                identifier = "0904008084H",
-                givenNames = "Jane",
-                familyName = "DOE",
-                dateOfBirth = "1993-04-08T00:00:00Z",
-                gradingScheme = Europass.EuropassSubject.GradingScheme(
-                    id = "https://leaston.bcdiploma.com/law-economics-management#GradingScheme",
-                    title = "Lower Second-Class Honours"
-                ),
-                learningAchievement = Europass.EuropassSubject.LearningAchievement(
-                    id = "https://leaston.bcdiploma.com/law-economics-management#LearningAchievment",
-                    title = "MASTERS LAW, ECONOMICS AND MANAGEMENT",
-                    description = "MARKETING AND SALES",
-                    additionalNote = listOf(
-                        "DISTRIBUTION MANAGEMENT"
-                    )
-                ),
-                awardingOpportunity = Europass.EuropassSubject.AwardingOpportunity(
-                    id = "https://leaston.bcdiploma.com/law-economics-management#AwardingOpportunity",
-                    identifier = "https://certificate-demo.bcdiploma.com/check/87ED2F2270E6C41456E94B86B9D9115B4E35BCCAD200A49B846592C14F79C86BV1Fnbllta0NZTnJkR3lDWlRmTDlSRUJEVFZISmNmYzJhUU5sZUJ5Z2FJSHpWbmZZ",
-                    awardingBody = Europass.EuropassSubject.AwardingOpportunity.AwardingBody(
-                        id = "did:ebsi:2LGKvDMrNUPR6FhSNrXzQQ1h295zr4HwoX9UqvwAsenSKHe9",
-                        eidasLegalIdentifier = "Unknown",
-                        registration = "0597065J",
-                        preferredName = "Leaston University",
-                        homepage = "https://leaston.bcdiploma.com/"
-                    ),
-                    location = "FRANCE",
-                    startedAtTime = "2015-11-03T00:00:00Z",
-                    endedAtTime = "2020-11-03T00:00:00Z"
-                ),
-                learningSpecification = Europass.EuropassSubject.LearningSpecification(
-                    id = "https://leaston.bcdiploma.com/law-economics-management#LearningSpecification",
-                    ISCEDFCode = listOf(
-                        "7"
-                    ),
-                    ECTSCreditPoints = 120,
-                    EQFLevel = 7,
-                    NQFLevel = listOf(
-                        "7"
-                    )
-                )
-            ),
-            credentialStatus = CredentialStatus(
-                id = "https://essif.europa.eu/status/education#higherEducation#51e42fda-cb0a-4333-b6a6-35cb147e1a88",
-                type = "CredentialsStatusList2020"
-            ),
-            credentialSchema = CredentialSchema(
-                id = "https://essif.europa.eu/trusted-schemas-registry/v1/schemas/to_be_obtained_after_registration_of_the_schema",
-                type = "JsonSchemaValidator2018"
-            )
-        )
+        val template = Europass.template!!.invoke() as Europass
 
         template.issuer = issuerEbsiDid
         template.credentialSubject!!.id = subjectKeyDid
-        template.credentialSubject!!.learningAchievement!!.title = "Some Europass specific title"
 
         val vc = credentialService.sign(template.encode() , ProofConfig(issuerDid = issuerEbsiDid))
 
