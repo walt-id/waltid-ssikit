@@ -86,7 +86,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
 
         template.issuer = issuerKeyDid
         template.credentialSubject!!.id = issuerKeyDid // self signed
-        template.credentialSubject!!.learningAchievement!!.title = "Some Europass specific title"
+        template.credentialSubject!!.achieved!![0]!!.title = "Some Europass specific title"
 
         val credOffer = Klaxon().toJsonString(template)
 
