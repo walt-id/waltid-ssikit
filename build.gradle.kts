@@ -44,7 +44,7 @@ dependencies {
     implementation("com.google.guava:guava:31.0.1-jre")
 
     // VC
-    implementation("id.walt:waltid-ssikit-vclib:1.9.0")
+    implementation("id.walt:waltid-ssikit-vclib:1.10")
 
     // JSON
     implementation("org.json:json:20210307")
