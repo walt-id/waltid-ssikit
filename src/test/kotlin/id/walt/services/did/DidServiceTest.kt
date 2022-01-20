@@ -92,23 +92,6 @@ class DidServiceTest : AnnotationSpec() {
         println(encoded)
     }
 
-
-    @Test
-    fun createResolveDidWebTest() {
-
-        // Create
-        val did = ds.create(DidMethod.web)
-        val didUrl = DidUrl.from(did)
-        did shouldBe didUrl.did
-        "web" shouldBe didUrl.method
-        print(did)
-
-        // Resolve
-        val resolvedDid = ds.resolve(did)
-        val encoded = Klaxon().toJsonString(resolvedDid)
-        println(encoded)
-    }
-
     @Test
     fun createDidEbsiV2Identifier() {
         val didUrl = DidUrl.generateDidEbsiV2DidUrl()

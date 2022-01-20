@@ -34,6 +34,8 @@ object DidService {
 
     val FILE_NAME_MAX_LENGTH = 100
 
+    val DEFAULT_KEY_ALGORITHM = EdDSA_Ed25519
+
     sealed class DidOptions
     data class DidWebOptions(val domain: String?, val path: String? = null) : DidOptions()
     data class DidEbsiOptions(val addEidasKey: Boolean) : DidOptions()
@@ -116,7 +118,7 @@ object DidService {
     // Private methods
 
     private fun createDidEbsi(keyAlias: String?, didEbsiOptions: DidEbsiOptions?): String {
-        val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(EdDSA_Ed25519)
+        val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(DEFAULT_KEY_ALGORITHM)
         val key = ContextManager.keyStore.load(keyId.id)
 
         // Created identifier
@@ -199,7 +201,7 @@ object DidService {
     }
 
     private fun createDidKey(keyAlias: String?): String {
-        val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(EdDSA_Ed25519)
+        val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(DEFAULT_KEY_ALGORITHM)
         val key = ContextManager.keyStore.load(keyId.id)
 
         if (!setOf(EdDSA_Ed25519, RSA, ECDSA_Secp256k1).contains(key.algorithm)) throw Exception("DID KEY can not be created with an ${key.algorithm} key.")
@@ -217,7 +219,7 @@ object DidService {
 
     private fun createDidWeb(keyAlias: String?, options: DidWebOptions?): String {
 
-        val key = keyAlias?.let { ContextManager.keyStore.load(it) } ?: cryptoService.generateKey(EdDSA_Ed25519)
+        val key = keyAlias?.let { ContextManager.keyStore.load(it) } ?: cryptoService.generateKey(DEFAULT_KEY_ALGORITHM)
             .let { ContextManager.keyStore.load(it.id) }
 
         val domain = options?.domain ?: throw Exception("Missing 'domain' parameter for creating did:web")
