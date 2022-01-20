@@ -19,8 +19,8 @@ data class SIOPv2Request(
   val scope: String = "openid",
   val nonce: String? = null,
   val registration: Registration?,
-  @Json("exp") val expiration: Long,
-  @Json("iat") val issuedAt: Long,
+  @Json("exp") val expiration: Long? = null,
+  @Json("iat") val issuedAt: Long? = null,
   val claims: Claims,
   val state: String? = null
 
@@ -28,8 +28,12 @@ data class SIOPv2Request(
   private fun enc(str: String): String = URLEncoder.encode(str, StandardCharsets.UTF_8)
   fun toUriQueryString(): String {
     return "response_type=${enc(response_type)}&response_mode=${enc(response_mode)}&client_id=${enc(client_id)}&redirect_uri=${enc(redirect_uri)}" +
-           "&scope=${enc(scope)}${ nonce?.let { "&nonce=${enc(nonce)}" } ?: ""}${registration?.let { "&registration=${enc(klaxon.toJsonString(it))}" } ?: ""}" +
-           "&exp=$expiration&iat=$issuedAt&claims=${enc(klaxon.toJsonString(claims))}${state?.let { "&state=$it" } ?: ""}"
+           "&scope=${enc(scope)}" +
+            (nonce?.let { "&nonce=${enc(nonce)}" } ?: "") +
+            (registration?.let { "&registration=${enc(klaxon.toJsonString(it))}" } ?: "") +
+            (expiration?.let { "&exp=$expiration" } ?: "") +
+            (issuedAt?.let { "&iat=$issuedAt" } ?: "") +
+            "&claims=${enc(klaxon.toJsonString(claims))}${state?.let { "&state=$it" } ?: ""}"
   }
 
   companion object {
@@ -43,11 +47,12 @@ data class SIOPv2Request(
         ctx.queryParam("redirect_uri")!!,
         ctx.queryParam("response_mode") ?: "fragment",
         ctx.queryParam("scope") ?: "openid",
-        ctx.queryParam("nonce")!!,
-        Klaxon().parse<Registration>(ctx.queryParam("registration")!!)!!,
-        ctx.queryParam("exp")!!.toLong(),
-        ctx.queryParam("iat")!!.toLong(),
-        klaxon.parse<Claims>(ctx.queryParam("claims")!!)!!
+        ctx.queryParam("nonce"),
+        ctx.queryParam("registration")?.let { Klaxon().parse<Registration>(it)!! },
+        ctx.queryParam("exp")?.toLong(),
+        ctx.queryParam("iat")?.toLong(),
+        klaxon.parse<Claims>(ctx.queryParam("claims")!!)!!,
+        ctx.queryParam("state")
       )
     }
   }
