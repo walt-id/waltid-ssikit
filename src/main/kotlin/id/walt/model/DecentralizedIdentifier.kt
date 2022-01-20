@@ -57,7 +57,7 @@ open class Did (
     @Json(serializeNull = false) var capabilityDelegation: List<String>? = null,
     @Json(serializeNull = false) var capabilityInvocation: List<String>? = null,
     @Json(serializeNull = false) var keyAgreement: List<String>? = null,
-    @Json(serializeNull = false) var serviceEndpoint: List<VerificationMethod>? = null
+    @Json(serializeNull = false) var serviceEndpoint: List<VerificationMethod>? = null //TODO change to service-endpoint
 ) {
     constructor( // secondary constructor with context as string
         context: String,
@@ -94,7 +94,8 @@ data class VerificationMethod(
     val controller: String,
     @Json(serializeNull = false) val publicKeyBase58: String? = null,
     @Json(serializeNull = false) val publicKeyPem: String? = null,
-    @Json(serializeNull = false) val publicKeyJwk: Jwk? = null
+    @Json(serializeNull = false) val publicKeyJwk: Jwk? = null,
+    @Json(serializeNull = false) val ethereumAddress: String? = null,
 )
 
 @Serializable

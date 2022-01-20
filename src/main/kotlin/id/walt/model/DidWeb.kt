@@ -1,29 +1,51 @@
 package id.walt.model
 
-import com.beust.klaxon.Klaxon
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
+class DidWeb(
+    context: List<String>,
+    id: String,
+    verificationMethod: List<VerificationMethod>? = null,
+    authentication: List<String>? = null,
+    assertionMethod: List<String>? = null,
+    capabilityDelegation: List<String>? = null,
+    capabilityInvocation: List<String>? = null,
+    keyAgreement: List<String>? = null,
+    serviceEndpoint: List<VerificationMethod>? = null
+) : Did(
+    context,
+    id,
+    verificationMethod,
+    authentication,
+    assertionMethod,
+    capabilityDelegation,
+    capabilityInvocation,
+    keyAgreement,
+    serviceEndpoint
+) {
+    constructor(context: String,
+                id: String,
+                verificationMethod: List<VerificationMethod>? = null,
+                authentication: List<String>? = null,
+                assertionMethod: List<String>? = null,
+                capabilityDelegation: List<String>? = null,
+                capabilityInvocation: List<String>? = null,
+                keyAgreement: List<String>? = null,
+                serviceEndpoint: List<VerificationMethod>? = null) : this(listOf(context), id, verificationMethod, authentication, assertionMethod, capabilityDelegation, capabilityInvocation, keyAgreement, serviceEndpoint)
+}
 
+/*
 @Serializable
 data class DidWeb(
     @SerialName("@context")
-    val context: String?, // https://w3id.org/did/v0.11
-    val id: String?, // did:web:did.actor:alice
-    val publicKey: List<PublicKey?>?,
+    val context: String?,
+    val id: String?,
+    val verificationMethod: List<VerificationMethod>? = null,
     val keyAgreement: List<KeyAgreement?>? = null,
-    val authentication: List<String?>?,
-    val assertionMethod: List<String?>?,
-    val capabilityDelegation: List<String?>?,
-    val capabilityInvocation: List<String?>?,
+    val authentication: List<String?>? = null,
+    val assertionMethod: List<String?>? = null,
+    val capabilityDelegation: List<String?>? = null,
+    val capabilityInvocation: List<String?>? = null,
+    val serviceEndpoint: List<id.walt.model.VerificationMethod>? = null
 ) {
-    @Serializable
-    data class PublicKey(
-        val id: String?, // did:web:did.actor:alice#z6MkrmNwty5ajKtFqc1U48oL2MMLjWjartwc5sf2AihZwXDN
-        val type: String?, // Ed25519VerificationKey2018
-        val controller: String?, // did:web:did.actor:alice
-        val publicKeyBase58: String? // DK7uJiq9PnPnj7AmNZqVBFoLuwTjT1hFPrk6LSjZ2JRz
-    )
-
     @Serializable
     data class KeyAgreement(
         val id: String?, // did:web:did.actor:alice#zC8GybikEfyNaausDA4mkT4egP7SNLx2T1d1kujLQbcP6h
@@ -34,4 +56,4 @@ data class DidWeb(
 }
 
 fun DidWeb.encode() = Klaxon().toJsonString(this)
-fun DidWeb.encodePretty() = Klaxon().toJsonString(this)
+fun DidWeb.encodePretty() = Klaxon().toJsonString(this)*/

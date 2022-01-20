@@ -2,6 +2,8 @@ package id.walt.services.did
 
 import com.beust.klaxon.Klaxon
 import id.walt.crypto.KeyAlgorithm
+import id.walt.crypto.LdVerificationKeyType
+import id.walt.crypto.LdVerificationKeyType.*
 import id.walt.model.DidMethod
 import id.walt.model.DidUrl
 import id.walt.servicematrix.ServiceMatrix
@@ -13,24 +15,36 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import kotlin.time.ExperimentalTime
 
+
 @OptIn(ExperimentalTime::class)
 class DidWebTest : StringSpec({
 
     "create did:web RSA" {
-        createAndTestDidWeb(KeyAlgorithm.RSA)
+        val did = createAndTestDidWeb(KeyAlgorithm.RSA)
+        val didDoc = DidService.load(did)
+        println(didDoc.encodePretty())
+        didDoc.verificationMethod!![0].type shouldBe RsaVerificationKey2018.name
     }
 
     "create did:web Secp256k1" {
-        createAndTestDidWeb(KeyAlgorithm.ECDSA_Secp256k1)
+        val did = createAndTestDidWeb(KeyAlgorithm.ECDSA_Secp256k1)
+        val didDoc = DidService.load(did)
+        println(didDoc.encodePretty())
+        didDoc.verificationMethod!![0].type shouldBe EcdsaSecp256k1VerificationKey2019.name
     }
 
     "create did:web Ed25519" {
-        createAndTestDidWeb(KeyAlgorithm.EdDSA_Ed25519)
+        val did = createAndTestDidWeb(KeyAlgorithm.EdDSA_Ed25519)
+        val didDoc = DidService.load(did)
+        println(didDoc.encodePretty())
+        didDoc.verificationMethod!![0].type shouldBe Ed25519VerificationKey2019.name
     }
 
     "create did:web RSA with Options" {
         val options = DidService.DidWebOptions("example.com", "user-id-1234")
-        createAndTestDidWeb(KeyAlgorithm.RSA, options)
+        val did = createAndTestDidWeb(KeyAlgorithm.RSA, options)
+        val didDoc = DidService.load(did)
+        println(didDoc.encodePretty())
     }
 
     "resolve did:web RSA".config(enabled = false) {
