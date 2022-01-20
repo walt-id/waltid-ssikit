@@ -37,7 +37,6 @@ dependencies {
     implementation("org.bouncycastle:bcprov-jdk15to18:1.70")
     implementation("org.bouncycastle:bcpkix-jdk15to18:1.70")
 
-
     // Ethereum
     implementation("org.web3j:core:5.0.0")
     implementation("org.web3j:crypto:5.0.0")
@@ -45,7 +44,7 @@ dependencies {
     implementation("com.google.guava:guava:31.0.1-jre")
 
     // VC
-    implementation("id.walt:waltid-ssikit-vclib:1.8.0")
+    implementation("id.walt:waltid-ssikit-vclib:1.9.0")
 
     // JSON
     implementation("org.json:json:20210307")
