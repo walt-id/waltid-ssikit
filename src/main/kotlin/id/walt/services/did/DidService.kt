@@ -317,10 +317,7 @@ object DidService {
         return Triple(listOf(dhKeyId), verificationMethods, listOf(pubKeyId))
     }
 
-    fun getAuthenticationMethods(did: String) = when (DidUrl.from(did).method) {
-        DidMethod.ebsi.name -> load(did).authentication
-        else -> load(did).authentication
-    }
+    fun getAuthenticationMethods(did: String) = load(did).authentication
 
     private fun resolveAndStore(didUrl: String) = storeDid(didUrl, resolve(didUrl).encodePretty())
 
