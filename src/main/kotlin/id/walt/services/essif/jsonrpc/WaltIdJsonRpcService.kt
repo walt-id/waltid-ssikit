@@ -117,8 +117,8 @@ class WaltIdJsonRpcService : JsonRpcService() {
         params: List<JsonRpcParams>
     ): T = WaltIdServices.http.post(urlString) {
         contentType(ContentType.Application.Json)
+        accept(ContentType.Application.Json)
         headers {
-            append(HttpHeaders.Accept, "application/json")
             append(HttpHeaders.Authorization, "Bearer $bearerToken")
         }
         //TODO: consider ID value. is random the generation ok?

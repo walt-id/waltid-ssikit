@@ -35,8 +35,8 @@ open class WaltIdJwtService : JwtService() {
                 .keyID(kid).build(), Payload(payload)
         )
 
-        val pubEncKey = pubEncKey.toPublicJWK()
-        val encrypter = X25519Encrypter(pubEncKey)
+        val pubEncKeyJwt = pubEncKey.toPublicJWK()
+        val encrypter = X25519Encrypter(pubEncKeyJwt)
         // encrypter.jcaContext.provider = waltIdProvider
         jweObject.encrypt(encrypter)
         return jweObject.serialize()

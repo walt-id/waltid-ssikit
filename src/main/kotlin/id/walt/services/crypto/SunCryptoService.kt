@@ -69,9 +69,9 @@ open class SunCryptoService : CryptoService() {
 //        return jcaSignature
 //    }
 
-    fun verify(keyId: String, signature: ByteArray) {
+    /*fun verify(keyId: String, signature: ByteArray) {
 
-    }
+    }*/
 
     override fun sign(keyId: KeyId, data: ByteArray): ByteArray {
         val key = keyStore.load(keyId.id, KeyType.PRIVATE)

@@ -3,7 +3,6 @@ package id.walt.model.oidc
 import com.beust.klaxon.Json
 import com.beust.klaxon.Klaxon
 import id.walt.model.ListOrSingleValue
-import id.walt.model.dif.PresentationDefinition
 import id.walt.model.listOrSingleValueConverter
 import io.javalin.http.Context
 import java.net.URLEncoder

@@ -21,19 +21,19 @@ val listOrSingleValueConverter = object: Converter {
             jv.array
         }
 
-    override fun toJson(o: Any)
-        = when((o as List<*>)?.size) {
-            1 -> Klaxon().toJsonString(o.first())
-            else -> Klaxon().toJsonString(o)
+    override fun toJson(value: Any)
+        = when((value as List<*>).size) {
+            1 -> Klaxon().toJsonString(value.first())
+            else -> Klaxon().toJsonString(value)
         }
 }
 
 class DidTypeAdapter : TypeAdapter<Did> {
-    override fun classFor(id: Any): KClass<out Did> = when(DidUrl.from(id.toString()).method) {
+    override fun classFor(type: Any): KClass<out Did> = when(DidUrl.from(type.toString()).method) {
         DidMethod.key.name -> DidKey::class
         DidMethod.ebsi.name -> DidEbsi::class
         DidMethod.web.name -> DidWeb::class
-        else -> throw IllegalArgumentException("Unsupported did method for $id")
+        else -> throw IllegalArgumentException("Unsupported did method for $type")
     }
 }
 
