@@ -127,13 +127,12 @@ open class WaltIdKeyService : KeyService() {
     override fun toRsaJwk(key: Key, jwkKeyId: String?): RSAKey {
 
         val builder = RSAKey.Builder(key.keyPair!!.public as RSAPublicKey)
-            .privateKey(key.keyPair!!.private as RSAPrivateKey) // TODO is needed?
             .keyUse(KeyUse.SIGNATURE)
             .algorithm(JWSAlgorithm.RS256)
             .keyID(jwkKeyId ?: key.keyId.id)
 
         key.keyPair!!.private?.let {
-            builder.privateKey(key.keyPair!!.private)
+            builder.privateKey(key.keyPair!!.private as RSAPrivateKey)
         }
 
         return builder.build()

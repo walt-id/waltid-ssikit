@@ -137,7 +137,7 @@ object OidcUtil {
         nonce: String
     ): String {
 
-        //val kid = DidService.loadDidEbsi(did).authentication!![0]
+        //val kid = DidService.load(did).authentication!![0]
         //val key = emphPrivKey as ECKey
         //val key = KeyService.toJwk(did, false, kid) as ECKey
 

@@ -64,7 +64,7 @@ class CreateDidCommand : CliktCommand(
         echo("\nResults:\n")
         echo("\nDID created: $did\n")
 
-        val encodedDid = loadDidHelper(did)
+        val encodedDid = DidService.load(did).encodePretty()
         echo("\nDID document (below, JSON):\n\n$encodedDid")
 
         dest?.let {
@@ -74,22 +74,16 @@ class CreateDidCommand : CliktCommand(
 
         when (method) {
             "web" -> echo(
-                "\nInstall this did:web at: https://$domain/${
-                    path?.replace(":", "/")?.plus("/") ?: ""
-                }.well-known/did.json"
+                "\nInstall this did:web at: https://$domain/.well-known/${
+                    path?.replace(":", "/")?: ""
+                }/did.json"
             )
         }
     }
 }
 
-fun loadDidHelper(did: String) = when {
-    did.contains("web") -> DidService.resolveDidWebDummy(DidUrl.from(did)).encodePretty()
-    did.contains("ebsi") -> DidService.loadDidEbsi(did).encodePretty()
-    else -> DidService.load(did).encodePretty()
-}
-
 fun resolveDidHelper(did: String, raw: Boolean) = when {
-    did.contains("web") -> DidService.resolveDidWebDummy(DidUrl.from(did)).encodePretty()
+    did.contains("web") -> DidService.resolve(DidUrl.from(did)).encodePretty()
     did.contains("ebsi") -> when (raw) {
         true -> DidService.resolveDidEbsiRaw(did).prettyPrint()
         else -> DidService.resolveDidEbsi(did).encodePretty()
