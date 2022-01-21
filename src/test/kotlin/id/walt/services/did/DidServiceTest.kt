@@ -111,7 +111,7 @@ class DidServiceTest : AnnotationSpec() {
         val did = ds.create(DidMethod.ebsi, keyId.id)
 
         // Load
-        val resolvedDid = ds.loadDidEbsi(did)
+        val resolvedDid = ds.load(did) as DidEbsi
         val encoded = Klaxon().toJsonString(resolvedDid)
         println(encoded)
 

@@ -69,15 +69,7 @@ object DidService {
     }
 
     fun load(did: String): Did = load(DidUrl.from(did))
-    fun load(didUrl: DidUrl): Did {
-        return when (didUrl.method) {
-            DidMethod.key.name -> resolveDidKey(didUrl)
-            DidMethod.web.name -> {
-                Klaxon().parse<DidWeb>(loadDid(didUrl.did)!!)!!
-            }
-            else -> TODO("did:${didUrl.method} not implemented yet")
-        }
-    }
+    fun load(didUrl: DidUrl): Did = Did.decode(loadDid(didUrl.did)!!)!!
 
     fun resolveDidEbsiRaw(did: String): String = runBlocking {
         log.debug { "Resolving DID $did" }
@@ -184,7 +176,7 @@ object DidService {
         val keyRef = listOf(kid)
 
         // TODO fix parsing, so it works with a single string as context
-        val didDoc = DidWeb(listOf(DID_CONTEXT_URL, DID_CONTEXT_URL), didUrlStr, verificationMethods, keyRef, keyRef)
+        val didDoc = DidWeb(listOf(DID_CONTEXT_URL), didUrlStr, verificationMethods, keyRef, keyRef)
 
         storeDid(didUrlStr, didDoc.encode())
 
@@ -335,7 +327,7 @@ object DidService {
     }
 
     fun getAuthenticationMethods(did: String) = when (DidUrl.from(did).method) {
-        DidMethod.ebsi.name -> loadDidEbsi(did).authentication
+        DidMethod.ebsi.name -> load(did).authentication
         else -> load(did).authentication
     }
 
