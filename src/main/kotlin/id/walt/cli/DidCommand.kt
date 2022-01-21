@@ -74,16 +74,16 @@ class CreateDidCommand : CliktCommand(
 
         when (method) {
             "web" -> echo(
-                "\nInstall this did:web at: https://$domain/${
-                    path?.replace(":", "/")?.plus("/") ?: ""
-                }.well-known/did.json"
+                "\nInstall this did:web at: https://$domain/.well-known/${
+                    path?.replace(":", "/")?: ""
+                }/did.json"
             )
         }
     }
 }
 
 fun resolveDidHelper(did: String, raw: Boolean) = when {
-    did.contains("web") -> DidService.resolveDidWebDummy(DidUrl.from(did)).encodePretty()
+    did.contains("web") -> DidService.resolve(DidUrl.from(did)).encodePretty()
     did.contains("ebsi") -> when (raw) {
         true -> DidService.resolveDidEbsiRaw(did).prettyPrint()
         else -> DidService.resolveDidEbsi(did).encodePretty()

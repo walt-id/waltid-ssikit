@@ -2,7 +2,6 @@ package id.walt.services.did
 
 import com.beust.klaxon.Klaxon
 import id.walt.crypto.KeyAlgorithm
-import id.walt.crypto.LdVerificationKeyType
 import id.walt.crypto.LdVerificationKeyType.*
 import id.walt.model.DidMethod
 import id.walt.model.DidUrl
@@ -53,7 +52,7 @@ class DidWebTest : StringSpec({
         println(encoded)
     }
 
-    "resolve did:web Secp256k1".config(enabled = false)  {
+    "resolve did:web Secp256k1".config(enabled = false) {
         println("hey Secp256k1")
     }
 

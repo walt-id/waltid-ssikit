@@ -63,7 +63,7 @@ object DidService {
     fun resolve(didUrl: DidUrl): Did {
         return when (didUrl.method) {
             DidMethod.key.name -> resolveDidKey(didUrl)
-            DidMethod.web.name -> resolveDidWebDummy(didUrl)
+            DidMethod.web.name -> resolveDidWeb(didUrl)
             else -> TODO("did:${didUrl.method} not implemented yet")
         }
     }
@@ -175,8 +175,7 @@ object DidService {
 
         val keyRef = listOf(kid)
 
-        // TODO fix parsing, so it works with a single string as context
-        val didDoc = DidWeb(listOf(DID_CONTEXT_URL), didUrlStr, verificationMethods, keyRef, keyRef)
+        val didDoc = DidWeb(DID_CONTEXT_URL, didUrlStr, verificationMethods, keyRef, keyRef)
 
         storeDid(didUrlStr, didDoc.encode())
 
@@ -226,9 +225,23 @@ object DidService {
         )
     }
 
-    private fun resolveDidKey(didUrl: DidUrl): Did {
-        // val pubEdKey = convertEd25519PublicKeyFromMultibase58Btc(didUrl.identifier)
+    private fun resolveDidWeb(didUrl: DidUrl): Did = runBlocking {
+        log.debug { "Resolving DID $didUrl" }
 
+        val domain = didUrl.identifier.substringBefore(":")
+        val path = didUrl.identifier.substringAfter(":")
+        val url = "https://${domain}/.well-known/${path}/did.json"
+
+        log.debug { "Fetching DID from $url" }
+
+        val didDoc = WaltIdServices.http.get<String>(url)
+
+        log.debug { didDoc }
+
+        return@runBlocking Did.decode(didDoc)!!
+    }
+
+    private fun resolveDidKey(didUrl: DidUrl): Did {
         val keyAlgorithm = getKeyAlgorithmFromMultibase(didUrl.identifier)
 
         val pubKey = convertMultiBase58BtcToRawKey(didUrl.identifier)
@@ -302,28 +315,6 @@ object DidService {
         )
 
         return Triple(listOf(dhKeyId), verificationMethods, listOf(pubKeyId))
-    }
-
-    @Deprecated("remove")
-    fun resolveDidWebDummy(didUrl: DidUrl): Did {
-        log.warn { "DID WEB implementation is not finalized yet. Use it only for demo purpose." }
-        ContextManager.keyStore.getKeyId(didUrl.did).let {
-            ContextManager.keyStore.load(it!!).let {
-                val pubKeyId = didUrl.identifier + "#key-1"
-                val verificationMethods = listOf(
-                    VerificationMethod(
-                        pubKeyId,
-                        "ECDSASecp256k1VerificationKey2018",
-                        didUrl.did,
-                        "zMIGNAgEAMBAGByqGSM49AgEGBSuBBAAKBHYwdAIBAQQgPI4jGjTGPA3yFJp07jvx"
-                    ), // TODO: key encoding
-                )
-                val keyRef = listOf(pubKeyId)
-                return Did(
-                    DID_CONTEXT_URL, didUrl.did, verificationMethods, keyRef, keyRef, keyRef, keyRef, null
-                )
-            }
-        }
     }
 
     fun getAuthenticationMethods(did: String) = when (DidUrl.from(did).method) {
