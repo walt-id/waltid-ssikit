@@ -32,10 +32,9 @@ class DidTypeAdapter : TypeAdapter<Did> {
     override fun classFor(id: Any): KClass<out Did> = when(DidUrl.from(id.toString()).method) {
         DidMethod.key.name -> DidKey::class
         DidMethod.ebsi.name -> DidEbsi::class
-        // TODO: implement for DidWeb
+        DidMethod.web.name -> DidWeb::class
         else -> throw IllegalArgumentException("Unsupported did method for $id")
     }
-
 }
 
 enum class DidMethod {
@@ -57,7 +56,7 @@ open class Did (
     @Json(serializeNull = false) var capabilityDelegation: List<String>? = null,
     @Json(serializeNull = false) var capabilityInvocation: List<String>? = null,
     @Json(serializeNull = false) var keyAgreement: List<String>? = null,
-    @Json(serializeNull = false) var serviceEndpoint: List<VerificationMethod>? = null //TODO change to service-endpoint
+    @Json(serializeNull = false) var serviceEndpoint: List<ServiceEndpoint>? = null //TODO change to service-endpoint
 ) {
     constructor( // secondary constructor with context as string
         context: String,
@@ -68,7 +67,7 @@ open class Did (
         capabilityDelegation: List<String>? = null,
         capabilityInvocation: List<String>? = null,
         keyAgreement: List<String>? = null,
-        serviceEndpoint: List<VerificationMethod>? = null
+        serviceEndpoint: List<ServiceEndpoint>? = null
     ) : this(listOf(context), id, verificationMethod, authentication, assertionMethod, capabilityDelegation, capabilityInvocation, keyAgreement, serviceEndpoint) {
     }
 
