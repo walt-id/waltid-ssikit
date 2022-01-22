@@ -1,10 +1,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.5.31"
-    kotlin("plugin.serialization") version "1.5.20"
+    kotlin("jvm") version "1.6.10"
+    kotlin("plugin.serialization") version "1.6.10"
     id("com.github.kkdad.dependency-license-report") version "1.16.6"
-    id("org.owasp.dependencycheck") version "6.1.6"
+    id("org.owasp.dependencycheck") version "6.5.3"
     application
     `maven-publish`
 }
@@ -49,58 +49,58 @@ dependencies {
     // JSON
     implementation("org.json:json:20210307")
     implementation("com.beust:klaxon:5.5")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.0")
-    implementation("net.pwall.json:json-kotlin-schema:0.30")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.1")
+    implementation("net.pwall.json:json-kotlin-schema:0.31")
     //implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
 
     // DB
     implementation("org.xerial:sqlite-jdbc:3.36.0.2")
-    implementation("com.zaxxer:HikariCP:5.0.0")
+    implementation("com.zaxxer:HikariCP:5.0.1")
 
     // CLI
-    implementation("com.github.ajalt.clikt:clikt-jvm:3.3.0")
-    implementation("com.github.ajalt.clikt:clikt:3.3.0")
+    implementation("com.github.ajalt.clikt:clikt-jvm:3.4.0")
+    implementation("com.github.ajalt.clikt:clikt:3.4.0")
 
     // Misc
     implementation("commons-io:commons-io:2.11.0")
 
     // HTTP
-    implementation("io.ktor:ktor-client-core:1.6.6")
-    implementation("io.ktor:ktor-client-cio:1.6.6")
-    implementation("io.ktor:ktor-client-serialization:1.6.6")
-    implementation("io.ktor:ktor-client-logging:1.6.6")
+    implementation("io.ktor:ktor-client-core:1.6.7")
+    implementation("io.ktor:ktor-client-cio:1.6.7")
+    implementation("io.ktor:ktor-client-serialization:1.6.7")
+    implementation("io.ktor:ktor-client-logging:1.6.7")
     implementation("io.github.rybalkinsd", "kohttp", "0.12.0")
 
 
     // REST
-    implementation("io.javalin:javalin:4.1.1")
-    implementation("io.javalin:javalin-openapi:4.1.1")
-    implementation("io.javalin:javalin-testtools:4.1.1")
+    implementation("io.javalin:javalin:4.3.0")
+    implementation("io.javalin:javalin-openapi:4.3.0")
+    implementation("io.javalin:javalin-testtools:4.3.0")
 
     // Logging
     implementation("org.slf4j:slf4j-api:2.0.0-alpha5")
     implementation("org.slf4j:slf4j-simple:2.0.0-alpha5")
 
-    implementation("io.github.microutils:kotlin-logging-jvm:2.1.0")
+    implementation("io.github.microutils:kotlin-logging-jvm:2.1.21")
 
     // Config
-    implementation("com.sksamuel.hoplite:hoplite-core:1.4.15")
-    implementation("com.sksamuel.hoplite:hoplite-yaml:1.4.15")
-    implementation("com.sksamuel.hoplite:hoplite-hikaricp:1.4.15")
+    implementation("com.sksamuel.hoplite:hoplite-core:1.4.16")
+    implementation("com.sksamuel.hoplite:hoplite-yaml:1.4.16")
+    implementation("com.sksamuel.hoplite:hoplite-hikaricp:1.4.16")
 
     // Service-Matrix
-    implementation("id.walt.servicematrix:WaltID-ServiceMatrix:1.0.1")
+    implementation("id.walt.servicematrix:WaltID-ServiceMatrix:1.1.0")
 
     // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.6.0")
 
     // Testing
     //testImplementation(kotlin("test-junit"))
-    testImplementation("io.mockk:mockk:1.12.1")
+    testImplementation("io.mockk:mockk:1.12.2")
 
-    testImplementation("io.kotest:kotest-runner-junit5:5.0.1")
-    testImplementation("io.kotest:kotest-assertions-core:5.0.1")
-    testImplementation("io.kotest:kotest-assertions-json:5.0.1")
+    testImplementation("io.kotest:kotest-runner-junit5:5.1.0")
+    testImplementation("io.kotest:kotest-assertions-core:5.1.0")
+    testImplementation("io.kotest:kotest-assertions-json:5.1.0")
 }
 
 tasks.withType<Test> {
