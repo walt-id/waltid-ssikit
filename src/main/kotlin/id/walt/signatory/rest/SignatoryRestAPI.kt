@@ -114,6 +114,10 @@ object SignatoryRestAPI {
                     get("", documented(SignatoryController.listTemplatesDocs(), SignatoryController::listTemplates))
                     get("{id}", documented(SignatoryController.loadTemplateDocs(), SignatoryController::loadTemplate))
                 }
+                path("revocations") {
+                    get("{id}", documented(SignatoryController.checkRevokedDocs(), SignatoryController::checkRevoked))
+                    post("{id}", documented(SignatoryController.revokeDocs(), SignatoryController::revoke))
+                }
             }
         }.exception(IllegalArgumentException::class.java) { e, ctx ->
             log.error(e.stackTraceToString())
