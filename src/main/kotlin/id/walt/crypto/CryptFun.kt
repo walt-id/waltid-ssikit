@@ -253,6 +253,7 @@ fun getKeyAlgorithmFromMultibase(mb: String): KeyAlgorithm {
         0xed01 -> KeyAlgorithm.EdDSA_Ed25519
         0xe701 -> KeyAlgorithm.ECDSA_Secp256k1
         0x1205 -> KeyAlgorithm.RSA
+        0x8524 -> KeyAlgorithm.RSA
         else -> throw IllegalArgumentException("No multicodec algorithm for code $code")
     }
 }
