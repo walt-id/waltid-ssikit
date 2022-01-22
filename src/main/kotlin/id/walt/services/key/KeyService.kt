@@ -7,6 +7,7 @@ import com.nimbusds.jose.jwk.RSAKey
 import id.walt.crypto.Key
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyId
+import id.walt.servicematrix.BaseService
 import id.walt.servicematrix.ServiceProvider
 import id.walt.servicematrix.ServiceRegistry
 import id.walt.services.WaltIdService
@@ -74,6 +75,6 @@ abstract class KeyService : WaltIdService() {
 
     companion object : ServiceProvider {
         override fun getService() = object : KeyService() {}
+        override fun defaultImplementation() = WaltIdKeyService()
     }
-
 }

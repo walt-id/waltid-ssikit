@@ -1,5 +1,6 @@
 package id.walt.services.essif.jsonrpc
 
+import id.walt.servicematrix.BaseService
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
 import kotlinx.serialization.Serializable
@@ -81,5 +82,6 @@ open class JsonRpcService : WaltIdService() {
 
     companion object : ServiceProvider {
         override fun getService() = object : JsonRpcService() {}
+        override fun defaultImplementation() = WaltIdJsonRpcService()
     }
 }

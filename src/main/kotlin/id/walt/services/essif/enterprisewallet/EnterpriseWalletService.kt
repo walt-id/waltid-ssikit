@@ -7,6 +7,7 @@ import id.walt.common.toParamMap
 import id.walt.model.AuthRequestResponse
 import id.walt.model.AuthenticationRequestJwt
 import id.walt.model.DidAuthRequest
+import id.walt.servicematrix.BaseService
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
 import id.walt.services.did.DidService
@@ -168,6 +169,7 @@ open class EnterpriseWalletService : WaltIdService() {
 
     companion object : ServiceProvider {
         override fun getService() = object : EnterpriseWalletService() {}
+        override fun defaultImplementation() = WaltIdEnterpriseWalletService()
     }
 }
 

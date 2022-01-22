@@ -1,5 +1,6 @@
 package id.walt.services.vc
 
+import id.walt.servicematrix.BaseService
 import id.walt.servicematrix.ServiceProvider
 import id.walt.servicematrix.ServiceRegistry
 import id.walt.services.WaltIdService
@@ -32,5 +33,6 @@ abstract class JwtCredentialService : WaltIdService() {
 
     companion object : ServiceProvider {
         override fun getService() = object : JwtCredentialService() {}
+        override fun defaultImplementation() = WaltIdJwtCredentialService()
     }
 }

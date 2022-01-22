@@ -40,5 +40,6 @@ abstract class JsonLdCredentialService : WaltIdService() {
 
     companion object : ServiceProvider {
         override fun getService() = object : JsonLdCredentialService() {}
+        override fun defaultImplementation() = WaltIdJsonLdCredentialService()
     }
 }

@@ -2,6 +2,7 @@ package id.walt.services.crypto
 
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyId
+import id.walt.servicematrix.BaseService
 import id.walt.servicematrix.ServiceProvider
 import id.walt.servicematrix.ServiceRegistry
 import id.walt.services.WaltIdService
@@ -34,6 +35,7 @@ abstract class CryptoService : WaltIdService() {
 
     companion object : ServiceProvider {
         override fun getService() = object : CryptoService() {}
+        override fun defaultImplementation() = SunCryptoService()
     }
 }
 
