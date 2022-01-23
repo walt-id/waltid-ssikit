@@ -13,7 +13,12 @@ import id.walt.services.hkvstore.HKVKey
 import id.walt.services.key.KeyService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.ProofConfig
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
 import io.ktor.client.features.*
+import io.ktor.client.features.json.*
+import io.ktor.client.features.json.serializer.*
+import io.ktor.client.features.logging.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
@@ -39,6 +44,19 @@ object DidService {
     sealed class DidOptions
     data class DidWebOptions(val domain: String?, val path: String? = null) : DidOptions()
     data class DidEbsiOptions(val addEidasKey: Boolean) : DidOptions()
+
+
+    val http = HttpClient(CIO) {
+        install(JsonFeature) {
+            serializer = KotlinxSerializer()
+        }
+        if (WaltIdServices.httpLogging) {
+            install(Logging) {
+                logger = Logger.SIMPLE
+                level = LogLevel.HEADERS
+            }
+        }
+    }
 
 
     private val credentialService = JsonLdCredentialService.getService()
@@ -74,7 +92,7 @@ object DidService {
     fun resolveDidEbsiRaw(did: String): String = runBlocking {
         log.debug { "Resolving DID $did" }
 
-        val didDoc = WaltIdServices.http.get<String>("https://api.preprod.ebsi.eu/did-registry/v2/identifiers/$did")
+        val didDoc = http.get<String>("https://api.preprod.ebsi.eu/did-registry/v2/identifiers/$did")
 
         log.debug { didDoc }
 
@@ -92,7 +110,7 @@ object DidService {
         for (i in 1..5) {
             try {
                 log.debug { "Resolving did:ebsi at: https://api.preprod.ebsi.eu/did-registry/v2/identifiers/${didUrl.did}" }
-                didDoc = WaltIdServices.http.get("https://api.preprod.ebsi.eu/did-registry/v2/identifiers/${didUrl.did}")
+                didDoc = http.get("https://api.preprod.ebsi.eu/did-registry/v2/identifiers/${didUrl.did}")
                 log.debug { "Result: $didDoc" }
                 return@runBlocking Did.decode(didDoc)!! as DidEbsi
             } catch (e: ClientRequestException) {
@@ -234,7 +252,7 @@ object DidService {
 
         log.debug { "Fetching DID from $url" }
 
-        val didDoc = WaltIdServices.http.get<String>(url)
+        val didDoc = http.get<String>(url)
 
         log.debug { didDoc }
 

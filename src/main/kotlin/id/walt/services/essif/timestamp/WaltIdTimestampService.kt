@@ -1,10 +1,15 @@
 package id.walt.services.essif.timestamp
 
 import id.walt.crypto.canonicalize
-import id.walt.services.WaltIdServices
+import id.walt.services.WaltIdServices.httpLogging
 import id.walt.services.essif.jsonrpc.JsonRpcService
 import id.walt.services.essif.jsonrpc.TimestampHashesParams
 import id.walt.services.key.KeyService
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.features.json.*
+import io.ktor.client.features.json.serializer.*
+import io.ktor.client.features.logging.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
@@ -60,10 +65,22 @@ open class WaltIdTimestampService : TimestampService() {
     private val jsonRpcService = JsonRpcService.getService()
     private val keyService = KeyService.getService()
 
+    val http = HttpClient(CIO) {
+        install(JsonFeature) {
+            serializer = KotlinxSerializer()
+        }
+        if (httpLogging) {
+            install(Logging) {
+                logger = Logger.SIMPLE
+                level = LogLevel.HEADERS
+            }
+        }
+    }
+
     override fun getByTimestampId(timestampId: String): Timestamp? = runBlocking {
         val href = TIMESTAMPS + "/$timestampId"
         return@runBlocking runBlocking {
-            WaltIdServices.http.get<Timestamp>(href).also {
+            http.get<Timestamp>(href).also {
                 it.timestampId = timestampId
                 it.href = href
             }
@@ -71,22 +88,22 @@ open class WaltIdTimestampService : TimestampService() {
     }
 
     override fun getByTransactionHash(transactionHash: String): Timestamp? = runBlocking {
-        var timestamps = WaltIdServices.http.get<Timestamps>(
-            WaltIdServices.http.get<Timestamps>(TIMESTAMPS).links.last
+        var timestamps = http.get<Timestamps>(
+            http.get<Timestamps>(TIMESTAMPS).links.last
         )
 
         while (timestamps.self != timestamps.links.prev) {
             val timestampsIterator = timestamps.items.listIterator(timestamps.items.size)
             while (timestampsIterator.hasPrevious()) {
                 val timestampItem = timestampsIterator.previous()
-                val timestamp = runBlocking { WaltIdServices.http.get<Timestamp>(timestampItem.href) }
+                val timestamp = runBlocking { http.get<Timestamp>(timestampItem.href) }
                 if (timestamp.transactionHash == transactionHash) {
                     timestamp.timestampId = timestampItem.timestampId
                     timestamp.href = timestampItem.href
                     return@runBlocking timestamp
                 }
             }
-            timestamps = WaltIdServices.http.get(timestamps.links.prev)
+            timestamps = http.get(timestamps.links.prev)
         }
 
         return@runBlocking null

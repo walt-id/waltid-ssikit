@@ -1,11 +1,17 @@
 package id.walt.services.essif.jsonrpc
 
-import id.walt.services.WaltIdServices
+import id.walt.services.WaltIdServices.httpLogging
 import id.walt.services.context.ContextManager
 import id.walt.services.crypto.CryptoService
 import id.walt.services.essif.EssifClient
 import id.walt.services.hkvstore.HKVKey
 import id.walt.services.key.KeyService
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.features.*
+import io.ktor.client.features.json.*
+import io.ktor.client.features.json.serializer.*
+import io.ktor.client.features.logging.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import mu.KotlinLogging
@@ -24,6 +30,23 @@ class WaltIdJsonRpcService : JsonRpcService() {
     private val cryptoService = CryptoService.getService()
     private val keyService = KeyService.getService()
 
+    val http = HttpClient(CIO) {
+        install(JsonFeature) {
+            serializer = KotlinxSerializer()
+        }
+        if (httpLogging) {
+            install(Logging) {
+                logger = Logger.SIMPLE
+                level = LogLevel.HEADERS
+            }
+        }
+
+        defaultRequest {
+            contentType(ContentType.Application.Json)
+            accept(ContentType.Application.Json)
+        }
+    }
+
     override suspend fun execute(
         did: String,
         ethKeyAlias: String,
@@ -36,7 +59,8 @@ class WaltIdJsonRpcService : JsonRpcService() {
         // val token = readWhenContent(EssifClient.ebsiAccessTokenFile)
         val token = ContextManager.hkvStore.getAsString(
             HKVKey("ebsi", did.substringAfterLast(":"), EssifClient.ebsiAccessTokenFile)
-        ) ?: throw Exception("Could not load EBSI access token. Make sure that the ESSIF onboarding flow is performed correctly.")
+        )
+            ?: throw Exception("Could not load EBSI access token. Make sure that the ESSIF onboarding flow is performed correctly.")
 
         val unsignedTx = post<UnsignedTransactionResponse>(token, urlString, method, unsignedTransactionParams).result
         log.debug { "Unsigned transaction: $unsignedTx" }
@@ -115,13 +139,12 @@ class WaltIdJsonRpcService : JsonRpcService() {
         urlString: String,
         method: String,
         params: List<JsonRpcParams>
-    ): T = WaltIdServices.http.post(urlString) {
-        contentType(ContentType.Application.Json)
-        accept(ContentType.Application.Json)
+
+        //TODO: consider ID value. is random the generation ok?
+    ): T = http.post(urlString, body = JsonRpcRequest("2.0", method, params, (0..999).random())) {
         headers {
             append(HttpHeaders.Authorization, "Bearer $bearerToken")
         }
-        //TODO: consider ID value. is random the generation ok?
-        body = JsonRpcRequest("2.0", method, params, (0..999).random())
+
     }
 }
