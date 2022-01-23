@@ -51,6 +51,8 @@ dependencies {
     implementation("com.beust:klaxon:5.5")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.1")
     implementation("net.pwall.json:json-kotlin-schema:0.31")
+    implementation("io.ktor:ktor-client-jackson:1.6.7")
+
     //implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
 
     // DB
