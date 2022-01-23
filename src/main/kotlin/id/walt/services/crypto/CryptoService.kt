@@ -2,14 +2,12 @@ package id.walt.services.crypto
 
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyId
-import id.walt.servicematrix.BaseService
 import id.walt.servicematrix.ServiceProvider
-import id.walt.servicematrix.ServiceRegistry
 import id.walt.services.WaltIdService
 import org.web3j.crypto.ECDSASignature
 
 abstract class CryptoService : WaltIdService() {
-    override val implementation get() = ServiceRegistry.getService<CryptoService>()
+    override val implementation get() = serviceImplementation<CryptoService>()
 
     open fun generateKey(algorithm: KeyAlgorithm): KeyId = implementation.generateKey(algorithm)
     open fun sign(keyId: KeyId, data: ByteArray): ByteArray = implementation.sign(keyId, data)

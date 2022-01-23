@@ -21,7 +21,7 @@ enum class KeyFormat {
 }
 
 abstract class KeyService : WaltIdService() {
-    override val implementation get() = ServiceRegistry.getService<KeyService>()
+    override val implementation get() = serviceImplementation<KeyService>()
 
 
     open fun generate(keyAlgorithm: KeyAlgorithm): KeyId = implementation.generate(keyAlgorithm)

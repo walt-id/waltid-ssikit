@@ -10,7 +10,7 @@ import info.weboftrust.ldsignatures.LdProof
 
 
 abstract class JwtCredentialService : WaltIdService() {
-    override val implementation get() = ServiceRegistry.getService<JwtCredentialService>()
+    override val implementation get() = serviceImplementation<JwtCredentialService>()
 
     open fun sign(jsonCred: String, config: ProofConfig): String = implementation.sign(jsonCred, config)
 

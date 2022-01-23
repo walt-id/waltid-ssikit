@@ -17,7 +17,7 @@ enum class VerificationType {
 data class VerificationResult(val verified: Boolean, val verificationType: VerificationType)
 
 abstract class JsonLdCredentialService : WaltIdService() {
-    override val implementation get() = ServiceRegistry.getService<JsonLdCredentialService>()
+    override val implementation get() = serviceImplementation<JsonLdCredentialService>()
 
     open fun sign(jsonCred: String, config: ProofConfig): String = implementation.sign(jsonCred, config)
 
