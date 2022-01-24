@@ -32,5 +32,6 @@ open class JwtService : WaltIdService() {
 
     companion object : ServiceProvider {
         override fun getService() = object : JwtService() {}
+        override fun defaultImplementation() = WaltIdJwtService()
     }
 }

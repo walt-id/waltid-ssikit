@@ -51,9 +51,7 @@ class EssifApiTest : AnnotationSpec() {
         val ethDidAlias = did
         val resp = client.post<String>("$ESSIF_API_URL/v1/client/timestamp") {
             contentType(ContentType.Application.Json)
-            headers {
-                append(HttpHeaders.Accept, "application/json")
-            }
+            accept(ContentType.Application.Json)
             body = EbsiTimestampRequest(did, ethDidAlias, "{ \"my\": \"data\"}")
         }
         resp shouldStartWith "0x"
@@ -63,9 +61,7 @@ class EssifApiTest : AnnotationSpec() {
     fun testTimestampByTxHash() = runBlocking {
         val resp = client.get<String>("$ESSIF_API_URL/v1/client/timestamp/txhash/0x42348e1ee94cc78d5e5494f71b502416aa566b626151f8dee333804f061bda1d") {
             contentType(ContentType.Application.Json)
-            headers {
-                append(HttpHeaders.Accept, "application/json")
-            }
+            accept(ContentType.Application.Json)
         }
         println(resp)
     }
@@ -74,9 +70,7 @@ class EssifApiTest : AnnotationSpec() {
     fun testTimestampById() = runBlocking {
         val resp = client.get<String>("$ESSIF_API_URL/v1/client/timestamp/id/uEiAUrAvVUpM5GymJQXsNUSvAPzIq_OaaX8uhdpSW5GjZJw") {
             contentType(ContentType.Application.Json)
-            headers {
-                append(HttpHeaders.Accept, "application/json")
-            }
+            accept(ContentType.Application.Json)
         }
         println(resp)
     }
@@ -85,9 +79,7 @@ class EssifApiTest : AnnotationSpec() {
 //    fun testRealEbsi() = runBlocking {
 //        val authResp = client.post<AuthRequestResponse>("$ESSIF_API_URL/test/enterprise/wallet/authentication-requests") {
 //            contentType(ContentType.Application.Json)
-//            headers {
-//                append(HttpHeaders.Accept, "application/json")
-//            }
+//            accept(ContentType.Application.Json)
 //            body = mapOf("scope" to "ebsi users onboarding")
 //        }
 //        println(authResp)

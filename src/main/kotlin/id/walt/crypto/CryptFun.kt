@@ -241,7 +241,7 @@ fun getMulticodecKeyCode(algorithm: KeyAlgorithm) = when (algorithm) {
     KeyAlgorithm.EdDSA_Ed25519 -> 0xed01
     KeyAlgorithm.ECDSA_Secp256k1 -> 0xe701
     KeyAlgorithm.RSA -> 0x1205
-    else -> throw Exception("No multicodec for algorithm $algorithm")
+    else -> throw IllegalArgumentException("No multicodec for algorithm $algorithm")
 }
 
 fun getKeyAlgorithmFromMultibase(mb: String): KeyAlgorithm {
@@ -253,7 +253,8 @@ fun getKeyAlgorithmFromMultibase(mb: String): KeyAlgorithm {
         0xed01 -> KeyAlgorithm.EdDSA_Ed25519
         0xe701 -> KeyAlgorithm.ECDSA_Secp256k1
         0x1205 -> KeyAlgorithm.RSA
-        else -> throw Exception("No multicodec algorithm for code $code")
+        0x8524 -> KeyAlgorithm.RSA
+        else -> throw IllegalArgumentException("No multicodec algorithm for code $code")
     }
 }
 
@@ -294,7 +295,7 @@ fun convertPublicKeyEd25519ToCurve25519(ed25519PublicKey: ByteArray): ByteArray 
             dhPublicKey,
             ed25519PublicKey
         )
-    ) throw RuntimeException("Could not convert Ed25519 to X25519 pubic key")
+    ) throw IllegalArgumentException("Could not convert Ed25519 to X25519 pubic key")
     return dhPublicKey
 }
 

@@ -4,7 +4,6 @@ import java.io.InputStream
 import java.io.OutputStream
 import java.security.Key
 import java.security.KeyStoreSpi
-import java.security.UnrecoverableKeyException
 import java.security.cert.Certificate
 import java.util.*
 
@@ -13,7 +12,7 @@ open class LtKeyStoreSpi : KeyStoreSpi() {
     private val keys = Properties()
 
     override fun engineGetKey(alias: String?, password: CharArray?): Key {
-        val value = keys.getProperty(alias) ?: throw UnrecoverableKeyException("Unknown key: $alias")
+        // val value = keys.getProperty(alias) ?: throw UnrecoverableKeyException("Unknown key: $alias")
         TODO("Not yet implemented")
     }
 

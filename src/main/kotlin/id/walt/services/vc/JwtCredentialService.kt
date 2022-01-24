@@ -1,5 +1,6 @@
 package id.walt.services.vc
 
+import id.walt.servicematrix.BaseService
 import id.walt.servicematrix.ServiceProvider
 import id.walt.servicematrix.ServiceRegistry
 import id.walt.services.WaltIdService
@@ -9,7 +10,7 @@ import info.weboftrust.ldsignatures.LdProof
 
 
 abstract class JwtCredentialService : WaltIdService() {
-    override val implementation get() = ServiceRegistry.getService<JwtCredentialService>()
+    override val implementation get() = serviceImplementation<JwtCredentialService>()
 
     open fun sign(jsonCred: String, config: ProofConfig): String = implementation.sign(jsonCred, config)
 
@@ -32,5 +33,6 @@ abstract class JwtCredentialService : WaltIdService() {
 
     companion object : ServiceProvider {
         override fun getService() = object : JwtCredentialService() {}
+        override fun defaultImplementation() = WaltIdJwtCredentialService()
     }
 }

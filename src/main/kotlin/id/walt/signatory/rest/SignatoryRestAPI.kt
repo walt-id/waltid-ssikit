@@ -4,6 +4,8 @@ import cc.vileda.openapi.dsl.components
 import cc.vileda.openapi.dsl.externalDocs
 import cc.vileda.openapi.dsl.info
 import cc.vileda.openapi.dsl.securityScheme
+import com.beust.klaxon.Converter
+import com.beust.klaxon.JsonValue
 import com.beust.klaxon.Klaxon
 import com.fasterxml.jackson.databind.ObjectMapper
 import id.walt.Values
@@ -26,6 +28,7 @@ import io.swagger.v3.oas.models.info.Contact
 import io.swagger.v3.oas.models.security.SecurityScheme
 import io.swagger.v3.oas.models.servers.Server
 import mu.KotlinLogging
+import org.joda.time.LocalDateTime
 
 object SignatoryRestAPI {
 
@@ -90,7 +93,16 @@ object SignatoryRestAPI {
 
                 this.jsonMapper(object : JsonMapper {
                     override fun toJsonString(obj: Any): String {
-                        return Klaxon().toJsonString(obj)
+                        return Klaxon()
+                            .converter(object : Converter {
+                                override fun canConvert(cls: Class<*>) = cls == LocalDateTime::class.java
+
+                                override fun fromJson(jv: JsonValue) = throw NotImplementedError()
+
+                                override fun toJson(value: Any): String = "\"$value\""
+
+                            })
+                            .toJsonString(obj)
                     }
 
                     override fun <T : Any?> fromJsonString(json: String, targetClass: Class<T>): T {
@@ -113,6 +125,10 @@ object SignatoryRestAPI {
                 path("templates") {
                     get("", documented(SignatoryController.listTemplatesDocs(), SignatoryController::listTemplates))
                     get("{id}", documented(SignatoryController.loadTemplateDocs(), SignatoryController::loadTemplate))
+                }
+                path("revocations") {
+                    get("{id}", documented(SignatoryController.checkRevokedDocs(), SignatoryController::checkRevoked))
+                    post("{id}", documented(SignatoryController.revokeDocs(), SignatoryController::revoke))
                 }
             }
         }.exception(IllegalArgumentException::class.java) { e, ctx ->

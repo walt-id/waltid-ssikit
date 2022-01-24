@@ -13,8 +13,7 @@ interface Context {
 }
 
 abstract class ContextManager : BaseService() {
-    override val implementation: ContextManager
-        get() = ServiceRegistry.getService()
+    override val implementation: ContextManager get() = serviceImplementation()
 
     abstract val keyStore: KeyStoreService
     abstract val vcStore: VcStoreService
@@ -23,8 +22,7 @@ abstract class ContextManager : BaseService() {
     abstract fun <R> runWith(context: Context, action: () -> R): R
 
     companion object {
-        val implementation: ContextManager
-            get() = ServiceRegistry.getService()
+        val implementation: ContextManager get() = ServiceRegistry.getService()
 
         fun getService() = implementation
 

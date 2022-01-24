@@ -7,6 +7,7 @@ import id.walt.common.toParamMap
 import id.walt.model.AuthRequestResponse
 import id.walt.model.AuthenticationRequestJwt
 import id.walt.model.DidAuthRequest
+import id.walt.servicematrix.BaseService
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
 import id.walt.services.did.DidService
@@ -29,7 +30,7 @@ open class EnterpriseWalletService : WaltIdService() {
     fun constructAuthResponseJwt(did: String, redirectUri: String, nonce: String): String {
 
         //val kid = "$did#key-1"
-        val kid = DidService.loadDidEbsi(did).authentication!![0]
+        val kid = DidService.load(did).authentication!![0]
         val key = keyService.toJwk(did, jwkKeyId = kid)
         val thumbprint = key.computeThumbprint().toString()
 
@@ -168,6 +169,7 @@ open class EnterpriseWalletService : WaltIdService() {
 
     companion object : ServiceProvider {
         override fun getService() = object : EnterpriseWalletService() {}
+        override fun defaultImplementation() = WaltIdEnterpriseWalletService()
     }
 }
 

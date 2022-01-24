@@ -13,7 +13,12 @@ import id.walt.services.hkvstore.HKVKey
 import id.walt.services.key.KeyService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.ProofConfig
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
 import io.ktor.client.features.*
+import io.ktor.client.features.json.*
+import io.ktor.client.features.json.serializer.*
+import io.ktor.client.features.logging.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
@@ -34,9 +39,24 @@ object DidService {
 
     val FILE_NAME_MAX_LENGTH = 100
 
+    val DEFAULT_KEY_ALGORITHM = EdDSA_Ed25519
+
     sealed class DidOptions
     data class DidWebOptions(val domain: String?, val path: String? = null) : DidOptions()
     data class DidEbsiOptions(val addEidasKey: Boolean) : DidOptions()
+
+
+    val http = HttpClient(CIO) {
+        install(JsonFeature) {
+            serializer = KotlinxSerializer()
+        }
+        if (WaltIdServices.httpLogging) {
+            install(Logging) {
+                logger = Logger.SIMPLE
+                level = LogLevel.HEADERS
+            }
+        }
+    }
 
 
     private val credentialService = JsonLdCredentialService.getService()
@@ -61,24 +81,18 @@ object DidService {
     fun resolve(didUrl: DidUrl): Did {
         return when (didUrl.method) {
             DidMethod.key.name -> resolveDidKey(didUrl)
-            DidMethod.web.name -> resolveDidWebDummy(didUrl)
+            DidMethod.web.name -> resolveDidWeb(didUrl)
             else -> TODO("did:${didUrl.method} not implemented yet")
         }
     }
 
     fun load(did: String): Did = load(DidUrl.from(did))
-    fun load(didUrl: DidUrl): Did {
-        return when (didUrl.method) {
-            DidMethod.key.name -> resolveDidKey(didUrl)
-            DidMethod.web.name -> resolveDidWebDummy(didUrl)
-            else -> TODO("did:${didUrl.method} not implemented yet")
-        }
-    }
+    fun load(didUrl: DidUrl): Did = Did.decode(loadDid(didUrl.did)!!)!!
 
     fun resolveDidEbsiRaw(did: String): String = runBlocking {
         log.debug { "Resolving DID $did" }
 
-        val didDoc = WaltIdServices.http.get<String>("https://api.preprod.ebsi.eu/did-registry/v2/identifiers/$did")
+        val didDoc = http.get<String>("https://api.preprod.ebsi.eu/did-registry/v2/identifiers/$did")
 
         log.debug { didDoc }
 
@@ -96,7 +110,7 @@ object DidService {
         for (i in 1..5) {
             try {
                 log.debug { "Resolving did:ebsi at: https://api.preprod.ebsi.eu/did-registry/v2/identifiers/${didUrl.did}" }
-                didDoc = WaltIdServices.http.get("https://api.preprod.ebsi.eu/did-registry/v2/identifiers/${didUrl.did}")
+                didDoc = http.get("https://api.preprod.ebsi.eu/did-registry/v2/identifiers/${didUrl.did}")
                 log.debug { "Result: $didDoc" }
                 return@runBlocking Did.decode(didDoc)!! as DidEbsi
             } catch (e: ClientRequestException) {
@@ -113,19 +127,85 @@ object DidService {
     fun loadDidEbsi(didUrl: DidUrl): DidEbsi = Did.decode(loadDid(didUrl.did)!!)!! as DidEbsi
 
     fun updateDidEbsi(did: DidEbsi) = storeDid(did.id, did.encode())
-    // Private methods
 
     private fun createDidEbsi(keyAlias: String?, didEbsiOptions: DidEbsiOptions?): String {
-        val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(EdDSA_Ed25519)
+        val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(DEFAULT_KEY_ALGORITHM)
         val key = ContextManager.keyStore.load(keyId.id)
 
         // Created identifier
         val didUrlStr = DidUrl.generateDidEbsiV2DidUrl().did
         ContextManager.keyStore.addAlias(keyId, didUrlStr)
 
+        // Created DID doc
         val kid = didUrlStr + "#" + key.keyId
         ContextManager.keyStore.addAlias(keyId, kid)
 
+        val verificationMethods = buildVerificationMethods(key, kid, didUrlStr)
+
+        val did = DidEbsi(
+            listOf(DID_CONTEXT_URL), // TODO Context not working "https://ebsi.org/ns/did/v1"
+            didUrlStr, verificationMethods, listOf(kid)
+        )
+        val ebsiDid = did.encode()
+
+        // Store DID
+        storeDid(didUrlStr, ebsiDid)
+
+        return didUrlStr
+    }
+
+    private fun createDidKey(keyAlias: String?): String {
+        val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(DEFAULT_KEY_ALGORITHM)
+        val key = ContextManager.keyStore.load(keyId.id)
+
+        if (!setOf(EdDSA_Ed25519, RSA, ECDSA_Secp256k1).contains(key.algorithm)) throw Exception("DID KEY can not be created with an ${key.algorithm} key.")
+
+        val identifier = convertRawKeyToMultiBase58Btc(key.getPublicKeyBytes(), getMulticodecKeyCode(key.algorithm))
+
+        val didUrl = "did:key:$identifier"
+
+        ContextManager.keyStore.addAlias(keyId, didUrl)
+
+        resolveAndStore(didUrl)
+
+        return didUrl
+    }
+
+    private fun createDidWeb(keyAlias: String?, options: DidWebOptions?): String {
+
+        val key = keyAlias?.let { ContextManager.keyStore.load(it) } ?: cryptoService.generateKey(DEFAULT_KEY_ALGORITHM)
+            .let { ContextManager.keyStore.load(it.id) }
+
+        // Created identifier
+        val domain = options?.domain ?: throw Exception("Missing 'domain' parameter for creating did:web")
+        val path = options.path?.apply { replace("/", ":") }?.let { ":$it" } ?: ""
+
+        val didUrlStr = DidUrl("web", "$domain$path").did
+
+        ContextManager.keyStore.addAlias(key.keyId, didUrlStr)
+
+        // Created DID doc
+        val kid = didUrlStr + "#" + key.keyId
+        ContextManager.keyStore.addAlias(key.keyId, kid)
+
+        val verificationMethods = buildVerificationMethods(key, kid, didUrlStr)
+
+
+        val keyRef = listOf(kid)
+
+        val didDoc = DidWeb(DID_CONTEXT_URL, didUrlStr, verificationMethods, keyRef, keyRef)
+
+        storeDid(didUrlStr, didDoc.encode())
+
+        return didUrlStr
+    }
+
+
+    private fun buildVerificationMethods(
+        key: Key,
+        kid: String,
+        didUrlStr: String
+    ): MutableList<VerificationMethod> {
         val keyType = when (key.algorithm) {
             EdDSA_Ed25519 -> Ed25519VerificationKey2019
             ECDSA_Secp256k1 -> EcdsaSecp256k1VerificationKey2019
@@ -136,48 +216,7 @@ object DidService {
         val verificationMethods = mutableListOf(
             VerificationMethod(kid, keyType.name, didUrlStr, null, null, publicKeyJwk),
         )
-
-        val did = DidEbsi(
-            listOf(DID_CONTEXT_URL), // TODO Context not working "https://ebsi.org/ns/did/v1"
-            didUrlStr, verificationMethods, listOf(kid)
-        )
-        val ebsiDid = did.encode()
-
-//        val ebsiDid = if (key.algorithm == EdDSA_Ed25519) {
-//            val pubKeyBytes = key.getPublicKey().encoded
-//            val pubPrim = ASN1Sequence.fromByteArray(pubKeyBytes) as ASN1Sequence
-//            val edPublicKey = (pubPrim.getObjectAt(1) as ASN1BitString).octets
-//            // Create doc
-//            val ebsiDidBody = ebsiDid(DidUrl.from(didUrlStr), edPublicKey)
-//
-//            val ebsiDidBodyStr = Klaxon().toJsonString(ebsiDidBody)
-//
-//            keyStore.addAlias(keyId, ebsiDidBody.verificationMethod!!.get(0)!!.id)
-//
-//            // Create proof
-//            val verificationMethod = ebsiDidBody.verificationMethod?.get(0)?.id
-//            signDid(didUrlStr, verificationMethod!!, ebsiDidBodyStr)
-//        } else {
-//            val kid = "$didUrlStr#key-1"
-//            keyStore.addAlias(keyId, kid)
-//            val publicKeyJwk = Klaxon().parse<Jwk>(KeyService.toJwk(kid).toPublicJWK().toString())
-//            val verificationMethods = mutableListOf(
-//                VerificationMethod(kid, "Secp256k1VerificationKey2018", didUrlStr, null, null, publicKeyJwk),
-//            )
-//
-//            val did = DidEbsi(
-//                listOf("https://w3id.org/did/v1"), // TODO Context not working "https://ebsi.org/ns/did/v1"
-//                didUrlStr,
-//                verificationMethods,
-//                listOf("$didUrlStr#key-1")
-//            )
-//            Klaxon().toJsonString(did)
-//        }
-
-        // Store DID
-        storeDid(didUrlStr, ebsiDid)
-
-        return didUrlStr
+        return verificationMethods
     }
 
     fun importDid(did: String) {
@@ -198,53 +237,29 @@ object DidService {
         log.debug { "Key imported for: $did" }
     }
 
-    private fun createDidKey(keyAlias: String?): String {
-        val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(EdDSA_Ed25519)
-        val key = ContextManager.keyStore.load(keyId.id)
-
-        if (!setOf(EdDSA_Ed25519, RSA, ECDSA_Secp256k1).contains(key.algorithm)) throw Exception("DID KEY can not be created with an ${key.algorithm} key.")
-
-        val identifier = convertRawKeyToMultiBase58Btc(key.getPublicKeyBytes(), getMulticodecKeyCode(key.algorithm))
-
-        val didUrl = "did:key:$identifier"
-
-        ContextManager.keyStore.addAlias(keyId, didUrl)
-
-        resolveAndStore(didUrl)
-
-        return didUrl
-    }
-
-    private fun createDidWeb(keyAlias: String?, options: DidWebOptions?): String {
-
-        val key = keyAlias?.let { ContextManager.keyStore.load(it) } ?: cryptoService.generateKey(EdDSA_Ed25519)
-            .let { ContextManager.keyStore.load(it.id) }
-
-        val domain = options?.domain ?: throw Exception("Missing 'domain' parameter for creating did:web")
-        val path = options.path?.apply { replace("/", ":") }?.let { ":$it" } ?: ""
-
-        val didUrl = DidUrl("web", "$domain$path")
-
-        try {
-            ContextManager.keyStore.addAlias(key.keyId, didUrl.did)
-        } catch (e: Exception) {
-            throw Exception("Could not store key alias ${didUrl.did} for key ${key.keyId}", e)
-        }
-
-        storeDid(didUrl.did, resolveDidWebDummy(didUrl).toString())
-
-        return didUrl.did
-    }
-
     private fun signDid(issuerDid: String, verificationMethod: String, edDidStr: String): String {
         return credentialService.sign(
             edDidStr, ProofConfig(issuerDid = issuerDid, issuerVerificationMethod = verificationMethod)
         )
     }
 
-    private fun resolveDidKey(didUrl: DidUrl): Did {
-        // val pubEdKey = convertEd25519PublicKeyFromMultibase58Btc(didUrl.identifier)
+    private fun resolveDidWeb(didUrl: DidUrl): Did = runBlocking {
+        log.debug { "Resolving DID $didUrl" }
 
+        val domain = didUrl.identifier.substringBefore(":")
+        val path = didUrl.identifier.substringAfter(":")
+        val url = "https://${domain}/.well-known/${path}/did.json"
+
+        log.debug { "Fetching DID from $url" }
+
+        val didDoc = http.get<String>(url)
+
+        log.debug { didDoc }
+
+        return@runBlocking Did.decode(didDoc)!!
+    }
+
+    private fun resolveDidKey(didUrl: DidUrl): Did {
         val keyAlgorithm = getKeyAlgorithmFromMultibase(didUrl.identifier)
 
         val pubKey = convertMultiBase58BtcToRawKey(didUrl.identifier)
@@ -320,31 +335,7 @@ object DidService {
         return Triple(listOf(dhKeyId), verificationMethods, listOf(pubKeyId))
     }
 
-    fun resolveDidWebDummy(didUrl: DidUrl): Did {
-        log.warn { "DID WEB implementation is not finalized yet. Use it only for demo purpose." }
-        ContextManager.keyStore.getKeyId(didUrl.did).let {
-            ContextManager.keyStore.load(it!!).let {
-                val pubKeyId = didUrl.identifier + "#key-1"
-                val verificationMethods = listOf(
-                    VerificationMethod(
-                        pubKeyId,
-                        "ECDSASecp256k1VerificationKey2018",
-                        didUrl.did,
-                        "zMIGNAgEAMBAGByqGSM49AgEGBSuBBAAKBHYwdAIBAQQgPI4jGjTGPA3yFJp07jvx"
-                    ), // TODO: key encoding
-                )
-                val keyRef = listOf(pubKeyId)
-                return Did(
-                    DID_CONTEXT_URL, didUrl.did, verificationMethods, keyRef, keyRef, keyRef, keyRef, null
-                )
-            }
-        }
-    }
-
-    fun getAuthenticationMethods(did: String) = when (DidUrl.from(did).method) {
-        DidMethod.ebsi.name -> loadDidEbsi(did).authentication
-        else -> load(did).authentication
-    }
+    fun getAuthenticationMethods(did: String) = load(did).authentication
 
     private fun resolveAndStore(didUrl: String) = storeDid(didUrl, resolve(didUrl).encodePretty())
 

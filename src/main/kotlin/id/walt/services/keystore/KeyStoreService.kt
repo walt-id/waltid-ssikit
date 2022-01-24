@@ -2,6 +2,7 @@ package id.walt.services.keystore
 
 import id.walt.crypto.Key
 import id.walt.crypto.KeyId
+import id.walt.servicematrix.ServiceProvider
 import id.walt.servicematrix.ServiceRegistry
 import id.walt.services.WaltIdService
 
@@ -11,7 +12,7 @@ enum class KeyType {
 }
 
 abstract class KeyStoreService : WaltIdService() {
-    override val implementation get() = ServiceRegistry.getService<KeyStoreService>()
+    override val implementation get() = serviceImplementation<KeyStoreService>()
 
     open fun store(key: Key): Unit = implementation.store(key)
     open fun load(alias: String, keyType: KeyType = KeyType.PUBLIC): Key = implementation.load(alias, keyType)
@@ -24,4 +25,9 @@ abstract class KeyStoreService : WaltIdService() {
     // fun saveKeyPair(keys: Keys)
     // fun loadKeyPair(keyId: String): Keys?
     //fun addAlias(keyId: String, alias: String)
+
+    companion object : ServiceProvider {
+        override fun getService() = object : KeyStoreService() {}
+        override fun defaultImplementation() = FileSystemKeyStoreService()
+    }
 }

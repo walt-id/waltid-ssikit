@@ -77,7 +77,7 @@ open class WaltIdKeyService : KeyService() {
                 cryptoProvider = CryptoProvider.SUN,
                 keyPair = jwk.toRSAKey().toKeyPair()
             )
-            null -> {
+            else -> {
                 when (jwk.keyType?.value) {
                     "RSA" -> Key(
                         keyId = KeyId(jwk.keyID ?: newKeyId().id),
@@ -87,9 +87,6 @@ open class WaltIdKeyService : KeyService() {
                     )
                     else -> throw IllegalArgumentException("KeyType ${jwk.keyType} / Algorithm ${jwk.algorithm} not supported")
                 }
-            }
-            else -> {
-                throw IllegalArgumentException("Algorithm ${jwk.algorithm} / KeyType ${jwk.keyType} not supported")
             }
         }
         return key
@@ -112,7 +109,8 @@ open class WaltIdKeyService : KeyService() {
         }
 
     override fun toSecp256Jwk(key: Key, jwkKeyId: String?): ECKey {
-        val builder = ECKey.Builder(Curve.SECP256K1, key.keyPair!!.public as ECPublicKey)
+        val builder = ECKey
+            .Builder(Curve.SECP256K1, key.keyPair!!.public as ECPublicKey)
             .keyUse(KeyUse.SIGNATURE)
             .algorithm(JWSAlgorithm.ES256K)
             .keyID(jwkKeyId ?: key.keyId.id)
@@ -126,14 +124,14 @@ open class WaltIdKeyService : KeyService() {
 
     override fun toRsaJwk(key: Key, jwkKeyId: String?): RSAKey {
 
-        val builder = RSAKey.Builder(key.keyPair!!.public as RSAPublicKey)
-            .privateKey(key.keyPair!!.private as RSAPrivateKey) // TODO is needed?
+        val builder = RSAKey
+            .Builder(key.keyPair!!.public as RSAPublicKey)
             .keyUse(KeyUse.SIGNATURE)
             .algorithm(JWSAlgorithm.RS256)
             .keyID(jwkKeyId ?: key.keyId.id)
 
         key.keyPair!!.private?.let {
-            builder.privateKey(key.keyPair!!.private)
+            builder.privateKey(key.keyPair!!.private as RSAPrivateKey)
         }
 
         return builder.build()
@@ -146,7 +144,8 @@ open class WaltIdKeyService : KeyService() {
         val pubPrim = ASN1Sequence.fromByteArray(key.getPublicKey().encoded) as ASN1Sequence
         val x = (pubPrim.getObjectAt(1) as ASN1BitString).octets
 
-        val builder = OctetKeyPair.Builder(keyCurve, Base64URL.encode(x))
+        val builder = OctetKeyPair
+            .Builder(keyCurve, Base64URL.encode(x))
             .keyUse(keyUse)
             .algorithm(keyAlg)
             .keyID(jwkKeyId ?: key.keyId.id)
@@ -165,13 +164,12 @@ open class WaltIdKeyService : KeyService() {
         return builder.build()
     }
 
-    override fun getEthereumAddress(keyAlias: String): String =
-        keyStore.load(keyAlias).let {
-            when (it.algorithm) {
-                KeyAlgorithm.ECDSA_Secp256k1 -> calculateEthereumAddress(toSecp256Jwk(it))
-                else -> throw IllegalArgumentException("Algorithm not supported")
-            }
+    override fun getEthereumAddress(keyAlias: String): String = keyStore.load(keyAlias).let {
+        when (it.algorithm) {
+            KeyAlgorithm.ECDSA_Secp256k1 -> calculateEthereumAddress(toSecp256Jwk(it))
+            else -> throw IllegalArgumentException("Algorithm not supported")
         }
+    }
 
     private fun calculateEthereumAddress(key: ECKey): String {
         val digest = Keccak.Digest256().digest(key.x.decode().copyOfRange(0, 32) + key.y.decode().copyOfRange(0, 32))
