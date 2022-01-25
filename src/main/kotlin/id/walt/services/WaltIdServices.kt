@@ -34,6 +34,18 @@ object WaltIdServices {
     val httpLogging = false
     private val log = KotlinLogging.logger {}
 
+    val http = HttpClient(CIO) {
+        install(JsonFeature) {
+            serializer = KotlinxSerializer()
+        }
+        if (httpLogging) {
+            install(Logging) {
+                logger = Logger.SIMPLE
+                level = LogLevel.HEADERS
+            }
+        }
+    }
+
     init {
         val javaVersion = System.getProperty("java.runtime.version")
         println("walt.id SSI Kit ${Values.version} (running on Java $javaVersion)")
