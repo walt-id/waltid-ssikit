@@ -73,15 +73,14 @@ dependencies {
     implementation("io.ktor:ktor-client-logging:1.6.7")
     implementation("io.github.rybalkinsd", "kohttp", "0.12.0")
 
-
     // REST
     implementation("io.javalin:javalin:4.3.0")
     implementation("io.javalin:javalin-openapi:4.3.0")
     implementation("io.javalin:javalin-testtools:4.3.0")
 
     // Logging
-    implementation("org.slf4j:slf4j-api:2.0.0-alpha5")
-    implementation("org.slf4j:slf4j-simple:2.0.0-alpha5")
+    implementation("org.slf4j:slf4j-api:2.0.0-alpha6")
+    implementation("org.slf4j:slf4j-simple:2.0.0-alpha6")
 
     implementation("io.github.microutils:kotlin-logging-jvm:2.1.21")
 

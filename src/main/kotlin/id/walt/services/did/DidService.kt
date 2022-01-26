@@ -159,7 +159,7 @@ object DidService {
             .let { ContextManager.keyStore.load(it.id) }
 
         // Created identifier
-        val domain = options?.domain ?: throw Exception("Missing 'domain' parameter for creating did:web")
+        val domain = options?.domain?.replace(":", "%3A") ?: throw Exception("Missing 'domain' parameter for creating did:web")
         val path = options.path?.apply { replace("/", ":") }?.let { ":$it" } ?: ""
 
         val didUrlStr = DidUrl("web", "$domain$path").did
@@ -228,9 +228,14 @@ object DidService {
     private fun resolveDidWeb(didUrl: DidUrl): Did = runBlocking {
         log.debug { "Resolving DID $didUrl" }
 
-        val domain = didUrl.identifier.substringBefore(":")
+        val domain = didUrl.identifier.substringBefore(":").replace("%3A", ":")
         val path = didUrl.identifier.substringAfter(":")
-        val url = "https://${domain}/.well-known/${path}/did.json"
+
+        val url = if (path.isEmpty()) {
+            "https://${domain}/.well-known/did.json"
+        } else {
+            "https://${domain}/${path}/did.json"
+        }
 
         log.debug { "Fetching DID from $url" }
 
