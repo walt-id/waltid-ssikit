@@ -14,10 +14,7 @@ import net.pwall.json.schema.JSONSchema
 import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Path
-import java.text.SimpleDateFormat
 import java.time.Instant
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
 import java.util.*
 
 private val log = KotlinLogging.logger {}
