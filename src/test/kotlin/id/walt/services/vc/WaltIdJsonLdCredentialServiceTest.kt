@@ -51,7 +51,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
         vcVerified.verificationType shouldBe VerificationType.VERIFIABLE_CREDENTIAL
 
         val holderDid = vc.subject!!
-        val vpStr = credentialService.present(listOf(vcStr), holderDid, "domain.com", "nonce")
+        val vpStr = credentialService.present(listOf(vcStr), holderDid, "domain.com", "nonce", null)
         println("Presentation generated: $vpStr")
 
         val vp = vpStr.toCredential() as VerifiablePresentation
@@ -109,7 +109,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
     fun presentVa() {
         val vaStr = File("$VC_PATH/vc-ebsi-verifiable-authorisation.json").readText()
 
-        val vp = credentialService.present(listOf(vaStr), vaStr.toCredential().subject!!, null, null)
+        val vp = credentialService.present(listOf(vaStr), vaStr.toCredential().subject!!, null, null, null)
 
         println(vp)
     }
@@ -131,7 +131,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
         val vcSigned = vc.toCredential()
         println(vcSigned.toString())
 
-        val vp = credentialService.present(listOf(vc), vcSigned.subject!!, domain, challenge)
+        val vp = credentialService.present(listOf(vc), vcSigned.subject!!, domain, challenge, null)
         println("Presentation generated: $vp")
 
         val vpVerified = credentialService.verifyVp(vp)

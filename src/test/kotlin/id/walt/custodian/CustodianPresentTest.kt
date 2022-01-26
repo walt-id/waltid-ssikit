@@ -49,7 +49,7 @@ class CustodianPresentTest : StringSpec() {
 
     init {
         "Json ld presentation" {
-            val presStr = Custodian.getService().createPresentation(listOf(vcJsonLd), did, did, null, null)
+            val presStr = Custodian.getService().createPresentation(listOf(vcJsonLd), did, did, null, null, null)
             println("Created VP: $presStr")
 
             val pres = presStr.toCredential()
@@ -58,7 +58,7 @@ class CustodianPresentTest : StringSpec() {
         }
 
         "Jwt presentation" {
-            val presStr = Custodian.getService().createPresentation(listOf(vcJwt), did, did, null, "abcd")
+            val presStr = Custodian.getService().createPresentation(listOf(vcJwt), did, did, null, "abcd", null)
             println("Created VP: $presStr")
 
             checkVerifiablePresentation(presStr)
@@ -67,7 +67,7 @@ class CustodianPresentTest : StringSpec() {
         "Jwt presentation without audience or nonce" {
             val presStr = Custodian
                 .getService()
-                .createPresentation(listOf(vcJwt), did, null, null, "abcd")
+                .createPresentation(listOf(vcJwt), did, null, null, "abcd", null)
             println("Created VP: $presStr")
 
             checkVerifiablePresentation(presStr)
@@ -76,7 +76,7 @@ class CustodianPresentTest : StringSpec() {
         "Jwt presentation without nonce" {
             val presStr = Custodian
                 .getService()
-                .createPresentation(listOf(vcJwt), did, did, null)
+                .createPresentation(listOf(vcJwt), did, did, null, null, null)
             println("Created VP: $presStr")
 
             checkVerifiablePresentation(presStr)
@@ -86,7 +86,7 @@ class CustodianPresentTest : StringSpec() {
             assertThrows<IllegalStateException> {
                 Custodian
                     .getService()
-                    .createPresentation(listOf(vcJsonLd, vcJwt), did, did, null, "abcd")
+                    .createPresentation(listOf(vcJsonLd, vcJwt), did, did, null, "abcd", null)
             }
         }
     }

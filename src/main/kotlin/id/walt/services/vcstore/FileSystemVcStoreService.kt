@@ -4,6 +4,8 @@ package id.walt.services.vcstore
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.model.toCredential
 import java.io.File
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 open class FileSystemVcStoreService : VcStoreService() {
 
@@ -25,7 +27,10 @@ open class FileSystemVcStoreService : VcStoreService() {
 
     override fun listCredentialIds(group: String): List<String> = getGroupDir(group).listFiles()!!.map { it.nameWithoutExtension }
 
-    override fun storeCredential(alias: String, vc: VerifiableCredential, group: String) = getFileById(alias, group).writeText(vc.encode())
+    override fun storeCredential(alias: String, vc: VerifiableCredential, group: String) =
+        getFileById(
+            URLEncoder.encode(alias, StandardCharsets.UTF_8), group
+        ).writeText(vc.encode())
 
     override fun deleteCredential(alias: String, group: String) = getFileById(alias, group).delete()
 }
