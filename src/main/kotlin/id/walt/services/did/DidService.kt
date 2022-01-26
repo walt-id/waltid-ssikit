@@ -328,7 +328,7 @@ object DidService {
 
     private fun resolveAndStore(didUrl: String) = storeDid(didUrl, resolve(didUrl).encodePretty())
 
-    private fun storeDid(didUrlStr: String, didDoc: String) {
+    fun storeDid(didUrlStr: String, didDoc: String) {
         var storeUrl = didUrlStr
         if (didUrlStr.length > FILE_NAME_MAX_LENGTH) {
             storeUrl = didUrlStr.substring(0, FILE_NAME_MAX_LENGTH)
