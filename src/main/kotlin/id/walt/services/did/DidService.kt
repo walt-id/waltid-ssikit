@@ -13,6 +13,7 @@ import id.walt.services.hkvstore.HKVKey
 import id.walt.services.key.KeyService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.ProofConfig
+import io.javalin.core.util.RouteOverviewUtil.metaInfo
 import io.ktor.client.features.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.runBlocking
@@ -64,6 +65,7 @@ object DidService {
         return when (didUrl.method) {
             DidMethod.key.name -> resolveDidKey(didUrl)
             DidMethod.web.name -> resolveDidWeb(didUrl)
+            DidMethod.ebsi.name -> resolveDidEbsi(didUrl)
             else -> TODO("did:${didUrl.method} not implemented yet")
         }
     }
@@ -352,12 +354,9 @@ object DidService {
 
         log.debug { "loadOrResolve: url=$url, length of stored=${storedDid?.length}" }
         return when (storedDid) {
-            null -> when (url.method) {
-                DidMethod.key.name -> resolveDidKey(url)
-                DidMethod.ebsi.name -> runCatching { resolveDidEbsi(didStr) }.getOrNull()
-                // TODO: implement did:web
-                else -> null
-            }?.apply { storeDid(didStr, this.encodePretty()) }
+            null -> resolve(didStr).also { did ->
+                storeDid(didStr, did.encodePretty())
+            }
             else -> Did.decode(storedDid)
         }
     }
