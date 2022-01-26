@@ -37,7 +37,7 @@ class VcVerifyCommandTest : StringSpec({
         val vcStr = Signatory.getService().issue(
             "VerifiableDiploma", ProofConfig(issuerDid = did, subjectDid = did, issuerVerificationMethod = "Ed25519Signature2018")
         )
-        val vpStr = JsonLdCredentialService.getService().present(listOf(vcStr), did, "https://api.preprod.ebsi.eu", "d04442d3-661f-411e-a80f-42f19f594c9d")
+        val vpStr = JsonLdCredentialService.getService().present(listOf(vcStr), did, "https://api.preprod.ebsi.eu", "d04442d3-661f-411e-a80f-42f19f594c9d", null)
         val vpFile = File.createTempFile("vpr", ".json")
         try {
             vpFile.writeText(vpStr)
@@ -52,7 +52,7 @@ class VcVerifyCommandTest : StringSpec({
         val vcJwt = Signatory.getService().issue(
             "VerifiableDiploma", ProofConfig(issuerDid = did, subjectDid = did, issuerVerificationMethod = "Ed25519Signature2018", proofType = ProofType.JWT)
         )
-        val vpJwt = Custodian.getService().createPresentation(listOf(vcJwt), did, did, null ,"abcd")
+        val vpJwt = Custodian.getService().createPresentation(listOf(vcJwt), did, did, null ,"abcd", null)
         val vpFile = File.createTempFile("vpr", ".jwt")
         try {
             vpFile.writeText(vpJwt)

@@ -77,7 +77,8 @@ object VcController {
                 listOf(presentVcReq.vc),
                 presentVcReq.holderDid,
                 presentVcReq.domain,
-                presentVcReq.challenge
+                presentVcReq.challenge,
+                null
             )
         )
     }

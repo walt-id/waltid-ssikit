@@ -94,8 +94,7 @@ object DidService {
         for (i in 1..5) {
             try {
                 log.debug { "Resolving did:ebsi at: https://api.preprod.ebsi.eu/did-registry/v2/identifiers/${didUrl.did}" }
-                didDoc =
-                    WaltIdServices.http.get("https://api.preprod.ebsi.eu/did-registry/v2/identifiers/${didUrl.did}")
+                didDoc = WaltIdServices.http.get("https://api.preprod.ebsi.eu/did-registry/v2/identifiers/${didUrl.did}")
                 log.debug { "Result: $didDoc" }
                 return@runBlocking Did.decode(didDoc)!! as DidEbsi
             } catch (e: ClientRequestException) {
@@ -143,12 +142,7 @@ object DidService {
         val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(DEFAULT_KEY_ALGORITHM)
         val key = ContextManager.keyStore.load(keyId.id)
 
-        if (!setOf(
-                EdDSA_Ed25519,
-                RSA,
-                ECDSA_Secp256k1
-            ).contains(key.algorithm)
-        ) throw Exception("DID KEY can not be created with an ${key.algorithm} key.")
+        if (!setOf(EdDSA_Ed25519, RSA, ECDSA_Secp256k1).contains(key.algorithm)) throw Exception("DID KEY can not be created with an ${key.algorithm} key.")
 
         val identifier = convertRawKeyToMultiBase58Btc(key.getPublicKeyBytes(), getMulticodecKeyCode(key.algorithm))
 
@@ -167,9 +161,8 @@ object DidService {
             .let { ContextManager.keyStore.load(it.id) }
 
         // Created identifier
-        val domain =
-            options?.domain?.replace(":", "%3A") ?: throw Exception("Missing 'domain' parameter for creating did:web")
-        val path = options.path?.apply { replace("/", ":") }?.let { ":$it" } ?: ""
+        val domain = options?.domain?.replace(":", "%3A") ?: throw Exception("Missing 'domain' parameter for creating did:web")
+        val path = options.path?.replace("/", ":")?.let { ":$it" } ?: ""
 
         val didUrlStr = DidUrl("web", "$domain$path").did
 
@@ -335,7 +328,7 @@ object DidService {
 
     private fun resolveAndStore(didUrl: String) = storeDid(didUrl, resolve(didUrl).encodePretty())
 
-    private fun storeDid(didUrlStr: String, didDoc: String) {
+    fun storeDid(didUrlStr: String, didDoc: String) {
         var storeUrl = didUrlStr
         if (didUrlStr.length > FILE_NAME_MAX_LENGTH) {
             storeUrl = didUrlStr.substring(0, FILE_NAME_MAX_LENGTH)
@@ -352,8 +345,7 @@ object DidService {
     }
 
 
-    fun listDids(): List<String> =
-        ContextManager.hkvStore.listChildKeys(HKVKey("did", "created")).map { it.name }.toList()
+    fun listDids(): List<String> = ContextManager.hkvStore.listChildKeys(HKVKey("did", "created")).map { it.name }.toList()
 
     fun loadOrResolveAnyDid(didStr: String): Did? {
         log.debug { "Loading or resolving \"$didStr\"..." }
@@ -361,14 +353,12 @@ object DidService {
         val storedDid = loadDid(didStr)
 
         log.debug { "loadOrResolve: url=$url, length of stored=${storedDid?.length}" }
-        return runCatching {
-            when (storedDid) {
-                null -> resolve(didStr).also { did ->
-                    storeDid(didStr, did.encodePretty())
-                }
-                else -> Did.decode(storedDid)
+        return when (storedDid) {
+            null -> resolve(didStr).also { did ->
+                storeDid(didStr, did.encodePretty())
             }
-        }.getOrNull()
+            else -> Did.decode(storedDid)
+        }
     }
 
     fun importKey(didUrl: String) {
@@ -399,13 +389,8 @@ object DidService {
 
         vm.publicKeyBase58 ?: return false
 
-        if (!setOf(
-                Ed25519VerificationKey2018.name,
-                Ed25519VerificationKey2019.name,
-                Ed25519VerificationKey2020.name
-            ).contains(vm.type)
-        ) {
-            log.error { "Key import does currently not support verification-key algorithm: ${vm.type}" }
+        if (!setOf(Ed25519VerificationKey2018.name, Ed25519VerificationKey2019.name, Ed25519VerificationKey2020.name).contains(vm.type)) {
+           log.error { "Key import does currently not support verification-key algorithm: ${vm.type}" }
             // TODO: support RSA and Secp256k1
             return false
         }
@@ -413,10 +398,7 @@ object DidService {
         val keyFactory = KeyFactory.getInstance("Ed25519")
 
         val pubKeyInfo =
-            SubjectPublicKeyInfo(
-                AlgorithmIdentifier(EdECObjectIdentifiers.id_Ed25519),
-                vm.publicKeyBase58.decodeBase58()
-            )
+            SubjectPublicKeyInfo(AlgorithmIdentifier(EdECObjectIdentifiers.id_Ed25519), vm.publicKeyBase58.decodeBase58())
         val x509KeySpec = X509EncodedKeySpec(pubKeyInfo.encoded)
 
         val pubKey = keyFactory.generatePublic(x509KeySpec)

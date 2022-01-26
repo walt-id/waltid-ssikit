@@ -172,7 +172,7 @@ class EssifIntTest() : StringSpec({
         val vcStrList = src.stream().map { vc -> vc.readText() }.collect(Collectors.toList())
 
         // Creating the Verifiable Presentation
-        val vp = Custodian.getService().createPresentation(vcStrList, holderDid, null, null, null)
+        val vp = Custodian.getService().createPresentation(vcStrList, holderDid, null, null, null, null)
 
         println("Verifiable presentation generated for holder DID: \"$holderDid\"")
         println("Verifiable presentation document (below, JSON):\n\n$vp")
