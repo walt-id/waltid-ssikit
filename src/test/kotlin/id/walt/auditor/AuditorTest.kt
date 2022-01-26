@@ -46,7 +46,7 @@ class AuditorCommandTest : StringSpec() {
         )
 
         vpStr =
-            custodian.createPresentation(listOf(vcStr), did, did, "https://api.preprod.ebsi.eu", "d04442d3-661f-411e-a80f-42f19f594c9d")
+            custodian.createPresentation(listOf(vcStr), did, did, "https://api.preprod.ebsi.eu", "d04442d3-661f-411e-a80f-42f19f594c9d", null)
 
         vcJwt = signatory.issue(
             "VerifiableDiploma", ProofConfig(
@@ -58,7 +58,7 @@ class AuditorCommandTest : StringSpec() {
             DummySignatoryDataProvider()
         )
 
-        vpJwt = custodian.createPresentation(listOf(vcJwt), did, did, null, "abcd")
+        vpJwt = custodian.createPresentation(listOf(vcJwt), did, did, null, "abcd", null)
     }
 
     init {

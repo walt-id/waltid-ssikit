@@ -6,6 +6,7 @@ import id.walt.services.WaltIdService
 import id.walt.signatory.ProofConfig
 import id.walt.vclib.model.VerifiableCredential
 import info.weboftrust.ldsignatures.LdProof
+import java.time.Instant
 
 
 abstract class JwtCredentialService : WaltIdService() {
@@ -18,8 +19,13 @@ abstract class JwtCredentialService : WaltIdService() {
     open fun verifyVc(vc: String): Boolean = implementation.verifyVc(vc)
     open fun verifyVp(vp: String): Boolean = implementation.verifyVp(vp)
 
-    open fun present(vcs: List<String>, holderDid: String, verifierDid: String? = null, challenge: String? = null): String =
-        implementation.present(vcs, holderDid, verifierDid, challenge)
+    open fun present(
+        vcs: List<String>,
+        holderDid: String,
+        verifierDid: String? = null,
+        challenge: String? = null,
+        expirationDate: Instant? = null
+    ): String = implementation.present(vcs, holderDid, verifierDid, challenge, expirationDate)
 
     open fun listVCs(): List<String> = implementation.listVCs()
 
