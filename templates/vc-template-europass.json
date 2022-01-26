@@ -44,11 +44,11 @@
               "specifiedBy": [
                 {
                   "eCTSCreditPoints": 5,
-                  "eqfLevel": "http://data.europa.eu/snb/eqf/4",
+                  "eqflLevel": "http://data.europa.eu/snb/eqf/4",
                   "id": "urn:epass:qualification:1",
                   "isPartialQualification": true,
                   "maximumDuration": "P6M",
-                  "nqfLevel": "http://data.europa.eu/snb/qdr/c_49672c5a",
+                  "nqflLevel": "http://data.europa.eu/snb/qdr/c_49672c5a",
                   "title": "Applied mathematics",
                   "volumeOfLearning": "PT60H"
                 }
@@ -116,17 +116,17 @@
           ]
         },
         "id": "urn:epass:learningAchievement:1",
-        "specifiedBy": {
+        "specifiedBy": [{
           "eCTSCreditPoints": 120,
           "entryRequirementsNote": "The minimum educational requirement for enrolment into graduate university programmes is the completion of an undergraduate university programme. The university can allow students who have completed a professional programme to also enrol graduate university programmes, but they are allowed to set special requirements in these cases.\nThe minimum educational requirement for enrolment into specialist graduate professional programmes is the completion of an undergraduate university programme or a professional programme (first cycle).",
-          "eqfLevel": "http://data.europa.eu/snb/eqf/5",
+          "eqflLevel": "http://data.europa.eu/snb/eqf/5",
           "id": "urn:epass:qualification:20",
           "isPartialQualification": false,
           "maximumDuration": "P21M",
-          "nqfLevel": "http://data.europa.eu/snb/qdr/c_dcc9aca1",
+          "nqflLevel": "http://data.europa.eu/snb/qdr/c_dcc9aca1",
           "title": "Master of Science in Civil Engineering",
           "volumeOfLearning": "PT1440H"
-        },
+        }],
         "title": "Master of Science in Civil Engineering",
         "wasAwardedBy": {
           "awardingBody": [
@@ -135,7 +135,7 @@
           "awardingDate": "2019-09-20T00:00:00+02:00",
           "id": "urn:epass:awardingProcess:1"
         },
-        "wasDerivedFrom": {
+        "wasDerivedFrom": [{
           "assessedBy": [
             "did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"
           ],
@@ -151,8 +151,8 @@
             "title": "Overall Diploma Assessment"
           },
           "title": "Overall Diploma Assessment"
-        },
-        "wasInfluencedBy": {
+        }],
+        "wasInfluencedBy": [{
           "directedBy": [
             "did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"
           ],
@@ -181,7 +181,7 @@
           "startedAtTime": "2017-09-04T00:00:00+02:00",
           "title": "Master of Science in Civil Engineering",
           "workload": "PT60H"
-        }
+        }]
       }
     ],
     "id": "did:epass:person:1",

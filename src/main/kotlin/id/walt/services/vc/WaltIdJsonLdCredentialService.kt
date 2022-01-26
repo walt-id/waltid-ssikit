@@ -25,6 +25,7 @@ import java.net.URI
 import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Path
+import java.time.Instant
 import java.util.*
 
 private val log = KotlinLogging.logger {}
@@ -270,7 +271,13 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
     //        return verifier.verify(jsonLdObject)
     //    }
 
-    override fun present(vcs: List<String>, holderDid: String, domain: String?, challenge: String?): String {
+    override fun present(
+        vcs: List<String>,
+        holderDid: String,
+        domain: String?,
+        challenge: String?,
+        expirationDate: Instant?
+    ): String {
         log.debug { "Creating a presentation for VCs:\n$vcs" }
 
         val id = "urn:uuid:${UUID.randomUUID()}"
@@ -281,7 +288,8 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
             proofType = ProofType.LD_PROOF,
             domain = domain,
             nonce = challenge,
-            credentialId = id
+            credentialId = id,
+            expirationDate = expirationDate
         )
         val vpReqStr =
             VerifiablePresentation(id = id, holder = holderDid, verifiableCredential = vcs.map { it.toCredential() }).encode()

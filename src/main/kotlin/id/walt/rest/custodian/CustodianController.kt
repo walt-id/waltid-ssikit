@@ -185,7 +185,7 @@ object CustodianController {
 
     fun presentCredentials(ctx: Context) {
         val req = ctx.bodyAsClass<PresentCredentialsRequest>()
-        ctx.result(custodian.createPresentation(req.vcs, req.holderDid, req.verifierDid, req.domain, req.challenge))
+        ctx.result(custodian.createPresentation(req.vcs, req.holderDid, req.verifierDid, req.domain, req.challenge, null))
     }
 
     fun presentCredentialIdsDocs() = document()
@@ -202,7 +202,7 @@ object CustodianController {
 
         val ids = req.vcIds.map { custodian.getCredential(it)!!.encode() }
 
-        ctx.result(custodian.createPresentation(ids, req.holderDid, req.verifierDid, req.domain, req.challenge))
+        ctx.result(custodian.createPresentation(ids, req.holderDid, req.verifierDid, req.domain, req.challenge, null))
     }
 
 }

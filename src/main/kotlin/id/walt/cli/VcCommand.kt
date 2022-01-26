@@ -152,7 +152,7 @@ class PresentVcCommand : CliktCommand(
         val vcStrList = vcSources.values.toList()
 
         // Creating the Verifiable Presentation
-        val vp = Custodian.getService().createPresentation(vcStrList, holderDid, verifierDid, domain, challenge)
+        val vp = Custodian.getService().createPresentation(vcStrList, holderDid, verifierDid, domain, challenge, null)
 
         log.debug { "Presentation created:\n$vp" }
 
