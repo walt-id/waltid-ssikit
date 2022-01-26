@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "id.walt"
-version = "1.4.1-SNAPSHOT"
+version = "1.4-SNAPSHOT"
 
 repositories {
     mavenCentral()
@@ -44,7 +44,7 @@ dependencies {
     implementation("com.google.guava:guava:31.0.1-jre")
 
     // VC
-    implementation("id.walt:waltid-ssikit-vclib:1.11.2-SNAPSHOT")
+    implementation("id.walt:waltid-ssikit-vclib:1.11.1")
 
     // JSON
     implementation("org.json:json:20210307")
