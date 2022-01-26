@@ -15,5 +15,6 @@ open class DidEbsiService : WaltIdService() {
 
     companion object : ServiceProvider {
         override fun getService() = object : DidEbsiService() {}
+        override fun defaultImplementation() = WaltIdDidEbsiService()
     }
 }

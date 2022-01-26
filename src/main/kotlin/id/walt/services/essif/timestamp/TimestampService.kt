@@ -1,5 +1,6 @@
 package id.walt.services.essif.timestamp
 
+import id.walt.servicematrix.BaseService
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
 import id.walt.services.essif.jsonrpc.TimestampHashesParams
@@ -23,5 +24,6 @@ open class TimestampService : WaltIdService() {
 
     companion object : ServiceProvider {
         override fun getService() = object : TimestampService() {}
+        override fun defaultImplementation() = WaltIdTimestampService()
     }
 }

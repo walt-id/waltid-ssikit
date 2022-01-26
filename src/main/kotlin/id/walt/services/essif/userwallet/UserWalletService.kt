@@ -306,7 +306,7 @@ object UserWalletService {
             null
         )
 
-        val authKeyId = DidService.loadDidEbsi(holderDid).authentication!![0]
+        val authKeyId = DidService.load(holderDid).authentication!![0]
 
         val encodedVp = Klaxon().toJsonString(vpReq)
         // val vp = credentialService.sign(holderDid, encodedVp, null, null, authKeyId, "assertionMethod")
@@ -360,7 +360,7 @@ object UserWalletService {
     // TODO replace with OidcUtil
     fun constructSiopResponseJwt(emphKeyId: KeyId, verifiedClaims: String, nonce: String): String {
 
-        //val kid = DidService.loadDidEbsi(did).authentication!![0]
+        //val kid = DidService.load(did).authentication!![0]
 
         val emphPrivKey = keyService.toJwk(emphKeyId.id, KeyType.PRIVATE)
 

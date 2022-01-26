@@ -7,7 +7,7 @@ import id.walt.vclib.model.VerifiableCredential
 abstract class AbstractDataProvider<V : VerifiableCredential>: SignatoryDataProvider {
 
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
-        var populatedVc = populateCustomData(template as V, proofConfig)
+        val populatedVc = populateCustomData(template as V, proofConfig)
 
         // set meta data: id, subject, issuance info, ...
         populatedVc.setMetaData(
@@ -21,6 +21,6 @@ abstract class AbstractDataProvider<V : VerifiableCredential>: SignatoryDataProv
         return populatedVc
     }
 
-    abstract fun populateCustomData(vc: V, proofConfig: ProofConfig): V
+    abstract fun populateCustomData(template: V, proofConfig: ProofConfig): V
 
 }

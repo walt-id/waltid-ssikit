@@ -2,6 +2,7 @@ package id.walt.custodian
 
 import id.walt.crypto.Key
 import id.walt.crypto.KeyAlgorithm
+import id.walt.servicematrix.BaseService
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
 import id.walt.services.context.ContextManager
@@ -38,6 +39,7 @@ abstract class Custodian : WaltIdService() {
 
     companion object : ServiceProvider {
         override fun getService() = object : Custodian() {}
+        override fun defaultImplementation() = WaltIdCustodian()
     }
 }
 

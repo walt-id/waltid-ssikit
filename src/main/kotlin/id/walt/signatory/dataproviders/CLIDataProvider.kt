@@ -2,10 +2,12 @@ package id.walt.signatory.dataproviders
 
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.SignatoryDataProvider
-import id.walt.vclib.credentials.*
-import id.walt.vclib.credentials.gaiax.*
+import id.walt.vclib.credentials.VerifiableDiploma
+import id.walt.vclib.credentials.VerifiableId
+import id.walt.vclib.credentials.VerifiableVaccinationCertificate
+import id.walt.vclib.credentials.gaiax.DataSelfDescription
+import id.walt.vclib.credentials.gaiax.GaiaxCredential
 import id.walt.vclib.model.VerifiableCredential
-import org.bouncycastle.asn1.x500.style.RFC4519Style.description
 
 fun prompt(prompt: String, default: String?): String? {
     print("$prompt [$default]: ")

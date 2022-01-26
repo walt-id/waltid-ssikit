@@ -17,7 +17,6 @@ object DateAsTimestampSerializer : KSerializer<Date> {
     override fun deserialize(decoder: Decoder): Date = Date(decoder.decodeLong())
 }*/
 
-
 @Serializer(forClass = LocalDateTime::class)
 object DateAsIso8601UtcStringSerializer : KSerializer<LocalDateTime> {
     override fun serialize(encoder: Encoder, value: LocalDateTime) {

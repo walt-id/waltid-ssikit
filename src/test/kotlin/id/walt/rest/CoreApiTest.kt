@@ -59,8 +59,8 @@ class CoreApiTest : AnnotationSpec() {
 
     fun get(path: String): HttpResponse = runBlocking {
         val response: HttpResponse = client.get("$CORE_API_URL$path") {
+            accept(ContentType.Text.Html)
             headers {
-                append(HttpHeaders.Accept, "text/html")
                 append(HttpHeaders.Authorization, "token")
             }
         }
@@ -70,8 +70,8 @@ class CoreApiTest : AnnotationSpec() {
 
     fun post(path: String): HttpResponse = runBlocking {
         val response: HttpResponse = client.post("$CORE_API_URL$path") {
+            accept(ContentType.Application.Json)
             headers {
-                append(HttpHeaders.Accept, "application/json")
                 append(HttpHeaders.Authorization, "token")
             }
         }
@@ -81,8 +81,8 @@ class CoreApiTest : AnnotationSpec() {
 
     inline fun <reified T> post(path: String): T = runBlocking {
         val response: T = client.post<T>("$CORE_API_URL$path") {
+            accept(ContentType.Application.Json)
             headers {
-                append(HttpHeaders.Accept, "application/json")
                 append(HttpHeaders.Authorization, "token")
             }
         }

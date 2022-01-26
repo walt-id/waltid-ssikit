@@ -1,10 +1,9 @@
 package id.walt.services.crypto
 
+import com.google.crypto.tink.KeyTemplates
 import com.google.crypto.tink.KeysetHandle
 import com.google.crypto.tink.PublicKeySign
 import com.google.crypto.tink.PublicKeyVerify
-import com.google.crypto.tink.signature.EcdsaSignKeyManager
-import com.google.crypto.tink.signature.Ed25519PrivateKeyManager
 import id.walt.crypto.Key
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyId
@@ -26,9 +25,9 @@ open class TinkCryptoService : CryptoService() {
 //        )
         // https://github.com/google/tink/issues/146
         val keysetHandle = when (algorithm) {
-            KeyAlgorithm.ECDSA_Secp256k1 -> KeysetHandle.generateNew(EcdsaSignKeyManager.rawEcdsaP256Template())
-            KeyAlgorithm.EdDSA_Ed25519 -> KeysetHandle.generateNew(Ed25519PrivateKeyManager.rawEd25519Template())
-            else -> throw Exception("Key algorithm: $algorithm not supported")
+            KeyAlgorithm.ECDSA_Secp256k1 -> KeysetHandle.generateNew(KeyTemplates.get("ECDSA_P256_RAW"))
+            KeyAlgorithm.EdDSA_Ed25519 -> KeysetHandle.generateNew(KeyTemplates.get("ED25519_RAW"))
+            else -> throw IllegalArgumentException("Key algorithm: $algorithm not supported")
         }
 
         val key = Key(newKeyId(), algorithm, CryptoProvider.TINK, keysetHandle)

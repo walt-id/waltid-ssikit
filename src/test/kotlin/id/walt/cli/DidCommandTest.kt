@@ -1,7 +1,10 @@
 package id.walt.cli
 
+import id.walt.common.readWhenContent
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyAlgorithm.*
+import id.walt.crypto.KeyId
+import id.walt.crypto.convertPEMKeyToJWKKey
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
 import id.walt.services.key.KeyService
@@ -9,7 +12,8 @@ import id.walt.test.RESOURCES_PATH
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import java.io.File
-
+import java.nio.file.Path
+import kotlin.io.path.readLines
 
 class DidCommandTest : StringSpec({
 
@@ -23,7 +27,7 @@ class DidCommandTest : StringSpec({
         File("test-dest.json").delete()
     }
 
-    "Import did" {
+    "1. Import did" {
         val testDid = "did:key:z6MkhjYgRWxZzr1suuVB2Skqym8HPEiRzrMW1W2KKKariqSz"
         ImportDidCommand().parse(listOf(testDid))
 
@@ -34,21 +38,58 @@ class DidCommandTest : StringSpec({
         val key = KeyService.getService().load(testDid)
         println(key.keyId)
 
-        key.keyId.id.removePrefix("did:key:") shouldBe "${testDid.removePrefix("did:key:")}#${testDid.removePrefix("did:key:")}"
+        val keyIdWithoutPrefix = key.keyId.id.removePrefix("did:key:")
+        val didWithoutPrefix = "${testDid.removePrefix("did:key:")}#${testDid.removePrefix("did:key:")}"
+        keyIdWithoutPrefix shouldBe didWithoutPrefix
     }
 
-    "Create did:key Ed25519" {
+    "2. Create did:key Ed25519" {
         testDidKey(EdDSA_Ed25519)
     }
 
-    "Create did:key Secp256k1" {
+    "3. Create did:key Secp256k1" {
         testDidKey(ECDSA_Secp256k1)
     }
 
-    "Create did:key RSA" {
+    "4. Create did:key RSA" {
         testDidKey(RSA)
     }
 
+    var rsaKeyId: KeyId? = null
+    //var didWebRsa: String? = null
+    var didKeyRsa: String? = null
+    "5. Create did:web RSA" {
+        rsaKeyId = KeyService.getService()
+            .importKey(
+                convertPEMKeyToJWKKey(readWhenContent(Path.of("src/test/resources/key/privkey.pem")))
+            )
+
+        CreateDidCommand().parse(listOf("-m", "web", "-k", rsaKeyId!!.id, "test-dest.json"))
+        /*didWebRsa = Path.of("test-dest.json")
+            .readLines()
+            .first { it.trim().startsWith("\"did:web:walt.id") }
+            .trim()
+            .trim { it == '\"' }*/
+    }
+
+    /* TODO Can't check upload of did:web
+    "6. Resolve did:web RSA" {
+        println(didWebRsa!!)
+        ResolveDidCommand().parse(listOf("-d", didWebRsa!!))
+    }*/
+
+    "6. Create RSA did:key" {
+        CreateDidCommand().parse(listOf("-m", "key", "-k", rsaKeyId!!.id, "test-dest.json"))
+        didKeyRsa = Path.of("test-dest.json")
+             .readLines()
+             .first { it.trim().startsWith("\"did:key:") }
+             .trim()
+             .trim { it == '\"' }
+    }
+    "7. Resolve RSA did:key" {
+        println(didKeyRsa!!)
+        ResolveDidCommand().parse(listOf("-d", didKeyRsa!!))
+    }
 })
 
 private fun testDidKey(algo: KeyAlgorithm) {
