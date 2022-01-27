@@ -4,11 +4,13 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
 
 ## [Unreleased]
 
-- Roadmap Items
-    - https://github.com/walt-id/waltid-roadmap/issues/26
-    - https://github.com/walt-id/waltid-roadmap/issues/30
-- Features
-    - Revocation service added to Signatory
+## [1.5.0] - 2022-01-27
+
+-   Roadmap Items
+    -   <https://github.com/walt-id/waltid-roadmap/issues/26>
+    -   <https://github.com/walt-id/waltid-roadmap/issues/30>
+-   Features
+    -   Revocation service added to Signatory
 
 ## [1.4.0] - 2022-01-03
 
@@ -92,7 +94,9 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
     -   Fixed the way of finding the padding <https://github.com/walt-id/waltid-ssikit/pull/43>
     -   SignaturePolicy fails for issuers using did:ebsi <https://github.com/walt-id/waltid-ssikit/issues/52>
 
-[Unreleased]: https://github.com/walt-id/waltid-ssikit/compare/1.4.0...HEAD
+[Unreleased]: https://github.com/walt-id/waltid-ssikit/compare/1.5.0...HEAD
+
+[1.5.0]: https://github.com/walt-id/waltid-ssikit/compare/1.4.0...1.5.0
 
 [1.4.0]: https://github.com/walt-id/waltid-ssikit/compare/1.3.0...1.4.0
 
