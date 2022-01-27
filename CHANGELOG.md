@@ -4,6 +4,12 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
 
 ## [Unreleased]
 
+- Roadmap Items
+    - https://github.com/walt-id/waltid-roadmap/issues/26
+    - https://github.com/walt-id/waltid-roadmap/issues/30
+- Features
+    - Revocation service added to Signatory
+
 ## [1.4.0] - 2022-01-03
 
 -   adaptations for changes in VerifiableCredential data model of vclib version 1.7.0
