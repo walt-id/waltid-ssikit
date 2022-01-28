@@ -13,6 +13,7 @@ import id.walt.services.hkvstore.HKVKey
 import id.walt.services.key.KeyService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.ProofConfig
+import io.javalin.core.util.RouteOverviewUtil.metaInfo
 import io.ktor.client.features.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.runBlocking
@@ -64,6 +65,7 @@ object DidService {
         return when (didUrl.method) {
             DidMethod.key.name -> resolveDidKey(didUrl)
             DidMethod.web.name -> resolveDidWeb(didUrl)
+            DidMethod.ebsi.name -> resolveDidEbsi(didUrl)
             else -> TODO("did:${didUrl.method} not implemented yet")
         }
     }
@@ -159,8 +161,8 @@ object DidService {
             .let { ContextManager.keyStore.load(it.id) }
 
         // Created identifier
-        val domain = options?.domain ?: throw Exception("Missing 'domain' parameter for creating did:web")
-        val path = options.path?.apply { replace("/", ":") }?.let { ":$it" } ?: ""
+        val domain = options?.domain?.replace(":", "%3A") ?: throw Exception("Missing 'domain' parameter for creating did:web")
+        val path = options.path?.replace("/", ":")?.let { ":$it" } ?: ""
 
         val didUrlStr = DidUrl("web", "$domain$path").did
 
@@ -228,9 +230,14 @@ object DidService {
     private fun resolveDidWeb(didUrl: DidUrl): Did = runBlocking {
         log.debug { "Resolving DID $didUrl" }
 
-        val domain = didUrl.identifier.substringBefore(":")
+        val domain = didUrl.identifier.substringBefore(":").replace("%3A", ":")
         val path = didUrl.identifier.substringAfter(":")
-        val url = "https://${domain}/.well-known/${path}/did.json"
+
+        val url = if (path.isEmpty()) {
+            "https://${domain}/.well-known/did.json"
+        } else {
+            "https://${domain}/${path}/did.json"
+        }
 
         log.debug { "Fetching DID from $url" }
 
@@ -321,7 +328,7 @@ object DidService {
 
     private fun resolveAndStore(didUrl: String) = storeDid(didUrl, resolve(didUrl).encodePretty())
 
-    private fun storeDid(didUrlStr: String, didDoc: String) {
+    fun storeDid(didUrlStr: String, didDoc: String) {
         var storeUrl = didUrlStr
         if (didUrlStr.length > FILE_NAME_MAX_LENGTH) {
             storeUrl = didUrlStr.substring(0, FILE_NAME_MAX_LENGTH)
@@ -347,12 +354,9 @@ object DidService {
 
         log.debug { "loadOrResolve: url=$url, length of stored=${storedDid?.length}" }
         return when (storedDid) {
-            null -> when (url.method) {
-                DidMethod.key.name -> resolveDidKey(url)
-                DidMethod.ebsi.name -> runCatching { resolveDidEbsi(didStr) }.getOrNull()
-                // TODO: implement did:web
-                else -> null
-            }?.apply { storeDid(didStr, this.encodePretty()) }
+            null -> resolve(didStr).also { did ->
+                storeDid(didStr, did.encodePretty())
+            }
             else -> Did.decode(storedDid)
         }
     }

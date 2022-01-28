@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "id.walt"
-version = "1.4-SNAPSHOT"
+version = "1.5.0"
 
 repositories {
     mavenCentral()
@@ -44,7 +44,7 @@ dependencies {
     implementation("com.google.guava:guava:31.0.1-jre")
 
     // VC
-    implementation("id.walt:waltid-ssikit-vclib:1.11.2-SNAPSHOT")
+    implementation("id.walt:waltid-ssikit-vclib:1.12.0")
 
     // JSON
     implementation("org.json:json:20210307")
@@ -74,15 +74,14 @@ dependencies {
     implementation("io.ktor:ktor-client-logging:1.6.7")
     implementation("io.github.rybalkinsd", "kohttp", "0.12.0")
 
-
     // REST
     implementation("io.javalin:javalin:4.3.0")
     implementation("io.javalin:javalin-openapi:4.3.0")
     implementation("io.javalin:javalin-testtools:4.3.0")
 
     // Logging
-    implementation("org.slf4j:slf4j-api:2.0.0-alpha5")
-    implementation("org.slf4j:slf4j-simple:2.0.0-alpha5")
+    implementation("org.slf4j:slf4j-api:2.0.0-alpha6")
+    implementation("org.slf4j:slf4j-simple:2.0.0-alpha6")
 
     implementation("io.github.microutils:kotlin-logging-jvm:2.1.21")
 
@@ -99,11 +98,11 @@ dependencies {
 
     // Testing
     //testImplementation(kotlin("test-junit"))
-    testImplementation("io.mockk:mockk:1.12.1")
+    testImplementation("io.mockk:mockk:1.12.2")
 
-    testImplementation("io.kotest:kotest-runner-junit5:5.0.1")
-    testImplementation("io.kotest:kotest-assertions-core:5.0.1")
-    testImplementation("io.kotest:kotest-assertions-json:5.0.1")
+    testImplementation("io.kotest:kotest-runner-junit5:5.1.0")
+    testImplementation("io.kotest:kotest-assertions-core:5.1.0")
+    testImplementation("io.kotest:kotest-assertions-json:5.1.0")
 }
 
 tasks.withType<Test> {
