@@ -44,12 +44,13 @@ dependencies {
     implementation("com.google.guava:guava:31.0.1-jre")
 
     // VC
-    implementation("id.walt:waltid-ssikit-vclib:1.11.1")
+    implementation("id.walt:waltid-ssikit-vclib:1.11.2-SNAPSHOT")
 
     // JSON
     implementation("org.json:json:20210307")
     implementation("com.beust:klaxon:5.5")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.1")
+    implementation("com.networknt:json-schema-validator:1.0.66")
     implementation("net.pwall.json:json-kotlin-schema:0.31")
     implementation("io.ktor:ktor-client-jackson:1.6.7")
 
@@ -98,11 +99,11 @@ dependencies {
 
     // Testing
     //testImplementation(kotlin("test-junit"))
-    testImplementation("io.mockk:mockk:1.12.2")
+    testImplementation("io.mockk:mockk:1.12.1")
 
-    testImplementation("io.kotest:kotest-runner-junit5:5.1.0")
-    testImplementation("io.kotest:kotest-assertions-core:5.1.0")
-    testImplementation("io.kotest:kotest-assertions-json:5.1.0")
+    testImplementation("io.kotest:kotest-runner-junit5:5.0.1")
+    testImplementation("io.kotest:kotest-assertions-core:5.0.1")
+    testImplementation("io.kotest:kotest-assertions-json:5.0.1")
 }
 
 tasks.withType<Test> {
