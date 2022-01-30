@@ -98,7 +98,12 @@ class FileSystemHKVStore(configPath: String) : HKVStoreService() {
                     HKVKey.fromPath(dataDirRelativePath(mapping))
                 }?.toSet()
                 true -> pathFileList?.flatMap {
-                    HKVKey.fromPath(dataDirRelativePath(it)).let { currentPath ->
+                    var mapping = it.toPath()
+                    if (mapping.name.length > MAX_KEY_SIZE) {
+                        mapping = mapping.parent.resolve(retrieveHashMapping(mapping.name))
+                    }
+
+                    HKVKey.fromPath(dataDirRelativePath(mapping)).let { currentPath ->
                         when {
                             it.isFile -> setOf(currentPath)
                             else -> listChildKeys(currentPath, true)
