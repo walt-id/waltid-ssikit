@@ -40,7 +40,11 @@ open class FileSystemKeyStoreService : KeyStoreService() {
     override fun load(alias: String, keyType: KeyType): Key {
         log.debug { "Loading key \"${alias}\"." }
 
-        val keyId = getKeyId(alias) ?: alias
+        var keyId = getKeyId(alias) ?: alias
+        if (keyId.length > FILE_NAME_MAX_LENGTH) {
+            keyId = keyId.substring(0, FILE_NAME_MAX_LENGTH)
+            log.warn { "The FileSystemKeyStore (implementing a KeyStoreService) does not support saving keys longer than $FILE_NAME_MAX_LENGTH characters!" }
+        }
 
         val metaData = String(loadKeyFile(keyId, "meta"))
         val algorithm = metaData.substringBefore(delimiter = ";")
@@ -101,9 +105,7 @@ open class FileSystemKeyStoreService : KeyStoreService() {
         saveKeyData(key, "meta", (key.algorithm.name + ";" + key.cryptoProvider.name).toByteArray())
     }
 
-    private fun saveKeyData(key: Key, suffix: String, data: ByteArray): Unit =
-        FileOutputStream("${KEY_DIR_PATH}/${key.keyId.id}.$suffix").use { it.write(data) }
-
+    private fun saveKeyData(key: Key, suffix: String, data: ByteArray) = saveKeyFile(key.keyId.id, suffix, data)
 
     //TODO consider deprecated methods below
 
@@ -186,8 +188,14 @@ open class FileSystemKeyStoreService : KeyStoreService() {
 ////        return null
 //    }>
 
-    private fun saveKeyFile(keyId: String, suffix: String, data: ByteArray): Unit =
+    private fun saveKeyFile(keyId: String, suffix: String, data: ByteArray): Unit {
+        var keyId = keyId
+        if (keyId.length > FILE_NAME_MAX_LENGTH) {
+            keyId = keyId.substring(0, FILE_NAME_MAX_LENGTH)
+            log.warn { "The FileSystemKeyStore (implementing a KeyStoreService) does not support saving keys longer than $FILE_NAME_MAX_LENGTH characters!" }
+        }
         FileOutputStream("${KEY_DIR_PATH}/$keyId.$suffix").use { it.write(data) }
+    }
 
     private fun saveEncPublicKey(keyId: String, encodedPublicKey: PublicKey) =
         saveKeyFile(keyId, "enc-pubkey", X509EncodedKeySpec(encodedPublicKey.encoded).encoded)
@@ -236,5 +244,6 @@ open class FileSystemKeyStoreService : KeyStoreService() {
     companion object {
         //TODO: get path from config
         private const val KEY_DIR_PATH = "data/key"
+        private const val FILE_NAME_MAX_LENGTH = 250
     }
 }
