@@ -89,7 +89,14 @@ class FileSystemHKVStore(configPath: String) : HKVStoreService() {
     override fun listChildKeys(parent: HKVKey, recursive: Boolean): Set<HKVKey> =
         getFinalPath(parent.toPath()).listFiles().let { pathFileList ->
             when (recursive) {
-                false -> pathFileList?.filter { it.isFile }?.map { HKVKey.fromPath(dataDirRelativePath(it)) }?.toSet()
+                false -> pathFileList?.filter { it.isFile }?.map {
+                    var mapping = it.toPath()
+                    if (mapping.name.length > MAX_KEY_SIZE) {
+                        mapping = mapping.parent.resolve(retrieveHashMapping(mapping.name))
+                    }
+
+                    HKVKey.fromPath(dataDirRelativePath(mapping))
+                }?.toSet()
                 true -> pathFileList?.flatMap {
                     HKVKey.fromPath(dataDirRelativePath(it)).let { currentPath ->
                         when {
