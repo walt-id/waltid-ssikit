@@ -3,9 +3,12 @@ package id.walt.services.hkvstore
 import id.walt.servicematrix.ServiceConfiguration
 import io.ipfs.multibase.binary.Base32
 import io.ktor.util.*
+import mu.KotlinLogging
 import org.apache.commons.codec.digest.DigestUtils
 import java.io.File
 import java.nio.file.Path
+import java.util.*
+import kotlin.io.path.*
 
 data class FilesystemStoreConfig(
     val dataRoot: String
@@ -17,12 +20,33 @@ class FileSystemHKVStore(configPath: String) : HKVStoreService() {
 
     override lateinit var configuration: FilesystemStoreConfig
 
+    constructor(config: FilesystemStoreConfig) : this("") {
+        configuration = config
+    }
+
+    private val logger = KotlinLogging.logger("FileSystemHKVStore")
+
     init {
         if (configPath.isNotEmpty()) configuration = fromConfiguration(configPath)
     }
 
-    constructor(config: FilesystemStoreConfig) : this("") {
-        configuration = config
+    private val mappingFilePath = lazy {
+        configuration.dataDirectory.resolve("hash-mappings.properties").apply {
+            if (notExists()) Properties().store(this.bufferedWriter(), hashMappingDesc)
+        }
+    }
+    private val mappingProperties = lazy {
+        if (mappingFilePath.value.notExists()) Properties().store(mappingFilePath.value.bufferedWriter(), hashMappingDesc)
+
+        Properties().apply { load(mappingFilePath.value.bufferedReader()) }
+    }
+
+    private fun storeMappings() = mappingProperties.value.store(mappingFilePath.value.bufferedWriter(), hashMappingDesc)
+
+    private fun storeHashMapping(keyName: String, hashMapping: String) {
+        logger.debug { "Mapping \"$keyName\" to \"$hashMapping\"" }
+        mappingProperties.value[hashMapping] = keyName
+        storeMappings()
     }
 
     private fun getFinalPath(keyPath: Path): File = dataDirCombinePath(keyPath).apply {
@@ -78,6 +102,7 @@ class FileSystemHKVStore(configPath: String) : HKVStoreService() {
     private fun dataDirCombinePath(key: Path) = configuration.dataDirectory.combineSafe(key)
 
     companion object {
-        private const val MAX_KEY_SIZE = 120
+        private const val MAX_KEY_SIZE = 100
+        private const val hashMappingDesc = "FileSystemHKVStore hash mappings properties"
     }
 }
