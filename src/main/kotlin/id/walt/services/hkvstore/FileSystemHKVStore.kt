@@ -105,6 +105,7 @@ class FileSystemHKVStore(configPath: String) : HKVStoreService() {
         getFinalPath(key.toPath()).run { if (recursive) deleteRecursively() else delete() }
 
     private fun dataDirRelativePath(file: File) = configuration.dataDirectory.relativize(file.toPath())
+    private fun dataDirRelativePath(path: Path) = configuration.dataDirectory.relativize(path)
     private fun dataDirCombinePath(key: Path) = configuration.dataDirectory.combineSafe(key)
 
     companion object {
