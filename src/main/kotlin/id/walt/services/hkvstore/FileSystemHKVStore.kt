@@ -49,22 +49,28 @@ class FileSystemHKVStore(configPath: String) : HKVStoreService() {
         storeMappings()
     }
 
-    private fun getFinalPath(keyPath: Path): File = dataDirCombinePath(keyPath).apply {
-        if (name.length > MAX_KEY_SIZE) {
-            val hashedFileNameBytes = DigestUtils.sha3_512(nameWithoutExtension)
+    private fun retrieveHashMapping(hashMapping: String): String = mappingProperties.value[hashMapping] as String
+
+    private fun hashIfNeeded(path: Path): File {
+        if (path.name.length > MAX_KEY_SIZE) {
+            val hashedFileNameBytes = DigestUtils.sha3_512(path.nameWithoutExtension)
             val hashedFileName = Base32().encodeToString(hashedFileNameBytes).replace("=", "").replace("+", "")
 
-            val ext = extension
+            //val ext = extension
 
-            val newName = hashedFileName + (ext.ifBlank { "" })
+            val newName = hashedFileName //+ (ext.ifBlank { "" })
 
-            val newPath = keyPath.parent.resolve(newName)
+            val newPath = path.parent.resolve(newName)
 
-            println("NEW PATH IS $newPath")
+            storeHashMapping(path.nameWithoutExtension, newName)
 
-            return dataDirCombinePath(newPath)
+            logger.debug { "File mapping is hashed: Path was \"${path.absolutePathString()}\", new path is $newPath" }
+            return dataDirCombinePath(dataDirRelativePath(newPath))
         }
+        return path.toFile()
     }
+
+    private fun getFinalPath(keyPath: Path): File = hashIfNeeded(dataDirCombinePath(keyPath).toPath())
 
     override fun put(key: HKVKey, value: ByteArray) {
         getFinalPath(key.toPath()).apply {
