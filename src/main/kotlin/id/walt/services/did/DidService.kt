@@ -33,8 +33,6 @@ private val log = KotlinLogging.logger {}
  */
 object DidService {
 
-    val FILE_NAME_MAX_LENGTH = 100
-
     val DEFAULT_KEY_ALGORITHM = EdDSA_Ed25519
 
     sealed class DidOptions
@@ -142,7 +140,12 @@ object DidService {
         val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(DEFAULT_KEY_ALGORITHM)
         val key = ContextManager.keyStore.load(keyId.id)
 
-        if (!setOf(EdDSA_Ed25519, RSA, ECDSA_Secp256k1).contains(key.algorithm)) throw Exception("DID KEY can not be created with an ${key.algorithm} key.")
+        if (!setOf(
+                EdDSA_Ed25519,
+                RSA,
+                ECDSA_Secp256k1
+            ).contains(key.algorithm)
+        ) throw Exception("DID KEY can not be created with an ${key.algorithm} key.")
 
         val identifier = convertRawKeyToMultiBase58Btc(key.getPublicKeyBytes(), getMulticodecKeyCode(key.algorithm))
 
@@ -328,21 +331,9 @@ object DidService {
 
     private fun resolveAndStore(didUrl: String) = storeDid(didUrl, resolve(didUrl).encodePretty())
 
-    fun storeDid(didUrlStr: String, didDoc: String) {
-        var storeUrl = didUrlStr
-        if (didUrlStr.length > FILE_NAME_MAX_LENGTH) {
-            storeUrl = didUrlStr.substring(0, FILE_NAME_MAX_LENGTH)
-        }
-        ContextManager.hkvStore.put(HKVKey("did", "created", storeUrl), didDoc)
-    }
+    fun storeDid(didUrlStr: String, didDoc: String) = ContextManager.hkvStore.put(HKVKey("did", "created", didUrlStr), didDoc)
 
-    private fun loadDid(didUrlStr: String): String? {
-        var storeUrl = didUrlStr
-        if (didUrlStr.length > FILE_NAME_MAX_LENGTH) {
-            storeUrl = didUrlStr.substring(0, FILE_NAME_MAX_LENGTH)
-        }
-        return ContextManager.hkvStore.getAsString(HKVKey("did", "created", storeUrl))
-    }
+    private fun loadDid(didUrlStr: String): String? = ContextManager.hkvStore.getAsString(HKVKey("did", "created", didUrlStr))
 
 
     fun listDids(): List<String> = ContextManager.hkvStore.listChildKeys(HKVKey("did", "created")).map { it.name }.toList()
@@ -389,8 +380,11 @@ object DidService {
 
         vm.publicKeyBase58 ?: return false
 
-        if (!setOf(Ed25519VerificationKey2018.name, Ed25519VerificationKey2019.name, Ed25519VerificationKey2020.name).contains(vm.type)) {
-           log.error { "Key import does currently not support verification-key algorithm: ${vm.type}" }
+        if (!setOf(Ed25519VerificationKey2018.name, Ed25519VerificationKey2019.name, Ed25519VerificationKey2020.name).contains(
+                vm.type
+            )
+        ) {
+            log.error { "Key import does currently not support verification-key algorithm: ${vm.type}" }
             // TODO: support RSA and Secp256k1
             return false
         }
