@@ -13,9 +13,9 @@ import id.walt.services.hkvstore.HKVKey
 import id.walt.services.key.KeyService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.ProofConfig
-import io.javalin.core.util.RouteOverviewUtil.metaInfo
 import io.ktor.client.features.*
 import io.ktor.client.request.*
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.bouncycastle.asn1.edec.EdECObjectIdentifiers
@@ -99,7 +99,7 @@ object DidService {
                 return@runBlocking Did.decode(didDoc)!! as DidEbsi
             } catch (e: ClientRequestException) {
                 log.debug { "Resolving did ebsi failed: fail $i" }
-                Thread.sleep(1000)
+                delay(1000)
                 lastEx = e
             }
         }
