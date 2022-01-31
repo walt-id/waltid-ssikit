@@ -76,6 +76,6 @@ open class WaltIdCustodian : Custodian() {
         vcs.stream().allMatch { VerifiableCredential.isJWT(it) } -> jwtCredentialService.present(vcs, holderDid, verifierDid, challenge, expirationDate)
         vcs.stream().noneMatch { VerifiableCredential.isJWT(it) } -> jsonLdCredentialService.present(vcs, holderDid, domain, challenge, expirationDate)
         else -> throw IllegalStateException("All verifiable credentials must be of the same proof type.")
-    }.also { fromString(it).also { vp -> storeCredential(vp.id!!, vp) } }
+    }
 }
 
