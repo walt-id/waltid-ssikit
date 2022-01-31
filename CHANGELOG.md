@@ -4,6 +4,13 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
 
 ## [Unreleased]
 
+- Features
+  - 2019 09 json schema validation https://github.com/walt-id/waltid-ssikit/pull/102
+  
+- Fixes
+  - Fix/ebsi jwt verifiable presentation https://github.com/walt-id/waltid-ssikit/pull/101
+  - DidService move max length substring to FileSystem Store https://github.com/walt-id/waltid-ssikit/issues/100
+
 ## [1.5.0] - 2022-01-27
 
 -   Roadmap Items
