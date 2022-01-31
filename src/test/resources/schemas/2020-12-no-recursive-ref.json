@@ -1,0 +1,297 @@
+{
+  "$schema": "http://json-schema.org/draft/2020-12/schema",
+  "description": "Design by BCdiploma for FR.EBSI - Schema of an EBSI Verifiable Attestation - Diploma",
+  "properties": {
+    "@context": {
+      "items": {
+        "format": "uri",
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "credentialSchema": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "type"
+      ],
+      "type": "object"
+    },
+    "credentialStatus": {
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "type"
+      ],
+      "type": "object"
+    },
+    "credentialSubject": {
+      "properties": {
+        "awardingOpportunity": {
+          "properties": {
+            "awardingBody": {
+              "properties": {
+                "eidasLegalIdentifier": {
+                  "type": "string"
+                },
+                "homepage": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "string"
+                },
+                "preferredName": {
+                  "type": "string"
+                },
+                "registration": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "eidasLegalIdentifier",
+                "id",
+                "preferredName",
+                "registration"
+              ],
+              "type": "object"
+            },
+            "endedAtTime": {
+              "format": "date-time",
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "identifier": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string"
+            },
+            "startedAtTime": {
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          "required": [
+            "awardingBody",
+            "id",
+            "identifier"
+          ],
+          "type": "object"
+        },
+        "dateOfBirth": {
+          "format": "date",
+          "type": "string"
+        },
+        "familyName": {
+          "type": "string"
+        },
+        "givenNames": {
+          "type": "string"
+        },
+        "gradingScheme": {
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id"
+          ],
+          "type": "object"
+        },
+        "id": {
+          "type": "string"
+        },
+        "identifier": {
+          "type": "string"
+        },
+        "learningAchievement": {
+          "properties": {
+            "additionalNote": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "description": {
+              "type": "string"
+            },
+            "id": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "title"
+          ],
+          "type": "object"
+        },
+        "learningSpecification": {
+          "properties": {
+            "ectsCreditPoints": {
+              "type": "integer"
+            },
+            "eqfLevel": {
+              "type": "integer"
+            },
+            "id": {
+              "type": "string"
+            },
+            "iscedfCode": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "nqfLevel": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          "required": [
+            "id",
+            "iscedfCode",
+            "nqfLevel"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "awardingOpportunity",
+        "dateOfBirth",
+        "familyName",
+        "givenNames",
+        "gradingScheme",
+        "id",
+        "identifier",
+        "learningAchievement",
+        "learningSpecification"
+      ],
+      "type": "object"
+    },
+    "evidence": {
+      "properties": {
+        "documentPresence": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "evidenceDocument": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "id": {
+          "type": "string"
+        },
+        "subjectPresence": {
+          "type": "string"
+        },
+        "type": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "verifier": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    },
+    "expirationDate": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "id": {
+      "type": "string"
+    },
+    "issuanceDate": {
+      "format": "date-time",
+      "type": "string"
+    },
+    "issuer": {
+      "type": "string"
+    },
+    "proof": {
+      "properties": {
+        "created": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "jws": {
+          "type": "string"
+        },
+        "proofPurpose": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "verificationMethod": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "created",
+        "jws",
+        "proofPurpose",
+        "type",
+        "verificationMethod"
+      ],
+      "type": "object"
+    },
+    "type": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "validFrom": {
+      "format": "date-time",
+      "type": "string"
+    }
+  },
+  "required": [
+    "@context",
+    "credentialSchema",
+    "credentialSubject",
+    "id",
+    "issuanceDate",
+    "issuer",
+    "proof",
+    "type",
+    "validFrom"
+  ],
+  "title": "EBSI Verifiable Attestation - Diploma",
+  "type": "object"
+}

@@ -2,10 +2,14 @@ package id.walt.services.vc
 
 import com.danubetech.keyformats.crypto.provider.Ed25519Provider
 import com.danubetech.keyformats.crypto.provider.impl.TinkEd25519Provider
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.networknt.schema.JsonSchemaFactory
+import com.networknt.schema.SpecVersion
 import foundation.identity.jsonld.ConfigurableDocumentLoader
 import foundation.identity.jsonld.JsonLDObject
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.LdSigner
+import id.walt.json.SchemaValidatorFactory
 import id.walt.services.context.ContextManager
 import id.walt.services.did.DidService
 import id.walt.services.essif.EssifServer.nonce
@@ -19,7 +23,6 @@ import id.walt.vclib.model.*
 import info.weboftrust.ldsignatures.LdProof
 import info.weboftrust.ldsignatures.jsonld.LDSecurityContexts
 import mu.KotlinLogging
-import net.pwall.json.schema.JSONSchema
 import org.json.JSONObject
 import java.net.URI
 import java.net.URL
@@ -34,6 +37,8 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
 
     private val keyStore: KeyStoreService
         get() = ContextManager.keyStore
+    private val jsonSchemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)
+    private val mapper = ObjectMapper()
 
     init {
         Ed25519Provider.set(TinkEd25519Provider())
@@ -351,8 +356,8 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
 
     override fun validateSchema(vc: VerifiableCredential, schema: String): Boolean {
 
-        val parsedSchema = try {
-            JSONSchema.parse(schema)
+        val schemaValidator = try {
+            SchemaValidatorFactory.get(schema)
         } catch (e: Exception) {
             if (log.isDebugEnabled) {
                 log.debug { "Could not parse schema" }
@@ -361,11 +366,11 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
             return false
         }
 
-        val basicOutput = parsedSchema.validateBasic(vc.json!!)
+        val errors = schemaValidator.validate(vc.json!!)
 
-        if (!basicOutput.valid) {
+        if (errors.isNotEmpty()) {
             log.debug { "Could not validate vc against schema . The validation errors are:" }
-            basicOutput.errors?.forEach { e -> log.debug { " - ${e.error}" } }
+            errors.forEach {  log.debug { it }  }
             return false
         }
 
