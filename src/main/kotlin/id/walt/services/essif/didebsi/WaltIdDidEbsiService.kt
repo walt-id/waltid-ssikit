@@ -12,11 +12,13 @@ import org.web3j.crypto.Hash
 import org.web3j.utils.Numeric
 import kotlin.random.Random
 
+val EBSI_ENV_URL = System.getenv().get("EBSI_ENV_URL") ?: "https://api.preprod.ebsi.eu"
+
 open class WaltIdDidEbsiService : DidEbsiService() {
 
     companion object {
-        private const val DID_REGISTRY_JSONRPC =
-            "https://api.preprod.ebsi.eu/did-registry/v2/jsonrpc" // TODO: make url configurable
+        private val DID_REGISTRY_JSONRPC =
+            "${EBSI_ENV_URL}/did-registry/v2/jsonrpc" // TODO: make url configurable
     }
 
     private val log = KotlinLogging.logger {}

@@ -5,6 +5,7 @@ import id.walt.common.readEssif
 import id.walt.model.AuthRequestResponse
 import id.walt.model.TrustedIssuer
 import id.walt.services.WaltIdServices
+import id.walt.services.essif.didebsi.EBSI_ENV_URL
 import id.walt.services.essif.enterprisewallet.EnterpriseWalletService
 import id.walt.services.essif.mock.DidRegistry
 import io.ktor.client.request.*
@@ -17,7 +18,7 @@ private val log = KotlinLogging.logger {}
 object TrustedIssuerClient {
 
     // TODO: move to config file
-    val domain = "https://api.preprod.ebsi.eu"
+    val domain = EBSI_ENV_URL
     //val domain = "https://api.test.intebsi.xyz"
 
     val authorisation = "$domain/authorisation/v1"
