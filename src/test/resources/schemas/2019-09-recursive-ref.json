@@ -1255,9 +1255,6 @@
   "$schema": "http://json-schema.org/draft/2019-09/schema",
   "allOf": [
     {
-      "$ref": "file:///C:/Users/bcdip/Workspace/vc-ssi-letstrust/schemas/2019-09-ebsi-vAttestation-Generic-schema.json"
-    },
-    {
       "properties": {
         "credentialSubject": {
           "description": "Additional properties on credentialSubject to describe educational use cases",
