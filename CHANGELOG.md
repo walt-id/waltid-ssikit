@@ -4,6 +4,9 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
 
 ## [Unreleased]
 
+- Features
+    -   Upgraded VC-Lib to 1.13.0
+
 ## [1.6.0] - 2022-01-31
 
 -   Features

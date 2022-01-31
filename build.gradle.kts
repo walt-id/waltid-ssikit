@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "id.walt"
-version = "1.6.0"
+version = "1.6.1"
 
 repositories {
     mavenCentral()
@@ -44,7 +44,7 @@ dependencies {
     implementation("com.google.guava:guava:31.0.1-jre")
 
     // VC
-    implementation("id.walt:waltid-ssikit-vclib:1.12.0")
+    implementation("id.walt:waltid-ssikit-vclib:1.13.0")
 
     // JSON
     implementation("org.json:json:20210307")
@@ -94,7 +94,7 @@ dependencies {
     implementation("id.walt.servicematrix:WaltID-ServiceMatrix:1.1.0")
 
     // Kotlin
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.6.0")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.6.1")
 
     // Testing
     //testImplementation(kotlin("test-junit"))
