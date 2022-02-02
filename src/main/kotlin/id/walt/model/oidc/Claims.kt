@@ -5,6 +5,10 @@ import id.walt.model.ListOrSingleValue
 import id.walt.model.dif.PresentationDefinition
 import id.walt.model.dif.PresentationSubmission
 import id.walt.vclib.credentials.VerifiablePresentation
+import com.nimbusds.openid.connect.sdk.OIDCClaimsRequest
+import com.nimbusds.openid.connect.sdk.claims.ClaimsSetRequest
+import net.minidev.json.JSONObject
+import net.minidev.json.parser.JSONParser
 
 data class VpTokenClaim (
     val presentation_definition: PresentationDefinition
@@ -27,7 +31,18 @@ data class CredentialClaim(
     val user_hint: String? = null, // OPTIONAL. JSON String containing an opaque user hint the wallet MAY use in sub-sequent callbacks to optimize the user's experience. RECOMMENDED in Dynamic Credential Request.
 )
 
-data class Claims (
+class Claims (
     @Json(serializeNull = false) val vp_token: VpTokenClaim? = null,
     @Json(serializeNull = false) val credentials: List<CredentialClaim>? = null
-)
+) : OIDCClaimsRequest() {
+    override fun toJSONObject(): JSONObject {
+        val o = super.toJSONObject()
+        if(credentials != null) {
+            o.put("credentials", JSONParser(JSONParser.MODE_PERMISSIVE).parse(klaxon.toJsonString(credentials)))
+        }
+        if(vp_token != null) {
+            o.put("vp_token", JSONParser().parse(klaxon.toJsonString(vp_token)))
+        }
+        return o
+    }
+}

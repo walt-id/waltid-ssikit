@@ -124,6 +124,13 @@ object WaltCLI {
                         EssifTaorCommand(),
                         EssifTsrCommand()
                     ),
+                    OidcCommand().subcommands(
+                        OidcIssuanceCommand().subcommands(
+                            OidcIssuanceAuthCommand(),
+                            OidcIssuanceTokenCommand(),
+                            OidcIssuanceCredentialCommand()
+                        )
+                    ),
                     ServeCommand()
                 )
                 .main(args)
