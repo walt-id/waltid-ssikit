@@ -92,7 +92,7 @@ class EssifCommandTest : StringSpec({
         }
     }
 
-    "6. Get timestamp transaction hash".config(enabled = false) {
+    "6. Get timestamp transaction hash".config(enabled = enableTests)  {
         val timestamp = WaltIdTimestampService().getByTransactionHash("0x45680f0a1d2b54d5abe785a93b90e42ee1d37aa0a4c03ff2d07d5ac431232674"/*transactionHash!!*/)
         validateTimestamp(timestamp)
 
@@ -101,7 +101,7 @@ class EssifCommandTest : StringSpec({
         EssifTimestampGetCommand().parse(listOf("--timestamp-txhash", "0x45680f0a1d2b54d5abe785a93b90e42ee1d37aa0a4c03ff2d07d5ac431232674"))
     }
 
-    "7. Get by timestamp Id".config(enabled = false) {
+    "7. Get by timestamp Id".config(enabled = enableTests)  {
         val timestamp = WaltIdTimestampService().getByTimestampId("uEiCHMUGYdJ6Lu8ugrCaEymIUAq6kUJHq10clWEcDvUwHLQ"/*timestampId!!*/)
         validateTimestamp(timestamp)
         EssifTimestampGetCommand().parse(listOf("--timestamp-id", "uEiCHMUGYdJ6Lu8ugrCaEymIUAq6kUJHq10clWEcDvUwHLQ"))

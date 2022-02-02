@@ -4,6 +4,19 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
 
 ## [Unreleased]
 
+## [1.6.1] - 2022-01-31
+
+-   Features
+    -   Upgraded VC-Lib to 1.13.0
+
+## [1.6.0] - 2022-01-31
+
+-   Features
+    -   2019 09 json schema validation <https://github.com/walt-id/waltid-ssikit/pull/102>
+-   Fixes
+    -   Fix/ebsi jwt verifiable presentation <https://github.com/walt-id/waltid-ssikit/pull/101>
+    -   DidService move max length substring to FileSystem Store <https://github.com/walt-id/waltid-ssikit/issues/100>
+
 ## [1.5.0] - 2022-01-27
 
 -   Roadmap Items
@@ -94,7 +107,11 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
     -   Fixed the way of finding the padding <https://github.com/walt-id/waltid-ssikit/pull/43>
     -   SignaturePolicy fails for issuers using did:ebsi <https://github.com/walt-id/waltid-ssikit/issues/52>
 
-[Unreleased]: https://github.com/walt-id/waltid-ssikit/compare/1.5.0...HEAD
+[Unreleased]: https://github.com/walt-id/waltid-ssikit/compare/1.6.1...HEAD
+
+[1.6.1]: https://github.com/walt-id/waltid-ssikit/compare/1.6.0...1.6.1
+
+[1.6.0]: https://github.com/walt-id/waltid-ssikit/compare/1.5.0...1.6.0
 
 [1.5.0]: https://github.com/walt-id/waltid-ssikit/compare/1.4.0...1.5.0
 

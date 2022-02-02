@@ -2,6 +2,7 @@ package id.walt.services.vc
 
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
+import id.walt.json.SchemaValidatorFactory
 import id.walt.services.jwt.JwtService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
@@ -10,8 +11,7 @@ import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.model.toCredential
 import info.weboftrust.ldsignatures.LdProof
 import mu.KotlinLogging
-import net.pwall.json.schema.JSONSchema
-import java.net.URL
+import java.net.URI
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.Instant
@@ -125,10 +125,8 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
     override fun validateSchemaTsr(vc: String) = try {
         vc.toCredential().let {
             if (it is VerifiablePresentation) return true
-
             val credentialSchema = it.credentialSchema ?: return true
-            val schema = JSONSchema.parse(URL(credentialSchema.id).readText())
-            return schema.validateBasic(it.json!!).valid
+            return SchemaValidatorFactory.get(URI(credentialSchema.id)).validate(it.json!!).isEmpty()
         }
     } catch (e: Exception) {
         e.printStackTrace()
