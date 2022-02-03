@@ -2,14 +2,10 @@ package id.walt.services.vc
 
 import com.danubetech.keyformats.crypto.provider.Ed25519Provider
 import com.danubetech.keyformats.crypto.provider.impl.TinkEd25519Provider
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.networknt.schema.JsonSchemaFactory
-import com.networknt.schema.SpecVersion
 import foundation.identity.jsonld.ConfigurableDocumentLoader
 import foundation.identity.jsonld.JsonLDObject
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.LdSigner
-import id.walt.json.SchemaValidatorFactory
 import id.walt.services.context.ContextManager
 import id.walt.services.did.DidService
 import id.walt.services.essif.EssifServer.nonce
@@ -20,6 +16,7 @@ import id.walt.signatory.ProofType
 import id.walt.vclib.credentials.VerifiableAttestation
 import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.*
+import id.walt.vclib.schema.SchemaService
 import info.weboftrust.ldsignatures.LdProof
 import info.weboftrust.ldsignatures.jsonld.LDSecurityContexts
 import mu.KotlinLogging
@@ -37,8 +34,6 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
 
     private val keyStore: KeyStoreService
         get() = ContextManager.keyStore
-    private val jsonSchemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V201909)
-    private val mapper = ObjectMapper()
 
     init {
         Ed25519Provider.set(TinkEd25519Provider())
@@ -355,26 +350,12 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
     }
 
     override fun validateSchema(vc: VerifiableCredential, schema: String): Boolean {
-
-        val schemaValidator = try {
-            SchemaValidatorFactory.get(schema)
-        } catch (e: Exception) {
-            if (log.isDebugEnabled) {
-                log.debug { "Could not parse schema" }
-                e.printStackTrace()
-            }
-            return false
-        }
-
-        val errors = schemaValidator.validate(vc.json!!)
-
-        if (errors.isNotEmpty()) {
+        val results = SchemaService.validateSchema(vc.json!!, schema)
+        if (!results.valid) {
             log.debug { "Could not validate vc against schema . The validation errors are:" }
-            errors.forEach {  log.debug { it }  }
-            return false
+            results.errors?.forEach {  log.debug { it }  }
         }
-
-        return true
+        return results.valid
     }
 
     override fun validateSchemaTsr(vc: String) = try {
