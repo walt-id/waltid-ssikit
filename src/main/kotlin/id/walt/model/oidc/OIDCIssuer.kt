@@ -154,10 +154,17 @@ class OIDCIssuer(
         query = "did=$did&type=$schemaId"
       }
     }.also {
-      println(it.query)
+      println("POST body: ${it.query}")
     }.send()
     if(resp.indicatesSuccess()) {
-      return klaxon.parse<CredentialResponse>(resp.content)?.credential?.let { String(Base64.getUrlDecoder().decode(it)).toCredential() }
+      println("Credential received: ${resp.content}")
+      val credResp = klaxon.parse<CredentialResponse>(resp.content)
+      return when(credResp?.format) {
+        "jwt_vc" -> credResp?.credential?.toCredential()
+        else -> credResp?.credential?.let { String(Base64.getUrlDecoder().decode(it)).toCredential() }
+      }
+    } else {
+      println("Error receiving credential: ${resp.statusCode}, ${resp.content}")
     }
     return null
   }
