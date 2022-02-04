@@ -78,7 +78,7 @@ function extract() {
     exit
   fi
 
-  if [[ ! -f build/distributions/waltid-ssi-kit-1.6.2.tar ]]; then
+  if [[ ! -f build/distributions/waltid-ssi-kit-1.6-SNAPSHOT.tar ]]; then
     echo "The build files do not exist (directory ./build/distributions)."
     echo "Have you run \"./ssikit.sh build\" yet?"
     echo
@@ -87,7 +87,7 @@ function extract() {
 
   (
     cd build/distributions
-    if tar xf waltid-ssi-kit-1.6.2.tar; then
+    if tar xf waltid-ssi-kit-1.6-SNAPSHOT.tar; then
       echo "Extraction successful."
     else
       echo "Extracting was unsuccessful."
@@ -108,8 +108,8 @@ function build_runscript_question() {
 }
 
 function execute_debug() {
-  if [[ -f build/distributions/waltid-ssi-kit-1.6.2/bin/waltid-ssi-kit ]]; then
-    JAVA_OPTS="-Dorg.slf4j.simpleLogger.defaultLogLevel=DEBUG" build/distributions/waltid-ssi-kit-1.6.2/bin/waltid-ssi-kit "$@"
+  if [[ -f build/distributions/waltid-ssi-kit-1.6-SNAPSHOT/bin/waltid-ssi-kit ]]; then
+    JAVA_OPTS="-Dorg.slf4j.simpleLogger.defaultLogLevel=DEBUG" build/distributions/waltid-ssi-kit-1.6-SNAPSHOT/bin/waltid-ssi-kit "$@"
   else
     build_runscript_question
 
@@ -121,8 +121,8 @@ function execute_debug() {
 }
 
 function execute() {
-  if [[ -f build/distributions/waltid-ssi-kit-1.6.2/bin/waltid-ssi-kit ]]; then
-    build/distributions/waltid-ssi-kit-1.6.2/bin/waltid-ssi-kit "$@"
+  if [[ -f build/distributions/waltid-ssi-kit-1.6-SNAPSHOT/bin/waltid-ssi-kit ]]; then
+    build/distributions/waltid-ssi-kit-1.6-SNAPSHOT/bin/waltid-ssi-kit "$@"
   else
     build_runscript_question
 
