@@ -4,6 +4,8 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
 
 ## [Unreleased]
 
+## [1.6.2] - 2022-02-04
+
 -   Features
     -   Upgraded VC-Lib to 1.14.1
 
@@ -110,7 +112,9 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
     -   Fixed the way of finding the padding <https://github.com/walt-id/waltid-ssikit/pull/43>
     -   SignaturePolicy fails for issuers using did:ebsi <https://github.com/walt-id/waltid-ssikit/issues/52>
 
-[Unreleased]: https://github.com/walt-id/waltid-ssikit/compare/1.6.1...HEAD
+[Unreleased]: https://github.com/walt-id/waltid-ssikit/compare/1.6.2...HEAD
+
+[1.6.2]: https://github.com/walt-id/waltid-ssikit/compare/1.6.1...1.6.2
 
 [1.6.1]: https://github.com/walt-id/waltid-ssikit/compare/1.6.0...1.6.1
 
