@@ -5,6 +5,6 @@ data class VpSchema (
 )
 
 data class InputDescriptor (
-    val id: String,
-    val schema: VpSchema
+    val schema: VpSchema,
+    val id: String? = null
 )

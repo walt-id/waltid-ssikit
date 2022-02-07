@@ -129,6 +129,11 @@ object WaltCLI {
                             OidcIssuanceAuthCommand(),
                             OidcIssuanceTokenCommand(),
                             OidcIssuanceCredentialCommand()
+                        ),
+                        OidcVerificationCommand().subcommands(
+                            OidcVerificationGetUrlCommand(),
+                            OidcVerificationGenUrlCommand(),
+                            OidcVerificationRespondCommand()
                         )
                     ),
                     ServeCommand()

@@ -12,7 +12,7 @@ open class FileSystemVcStoreService : VcStoreService() {
     val store = File("data/credential-store").apply { mkdir() }
 
     private fun getGroupDir(group: String) = File(store.absolutePath, group).apply { mkdirs() }
-    private fun getFileById(id: String, group: String) = File(getGroupDir(group),"${id}.cred")
+    private fun getFileById(id: String, group: String) = File(getGroupDir(group),"${java.net.URLEncoder.encode(id, java.nio.charset.StandardCharsets.UTF_8)}.cred")
     private fun loadFileString(id: String, group: String) = getFileById(id, group).let {
         when(it.exists()) {
             true -> it.readText()

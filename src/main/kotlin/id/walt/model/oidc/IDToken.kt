@@ -13,7 +13,7 @@ data class IDToken(
   @Json("exp") val expiration: Long = Instant.now().plusSeconds((60 * 60).toLong()).epochSecond,
   @Json("iat") val issueDate: Long = Instant.now().epochSecond,
   val nonce: String,
-  @Json(name = "_vp_token_", serializeNull = false) val vpTokenRef: VpTokenRef?
+  @Json(name = "_vp_token", serializeNull = false) val vpTokenRef: VpTokenRef?
 ) {
     fun sign(): String {
         return JwtService.getService().sign(subject, Klaxon().toJsonString(this))

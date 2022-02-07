@@ -31,7 +31,7 @@ data class CredentialClaim(
     val user_hint: String? = null, // OPTIONAL. JSON String containing an opaque user hint the wallet MAY use in sub-sequent callbacks to optimize the user's experience. RECOMMENDED in Dynamic Credential Request.
 )
 
-class Claims (
+class SIOPClaims (
     @Json(serializeNull = false) val vp_token: VpTokenClaim? = null,
     @Json(serializeNull = false) val credentials: List<CredentialClaim>? = null
 ) : OIDCClaimsRequest() {
