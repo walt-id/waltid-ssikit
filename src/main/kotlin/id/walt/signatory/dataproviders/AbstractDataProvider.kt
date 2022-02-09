@@ -14,7 +14,7 @@ abstract class AbstractDataProvider<V : VerifiableCredential>: SignatoryDataProv
             id = proofConfig.credentialId,
             issuer = proofConfig.issuerDid,
             subject = proofConfig.subjectDid,
-            issuanceDate = proofConfig.issueDate,
+            issued = proofConfig.issueDate,
             validFrom = proofConfig.validDate,
             expirationDate = proofConfig.expirationDate)
 

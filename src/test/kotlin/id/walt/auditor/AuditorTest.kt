@@ -33,17 +33,13 @@ class AuditorCommandTest : StringSpec() {
         did = DidService.create(DidMethod.key)
 
         println("Generated: $did")
-        vcStr = signatory.issue(
-            "VerifiableDiploma", ProofConfig(
-                issuerDid = did,
-                subjectDid = did,
-                issuerVerificationMethod = "Ed25519Signature2018",
-                proofPurpose = "Testing",
-                proofType = ProofType.LD_PROOF
-            ),
-            // Required at the moment because EBSI did not upgrade V_ID schema with necessary changes.
-            DummySignatoryDataProvider()
-        )
+        vcStr = signatory.issue("VerifiableDiploma", ProofConfig(
+            issuerDid = did,
+            subjectDid = did,
+            issuerVerificationMethod = "Ed25519Signature2018",
+            proofPurpose = "Testing",
+            proofType = ProofType.LD_PROOF
+        ))
 
         vpStr =
             custodian.createPresentation(listOf(vcStr), did, did, "https://api.preprod.ebsi.eu", "d04442d3-661f-411e-a80f-42f19f594c9d", null)

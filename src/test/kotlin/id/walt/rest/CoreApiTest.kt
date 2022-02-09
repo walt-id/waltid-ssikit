@@ -310,7 +310,7 @@ class CoreApiTest : AnnotationSpec() {
         credOffer.issuer = issuerDid
         credOffer.credentialSubject!!.id = subjectDid
 
-        credOffer.issuanceDate = localTimeSecondsUtc()
+        credOffer.issued = localTimeSecondsUtc()
 
         val vcReqEnc = Klaxon().toJsonString(credOffer)
 

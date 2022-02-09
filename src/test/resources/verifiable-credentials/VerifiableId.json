@@ -1,38 +1,56 @@
 {
-  "@context" : [ "https://www.w3.org/2018/credentials/v1" ],
-  "credentialSchema" : {
-    "id" : "https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0x2488fd38783d65e4fd46e7889eb113743334dbc772b05df382b8eadce763101b",
-    "type" : "JsonSchemaValidator2018"
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1"
+  ],
+  "credentialSchema": {
+    "id": "https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0xb77f8516a965631b4f197ad54c65a9e2f9936ebfb76bae4906d33744dbcc60ba",
+    "type": "FullJsonSchemaValidator2021"
   },
-  "credentialSubject" : {
-    "currentAddress" : "1 Boulevard de la Liberté, 59800 Lille",
-    "dateOfBirth" : "1993-04-08",
-    "familyName" : "DOE",
-    "firstName" : "Jane",
-    "gender" : "FEMALE",
-    "id" : "did:ebsi:zhhdvx3tS4hJsA23gXs7Qc9",
-    "nameAndFamilyNameAtBirth" : "Jane DOE",
-    "personalIdentifier" : "0904008084H",
-    "placeOfBirth" : "LILLE, FRANCE"
+  "credentialSubject": {
+    "currentAddress": [
+      "1 Boulevard de la Liberté, 59800 Lille"
+    ],
+    "dateOfBirth": "1993-04-08",
+    "familyName": "DOE",
+    "firstName": "Jane",
+    "gender": "FEMALE",
+    "id": "did:key:z6Mkp2Sr16XFUdf4dtNvBhpyhzVk61Y9dC2TX1tMJv6YtNnB",
+    "nameAndFamilyNameAtBirth": "Jane DOE",
+    "personalIdentifier": "0904008084H",
+    "placeOfBirth": "LILLE, FRANCE"
   },
-  "evidence" : {
-    "documentPresence" : [ "Physical" ],
-    "evidenceDocument" : [ "Passport" ],
-    "subjectPresence" : "Physical",
-    "type" : [ "DocumentVerification" ],
-    "verifier" : "did:ebsi:zhhdvx3tS4hJsA23gXs7Qc9"
-  },
-  "id" : "identity#VerifiableId#e29996e1-8338-49ba-b00f-5356e04b984d",
-  "issuanceDate" : "2021-11-07T10:45:09Z",
-  "issuer" : "did:ebsi:zhhdvx3tS4hJsA23gXs7Qc9",
-  "validFrom" : "2021-11-07T10:45:09Z",
-  "type" : [ "VerifiableCredential", "VerifiableAttestation", "VerifiableId" ],
-  "proof" : {
-    "type" : "EcdsaSecp256k1Signature2019",
-    "creator" : "did:ebsi:zhhdvx3tS4hJsA23gXs7Qc9",
-    "created" : "2021-11-07T10:45:10Z",
-    "domain" : "https://api.preprod.ebsi.eu",
-    "nonce" : "a3a5968f-9c57-4a73-bc7d-c8fab2167cf2",
-    "jws" : "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFUzI1NksifQ..tsGDiv3pfS7HPXXBGEmWauie6R4SurKTwIzfv53Moj5jYxcEV6NUxeWeaekQQePaJiAznapjehc5re7NJfnifQ"
+  "evidence": [
+    {
+      "documentPresence": [
+        "Physical"
+      ],
+      "evidenceDocument": [
+        "Passport"
+      ],
+      "subjectPresence": "Physical",
+      "type": [
+        "DocumentVerification"
+      ],
+      "verifier": "did:ebsi:2A9BZ9SUe6BatacSpvs1V5CdjHvLpQ7bEsi2Jb6LdHKnQxaN"
+    }
+  ],
+  "id": "urn:uuid:7e32a6cc-b9dc-4625-bdd4-819046912dbc",
+  "issued": "2020-11-03T00:00:00Z",
+  "issuer": "did:key:z6Mkp2Sr16XFUdf4dtNvBhpyhzVk61Y9dC2TX1tMJv6YtNnB",
+  "validFrom": "2020-10-31T00:00:00Z",
+  "issuanceDate": "2020-10-31T00:00:00Z",
+  "type": [
+    "VerifiableCredential",
+    "VerifiableAttestation",
+    "VerifiableId"
+  ],
+  "proof": {
+    "type": "Ed25519Signature2018",
+    "creator": "did:key:z6Mkp2Sr16XFUdf4dtNvBhpyhzVk61Y9dC2TX1tMJv6YtNnB",
+    "created": "2022-02-09T11:20:19Z",
+    "domain": "https://api.preprod.ebsi.eu",
+    "nonce": "5557a597-a3cd-45be-ba0b-90a6c6b98281",
+    "verificationMethod": "Ed25519Signature2018",
+    "jws": "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..01XxK1B_hbEhl9GR34HjF_DYbks7UstqCdUZJjIJWr5n3ajz8PbFnK7jge0bQFD7Byxzp1e4izDF6sLSENuvDQ"
   }
 }

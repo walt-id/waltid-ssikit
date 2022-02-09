@@ -15,6 +15,8 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.api.assertThrows
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 class CustodianPresentTest : StringSpec() {
     lateinit var did: String
@@ -58,7 +60,28 @@ class CustodianPresentTest : StringSpec() {
         }
 
         "Jwt presentation" {
-            val presStr = Custodian.getService().createPresentation(listOf(vcJwt), did, did, null, "abcd", null)
+
+           val  vIdJwt = Signatory.getService().issue(
+                "VerifiableId", ProofConfig(
+                    issuerDid = did,
+                    subjectDid = did,
+                    issueDate = LocalDateTime.of(2020, 11, 3, 0, 0).toInstant(ZoneOffset.UTC),
+                    validDate = LocalDateTime.of(2020, 10, 31, 0, 0).toInstant(ZoneOffset.UTC),
+                    issuerVerificationMethod = "Ed25519Signature2018", proofType = ProofType.JWT
+                )
+            )
+val            vDiplomaJwt = Signatory.getService().issue(
+                "VerifiableDiploma", ProofConfig(
+                    issuerDid = did,
+                    subjectDid = did,
+                    issueDate = LocalDateTime.of(2020, 11, 3, 0, 0).toInstant(ZoneOffset.UTC),
+                    validDate = LocalDateTime.of(2020, 10, 31, 0, 0).toInstant(ZoneOffset.UTC),
+                    issuerVerificationMethod = "Ed25519Signature2018", proofType = ProofType.JWT
+                )
+            )
+            println("Created VID: $vIdJwt")
+            println("Created VID: $vDiplomaJwt")
+            val presStr = Custodian.getService().createPresentation(listOf(vIdJwt, vDiplomaJwt), did, did, null, "abcd", null)
             println("Created VP: $presStr")
 
             checkVerifiablePresentation(presStr)

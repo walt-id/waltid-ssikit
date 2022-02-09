@@ -152,12 +152,12 @@ class TrustedSubjectDidPolicy : VerificationPolicy() {
     }
 }
 
-class IssuanceDateBeforePolicy : VerificationPolicy() {
+class IssuedDateBeforePolicy : VerificationPolicy() {
     override val description: String = "Verify by issuance date"
     override fun doVerify(vc: VerifiableCredential): Boolean {
         return when (vc) {
             is VerifiablePresentation -> true
-            else -> parseDate(vc.issuanceDate).let { it != null && it.before(Date()) }
+            else -> parseDate(vc.issued).let { it != null && it.before(Date()) }
         }
     }
 }
