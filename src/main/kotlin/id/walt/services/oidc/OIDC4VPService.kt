@@ -74,15 +74,18 @@ class OIDC4VPService (val verifier: OIDCProvider) {
     )
   }
 
-  fun postSIOPResponse(req: SIOPv2Request, resp: SIOPv2Response, mode: String): String {
+  fun postSIOPResponse(req: SIOPv2Request, resp: SIOPv2Response, mode: CompatibilityMode = CompatibilityMode.OIDC): String {
     val result = HTTPRequest(HTTPRequest.Method.POST, URI.create(req.redirect_uri)).apply {
-      if(mode == "json") {
+      if(mode == CompatibilityMode.EBSI_WCT) {
         setHeader("Content-Type", "application/json")
-        query = resp.toLegacyJson() // EBSI WCT expects json body with legacy format
+        query = resp.toEBSIWctJson() // EBSI WCT expects json body with incorrect presentation jwt format
       } else {
         query = resp.toFormBody()
       }
       followRedirects = false
+    }.also {
+      println("Request body:")
+      println(it.query)
     }.send()
     if(result.statusCode == 302)
       return result.location.toString()

@@ -2,6 +2,7 @@ package id.walt.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.*
+import com.github.ajalt.clikt.parameters.types.enum
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken
 import id.walt.common.prettyPrint
@@ -12,6 +13,7 @@ import id.walt.model.dif.VpSchema
 import id.walt.model.oidc.*
 import id.walt.services.did.DidService
 import id.walt.services.jwt.JwtService
+import id.walt.services.oidc.CompatibilityMode
 import id.walt.services.oidc.OIDC4CIService
 import id.walt.services.oidc.OIDC4VPService
 import id.walt.vclib.credentials.VerifiablePresentation
@@ -46,38 +48,43 @@ class OidcVerificationCommand: CliktCommand(name = "verify", help = "Credential 
 class OidcIssuanceAuthCommand: CliktCommand(name = "auth", help = "OIDC issuance authorization step") {
   val mode: String by option("-m", "--mode", help = "Authorization mode [push|get|redirect]").default("push")
   val issuer_url: String by option("-i", "--issuer", help = "Issuer base URL").required()
+  val nonce: String? by option("-n", "--nonce", help = "Nonce for auth request, to sign with id_token returned by tokens request.")
   val client_id: String? by option("--client-id", help = "Client ID for authorization at the issuer API")
   val client_secret: String? by option("--client-secret", help = "Client Secret for authorization at the issuer API")
-  val redirect_uri: String by option("--redirect-uri", help = "Redirect URI to send with the authorization request").default("http://blank")
-  val schema_ids: List<String> by option("--schema-id", help = "Schema ID of credential to be issued").multiple(default = listOf(VcTemplateManager.loadTemplate("VerifiableId").credentialSchema!!.id))
+  val redirect_uri: String by option("-r", "--redirect-uri", help = "Redirect URI to send with the authorization request").default("http://blank")
+  val schema_ids: List<String> by option("-s", "--schema-id", help = "Schema ID of credential to be issued").multiple(default = listOf(VcTemplateManager.loadTemplate("VerifiableId").credentialSchema!!.id))
 
   override fun run() {
     val issuer = OIDC4CIService(OIDCProvider(issuer_url, issuer_url, client_id = client_id, client_secret = client_secret))
     val credentialClaims = schema_ids.map { CredentialClaim(type = it, manifest_id = null) }
     when(mode) {
         "get" -> {
-          println("Wallet redirect URL:")
-          val redirectUrl = issuer.executeGetAuthorizationRequest(URI.create(redirect_uri), credentialClaims)
-          println(redirectUrl)
+          val redirectUri = issuer.executeGetAuthorizationRequest(URI.create(redirect_uri), credentialClaims, nonce = nonce)
+          println()
+          println("Client redirect URI:")
+          println(redirectUri)
           println()
           println("Now get the token using:")
-          println("ssikit oidc issue token -i $issuer_url -m json -u $redirectUrl")
+          println("ssikit oidc issue token -i $issuer_url -m ebsi_wct -r \"$redirectUri\"")
         }
         "redirect" -> {
+          val userAgentUri = issuer.getUserAgentAuthorizationURL(URI.create(redirect_uri), credentialClaims, nonce = nonce)
           println()
           println("Point your browser to this address and authorize with the issuer:")
-          println(issuer.getUserAgentAuthorizationURL(URI.create(redirect_uri), credentialClaims))
+          println(userAgentUri)
           println()
           println("Then paste redirection url from browser to this command to retrieve the access token:")
-          println("ssikit oidc issue token -i $issuer_url -u <url from browser>")
+          println("ssikit oidc issue token -i $issuer_url -r <url from browser>")
 
         }
         else -> {
+          val userAgentUri = issuer.executePushedAuthorizationRequest(URI.create(redirect_uri), credentialClaims, nonce = nonce)
+          println()
           println("Point your browser to this address and authorize with the issuer:")
-          println(issuer.executePushedAuthorizationRequest(URI.create(redirect_uri), credentialClaims))
+          println(userAgentUri)
           println()
           println("Then paste redirection url from browser to this command to retrieve the access token:")
-          println("ssikit oidc issue token -i $issuer_url -u <url from browser>")
+          println("ssikit oidc issue token -i $issuer_url -r <url from browser>")
         }
       }
   }
@@ -85,19 +92,19 @@ class OidcIssuanceAuthCommand: CliktCommand(name = "auth", help = "OIDC issuance
 
 class OidcIssuanceTokenCommand: CliktCommand(name = "token", help = "Get access token using authorization code from auth command") {
 
-  val mode: String by option("-m", "--mode", help = "Request body mode [form|json]").default("form")
+  val mode: CompatibilityMode by option("-m", "--mode", help = "Request body mode [oidc|ebsi_wct]").enum<CompatibilityMode>().default(CompatibilityMode.OIDC)
   val issuer_url: String by option("-i", "--issuer", help = "Issuer base URL").required()
-  val code: String? by option("-c", "--code", help = "Code retrieved through previously executed auth command. Alternatively can be read from redirect-url")
-  val fromRedirectUrl: String? by option("-u", "--from-redirect-url", help = "Paste browser redirection url after completing auth in browser")
+  val code: String? by option("-c", "--code", help = "Code retrieved through previously executed auth command. Alternatively can be read from redirect-url if specified")
+  val redirect_uri: String by option("-r", "--redirect-uri", help = "Redirect URI, same as in 'oidc issue auth' command, can contain ?code parameter, to read code from").default("http://blank")
   val client_id: String? by option("--client-id", help = "Client ID for authorization at the issuer API")
   val client_secret: String? by option("--client-secret", help = "Client Secret for authorization at the issuer API")
 
   override fun run() {
     val issuer = OIDC4CIService(OIDCProvider(issuer_url, issuer_url, client_id = client_id, client_secret = client_secret))
-
-    val authCode = code ?: fromRedirectUrl?.let {
+    val redirectUri = URI.create(redirect_uri)
+    val authCode = code ?: redirect_uri?.let {
       Pattern.compile("&")
-        .split(URI.create(fromRedirectUrl).query)
+        .split(redirectUri.query)
         .map { s -> s.split(Pattern.compile("="), 2) }
         .map { o -> Pair(o[0].let { URLDecoder.decode(it, StandardCharsets.UTF_8) }, o[1].let { URLDecoder.decode(it, StandardCharsets.UTF_8) }) }
         .toMap()["code"]
@@ -105,7 +112,7 @@ class OidcIssuanceTokenCommand: CliktCommand(name = "token", help = "Get access 
     if(authCode == null) {
       println("Error: Code not specified")
     } else {
-      val tokenResponse = issuer.getAccessToken(authCode, mode)
+      val tokenResponse = issuer.getAccessToken(authCode, redirect_uri.substringBeforeLast("?"), mode)
       println("Access token response:")
       val jsonObj = tokenResponse.toJSONObject()
       println(jsonObj.prettyPrint())
@@ -118,12 +125,13 @@ class OidcIssuanceTokenCommand: CliktCommand(name = "token", help = "Get access 
 
 class OidcIssuanceCredentialCommand: CliktCommand(name = "credential", help = "Get credential using access token from token command") {
 
-  val mode: String by option("-m", "--mode", help = "Request body mode [form|json]").default("form")
+  val mode: CompatibilityMode by option("-m", "--mode", help = "Request body mode [oidc|ebsi_wct]").enum<CompatibilityMode>().default(CompatibilityMode.OIDC)
   val issuer_url: String by option("-i", "--issuer", help = "Issuer base URL").required()
   val token: String by option("-t", "--token", help = "Access token retrieved through previously executed token command.").required()
   val nonce: String? by option("-n", "--nonce", help = "Nonce retrieved through previously executed token command, for proving did possession.")
   val did: String by option("-d", "--did", help = "Subject DID to issue credential for").required()
   val schemaId: String by option("-s", "--schema-id", help = "Schema ID of credential to be issued. Must correspond to one schema id specified in previously called auth command").default(VcTemplateManager.loadTemplate("VerifiableId").credentialSchema!!.id)
+  val format: String? by option("-f", "--format", help = "Preferred credential format, default: form: ldp_vc or json: jwt_vc depending on mode")
   val token_type: String by option("--token-type", help = "Access token type, as returned by previously executed token command, default: Bearer").default("Bearer")
   val client_id: String? by option("--client-id", help = "Client ID for authorization at the issuer API")
   val client_secret: String? by option("--client-secret", help = "Client Secret for authorization at the issuer API")
@@ -140,7 +148,7 @@ class OidcIssuanceCredentialCommand: CliktCommand(name = "credential", help = "G
       jws = JwtService.getService().sign(did, JWTClaimsSet.Builder().issuer(did).subject(did).claim("c_nonce", nonce).build().toString()),
       nonce = nonce
     )
-    val c = issuer.getCredential(BearerAccessToken(token), did, schemaId, proof, mode)
+    val c = issuer.getCredential(BearerAccessToken(token), did, schemaId, proof, format, mode)
     if(c == null)
       println("Error: no credential received")
     else {
@@ -194,21 +202,24 @@ class OidcVerificationGenUrlCommand: CliktCommand(name = "gen-url", help = "Get 
   }
 }
 
-class OidcVerificationRespondCommand: CliktCommand(name = "respond", help = "Get verification response, to be sent to verifier") {
+class OidcVerificationRespondCommand: CliktCommand(name = "present", help = "Create presentation response, and post to verifier") {
 
   val authUrl: String? by option("-u", "--url", help = "Authentication request URL from verifier, or get-url / gen-url subcommands")
   val did: String by option("-d", "--did", help = "Subject DID of presented credential(s)").required()
   val credentialIds: List<String> by option("-c", "--credential-id", help = "One or multiple credential IDs to be presented").multiple(listOf())
-  val mode: String by option("-m", help = "POST response to verifier in given format or print only [form|json|print]").default("print")
+  val mode: CompatibilityMode by option("-m", "--mode", help = "Request body mode [oidc|ebsi_wct]").enum<CompatibilityMode>().default(CompatibilityMode.OIDC)
 
   override fun run() {
     val verifier = OIDC4VPService(OIDCProvider("", ""))
     val req = verifier.parseSIOPv2RequestUri(URI.create(authUrl))
     val resp = verifier.getSIOPResponseFor(req!!, did, listOf(Custodian.getService().createPresentation(credentialIds.map { Custodian.getService().getCredential(it)!!.encode() }, did, challenge = req.nonce, expirationDate = null).toCredential() as VerifiablePresentation))
+    println("Presentation response:")
     println(resp.toFormParams().prettyPrint())
 
-    if(mode != "print") {
-      println(verifier.postSIOPResponse(req, resp, mode))
-    }
+    println()
+    val result = verifier.postSIOPResponse(req, resp, mode)
+    println()
+    println("Response:")
+    println(result)
   }
 }

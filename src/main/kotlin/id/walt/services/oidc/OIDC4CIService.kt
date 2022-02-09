@@ -12,10 +12,7 @@ import com.nimbusds.oauth2.sdk.id.ClientID
 import com.nimbusds.oauth2.sdk.id.Issuer
 import com.nimbusds.oauth2.sdk.id.State
 import com.nimbusds.oauth2.sdk.token.AccessToken
-import com.nimbusds.openid.connect.sdk.AuthenticationRequest
-import com.nimbusds.openid.connect.sdk.OIDCScopeValue
-import com.nimbusds.openid.connect.sdk.OIDCTokenResponse
-import com.nimbusds.openid.connect.sdk.SubjectType
+import com.nimbusds.openid.connect.sdk.*
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata
 import id.walt.model.dif.CredentialManifest
 import id.walt.model.dif.OutputDescriptor
@@ -28,6 +25,8 @@ import id.walt.vclib.registry.VcTypeRegistry
 import net.minidev.json.JSONObject
 import net.minidev.json.parser.JSONParser
 import java.net.URI
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import java.util.*
 
 class OIDC4CIService(
@@ -87,15 +86,17 @@ class OIDC4CIService(
     endpoint: URI,
     redirectUri: URI,
     claimedCredentials: List<CredentialClaim>,
+    nonce: String? = null,
     state: String? = null
   ): AuthenticationRequest {
     return AuthenticationRequest.Builder(
       ResponseType.CODE,
       Scope(OIDCScopeValue.OPENID),
-      ClientID(redirectUri.toString()),
+      ClientID(issuer.client_id ?: redirectUri.toString()),
       redirectUri
     )
       .state(state?.let { State(it) } ?: State())
+      .nonce(nonce?.let { Nonce(it) } ?: Nonce())
       .claims(SIOPClaims(credentials = claimedCredentials))
       .endpointURI(endpoint)
       .build()
@@ -104,25 +105,30 @@ class OIDC4CIService(
   fun executePushedAuthorizationRequest(
     redirectUri: URI,
     claimedCredentials: List<CredentialClaim>,
+    nonce: String? = null,
     state: String? = null
-  ): String? {
+  ): URI? {
     val response = createIssuanceAuthRequest(
       metadata!!.pushedAuthorizationRequestEndpointURI,
       redirectUri,
       claimedCredentials,
+      nonce,
       state
     )
       .toHTTPRequest(HTTPRequest.Method.POST).apply {
         if (issuer.client_id != null && issuer.client_secret != null) {
           authorization = ClientSecretBasic(ClientID(issuer.client_id), Secret(issuer.client_secret)).toHTTPAuthorizationHeader()
         }
+      }.also {
+        println("Request body")
+        println(it.query)
       }.send()
     if (response.indicatesSuccess()) {
-      return "${metadata!!.authorizationEndpointURI}?client_id=$redirectUri&request_uri=${
+      return URI.create("${metadata!!.authorizationEndpointURI}?client_id=$redirectUri&request_uri=${
         PushedAuthorizationResponse.parse(
           response
         ).toSuccessResponse().requestURI
-      }"
+      }")
     }
     return null
   }
@@ -131,19 +137,21 @@ class OIDC4CIService(
   fun executeGetAuthorizationRequest(
     redirectUri: URI,
     claimedCredentials: List<CredentialClaim>,
+    nonce: String? = null,
     state: String? = null
-  ): String? {
+  ): URI? {
     val response =
-      createIssuanceAuthRequest(metadata!!.authorizationEndpointURI, redirectUri, claimedCredentials, state)
+      createIssuanceAuthRequest(metadata!!.authorizationEndpointURI, redirectUri, claimedCredentials, nonce, state)
         .toHTTPRequest(HTTPRequest.Method.GET).apply {
           if (issuer.client_id != null && issuer.client_secret != null) {
             authorization = ClientSecretBasic(ClientID(issuer.client_id), Secret(issuer.client_secret)).toHTTPAuthorizationHeader()
           }
         }.also {
+          println("Request parameters:")
           println(it.query)
         }.send()
     if (response.indicatesSuccess()) {
-      return "$redirectUri?code=${response.contentAsJSONObject.get("code")}&state=${response.contentAsJSONObject.get("state")}"
+      return URI.create("$redirectUri?code=${response.contentAsJSONObject.get("code")}&state=${response.contentAsJSONObject.get("state")}")
     }
     return null
   }
@@ -151,25 +159,29 @@ class OIDC4CIService(
   fun getUserAgentAuthorizationURL(
     redirectUri: URI,
     claimedCredentials: List<CredentialClaim>,
+    nonce: String? = null,
     state: String? = null
-  ): String? {
-    val req = createIssuanceAuthRequest(metadata!!.authorizationEndpointURI, redirectUri, claimedCredentials, state)
-    return "${metadata!!.authorizationEndpointURI}?${req.toQueryString()}"
+  ): URI? {
+    val req = createIssuanceAuthRequest(metadata!!.authorizationEndpointURI, redirectUri, claimedCredentials, nonce, state)
+    return URI.create("${metadata!!.authorizationEndpointURI}?${req.toQueryString()}")
   }
 
-  fun getAccessToken(code: String, mode: String = "form"): OIDCTokenResponse {
+  fun getAccessToken(code: String, redirect_uri: String, mode: CompatibilityMode = CompatibilityMode.OIDC): OIDCTokenResponse {
     val resp = HTTPRequest(HTTPRequest.Method.POST, metadata!!.tokenEndpointURI).apply {
       if (issuer.client_id != null && issuer.client_secret != null) {
         authorization = ClientSecretBasic(ClientID(issuer.client_id), Secret(issuer.client_secret)).toHTTPAuthorizationHeader()
       }
-      if (mode == "json") {
+      if (mode == CompatibilityMode.EBSI_WCT) {
         setHeader("Content-Type", "application/json")
-        query = "{ \"code\": \"$code\", \"grant_type\": \"${GrantType.AUTHORIZATION_CODE}\" }"
+        query = "{ \"code\": \"$code\", \"grant_type\": \"${GrantType.AUTHORIZATION_CODE}\", \"redirect_uri\": \"$redirect_uri\" }"
       } else {
-        query = "code=$code&grant_type=${GrantType.AUTHORIZATION_CODE}"
+        query =
+          "code=$code" +
+          "&grant_type=${GrantType.AUTHORIZATION_CODE}" +
+          "&redirect_uri=${URLEncoder.encode(redirect_uri, StandardCharsets.UTF_8)}"
       }
     }.also {
-      println(it.url)
+      println("Request body:")
       println(it.query)
     }.send()
 
@@ -181,23 +193,29 @@ class OIDC4CIService(
     did: String,
     schemaId: String,
     proof: Proof,
-    mode: String = "form"
+    format: String? = null,
+    mode: CompatibilityMode = CompatibilityMode.OIDC
   ): VerifiableCredential? {
     val resp = HTTPRequest(
       HTTPRequest.Method.POST,
       URI.create(metadata!!.customParameters["credential_endpoint"].toString())
     ).apply {
       authorization = accessToken.toAuthorizationHeader()
-      if (mode == "json") {
+      if (mode == CompatibilityMode.EBSI_WCT) {
         setHeader("Content-Type", "application/json")
-        val o = JSONParser(-1).parse("""{ "did": "$did", "type": "$schemaId", "format": "jwt_vc" }""") as JSONObject
+        val o = JSONParser(-1).parse("""{ "did": "$did", "type": "$schemaId", "format": "${format ?: "jwt_vc" }" }""") as JSONObject
         o.put("proof", JSONParser(-1).parse(klaxon.toJsonString(proof)) as JSONObject)
         query = o.toJSONString()
       } else {
-        query = "did=$did&type=$schemaId"
+        query =
+          "did=$did" +
+          "&type=${URLEncoder.encode(schemaId, StandardCharsets.UTF_8)}" +
+          "&format=${format ?: "ldp_vc"}" +
+          "&proof=${URLEncoder.encode(klaxon.toJsonString(proof), StandardCharsets.UTF_8)}"
       }
     }.also {
-      println("POST body: ${it.query}")
+      println("Request body:")
+      println(it.query)
     }.send()
     if (resp.indicatesSuccess()) {
       println("Credential received: ${resp.content}")
