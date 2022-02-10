@@ -32,7 +32,7 @@ dependencies {
     implementation("com.github.multiformats:java-multibase:v1.1.0")
     implementation("com.microsoft.azure:azure-keyvault:1.2.4")
     implementation("com.microsoft.azure:azure-client-authentication:1.7.13")
-    implementation("com.nimbusds:nimbus-jose-jwt:9.15.2")
+    implementation("com.nimbusds:nimbus-jose-jwt:9.18")
 
     implementation("org.bouncycastle:bcprov-jdk15to18:1.70")
     implementation("org.bouncycastle:bcpkix-jdk15to18:1.70")
@@ -47,7 +47,7 @@ dependencies {
     implementation("id.walt:waltid-ssikit-vclib:1.14.1")
 
     // JSON
-    implementation("org.json:json:20210307")
+    implementation("org.json:json:20211205")
     implementation("com.beust:klaxon:5.5")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.1")
     implementation("io.ktor:ktor-client-jackson:1.6.7")
