@@ -13,6 +13,7 @@ import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.credentials.gaiax.GaiaxCredential
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.schema.SchemaService
+import io.ktor.client.features.*
 import kotlinx.serialization.Serializable
 import mu.KotlinLogging
 import java.text.SimpleDateFormat
@@ -96,7 +97,12 @@ class TrustedSchemaRegistryPolicy : VerificationPolicy() {
 class TrustedIssuerDidPolicy : VerificationPolicy() {
     override val description: String = "Verify by trusted issuer did"
     override fun doVerify(vc: VerifiableCredential): Boolean {
-        return DidService.loadOrResolveAnyDid(vc.issuer!!) != null
+        return try {
+            DidService.loadOrResolveAnyDid(vc.issuer!!) != null
+        } catch (e: ClientRequestException) {
+            if (!e.message.contains("did must be a valid DID") && !e.message.contains("Identifier Not Found")) throw e
+            false
+        }
     }
 }
 
@@ -147,17 +153,22 @@ class TrustedSubjectDidPolicy : VerificationPolicy() {
     override fun doVerify(vc: VerifiableCredential): Boolean {
         return vc.subject?.let {
             if (it.isEmpty()) true
-            else DidService.loadOrResolveAnyDid(it) != null
+            else try {
+                DidService.loadOrResolveAnyDid(it) != null
+            } catch (e: ClientRequestException) {
+                if (!e.message.contains("did must be a valid DID") && !e.message.contains("Identifier Not Found")) throw e
+                false
+            }
         } ?: false
     }
 }
 
-class IssuanceDateBeforePolicy : VerificationPolicy() {
+class IssuedDateBeforePolicy : VerificationPolicy() {
     override val description: String = "Verify by issuance date"
     override fun doVerify(vc: VerifiableCredential): Boolean {
         return when (vc) {
             is VerifiablePresentation -> true
-            else -> parseDate(vc.issuanceDate).let { it != null && it.before(Date()) }
+            else -> parseDate(vc.issued).let { it != null && it.before(Date()) }
         }
     }
 }

@@ -2,13 +2,13 @@ package id.walt.services.vc
 
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
-import id.walt.json.SchemaValidatorFactory
 import id.walt.services.jwt.JwtService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.model.toCredential
+import id.walt.vclib.schema.SchemaService
 import info.weboftrust.ldsignatures.LdProof
 import mu.KotlinLogging
 import java.net.URI
@@ -126,7 +126,7 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
         vc.toCredential().let {
             if (it is VerifiablePresentation) return true
             val credentialSchema = it.credentialSchema ?: return true
-            return SchemaValidatorFactory.get(URI(credentialSchema.id)).validate(it.json!!).isEmpty()
+            return SchemaService.validateSchema(it.json!!, URI(credentialSchema.id).toURL().readText()).valid
         }
     } catch (e: Exception) {
         e.printStackTrace()

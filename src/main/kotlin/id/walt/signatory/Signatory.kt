@@ -77,7 +77,7 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
                 domain = config.domain,
                 nonce = config.nonce,
                 proofPurpose = config.proofPurpose,
-                config.credentialId ?: "identity#${templateId}#${UUID.randomUUID()}",
+                config.credentialId ?: "urn:uuid:${UUID.randomUUID()}",
                 issueDate = config.issueDate ?: Instant.now(),
                 validDate = config.validDate ?: Instant.now(),
                 expirationDate = config.expirationDate,

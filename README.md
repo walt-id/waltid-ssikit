@@ -29,7 +29,7 @@ The library is written in **Kotlin/Java based library** and can be directly inte
 
 ### Via Docker
 
-The easiest way to getting your hands diry and to "play" with the functions the SSI Kit provides is by running the **CLI tool** with _Docker_.
+The easiest way to getting your hands dirty and to "play" with the functions the SSI Kit provides is by running the **CLI tool** with _Docker_.
 
     docker run -itv $(pwd)/data:/app/data waltid/ssikit -h
 
@@ -37,14 +37,14 @@ The easiest way to getting your hands diry and to "play" with the functions the 
 
 _Gradle_
 
-        implementation("id.walt:waltid-ssi-kit:1.6.0")
+        implementation("id.walt:waltid-ssi-kit:1.6.1")
 
 _Maven_
 
         <dependency>
             <groupId>id.walt</groupId>
             <artifactId>waltid-ssi-kit</artifactId>
-            <version>1.6.0</version>
+            <version>1.6.1</version>
         </dependency>
     
 Please go ahead and find further CLI commands and well as other ways how to use the SSI Kit in the documentation section below.
@@ -90,10 +90,24 @@ Following code snipped gives a first impression how to use the SSI Kit for creat
         println("JWT verification result: ${resJwt.overallStatus}")
     }
 
-## License
-
-The SSI Kit by walt.id is Open Source software released under the [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0.html).
-
 ## Funded & supported by
 
 <img src="logos-supporter.png">
+
+## License
+
+```
+Copyright ((C)) 2022 walt.id GmbH
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+   http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+```
