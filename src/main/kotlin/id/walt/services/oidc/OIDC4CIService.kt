@@ -1,10 +1,7 @@
 package id.walt.services.oidc
 
 import com.beust.klaxon.Klaxon
-import com.nimbusds.oauth2.sdk.GrantType
-import com.nimbusds.oauth2.sdk.PushedAuthorizationResponse
-import com.nimbusds.oauth2.sdk.ResponseType
-import com.nimbusds.oauth2.sdk.Scope
+import com.nimbusds.oauth2.sdk.*
 import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic
 import com.nimbusds.oauth2.sdk.auth.Secret
 import com.nimbusds.oauth2.sdk.http.HTTPRequest
@@ -167,18 +164,13 @@ class OIDC4CIService(
   }
 
   fun getAccessToken(code: String, redirect_uri: String, mode: CompatibilityMode = CompatibilityMode.OIDC): OIDCTokenResponse {
-    val resp = HTTPRequest(HTTPRequest.Method.POST, metadata!!.tokenEndpointURI).apply {
-      if (issuer.client_id != null && issuer.client_secret != null) {
-        authorization = ClientSecretBasic(ClientID(issuer.client_id), Secret(issuer.client_secret)).toHTTPAuthorizationHeader()
-      }
+    val codeGrant = AuthorizationCodeGrant(AuthorizationCode(code), URI.create(redirect_uri))
+    val clientAuth = ClientSecretBasic(issuer.client_id?. let { ClientID(it) } ?: ClientID(), issuer.client_secret?.let { Secret(it) } ?: Secret())
+    val resp = TokenRequest(metadata!!.tokenEndpointURI, clientAuth, codeGrant).toHTTPRequest().apply {
       if (mode == CompatibilityMode.EBSI_WCT) {
         setHeader("Content-Type", "application/json")
-        query = "{ \"code\": \"$code\", \"grant_type\": \"${GrantType.AUTHORIZATION_CODE}\", \"redirect_uri\": \"$redirect_uri\" }"
-      } else {
         query =
-          "code=$code" +
-          "&grant_type=${GrantType.AUTHORIZATION_CODE}" +
-          "&redirect_uri=${URLEncoder.encode(redirect_uri, StandardCharsets.UTF_8)}"
+          "{ \"code\": \"$code\", \"grant_type\": \"${GrantType.AUTHORIZATION_CODE}\", \"redirect_uri\": \"$redirect_uri\" }"
       }
     }.also {
       println("Request body:")
