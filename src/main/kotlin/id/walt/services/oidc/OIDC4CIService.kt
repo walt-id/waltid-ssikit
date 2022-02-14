@@ -1,6 +1,7 @@
 package id.walt.services.oidc
 
 import com.beust.klaxon.Klaxon
+import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.oauth2.sdk.*
 import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic
 import com.nimbusds.oauth2.sdk.auth.Secret
@@ -14,6 +15,8 @@ import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata
 import id.walt.model.dif.CredentialManifest
 import id.walt.model.dif.OutputDescriptor
 import id.walt.model.oidc.*
+import id.walt.services.did.DidService
+import id.walt.services.jwt.JwtService
 import id.walt.vclib.model.AbstractVerifiableCredential
 import id.walt.vclib.model.Proof
 import id.walt.vclib.model.VerifiableCredential
@@ -94,7 +97,7 @@ class OIDC4CIService(
     )
       .state(state?.let { State(it) } ?: State())
       .nonce(nonce?.let { Nonce(it) } ?: Nonce())
-      .claims(SIOPClaims(credentials = claimedCredentials))
+      .claims(VCClaims(credentials = claimedCredentials))
       .endpointURI(endpoint)
       .build()
   }
@@ -121,7 +124,7 @@ class OIDC4CIService(
         println(it.query)
       }.send()
     if (response.indicatesSuccess()) {
-      return URI.create("${metadata!!.authorizationEndpointURI}?client_id=$redirectUri&request_uri=${
+      return URI.create("${metadata!!.authorizationEndpointURI}?client_id=${issuer.client_id ?: redirectUri}&request_uri=${
         PushedAuthorizationResponse.parse(
           response
         ).toSuccessResponse().requestURI
@@ -220,5 +223,16 @@ class OIDC4CIService(
       println("Error receiving credential: ${resp.statusCode}, ${resp.content}")
     }
     return null
+  }
+
+  fun generateDidProof(did: String, nonce: String?): Proof {
+    val didObj = DidService.load(did)
+    return Proof(
+      type = didObj.verificationMethod!!.first().type,
+      creator =  did,
+      verificationMethod = didObj.verificationMethod!!.first().id,
+      jws = JwtService.getService().sign(did, JWTClaimsSet.Builder().issuer(did).subject(did).claim("c_nonce", nonce).build().toString()),
+      nonce = nonce
+    )
   }
 }

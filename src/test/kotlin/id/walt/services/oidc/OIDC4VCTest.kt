@@ -1,20 +1,117 @@
 package id.walt.services.oidc
 
+import com.nimbusds.oauth2.sdk.token.BearerAccessToken
+import id.walt.custodian.Custodian
+import id.walt.model.DidMethod
+import id.walt.model.dif.InputDescriptor
+import id.walt.model.dif.PresentationDefinition
+import id.walt.model.dif.VpSchema
 import id.walt.model.oidc.OIDCProvider
+import id.walt.model.oidc.SIOPv2Request
+import id.walt.model.oidc.VCClaims
+import id.walt.model.oidc.VpTokenClaim
+import id.walt.servicematrix.ServiceMatrix
+import id.walt.services.did.DidService
+import id.walt.signatory.ProofConfig
+import id.walt.signatory.ProofType
+import id.walt.signatory.Signatory
+import id.walt.test.RESOURCES_PATH
+import id.walt.vclib.credentials.VerifiablePresentation
+import id.walt.vclib.model.toCredential
 import io.kotest.core.spec.style.AnnotationSpec
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldContain
 import java.net.URI
 
 class OIDC4VCTest : AnnotationSpec() {
 
-    @Test
-    fun testIssuanceRequest() {
-        //val requestedCreds = listOf(CredentialClaim(type = VerifiableId.template!!().credentialSchema!!.id, manifest_id = null))
-        //val req = OIDC4CI.createIssuanceRequest(URI.create("https://blank/"), requestedCreds)
-        //val claims = klaxon.parse<Claims>(req.toParameters().get("claims")!!.first())
-        //claims!!.credentials shouldContainExactly requestedCreds
+    val testProvider = OIDCProvider("test provider", "http://localhost:8000")
+    val ciSvc = OIDC4CIService(testProvider)
+    val vpSvc = OIDC4VPService(testProvider)
+    val redirectUri = URI.create("http://blank")
+    lateinit var SUBJECT_DID: String
 
-        val issuer = OIDCProvider("walt.id", "https://issuer.walt.id/issuer-api/oidc", "walt.id issuer")
-        //println(issuer.credentialManifests)
+    @BeforeAll
+    fun init() {
+        ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
+        SUBJECT_DID = DidService.create(DidMethod.key)
+        OIDCTestProvider.start()
+    }
+
+    @Test
+    fun testIssuerPAR() {
+        val uri = ciSvc.executePushedAuthorizationRequest(redirectUri, listOf(OIDCTestProvider.TEST_CREDENTIAL_CLAIM))
+        uri shouldNotBe null
+        uri!!.query shouldContain "request_uri=${OIDCTestProvider.TEST_REQUEST_URI}"
+    }
+
+    @Test
+    fun testIssuerToken() {
+        val tokenResponse = ciSvc.getAccessToken(OIDCTestProvider.TEST_AUTH_CODE, redirectUri.toString())
+        tokenResponse.oidcTokens.accessToken.toString() shouldBe OIDCTestProvider.TEST_ACCESS_TOKEN
+    }
+
+    @Test
+    fun testIssuerCredential() {
+        val credential = ciSvc.getCredential(BearerAccessToken(OIDCTestProvider.TEST_ACCESS_TOKEN), SUBJECT_DID, OIDCTestProvider.TEST_CREDENTIAL_CLAIM.type!!,
+            ciSvc.generateDidProof(SUBJECT_DID, null))
+        credential shouldNotBe null
+        credential!!.credentialSchema!!.id shouldBe OIDCTestProvider.TEST_CREDENTIAL_CLAIM.type
+        credential!!.subject shouldBe SUBJECT_DID
+        credential!!.issuer shouldBe OIDCTestProvider.ISSUER_DID
+    }
+
+    @Test
+    fun testVerifyPresentation() {
+        val credential = Signatory.getService().issue("VerifiableId", ProofConfig(OIDCTestProvider.ISSUER_DID, SUBJECT_DID))
+        val presentation = Custodian.getService().createPresentation(listOf(credential), SUBJECT_DID, expirationDate = null).toCredential() as VerifiablePresentation
+        val req = SIOPv2Request(
+            redirect_uri = "${testProvider.url}/present",
+            claims = VCClaims(vp_token = OIDCTestProvider.TEST_VP_CLAIM)
+        )
+        val resp = vpSvc.getSIOPResponseFor(req, SUBJECT_DID, listOf(presentation))
+        val result = vpSvc.postSIOPResponse(req, resp)
+        result.trim() shouldBe resp.toFormBody() // test service returns siop response
+    }
+
+    @Test
+    fun testVerifyJWTPresentation() {
+        val credential = Signatory.getService().issue("VerifiableId", ProofConfig(OIDCTestProvider.ISSUER_DID, SUBJECT_DID, proofType = ProofType.JWT))
+        val presentation = Custodian.getService().createPresentation(listOf(credential), SUBJECT_DID, expirationDate = null).toCredential() as VerifiablePresentation
+        val req = SIOPv2Request(
+            redirect_uri = "${testProvider.url}/present",
+            claims = VCClaims(vp_token = OIDCTestProvider.TEST_VP_CLAIM)
+        )
+        val resp = vpSvc.getSIOPResponseFor(req, SUBJECT_DID, listOf(presentation))
+        val result = vpSvc.postSIOPResponse(req, resp)
+        result.trim() shouldBe resp.toFormBody() // test service returns siop response
+    }
+
+    @Test
+    fun testVerifyMultiplePresentations() {
+        val credential = Signatory.getService().issue("VerifiableId", ProofConfig(OIDCTestProvider.ISSUER_DID, SUBJECT_DID))
+        val presentation = Custodian.getService().createPresentation(listOf(credential), SUBJECT_DID, expirationDate = null).toCredential() as VerifiablePresentation
+        val req = SIOPv2Request(
+            redirect_uri = "${testProvider.url}/present",
+            claims = VCClaims(vp_token = OIDCTestProvider.TEST_VP_CLAIM)
+        )
+        val resp = vpSvc.getSIOPResponseFor(req, SUBJECT_DID, listOf(presentation, presentation))
+        val result = vpSvc.postSIOPResponse(req, resp)
+        result.trim() shouldBe resp.toFormBody() // test service returns siop response
+    }
+
+    @Test
+    fun testVerifyMultipleJWTPresentations() {
+        val credential = Signatory.getService().issue("VerifiableId", ProofConfig(OIDCTestProvider.ISSUER_DID, SUBJECT_DID, proofType = ProofType.JWT))
+        val presentation = Custodian.getService().createPresentation(listOf(credential), SUBJECT_DID, expirationDate = null).toCredential() as VerifiablePresentation
+        val req = SIOPv2Request(
+            redirect_uri = "${testProvider.url}/present",
+            claims = VCClaims(vp_token = OIDCTestProvider.TEST_VP_CLAIM)
+        )
+        val resp = vpSvc.getSIOPResponseFor(req, SUBJECT_DID, listOf(presentation, presentation))
+        val result = vpSvc.postSIOPResponse(req, resp)
+        result.trim() shouldBe resp.toFormBody() // test service returns siop response
     }
 
     @Test

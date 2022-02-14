@@ -3,7 +3,6 @@ package id.walt.cli
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.*
 import com.github.ajalt.clikt.parameters.types.enum
-import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken
 import id.walt.common.prettyPrint
 import id.walt.custodian.Custodian
@@ -11,13 +10,10 @@ import id.walt.model.dif.InputDescriptor
 import id.walt.model.dif.PresentationDefinition
 import id.walt.model.dif.VpSchema
 import id.walt.model.oidc.*
-import id.walt.services.did.DidService
-import id.walt.services.jwt.JwtService
 import id.walt.services.oidc.CompatibilityMode
 import id.walt.services.oidc.OIDC4CIService
 import id.walt.services.oidc.OIDC4VPService
 import id.walt.vclib.credentials.VerifiablePresentation
-import id.walt.vclib.model.Proof
 import id.walt.vclib.model.toCredential
 import id.walt.vclib.templates.VcTemplateManager
 import java.net.URI
@@ -140,14 +136,7 @@ class OidcIssuanceCredentialCommand: CliktCommand(name = "credential", help = "G
   override fun run() {
     val issuer = OIDC4CIService(OIDCProvider(issuer_url, issuer_url, client_id = client_id, client_secret = client_secret))
 
-    val didObj = DidService.load(did)
-    val proof = Proof(
-      type = didObj.verificationMethod!!.first().type,
-      creator =  did,
-      verificationMethod = didObj.verificationMethod!!.first().id,
-      jws = JwtService.getService().sign(did, JWTClaimsSet.Builder().issuer(did).subject(did).claim("c_nonce", nonce).build().toString()),
-      nonce = nonce
-    )
+    val proof = issuer.generateDidProof(did, nonce)
     val c = issuer.getCredential(BearerAccessToken(token), did, schemaId, proof, format, mode)
     if(c == null)
       println("Error: no credential received")
@@ -195,7 +184,7 @@ class OidcVerificationGenUrlCommand: CliktCommand(name = "gen-url", help = "Get 
       redirect_uri = "${verifier_url.trimEnd('/')}/${verifier_path.trimStart('/')}",
       response_mode = response_mode,
       nonce = nonce ?: UUID.randomUUID().toString(),
-      claims = SIOPClaims(vp_token = VpTokenClaim(PresentationDefinition(schemaIds.map { InputDescriptor(VpSchema(it)) }))),
+      claims = VCClaims(vp_token = VpTokenClaim(PresentationDefinition(schemaIds.map { InputDescriptor(VpSchema(it)) }))),
       state = state
     )
     println("${client_url}?${req.toUriQueryString()}")

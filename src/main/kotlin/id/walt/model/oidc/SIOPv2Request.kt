@@ -13,7 +13,7 @@ data class SIOPv2Request(
   val redirect_uri: String,
   val response_mode: String = "fragment",
   val nonce: String? = null,
-  val claims: SIOPClaims,
+  val claims: VCClaims,
   val state: String? = null
 
   ) {
@@ -34,7 +34,7 @@ data class SIOPv2Request(
         ctx.queryParam("redirect_uri")!!,
         ctx.queryParam("response_mode") ?: "fragment",
         ctx.queryParam("nonce"),
-        klaxon.parse<SIOPClaims>(ctx.queryParam("claims")!!)!!,
+        klaxon.parse<VCClaims>(ctx.queryParam("claims")!!)!!,
         ctx.queryParam("state")
       )
     }

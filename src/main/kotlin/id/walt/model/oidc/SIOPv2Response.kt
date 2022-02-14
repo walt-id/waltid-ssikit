@@ -1,12 +1,15 @@
 package id.walt.model.oidc
 
+import com.beust.klaxon.JsonObject
 import com.nimbusds.jwt.JWTClaimsSet
 import id.walt.services.jwt.JwtService
 import id.walt.services.vc.JwtCredentialService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.vclib.credentials.VerifiablePresentation
+import id.walt.vclib.model.toCredential
 import net.minidev.json.JSONObject
+import java.io.StringReader
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.util.*
@@ -23,7 +26,7 @@ data class SIOPv2Response(
       1 -> vp_token[0].encode()
       else -> {
         vp_token.map { vp ->
-          vp.jwt?.let { "\"it\"" } ?: vp.encode()
+          vp.jwt?.let { "\"$it\"" } ?: vp.encode()
         }.joinToString(",", "[", "]")
       }
     }
@@ -41,5 +44,30 @@ data class SIOPv2Response(
           JWTClaimsSet.Builder().subject(id_token.subject).issuer(id_token.subject).issueTime(Date()).claim("nonce", vp_token.first().challenge).jwtID(vc.id).claim("vc", vc.encode()).build().toString())
         )
     }))
+  }
+
+  companion object {
+    fun fromFormParams(params: Map<String, String>): SIOPv2Response? {
+      if(params.containsKey("id_token") && params.containsKey("vp_token")) {
+        val idTokenObj = IDToken.parse(params["id_token"]!!)
+        val vpTokenStr = params["vp_token"]!!
+        if(idTokenObj != null) {
+          return SIOPv2Response(
+            id_token = idTokenObj,
+            vp_token = when(vpTokenStr.startsWith("[")) {
+              true -> klaxon.parseJsonArray(StringReader(vpTokenStr))
+                .map {
+                  when (it) {
+                    is JsonObject -> it.toJsonString().toCredential()
+                    else -> it.toString().toCredential()
+                  } as VerifiablePresentation
+                }
+              else -> listOf(vpTokenStr.toCredential() as VerifiablePresentation)
+            }
+          )
+        }
+      }
+      return null
+    }
   }
 }

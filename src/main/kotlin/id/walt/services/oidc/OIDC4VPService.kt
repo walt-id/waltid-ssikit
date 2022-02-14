@@ -16,25 +16,12 @@ class OIDC4VPService (val verifier: OIDCProvider) {
   val authenticationRequestEndpoint: URI
     get() = URI.create("${verifier.url}/authentication-requests")
 
-  private fun findVPClaims(authRequest: AuthorizationRequest): SIOPClaims {
-    val SIOPClaims =
-      (authRequest.requestObject?.jwtClaimsSet?.claims?.get("claims")?.toString()
-      ?: authRequest.customParameters["claims"]?.firstOrNull())
-      ?.let { JSONParser(-1).parse(it) as JSONObject }
-      ?.let { when(it.containsKey("vp_token")) {
-       true -> it.toJSONString()
-       else -> it.get("id_token")?.toString() // EBSI WCT: vp_token is wrongly (?) contained inside id_token object
-      }}
-      ?.let { klaxon.parse<SIOPClaims>(it) } ?: SIOPClaims()
-    return SIOPClaims
-  }
-
   private fun authRequest2SIOPv2Request(authReq: AuthorizationRequest): SIOPv2Request {
     return SIOPv2Request(
       redirect_uri = (authReq.requestObject?.jwtClaimsSet?.claims?.get("redirect_uri") ?: authReq.redirectionURI)?.toString() ?: "",
       response_mode = (authReq.requestObject?.jwtClaimsSet?.claims?.get("response_mode") ?: authReq.responseMode).toString() ?: "fragment",
       nonce = (authReq.requestObject?.jwtClaimsSet?.claims?.get("nonce") ?: authReq.customParameters["nonce"]?.firstOrNull())?.toString() ?: "",
-      claims = findVPClaims(authReq),
+      claims = OIDCUtils.getVCClaims(authReq),
       state = (authReq.requestObject?.jwtClaimsSet?.claims?.get("state") ?: authReq.state)?.toString() ?: "",
     )
   }
