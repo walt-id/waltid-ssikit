@@ -7,12 +7,14 @@ import id.walt.model.dif.PresentationSubmission
 import id.walt.model.oidc.*
 import id.walt.vclib.credentials.VerifiablePresentation
 import io.javalin.http.Context
+import mu.KotlinLogging
 import net.minidev.json.JSONObject
 import net.minidev.json.parser.JSONParser
 import java.net.URI
 
 class OIDC4VPService (val verifier: OIDCProvider) {
 
+  val log = KotlinLogging.logger("OIDC4VPService")
   val authenticationRequestEndpoint: URI
     get() = URI.create("${verifier.url}/authentication-requests")
 
@@ -37,10 +39,14 @@ class OIDC4VPService (val verifier: OIDCProvider) {
   }
 
   fun fetchSIOPv2Request(): SIOPv2Request? {
-    val resp = HTTPRequest(HTTPRequest.Method.GET, authenticationRequestEndpoint).send()
+    val resp = HTTPRequest(HTTPRequest.Method.GET, authenticationRequestEndpoint).also {
+      log.info("Getting OIDC request params from {}\n {}", it.uri)
+    }.send()
     if(resp.indicatesSuccess()) {
       val authReq = AuthorizationRequest.parse(resp.content)
       return authRequest2SIOPv2Request(authReq)
+    } else {
+      log.error("Got error response from auth endpoint: {}: {}", resp.statusCode, resp.content)
     }
     return null
   }
@@ -71,9 +77,11 @@ class OIDC4VPService (val verifier: OIDCProvider) {
       }
       followRedirects = false
     }.also {
-      println("Request body:")
-      println(it.query)
+      log.info("Sending SIOP response to {}\n {}", it.uri, it.query)
     }.send()
+    if(!result.indicatesSuccess()) {
+      log.error("Got error response from SIOP endpoint: {}: {}", result.statusCode, result.content)
+    }
     if(result.statusCode == 302)
       return result.location.toString()
     else

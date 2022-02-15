@@ -12,7 +12,7 @@ import org.web3j.crypto.Hash
 import org.web3j.utils.Numeric
 import kotlin.random.Random
 
-val EBSI_ENV_URL = System.getenv().get("EBSI_ENV_URL") ?: "https://api.preprod.ebsi.eu"
+var EBSI_ENV_URL = System.getenv().get("EBSI_ENV_URL") ?: "https://api.preprod.ebsi.eu"
 
 open class WaltIdDidEbsiService : DidEbsiService() {
 

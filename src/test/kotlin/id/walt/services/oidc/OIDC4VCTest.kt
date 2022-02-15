@@ -49,13 +49,14 @@ class OIDC4VCTest : AnnotationSpec() {
     @Test
     fun testIssuerToken() {
         val tokenResponse = ciSvc.getAccessToken(OIDCTestProvider.TEST_AUTH_CODE, redirectUri.toString())
+        tokenResponse.customParameters["c_nonce"] shouldBe OIDCTestProvider.TEST_NONCE
         tokenResponse.oidcTokens.accessToken.toString() shouldBe OIDCTestProvider.TEST_ACCESS_TOKEN
     }
 
     @Test
     fun testIssuerCredential() {
         val credential = ciSvc.getCredential(BearerAccessToken(OIDCTestProvider.TEST_ACCESS_TOKEN), SUBJECT_DID, OIDCTestProvider.TEST_CREDENTIAL_CLAIM.type!!,
-            ciSvc.generateDidProof(SUBJECT_DID, null))
+            ciSvc.generateDidProof(SUBJECT_DID, OIDCTestProvider.TEST_NONCE))
         credential shouldNotBe null
         credential!!.credentialSchema!!.id shouldBe OIDCTestProvider.TEST_CREDENTIAL_CLAIM.type
         credential!!.subject shouldBe SUBJECT_DID

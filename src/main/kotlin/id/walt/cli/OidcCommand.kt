@@ -13,6 +13,7 @@ import id.walt.model.oidc.*
 import id.walt.services.oidc.CompatibilityMode
 import id.walt.services.oidc.OIDC4CIService
 import id.walt.services.oidc.OIDC4VPService
+import id.walt.services.oidc.OIDCUtils
 import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.toCredential
 import id.walt.vclib.templates.VcTemplateManager
@@ -90,21 +91,14 @@ class OidcIssuanceTokenCommand: CliktCommand(name = "token", help = "Get access 
 
   val mode: CompatibilityMode by option("-m", "--mode", help = "Request body mode [oidc|ebsi_wct]").enum<CompatibilityMode>().default(CompatibilityMode.OIDC)
   val issuer_url: String by option("-i", "--issuer", help = "Issuer base URL").required()
-  val code: String? by option("-c", "--code", help = "Code retrieved through previously executed auth command. Alternatively can be read from redirect-url if specified")
+  val code: String? by option("-c", "--code", help = "Code retrieved through previously executed auth command. Alternatively can be read from redirect-uri if specified")
   val redirect_uri: String by option("-r", "--redirect-uri", help = "Redirect URI, same as in 'oidc issue auth' command, can contain ?code parameter, to read code from").default("http://blank")
   val client_id: String? by option("--client-id", help = "Client ID for authorization at the issuer API")
   val client_secret: String? by option("--client-secret", help = "Client Secret for authorization at the issuer API")
 
   override fun run() {
     val issuer = OIDC4CIService(OIDCProvider(issuer_url, issuer_url, client_id = client_id, client_secret = client_secret))
-    val redirectUri = URI.create(redirect_uri)
-    val authCode = code ?: redirect_uri?.let {
-      Pattern.compile("&")
-        .split(redirectUri.query)
-        .map { s -> s.split(Pattern.compile("="), 2) }
-        .map { o -> Pair(o[0].let { URLDecoder.decode(it, StandardCharsets.UTF_8) }, o[1].let { URLDecoder.decode(it, StandardCharsets.UTF_8) }) }
-        .toMap()["code"]
-    }
+    val authCode = code ?: OIDCUtils.getCodeFromRedirectUri(URI.create(redirect_uri))
     if(authCode == null) {
       println("Error: Code not specified")
     } else {

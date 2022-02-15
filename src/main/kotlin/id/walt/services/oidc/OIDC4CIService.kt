@@ -22,6 +22,7 @@ import id.walt.vclib.model.Proof
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.model.toCredential
 import id.walt.vclib.registry.VcTypeRegistry
+import mu.KotlinLogging
 import net.minidev.json.JSONObject
 import net.minidev.json.parser.JSONParser
 import java.net.URI
@@ -32,7 +33,7 @@ import java.util.*
 class OIDC4CIService(
   val issuer: OIDCProvider
 ) {
-
+  val log = KotlinLogging.logger("OIDC4CIService")
   val metadataEndpoint: URI
     get() = URI.create("${issuer.url.trimEnd('/')}/.well-known/openid-configuration")
 
@@ -47,6 +48,7 @@ class OIDC4CIService(
           field = OIDCProviderMetadata.parse(resp.content)
         else {
           // initialize default metadata
+          log.warn("Cannot get OIDC provider configuration ({}: {}), falling back to defaults", resp.statusCode, resp.content)
           field = OIDCProviderMetadata(
             Issuer(issuer.url),
             listOf(SubjectType.PAIRWISE, SubjectType.PUBLIC),
@@ -120,8 +122,7 @@ class OIDC4CIService(
           authorization = ClientSecretBasic(ClientID(issuer.client_id), Secret(issuer.client_secret)).toHTTPAuthorizationHeader()
         }
       }.also {
-        println("Request body")
-        println(it.query)
+        log.info("Sending PAR request to {}\n {}", it.uri, it.query)
       }.send()
     if (response.indicatesSuccess()) {
       return URI.create("${metadata!!.authorizationEndpointURI}?client_id=${issuer.client_id ?: redirectUri}&request_uri=${
@@ -129,6 +130,8 @@ class OIDC4CIService(
           response
         ).toSuccessResponse().requestURI
       }")
+    } else {
+      log.error("Got error response from PAR endpoint: {}: {}", response.statusCode, response.content)
     }
     return null
   }
@@ -147,11 +150,12 @@ class OIDC4CIService(
             authorization = ClientSecretBasic(ClientID(issuer.client_id), Secret(issuer.client_secret)).toHTTPAuthorizationHeader()
           }
         }.also {
-          println("Request parameters:")
-          println(it.query)
+          log.info("Sending auth GET request to {}\n {}", it.uri, it.query)
         }.send()
     if (response.indicatesSuccess()) {
       return URI.create("$redirectUri?code=${response.contentAsJSONObject.get("code")}&state=${response.contentAsJSONObject.get("state")}")
+    } else {
+      log.error("Got error response from auth endpoint: {}: {}", response.statusCode, response.content)
     }
     return null
   }
@@ -176,10 +180,11 @@ class OIDC4CIService(
           "{ \"code\": \"$code\", \"grant_type\": \"${GrantType.AUTHORIZATION_CODE}\", \"redirect_uri\": \"$redirect_uri\" }"
       }
     }.also {
-      println("Request body:")
-      println(it.query)
+      log.info("Sending Token request to {}\n {}", it.uri, it.query)
     }.send()
-
+    if(!resp.indicatesSuccess()) {
+      log.error("Got error response from token endpoint: {}: {}", resp.statusCode, resp.content)
+    }
     return OIDCTokenResponse.parse(resp)
   }
 
@@ -209,18 +214,17 @@ class OIDC4CIService(
           "&proof=${URLEncoder.encode(klaxon.toJsonString(proof), StandardCharsets.UTF_8)}"
       }
     }.also {
-      println("Request body:")
-      println(it.query)
+      log.info("Sending credential request to {}\n {}", it.uri, it.query)
     }.send()
     if (resp.indicatesSuccess()) {
-      println("Credential received: ${resp.content}")
+      log.info("Credential received: {}", resp.content)
       val credResp = klaxon.parse<CredentialResponse>(resp.content)
       return when (credResp?.format) {
         "jwt_vc" -> credResp?.credential?.toCredential()
         else -> credResp?.credential?.let { String(Base64.getUrlDecoder().decode(it)).toCredential() }
       }
     } else {
-      println("Error receiving credential: ${resp.statusCode}, ${resp.content}")
+      log.error("Got error response from credential endpoint: {}: {}", resp.statusCode, resp.content)
     }
     return null
   }

@@ -4,6 +4,7 @@ import com.nimbusds.oauth2.sdk.*
 import com.nimbusds.oauth2.sdk.http.ServletUtils
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken
 import com.nimbusds.oauth2.sdk.token.RefreshToken
+import com.nimbusds.openid.connect.sdk.Nonce
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens
 import id.walt.auditor.Auditor
@@ -39,6 +40,7 @@ object OIDCTestProvider {
   val TEST_REQUEST_URI = "urn:ietf:params:oauth:request_uri:test"
   val TEST_AUTH_CODE = "testcode"
   val TEST_ACCESS_TOKEN = "testtoken"
+  val TEST_NONCE = "testnonce"
   val TEST_ID_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
   lateinit var ISSUER_DID: String
 
@@ -56,7 +58,7 @@ object OIDCTestProvider {
     tokenReq.authorizationGrant.type shouldBe GrantType.AUTHORIZATION_CODE
     (tokenReq.authorizationGrant as AuthorizationCodeGrant).authorizationCode.value shouldBe TEST_AUTH_CODE
     ctx.json(
-      OIDCTokenResponse(OIDCTokens(TEST_ID_TOKEN, BearerAccessToken(TEST_ACCESS_TOKEN), RefreshToken())).toJSONObject())
+      OIDCTokenResponse(OIDCTokens(TEST_ID_TOKEN, BearerAccessToken(TEST_ACCESS_TOKEN), RefreshToken()), mapOf("c_nonce" to TEST_NONCE)).toJSONObject())
   }
 
   fun testCredential(ctx: Context) {
