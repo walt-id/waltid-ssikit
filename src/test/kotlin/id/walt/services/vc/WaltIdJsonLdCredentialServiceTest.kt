@@ -4,11 +4,9 @@ import com.beust.klaxon.Klaxon
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
-import id.walt.signatory.DataProviderRegistry
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
-import id.walt.test.DummySignatoryDataProvider
 import id.walt.test.RESOURCES_PATH
 import id.walt.test.getTemplate
 import id.walt.test.readCredOffer
@@ -206,9 +204,6 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
 
     @Test
     fun testValidateSchemaTsr() {
-        // Required at the moment because EBSI did not upgrade V_ID schema with necessary changes.
-        DataProviderRegistry.register(VerifiableId::class, DummySignatoryDataProvider())
-
         val noSchemaVc = VerifiableId().encode()
         val validVc = Signatory.getService().issue("VerifiableId", ProofConfig(
             issuerDid = issuerKeyDid,

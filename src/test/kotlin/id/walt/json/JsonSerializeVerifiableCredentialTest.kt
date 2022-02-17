@@ -95,7 +95,7 @@ class JsonSerializeVerifiableCredentialTest : AnnotationSpec() {
             ),
             id = "education#higherEducation#3fea53a4-0432-4910-ac9c-69ah8da3c37f",
             issuer = "did:ebsi:2757945549477fc571663bee12042873fe555b674bd294a3",
-            issuanceDate = "2019-06-22T14:11:44Z",
+            issued = "2019-06-22T14:11:44Z",
             validFrom = "2019-06-22T14:11:44Z",
             credentialSubject = VerifiableAttestation.VerifiableAttestationSubject(
                 id = "id123"

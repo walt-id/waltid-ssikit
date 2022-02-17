@@ -1,6 +1,5 @@
 package id.walt.model.oidc
 
-import com.beust.klaxon.Json
 import com.beust.klaxon.Klaxon
 import id.walt.model.ListOrSingleValue
 import id.walt.model.listOrSingleValueConverter
@@ -11,27 +10,18 @@ import java.nio.charset.StandardCharsets
 val klaxon = Klaxon().fieldConverter(ListOrSingleValue::class, listOrSingleValueConverter)
 
 data class SIOPv2Request(
-  val response_type: String = "id_token",
-  val client_id: String,
   val redirect_uri: String,
   val response_mode: String = "fragment",
-  val scope: String = "openid",
   val nonce: String? = null,
-  val registration: Registration?,
-  @Json("exp") val expiration: Long? = null,
-  @Json("iat") val issuedAt: Long? = null,
-  val claims: Claims,
+  val claims: VCClaims,
   val state: String? = null
 
   ) {
   private fun enc(str: String): String = URLEncoder.encode(str, StandardCharsets.UTF_8)
   fun toUriQueryString(): String {
-    return "response_type=${enc(response_type)}&response_mode=${enc(response_mode)}&client_id=${enc(client_id)}&redirect_uri=${enc(redirect_uri)}" +
-           "&scope=${enc(scope)}" +
+    return "response_type=id_token&response_mode=${enc(response_mode)}&client_id=${enc(redirect_uri)}&redirect_uri=${enc(redirect_uri)}" +
+           "&scope=openid" +
             (nonce?.let { "&nonce=${enc(nonce)}" } ?: "") +
-            (registration?.let { "&registration=${enc(klaxon.toJsonString(it))}" } ?: "") +
-            (expiration?.let { "&exp=$expiration" } ?: "") +
-            (issuedAt?.let { "&iat=$issuedAt" } ?: "") +
             "&claims=${enc(klaxon.toJsonString(claims))}${state?.let { "&state=$it" } ?: ""}"
   }
 
@@ -41,16 +31,10 @@ data class SIOPv2Request(
       if (requiredParams.any { ctx.queryParam(it).isNullOrEmpty() })
         throw IllegalArgumentException("HTTP context missing mandatory query parameters")
       return SIOPv2Request(
-        ctx.queryParam("response_type") ?: "id_token",
-        ctx.queryParam("client_id")!!,
         ctx.queryParam("redirect_uri")!!,
         ctx.queryParam("response_mode") ?: "fragment",
-        ctx.queryParam("scope") ?: "openid",
         ctx.queryParam("nonce"),
-        ctx.queryParam("registration")?.let { Klaxon().parse<Registration>(it)!! },
-        ctx.queryParam("exp")?.toLong(),
-        ctx.queryParam("iat")?.toLong(),
-        klaxon.parse<Claims>(ctx.queryParam("claims")!!)!!,
+        klaxon.parse<VCClaims>(ctx.queryParam("claims")!!)!!,
         ctx.queryParam("state")
       )
     }
