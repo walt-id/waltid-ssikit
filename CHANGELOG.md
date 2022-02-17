@@ -4,6 +4,12 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
 
 ## [Unreleased]
 
+- Roadmap Items
+  - Completed EBSI Wallet Conformance Tests https://github.com/walt-id/waltid-roadmap/issues/24
+- Features
+    - Introduced OIDC SIOPv2 core functionality https://github.com/walt-id/waltid-ssikit/pull/108
+    - Support of "issued" attribute in EBSI data models https://github.com/walt-id/waltid-ssikit/pull/106
+
 ## [1.6.2] - 2022-02-04
 
 -   Features
