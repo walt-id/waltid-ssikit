@@ -7,25 +7,25 @@ import org.junit.jupiter.api.Assertions.assertEquals
 
 class IssuedDateBeforePolicyTest : StringSpec({
 
-    val issuedDateBeforePolicy = IssuedDateBeforePolicy()
+    val IssuedDateBeforePolicy = IssuedDateBeforePolicy()
 
-    "returns true when issued date is before current" {
+    "returns true when issuance date is before current" {
         val vc = VerifiableDiploma(issued = "2019-06-22T14:11:44Z")
-        assertEquals(true, issuedDateBeforePolicy.verify(vc))
+        assertEquals(true, IssuedDateBeforePolicy.verify(vc))
     }
 
-    "returns false when issued date is in the future" {
+    "returns false when issuance date is in the future" {
         val vc = VerifiableDiploma(issued = "3999-06-22T14:11:44Z")
-        assertEquals(false, issuedDateBeforePolicy.verify(vc))
+        assertEquals(false, IssuedDateBeforePolicy.verify(vc))
     }
 
-    "returns false when vc is not a presentation and issued date is null" {
+    "returns false when vc is not a presentation and issuance date is null" {
         val vc = VerifiableDiploma()
-        assertEquals(false, issuedDateBeforePolicy.verify(vc))
+        assertEquals(false, IssuedDateBeforePolicy.verify(vc))
     }
 
     "returns always true when vc is a presentation" {
         val vp = VerifiablePresentation(verifiableCredential = listOf(VerifiableDiploma()))
-        assertEquals(true, issuedDateBeforePolicy.verify(vp))
+        assertEquals(true, IssuedDateBeforePolicy.verify(vp))
     }
 })
