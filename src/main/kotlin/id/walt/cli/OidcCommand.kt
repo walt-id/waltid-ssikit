@@ -62,7 +62,10 @@ class OidcIssuanceAuthCommand: CliktCommand(name = "auth", help = "OIDC issuance
           println(redirectUri)
           println()
           println("Now get the token using:")
-          println("ssikit oidc issue token -i $issuer_url -m ebsi_wct -r \"$redirectUri\"")
+          println("ssikit oidc issue token -i $issuer_url" +
+              "${client_id?.let { " --client-id $client_id" } ?: ""}" +
+              "${client_secret?.let { " --client-secret $client_secret" } ?: ""}" +
+              " -m ebsi_wct -r \"$redirectUri\"")
         }
         "redirect" -> {
           val userAgentUri = issuer.getUserAgentAuthorizationURL(URI.create(redirect_uri), credentialClaims, nonce = nonce)
@@ -71,7 +74,10 @@ class OidcIssuanceAuthCommand: CliktCommand(name = "auth", help = "OIDC issuance
           println(userAgentUri)
           println()
           println("Then paste redirection url from browser to this command to retrieve the access token:")
-          println("ssikit oidc issue token -i $issuer_url -r <url from browser>")
+          println("ssikit oidc issue token -i $issuer_url" +
+              "${client_id?.let { " --client-id $client_id" } ?: ""}" +
+              "${client_secret?.let { " --client-secret $client_secret" } ?: ""}" +
+              " -r <url from browser>")
 
         }
         else -> {
@@ -81,7 +87,10 @@ class OidcIssuanceAuthCommand: CliktCommand(name = "auth", help = "OIDC issuance
           println(userAgentUri)
           println()
           println("Then paste redirection url from browser to this command to retrieve the access token:")
-          println("ssikit oidc issue token -i $issuer_url -r <url from browser>")
+          println("ssikit oidc issue token -i $issuer_url" +
+              "${client_id?.let { " --client-id $client_id" } ?: ""}" +
+              "${client_secret?.let { " --client-secret $client_secret" } ?: ""}" +
+              " -r <url from browser>")
         }
       }
   }

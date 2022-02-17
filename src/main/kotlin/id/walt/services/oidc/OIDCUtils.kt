@@ -3,6 +3,7 @@ package id.walt.services.oidc
 import com.nimbusds.oauth2.sdk.AuthorizationRequest
 import id.walt.model.oidc.VCClaims
 import id.walt.model.oidc.klaxon
+import id.walt.vclib.credentials.VerifiablePresentation
 import net.minidev.json.JSONObject
 import net.minidev.json.parser.JSONParser
 import java.net.URI
@@ -31,4 +32,14 @@ object OIDCUtils {
         .map { o -> Pair(o[0].let { URLDecoder.decode(it, StandardCharsets.UTF_8) }, o[1].let { URLDecoder.decode(it, StandardCharsets.UTF_8) }) }
         .toMap()["code"]
   }
+
+  fun toVpToken(vps: List<VerifiablePresentation>): String =
+    when(vps.size) {
+      1 -> vps[0].encode()
+      else -> {
+        vps.map { vp ->
+          vp.jwt?.let { "\"$it\"" } ?: vp.encode()
+        }.joinToString(",", "[", "]")
+      }
+    }
 }

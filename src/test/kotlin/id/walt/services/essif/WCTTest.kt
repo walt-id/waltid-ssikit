@@ -84,7 +84,7 @@ class WCTTest: AnnotationSpec() {
     val issuer = OIDCProvider("ebsi wct issuer", "$EBSI_WCT_ENV/conformance/v1/issuer-mock")
     val ciSvc = OIDC4CIService(issuer)
 
-    val redirectUri = ciSvc.executeGetAuthorizationRequest(URI.create(REDIRECT_URI), listOf(CredentialClaim(type = SCHEMA_ID, manifest_id = null)), NONCE, STATE)
+    val redirectUri = ciSvc.executeGetAuthorizationRequest(URI.create(REDIRECT_URI), listOf(CredentialClaim(type = SCHEMA_ID, manifest_id = null)), nonce = NONCE, state = STATE)
     redirectUri shouldNotBe null
 
     val code = OIDCUtils.getCodeFromRedirectUri(redirectUri!!)

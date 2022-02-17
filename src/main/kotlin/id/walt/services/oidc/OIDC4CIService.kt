@@ -17,6 +17,7 @@ import id.walt.model.dif.OutputDescriptor
 import id.walt.model.oidc.*
 import id.walt.services.did.DidService
 import id.walt.services.jwt.JwtService
+import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.AbstractVerifiableCredential
 import id.walt.vclib.model.Proof
 import id.walt.vclib.model.VerifiableCredential
@@ -88,10 +89,11 @@ class OIDC4CIService(
     endpoint: URI,
     redirectUri: URI,
     claimedCredentials: List<CredentialClaim>,
+    vp_token: List<VerifiablePresentation>? = null,
     nonce: String? = null,
     state: String? = null
   ): AuthenticationRequest {
-    return AuthenticationRequest.Builder(
+    val builder = AuthenticationRequest.Builder(
       ResponseType.CODE,
       Scope(OIDCScopeValue.OPENID),
       ClientID(issuer.client_id ?: redirectUri.toString()),
@@ -101,12 +103,17 @@ class OIDC4CIService(
       .nonce(nonce?.let { Nonce(it) } ?: Nonce())
       .claims(VCClaims(credentials = claimedCredentials))
       .endpointURI(endpoint)
-      .build()
+
+    if(vp_token != null) {
+      builder.customParameter("vp_token", OIDCUtils.toVpToken(vp_token))
+    }
+    return builder.build()
   }
 
   fun executePushedAuthorizationRequest(
     redirectUri: URI,
     claimedCredentials: List<CredentialClaim>,
+    vp_token: List<VerifiablePresentation>? = null,
     nonce: String? = null,
     state: String? = null
   ): URI? {
@@ -114,6 +121,7 @@ class OIDC4CIService(
       metadata!!.pushedAuthorizationRequestEndpointURI,
       redirectUri,
       claimedCredentials,
+      vp_token,
       nonce,
       state
     )
@@ -140,11 +148,12 @@ class OIDC4CIService(
   fun executeGetAuthorizationRequest(
     redirectUri: URI,
     claimedCredentials: List<CredentialClaim>,
+    vp_token: List<VerifiablePresentation>? = null,
     nonce: String? = null,
     state: String? = null
   ): URI? {
     val response =
-      createIssuanceAuthRequest(metadata!!.authorizationEndpointURI, redirectUri, claimedCredentials, nonce, state)
+      createIssuanceAuthRequest(metadata!!.authorizationEndpointURI, redirectUri, claimedCredentials, vp_token, nonce, state)
         .toHTTPRequest(HTTPRequest.Method.GET).apply {
           if (issuer.client_id != null && issuer.client_secret != null) {
             authorization = ClientSecretBasic(ClientID(issuer.client_id), Secret(issuer.client_secret)).toHTTPAuthorizationHeader()
@@ -163,10 +172,11 @@ class OIDC4CIService(
   fun getUserAgentAuthorizationURL(
     redirectUri: URI,
     claimedCredentials: List<CredentialClaim>,
+    vp_token: List<VerifiablePresentation>? = null,
     nonce: String? = null,
     state: String? = null
   ): URI? {
-    val req = createIssuanceAuthRequest(metadata!!.authorizationEndpointURI, redirectUri, claimedCredentials, nonce, state)
+    val req = createIssuanceAuthRequest(metadata!!.authorizationEndpointURI, redirectUri, claimedCredentials, vp_token, nonce, state)
     return URI.create("${metadata!!.authorizationEndpointURI}?${req.toQueryString()}")
   }
 

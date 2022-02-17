@@ -3,6 +3,7 @@ package id.walt.model.oidc
 import com.beust.klaxon.JsonObject
 import com.nimbusds.jwt.JWTClaimsSet
 import id.walt.services.jwt.JwtService
+import id.walt.services.oidc.OIDCUtils
 import id.walt.services.vc.JwtCredentialService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
@@ -22,14 +23,7 @@ data class SIOPv2Response(
   private fun enc(v: String) = URLEncoder.encode(v, StandardCharsets.UTF_8)
 
   fun toFormParams(): Map<String, String> {
-    val vpTokenString = when(vp_token.size) {
-      1 -> vp_token[0].encode()
-      else -> {
-        vp_token.map { vp ->
-          vp.jwt?.let { "\"$it\"" } ?: vp.encode()
-        }.joinToString(",", "[", "]")
-      }
-    }
+    val vpTokenString = OIDCUtils.toVpToken(vp_token)
     return mapOf("id_token" to id_token.sign(), "vp_token" to vpTokenString)
   }
 
