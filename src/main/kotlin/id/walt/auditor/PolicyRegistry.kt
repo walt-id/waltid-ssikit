@@ -25,5 +25,6 @@ object PolicyRegistry {
         register(GaiaxSDPolicy())
         register(ChallengePolicy(""))
         register(VpTokenClaimPolicy(null))
+        register(CredentialStatusPolicy())
     }
 }
