@@ -4,12 +4,8 @@ import com.beust.klaxon.JsonObject
 import com.nimbusds.jwt.JWTClaimsSet
 import id.walt.services.jwt.JwtService
 import id.walt.services.oidc.OIDCUtils
-import id.walt.services.vc.JwtCredentialService
-import id.walt.signatory.ProofConfig
-import id.walt.signatory.ProofType
 import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.toCredential
-import net.minidev.json.JSONObject
 import java.io.StringReader
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -17,14 +13,15 @@ import java.util.*
 
 data class SIOPv2Response(
   val id_token: IDToken,
-  val vp_token: List<VerifiablePresentation>
+  val vp_token: List<VerifiablePresentation>,
+  val state: String?
 ) {
 
   private fun enc(v: String) = URLEncoder.encode(v, StandardCharsets.UTF_8)
 
   fun toFormParams(): Map<String, String> {
     val vpTokenString = OIDCUtils.toVpToken(vp_token)
-    return mapOf("id_token" to id_token.sign(), "vp_token" to vpTokenString)
+    return mapOf("id_token" to id_token.sign(), "vp_token" to vpTokenString, "state" to (state ?: ""))
   }
 
   fun toFormBody(): String {
@@ -57,7 +54,8 @@ data class SIOPv2Response(
                   } as VerifiablePresentation
                 }
               else -> listOf(vpTokenStr.toCredential() as VerifiablePresentation)
-            }
+            },
+            state = params["state"]
           )
         }
       }

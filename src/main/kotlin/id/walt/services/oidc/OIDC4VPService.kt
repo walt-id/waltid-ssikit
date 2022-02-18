@@ -8,8 +8,6 @@ import id.walt.model.oidc.*
 import id.walt.vclib.credentials.VerifiablePresentation
 import io.javalin.http.Context
 import mu.KotlinLogging
-import net.minidev.json.JSONObject
-import net.minidev.json.parser.JSONParser
 import java.net.URI
 
 class OIDC4VPService (val verifier: OIDCProvider) {
@@ -63,7 +61,8 @@ class OIDC4VPService (val verifier: OIDCProvider) {
           )
         )
       ),
-      vp_token = vps
+      vp_token = vps,
+      state = req.state
     )
   }
 
