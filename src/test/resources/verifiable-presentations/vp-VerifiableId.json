@@ -1,54 +1,56 @@
 {
   "@context" : [ "https://www.w3.org/2018/credentials/v1" ],
-  "holder" : "did:ebsi:zvJVYLTMMEUYFd1QmoSXd3o",
-  "id" : "urn:uuid:697b7a88-32f5-40d6-bc79-5af2aba6977f",
+  "holder" : "did:key:z6MkqyYqy5wXSBihQwubYWnqeEt3cGKeTK9mqH1JVtpxatZv",
+  "id" : "urn:uuid:21177ff1-b81a-482a-86a4-4c1bf21d715b",
+  "type" : [ "VerifiablePresentation" ],
   "verifiableCredential" : [ {
     "@context" : [ "https://www.w3.org/2018/credentials/v1" ],
     "credentialSchema" : {
-      "id" : "https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0x2488fd38783d65e4fd46e7889eb113743334dbc772b05df382b8eadce763101b",
-      "type" : "JsonSchemaValidator2018"
+      "id" : "https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0xb77f8516a965631b4f197ad54c65a9e2f9936ebfb76bae4906d33744dbcc60ba",
+      "type" : "FullJsonSchemaValidator2021"
     },
     "credentialSubject" : {
-      "currentAddress" : "1 Boulevard de la Liberté, 59800 Lille",
+      "currentAddress" : [ "1 Boulevard de la Liberté, 59800 Lille" ],
       "dateOfBirth" : "1993-04-08",
       "familyName" : "DOE",
-      "firstName" : "Severin",
+      "firstName" : "Jane",
       "gender" : "FEMALE",
-      "id" : "did:ebsi:zvJVYLTMMEUYFd1QmoSXd3o",
+      "id" : "did:key:z6MkqyYqy5wXSBihQwubYWnqeEt3cGKeTK9mqH1JVtpxatZv",
       "nameAndFamilyNameAtBirth" : "Jane DOE",
       "personalIdentifier" : "0904008084H",
       "placeOfBirth" : "LILLE, FRANCE"
     },
-    "evidence" : {
+    "evidence" : [ {
       "documentPresence" : [ "Physical" ],
       "evidenceDocument" : [ "Passport" ],
       "subjectPresence" : "Physical",
       "type" : [ "DocumentVerification" ],
-      "verifier" : "did:ebsi:zvJVYLTMMEUYFd1QmoSXd3o"
-    },
-    "id" : "identity#VerifiableId#70a27cb9-461e-4766-837d-d9ff4afc0a41",
-    "issuanceDate" : "2021-12-01T08:46:54Z",
-    "issuer" : "did:ebsi:zvJVYLTMMEUYFd1QmoSXd3o",
+      "verifier" : "did:ebsi:2A9BZ9SUe6BatacSpvs1V5CdjHvLpQ7bEsi2Jb6LdHKnQxaN"
+    } ],
+    "id" : "urn:uuid:93ce4c35-c118-46d2-b953-97eef7ab4926",
+    "issued" : "2020-11-03T00:00:00Z",
+    "issuer" : "did:key:z6MkqyYqy5wXSBihQwubYWnqeEt3cGKeTK9mqH1JVtpxatZv",
     "proof" : {
-      "created" : "2021-12-01T08:46:55Z",
-      "creator" : "did:ebsi:zvJVYLTMMEUYFd1QmoSXd3o",
+      "created" : "2022-02-09T11:24:36Z",
+      "creator" : "did:key:z6MkqyYqy5wXSBihQwubYWnqeEt3cGKeTK9mqH1JVtpxatZv",
       "domain" : "https://api.preprod.ebsi.eu",
-      "jws" : "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFUzI1NksifQ..c8uWjRDGBzAIMK_eZqh4kvOs-5FPNXh1Pb07KMjYxNakqu14MCoB7UohNpCNIJeg1_XcZsUkkBVRjzIc9EjmJA",
-      "nonce" : "5ea60b37-022b-42f1-a054-bfc0347f4068",
-      "type" : "EcdsaSecp256k1Signature2019"
+      "jws" : "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..qpv0w0HkoCwoWh6q4y_ayHUI47yroYRuXy-seR0qVLg4uX4m39y_KbfsHIj-DuuUsBurWC1pDv2AK1HvBijxCg",
+      "nonce" : "2a7f62fb-97b0-4045-925a-4a3fc85a56e2",
+      "type" : "Ed25519Signature2018",
+      "verificationMethod" : "Ed25519Signature2018"
     },
-    "validFrom" : "2021-12-01T08:46:54Z",
+    "validFrom" : "2020-10-31T00:00:00Z",
+    "issuanceDate" : "2020-10-31T00:00:00Z",
     "type" : [ "VerifiableCredential", "VerifiableAttestation", "VerifiableId" ]
   } ],
-  "type" : [ "VerifiablePresentation" ],
   "proof" : {
-    "type" : "EcdsaSecp256k1Signature2019",
-    "creator" : "did:ebsi:zvJVYLTMMEUYFd1QmoSXd3o",
-    "created" : "2021-12-01T08:56:08Z",
+    "type" : "Ed25519Signature2018",
+    "creator" : "did:key:z6MkqyYqy5wXSBihQwubYWnqeEt3cGKeTK9mqH1JVtpxatZv",
+    "created" : "2022-02-09T11:24:37Z",
     "domain" : "https://api.preprod.ebsi.eu",
-    "nonce" : "5ea60b37-022b-42f1-a054-bfc0347f4068",
+    "nonce" : "2a7f62fb-97b0-4045-925a-4a3fc85a56e2",
     "proofPurpose" : "authentication",
-    "verificationMethod" : "did:ebsi:zvJVYLTMMEUYFd1QmoSXd3o#759c22a515c04c9fb10765a7853784a1",
-    "jws" : "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFUzI1NksifQ..H3AVclrBowquBKJbyZng8TnCQ7Z-rZXb_ZOTwLVRs3rUoFrs-Ht15RKs0Tm6hDzgNTJGxmAW5AqvDI6rJSOLqQ"
+    "verificationMethod" : "did:key:z6MkqyYqy5wXSBihQwubYWnqeEt3cGKeTK9mqH1JVtpxatZv#z6MkqyYqy5wXSBihQwubYWnqeEt3cGKeTK9mqH1JVtpxatZv",
+    "jws" : "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFZERTQSJ9..A4rrbmU3nlqcd4cCt98y68v6WeCFi0SBc0SzuRmdbMNgesIRAl-MfGPRFo0vPCdpt-8kkXXEOAHcRXvuE6tkCw"
   }
 }

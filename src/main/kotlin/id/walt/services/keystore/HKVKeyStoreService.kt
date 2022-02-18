@@ -16,9 +16,10 @@ open class HKVKeyStoreService : KeyStoreService() {
     private val KEYS_ROOT = HKVKey("keystore", "keys")
     private val ALIAS_ROOT = HKVKey("keystore", "alias")
 
-    override fun listKeys(): List<Key> = hkvStore.listChildKeys(KEYS_ROOT)
+    override fun listKeys(): List<Key> = hkvStore.listChildKeys(KEYS_ROOT, recursive = true)
+        .filter { k -> k.name == "meta" }
         .map {
-            load(it.name.substringBefore("."))
+            load(it.parent!!.name)
         }
 
     override fun load(alias: String, keyType: KeyType): Key {

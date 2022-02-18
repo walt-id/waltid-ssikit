@@ -43,7 +43,7 @@ class SignatoryServiceTest : StringSpec({
         vc shouldContain "VerifiableId"
         vc shouldContain "0904008084H"
         vc shouldContain "Jane DOE"
-        (vc.toCredential() as VerifiableId).issuanceDate shouldBe "2020-11-03T00:00:00Z"
+        (vc.toCredential() as VerifiableId).issued shouldBe "2020-11-03T00:00:00Z"
 
         JsonLdCredentialService.getService().verifyVc(vc) shouldBe true
     }
@@ -83,7 +83,7 @@ class SignatoryServiceTest : StringSpec({
         vc shouldContain "VerifiableDiploma"
         vc shouldContain "Leaston University"
         vc shouldContain "MASTERS LAW, ECONOMICS AND MANAGEMENT"
-        (vc.toCredential() as VerifiableDiploma).issuanceDate shouldBe "2020-11-03T00:00:00Z"
+        (vc.toCredential() as VerifiableDiploma).issued shouldBe "2020-11-03T00:00:00Z"
 
         JsonLdCredentialService.getService().verifyVc(vc) shouldBe true
     }

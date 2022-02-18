@@ -5,27 +5,27 @@ import id.walt.vclib.credentials.VerifiablePresentation
 import io.kotest.core.spec.style.StringSpec
 import org.junit.jupiter.api.Assertions.assertEquals
 
-class IssuanceDateBeforePolicyTest : StringSpec({
+class IssuedDateBeforePolicyTest : StringSpec({
 
-    val issuanceDateBeforePolicy = IssuanceDateBeforePolicy()
+    val IssuedDateBeforePolicy = IssuedDateBeforePolicy()
 
     "returns true when issuance date is before current" {
-        val vc = VerifiableDiploma(issuanceDate = "2019-06-22T14:11:44Z")
-        assertEquals(true, issuanceDateBeforePolicy.verify(vc))
+        val vc = VerifiableDiploma(issued = "2019-06-22T14:11:44Z")
+        assertEquals(true, IssuedDateBeforePolicy.verify(vc))
     }
 
     "returns false when issuance date is in the future" {
-        val vc = VerifiableDiploma(issuanceDate = "3999-06-22T14:11:44Z")
-        assertEquals(false, issuanceDateBeforePolicy.verify(vc))
+        val vc = VerifiableDiploma(issued = "3999-06-22T14:11:44Z")
+        assertEquals(false, IssuedDateBeforePolicy.verify(vc))
     }
 
     "returns false when vc is not a presentation and issuance date is null" {
         val vc = VerifiableDiploma()
-        assertEquals(false, issuanceDateBeforePolicy.verify(vc))
+        assertEquals(false, IssuedDateBeforePolicy.verify(vc))
     }
 
     "returns always true when vc is a presentation" {
         val vp = VerifiablePresentation(verifiableCredential = listOf(VerifiableDiploma()))
-        assertEquals(true, issuanceDateBeforePolicy.verify(vp))
+        assertEquals(true, IssuedDateBeforePolicy.verify(vp))
     }
 })

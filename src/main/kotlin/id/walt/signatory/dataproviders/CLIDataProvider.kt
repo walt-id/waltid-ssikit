@@ -246,7 +246,7 @@ object VerifiableIDCLIDataProvider : AbstractDataProvider<VerifiableId>() {
         template.credentialSubject!!.dateOfBirth = prompt("Date of birth", template.credentialSubject!!.dateOfBirth)
         template.credentialSubject!!.gender = prompt("Gender", template.credentialSubject!!.gender)
         template.credentialSubject!!.placeOfBirth = prompt("Place of birth", template.credentialSubject!!.placeOfBirth)
-        template.credentialSubject!!.currentAddress = prompt("Current address", template.credentialSubject!!.currentAddress)
+        template.credentialSubject!!.currentAddress = prompt("Current address", template.credentialSubject!!.currentAddress!![0])?.let { listOf(it) }
 
         return template
     }
