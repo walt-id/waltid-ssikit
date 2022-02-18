@@ -27,7 +27,7 @@ data class SIOPv2Request(
 
   companion object {
     fun fromHttpContext(ctx: Context): SIOPv2Request {
-      val requiredParams = setOf("client_id", "redirect_uri", "nonce", "registration", "exp", "iat", "claims")
+      val requiredParams = setOf("redirect_uri", "nonce", "claims")
       if (requiredParams.any { ctx.queryParam(it).isNullOrEmpty() })
         throw IllegalArgumentException("HTTP context missing mandatory query parameters")
       return SIOPv2Request(
