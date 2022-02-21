@@ -1,6 +1,6 @@
 package id.walt.auditor
 
-
+import com.beust.klaxon.Klaxon
 import id.walt.model.AttributeInfo
 import id.walt.model.TrustedIssuer
 import id.walt.model.oidc.VpTokenClaim
@@ -9,6 +9,7 @@ import id.walt.services.essif.TrustedIssuerClient
 import id.walt.services.key.KeyService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
+import id.walt.signatory.RevocationClientService
 import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.credentials.gaiax.GaiaxCredential
 import id.walt.vclib.model.VerifiableCredential
@@ -18,6 +19,7 @@ import kotlinx.serialization.Serializable
 import mu.KotlinLogging
 import java.text.SimpleDateFormat
 import java.util.*
+import id.walt.vclib.credentials.CredentialStatusCredential
 
 private const val TIR_TYPE_ATTRIBUTE = "attribute"
 private const val TIR_NAME_ISSUER = "issuer"
@@ -34,63 +36,53 @@ abstract class VerificationPolicy {
     val id: String
         get() = this.javaClass.simpleName
     abstract val description: String
-    abstract protected fun doVerify(vc: VerifiableCredential): Boolean
+    protected abstract fun doVerify(vc: VerifiableCredential): Boolean
     open var applyToVC: Boolean = true
     open var applyToVP: Boolean = true
-    fun verify(vc: VerifiableCredential): Boolean {
-        if(vc is VerifiablePresentation && applyToVP || vc !is VerifiablePresentation && applyToVC) {
-            return doVerify(vc)
-        } else {
-            return true
-        }
+    fun verify(vc: VerifiableCredential) = when {
+        vc is VerifiablePresentation && applyToVP
+                || vc !is VerifiablePresentation && applyToVC -> doVerify(vc)
+        else -> true
     }
 }
 
 class SignaturePolicy : VerificationPolicy() {
     override val description: String = "Verify by signature"
-    override fun doVerify(vc: VerifiableCredential): Boolean {
-        return try {
-            log.debug { "is jwt: ${vc.jwt != null}" }
+    override fun doVerify(vc: VerifiableCredential) = runCatching {
+        log.debug { "is jwt: ${vc.jwt != null}" }
 
-            val issuerDid = vc.issuer!!
+        val issuerDid = vc.issuer!!
 
-            if(!KeyService.getService().hasKey(issuerDid)) {
-                DidService.importKey(issuerDid)
-            }
+        if (!KeyService.getService().hasKey(issuerDid))
+            DidService.importKey(issuerDid)
 
-            when (vc.jwt) {
-                null -> jsonLdCredentialService.verify(vc.json!!).verified
-                else -> jwtCredentialService.verify(vc.jwt!!).verified
-            }
-        } catch (e: Exception) {
-            log.error(e.localizedMessage)
+        when (vc.jwt) {
+            null -> jsonLdCredentialService.verify(vc.json!!).verified
+            else -> jwtCredentialService.verify(vc.jwt!!).verified
+        }
+    }.onFailure {
+        log.error(it.localizedMessage)
+    }.getOrDefault(false)
+}
+
+class JsonSchemaPolicy : VerificationPolicy() {
+    override val description: String = "Verify by JSON schema"
+    override fun doVerify(vc: VerifiableCredential): Boolean = SchemaService.validateSchema(vc.json!!).run {
+        return if (valid)
+            true
+        else {
+            log.error { "Credential not valid according the json-schema of type ${vc.type}. The validation errors are:" }
+            errors?.forEach { error -> log.error { error } }
             false
         }
     }
 }
 
-class JsonSchemaPolicy : VerificationPolicy() {
-    override val description: String = "Verify by JSON schema"
-    override fun doVerify(vc: VerifiableCredential): Boolean {
-
-        SchemaService.validateSchema(vc.json!!).apply {
-            if (valid)
-                return true
-
-            log.error { "Credential not valid according the json-schema of type ${vc.type}. The validation errors are:" }
-            errors?.forEach { error -> log.error { error } }
-        }
-        return false
-    }
-}
-
 class TrustedSchemaRegistryPolicy : VerificationPolicy() {
     override val description: String = "Verify by EBSI Trusted Schema Registry"
-    override fun doVerify(vc: VerifiableCredential): Boolean {
-        return when (vc.jwt) {
-            null -> jsonLdCredentialService.validateSchemaTsr(vc.encode()) // Schema already validated by json-ld?
-            else -> jwtCredentialService.validateSchemaTsr(vc.encode())
-        }
+    override fun doVerify(vc: VerifiableCredential) = when (vc.jwt) {
+        null -> jsonLdCredentialService.validateSchemaTsr(vc.encode()) // Schema already validated by json-ld?
+        else -> jwtCredentialService.validateSchemaTsr(vc.encode())
     }
 }
 
@@ -111,34 +103,30 @@ class TrustedIssuerRegistryPolicy : VerificationPolicy() {
     override fun doVerify(vc: VerifiableCredential): Boolean {
 
         // VPs are not considered
-        if (vc is VerifiablePresentation) {
+        if (vc is VerifiablePresentation)
             return true
-        }
 
         val issuerDid = vc.issuer!!
 
-        val resolvedIssuerDid =
-            DidService.loadOrResolveAnyDid(issuerDid) ?: throw Exception("Could not resolve issuer DID $issuerDid")
+        val resolvedIssuerDid = DidService.loadOrResolveAnyDid(issuerDid)
+            ?: throw Exception("Could not resolve issuer DID $issuerDid")
 
         if (resolvedIssuerDid.id != issuerDid) {
             log.debug { "Resolved DID ${resolvedIssuerDid.id} does not match the issuer DID $issuerDid" }
             return false
         }
 
-        val tirRecord = try {
+        val tirRecord = runCatching {
             TrustedIssuerClient.getIssuer(issuerDid)
-        } catch (e: Exception) {
-            throw Exception("Could not resolve issuer TIR record of $issuerDid", e)
-        }
+        }.getOrElse { throw Exception("Could not resolve issuer TIR record of $issuerDid", it) }
 
         return isValidTrustedIssuerRecord(tirRecord)
-
     }
 
     private fun isValidTrustedIssuerRecord(tirRecord: TrustedIssuer): Boolean {
         for (attribute in tirRecord.attributes) {
             val attributeInfo = AttributeInfo.from(attribute.body)
-            if (TIR_TYPE_ATTRIBUTE.equals(attributeInfo?.type) && TIR_NAME_ISSUER.equals(attributeInfo?.name)) {
+            if (TIR_TYPE_ATTRIBUTE == attributeInfo?.type && TIR_NAME_ISSUER == attributeInfo.name) {
                 return true
             }
         }
@@ -193,15 +181,35 @@ class ExpirationDateAfterPolicy : VerificationPolicy() {
     }
 }
 
+class CredentialStatusPolicy : VerificationPolicy() {
+    override val description: String = "Verify by credential status"
+    override fun doVerify(vc: VerifiableCredential): Boolean {
+        val cs = Klaxon().parse<CredentialStatusCredential>(vc.json!!)!!.credentialStatus!!
+
+        when (cs.type) {
+            "SimpleCredentialStatus2022" -> {
+                val rs = RevocationClientService.getService()
+
+                val result = rs.checkRevoked(cs.id)
+
+                return !result.isRevoked
+            }
+            else -> {
+                throw IllegalArgumentException("CredentialStatus type \"\"")
+            }
+        }
+    }
+}
+
 class ChallengePolicy(val challenge: String) : VerificationPolicy() {
     override val description: String = "Verify challenge"
     override fun doVerify(vc: VerifiableCredential): Boolean = vc.challenge == challenge
 }
 
-class VpTokenClaimPolicy(val vpTokenClaim: VpTokenClaim?): VerificationPolicy() {
+class VpTokenClaimPolicy(val vpTokenClaim: VpTokenClaim?) : VerificationPolicy() {
     override val description: String = "Verify verifiable presentation by OIDC/SIOPv2 VP token claim"
     override fun doVerify(vc: VerifiableCredential): Boolean {
-        if(vpTokenClaim != null && vc is VerifiablePresentation) {
+        if (vpTokenClaim != null && vc is VerifiablePresentation) {
             return vpTokenClaim.presentation_definition.input_descriptors.all { desc ->
                 vc.verifiableCredential.any { cred -> desc.schema.uri == cred.credentialSchema?.id }
             }
