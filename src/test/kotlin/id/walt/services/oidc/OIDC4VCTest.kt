@@ -18,7 +18,9 @@ import id.walt.signatory.Signatory
 import id.walt.test.RESOURCES_PATH
 import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.toCredential
+import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.AnnotationSpec
+import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
@@ -132,5 +134,37 @@ class OIDC4VCTest : AnnotationSpec() {
 
         println(siopReq!!.redirect_uri)
         println(siopReq!!.claims.toJSONObject())
+    }
+
+    @Test
+    fun testVPTokenConversion() {
+        val credentialJWT = Signatory.getService().issue("VerifiableId", ProofConfig(OIDCTestProvider.ISSUER_DID, SUBJECT_DID, proofType = ProofType.JWT))
+        val presentationJWT = Custodian.getService().createPresentation(listOf(credentialJWT), SUBJECT_DID, expirationDate = null).toCredential() as VerifiablePresentation
+
+        val vp_token_JWT = OIDCUtils.toVpToken(listOf(presentationJWT))
+        val vp_token_JWT_multi = OIDCUtils.toVpToken(listOf(presentationJWT, presentationJWT))
+        val presentationsJWT = OIDCUtils.fromVpToken(vp_token_JWT)
+        val presentationsJWT_multi = OIDCUtils.fromVpToken(vp_token_JWT_multi)
+        presentationsJWT shouldNotBe null
+        presentationsJWT!![0].encode() shouldBe presentationJWT.encode()
+        presentationsJWT_multi shouldNotBe null
+        presentationsJWT_multi!! shouldHaveSize 2
+        presentationsJWT_multi!![0].encode() shouldBe presentationJWT.encode()
+        presentationsJWT_multi!![1].encode() shouldBe presentationJWT.encode()
+
+        val credentialLD = Signatory.getService().issue("VerifiableId", ProofConfig(OIDCTestProvider.ISSUER_DID, SUBJECT_DID, proofType = ProofType.LD_PROOF))
+        val presentationLD = Custodian.getService().createPresentation(listOf(credentialLD), SUBJECT_DID, expirationDate = null).toCredential() as VerifiablePresentation
+
+        val vp_token_LD = OIDCUtils.toVpToken(listOf(presentationLD))
+        val vp_token_LD_multi = OIDCUtils.toVpToken(listOf(presentationLD, presentationLD))
+        val presentationsLD = OIDCUtils.fromVpToken(vp_token_LD)
+        val presentationsLD_multi = OIDCUtils.fromVpToken(vp_token_LD_multi)
+        presentationsLD shouldNotBe null
+        presentationsLD!![0].encode() shouldEqualJson presentationLD.encode()
+        presentationsLD_multi shouldNotBe null
+        presentationsLD_multi!! shouldHaveSize 2
+        presentationsLD_multi!![0].encode() shouldEqualJson presentationLD.encode()
+        presentationsLD_multi!![1].encode() shouldEqualJson presentationLD.encode()
+
     }
 }

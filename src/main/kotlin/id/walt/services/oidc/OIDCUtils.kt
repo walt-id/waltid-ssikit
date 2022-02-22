@@ -1,11 +1,15 @@
 package id.walt.services.oidc
 
+import com.beust.klaxon.JsonBase
+import com.beust.klaxon.Klaxon
 import com.nimbusds.oauth2.sdk.AuthorizationRequest
 import id.walt.model.oidc.VCClaims
 import id.walt.model.oidc.klaxon
 import id.walt.vclib.credentials.VerifiablePresentation
+import id.walt.vclib.model.toCredential
 import net.minidev.json.JSONObject
 import net.minidev.json.parser.JSONParser
+import java.io.StringReader
 import java.net.URI
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
@@ -42,4 +46,17 @@ object OIDCUtils {
         }.joinToString(",", "[", "]")
       }
     }
+
+  fun fromVpToken(vp_token: String): List<VerifiablePresentation>? {
+    if(vp_token.trim().startsWith('[')) {
+      return Klaxon().parseJsonArray(StringReader(vp_token)).map {
+        when(it) {
+          is JsonBase -> it.toJsonString()
+          else -> it.toString()
+        }
+      }.map { it.toCredential() as VerifiablePresentation }
+    } else {
+      return listOf(vp_token.toCredential() as VerifiablePresentation)
+    }
+  }
 }
