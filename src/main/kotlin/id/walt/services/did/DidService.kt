@@ -165,7 +165,7 @@ object DidService {
 
         // Created identifier
         val domain = options?.domain?.replace(":", "%3A") ?: throw Exception("Missing 'domain' parameter for creating did:web")
-        val path = options.path.orEmpty()?.replace("/", ":")?.let { ":$it" }
+        val path = options.path.orEmpty().replace("/", ":")?.let { if (it.isNotEmpty()) ":$it" else ""}
 
         val didUrlStr = DidUrl("web", "$domain$path").did
 
