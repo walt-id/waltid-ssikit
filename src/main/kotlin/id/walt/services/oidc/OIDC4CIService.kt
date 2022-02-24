@@ -218,7 +218,7 @@ class OIDC4CIService(
         query = o.toJSONString()
       } else {
         query =
-          "did=$did" +
+          "did=${URLEncoder.encode(did, StandardCharsets.UTF_8)}" +
           "&type=${URLEncoder.encode(schemaId, StandardCharsets.UTF_8)}" +
           "&format=${format ?: "ldp_vc"}" +
           "&proof=${URLEncoder.encode(klaxon.toJsonString(proof), StandardCharsets.UTF_8)}"
