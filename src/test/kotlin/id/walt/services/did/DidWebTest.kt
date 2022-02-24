@@ -59,6 +59,12 @@ class DidWebTest : StringSpec({
     "resolve did:web Ed25519".config(enabled = false)  {
         println("hey Ed25519")
     }
+
+    "resolve did:web from waltid.org" {
+        val resolvedDid = DidService.resolve("did:web:wallet.waltid.org:api:did-registry:266fa44b20c247a9926b44f4263799a3")
+        val encoded = resolvedDid.encodePretty()
+        println(encoded)
+    }
 }) {
 
     override fun beforeSpec(spec: Spec) {

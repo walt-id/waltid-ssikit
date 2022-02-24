@@ -21,6 +21,9 @@ import mu.KotlinLogging
 import org.bouncycastle.asn1.edec.EdECObjectIdentifiers
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
+import java.net.URLDecoder
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import java.security.KeyFactory
 import java.security.KeyPair
 import java.security.spec.X509EncodedKeySpec
@@ -164,8 +167,11 @@ object DidService {
             .let { ContextManager.keyStore.load(it.id) }
 
         // Created identifier
-        val domain = options?.domain?.replace(":", "%3A") ?: throw Exception("Missing 'domain' parameter for creating did:web")
-        val path = options.path.orEmpty()?.replace("/", ":")?.let { ":$it" }
+        val domain = options?.domain?.let { URLEncoder.encode(it, StandardCharsets.UTF_8) } ?: throw Exception("Missing 'domain' parameter for creating did:web")
+        val path = when(options.path.isNullOrEmpty()) {
+            true -> ""
+            else -> ":${options.path.split("/").map { part -> URLEncoder.encode(part, StandardCharsets.UTF_8) }.joinToString(":" )}"
+        }
 
         val didUrlStr = DidUrl("web", "$domain$path").did
 
@@ -233,8 +239,8 @@ object DidService {
     private fun resolveDidWeb(didUrl: DidUrl): Did = runBlocking {
         log.debug { "Resolving DID $didUrl" }
 
-        val domain = didUrl.identifier.substringBefore(":").replace("%3A", ":")
-        val path = didUrl.identifier.substringAfter(":")
+        val domain = didUrl.identifier.substringBefore(":").let { URLDecoder.decode(it, StandardCharsets.UTF_8) }
+        val path = didUrl.identifier.substringAfter(":").split(":").map { part -> URLDecoder.decode(part, StandardCharsets.UTF_8) }.joinToString("/")
 
         val url = if (path.isEmpty()) {
             "https://${domain}/.well-known/did.json"
