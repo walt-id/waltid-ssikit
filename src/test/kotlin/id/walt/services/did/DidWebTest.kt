@@ -11,7 +11,6 @@ import id.walt.test.RESOURCES_PATH
 import io.kotest.core.spec.Spec
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
 import kotlin.time.ExperimentalTime
 
 
@@ -39,9 +38,19 @@ class DidWebTest : StringSpec({
         didDoc.verificationMethod!![0].type shouldBe Ed25519VerificationKey2019.name
     }
 
-    "create did:web RSA with Options" {
-        val options = DidService.DidWebOptions("example.com", "user-id-1234")
+    "create did:web custom domain" {
+        val options = DidService.DidWebOptions("example.com")
+        val keyId = KeyService.getService().generate(KeyAlgorithm.EdDSA_Ed25519).id
+        val did = DidService.create(DidMethod.web, keyId, options)
+        did shouldBe "did:web:example.com"
+        val didDoc = DidService.load(did)
+        println(didDoc.encodePretty())
+    }
+
+    "create did:web custom domain and path" {
+        val options = DidService.DidWebOptions("example.com", "api/users/1234")
         val did = createAndTestDidWeb(KeyAlgorithm.RSA, options)
+        did shouldBe "did:web:example.com:api:users:1234"
         val didDoc = DidService.load(did)
         println(didDoc.encodePretty())
     }
@@ -81,10 +90,5 @@ fun createAndTestDidWeb(keyAlgorith: KeyAlgorithm, options: DidService.DidWebOpt
     val didUrl = DidUrl.from(did)
     did shouldBe didUrl.did
     "web" shouldBe didUrl.method
-    options?.let {
-        did shouldContain "${options.domain!!}:${options.path}"
-    } ?: run {
-        did shouldContain "walt.id"
-    }
     return did
 }
