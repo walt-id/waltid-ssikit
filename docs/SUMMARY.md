@@ -6,4 +6,4 @@
 
 ## Getting started
 
-* [CLI](getting-started/cli.md)
+* [Quick start](getting-started/quick-start.md)
