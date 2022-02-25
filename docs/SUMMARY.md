@@ -8,3 +8,7 @@
 
 * [Quick start](getting-started/quick-start.md)
 * [CLI](getting-started/cli.md)
+
+## Usage
+
+* [Build](usage/build.md)

@@ -1,8 +1,10 @@
 ---
-description: Getting started with the command line interface
+description: Getting started with the SSIKit
 ---
 
 # Quick start
+
+## Run
 
 The simplest way of using _Walt.ID SSI Kit_ library is by pulling the Docker Container and running it via **Docker**:
 
@@ -26,9 +28,14 @@ For a quick intro using the command line interface, refer to:
 
 ## Build
 
-For building the project **Gradle 7** as well as **JDK 16 (or above)** is required.
+### Prerequisites
 
-#### Building the application
+* JDK 16 (or above)
+* Git
+
+### Building the application
+
+The easiest way to build the SSIKit on Linux, is by using the wrapper script **`ssikit.sh`**
 
 First clone the Git repo and switch into the project folder:
 
@@ -37,16 +44,14 @@ git clone https://github.com/walt-id/waltid-ssikit.git
 cd waltid-ssikit/
 ```
 
-The walt.id wrapper script **ssikit.sh** is a convenient way for building and using the library on **Linux**.
-
-```
-./ssikit.sh {build|build-docker|build-podman|extract|execute (default)}
-```
-
-The script takes one of the the following arguments: build|build-docker|build-podman|extract|execute.
-
-For example, for building the project, simply supply the "build" argument:
+Then run the build command using the wrapper script:
 
 ```
 ./ssikit.sh build
 ```
+
+For more detailed information about the build process and build options, refer to:
+
+{% content-ref url="../usage/build.md" %}
+[build.md](../usage/build.md)
+{% endcontent-ref %}
