@@ -163,11 +163,16 @@ object DidService {
 
     private fun createDidWeb(keyAlias: String?, options: DidWebOptions?): String {
 
+        options ?: throw Exception("DidWebOptions are mandatory")
+
         val key = keyAlias?.let { ContextManager.keyStore.load(it) } ?: cryptoService.generateKey(DEFAULT_KEY_ALGORITHM)
             .let { ContextManager.keyStore.load(it.id) }
 
-        // Created identifier
-        val domain = options?.domain?.let { URLEncoder.encode(it, StandardCharsets.UTF_8) } ?: throw Exception("Missing 'domain' parameter for creating did:web")
+        val domain = when(options.domain.isNullOrEmpty()) {
+            true -> throw Exception("Missing 'domain' parameter for creating did:web")
+            else -> URLEncoder.encode(options.domain, StandardCharsets.UTF_8)
+        }
+
         val path = when(options.path.isNullOrEmpty()) {
             true -> ""
             else -> ":${options.path.split("/").map { part -> URLEncoder.encode(part, StandardCharsets.UTF_8) }.joinToString(":" )}"
