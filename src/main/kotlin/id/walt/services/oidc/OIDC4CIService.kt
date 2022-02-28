@@ -34,7 +34,7 @@ import java.util.*
 class OIDC4CIService(
   val issuer: OIDCProvider
 ) {
-  val log = KotlinLogging.logger("OIDC4CIService")
+  private val log = KotlinLogging.logger {}
   val metadataEndpoint: URI
     get() = URI.create("${issuer.url.trimEnd('/')}/.well-known/openid-configuration")
 

@@ -12,7 +12,7 @@ import java.net.URI
 
 class OIDC4VPService (val verifier: OIDCProvider) {
 
-  val log = KotlinLogging.logger("OIDC4VPService")
+  private val log = KotlinLogging.logger {}
   val authenticationRequestEndpoint: URI
     get() = URI.create("${verifier.url}/authentication-requests")
 
