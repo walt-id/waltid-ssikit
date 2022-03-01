@@ -91,6 +91,10 @@ object OIDCTestProvider {
     ctx.result(siopResponse.toFormBody())
   }
 
+  fun testNonce(ctx: Context) {
+    ctx.json(klaxon.toJsonString(NonceResponse(TEST_NONCE, "300")))
+  }
+
   fun start(port: Int = 8000) {
     ISSUER_DID = DidService.create(DidMethod.key)
     Javalin.create().routes {
@@ -98,6 +102,7 @@ object OIDCTestProvider {
       post("token", OIDCTestProvider::testToken)
       post("credential", OIDCTestProvider::testCredential)
       post("present", OIDCTestProvider::testPresent)
+      post("nonce", OIDCTestProvider::testNonce)
     }.start(port)
   }
 }

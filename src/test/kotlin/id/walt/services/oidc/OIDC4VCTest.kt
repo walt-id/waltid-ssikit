@@ -34,8 +34,6 @@ import java.net.URI
 class OIDC4VCTest : AnnotationSpec() {
 
     val testProvider = OIDCProvider("test provider", "http://localhost:9000")
-    val ciSvc = OIDC4CIService(testProvider)
-    val vpSvc = OIDC4VPService(testProvider)
     val redirectUri = URI.create("http://blank")
     lateinit var SUBJECT_DID: String
 
@@ -48,26 +46,33 @@ class OIDC4VCTest : AnnotationSpec() {
 
     @Test
     fun testIssuerPAR() {
-        val uri = ciSvc.executePushedAuthorizationRequest(redirectUri, listOf(OIDCTestProvider.TEST_CREDENTIAL_CLAIM))
+        val uri = testProvider.ciSvc.executePushedAuthorizationRequest(redirectUri, listOf(OIDCTestProvider.TEST_CREDENTIAL_CLAIM))
         uri shouldNotBe null
         uri!!.query shouldContain "request_uri=${OIDCTestProvider.TEST_REQUEST_URI}"
     }
 
     @Test
     fun testIssuerToken() {
-        val tokenResponse = ciSvc.getAccessToken(OIDCTestProvider.TEST_AUTH_CODE, redirectUri.toString())
+        val tokenResponse = testProvider.ciSvc.getAccessToken(OIDCTestProvider.TEST_AUTH_CODE, redirectUri.toString())
         tokenResponse.customParameters["c_nonce"] shouldBe OIDCTestProvider.TEST_NONCE
         tokenResponse.oidcTokens.accessToken.toString() shouldBe OIDCTestProvider.TEST_ACCESS_TOKEN
     }
 
     @Test
     fun testIssuerCredential() {
-        val credential = ciSvc.getCredential(BearerAccessToken(OIDCTestProvider.TEST_ACCESS_TOKEN), SUBJECT_DID, OIDCTestProvider.TEST_CREDENTIAL_CLAIM.type!!,
-            ciSvc.generateDidProof(SUBJECT_DID, OIDCTestProvider.TEST_NONCE))
+        val credential = testProvider.ciSvc.getCredential(BearerAccessToken(OIDCTestProvider.TEST_ACCESS_TOKEN), SUBJECT_DID, OIDCTestProvider.TEST_CREDENTIAL_CLAIM.type!!,
+            testProvider.ciSvc.generateDidProof(SUBJECT_DID, OIDCTestProvider.TEST_NONCE))
         credential shouldNotBe null
         credential!!.credentialSchema!!.id shouldBe OIDCTestProvider.TEST_CREDENTIAL_CLAIM.type
         credential!!.subject shouldBe SUBJECT_DID
         credential!!.issuer shouldBe OIDCTestProvider.ISSUER_DID
+    }
+
+    @Test
+    fun testGetNonce() {
+        val nonceResp = testProvider.ciSvc.getNonce()
+        nonceResp shouldNotBe null
+        nonceResp!!.p_nonce shouldBe OIDCTestProvider.TEST_NONCE
     }
 
     @Test
@@ -78,8 +83,8 @@ class OIDC4VCTest : AnnotationSpec() {
             redirect_uri = "${testProvider.url}/present",
             claims = VCClaims(vp_token = OIDCTestProvider.TEST_VP_CLAIM)
         )
-        val resp = vpSvc.getSIOPResponseFor(req, SUBJECT_DID, listOf(presentation))
-        val result = vpSvc.postSIOPResponse(req, resp)
+        val resp = testProvider.vpSvc.getSIOPResponseFor(req, SUBJECT_DID, listOf(presentation))
+        val result = testProvider.vpSvc.postSIOPResponse(req, resp)
         result.trim() shouldBe resp.toFormBody() // test service returns siop response
     }
 
@@ -91,8 +96,8 @@ class OIDC4VCTest : AnnotationSpec() {
             redirect_uri = "${testProvider.url}/present",
             claims = VCClaims(vp_token = OIDCTestProvider.TEST_VP_CLAIM)
         )
-        val resp = vpSvc.getSIOPResponseFor(req, SUBJECT_DID, listOf(presentation))
-        val result = vpSvc.postSIOPResponse(req, resp)
+        val resp = testProvider.vpSvc.getSIOPResponseFor(req, SUBJECT_DID, listOf(presentation))
+        val result = testProvider.vpSvc.postSIOPResponse(req, resp)
         result.trim() shouldBe resp.toFormBody() // test service returns siop response
     }
 
@@ -104,8 +109,8 @@ class OIDC4VCTest : AnnotationSpec() {
             redirect_uri = "${testProvider.url}/present",
             claims = VCClaims(vp_token = OIDCTestProvider.TEST_VP_CLAIM)
         )
-        val resp = vpSvc.getSIOPResponseFor(req, SUBJECT_DID, listOf(presentation, presentation))
-        val result = vpSvc.postSIOPResponse(req, resp)
+        val resp = testProvider.vpSvc.getSIOPResponseFor(req, SUBJECT_DID, listOf(presentation, presentation))
+        val result = testProvider.vpSvc.postSIOPResponse(req, resp)
         result.trim() shouldBe resp.toFormBody() // test service returns siop response
     }
 
@@ -117,8 +122,8 @@ class OIDC4VCTest : AnnotationSpec() {
             redirect_uri = "${testProvider.url}/present",
             claims = VCClaims(vp_token = OIDCTestProvider.TEST_VP_CLAIM)
         )
-        val resp = vpSvc.getSIOPResponseFor(req, SUBJECT_DID, listOf(presentation, presentation))
-        val result = vpSvc.postSIOPResponse(req, resp)
+        val resp = testProvider.vpSvc.getSIOPResponseFor(req, SUBJECT_DID, listOf(presentation, presentation))
+        val result = testProvider.vpSvc.postSIOPResponse(req, resp)
         result.trim() shouldBe resp.toFormBody() // test service returns siop response
     }
 

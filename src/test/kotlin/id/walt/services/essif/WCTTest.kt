@@ -82,19 +82,18 @@ class WCTTest: AnnotationSpec() {
     }
 
     val issuer = OIDCProvider("ebsi wct issuer", "$EBSI_WCT_ENV/conformance/v1/issuer-mock")
-    val ciSvc = OIDC4CIService(issuer)
 
-    val redirectUri = ciSvc.executeGetAuthorizationRequest(URI.create(REDIRECT_URI), listOf(CredentialClaim(type = SCHEMA_ID, manifest_id = null)), nonce = NONCE, state = STATE)
+    val redirectUri = issuer.ciSvc.executeGetAuthorizationRequest(URI.create(REDIRECT_URI), listOf(CredentialClaim(type = SCHEMA_ID, manifest_id = null)), nonce = NONCE, state = STATE)
     redirectUri shouldNotBe null
 
     val code = OIDCUtils.getCodeFromRedirectUri(redirectUri!!)
     code shouldNotBe null
 
-    val tokenResponse = ciSvc.getAccessToken(code!!, REDIRECT_URI, CompatibilityMode.EBSI_WCT)
+    val tokenResponse = issuer.ciSvc.getAccessToken(code!!, REDIRECT_URI, CompatibilityMode.EBSI_WCT)
     tokenResponse.indicatesSuccess() shouldBe true
 
-    val proof = ciSvc.generateDidProof(did, tokenResponse.customParameters["c_nonce"]?.toString())
-    vc = ciSvc.getCredential(tokenResponse.toSuccessResponse().oidcTokens.accessToken, did, SCHEMA_ID, proof, mode = CompatibilityMode.EBSI_WCT)
+    val proof = issuer.ciSvc.generateDidProof(did, tokenResponse.customParameters["c_nonce"]?.toString())
+    vc = issuer.ciSvc.getCredential(tokenResponse.toSuccessResponse().oidcTokens.accessToken, did, SCHEMA_ID, proof, mode = CompatibilityMode.EBSI_WCT)
     vc shouldNotBe null
     vc?.credentialSchema shouldNotBe null
     vc?.credentialSchema?.id shouldBe SCHEMA_ID
@@ -105,9 +104,8 @@ class WCTTest: AnnotationSpec() {
     vc shouldNotBe null
 
     val verifier = OIDCProvider("ebsi wct issuer", "$EBSI_WCT_ENV/conformance/v1/verifier-mock")
-    val vpSvc = OIDC4VPService(verifier)
 
-    val siopReq = vpSvc.fetchSIOPv2Request()
+    val siopReq = verifier.vpSvc.fetchSIOPv2Request()
     siopReq shouldNotBe null
 
     val redirectUri = URI.create(siopReq!!.redirect_uri)
@@ -122,8 +120,8 @@ class WCTTest: AnnotationSpec() {
 
     val presentation = Custodian.getService().createPresentation(listOf(vc!!.encode()), did, expirationDate = null).toCredential() as VerifiablePresentation
 
-    val siopResponse = vpSvc.getSIOPResponseFor(siopReqMod!!, did, listOf(presentation))
-    val result = vpSvc.postSIOPResponse(siopReqMod, siopResponse, CompatibilityMode.EBSI_WCT)
+    val siopResponse = verifier.vpSvc.getSIOPResponseFor(siopReqMod!!, did, listOf(presentation))
+    val result = verifier.vpSvc.postSIOPResponse(siopReqMod, siopResponse, CompatibilityMode.EBSI_WCT)
     (JSONParser(-1).parse(result) as JSONObject).get("result") shouldBe true
   }
 

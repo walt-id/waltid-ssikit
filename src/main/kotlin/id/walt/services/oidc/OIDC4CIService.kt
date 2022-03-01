@@ -249,4 +249,20 @@ class OIDC4CIService(
       nonce = nonce
     )
   }
+
+  fun getNonce(): NonceResponse? {
+    val resp = HTTPRequest(HTTPRequest.Method.POST, URI.create(metadata!!.customParameters["nonce_endpoint"].toString())).apply {
+      if (issuer.client_id != null && issuer.client_secret != null) {
+        authorization = ClientSecretBasic(ClientID(issuer.client_id), Secret(issuer.client_secret)).toHTTPAuthorizationHeader()
+      }
+    }.also {
+      log.info("Sending nonce request to ${it.url}")
+    }.send()
+    if(resp.indicatesSuccess()) {
+      return klaxon.parse<NonceResponse>(resp.content)
+    } else {
+      log.error("Got error response from nonce endpoint: {}: {}", resp.statusCode, resp.content)
+      return null
+    }
+  }
 }

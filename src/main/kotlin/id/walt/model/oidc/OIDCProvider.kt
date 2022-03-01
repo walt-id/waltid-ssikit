@@ -19,6 +19,8 @@ import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata
 import id.walt.model.dif.CredentialManifest
 import id.walt.model.dif.Issuer
 import id.walt.model.dif.OutputDescriptor
+import id.walt.services.oidc.OIDC4CIService
+import id.walt.services.oidc.OIDC4VPService
 import id.walt.vclib.model.AbstractVerifiableCredential
 import id.walt.vclib.model.Proof
 import id.walt.vclib.model.VerifiableCredential
@@ -36,4 +38,25 @@ data class OIDCProvider(
   @Json(serializeNull = false) val description: String? = null,
   @Json(serializeNull = false) val client_id: String? = null,
   @Json(serializeNull = false) val client_secret: String? = null
-)
+) {
+  private var _ciSvc: OIDC4CIService? = null
+  private var _vpSvc: OIDC4VPService? = null
+
+  @Json(ignored = true)
+  val ciSvc: OIDC4CIService
+    get() {
+      if(_ciSvc == null) {
+        _ciSvc = OIDC4CIService(this)
+      }
+      return _ciSvc!!
+    }
+
+  @Json(ignored = true)
+  val vpSvc: OIDC4VPService
+    get() {
+      if(_vpSvc == null) {
+        _vpSvc = OIDC4VPService(this)
+      }
+      return _vpSvc!!
+    }
+}

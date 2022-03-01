@@ -52,11 +52,11 @@ class OidcIssuanceAuthCommand: CliktCommand(name = "auth", help = "OIDC issuance
   val schema_ids: List<String> by option("-s", "--schema-id", help = "Schema ID of credential to be issued").multiple(default = listOf(VcTemplateManager.loadTemplate("VerifiableId").credentialSchema!!.id))
 
   override fun run() {
-    val issuer = OIDC4CIService(OIDCProvider(issuer_url, issuer_url, client_id = client_id, client_secret = client_secret))
+    val issuer = OIDCProvider(issuer_url, issuer_url, client_id = client_id, client_secret = client_secret)
     val credentialClaims = schema_ids.map { CredentialClaim(type = it, manifest_id = null) }
     when(mode) {
         "get" -> {
-          val redirectUri = issuer.executeGetAuthorizationRequest(URI.create(redirect_uri), credentialClaims, nonce = nonce)
+          val redirectUri = issuer.ciSvc.executeGetAuthorizationRequest(URI.create(redirect_uri), credentialClaims, nonce = nonce)
           println()
           println("Client redirect URI:")
           println(redirectUri)
@@ -68,7 +68,7 @@ class OidcIssuanceAuthCommand: CliktCommand(name = "auth", help = "OIDC issuance
               " -m ebsi_wct -r \"$redirectUri\"")
         }
         "redirect" -> {
-          val userAgentUri = issuer.getUserAgentAuthorizationURL(URI.create(redirect_uri), credentialClaims, nonce = nonce)
+          val userAgentUri = issuer.ciSvc.getUserAgentAuthorizationURL(URI.create(redirect_uri), credentialClaims, nonce = nonce)
           println()
           println("Point your browser to this address and authorize with the issuer:")
           println(userAgentUri)
@@ -81,7 +81,7 @@ class OidcIssuanceAuthCommand: CliktCommand(name = "auth", help = "OIDC issuance
 
         }
         else -> {
-          val userAgentUri = issuer.executePushedAuthorizationRequest(URI.create(redirect_uri), credentialClaims, nonce = nonce)
+          val userAgentUri = issuer.ciSvc.executePushedAuthorizationRequest(URI.create(redirect_uri), credentialClaims, nonce = nonce)
           println()
           println("Point your browser to this address and authorize with the issuer:")
           println(userAgentUri)
@@ -106,12 +106,12 @@ class OidcIssuanceTokenCommand: CliktCommand(name = "token", help = "Get access 
   val client_secret: String? by option("--client-secret", help = "Client Secret for authorization at the issuer API")
 
   override fun run() {
-    val issuer = OIDC4CIService(OIDCProvider(issuer_url, issuer_url, client_id = client_id, client_secret = client_secret))
+    val issuer = OIDCProvider(issuer_url, issuer_url, client_id = client_id, client_secret = client_secret)
     val authCode = code ?: OIDCUtils.getCodeFromRedirectUri(URI.create(redirect_uri))
     if(authCode == null) {
       println("Error: Code not specified")
     } else {
-      val tokenResponse = issuer.getAccessToken(authCode, redirect_uri.substringBeforeLast("?"), mode)
+      val tokenResponse = issuer.ciSvc.getAccessToken(authCode, redirect_uri.substringBeforeLast("?"), mode)
       println("Access token response:")
       val jsonObj = tokenResponse.toJSONObject()
       println(jsonObj.prettyPrint())
@@ -137,10 +137,10 @@ class OidcIssuanceCredentialCommand: CliktCommand(name = "credential", help = "G
   val save: Boolean by option("--save", help = "Store credential in custodial credential store, default: false").flag()
 
   override fun run() {
-    val issuer = OIDC4CIService(OIDCProvider(issuer_url, issuer_url, client_id = client_id, client_secret = client_secret))
+    val issuer = OIDCProvider(issuer_url, issuer_url, client_id = client_id, client_secret = client_secret)
 
-    val proof = issuer.generateDidProof(did, nonce)
-    val c = issuer.getCredential(BearerAccessToken(token), did, schemaId, proof, format, mode)
+    val proof = issuer.ciSvc.generateDidProof(did, nonce)
+    val c = issuer.ciSvc.getCredential(BearerAccessToken(token), did, schemaId, proof, format, mode)
     if(c == null)
       println("Error: no credential received")
     else {
@@ -162,8 +162,8 @@ class OidcVerificationGetUrlCommand: CliktCommand(name = "get-url", help = "Get 
   val client_url: String by option("-c", "--client-url", help = "Base URL of client, e.g. Wallet, default: openid://").default("openid://")
 
   override fun run() {
-    val verifier = OIDC4VPService(OIDCProvider(verifier_url, verifier_url))
-    val req = verifier.fetchSIOPv2Request()
+    val verifier = OIDCProvider(verifier_url, verifier_url)
+    val req = verifier.vpSvc.fetchSIOPv2Request()
     if(req == null) {
       println("<Error fetching redirection url>")
     } else {
@@ -202,14 +202,14 @@ class OidcVerificationRespondCommand: CliktCommand(name = "present", help = "Cre
   val mode: CompatibilityMode by option("-m", "--mode", help = "Request body mode [oidc|ebsi_wct]").enum<CompatibilityMode>().default(CompatibilityMode.OIDC)
 
   override fun run() {
-    val verifier = OIDC4VPService(OIDCProvider("", ""))
-    val req = verifier.parseSIOPv2RequestUri(URI.create(authUrl))
-    val resp = verifier.getSIOPResponseFor(req!!, did, listOf(Custodian.getService().createPresentation(credentialIds.map { Custodian.getService().getCredential(it)!!.encode() }, did, challenge = req.nonce, expirationDate = null).toCredential() as VerifiablePresentation))
+    val verifier = OIDCProvider("", "")
+    val req = verifier.vpSvc.parseSIOPv2RequestUri(URI.create(authUrl))
+    val resp = verifier.vpSvc.getSIOPResponseFor(req!!, did, listOf(Custodian.getService().createPresentation(credentialIds.map { Custodian.getService().getCredential(it)!!.encode() }, did, challenge = req.nonce, expirationDate = null).toCredential() as VerifiablePresentation))
     println("Presentation response:")
     println(resp.toFormParams().prettyPrint())
 
     println()
-    val result = verifier.postSIOPResponse(req, resp, mode)
+    val result = verifier.vpSvc.postSIOPResponse(req, resp, mode)
     println()
     println("Response:")
     println(result)
