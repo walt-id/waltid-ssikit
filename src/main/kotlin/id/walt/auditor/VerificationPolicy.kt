@@ -201,9 +201,10 @@ class CredentialStatusPolicy : VerificationPolicy() {
     }
 }
 
-class ChallengePolicy(val challenge: String) : VerificationPolicy() {
+class ChallengePolicy(val verifyChallenge: (c: String) -> Boolean) : VerificationPolicy() {
+    constructor(challenge: String) : this({ c -> c == challenge })
     override val description: String = "Verify challenge"
-    override fun doVerify(vc: VerifiableCredential): Boolean = vc.challenge == challenge
+    override fun doVerify(vc: VerifiableCredential): Boolean = vc.challenge?.let { verifyChallenge(it) } ?: false
 }
 
 class VpTokenClaimPolicy(val vpTokenClaim: VpTokenClaim?) : VerificationPolicy() {
