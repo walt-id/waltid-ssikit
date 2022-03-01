@@ -1,5 +1,7 @@
 package id.walt.services.oidc
 
+import com.nimbusds.oauth2.sdk.AuthorizationRequest
+import com.nimbusds.oauth2.sdk.id.ClientID
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken
 import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
@@ -20,15 +22,18 @@ import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.toCredential
 import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.AnnotationSpec
+import io.kotest.matchers.collections.beEmpty
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNot
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.types.instanceOf
 import java.net.URI
 
 class OIDC4VCTest : AnnotationSpec() {
 
-    val testProvider = OIDCProvider("test provider", "http://localhost:8000")
+    val testProvider = OIDCProvider("test provider", "http://localhost:9000")
     val ciSvc = OIDC4CIService(testProvider)
     val vpSvc = OIDC4VPService(testProvider)
     val redirectUri = URI.create("http://blank")
@@ -38,7 +43,7 @@ class OIDC4VCTest : AnnotationSpec() {
     fun init() {
         ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
         SUBJECT_DID = DidService.create(DidMethod.key)
-        OIDCTestProvider.start()
+        OIDCTestProvider.start(9000)
     }
 
     @Test
@@ -166,5 +171,18 @@ class OIDC4VCTest : AnnotationSpec() {
         presentationsLD_multi!![0].encode() shouldEqualJson presentationLD.encode()
         presentationsLD_multi!![1].encode() shouldEqualJson presentationLD.encode()
 
+    }
+
+    @Test
+    fun testVCClaimParsing() {
+        val claim = "{\"credentials\":[{\"vp_token\":{\"issuanceDate\":\"2022-03-01T11:59:27Z\",\"holder\":\"did:key:z6Mkmf1LnkKdiS4jiwa8YgrQXmV7kBW1p4enKEULKFZbULr1\",\"id\":\"urn:uuid:148489d3-ddf6-46b1-ab0e-3d1c04b685e8\",\"validFrom\":\"2022-03-01T11:59:27Z\",\"issued\":\"2022-03-01T11:59:27Z\",\"type\":[\"VerifiablePresentation\"],\"@context\":[\"https:\\/\\/www.w3.org\\/2018\\/credentials\\/v1\"],\"verifiableCredential\":[]},\"type\":\"https:\\/\\/raw.githubusercontent.com\\/walt-id\\/waltid-ssikit-vclib\\/master\\/src\\/test\\/resources\\/schemas\\/ParticipantCredential.json\"}]}"
+        val authReq = AuthorizationRequest.Builder(URI.create("http://blank"), ClientID())
+            .customParameter("claims", claim).build()
+        val vcclaim = OIDCUtils.getVCClaims(authReq)
+        vcclaim.credentials shouldNotBe null
+        vcclaim.credentials!! shouldNot beEmpty()
+        vcclaim.credentials!![0].vp_token shouldNotBe null
+        vcclaim.credentials!![0].vp_token!! shouldNot beEmpty()
+        vcclaim.credentials!![0].vp_token!![0] shouldBe instanceOf<VerifiablePresentation>()
     }
 }

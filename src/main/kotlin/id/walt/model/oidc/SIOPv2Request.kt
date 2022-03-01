@@ -7,8 +7,6 @@ import io.javalin.http.Context
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
-val klaxon = Klaxon().fieldConverter(ListOrSingleValue::class, listOrSingleValueConverter)
-
 data class SIOPv2Request(
   val redirect_uri: String,
   val response_mode: String = "fragment",
