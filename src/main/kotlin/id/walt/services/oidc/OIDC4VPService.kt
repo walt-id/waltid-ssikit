@@ -57,7 +57,9 @@ class OIDC4VPService (val verifier: OIDCProvider) {
         nonce = req.nonce ?: "",
         vpTokenRef = VpTokenRef(
           presentation_submission = PresentationSubmission(
-            descriptor_map = vps.map { DescriptorMapping.fromVP(it) }
+            descriptor_map = DescriptorMapping.fromVPs(vps),
+            definition_id = req.claims.vp_token?.presentation_definition?.id,
+            id = "1"
           )
         )
       ),
