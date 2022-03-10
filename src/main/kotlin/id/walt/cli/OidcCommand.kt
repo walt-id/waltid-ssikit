@@ -56,7 +56,7 @@ class OidcIssuanceInfoCommand: CliktCommand(name = "info", help = "List issuer i
       println("---")
       println("Issuable credentials:")
       m.outputDescriptors.forEach { od ->
-        println("- "  + VcTemplateManager.getTemplateList().firstOrNull { t -> VcTemplateManager.loadTemplate(t).credentialSchema?.id == od.schema ?: "Unknown type" })
+        println("- "  + (VcTemplateManager.getTemplateList().firstOrNull { t -> VcTemplateManager.loadTemplate(t).credentialSchema?.id == od.schema } ?: "Unknown type"))
         println("Schema ID: ${od.schema}")
       }
       println("---")
@@ -236,9 +236,28 @@ class OidcVerificationGenUrlCommand: CliktCommand(name = "gen-url", help = "Get 
   }
 }
 
+class OidcVerificationParseCommand: CliktCommand(name = "parse", help = "Parse SIOP presentation request") {
+
+  val authUrl: String? by option("-u", "--url", help = "Authentication request URL from verifier portal, or get-url / gen-url subcommands")
+
+  override fun run() {
+    val verifier = OIDCProvider("", "")
+    val req = verifier.vpSvc.parseSIOPv2RequestUri(URI.create(authUrl))
+    if(req == null) {
+      println("Error parsing SIOP request")
+    } else {
+      println("Requested credentials:")
+      req.claims?.vp_token?.presentation_definition?.input_descriptors?.forEach { id ->
+        println("- "  + (VcTemplateManager.getTemplateList().firstOrNull { t -> VcTemplateManager.loadTemplate(t).credentialSchema?.id == id.schema.uri } ?: "Unknown type"))
+        println("Schema ID: ${id.schema.uri}")
+      }
+    }
+  }
+}
+
 class OidcVerificationRespondCommand: CliktCommand(name = "present", help = "Create presentation response, and post to verifier") {
 
-  val authUrl: String? by option("-u", "--url", help = "Authentication request URL from verifier, or get-url / gen-url subcommands")
+  val authUrl: String? by option("-u", "--url", help = "Authentication request URL from verifier portal, or get-url / gen-url subcommands")
   val did: String by option("-d", "--did", help = "Subject DID of presented credential(s)").required()
   val credentialIds: List<String> by option("-c", "--credential-id", help = "One or multiple credential IDs to be presented").multiple(listOf())
   val mode: CompatibilityMode by option("-m", "--mode", help = "Request body mode [oidc|ebsi_wct]").enum<CompatibilityMode>().default(CompatibilityMode.OIDC)

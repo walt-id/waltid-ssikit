@@ -135,6 +135,7 @@ object WaltCLI {
                         OidcVerificationCommand().subcommands(
                             OidcVerificationGetUrlCommand(),
                             OidcVerificationGenUrlCommand(),
+                            OidcVerificationParseCommand(),
                             OidcVerificationRespondCommand()
                         )
                     ),
