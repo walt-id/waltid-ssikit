@@ -16,6 +16,7 @@ import id.walt.services.oidc.OIDC4VPService
 import id.walt.services.oidc.OIDCUtils
 import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.toCredential
+import id.walt.vclib.registry.VcTypeRegistry
 import id.walt.vclib.templates.VcTemplateManager
 import java.net.URI
 import java.net.URLDecoder
@@ -39,6 +40,28 @@ class OidcIssuanceCommand: CliktCommand(name = "issue", help = "Credential issua
 
 class OidcVerificationCommand: CliktCommand(name = "verify", help = "Credential verification") {
   override fun run() {
+  }
+}
+
+class OidcIssuanceInfoCommand: CliktCommand(name = "info", help = "List issuer info: supported credentials and optional VP requirements") {
+  val issuer_url: String by option("-i", "--issuer", help = "Issuer base URL").required()
+
+  override fun run() {
+    val issuer = OIDCProvider(issuer_url, issuer_url)
+    issuer.ciSvc.credentialManifests.forEach { m ->
+      println("###")
+      println("Issuer:")
+      println(m.issuer.name)
+      println("---")
+      println("Issuable credentials:")
+      m.outputDescriptors.forEach { od ->
+        println("- "  + VcTemplateManager.getTemplateList().firstOrNull { t -> VcTemplateManager.loadTemplate(t).credentialSchema?.id == od.schema ?: "Unknown type" })
+        println("Schema ID: ${od.schema}")
+      }
+      println("---")
+      println("Required VP:")
+      println(m.presentationDefinition?.input_descriptors?.map { id -> VcTemplateManager.getTemplateList().firstOrNull { t -> VcTemplateManager.loadTemplate(t).credentialSchema?.id == id.schema.uri ?: "Unknown type" }}?.joinToString(",") ?: "<None>")
+    }
   }
 }
 
