@@ -18,6 +18,7 @@ import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.toCredential
 import id.walt.vclib.registry.VcTypeRegistry
 import id.walt.vclib.templates.VcTemplateManager
+import java.io.File
 import java.net.URI
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
@@ -65,6 +66,17 @@ class OidcIssuanceInfoCommand: CliktCommand(name = "info", help = "List issuer i
   }
 }
 
+class OidcIssuanceNonceCommand: CliktCommand(name = "nonce", help = "Get nonce from issuer for required verifiable presentation") {
+  val issuer_url: String by option("-i", "--issuer", help = "Issuer base URL").required()
+  val client_id: String? by option("--client-id", help = "Client ID for authorization at the issuer API")
+  val client_secret: String? by option("--client-secret", help = "Client Secret for authorization at the issuer API")
+
+  override fun run() {
+    val issuer = OIDCProvider(issuer_url, issuer_url, client_id = client_id, client_secret = client_secret)
+    println(klaxon.toJsonString(issuer.ciSvc.getNonce()).prettyPrint())
+  }
+}
+
 class OidcIssuanceAuthCommand: CliktCommand(name = "auth", help = "OIDC issuance authorization step") {
   val mode: String by option("-m", "--mode", help = "Authorization mode [push|get|redirect]").default("push")
   val issuer_url: String by option("-i", "--issuer", help = "Issuer base URL").required()
@@ -73,13 +85,20 @@ class OidcIssuanceAuthCommand: CliktCommand(name = "auth", help = "OIDC issuance
   val client_secret: String? by option("--client-secret", help = "Client Secret for authorization at the issuer API")
   val redirect_uri: String by option("-r", "--redirect-uri", help = "Redirect URI to send with the authorization request").default("http://blank")
   val schema_ids: List<String> by option("-s", "--schema-id", help = "Schema ID of credential to be issued").multiple(default = listOf(VcTemplateManager.loadTemplate("VerifiableId").credentialSchema!!.id))
+  val vp: String? by option("--vp", help = "File name of VP to include in authorization request")
 
   override fun run() {
     val issuer = OIDCProvider(issuer_url, issuer_url, client_id = client_id, client_secret = client_secret)
     val credentialClaims = schema_ids.map { CredentialClaim(type = it, manifest_id = null) }
+    val vp_token = vp?.let {
+      if(File(vp).exists()) {
+        File(vp).readText(StandardCharsets.UTF_8).toCredential() as VerifiablePresentation
+      } else
+        null
+    }?.let { listOf(it) }
     when(mode) {
         "get" -> {
-          val redirectUri = issuer.ciSvc.executeGetAuthorizationRequest(URI.create(redirect_uri), credentialClaims, nonce = nonce)
+          val redirectUri = issuer.ciSvc.executeGetAuthorizationRequest(URI.create(redirect_uri), credentialClaims, nonce = nonce, vp_token = vp_token)
           println()
           println("Client redirect URI:")
           println(redirectUri)
@@ -91,7 +110,7 @@ class OidcIssuanceAuthCommand: CliktCommand(name = "auth", help = "OIDC issuance
               " -m ebsi_wct -r \"$redirectUri\"")
         }
         "redirect" -> {
-          val userAgentUri = issuer.ciSvc.getUserAgentAuthorizationURL(URI.create(redirect_uri), credentialClaims, nonce = nonce)
+          val userAgentUri = issuer.ciSvc.getUserAgentAuthorizationURL(URI.create(redirect_uri), credentialClaims, nonce = nonce, vp_token = vp_token)
           println()
           println("Point your browser to this address and authorize with the issuer:")
           println(userAgentUri)
@@ -104,7 +123,7 @@ class OidcIssuanceAuthCommand: CliktCommand(name = "auth", help = "OIDC issuance
 
         }
         else -> {
-          val userAgentUri = issuer.ciSvc.executePushedAuthorizationRequest(URI.create(redirect_uri), credentialClaims, nonce = nonce)
+          val userAgentUri = issuer.ciSvc.executePushedAuthorizationRequest(URI.create(redirect_uri), credentialClaims, nonce = nonce, vp_token = vp_token)
           println()
           println("Point your browser to this address and authorize with the issuer:")
           println(userAgentUri)
