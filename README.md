@@ -23,7 +23,7 @@ The EBSI/ESSIF functions are in the scope of:
  - **Credential Issuance** protocols and data formats for issuing W3C credentials from a Trusted Issuer to a natural person.
  - **Credential Verification** verification facilities in order to determine the validity of a W3C Verifiable Credential aligned with EBSI/ESSIF standards.
 
-The library is written in **Kotlin/Java based library** and can be directly integrated as Maven/Gradle dependency. Alternatively the library or the additional **Docker container** can be run as RESTful webservice.
+The library is written in **Kotlin/Java** and can be directly integrated as Maven/Gradle dependency. Alternatively the library or the additional **Docker container** can be run as RESTful webservice.
 
 ## Getting Started
 
