@@ -34,12 +34,12 @@ class OidcCommand : CliktCommand(name = "oidc", help = """OIDC for verifiable pr
   }
 }
 
-class OidcIssuanceCommand: CliktCommand(name = "issue", help = "Credential issuance") {
+class OidcIssuanceCommand: CliktCommand(name = "ci", help = "OIDC for Credential Issuance") {
   override fun run() {
   }
 }
 
-class OidcVerificationCommand: CliktCommand(name = "verify", help = "Credential verification") {
+class OidcVerificationCommand: CliktCommand(name = "vp", help = "OIDC for Verifiable Presentations") {
   override fun run() {
   }
 }
