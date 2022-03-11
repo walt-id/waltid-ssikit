@@ -270,9 +270,14 @@ class OidcVerificationRespondCommand: CliktCommand(name = "present", help = "Cre
     println(resp.toFormParams().prettyPrint())
 
     println()
-    val result = verifier.vpSvc.postSIOPResponse(req, resp, mode)
-    println()
-    println("Response:")
-    println(result)
+    if(req.response_mode.lowercase(Locale.getDefault()).contains("post")) { // "post" or "form_post"
+      val result = verifier.vpSvc.postSIOPResponse(req, resp, mode)
+      println()
+      println("Response:")
+      println(result)
+    } else {
+      println("Redirect to:")
+      println("${req.redirect_uri}${when(req.response_mode) { "fragment" -> "#"; else -> "?" }}${resp.toFormBody()}")
+    }
   }
 }

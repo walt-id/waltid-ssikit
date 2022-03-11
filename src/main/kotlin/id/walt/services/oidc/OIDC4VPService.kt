@@ -80,7 +80,7 @@ class OIDC4VPService (val verifier: OIDCProvider) {
     }.also {
       log.info("Sending SIOP response to {}\n {}", it.uri, it.query)
     }.send()
-    if(!result.indicatesSuccess()) {
+    if(!result.indicatesSuccess() && result.statusCode != 302) {
       log.error("Got error response from SIOP endpoint: {}: {}", result.statusCode, result.content)
     }
     if(result.statusCode == 302)
