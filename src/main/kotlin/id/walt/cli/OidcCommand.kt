@@ -104,7 +104,7 @@ class OidcIssuanceAuthCommand: CliktCommand(name = "auth", help = "OIDC issuance
           println(redirectUri)
           println()
           println("Now get the token using:")
-          println("ssikit oidc issue token -i $issuer_url" +
+          println("ssikit oidc ci token -i $issuer_url" +
               "${client_id?.let { " --client-id $client_id" } ?: ""}" +
               "${client_secret?.let { " --client-secret $client_secret" } ?: ""}" +
               " -m ebsi_wct -r \"$redirectUri\"")
@@ -116,7 +116,7 @@ class OidcIssuanceAuthCommand: CliktCommand(name = "auth", help = "OIDC issuance
           println(userAgentUri)
           println()
           println("Then paste redirection url from browser to this command to retrieve the access token:")
-          println("ssikit oidc issue token -i $issuer_url" +
+          println("ssikit oidc ci token -i $issuer_url" +
               "${client_id?.let { " --client-id $client_id" } ?: ""}" +
               "${client_secret?.let { " --client-secret $client_secret" } ?: ""}" +
               " -r <url from browser>")
@@ -129,7 +129,7 @@ class OidcIssuanceAuthCommand: CliktCommand(name = "auth", help = "OIDC issuance
           println(userAgentUri)
           println()
           println("Then paste redirection url from browser to this command to retrieve the access token:")
-          println("ssikit oidc issue token -i $issuer_url" +
+          println("ssikit oidc ci token -i $issuer_url" +
               "${client_id?.let { " --client-id $client_id" } ?: ""}" +
               "${client_secret?.let { " --client-secret $client_secret" } ?: ""}" +
               " -r <url from browser>")
@@ -159,7 +159,7 @@ class OidcIssuanceTokenCommand: CliktCommand(name = "token", help = "Get access 
       println(jsonObj.prettyPrint())
       println()
       println("Now get the credential using:")
-      println("ssikit oidc issue credential -i $issuer_url -m $mode -t ${jsonObj.get("access_token") ?: "<token>"} ${jsonObj.get("c_nonce")?.let { "-n $it" } ?: ""} -d <subject did> -t <credential schema id>")
+      println("ssikit oidc ci credential -i $issuer_url -m $mode -t ${jsonObj.get("access_token") ?: "<token>"} ${jsonObj.get("c_nonce")?.let { "-n $it" } ?: ""} -d <subject did> -s <credential schema id>")
     }
   }
 }
