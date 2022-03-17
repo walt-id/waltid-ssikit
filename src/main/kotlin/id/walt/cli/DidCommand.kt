@@ -5,6 +5,9 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.optional
+import com.github.ajalt.clikt.parameters.groups.mutuallyExclusiveOptions
+import com.github.ajalt.clikt.parameters.groups.required
+import com.github.ajalt.clikt.parameters.groups.single
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
@@ -141,11 +144,25 @@ class ImportDidCommand : CliktCommand(
     name = "import",
     help = "Import DID to custodian store"
 ) {
-
-    val did: String by argument()
+    val keyId: String? by option("-k", "--key-id", help = "Specify key ID for imported did, if left empty, only public key will be imported")
+    val didOrDoc: String by mutuallyExclusiveOptions(
+        option("-f", "--file", help = "Load the DID document from the given file"),
+        option("-d", "--did", help = "Try to resolve DID document for the given DID")
+    ).single().required()
 
     override fun run() {
-        DidService.importDidAndKey(did)
+        val did = when(DidUrl.isDidUrl(didOrDoc)) {
+            true -> didOrDoc.also {
+                DidService.importDid(didOrDoc)
+            }
+            else -> DidService.importDidFromFile(File(didOrDoc))
+        }
+
+        if(!keyId.isNullOrEmpty()) {
+            DidService.setKeyIdForDid(did, keyId!!)
+        } else {
+            DidService.importKey(did)
+        }
     }
 }
 

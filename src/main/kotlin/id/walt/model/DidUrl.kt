@@ -22,9 +22,11 @@ data class DidUrl(
     val url = did + if (fragment != null) "#${fragment}" else ""
 
     companion object {
+        val PATTERN = "^did:([a-z]+):(.+)"
+
         fun from(url: String): DidUrl {
             log.debug("Trying to create DidUrl from URL: \"$url\"...")
-            val matchResult = "^did:([a-z]+):(.+)".toRegex().find(url)!!
+            val matchResult = PATTERN.toRegex().find(url)!!
             val path = matchResult.groups[2]!!.value
             val fragmentStr = path.substringAfter('#')
             val identifierStr = path.substringBefore('#')
@@ -33,6 +35,10 @@ data class DidUrl(
 
         fun generateDidEbsiV2DidUrl() =
             DidUrl(DidMethod.ebsi.name, "z" + (ByteArray(1) { 0x01.toByte() }.plus(Random.nextBytes(16)).encodeBase58()))
+
+        fun isDidUrl(url: String): Boolean {
+            return PATTERN.toRegex().matches(url)
+        }
     }
 }
 

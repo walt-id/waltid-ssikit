@@ -21,11 +21,13 @@ import mu.KotlinLogging
 import org.bouncycastle.asn1.edec.EdECObjectIdentifiers
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
+import java.io.File
 import java.net.URLDecoder
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.security.KeyFactory
 import java.security.KeyPair
+import java.security.KeyStore
 import java.security.spec.X509EncodedKeySpec
 import java.util.*
 
@@ -227,12 +229,28 @@ object DidService {
         }
     }
 
+    fun importDidFromFile(file: File): String {
+        if (!file.exists())
+            throw Exception("DID doc file not found")
+        val doc = file.readText(StandardCharsets.UTF_8)
+        val did = Did.decode(doc)
+        storeDid(did!!.id, doc)
+        return did!!.id
+    }
+
     fun importDidAndKey(did: String) {
         importDid(did)
         log.debug { "DID imported: $did" }
 
         importKey(did)
         log.debug { "Key imported for: $did" }
+    }
+
+    fun setKeyIdForDid(did: String, keyId: String) {
+        val key = ContextManager.keyStore.load(keyId)
+        log.debug { "Loaded key: $keyId" }
+
+        ContextManager.keyStore.addAlias(key.keyId, did)
     }
 
     private fun signDid(issuerDid: String, verificationMethod: String, edDidStr: String): String {

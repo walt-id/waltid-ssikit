@@ -29,7 +29,7 @@ class DidCommandTest : StringSpec({
 
     "1. Import did" {
         val testDid = "did:key:z6MkhjYgRWxZzr1suuVB2Skqym8HPEiRzrMW1W2KKKariqSz"
-        ImportDidCommand().parse(listOf(testDid))
+        ImportDidCommand().parse(listOf("-d", testDid))
 
         val newDid = DidService.load(testDid)
         println("New DID: ${newDid.id}")
