@@ -163,6 +163,8 @@ class ImportDidCommand : CliktCommand(
         } else {
             DidService.importKey(did)
         }
+
+        println("DID imported: $did")
     }
 }
 
