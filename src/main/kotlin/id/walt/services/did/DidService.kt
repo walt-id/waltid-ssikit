@@ -262,18 +262,11 @@ object DidService {
     private fun resolveDidWeb(didUrl: DidUrl): Did = runBlocking {
         log.debug { "Resolving DID $didUrl" }
 
-        val domain = didUrl.identifier.substringBefore(":").let { URLDecoder.decode(it, StandardCharsets.UTF_8) }
-        val path = didUrl.identifier.substringAfter(":").split(":").map { part -> URLDecoder.decode(part, StandardCharsets.UTF_8) }.joinToString("/")
+        val didDocUri = DidWeb.getDidDocUri(didUrl)
 
-        val url = if (path.isEmpty()) {
-            "https://${domain}/.well-known/did.json"
-        } else {
-            "https://${domain}/${path}/did.json"
-        }
+        log.debug { "Fetching DID from $didDocUri" }
 
-        log.debug { "Fetching DID from $url" }
-
-        val didDoc = WaltIdServices.http.get<String>(url)
+        val didDoc = WaltIdServices.http.get<String>(didDocUri.toString())
 
         log.debug { didDoc }
 
