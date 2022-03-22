@@ -4,6 +4,13 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
 
 ## [Unreleased]
 
+- Features
+   - Extended CLI tool with OidcCommands
+   - DID import CLI command from file or resolved DID
+   - Added support for ParticipantCredential
+- Fixes
+     - Fixed did:web resolution issue
+
 ## [1.7.0] - 2022-02-17
 
 -   Roadmap Items
