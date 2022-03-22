@@ -5,6 +5,7 @@ import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.LdVerificationKeyType.*
 import id.walt.model.DidMethod
 import id.walt.model.DidUrl
+import id.walt.model.DidWeb
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.key.KeyService
 import id.walt.test.RESOURCES_PATH
@@ -74,6 +75,33 @@ class DidWebTest : StringSpec({
         val encoded = resolvedDid.encodePretty()
         println(encoded)
     }
+
+    "resolve did:web from did:web:vc.lab.gaia-x.eu" {
+        val resolvedDid = DidService.resolve("did:web:vc.lab.gaia-x.eu")
+        val encoded = resolvedDid.encodePretty()
+        println(encoded)
+    }
+
+    "get path from did:web" {
+        val didUrl = DidUrl.from("did:web:wallet.waltid.org:api:did-registry:266fa44b20c247a9926b44f4263799a3")
+        DidWeb.getPath(didUrl) shouldBe "api/did-registry/266fa44b20c247a9926b44f4263799a3"
+    }
+
+    "get path (empty) from did:web" {
+        val didUrl = DidUrl.from("did:web:empty-path.com")
+        DidWeb.getPath(didUrl) shouldBe ""
+    }
+
+    "get domain from did:web" {
+        val didUrl = DidUrl.from("did:web:sub-domain.top-level-domain.com")
+        DidWeb.getDomain(didUrl) shouldBe "sub-domain.top-level-domain.com"
+    }
+
+    "get domain from did:web incl. path" {
+        val didUrl = DidUrl.from("did:web:sub-domain.top-level-domain.com:api:did-registry:266fa44b20c247a9926b44f4263799a3")
+        DidWeb.getDomain(didUrl) shouldBe "sub-domain.top-level-domain.com"
+    }
+
 }) {
 
     override fun beforeSpec(spec: Spec) {
