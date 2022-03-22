@@ -19,7 +19,6 @@ repositories {
     maven("https://repo.danubetech.com/repository/maven-public/")
     maven("https://maven.walt.id/repository/waltid/")
     maven("https://maven.walt.id/repository/waltid-ssi-kit/")
-    maven("https://maven.walt.id/repository/danubetech")
     mavenLocal()
 }
 
@@ -45,7 +44,7 @@ dependencies {
     implementation("com.google.guava:guava:31.0.1-jre")
 
     // VC
-    implementation("id.walt:waltid-ssikit-vclib:1.17.0")
+    implementation("id.walt:waltid-ssikit-vclib:1.17.1")
 
     // JSON
     implementation("org.json:json:20211205")
