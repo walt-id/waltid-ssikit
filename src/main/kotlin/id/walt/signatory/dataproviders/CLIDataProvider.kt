@@ -7,6 +7,7 @@ import id.walt.vclib.credentials.VerifiableId
 import id.walt.vclib.credentials.VerifiableVaccinationCertificate
 import id.walt.vclib.credentials.gaiax.DataSelfDescription
 import id.walt.vclib.credentials.gaiax.GaiaxCredential
+import id.walt.vclib.credentials.gaiax.ParticipantCredential
 import id.walt.vclib.model.VerifiableCredential
 
 fun prompt(prompt: String, default: String?): String? {
@@ -31,6 +32,7 @@ object CLIDataProvider : SignatoryDataProvider {
             is GaiaxCredential -> GaiaxCLIDataProvider
             is DataSelfDescription -> GaiaxSDProvider
             is VerifiableVaccinationCertificate -> VerifiableVaccinationCertificateCLIDataProvider
+            is ParticipantCredential -> ParticipantCredentialProvider
             else -> {
                 println("No CLI data provider defined for the given credential type. Only default meta data will be populated.")
                 DefaultDataProvider
@@ -198,7 +200,7 @@ object GaiaxCLIDataProvider : AbstractDataProvider<GaiaxCredential>() {
                 }
 
                 println()
-                println("Etherium address")
+                println("Ethereum address")
                 println("----------------------")
                 ethereumAddress.apply {
                     id = prompt("Id", "0x4C84a36fCDb7Bc750294A7f3B5ad5CA8F74C4A52") ?: ""
@@ -235,7 +237,6 @@ object GaiaxSDProvider : AbstractDataProvider<DataSelfDescription>() {
     }
 }
 
-
 object VerifiableIDCLIDataProvider : AbstractDataProvider<VerifiableId>() {
     override fun populateCustomData(template: VerifiableId, proofConfig: ProofConfig): VerifiableId {
         println()
@@ -247,6 +248,29 @@ object VerifiableIDCLIDataProvider : AbstractDataProvider<VerifiableId>() {
         template.credentialSubject!!.gender = prompt("Gender", template.credentialSubject!!.gender)
         template.credentialSubject!!.placeOfBirth = prompt("Place of birth", template.credentialSubject!!.placeOfBirth)
         template.credentialSubject!!.currentAddress = prompt("Current address", template.credentialSubject!!.currentAddress!![0])?.let { listOf(it) }
+
+        return template
+    }
+}
+
+object ParticipantCredentialProvider : AbstractDataProvider<ParticipantCredential>() {
+    override fun populateCustomData(template: ParticipantCredential, proofConfig: ProofConfig): ParticipantCredential {
+        template.apply {
+            println()
+            println("> Subject information")
+            println()
+            credentialSubject?.apply {
+                hasRegistrationNumber = prompt("Registration Number", hasRegistrationNumber) ?: ""
+                hasLegallyBindingName = prompt("Legally Binding Name", hasLegallyBindingName) ?: ""
+                hasJurisdiction = prompt("Jurisdiction", hasJurisdiction) ?: ""
+                hasCountry = prompt("Country", hasCountry) ?: ""
+                leiCode = prompt("LEI", leiCode) ?: ""
+                ethereumAddress = prompt("Ethereum Address", ethereumAddress) ?: ""
+                parentOrganisation = prompt("Parent-organisation", parentOrganisation) ?: ""
+                subOrganisation = prompt("Sub-organisation", subOrganisation) ?: ""
+                id = prompt("Subject ID", id) ?: ""
+            }
+        }
 
         return template
     }
