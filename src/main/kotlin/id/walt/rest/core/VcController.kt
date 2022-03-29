@@ -67,7 +67,7 @@ object VcController {
     fun createDocs() = document().operation {
         it.summary("Create VC").operationId("createVc").addTagsItem("Verifiable Credentials")
     }
-        .body<CreateVcRequest> { it.description("Defines the credential issuer, holder and optionally a credential template  -  TODO: build credential based on the request e.g. load template, substitute values") }
+        .body<CreateVcRequest> { it.description("Create a W3C Verifiable Credential by providing the full credential content (credentialOffer).") }
         .json<String>("200") { it.description("The signed credential") }
 
     fun present(ctx: Context) {

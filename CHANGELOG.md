@@ -4,6 +4,15 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
 
 ## [Unreleased]
 
+## [1.8.0] - 2022-03-22
+
+-   Features
+    -   Extended CLI tool with OidcCommands
+    -   DID import CLI command from file or resolved DID
+    -   Added support for ParticipantCredential
+-   Fixes
+    -   Fixed did:web resolution issue
+
 ## [1.7.0] - 2022-02-17
 
 -   Roadmap Items
@@ -120,7 +129,9 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
     -   Fixed the way of finding the padding <https://github.com/walt-id/waltid-ssikit/pull/43>
     -   SignaturePolicy fails for issuers using did:ebsi <https://github.com/walt-id/waltid-ssikit/issues/52>
 
-[Unreleased]: https://github.com/walt-id/waltid-ssikit/compare/1.7.0...HEAD
+[Unreleased]: https://github.com/walt-id/waltid-ssikit/compare/1.8.0...HEAD
+
+[1.8.0]: https://github.com/walt-id/waltid-ssikit/compare/1.7.0...1.8.0
 
 [1.7.0]: https://github.com/walt-id/waltid-ssikit/compare/1.6.2...1.7.0
 
