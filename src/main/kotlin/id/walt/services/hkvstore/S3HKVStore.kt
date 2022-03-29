@@ -2,6 +2,7 @@ package id.walt.services.hkvstore
 
 import id.walt.servicematrix.ServiceConfiguration
 import io.minio.*
+import io.minio.messages.Tags
 import mu.KotlinLogging
 import java.nio.file.Path
 
@@ -16,7 +17,24 @@ data class S3StoreConfig(
 
 class S3HKVStore(configPath: String) : HKVStoreService() {
   override lateinit var configuration: S3StoreConfig
-  lateinit var s3Client: MinioClient
+  var _s3Client: MinioClient? = null
+  val s3Client: MinioClient
+    get() {
+      if(_s3Client == null) {
+        val s3Builder = MinioClient.builder().endpoint(configuration.endpoint)
+        if(!configuration.access_key.isNullOrEmpty()) {
+          s3Builder.credentials(configuration.access_key ?: "", configuration.secret_key ?: "")
+        }
+        _s3Client = s3Builder.build()
+        if(!_s3Client!!.bucketExists(BucketExistsArgs.builder().bucket(configuration.bucket).build())) {
+          logger.info { "Creating S3 bucket ${configuration.bucket}" }
+          _s3Client!!.makeBucket(MakeBucketArgs.builder().bucket(configuration.bucket).build())
+        } else {
+          logger.info { "S3 bucket ${configuration.bucket} already exists" }
+        }
+      }
+      return _s3Client!!
+    }
 
 
   constructor(config: S3StoreConfig) : this("") {
@@ -27,17 +45,6 @@ class S3HKVStore(configPath: String) : HKVStoreService() {
 
   init {
     if (configPath.isNotEmpty()) configuration = fromConfiguration(configPath)
-    val s3Builder = MinioClient.builder().endpoint(configuration.endpoint)
-    if(!configuration.access_key.isNullOrEmpty()) {
-      s3Builder.credentials(configuration.access_key ?: "", configuration.secret_key ?: "")
-    }
-    s3Client = s3Builder.build()
-    if(!s3Client.bucketExists(BucketExistsArgs.builder().bucket(configuration.bucket).build())) {
-      logger.info { "Creating S3 bucket ${configuration.bucket}" }
-      s3Client.makeBucket(MakeBucketArgs.builder().bucket(configuration.bucket).build())
-    } else {
-      logger.info { "S3 bucket ${configuration.bucket} already exists" }
-    }
   }
 
   override fun put(key: HKVKey, value: ByteArray) {
@@ -46,6 +53,7 @@ class S3HKVStore(configPath: String) : HKVStoreService() {
         PutObjectArgs.builder()
           .bucket(configuration.bucket)
           .`object`(key.toString())
+          .extraHeaders(mapOf("ETag" to key.toString()))
           .stream(it, value.size.toLong(), -1)
           .build()
       )
