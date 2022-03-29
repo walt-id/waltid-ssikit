@@ -97,7 +97,7 @@ class CoreApiTest : AnnotationSpec() {
 
     @AfterClass
     fun teardown() {
-        CoreAPI.start()
+        CoreAPI.stop()
     }
 
     @Test
