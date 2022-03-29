@@ -345,7 +345,7 @@ class KeyServiceTest : AnnotationSpec() {
     fun testImportEd25519JwkPrivKey() {
         val kid = newKeyId()
         val jwkImport =
-            "{\"kty\":\"OKP\",\"d\":\"NzNkDxp2OPyplpxvxSmKtHCul2tQ_7QNuameOTKd6uY\",\"use\":\"sig\",\"crv\":\"Ed25519\",\"kid\":\"${kid}\",\"x\":\"4t6ROMKS2g9hwguVM-u9LzR06spoS__YyaOOvrtSFiI\",\"alg\":\"EdDSA\"}"
+            """{"kty":"OKP","d":"NzNkDxp2OPyplpxvxSmKtHCul2tQ_7QNuameOTKd6uY","use":"sig","crv":"Ed25519","kid":"${kid}","x":"4t6ROMKS2g9hwguVM-u9LzR06spoS__YyaOOvrtSFiI","alg":"EdDSA"}"""
         keyService.importKey(jwkImport)
         println(jwkImport)
         val jwkExported = keyService.export(kid.id, KeyFormat.JWK, KeyType.PRIVATE)
@@ -357,7 +357,7 @@ class KeyServiceTest : AnnotationSpec() {
     fun testImportEd25519JwkPubKey() {
         val kid = newKeyId()
         val jwkImport =
-            "{\"kty\":\"OKP\",\"use\":\"sig\",\"crv\":\"Ed25519\",\"kid\":\"${kid}\",\"x\":\"cU4CewjU2Adq8pxjfObrVg9u8svRP2JRC72zZdvFftI\",\"alg\":\"EdDSA\"}"
+            """{"kty":"OKP","use":"sig","crv":"Ed25519","kid":"${kid}","x":"cU4CewjU2Adq8pxjfObrVg9u8svRP2JRC72zZdvFftI","alg":"EdDSA"}"""
         keyService.importKey(jwkImport)
         println(jwkImport)
         val jwkExported = keyService.export(kid.id, KeyFormat.JWK)
@@ -366,10 +366,22 @@ class KeyServiceTest : AnnotationSpec() {
     }
 
     @Test
+    fun testImportSecp256k1JwkPrivKey() {
+        val kid = newKeyId()
+        val jwkImport =
+            """{"kty":"EC","d":"rhYFsBPF9q3-uZThy7B3c4LDF_8wnozFUAEm5LLC4Zw","use":"sig","crv":"secp256k1","kid":"${kid}","x":"ZxPG-mkME3AE19H-_-Z0vQacNTtD_4rChcUJqoiJZ5w","y":"EPS4M1CiFoi-psyUNR8otGoNOCm0OvQY_i4fxf4shJY","alg":"ES256K"}"""
+        keyService.importKey(jwkImport)
+        println(jwkImport)
+        val jwkExported = keyService.export(kid.id, KeyFormat.JWK, KeyType.PRIVATE)
+        print(jwkExported)
+        jwkImport shouldBe jwkExported
+    }
+
+    @Test
     fun testImportSecp256k1JwkPubKey() {
         val kid = newKeyId()
         val jwkImport =
-            "{\"kty\":\"EC\",\"use\":\"sig\",\"crv\":\"secp256k1\",\"kid\":\"${kid}\",\"x\":\"ZxPG-mkME3AE19H-_-Z0vQacNTtD_4rChcUJqoiJZ5w\",\"y\":\"EPS4M1CiFoi-psyUNR8otGoNOCm0OvQY_i4fxf4shJY\",\"alg\":\"ES256K\"}"
+            """{"kty":"EC","use":"sig","crv":"secp256k1","kid":"${kid}","x":"ZxPG-mkME3AE19H-_-Z0vQacNTtD_4rChcUJqoiJZ5w","y":"EPS4M1CiFoi-psyUNR8otGoNOCm0OvQY_i4fxf4shJY","alg":"ES256K"}"""
         keyService.importKey(jwkImport)
         println(jwkImport)
         val jwkExported = keyService.export(kid.id, KeyFormat.JWK)
