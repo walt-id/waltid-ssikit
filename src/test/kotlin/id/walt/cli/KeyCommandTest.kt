@@ -3,8 +3,6 @@ package id.walt.cli
 import com.github.ajalt.clikt.core.PrintHelpMessage
 import id.walt.crypto.KeyAlgorithm
 import id.walt.servicematrix.ServiceMatrix
-import id.walt.servicematrix.ServiceRegistry
-import id.walt.services.key.InMemoryKeyService
 import id.walt.services.key.KeyService
 import id.walt.test.RESOURCES_PATH
 import io.kotest.assertions.throwables.shouldThrow
@@ -71,7 +69,17 @@ class KeyCommandTest : StringSpec({
         ImportKeyCommand().parse(listOf("src/test/resources/key/privkey.jwk"))
     }
 
-    "12. clear keys" {
+    "12. key import Secp256k1 priv key JWK" {
+        ImportKeyCommand().parse(listOf("src/test/resources/key/privKeySecp256k1Jwk.json"))
+        keyService.delete("ed51ec3a165f4af8bef8298d99b41de7")
+    }
+
+    "13. key import Secp256k1 pub key JWK" {
+        ImportKeyCommand().parse(listOf("src/test/resources/key/pubKeySecp256k1Jwk.json"))
+        keyService.delete("c96fe427cef847e6b2b9675cec31a2bb")
+    }
+
+    "14. clear keys" {
         keyService.listKeys().forEach { keyService.delete(it.keyId.toString()) }
     }
 })
