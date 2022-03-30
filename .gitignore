@@ -35,3 +35,4 @@ secret_maven_password.txt
 credential-store
 
 revoked.json
+bin/

@@ -64,6 +64,7 @@ dependencies {
 
     // Misc
     implementation("commons-io:commons-io:2.11.0")
+    implementation("io.minio:minio:8.3.7")
 
     // HTTP
     implementation("io.ktor:ktor-client-core:1.6.7")
