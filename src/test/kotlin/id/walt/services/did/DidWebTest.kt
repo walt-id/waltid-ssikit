@@ -70,12 +70,6 @@ class DidWebTest : StringSpec({
         println("hey Ed25519")
     }
 
-    "resolve did:web from waltid.org" {
-        val resolvedDid = DidService.resolve("did:web:wallet.waltid.org:api:did-registry:266fa44b20c247a9926b44f4263799a3")
-        val encoded = resolvedDid.encodePretty()
-        println(encoded)
-    }
-
     "resolve did:web from did:web:vc.lab.gaia-x.eu" {
         val resolvedDid = DidService.resolve("did:web:vc.lab.gaia-x.eu")
         val encoded = resolvedDid.encodePretty()
