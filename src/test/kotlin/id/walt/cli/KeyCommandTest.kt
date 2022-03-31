@@ -3,12 +3,12 @@ package id.walt.cli
 import com.github.ajalt.clikt.core.PrintHelpMessage
 import id.walt.crypto.KeyAlgorithm
 import id.walt.servicematrix.ServiceMatrix
-import id.walt.servicematrix.ServiceRegistry
-import id.walt.services.key.InMemoryKeyService
 import id.walt.services.key.KeyService
 import id.walt.test.RESOURCES_PATH
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.data.blocking.forAll
+import io.kotest.data.row
 import io.kotest.matchers.string.shouldContain
 
 
@@ -27,51 +27,49 @@ class KeyCommandTest : StringSpec({
         message shouldContain "-a, --algorithm [Ed25519|Secp256k1|RSA]"
     }
 
-    "2. key gen Ed25519" {
-        GenKeyCommand().parse(listOf("-a", "Ed25519"))
+    "2. key generate"{
+        forAll(
+            row("Ed25519"),
+            row("Secp256k1"),
+            row("RSA")
+        ) { alg ->
+            GenKeyCommand().parse(listOf("-a", alg))
+        }
     }
 
-    "3. key gen Secp256k1" {
-        GenKeyCommand().parse(listOf("-a", "Secp256k1"))
+    "3. key export"{
+        forAll(
+            row(KeyAlgorithm.ECDSA_Secp256k1),
+            row(KeyAlgorithm.EdDSA_Ed25519)
+        ){ alg ->
+            val key = KeyService.getService().generate(alg)
+            ExportKeyCommand().parse(listOf(key.id))
+        }
     }
 
-    "4. key gen RSA" {
-        GenKeyCommand().parse(listOf("-a", "RSA"))
+    "4. key import"{
+        forAll(
+//            Ed25519 priv key JWK
+            row("src/test/resources/cli/privKeyEd25519Jwk.json","45674a4ac169f7f4716804393d20480138a"),
+//            Ed25519 pub key JWK
+            row("src/test/resources/cli/pubKeyEd25519Jwk.json","12374a4ac169f7f4716804393d20480138a"),
+//            RSA priv key PEM
+            row("src/test/resources/key/privkey.pem",""),
+//            RSA pub key PEM
+            row("src/test/resources/key/pubkey.pem",""),
+//            RSA priv key JWK
+            row("src/test/resources/key/privkey.jwk", ""),
+//            Secp256k1 priv key JWK
+            row("src/test/resources/key/privKeySecp256k1Jwk.json", "ed51ec3a165f4af8bef8298d99b41de7"),
+//             Secp256k1 pub key JWK
+            row("src/test/resources/key/pubKeySecp256k1Jwk.json", "c96fe427cef847e6b2b9675cec31a2bb"),
+        ){ key, keyId ->
+            ImportKeyCommand().parse(listOf(key))
+            keyService.delete(keyId)
+        }
     }
 
-    "5. key export Secp256k1" {
-        val key = KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1)
-        ExportKeyCommand().parse(listOf(key.id))
-    }
-
-    "6. key export Ed25519" {
-        val key = KeyService.getService().generate(KeyAlgorithm.EdDSA_Ed25519)
-        ExportKeyCommand().parse(listOf(key.id))
-    }
-
-    "7. key import Ed25519 priv key JWK" {
-        ImportKeyCommand().parse(listOf("src/test/resources/cli/privKeyEd25519Jwk.json"))
-        keyService.delete("45674a4ac169f7f4716804393d20480138a")
-    }
-
-    "8. key import Ed25519 pub key JWK" {
-        ImportKeyCommand().parse(listOf("src/test/resources/cli/pubKeyEd25519Jwk.json"))
-        keyService.delete("12374a4ac169f7f4716804393d20480138a")
-    }
-
-    "9. key import RSA priv key PEM" {
-        ImportKeyCommand().parse(listOf("src/test/resources/key/privkey.pem"))
-    }
-
-    "10. key import RSA pub key PEM" {
-        ImportKeyCommand().parse(listOf("src/test/resources/key/pubkey.pem"))
-    }
-
-    "11. key import RSA priv key JWK" {
-        ImportKeyCommand().parse(listOf("src/test/resources/key/privkey.jwk"))
-    }
-
-    "12. clear keys" {
+    "5. clear keys" {
         keyService.listKeys().forEach { keyService.delete(it.keyId.toString()) }
     }
 })

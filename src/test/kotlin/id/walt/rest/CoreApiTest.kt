@@ -97,7 +97,7 @@ class CoreApiTest : AnnotationSpec() {
 
     @AfterClass
     fun teardown() {
-        CoreAPI.start()
+        CoreAPI.stop()
     }
 
     @Test
@@ -153,7 +153,7 @@ class CoreApiTest : AnnotationSpec() {
     }
 
     @Test
-    fun testExportPublicKey() = runBlocking {
+    fun `test export public key Secp256k1`() = runBlocking {
         val keyId = client.post<KeyId>("$CORE_API_URL/v1/key/gen") {
             contentType(ContentType.Application.Json)
             body = GenKeyRequest(KeyAlgorithm.ECDSA_Secp256k1)
@@ -167,7 +167,35 @@ class CoreApiTest : AnnotationSpec() {
     }
 
     @Test
-    fun testExportPrivateKey() = runBlocking {
+    fun `test export private key Secp256k1`() = runBlocking {
+        val keyId = client.post<KeyId>("$CORE_API_URL/v1/key/gen") {
+            contentType(ContentType.Application.Json)
+            body = GenKeyRequest(KeyAlgorithm.ECDSA_Secp256k1)
+        }
+
+        val key = client.post<String>("$CORE_API_URL/v1/key/export") {
+            contentType(ContentType.Application.Json)
+            body = ExportKeyRequest(keyId.id, KeyFormat.JWK, true)
+        }
+        (JWK.parse(key).isPrivate) shouldBe true
+    }
+
+    @Test
+    fun `test export public key Ed25519`() = runBlocking {
+        val keyId = client.post<KeyId>("$CORE_API_URL/v1/key/gen") {
+            contentType(ContentType.Application.Json)
+            body = GenKeyRequest(KeyAlgorithm.EdDSA_Ed25519)
+        }
+
+        val key = client.post<String>("$CORE_API_URL/v1/key/export") {
+            contentType(ContentType.Application.Json)
+            body = ExportKeyRequest(keyId.id, KeyFormat.JWK)
+        }
+        JWK.parse(key).isPrivate shouldBe false
+    }
+
+    @Test
+    fun `test export private key Ed25519`() = runBlocking {
         val keyId = client.post<KeyId>("$CORE_API_URL/v1/key/gen") {
             contentType(ContentType.Application.Json)
             body = GenKeyRequest(KeyAlgorithm.EdDSA_Ed25519)
@@ -181,10 +209,10 @@ class CoreApiTest : AnnotationSpec() {
     }
 
     @Test
-    fun testImportPrivateKey() = runBlocking {
+    fun `test import public key Secp256k1`() = runBlocking {
 
         val keyId = client.post<KeyId>("$CORE_API_URL/v1/key/import") {
-            body = readWhenContent(File("src/test/resources/cli/privKeyEd25519Jwk.json"))
+            body = readWhenContent(File("src/test/resources/key/pubKeySecp256k1Jwk.json"))
         }
 
         val key = KeyService.getService().load(keyId.id)
@@ -196,7 +224,22 @@ class CoreApiTest : AnnotationSpec() {
     }
 
     @Test
-    fun testImportPublicKey() = runBlocking {
+    fun `test import private key Secp256k1`() = runBlocking {
+
+        val keyId = client.post<KeyId>("$CORE_API_URL/v1/key/import") {
+            body = readWhenContent(File("src/test/resources/key/privKeySecp256k1Jwk.json"))
+        }
+
+        val key = KeyService.getService().load(keyId.id)
+
+        key.keyId shouldBe keyId
+
+        KeyService.getService().delete(keyId.id)
+
+    }
+
+    @Test
+    fun `test import public key Ed25519`() = runBlocking {
 
         val keyId = client.post<KeyId>("$CORE_API_URL/v1/key/import") {
             body = readWhenContent(File("src/test/resources/cli/pubKeyEd25519Jwk.json"))
@@ -210,6 +253,20 @@ class CoreApiTest : AnnotationSpec() {
 
     }
 
+    @Test
+    fun `test import private key Ed25519`() = runBlocking {
+
+        val keyId = client.post<KeyId>("$CORE_API_URL/v1/key/import") {
+            body = readWhenContent(File("src/test/resources/cli/privKeyEd25519Jwk.json"))
+        }
+
+        val key = KeyService.getService().load(keyId.id)
+
+        key.keyId shouldBe keyId
+
+        KeyService.getService().delete(keyId.id)
+
+    }
 
     @Test
     fun testDidCreateKey() = runBlocking {
