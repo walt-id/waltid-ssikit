@@ -69,7 +69,19 @@ class KeyCommandTest : StringSpec({
         }
     }
 
-    "5. clear keys" {
+    "5. key delete"{
+        forAll(
+            row(KeyAlgorithm.ECDSA_Secp256k1),
+            row(KeyAlgorithm.EdDSA_Ed25519),
+            row(KeyAlgorithm.RSA),
+        ) { alg ->
+            val key = keyService.generate(alg)
+            DeleteKeyCommand().parse(listOf(key.id))
+            shouldThrow<Exception> { keyService.load(key.id) }
+        }
+    }
+
+    "6. clear keys" {
         keyService.listKeys().forEach { keyService.delete(it.keyId.toString()) }
     }
 })
