@@ -5,13 +5,9 @@ import com.nimbusds.oauth2.sdk.id.ClientID
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken
 import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
-import id.walt.model.dif.InputDescriptor
-import id.walt.model.dif.PresentationDefinition
-import id.walt.model.dif.VpSchema
 import id.walt.model.oidc.OIDCProvider
 import id.walt.model.oidc.SIOPv2Request
 import id.walt.model.oidc.VCClaims
-import id.walt.model.oidc.VpTokenClaim
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
 import id.walt.signatory.ProofConfig

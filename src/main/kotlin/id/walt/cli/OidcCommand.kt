@@ -8,22 +8,17 @@ import id.walt.common.prettyPrint
 import id.walt.custodian.Custodian
 import id.walt.model.dif.InputDescriptor
 import id.walt.model.dif.PresentationDefinition
-import id.walt.model.dif.VpSchema
+import id.walt.model.dif.VCSchema
 import id.walt.model.oidc.*
 import id.walt.services.oidc.CompatibilityMode
-import id.walt.services.oidc.OIDC4CIService
-import id.walt.services.oidc.OIDC4VPService
 import id.walt.services.oidc.OIDCUtils
 import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.toCredential
-import id.walt.vclib.registry.VcTypeRegistry
 import id.walt.vclib.templates.VcTemplateManager
 import java.io.File
 import java.net.URI
-import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.util.*
-import java.util.regex.Pattern
 
 
 class OidcCommand : CliktCommand(name = "oidc", help = """OIDC for verifiable presentation and credential issuance
@@ -229,7 +224,7 @@ class OidcVerificationGenUrlCommand: CliktCommand(name = "gen-url", help = "Get 
       redirect_uri = "${verifier_url.trimEnd('/')}/${verifier_path.trimStart('/')}",
       response_mode = response_mode,
       nonce = nonce ?: UUID.randomUUID().toString(),
-      claims = VCClaims(vp_token = VpTokenClaim(PresentationDefinition(schemaIds.map { InputDescriptor(VpSchema(it)) }))),
+      claims = VCClaims(vp_token = VpTokenClaim(PresentationDefinition(schemaIds.map { InputDescriptor(VCSchema(it)) }))),
       state = state
     )
     println("${client_url}?${req.toUriQueryString()}")
