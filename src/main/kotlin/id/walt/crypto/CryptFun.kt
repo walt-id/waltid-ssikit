@@ -87,28 +87,27 @@ fun java.security.Key.toPEM(): String = when (this) {
 }
 
 fun PrivateKey.toPEM(): String =
-    "-----BEGIN PRIVATE KEY-----\n" +
+            "-----BEGIN PRIVATE KEY-----" +
+            System.lineSeparator() +
             String(
-                Base64.getMimeEncoder(64, "\n".toByteArray()).encode(PKCS8EncodedKeySpec(this.encoded).encoded)
+                Base64.getMimeEncoder(64, System.lineSeparator().toByteArray())
+                    .encode(PKCS8EncodedKeySpec(this.encoded).encoded)
             ) +
-            "\n-----END PRIVATE KEY-----"
+            System.lineSeparator() +
+            "-----END PRIVATE KEY-----"
 
 
 fun PrivateKey.toBase64(): String = String(Base64.getEncoder().encode(PKCS8EncodedKeySpec(this.encoded).encoded))
 
-fun PublicKey.toPEM(): String = "-----BEGIN PUBLIC KEY-----\n" +
-        String(
-            Base64.getMimeEncoder(64, "\n".toByteArray()).encode(X509EncodedKeySpec(this.encoded).encoded)
-        ) +
-        "\n-----END PUBLIC KEY-----"
-
-fun toPem(privKey: PrivateKey): String {
-    return "-----BEGIN PUBLIC KEY-----\n" +
+fun PublicKey.toPEM(): String =
+            "-----BEGIN PUBLIC KEY-----" +
+            System.lineSeparator() +
             String(
-                Base64.getMimeEncoder(64, "\n".toByteArray()).encode(X509EncodedKeySpec(privKey.encoded).encoded)
+                Base64.getMimeEncoder(64, System.lineSeparator().toByteArray())
+                    .encode(X509EncodedKeySpec(this.encoded).encoded)
             ) +
-            "\n-----END PUBLIC KEY-----"
-}
+            System.lineSeparator() +
+            "-----END PUBLIC KEY-----"
 
 fun encBase64Str(data: String): String = String(Base64.getEncoder().encode(data.toByteArray()))
 
@@ -139,7 +138,8 @@ fun decodeRawPrivKey(base64: String, kf: KeyFactory): PrivateKey {
 
 fun decodePubKeyPem(pem: String, kf: KeyFactory): PublicKey = decodePubKeyBase64(pemToBase64(pem), kf)
 
-fun pemToBase64(pem: String): String = pem.substringAfter("\n").substringBefore("-").replace("\n", "")
+fun pemToBase64(pem: String): String =
+    pem.substringAfter(System.lineSeparator()).substringBefore("-").replace(System.lineSeparator(), "")
 
 fun decodePrivKeyBase64(base64: String, kf: KeyFactory): PrivateKey =
     kf.generatePrivate(PKCS8EncodedKeySpec(decBase64(base64)))

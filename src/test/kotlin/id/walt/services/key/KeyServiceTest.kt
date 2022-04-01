@@ -2,10 +2,7 @@ package id.walt.services.key
 
 import com.beust.klaxon.Klaxon
 import com.google.crypto.tink.subtle.X25519
-import com.nimbusds.jose.jwk.Curve
-import com.nimbusds.jose.jwk.ECKey
-import com.nimbusds.jose.jwk.JWK
-import com.nimbusds.jose.jwk.KeyUse
+import com.nimbusds.jose.jwk.*
 import com.nimbusds.jose.jwk.gen.ECKeyGenerator
 import id.walt.crypto.*
 import id.walt.crypto.Key
@@ -402,33 +399,79 @@ class KeyServiceTest : AnnotationSpec() {
         }
     }
 
+    @Test
+    fun testDecodeEd25519PEMPrivateKey(){
+        val keyStr = File("src/test/resources/key/privKeyEd25519.pem").readText()
+        val key = decodePrivKeyPem(keyStr, KeyFactory.getInstance("Ed25519"))
+        val keyEnc = key.toPEM()
+        keyEnc shouldBe keyStr
+    }
+
+    @Test
+    fun testDecodeEd25519PEMPublicKey(){
+        val keyStr = File("src/test/resources/key/pubKeyEd25519.pem").readText()
+        val key = decodePubKeyPem(keyStr, KeyFactory.getInstance("Ed25519"))
+        val keyEnc = key.toPEM()
+        keyEnc shouldBe keyStr
+    }
+
+    @Test
+    fun testStoreEd25519PEMKey(){
+        // read files
+        val privKeyStr = File("src/test/resources/key/privKeyEd25519.pem").readText()
+        val pubKeyStr = File("src/test/resources/key/pubKeyEd25519.pem").readText()
+        // decode keys
+        val privKey = decodePrivKeyPem(privKeyStr, KeyFactory.getInstance("Ed25519"))
+        val pubKey = decodePubKeyPem(pubKeyStr, KeyFactory.getInstance("Ed25519"))
+        // create a new key entity using the raw keys
+        val key = Key(newKeyId(),KeyAlgorithm.EdDSA_Ed25519 , CryptoProvider.SUN, KeyPair(pubKey, privKey) )
+        // store the key entity
+        KeyStoreService.getService().store(key)
+        // assert exporting private part of the key entity is the same as the read file
+        keyService.export(key.keyId.id, KeyFormat.PEM, KeyType.PRIVATE) shouldBe privKeyStr
+        // // assert exporting public part of the key entity is the same as the read file
+        keyService.export(key.keyId.id, KeyFormat.PEM) shouldBe pubKeyStr
+        println(keyService.export(key.keyId.id, KeyFormat.PEM))
+    }
+
     // TODO: refactore and split in multiple test-cases
     @Test
     fun testImportEd25519Key() {
+
+//        val keyFile = "src/test/resources/key/ed25519.pem"
+//        val keyFile = "src/test/resources/key/privKeyEd25519.pem"
+//        val keyStr = readWhenContent(Path.of(keyFile))
+//        convertPEMKeyToJWKKey(keyStr, KeyAlgorithm.EdDSA_Ed25519)
+
+        // read files
         val privKeyPem = File("src/test/resources/key/privKeyEd25519.pem").readText()
         val pupKeyPem = File("src/test/resources/key/pubKeyEd25519.pem").readText()
-        val privKey = decodePrivKeyPem(File("src/test/resources/key/privKeyEd25519.pem").readText(), KeyFactory.getInstance("Ed25519"))
+        // read keys raw
+        val privKey = decodePrivKeyPem(privKeyPem, KeyFactory.getInstance("Ed25519"))
         val pubKey = decodePubKeyPem(File("src/test/resources/key/pubKeyEd25519.pem").readText(), KeyFactory.getInstance("Ed25519"))
+        // encrypt raw keys to pem
         val privKeyEnc = privKey.toPEM()
         val pubKeyEnc = pubKey.toPEM()
 
+        // assert encrypted keys look the same as the read files
         privKeyEnc shouldBe privKeyPem
         pubKeyEnc shouldBe pupKeyPem
 
+        // create a new key entity using the the raw keys
         val key = Key(newKeyId(),KeyAlgorithm.EdDSA_Ed25519 , CryptoProvider.SUN, KeyPair(pubKey, privKey) )
-
+        // store the key entity
         KeyStoreService.getService().store(key)
-
-        val keyLoaded = keyService.load(key.keyId.id)
-
+        // assert exporting private part of the key entity is the same as the read file
         keyService.export(key.keyId.id, KeyFormat.PEM, KeyType.PRIVATE) shouldBe privKeyPem
-
+        // // assert exporting public part of the key entity is the same as the read file
         keyService.export(key.keyId.id, KeyFormat.PEM) shouldBe pupKeyPem
 
+        // print the key with the given id
+        val keyLoaded = keyService.load(key.keyId.id)
         println(keyLoaded)
-
+        // print the key with the given id JWK formatted
         println(keyService.export(key.keyId.id, KeyFormat.JWK))
-
+        // print the key with the given id PEM formatted
         println(keyService.export(key.keyId.id, KeyFormat.PEM))
 
         // deriving pub key - not working
