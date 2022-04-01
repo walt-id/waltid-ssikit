@@ -23,9 +23,12 @@ import org.bouncycastle.asn1.x509.AlgorithmIdentifier
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.math.ec.ECPoint
+import org.bouncycastle.openssl.PEMParser
 import org.bouncycastle.util.encoders.Hex
 import org.web3j.crypto.ECDSASignature
 import org.web3j.utils.Numeric
+import java.io.Reader
+import java.io.StringReader
 import java.math.BigInteger
 import java.security.*
 import java.security.spec.ECGenParameterSpec
@@ -378,4 +381,30 @@ fun toECDSASignature(jcaSignature: ByteArray, keyAlgorithm: KeyAlgorithm): ECDSA
     }
 }
 
-fun convertPEMKeyToJWKKey(keyStr: String): String = JWK.parseFromPEMEncodedObjects(keyStr).toJSONString()
+fun convertPEMKeyToJWKKey(keyStr: String, alg: KeyAlgorithm = KeyAlgorithm.RSA): String =
+    when (alg) {
+        KeyAlgorithm.RSA -> JWK.parseFromPEMEncodedObjects(keyStr).toJSONString()
+        KeyAlgorithm.EdDSA_Ed25519 -> parseFromPEMEncodedEd25519(keyStr)
+        KeyAlgorithm.ECDSA_Secp256k1 -> TODO()
+    }
+
+fun parseFromPEMEncodedEd25519(keyStr: String): String {
+    val kf = KeyFactory.getInstance("Ed25519")
+    val pemReader: Reader = StringReader(keyStr)
+    val parser = PEMParser(pemReader)
+    lateinit var pubKey: PublicKey
+    lateinit var privKey: PrivateKey
+    do {
+        val pemObj = parser.readObject()
+        if (pemObj is SubjectPublicKeyInfo) {
+            val x509KeySpec = X509EncodedKeySpec(pemObj.encoded)
+            pubKey = kf.generatePublic(x509KeySpec)
+        }
+        if (pemObj is PrivateKeyInfo) {
+            val pkcs8KeySpec = PKCS8EncodedKeySpec(pemObj.encoded)
+            privKey = kf.generatePrivate(pkcs8KeySpec)
+        }
+    } while (pemObj != null)
+    val key = Key(newKeyId(), KeyAlgorithm.EdDSA_Ed25519, CryptoProvider.SUN, KeyPair(pubKey, privKey))
+    TODO()
+}
