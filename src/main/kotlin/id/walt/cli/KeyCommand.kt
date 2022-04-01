@@ -74,7 +74,6 @@ class ImportKeyCommand : CliktCommand(
 
         if (keyFile.extension.lowercase() == "pem") keyStr = convertPEMKeyToJWKKey(keyStr)
 
-
         val keyId: KeyId = keyService.importKey(keyStr)
 
         echo("\nResults:\n")

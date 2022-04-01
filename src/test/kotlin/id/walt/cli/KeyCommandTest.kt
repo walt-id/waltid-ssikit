@@ -10,6 +10,7 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.data.blocking.forAll
 import io.kotest.data.row
 import io.kotest.matchers.string.shouldContain
+import java.io.File
 
 
 class KeyCommandTest : StringSpec({
@@ -40,7 +41,8 @@ class KeyCommandTest : StringSpec({
     "3. key export"{
         forAll(
             row(KeyAlgorithm.ECDSA_Secp256k1),
-            row(KeyAlgorithm.EdDSA_Ed25519)
+            row(KeyAlgorithm.EdDSA_Ed25519),
+            row(KeyAlgorithm.RSA)
         ){ alg ->
             val key = KeyService.getService().generate(alg)
             ExportKeyCommand().parse(listOf(key.id))
