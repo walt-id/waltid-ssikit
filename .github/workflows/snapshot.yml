@@ -52,4 +52,11 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           port: ${{ secrets.SSH_PORT }}
           script: docker rm $(docker stop $(docker ps -a -q --filter ancestor=waltid/ssikit:latest --format="{{.ID}}")); docker pull waltid/ssikit:latest && docker container run -p 7000-7004:7000-7004 -itdv $(pwd)/data:/app/data docker.io/waltid/ssikit:latest serve -b 0.0.0.0
-
+      - name: Prepare CD K8S
+        run: sed "s/_DEFAULT_DEPLOYMENT_/$GITHUB_SHA/g" k8s/deployment-dev.yaml > k8s/deployment-dev_mod.yaml
+      - name: Continuous deployment K8S
+        uses: actions-hub/kubectl@master
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+        with:
+          args: apply -n dev -f k8s/deployment-dev_mod.yaml

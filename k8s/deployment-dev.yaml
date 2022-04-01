@@ -1,0 +1,132 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: ssikit
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ssikit
+  template:
+    metadata:
+      labels:
+        app: ssikit
+      annotations:
+        deployment/id: "_DEFAULT_DEPLOYMENT_"
+    spec:
+      containers:
+        - name: ssikit
+          image: waltid/ssikit:latest
+          args:
+            - serve
+            - -b
+            - 0.0.0.0
+          ports:
+            - containerPort: 7000
+              name: core-api
+            - containerPort: 7001
+              name: signatory-api
+            - containerPort: 7002
+              name: custodian-api
+            - containerPort: 7003
+              name: auditor-api
+            - containerPort: 7004
+              name: essif-api
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: ssikit
+spec:
+  ports:
+    - name: http-core
+      port: 7000
+      targetPort: core-api
+      protocol: TCP
+    - name: http-signatory
+      port: 7001
+      targetPort: signatory-api
+      protocol: TCP
+    - name: http-custodian
+      port: 7002
+      targetPort: custodian-api
+      protocol: TCP
+    - name: http-auditor
+      port: 7003
+      targetPort: auditor-api
+      protocol: TCP
+    - name: http-essif
+      port: 7004
+      targetPort: essif-api
+      protocol: TCP
+  selector:
+    app: ssikit
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ssikit
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  tls:
+    - hosts:
+        - core.ssikit.waltid.org
+        - signatory.ssikit.waltid.org
+        - custodian.ssikit.waltid.org
+        - auditor.ssikit.waltid.org
+        - essif.ssikit.waltid.org
+      secretName: ssikit-tls-secret
+  rules:
+    - host: core.ssikit.waltid.org
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ssikit
+                port:
+                  name: http-core
+    - host: signatory.ssikit.waltid.org
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ssikit
+                port:
+                  name: http-signatory
+    - host: custodian.ssikit.waltid.org
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ssikit
+                port:
+                  name: http-custodian
+    - host: auditor.ssikit.waltid.org
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ssikit
+                port:
+                  name: http-auditor
+    - host: essif.ssikit.waltid.org
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ssikit
+                port:
+                  name: http-essif
