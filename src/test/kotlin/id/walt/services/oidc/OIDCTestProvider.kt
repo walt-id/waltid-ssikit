@@ -34,7 +34,7 @@ import java.util.*
 object OIDCTestProvider {
 
   val TEST_CREDENTIAL_CLAIM = CredentialClaim(type = VcTemplateManager.loadTemplate("VerifiableId").credentialSchema!!.id, manifest_id = null)
-  val TEST_VP_CLAIM = VpTokenClaim(PresentationDefinition(listOf(InputDescriptor(VCSchema(uri = VcTemplateManager.loadTemplate("VerifiableId").credentialSchema!!.id))), id = "1"))
+  val TEST_VP_CLAIM = VpTokenClaim(PresentationDefinition("1", listOf(InputDescriptor("1", schema = VCSchema(uri = VcTemplateManager.loadTemplate("VerifiableId").credentialSchema!!.id)))))
   val TEST_REQUEST_URI = "urn:ietf:params:oauth:request_uri:test"
   val TEST_AUTH_CODE = "testcode"
   val TEST_ACCESS_TOKEN = "testtoken"

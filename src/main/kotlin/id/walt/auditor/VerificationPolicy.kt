@@ -212,7 +212,7 @@ class VpTokenClaimPolicy(val vpTokenClaim: VpTokenClaim?) : VerificationPolicy()
     override fun doVerify(vc: VerifiableCredential): Boolean {
         if (vpTokenClaim != null && vc is VerifiablePresentation) {
             return vpTokenClaim.presentation_definition.input_descriptors.all { desc ->
-                vc.verifiableCredential.any { cred -> desc.schema.uri == cred.credentialSchema?.id }
+                vc.verifiableCredential.any { cred -> desc.schema?.uri == cred.credentialSchema?.id }
             }
         }
         // else: nothing to check
