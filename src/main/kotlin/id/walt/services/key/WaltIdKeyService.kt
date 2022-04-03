@@ -3,10 +3,13 @@ package id.walt.services.key
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.jwk.*
 import com.nimbusds.jose.util.Base64URL
-import id.walt.crypto.*
-import id.walt.services.CryptoProvider
+import id.walt.crypto.Key
+import id.walt.crypto.KeyAlgorithm
+import id.walt.crypto.KeyId
+import id.walt.crypto.toPEM
 import id.walt.services.context.ContextManager
 import id.walt.services.crypto.CryptoService
+import id.walt.services.key.import.KeyImportFactory
 import id.walt.services.keystore.KeyStoreService
 import id.walt.services.keystore.KeyType
 import mu.KotlinLogging
@@ -47,49 +50,9 @@ open class WaltIdKeyService : KeyService() {
         }
 
     override fun importKey(keyStr: String): KeyId {
-        val key = parseJwkKey(keyStr)
-        log.debug { "Importing key ${key.keyId}" }
-        keyStore.store(key)
-        return key.keyId
-    }
-
-    private fun parseJwkKey(jwkKeyStr: String): Key {
-        val jwk = JWK.parse(jwkKeyStr)
-
-        val key = when (jwk.algorithm?.name) {
-            "EdDSA" -> buildKey(
-                keyId = jwk.keyID,
-                algorithm = KeyAlgorithm.EdDSA_Ed25519.name,
-                provider = CryptoProvider.SUN.name,
-                publicPart = jwk.toOctetKeyPair().x.toString(),
-                privatePart = jwk.toOctetKeyPair().d?.let { jwk.toOctetKeyPair().d.toString() },
-                format = id.walt.crypto.KeyFormat.BASE64_RAW
-            )
-            "ES256K" -> Key(
-                keyId = KeyId(jwk.keyID),
-                algorithm = KeyAlgorithm.ECDSA_Secp256k1,
-                cryptoProvider = CryptoProvider.SUN,
-                keyPair = jwk.toECKey().toKeyPair()
-            )
-            "RSA" -> Key(
-                keyId = KeyId(jwk.keyID),
-                algorithm = KeyAlgorithm.RSA,
-                cryptoProvider = CryptoProvider.SUN,
-                keyPair = jwk.toRSAKey().toKeyPair()
-            )
-            else -> {
-                when (jwk.keyType?.value) {
-                    "RSA" -> Key(
-                        keyId = KeyId(jwk.keyID ?: newKeyId().id),
-                        algorithm = KeyAlgorithm.RSA,
-                        cryptoProvider = CryptoProvider.SUN,
-                        keyPair = jwk.toRSAKey().toKeyPair()
-                    )
-                    else -> throw IllegalArgumentException("KeyType ${jwk.keyType} / Algorithm ${jwk.algorithm} not supported")
-                }
-            }
-        }
-        return key
+        val keyId = KeyImportFactory.create(keyStr).import(keyStore)
+        log.debug { "Importing key ${keyId.id}" }
+        return keyId
     }
 
     override fun toJwk(keyAlias: String, keyType: KeyType, jwkKeyId: String?): JWK {

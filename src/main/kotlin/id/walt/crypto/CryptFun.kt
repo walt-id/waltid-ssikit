@@ -14,24 +14,18 @@ import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jose.util.Base64URL
 import id.walt.model.EncryptedAke1Payload
 import id.walt.services.CryptoProvider
-import id.walt.services.keystore.KeyStoreService
 import io.ipfs.multibase.Base58
 import io.ipfs.multibase.Multibase
-import org.bouncycastle.asn1.ASN1ObjectIdentifier
 import org.bouncycastle.asn1.DEROctetString
 import org.bouncycastle.asn1.edec.EdECObjectIdentifiers
-import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.math.ec.ECPoint
-import org.bouncycastle.openssl.PEMKeyPair
-import org.bouncycastle.openssl.PEMParser
 import org.bouncycastle.util.encoders.Hex
 import org.web3j.crypto.ECDSASignature
 import org.web3j.utils.Numeric
-import java.io.StringReader
 import java.math.BigInteger
 import java.security.*
 import java.security.spec.ECGenParameterSpec
@@ -52,8 +46,8 @@ enum class KeyAlgorithm {
 
     companion object {
         fun fromString(algorithm: String): KeyAlgorithm = when (algorithm) {
-            "Ed25519", "EdDSA_Ed25519" -> EdDSA_Ed25519
-            "Secp256k1", "ECDSA_Secp256k1" -> ECDSA_Secp256k1
+            "EdDSA", "Ed25519", "EdDSA_Ed25519" -> EdDSA_Ed25519
+            "ECDSA", "Secp256k1", "ECDSA_Secp256k1" -> ECDSA_Secp256k1
             "RSA" -> RSA
             else -> throw IllegalArgumentException("Algorithm not supported")
         }
@@ -389,65 +383,3 @@ fun toECDSASignature(jcaSignature: ByteArray, keyAlgorithm: KeyAlgorithm): ECDSA
 }
 
 fun convertPEMKeyToJWKKey(keyStr: String): String = JWK.parseFromPEMEncodedObjects(keyStr).toJSONString()
-
-fun importPem(keyStr: String): String {
-    val parser = PEMParser(StringReader(keyStr))
-    val pemObjs = mutableListOf<Any>()
-    try {
-        var pemObj: Any?
-        do {
-            pemObj = parser.readObject()
-            pemObj?.run { pemObjs.add(this) }
-        } while (pemObj != null)
-    } catch (_: Exception) {
-    }
-    val kid = newKeyId()
-    val keyPair = getKeyPair(*pemObjs.map { it }.toTypedArray())
-    KeyStoreService.getService()
-        .store(Key(kid, getKeyAlgorithm(keyPair.public.algorithm), CryptoProvider.SUN, keyPair))
-    return kid.toString()
-}
-
-fun getKeyPair(vararg objs: Any): KeyPair {
-    lateinit var pubKey: PublicKey
-    lateinit var privKey: PrivateKey
-    for (obj in objs) {
-        if (obj is SubjectPublicKeyInfo) {
-            pubKey = getPublicKey(obj)
-        }
-        if (obj is PrivateKeyInfo) {
-            privKey = getPrivateKey(obj)
-        }
-        if (obj is PEMKeyPair) {
-            pubKey = getPublicKey(obj.publicKeyInfo)
-            privKey = getPrivateKey(obj.privateKeyInfo)
-            break
-        }
-    }
-    return KeyPair(pubKey, privKey)
-}
-
-fun getPublicKey(key: SubjectPublicKeyInfo): PublicKey{
-    val kf = getKeyFactory(key.algorithm.algorithm)
-    return kf.generatePublic(X509EncodedKeySpec(key.encoded))
-}
-
-fun getPrivateKey(key: PrivateKeyInfo): PrivateKey{
-    val kf = getKeyFactory(key.privateKeyAlgorithm.algorithm)
-    return kf.generatePrivate(PKCS8EncodedKeySpec(key.encoded))
-}
-
-fun getKeyFactory(alg: ASN1ObjectIdentifier): KeyFactory =
-    when (alg) {
-        PKCSObjectIdentifiers.rsaEncryption -> KeyFactory.getInstance("RSA")
-        ASN1ObjectIdentifier("1.3.101.112") -> KeyFactory.getInstance("Ed25519")
-        else -> TODO()
-    }
-
-fun getKeyAlgorithm(alg: String): KeyAlgorithm =
-    when (alg) {
-        "RSA" -> KeyAlgorithm.RSA
-        "EdDSA",
-        "Ed25519" -> KeyAlgorithm.EdDSA_Ed25519
-        else -> TODO()
-    }
