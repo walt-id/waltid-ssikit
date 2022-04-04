@@ -3,9 +3,13 @@ package id.walt.services.oidc
 import com.beust.klaxon.JsonBase
 import com.beust.klaxon.Klaxon
 import com.nimbusds.oauth2.sdk.AuthorizationRequest
+import id.walt.custodian.Custodian
+import id.walt.model.dif.InputDescriptor
+import id.walt.model.dif.PresentationDefinition
 import id.walt.model.oidc.VCClaims
 import id.walt.model.oidc.klaxon
 import id.walt.vclib.credentials.VerifiablePresentation
+import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.model.toCredential
 import net.minidev.json.JSONObject
 import net.minidev.json.parser.JSONParser
@@ -58,5 +62,48 @@ object OIDCUtils {
     } else {
       return listOf(vp_token.toCredential() as VerifiablePresentation)
     }
+  }
+
+  private fun matchesInputDescriptor(credential: VerifiableCredential, inputDescriptor: InputDescriptor): Boolean {
+    // for now: support
+    // * schema.uri from presentation exchange 1.0
+    // * field constraints from presentation exchange 2.0:
+    // ** paths: "$.type", "$.credentialSchema.id"
+    // ** match type: pattern, const
+
+    if(inputDescriptor.schema != null) { // PEX 1.0
+      return inputDescriptor.schema.uri == credential.credentialSchema?.id
+    } else { // PEX 2.0
+      return inputDescriptor.constraints?.fields?.any { fld ->
+          val fldVal = if(fld.path.contains("\$.type")) {
+            credential.type.last()
+          } else if(fld.path.contains("\$.credentialSchema.id")) {
+            credential.credentialSchema?.id
+          } else {
+            null
+          }
+          return fldVal?.let {
+            return if(fld.filter?.containsKey("pattern") == true) {
+              Regex(fld.filter["pattern"].toString()).matches(fldVal)
+            } else if(fld.filter?.containsKey("const") == true) {
+              fld.filter["const"] == fldVal
+            } else {
+              false
+            }
+          } ?: false
+      } ?: false
+    }
+  }
+
+  /**
+   * Find credentials matching input descriptors in presentation definition.
+   * @return Map from input_descriptor id to set of matching credential ids
+   */
+  fun findCredentialsFor(presentationDefinition: PresentationDefinition): Map<String, Set<String>> {
+
+    val myCredentials = Custodian.getService().listCredentials()
+    return presentationDefinition.input_descriptors.map { indesc ->
+      Pair(indesc.id, myCredentials.filter { c -> matchesInputDescriptor(c, indesc) }.map { c -> c.id!! }.toSet())
+    }.toMap()
   }
 }

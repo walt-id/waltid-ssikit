@@ -5,6 +5,7 @@ import com.nimbusds.oauth2.sdk.id.ClientID
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken
 import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
+import id.walt.model.dif.*
 import id.walt.model.oidc.OIDCProvider
 import id.walt.model.oidc.SIOPv2Request
 import id.walt.model.oidc.VCClaims
@@ -15,12 +16,16 @@ import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.test.RESOURCES_PATH
 import id.walt.vclib.credentials.VerifiablePresentation
+import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.model.toCredential
 import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.AnnotationSpec
+import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.collections.beEmpty
+import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldHave
 import io.kotest.matchers.shouldNot
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
@@ -223,5 +228,36 @@ class OIDC4VCTest : AnnotationSpec() {
         vcclaim.credentials!![0].vp_token shouldNotBe null
         vcclaim.credentials!![0].vp_token!! shouldNot beEmpty()
         vcclaim.credentials!![0].vp_token!![0] shouldBe instanceOf<VerifiablePresentation>()
+    }
+
+    @Test
+    fun testInputDescriptorMatching() {
+        val credential = Signatory.getService().issue("VerifiableId", ProofConfig(OIDCTestProvider.ISSUER_DID, SUBJECT_DID, proofType = ProofType.JWT)).toCredential()
+        Custodian.getService().storeCredential(credential.id!!, credential)
+
+        val matches = OIDCUtils.findCredentialsFor(PresentationDefinition(
+            id = "1",
+            input_descriptors = listOf(
+                InputDescriptor(
+                    id = "schema_pex_1_0",
+                    schema = VCSchema(credential.credentialSchema!!.id)
+                ),
+                InputDescriptor(
+                    id = "field_type_pattern",
+                    constraints = InputDescriptorConstraints(listOf(
+                        InputDescriptorField(path = listOf("\$.type"), filter = mapOf("pattern" to "VerifiableId|VerifiableFOO"))
+                    ))
+                ),
+                InputDescriptor(
+                    id = "field_schema_const",
+                    constraints = InputDescriptorConstraints(listOf(
+                        InputDescriptorField(path = listOf("\$.credentialSchema.id"), filter = mapOf("const" to credential.credentialSchema!!.id))
+                    ))
+                )
+            )
+        ))
+
+        matches.keys shouldContainAll setOf("schema_pex_1_0", "field_type_pattern", "field_schema_const")
+        matches.values.shouldForAll { set -> set.contains(credential.id!!) }
     }
 }
