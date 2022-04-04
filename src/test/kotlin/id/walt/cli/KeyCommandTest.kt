@@ -1,6 +1,7 @@
 package id.walt.cli
 
 import com.github.ajalt.clikt.core.PrintHelpMessage
+import id.walt.common.readWhenContent
 import id.walt.crypto.KeyAlgorithm
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.key.KeyService
@@ -10,6 +11,7 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.data.blocking.forAll
 import io.kotest.data.row
 import io.kotest.matchers.string.shouldContain
+import java.io.File
 
 
 class KeyCommandTest : StringSpec({
@@ -71,13 +73,11 @@ class KeyCommandTest : StringSpec({
 
     "5. key delete"{
         forAll(
-            row(KeyAlgorithm.ECDSA_Secp256k1),
-            row(KeyAlgorithm.EdDSA_Ed25519),
-            row(KeyAlgorithm.RSA),
-        ) { alg ->
-            val key = keyService.generate(alg)
-            DeleteKeyCommand().parse(listOf(key.id))
-            shouldThrow<Exception> { keyService.load(key.id) }
+            row("src/test/resources/cli/privKeyEd25519Jwk.json")
+        ) { filepath ->
+            val kid = keyService.importKey(readWhenContent(File(filepath)))
+            DeleteKeyCommand().parse(listOf(kid.id))
+            shouldThrow<Exception> { keyService.load(kid.id) }
         }
     }
 
