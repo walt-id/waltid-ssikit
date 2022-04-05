@@ -25,6 +25,7 @@ import id.walt.vclib.credentials.VerifiableAttestation
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.model.toCredential
 import io.kotest.assertions.json.shouldEqualJson
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
@@ -49,6 +50,7 @@ class CoreApiTest : AnnotationSpec() {
 
     private val credentialService = JsonLdCredentialService.getService()
     val CORE_API_URL = "http://localhost:7013"
+    val keyService = KeyService.getService()
 
     val client = HttpClient(CIO) {
         install(JsonFeature) {
@@ -98,6 +100,11 @@ class CoreApiTest : AnnotationSpec() {
     @AfterClass
     fun teardown() {
         CoreAPI.stop()
+    }
+
+    @BeforeEach
+    fun beforeTest(){
+        keyService.listKeys().forEach { keyService.delete(it.keyId.toString()) }
     }
 
     @Test
@@ -215,11 +222,11 @@ class CoreApiTest : AnnotationSpec() {
             body = readWhenContent(File("src/test/resources/key/pubKeySecp256k1Jwk.json"))
         }
 
-        val key = KeyService.getService().load(keyId.id)
+        val key = keyService.load(keyId.id)
 
         key.keyId shouldBe keyId
 
-        KeyService.getService().delete(keyId.id)
+        keyService.delete(keyId.id)
 
     }
 
@@ -230,11 +237,11 @@ class CoreApiTest : AnnotationSpec() {
             body = readWhenContent(File("src/test/resources/key/privKeySecp256k1Jwk.json"))
         }
 
-        val key = KeyService.getService().load(keyId.id)
+        val key = keyService.load(keyId.id)
 
         key.keyId shouldBe keyId
 
-        KeyService.getService().delete(keyId.id)
+        keyService.delete(keyId.id)
 
     }
 
@@ -245,11 +252,11 @@ class CoreApiTest : AnnotationSpec() {
             body = readWhenContent(File("src/test/resources/cli/pubKeyEd25519Jwk.json"))
         }
 
-        val key = KeyService.getService().load(keyId.id)
+        val key = keyService.load(keyId.id)
 
         key.keyId shouldBe keyId
 
-        KeyService.getService().delete(keyId.id)
+        keyService.delete(keyId.id)
 
     }
 
@@ -260,11 +267,11 @@ class CoreApiTest : AnnotationSpec() {
             body = readWhenContent(File("src/test/resources/cli/privKeyEd25519Jwk.json"))
         }
 
-        val key = KeyService.getService().load(keyId.id)
+        val key = keyService.load(keyId.id)
 
         key.keyId shouldBe keyId
 
-        KeyService.getService().delete(keyId.id)
+        keyService.delete(keyId.id)
 
     }
 
@@ -300,7 +307,7 @@ class CoreApiTest : AnnotationSpec() {
         println("New DID: ${newDid.id}")
         newDid.id shouldBe testDid
 
-        val key = KeyService.getService().load(testDid)
+        val key = keyService.load(testDid)
         println(key.keyId)
 
         key.keyId.id.removePrefix("did:key:") shouldBe "${testDid.removePrefix("did:key:")}#${testDid.removePrefix("did:key:")}"
@@ -391,6 +398,18 @@ class CoreApiTest : AnnotationSpec() {
         }
         true shouldBe result.verified
         VerificationType.VERIFIABLE_PRESENTATION shouldBe result.verificationType
+    }
+
+    @Test
+    fun testDeleteKey() = runBlocking {
+        val kid = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val response = client.delete<HttpResponse>("$CORE_API_URL/v1/key/delete"){
+            body = kid.id
+        }
+        response.status shouldBe HttpStatusCode.OK
+        shouldThrow<Exception> {
+            keyService.load(kid.id)
+        }
     }
 
 }

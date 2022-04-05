@@ -122,3 +122,23 @@ class ListKeysCommand : CliktCommand(
         }
     }
 }
+
+class DeleteKeyCommand : CliktCommand(
+    name = "delete", help = """Delete key.
+
+        Deletes the key with the specified ID.
+        """
+) {
+
+    val keyId: String by argument("-kid", help = "ID of the key to be deleted.")
+
+    override fun run() {
+        echo("Deleting key \"$keyId\"...")
+
+        keyService.delete(keyId)
+
+        echo("\nResults:\n")
+
+        echo("Key \"${keyId}\" deleted.")
+    }
+}
