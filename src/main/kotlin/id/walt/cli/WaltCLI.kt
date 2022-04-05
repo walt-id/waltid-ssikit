@@ -86,7 +86,8 @@ object WaltCLI {
                         GenKeyCommand(),
                         ListKeysCommand(),
                         ImportKeyCommand(),
-                        ExportKeyCommand()
+                        ExportKeyCommand(),
+                        DeleteKeyCommand()
                     ),
                     DidCommand().subcommands(
                         CreateDidCommand(),
