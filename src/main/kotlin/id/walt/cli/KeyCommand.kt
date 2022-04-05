@@ -130,7 +130,7 @@ class DeleteKeyCommand : CliktCommand(
         """
 ) {
 
-    val keyId: String by argument("-kid", help = "ID of the key to be deleted.")
+    val keyId: String by argument("KEY-ID", help = "Key ID or key alias")
 
     override fun run() {
         echo("Deleting key \"$keyId\"...")
