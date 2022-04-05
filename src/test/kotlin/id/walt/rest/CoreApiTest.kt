@@ -402,7 +402,7 @@ class CoreApiTest : AnnotationSpec() {
 
     @Test
     fun testDeleteKey() = runBlocking {
-        val kid = keyService.importKey(readWhenContent(File("src/test/resources/key/privKeySecp256k1Jwk.json")))
+        val kid = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
         val response = client.delete<HttpResponse>("$CORE_API_URL/v1/key/delete"){
             body = kid.id
         }

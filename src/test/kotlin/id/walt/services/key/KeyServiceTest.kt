@@ -16,6 +16,7 @@ import id.walt.services.crypto.SunCryptoService
 import id.walt.services.keystore.InMemoryKeyStoreService
 import id.walt.services.keystore.KeyType
 import id.walt.test.RESOURCES_PATH
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldNotContain
@@ -387,5 +388,14 @@ class KeyServiceTest : AnnotationSpec() {
         val jwkExported = keyService.export(kid.id, KeyFormat.JWK)
         print(jwkExported)
         jwkImport shouldBe jwkExported
+    }
+
+    @Test
+    fun testDeleteKey() {
+        val kid = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val resp = keyService.delete(kid.id)
+        shouldThrow<Exception> {
+            keyService.load(kid.id)
+        }
     }
 }
