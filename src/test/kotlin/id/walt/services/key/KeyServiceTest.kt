@@ -393,7 +393,7 @@ class KeyServiceTest : AnnotationSpec() {
     @Test
     fun testDeleteKey() {
         val kid = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
-        val resp = keyService.delete(kid.id)
+        keyService.delete(kid.id)
         shouldThrow<Exception> {
             keyService.load(kid.id)
         }
