@@ -2,17 +2,25 @@ package id.walt.rest
 
 import id.walt.auditor.Auditor
 import id.walt.auditor.SignaturePolicy
+import id.walt.crypto.KeyAlgorithm
 import id.walt.model.DidMethod
 import id.walt.rest.custodian.CustodianAPI
+import id.walt.rest.custodian.ExportKeyRequest
 import id.walt.rest.custodian.PresentCredentialsRequest
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
+import id.walt.services.key.KeyFormat
+import id.walt.services.key.KeyService
+import id.walt.services.keystore.KeyType
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.toCredential
+import io.kotest.common.runBlocking
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.data.blocking.forAll
+import io.kotest.data.row
 import io.kotest.matchers.shouldBe
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
@@ -33,7 +41,7 @@ class CustodianApiTest : StringSpec({
 
     println("${CustodianAPI.DEFAULT_BIND_ADDRESS}/${CustodianAPI.DEFAULT_Custodian_API_PORT}")
 
-    "Starting Custodian API" {
+    beforeTest {
         CustodianAPI.start()
     }
 
@@ -91,6 +99,35 @@ class CustodianApiTest : StringSpec({
         println("VP Response: $response")
 
         Auditor.getService().verify(response, listOf(SignaturePolicy())).valid shouldBe true
+    }
+
+    "Test export"{
+        forAll(
+            row(KeyAlgorithm.ECDSA_Secp256k1, KeyFormat.JWK, true),
+            row(KeyAlgorithm.EdDSA_Ed25519, KeyFormat.JWK, true),
+            row(KeyAlgorithm.RSA, KeyFormat.JWK, true),
+            row(KeyAlgorithm.ECDSA_Secp256k1, KeyFormat.JWK, false),
+            row(KeyAlgorithm.EdDSA_Ed25519, KeyFormat.JWK, false),
+            row(KeyAlgorithm.RSA, KeyFormat.JWK, false),
+            row(KeyAlgorithm.ECDSA_Secp256k1, KeyFormat.PEM, true),
+            row(KeyAlgorithm.EdDSA_Ed25519, KeyFormat.PEM, true),
+            row(KeyAlgorithm.RSA, KeyFormat.PEM, true),
+            row(KeyAlgorithm.ECDSA_Secp256k1, KeyFormat.PEM, false),
+            row(KeyAlgorithm.EdDSA_Ed25519, KeyFormat.PEM, false),
+            row(KeyAlgorithm.RSA, KeyFormat.PEM, false)
+        ) { alg, format, isPrivate ->
+            val kid = KeyService.getService().generate(alg)
+            val response =
+                runBlocking {
+                    client.post<String>("http://${CustodianAPI.DEFAULT_BIND_ADDRESS}:${CustodianAPI.DEFAULT_Custodian_API_PORT}/keys/export") {
+                        contentType(ContentType.Application.Json)
+                        body = ExportKeyRequest(kid.id, format, isPrivate)
+                    }
+                }
+            println(response)
+            response shouldBe KeyService.getService()
+                .export(kid.id, format, if (isPrivate) KeyType.PRIVATE else KeyType.PUBLIC)
+        }
     }
 
     /*"Test documentation" {

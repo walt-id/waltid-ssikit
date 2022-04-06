@@ -4,15 +4,26 @@ import com.beust.klaxon.Klaxon
 import id.walt.crypto.Key
 import id.walt.crypto.KeyAlgorithm
 import id.walt.custodian.Custodian
-
+import id.walt.services.key.KeyFormat
+import id.walt.services.key.KeyService
+import id.walt.services.keystore.KeyType
 import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.VerifiableCredential
 import io.javalin.http.Context
 import io.javalin.plugin.openapi.dsl.document
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class ExportKeyRequest(
+    val keyAlias: String,
+    val format: KeyFormat = KeyFormat.JWK,
+    val exportPrivate: Boolean = false
+)
 
 object CustodianController {
 
     private val custodian = Custodian.getService()
+    private val keyService = KeyService.getService()
 
     /* Keys */
 
@@ -87,6 +98,22 @@ object CustodianController {
         custodian.deleteKey(ctx.pathParam("id"))
     }
 
+    fun exportDocs() = document().operation {
+        it.summary("Exports public and private key part (if supported by underlying keystore)").operationId("exportKey")
+            .addTagsItem("Keys")
+    }.body<ExportKeyRequest> { it.description("Exports the key in JWK or PEM format") }
+        .json<String>("200") { it.description("The key in the desired format") }
+
+    fun exportKey(ctx: Context) {
+        val req = ctx.bodyAsClass(id.walt.rest.core.ExportKeyRequest::class.java)
+        ctx.result(
+            keyService.export(
+                req.keyAlias,
+                req.format,
+                if (req.exportPrivate) KeyType.PRIVATE else KeyType.PUBLIC
+            )
+        )
+    }
 
     /* Credentials */
 
