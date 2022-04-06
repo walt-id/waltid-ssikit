@@ -17,7 +17,7 @@ object CustodianController {
     /* Keys */
 
     data class GenerateKeyRequest(val keyAlgorithm: KeyAlgorithm)
-    data class StoreKeyRequest(val key: Key)
+    data class ImportKeyRequest(val key: Key)
     data class StoreCredentialRequest(val alias: String, val vc: VerifiableCredential)
     data class ListKeyResponse(val list: List<Key>)
 
@@ -66,13 +66,13 @@ object CustodianController {
 //        requestBody = OpenApiRequestBody([OpenApiContent(StoreKeyRequest::class)], true, "Store Key Request"),
 //        responses = [OpenApiResponse("200")]
 //    )
-    fun storeKeysDocs() = document()
-        .operation { it.summary("Stores a key").operationId("storeKey").addTagsItem("Keys") }
-        // TODO: Serilize .body<StoreKeyRequest> { it.description("Store Key Request") }
+    fun importKeyDocs() = document()
+        .operation { it.summary("Imports a key").operationId("importKey").addTagsItem("Keys") }
+        // TODO: Serilize .body<ImportKeyRequest> { it.description("Import Key Request") }
         .json<String>("200") { it.description("Http OK") }
 
-    fun storeKey(ctx: Context) {
-        custodian.storeKey(ctx.bodyAsClass<StoreKeyRequest>().key)
+    fun importKey(ctx: Context) {
+        custodian.importKey(ctx.bodyAsClass<ImportKeyRequest>().key)
     }
 
     //    @OpenApi(

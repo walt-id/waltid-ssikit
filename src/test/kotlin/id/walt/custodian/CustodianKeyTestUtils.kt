@@ -49,11 +49,11 @@ object CustodianKeyTestUtils {
         }
 
         "5.1: Store EdDSA_Ed25519 key" {
-            custodian.storeKey(key1)
+            custodian.importKey(key1)
         }
 
         "5.2: Store ECDSA_Secp256k1 key" {
-            custodian.storeKey(key2)
+            custodian.importKey(key2)
         }
 
         "6.1: Retrieve stored EdDSA_Ed25519 key" {

@@ -113,7 +113,7 @@ object CustodianAPI {
                 get("/", documented(CustodianController.listKeysDocs(), CustodianController::listKeys))
                 get("{alias}", documented(CustodianController.getKeysDocs(), CustodianController::getKey))
                 post("generate", documented(CustodianController.generateKeyDocs(), CustodianController::generateKey))
-                put("store", documented(CustodianController.storeKeysDocs(), CustodianController::storeKey))
+                post("import", documented(CustodianController.importKeyDocs(), CustodianController::importKey))
                 delete("{id}", documented(CustodianController.deleteKeysDocs(), CustodianController::deleteKey))
             }
 
