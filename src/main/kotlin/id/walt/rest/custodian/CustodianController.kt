@@ -42,7 +42,7 @@ object CustodianController {
 //        responses = [OpenApiResponse("200", [OpenApiContent(Key::class)], "Key by alias")]
 //    )
     fun getKeysDocs() = document()
-        .operation { it.summary("Gets a key specified by its alias").operationId("getKey").addTagsItem("Keys") }
+        .operation { it.summary("Gets the metadata of a key specified by its alias").operationId("getKey").addTagsItem("Keys") }
         .json<String>("200") { it.description("Key by alias") }
 
     fun getKey(ctx: Context) {
