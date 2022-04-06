@@ -4,20 +4,31 @@ import com.beust.klaxon.Klaxon
 import id.walt.crypto.Key
 import id.walt.crypto.KeyAlgorithm
 import id.walt.custodian.Custodian
-
+import id.walt.services.key.KeyFormat
+import id.walt.services.key.KeyService
+import id.walt.services.keystore.KeyType
 import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.VerifiableCredential
 import io.javalin.http.Context
 import io.javalin.plugin.openapi.dsl.document
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class ExportKeyRequest(
+    val keyAlias: String,
+    val format: KeyFormat = KeyFormat.JWK,
+    val exportPrivate: Boolean = false
+)
 
 object CustodianController {
 
     private val custodian = Custodian.getService()
+    private val keyService = KeyService.getService()
 
     /* Keys */
 
     data class GenerateKeyRequest(val keyAlgorithm: KeyAlgorithm)
-    data class StoreKeyRequest(val key: Key)
+    data class ImportKeyRequest(val key: Key)
     data class StoreCredentialRequest(val alias: String, val vc: VerifiableCredential)
     data class ListKeyResponse(val list: List<Key>)
 
@@ -42,7 +53,7 @@ object CustodianController {
 //        responses = [OpenApiResponse("200", [OpenApiContent(Key::class)], "Key by alias")]
 //    )
     fun getKeysDocs() = document()
-        .operation { it.summary("Gets a key specified by its alias").operationId("getKey").addTagsItem("Keys") }
+        .operation { it.summary("Gets the metadata of a key specified by its alias").operationId("getKey").addTagsItem("Keys") }
         .json<String>("200") { it.description("Key by alias") }
 
     fun getKey(ctx: Context) {
@@ -66,13 +77,13 @@ object CustodianController {
 //        requestBody = OpenApiRequestBody([OpenApiContent(StoreKeyRequest::class)], true, "Store Key Request"),
 //        responses = [OpenApiResponse("200")]
 //    )
-    fun storeKeysDocs() = document()
-        .operation { it.summary("Stores a key").operationId("storeKey").addTagsItem("Keys") }
-        // TODO: Serilize .body<StoreKeyRequest> { it.description("Store Key Request") }
+    fun importKeyDocs() = document()
+        .operation { it.summary("Imports a key").operationId("importKey").addTagsItem("Keys") }
+        // TODO: Serilize .body<ImportKeyRequest> { it.description("Import Key Request") }
         .json<String>("200") { it.description("Http OK") }
 
-    fun storeKey(ctx: Context) {
-        custodian.storeKey(ctx.bodyAsClass<StoreKeyRequest>().key)
+    fun importKey(ctx: Context) {
+        custodian.importKey(ctx.bodyAsClass<ImportKeyRequest>().key)
     }
 
     //    @OpenApi(
@@ -87,6 +98,22 @@ object CustodianController {
         custodian.deleteKey(ctx.pathParam("id"))
     }
 
+    fun exportDocs() = document().operation {
+        it.summary("Exports public and private key part (if supported by underlying keystore)").operationId("exportKey")
+            .addTagsItem("Keys")
+    }.body<ExportKeyRequest> { it.description("Exports the key in JWK or PEM format") }
+        .json<String>("200") { it.description("The key in the desired format") }
+
+    fun exportKey(ctx: Context) {
+        val req = ctx.bodyAsClass(id.walt.rest.core.ExportKeyRequest::class.java)
+        ctx.result(
+            keyService.export(
+                req.keyAlias,
+                req.format,
+                if (req.exportPrivate) KeyType.PRIVATE else KeyType.PUBLIC
+            )
+        )
+    }
 
     /* Credentials */
 
