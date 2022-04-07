@@ -1,18 +1,10 @@
 package id.walt.dif
 
-import com.beust.klaxon.JsonObject
-import com.beust.klaxon.Klaxon
-import com.beust.klaxon.PathMatcher
-import com.beust.klaxon.lookup
 import id.walt.model.dif.PresentationDefinition
 import id.walt.model.oidc.klaxon
-import id.walt.vclib.templates.VcTemplateManager
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import net.pwall.json.pointer.JSONPointer
-import net.pwall.json.schema.JSONSchema
-import java.io.StringReader
 
 class DifTest: AnnotationSpec() {
 
