@@ -96,14 +96,17 @@ object OIDCUtils {
   }
 
   /**
-   * Find credentials matching input descriptors in presentation definition.
+   * Find credentials matching input descriptors in presentation definition. optionally filter by subject DID
    * @return Map from input_descriptor id to set of matching credential ids
    */
-  fun findCredentialsFor(presentationDefinition: PresentationDefinition): Map<String, Set<String>> {
+  fun findCredentialsFor(presentationDefinition: PresentationDefinition, subject: String? = null): Map<String, Set<String>> {
 
     val myCredentials = Custodian.getService().listCredentials()
     return presentationDefinition.input_descriptors.map { indesc ->
-      Pair(indesc.id, myCredentials.filter { c -> matchesInputDescriptor(c, indesc) }.map { c -> c.id!! }.toSet())
+      Pair(indesc.id, myCredentials.filter {
+          c -> matchesInputDescriptor(c, indesc) &&
+          (subject == null || subject == c.subject)
+      }.map { c -> c.id!! }.toSet())
     }.toMap()
   }
 }

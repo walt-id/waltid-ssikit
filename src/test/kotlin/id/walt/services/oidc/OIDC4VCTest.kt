@@ -22,6 +22,7 @@ import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.collections.beEmpty
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
@@ -235,7 +236,7 @@ class OIDC4VCTest : AnnotationSpec() {
         val credential = Signatory.getService().issue("VerifiableId", ProofConfig(OIDCTestProvider.ISSUER_DID, SUBJECT_DID, proofType = ProofType.JWT)).toCredential()
         Custodian.getService().storeCredential(credential.id!!, credential)
 
-        val matches = OIDCUtils.findCredentialsFor(PresentationDefinition(
+        val pd = PresentationDefinition(
             id = "1",
             input_descriptors = listOf(
                 InputDescriptor(
@@ -255,9 +256,16 @@ class OIDC4VCTest : AnnotationSpec() {
                     ))
                 )
             )
-        ))
+        )
 
+        val matches = OIDCUtils.findCredentialsFor(pd)
         matches.keys shouldContainAll setOf("schema_pex_1_0", "field_type_pattern", "field_schema_const")
         matches.values.shouldForAll { set -> set.contains(credential.id!!) }
+
+        val matchesBySubject = OIDCUtils.findCredentialsFor(pd, SUBJECT_DID)
+        matchesBySubject shouldBe matches
+
+        val noMatchesBySubject = OIDCUtils.findCredentialsFor(pd, OIDCTestProvider.ISSUER_DID)
+        noMatchesBySubject.values.shouldForAll { set -> set.shouldBeEmpty() }
     }
 }
