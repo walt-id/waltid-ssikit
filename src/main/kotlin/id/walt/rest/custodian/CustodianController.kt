@@ -77,7 +77,7 @@ object CustodianController {
 //        requestBody = OpenApiRequestBody([OpenApiContent(StoreKeyRequest::class)], true, "Store Key Request"),
 //        responses = [OpenApiResponse("200")]
 //    )
-    fun importKeyDocs() = document()
+    fun importKeysDocs() = document()
         .operation { it.summary("Imports a key").operationId("importKey").addTagsItem("Keys") }
         // TODO: Serilize .body<ImportKeyRequest> { it.description("Import Key Request") }
         .json<String>("200") { it.description("Http OK") }
@@ -98,7 +98,7 @@ object CustodianController {
         custodian.deleteKey(ctx.pathParam("id"))
     }
 
-    fun exportDocs() = document().operation {
+    fun exportKeysDocs() = document().operation {
         it.summary("Exports public and private key part (if supported by underlying keystore)").operationId("exportKey")
             .addTagsItem("Keys")
     }.body<ExportKeyRequest> { it.description("Exports the key in JWK or PEM format") }
