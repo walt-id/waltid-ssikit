@@ -70,7 +70,7 @@ class DidWebTest : StringSpec({
         println("hey Ed25519")
     }
 
-    "resolve did:web from did:web:vc.lab.gaia-x.eu" {
+    "resolve did:web from did:web:vc.lab.gaia-x.eu".config(enabled = false) {
         val resolvedDid = DidService.resolve("did:web:vc.lab.gaia-x.eu")
         val encoded = resolvedDid.encodePretty()
         println(encoded)
