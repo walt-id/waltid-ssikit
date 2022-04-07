@@ -8,22 +8,17 @@ import id.walt.common.prettyPrint
 import id.walt.custodian.Custodian
 import id.walt.model.dif.InputDescriptor
 import id.walt.model.dif.PresentationDefinition
-import id.walt.model.dif.VpSchema
+import id.walt.model.dif.VCSchema
 import id.walt.model.oidc.*
 import id.walt.services.oidc.CompatibilityMode
-import id.walt.services.oidc.OIDC4CIService
-import id.walt.services.oidc.OIDC4VPService
 import id.walt.services.oidc.OIDCUtils
 import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.toCredential
-import id.walt.vclib.registry.VcTypeRegistry
 import id.walt.vclib.templates.VcTemplateManager
 import java.io.File
 import java.net.URI
-import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.util.*
-import java.util.regex.Pattern
 
 
 class OidcCommand : CliktCommand(name = "oidc", help = """OIDC for verifiable presentation and credential issuance
@@ -61,7 +56,7 @@ class OidcIssuanceInfoCommand: CliktCommand(name = "info", help = "List issuer i
       }
       println("---")
       println("Required VP:")
-      println(m.presentationDefinition?.input_descriptors?.map { id -> VcTemplateManager.getTemplateList().firstOrNull { t -> VcTemplateManager.loadTemplate(t).credentialSchema?.id == id.schema.uri ?: "Unknown type" }}?.joinToString(",") ?: "<None>")
+      println(m.presentationDefinition?.input_descriptors?.map { id -> VcTemplateManager.getTemplateList().firstOrNull { t -> VcTemplateManager.loadTemplate(t).credentialSchema?.id == id.schema?.uri ?: "Unknown type" }}?.joinToString(",") ?: "<None>")
     }
   }
 }
@@ -229,7 +224,7 @@ class OidcVerificationGenUrlCommand: CliktCommand(name = "gen-url", help = "Get 
       redirect_uri = "${verifier_url.trimEnd('/')}/${verifier_path.trimStart('/')}",
       response_mode = response_mode,
       nonce = nonce ?: UUID.randomUUID().toString(),
-      claims = VCClaims(vp_token = VpTokenClaim(PresentationDefinition(schemaIds.map { InputDescriptor(VpSchema(it)) }))),
+      claims = VCClaims(vp_token = VpTokenClaim(PresentationDefinition("1", schemaIds.mapIndexed { idx, id -> InputDescriptor("$idx", schema = VCSchema(id)) }))),
       state = state
     )
     println("${client_url}?${req.toUriQueryString()}")
@@ -248,8 +243,8 @@ class OidcVerificationParseCommand: CliktCommand(name = "parse", help = "Parse S
     } else {
       println("Requested credentials:")
       req.claims?.vp_token?.presentation_definition?.input_descriptors?.forEach { id ->
-        println("- "  + (VcTemplateManager.getTemplateList().firstOrNull { t -> VcTemplateManager.loadTemplate(t).credentialSchema?.id == id.schema.uri } ?: "Unknown type"))
-        println("Schema ID: ${id.schema.uri}")
+        println("- "  + (VcTemplateManager.getTemplateList().firstOrNull { t -> VcTemplateManager.loadTemplate(t).credentialSchema?.id == id.schema?.uri } ?: "Unknown type"))
+        println("Schema ID: ${id.schema?.uri}")
       }
     }
   }

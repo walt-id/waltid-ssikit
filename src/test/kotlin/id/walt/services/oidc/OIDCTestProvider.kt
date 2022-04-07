@@ -4,7 +4,6 @@ import com.nimbusds.oauth2.sdk.*
 import com.nimbusds.oauth2.sdk.http.ServletUtils
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken
 import com.nimbusds.oauth2.sdk.token.RefreshToken
-import com.nimbusds.openid.connect.sdk.Nonce
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens
 import id.walt.auditor.Auditor
@@ -12,7 +11,7 @@ import id.walt.auditor.SignaturePolicy
 import id.walt.model.DidMethod
 import id.walt.model.dif.InputDescriptor
 import id.walt.model.dif.PresentationDefinition
-import id.walt.model.dif.VpSchema
+import id.walt.model.dif.VCSchema
 import id.walt.model.oidc.*
 import id.walt.services.did.DidService
 import id.walt.signatory.ProofConfig
@@ -27,7 +26,6 @@ import io.kotest.matchers.shouldNotBe
 import java.net.URI
 import io.javalin.apibuilder.ApiBuilder.*
 import io.kotest.matchers.collections.beEmpty
-import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNot
 import java.nio.charset.StandardCharsets
@@ -36,7 +34,7 @@ import java.util.*
 object OIDCTestProvider {
 
   val TEST_CREDENTIAL_CLAIM = CredentialClaim(type = VcTemplateManager.loadTemplate("VerifiableId").credentialSchema!!.id, manifest_id = null)
-  val TEST_VP_CLAIM = VpTokenClaim(PresentationDefinition(listOf(InputDescriptor(VpSchema(uri = VcTemplateManager.loadTemplate("VerifiableId").credentialSchema!!.id))), id = "1"))
+  val TEST_VP_CLAIM = VpTokenClaim(PresentationDefinition("1", listOf(InputDescriptor("1", schema = VCSchema(uri = VcTemplateManager.loadTemplate("VerifiableId").credentialSchema!!.id)))))
   val TEST_REQUEST_URI = "urn:ietf:params:oauth:request_uri:test"
   val TEST_AUTH_CODE = "testcode"
   val TEST_ACCESS_TOKEN = "testtoken"
