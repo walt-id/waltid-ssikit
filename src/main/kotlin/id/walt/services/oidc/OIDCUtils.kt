@@ -64,7 +64,7 @@ object OIDCUtils {
     }
   }
 
-  private fun matchesInputDescriptor(credential: VerifiableCredential, inputDescriptor: InputDescriptor): Boolean {
+  fun matchesInputDescriptor(credential: VerifiableCredential, inputDescriptor: InputDescriptor): Boolean {
     // for now: support
     // * schema.uri from presentation exchange 1.0
     // * field constraints from presentation exchange 2.0:
