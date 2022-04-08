@@ -3,11 +3,14 @@
 Notable changes since the last release of the [SSI Kit](https://github.com/walt-id/waltid-ssikit). 
 
 ## [Unreleased]
-- Features
-  - added Secp256k1, Ed25519 key import test cases for key command, key service, core api https://github.com/walt-id/waltid-ssikit/issues/116 
-  - added key delete command and tests for core api and key service https://github.com/walt-id/waltid-ssikit/issues/114
-  - Simple s3 storage implementation for HKV store  https://github.com/walt-id/waltid-ssikit/commit/e70e79e6c1d48832038038f3fa5974dd2f8231a6
-  - Presentation Exchange protocol 2.0 https://github.com/walt-id/waltid-ssikit/pull/127
+
+## [1.9.0] - 2022-04-08
+
+-   Features
+    -   added Secp256k1, Ed25519 key import test cases for key command, key service, core api <https://github.com/walt-id/waltid-ssikit/issues/116> 
+    -   added key delete command and tests for core api and key service <https://github.com/walt-id/waltid-ssikit/issues/114>
+    -   Simple s3 storage implementation for HKV store  <https://github.com/walt-id/waltid-ssikit/commit/e70e79e6c1d48832038038f3fa5974dd2f8231a6>
+    -   Presentation Exchange protocol 2.0 <https://github.com/walt-id/waltid-ssikit/pull/127>
 
 ## [1.8.0] - 2022-03-22
 
@@ -134,7 +137,9 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
     -   Fixed the way of finding the padding <https://github.com/walt-id/waltid-ssikit/pull/43>
     -   SignaturePolicy fails for issuers using did:ebsi <https://github.com/walt-id/waltid-ssikit/issues/52>
 
-[Unreleased]: https://github.com/walt-id/waltid-ssikit/compare/1.8.0...HEAD
+[Unreleased]: https://github.com/walt-id/waltid-ssikit/compare/1.9.0...HEAD
+
+[1.9.0]: https://github.com/walt-id/waltid-ssikit/compare/1.8.0...1.9.0
 
 [1.8.0]: https://github.com/walt-id/waltid-ssikit/compare/1.7.0...1.8.0
 
