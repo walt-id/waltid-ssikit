@@ -4,6 +4,7 @@ import com.nimbusds.jose.jwk.JWK
 import id.walt.crypto.*
 import id.walt.services.CryptoProvider
 import id.walt.services.keystore.KeyStoreService
+import mu.KotlinLogging
 import org.bouncycastle.asn1.ASN1ObjectIdentifier
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo
@@ -17,6 +18,8 @@ import java.security.PrivateKey
 import java.security.PublicKey
 import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
+
+private val log = KotlinLogging.logger {}
 
 interface KeyImportStrategy {
     fun import(keyStore: KeyStoreService): KeyId
@@ -54,7 +57,8 @@ class PEMImportImpl(val keyString: String) : KeyImportStrategy {
                 pemObj = parser.readObject()
                 pemObj?.run { pemObjs.add(this) }
             } while (pemObj != null)
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            log.debug { "Importing key ${e.message}" }
         }
         val kid = newKeyId()
         val keyPair = getKeyPair(*pemObjs.map { it }.toTypedArray())
