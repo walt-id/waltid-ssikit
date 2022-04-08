@@ -40,7 +40,8 @@ class KeyCommandTest : StringSpec({
     "3. key export"{
         forAll(
             row(KeyAlgorithm.ECDSA_Secp256k1),
-            row(KeyAlgorithm.EdDSA_Ed25519)
+            row(KeyAlgorithm.EdDSA_Ed25519),
+            row(KeyAlgorithm.RSA)
         ){ alg ->
             val key = KeyService.getService().generate(alg)
             ExportKeyCommand().parse(listOf(key.id))
@@ -53,10 +54,12 @@ class KeyCommandTest : StringSpec({
             row("src/test/resources/cli/privKeyEd25519Jwk.json","45674a4ac169f7f4716804393d20480138a"),
 //            Ed25519 pub key JWK
             row("src/test/resources/cli/pubKeyEd25519Jwk.json","12374a4ac169f7f4716804393d20480138a"),
-//            RSA priv key PEM
-            row("src/test/resources/key/privkey.pem",""),
-//            RSA pub key PEM
-            row("src/test/resources/key/pubkey.pem",""),
+//            RSA key PEM
+            row("src/test/resources/key/rsa.pem",""),
+//            Secp256k1 key PEM
+            row("src/test/resources/key/secp256k1.pem", ""),
+//            Ed25519 key PEM
+            row("src/test/resources/key/secp256k1.pem", ""),
 //            RSA priv key JWK
             row("src/test/resources/key/privkey.jwk", ""),
 //            Secp256k1 priv key JWK
