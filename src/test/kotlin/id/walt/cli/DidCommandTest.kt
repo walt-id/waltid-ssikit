@@ -59,7 +59,7 @@ class DidCommandTest : StringSpec({
     var didKeyRsa: String? = null
     "5. Create did:web RSA" {
         rsaKeyId = KeyService.getService()
-            .importKey(readWhenContent(Path.of("src/test/resources/key/privkey.pem")))
+            .importKey(readWhenContent(Path.of("src/test/resources/key/rsa.pem")))
 
         CreateDidCommand().parse(listOf("-m", "web", "-k", rsaKeyId!!.id, "test-dest.json"))
         /*didWebRsa = Path.of("test-dest.json")

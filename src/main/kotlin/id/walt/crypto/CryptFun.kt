@@ -10,7 +10,6 @@ import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.crypto.impl.ECDSA
 import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.jwk.ECKey
-import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jose.util.Base64URL
 import id.walt.model.EncryptedAke1Payload
 import id.walt.services.CryptoProvider
@@ -381,5 +380,3 @@ fun toECDSASignature(jcaSignature: ByteArray, keyAlgorithm: KeyAlgorithm): ECDSA
         ).toCanonicalised()
     }
 }
-
-fun convertPEMKeyToJWKKey(keyStr: String): String = JWK.parseFromPEMEncodedObjects(keyStr).toJSONString()

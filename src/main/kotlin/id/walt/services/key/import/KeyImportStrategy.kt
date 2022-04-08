@@ -29,7 +29,6 @@ abstract class KeyImportFactory {
             false -> JWKImportImpl(keyString)
         }
 
-        //TODO check using some sort of parser
         private fun isPEM(keyString: String) = keyString.startsWith("-----")
     }
 }
@@ -99,7 +98,7 @@ class PEMImportImpl(val keyString: String) : KeyImportStrategy {
         PKCSObjectIdentifiers.rsaEncryption -> KeyFactory.getInstance("RSA")
         ASN1ObjectIdentifier("1.3.101.112") -> KeyFactory.getInstance("Ed25519")
         ASN1ObjectIdentifier("1.2.840.10045.2.1") -> KeyFactory.getInstance("ECDSA")
-        else -> TODO()
+        else -> throw IllegalArgumentException("Algorithm not supported")
     }
 }
 

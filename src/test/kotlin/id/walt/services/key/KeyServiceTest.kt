@@ -3,7 +3,8 @@ package id.walt.services.key
 import com.beust.klaxon.Klaxon
 import com.google.crypto.tink.subtle.X25519
 import com.nimbusds.jose.jwk.JWK
-import id.walt.crypto.*
+import id.walt.crypto.KeyAlgorithm
+import id.walt.crypto.newKeyId
 import id.walt.model.Jwk
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.crypto.CryptoService
@@ -276,68 +277,29 @@ class KeyServiceTest : AnnotationSpec() {
 
     @Test
     fun testImportEd25519PEMKey() {
-        val privKeyPem = File("src/test/resources/key/privKeyEd25519.pem").readText()
-        val pubKeyPem = File("src/test/resources/key/pubKeyEd25519.pem").readText()
-        val kid = keyService.importKey(privKeyPem.plus(System.lineSeparator()).plus(pubKeyPem))
-        val privKey = keyService.export(kid.id, KeyFormat.PEM, KeyType.PRIVATE)
-        val pubKey = keyService.export(kid.id, KeyFormat.PEM)
-        privKey shouldBe privKeyPem
-        pubKey shouldBe pubKeyPem
-    }
-
-    @Test
-    fun testImportRSAPEMPrivKey(){
-        val keyStr = File("src/test/resources/key/privkey.pem").readText()
+        val keyStr = File("src/test/resources/key/ed25519.pem").readText()
         val kid = keyService.importKey(keyStr)
         val privKey = keyService.export(kid.id, KeyFormat.PEM, KeyType.PRIVATE)
-        privKey shouldBe keyStr
+        val pubKey = keyService.export(kid.id, KeyFormat.PEM)
+        privKey.plus(System.lineSeparator()).plus(pubKey) shouldBe keyStr
     }
 
     @Test
     fun testImportRSAPEMKeys(){
-        val privKeyPem = File("src/test/resources/key/privkey.pem").readText()
-        val pubKeyPem = File("src/test/resources/key/pubkey.pem").readText()
-        val kid = keyService.importKey(privKeyPem.plus(System.lineSeparator()).plus(pubKeyPem))
+        val keyStr = File("src/test/resources/key/rsa.pem").readText()
+        val kid = keyService.importKey(keyStr)
         val privKey = keyService.export(kid.id, KeyFormat.PEM, KeyType.PRIVATE)
         val pubKey = keyService.export(kid.id, KeyFormat.PEM, KeyType.PUBLIC)
-        privKey shouldBe privKeyPem
-        pubKey shouldBe pubKeyPem
+        privKey.plus(System.lineSeparator()).plus(pubKey) shouldBe keyStr
     }
 
-//    @Test TODO: key factory for Secp256k1 algorithm not available
     @Test
     fun testImportSecp256k1PEMKey(){
-        val privKeyPem = File("src/test/resources/key/privKeySecp256k1.pem").readText()
-        val pubKeyPem = File("src/test/resources/key/pubKeySecp256k1.pem").readText()
-        val kid = keyService.importKey(privKeyPem.plus(System.lineSeparator()).plus(pubKeyPem))
+        val keyStr = File("src/test/resources/key/secp256k1.pem").readText()
+        val kid = keyService.importKey(keyStr)
         val privKey = keyService.export(kid.id, KeyFormat.PEM, KeyType.PRIVATE)
         val pubKey = keyService.export(kid.id, KeyFormat.PEM)
-        privKey shouldBe privKeyPem
-        pubKey shouldBe pubKeyPem
-    }
-
-    @Test
-    fun testDecodeEd25519PEMPrivateKey(){
-        val keyStr = File("src/test/resources/key/privKeyEd25519.pem").readText()
-        val key = decodePrivKeyPem(keyStr, KeyFactory.getInstance("Ed25519"))
-        val keyEnc = key.toPEM()
-        keyEnc shouldBe keyStr
-    }
-
-    @Test
-    fun testDecodeEd25519PEMPublicKey(){
-        val keyStr = File("src/test/resources/key/pubKeyEd25519.pem").readText()
-        val key = decodePubKeyPem(keyStr, KeyFactory.getInstance("Ed25519"))
-        val keyEnc = key.toPEM()
-        keyEnc shouldBe keyStr
-    }
-
-    @Test
-    fun testDecodeSecp256k1PEMPublicKey(){
-        val keyStr = File("src/test/resources/key/pubKeySecp256k1.pem").readText()
-        val key = decodePubKeyPem(keyStr, KeyFactory.getInstance("Secp256k1"))
-        val keyEnc = key.toPEM()
-        keyEnc shouldBe keyStr
+        privKey.plus(System.lineSeparator()).plus(pubKey) shouldBe keyStr
     }
 
     @Test
