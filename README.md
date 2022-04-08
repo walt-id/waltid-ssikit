@@ -37,14 +37,14 @@ The easiest way to getting your hands dirty and to "play" with the functions the
 
 _Gradle_
 
-        implementation("id.walt:waltid-ssi-kit:1.8.0")
+        implementation("id.walt:waltid-ssi-kit:1.9.0")
 
 _Maven_
 
         <dependency>
             <groupId>id.walt</groupId>
             <artifactId>waltid-ssi-kit</artifactId>
-            <version>1.8.0</version>
+            <version>1.9.0</version>
         </dependency>
     
 Please go ahead and find further CLI commands and well as other ways how to use the SSI Kit in the documentation section below.
