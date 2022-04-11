@@ -4,7 +4,6 @@ import com.beust.klaxon.Klaxon
 import com.google.crypto.tink.subtle.X25519
 import com.nimbusds.jose.jwk.JWK
 import id.walt.crypto.KeyAlgorithm
-import id.walt.crypto.newKeyId
 import id.walt.model.Jwk
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.crypto.CryptoService
