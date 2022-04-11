@@ -4,11 +4,15 @@ import id.walt.common.readWhenContent
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyAlgorithm.*
 import id.walt.crypto.KeyId
+import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
 import id.walt.services.key.KeyService
 import id.walt.test.RESOURCES_PATH
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.data.blocking.forAll
+import io.kotest.data.row
 import io.kotest.matchers.shouldBe
 import java.io.File
 import java.nio.file.Path
@@ -86,6 +90,28 @@ class DidCommandTest : StringSpec({
     "7. Resolve RSA did:key" {
         println(didKeyRsa!!)
         ResolveDidCommand().parse(listOf("-d", didKeyRsa!!))
+    }
+
+    "8. delete did"{
+        forAll(
+            row(DidMethod.key, null),
+            row(DidMethod.web, null),
+            row(DidMethod.ebsi, null),
+            row(DidMethod.key, KeyService.getService().generate(ECDSA_Secp256k1).id),
+            row(DidMethod.key, KeyService.getService().generate(EdDSA_Ed25519).id),
+            row(DidMethod.key, KeyService.getService().generate(RSA).id),
+            row(DidMethod.web, KeyService.getService().generate(ECDSA_Secp256k1).id),
+            row(DidMethod.web, KeyService.getService().generate(EdDSA_Ed25519).id),
+            row(DidMethod.web, KeyService.getService().generate(RSA).id),
+            row(DidMethod.ebsi, KeyService.getService().generate(ECDSA_Secp256k1).id),
+            row(DidMethod.ebsi, KeyService.getService().generate(EdDSA_Ed25519).id),
+            row(DidMethod.ebsi, KeyService.getService().generate(RSA).id),
+        ){ method, key ->
+            val did = DidService.create(method, key)
+//            val ids = DidService.load(did).verificationMethod?.map { it.id }
+            // delete
+            DeleteDidCommand().parse(listOf("-d", did))
+        }
     }
 })
 
