@@ -136,6 +136,23 @@ class CustodianApiTest : StringSpec({
         }
     }
 
+    "Test delete key"{
+        forAll(
+            row(KeyAlgorithm.ECDSA_Secp256k1),
+            row(KeyAlgorithm.EdDSA_Ed25519),
+            row(KeyAlgorithm.RSA),
+        ){ alg ->
+            val kid = KeyService.getService().generate(alg)
+            val response = runBlocking{
+                client.delete<HttpResponse>("http://${CustodianAPI.DEFAULT_BIND_ADDRESS}:${CustodianAPI.DEFAULT_Custodian_API_PORT}/keys/${kid.id}")
+            }
+            response.status shouldBe HttpStatusCode.OK
+            shouldThrow<Exception> {
+                KeyService.getService().load(kid.id)
+            }
+        }
+    }
+
     "Test delete did"{
         forAll(
             row(DidMethod.key, null),
