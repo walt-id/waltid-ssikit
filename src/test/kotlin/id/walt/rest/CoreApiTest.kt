@@ -27,6 +27,8 @@ import id.walt.vclib.model.toCredential
 import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.AnnotationSpec
+import io.kotest.data.blocking.forAll
+import io.kotest.data.row
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.ktor.client.*
@@ -362,6 +364,31 @@ class CoreApiTest : AnnotationSpec() {
         println("Credential decoded: $vcDecoded")
         val vcEncoded = vcDecoded.encode()
         println("Credential encoded: $vcEncoded")
+    }
+
+    @Test
+    fun testDidDelete() {
+        forAll(
+            row(DidMethod.key, null),
+            row(DidMethod.web, null),
+            row(DidMethod.ebsi, null),
+            row(DidMethod.key, keyService.generate(KeyAlgorithm.ECDSA_Secp256k1).id),
+            row(DidMethod.key, keyService.generate(KeyAlgorithm.EdDSA_Ed25519).id),
+            row(DidMethod.key, keyService.generate(KeyAlgorithm.RSA).id),
+            row(DidMethod.web, keyService.generate(KeyAlgorithm.ECDSA_Secp256k1).id),
+            row(DidMethod.web, keyService.generate(KeyAlgorithm.EdDSA_Ed25519).id),
+            row(DidMethod.web, keyService.generate(KeyAlgorithm.RSA).id),
+            row(DidMethod.ebsi, keyService.generate(KeyAlgorithm.ECDSA_Secp256k1).id),
+            row(DidMethod.ebsi, keyService.generate(KeyAlgorithm.EdDSA_Ed25519).id),
+            row(DidMethod.ebsi, keyService.generate(KeyAlgorithm.RSA).id),
+        ) { method, key ->
+            val did = DidService.create(method, key)
+            val response = runBlocking { client.delete<HttpResponse>("$CORE_API_URL/v1/did/$did") }
+            response.status shouldBe HttpStatusCode.OK
+            shouldThrow<Exception> {
+                DidService.load(did)
+            }
+        }
     }
 
     @Test

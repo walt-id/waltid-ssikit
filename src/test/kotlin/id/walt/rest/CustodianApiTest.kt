@@ -17,6 +17,7 @@ import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.toCredential
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.common.runBlocking
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.data.blocking.forAll
@@ -27,6 +28,7 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.features.json.*
 import io.ktor.client.features.json.serializer.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 
 class CustodianApiTest : StringSpec({
@@ -105,7 +107,7 @@ class CustodianApiTest : StringSpec({
         Auditor.getService().verify(response, listOf(SignaturePolicy())).valid shouldBe true
     }
 
-    "Test export"{
+    "Test export key"{
         forAll(
             row(KeyAlgorithm.ECDSA_Secp256k1, KeyFormat.JWK, true),
             row(KeyAlgorithm.EdDSA_Ed25519, KeyFormat.JWK, true),
@@ -131,6 +133,32 @@ class CustodianApiTest : StringSpec({
             println(response)
             response shouldBe KeyService.getService()
                 .export(kid.id, format, if (isPrivate) KeyType.PRIVATE else KeyType.PUBLIC)
+        }
+    }
+
+    "Test delete did"{
+        forAll(
+            row(DidMethod.key, null),
+            row(DidMethod.web, null),
+            row(DidMethod.ebsi, null),
+            row(DidMethod.key, KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1).id),
+            row(DidMethod.key, KeyService.getService().generate(KeyAlgorithm.EdDSA_Ed25519).id),
+            row(DidMethod.key, KeyService.getService().generate(KeyAlgorithm.RSA).id),
+            row(DidMethod.web, KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1).id),
+            row(DidMethod.web, KeyService.getService().generate(KeyAlgorithm.EdDSA_Ed25519).id),
+            row(DidMethod.web, KeyService.getService().generate(KeyAlgorithm.RSA).id),
+            row(DidMethod.ebsi, KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1).id),
+            row(DidMethod.ebsi, KeyService.getService().generate(KeyAlgorithm.EdDSA_Ed25519).id),
+            row(DidMethod.ebsi, KeyService.getService().generate(KeyAlgorithm.RSA).id),
+        ){ method, key ->
+            val did = DidService.create(method, key)
+            val response = runBlocking {
+                client.delete<HttpResponse>("http://${CustodianAPI.DEFAULT_BIND_ADDRESS}:${CustodianAPI.DEFAULT_Custodian_API_PORT}/did/$did")
+            }
+            response.status shouldBe HttpStatusCode.OK
+            shouldThrow<Exception> {
+                DidService.load(did)
+            }
         }
     }
 
