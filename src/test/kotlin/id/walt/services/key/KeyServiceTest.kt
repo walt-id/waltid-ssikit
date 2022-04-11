@@ -14,6 +14,8 @@ import id.walt.services.keystore.KeyType
 import id.walt.test.RESOURCES_PATH
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.AnnotationSpec
+import io.kotest.data.blocking.forAll
+import io.kotest.data.row
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.shouldBe
@@ -228,78 +230,43 @@ class KeyServiceTest : AnnotationSpec() {
     }
 
     @Test
-    fun testImportEd25519JwkPrivKey() {
-        val kid = newKeyId()
-        val jwkImport =
-            """{"kty":"OKP","d":"NzNkDxp2OPyplpxvxSmKtHCul2tQ_7QNuameOTKd6uY","use":"sig","crv":"Ed25519","kid":"${kid}","x":"4t6ROMKS2g9hwguVM-u9LzR06spoS__YyaOOvrtSFiI","alg":"EdDSA"}"""
-        keyService.importKey(jwkImport)
-        println(jwkImport)
-        val jwkExported = keyService.export(kid.id, KeyFormat.JWK, KeyType.PRIVATE)
-        print(jwkExported)
-        jwkImport shouldBe jwkExported
+    fun testImportJWKKey(){
+        forAll(
+//            Ed25519 Private
+            row(File("src/test/resources/cli/privKeyEd25519Jwk.json").readText().replace(Regex("(\r\n|\r|\n| )"), ""), KeyType.PRIVATE),
+//            Ed25519 Public
+            row(File("src/test/resources/cli/pubKeyEd25519Jwk.json").readText().replace(Regex("(\r\n|\r|\n| )"), ""), KeyType.PUBLIC),
+//            Secp256k1 Private
+            row(File("src/test/resources/key/privKeySecp256k1Jwk.json").readText().replace(Regex("(\r\n|\r|\n| )"), ""), KeyType.PRIVATE),
+//            Secp256k1 Public
+            row(File("src/test/resources/key/pubKeySecp256k1Jwk.json").readText().replace(Regex("(\r\n|\r|\n| )"), ""), KeyType.PUBLIC),
+//            RSA Private
+            row(File("src/test/resources/key/privkey.jwk").readText().replace(Regex("(\r\n|\r|\n| )"), ""), KeyType.PRIVATE),
+//            RSA Public
+            row(File("src/test/resources/key/pubkey.jwk").readText().replace(Regex("(\r\n|\r|\n| )"), ""), KeyType.PUBLIC),
+        ){ keyStr, type ->
+            val kid = keyService.importKey(keyStr)
+            val export = keyService.export(kid.id, KeyFormat.JWK, type)
+            print(export)
+            export shouldBe keyStr
+        }
     }
 
     @Test
-    fun testImportEd25519JwkPubKey() {
-        val kid = newKeyId()
-        val jwkImport =
-            """{"kty":"OKP","use":"sig","crv":"Ed25519","kid":"${kid}","x":"cU4CewjU2Adq8pxjfObrVg9u8svRP2JRC72zZdvFftI","alg":"EdDSA"}"""
-        keyService.importKey(jwkImport)
-        println(jwkImport)
-        val jwkExported = keyService.export(kid.id, KeyFormat.JWK)
-        print(jwkExported)
-        jwkImport shouldBe jwkExported
-    }
-
-    @Test
-    fun testImportSecp256k1JwkPrivKey() {
-        val kid = newKeyId()
-        val jwkImport =
-            """{"kty":"EC","d":"rhYFsBPF9q3-uZThy7B3c4LDF_8wnozFUAEm5LLC4Zw","use":"sig","crv":"secp256k1","kid":"${kid}","x":"ZxPG-mkME3AE19H-_-Z0vQacNTtD_4rChcUJqoiJZ5w","y":"EPS4M1CiFoi-psyUNR8otGoNOCm0OvQY_i4fxf4shJY","alg":"ES256K"}"""
-        keyService.importKey(jwkImport)
-        println(jwkImport)
-        val jwkExported = keyService.export(kid.id, KeyFormat.JWK, KeyType.PRIVATE)
-        print(jwkExported)
-        jwkImport shouldBe jwkExported
-    }
-
-    @Test
-    fun testImportSecp256k1JwkPubKey() {
-        val kid = newKeyId()
-        val jwkImport =
-            """{"kty":"EC","use":"sig","crv":"secp256k1","kid":"${kid}","x":"ZxPG-mkME3AE19H-_-Z0vQacNTtD_4rChcUJqoiJZ5w","y":"EPS4M1CiFoi-psyUNR8otGoNOCm0OvQY_i4fxf4shJY","alg":"ES256K"}"""
-        keyService.importKey(jwkImport)
-        println(jwkImport)
-        val jwkExported = keyService.export(kid.id, KeyFormat.JWK)
-        print(jwkExported)
-        jwkImport shouldBe jwkExported
-    }
-
-    @Test
-    fun testImportEd25519PEMKey() {
-        val keyStr = File("src/test/resources/key/ed25519.pem").readText()
-        val kid = keyService.importKey(keyStr)
-        val privKey = keyService.export(kid.id, KeyFormat.PEM, KeyType.PRIVATE)
-        val pubKey = keyService.export(kid.id, KeyFormat.PEM)
-        privKey.plus(System.lineSeparator()).plus(pubKey) shouldBe keyStr
-    }
-
-    @Test
-    fun testImportRSAPEMKeys(){
-        val keyStr = File("src/test/resources/key/rsa.pem").readText()
-        val kid = keyService.importKey(keyStr)
-        val privKey = keyService.export(kid.id, KeyFormat.PEM, KeyType.PRIVATE)
-        val pubKey = keyService.export(kid.id, KeyFormat.PEM, KeyType.PUBLIC)
-        privKey.plus(System.lineSeparator()).plus(pubKey) shouldBe keyStr
-    }
-
-    @Test
-    fun testImportSecp256k1PEMKey(){
-        val keyStr = File("src/test/resources/key/secp256k1.pem").readText()
-        val kid = keyService.importKey(keyStr)
-        val privKey = keyService.export(kid.id, KeyFormat.PEM, KeyType.PRIVATE)
-        val pubKey = keyService.export(kid.id, KeyFormat.PEM)
-        privKey.plus(System.lineSeparator()).plus(pubKey) shouldBe keyStr
+    fun testImportPEMKey(){
+        forAll(
+//            RSA PEM
+            row(File("src/test/resources/key/rsa.pem").readText()),
+//            Ed25519 PEM
+            row(File("src/test/resources/key/ed25519.pem").readText()),
+//            Secp256k1 PEM
+            row(File("src/test/resources/key/secp256k1.pem").readText()),
+        ){ keyStr ->
+            val kid = keyService.importKey(keyStr)
+            val privKey = keyService.export(kid.id, KeyFormat.PEM, KeyType.PRIVATE)
+            val pubKey = keyService.export(kid.id, KeyFormat.PEM, KeyType.PUBLIC)
+            privKey.plus(System.lineSeparator()).plus(pubKey) shouldBe keyStr
+        }
     }
 
     @Test
