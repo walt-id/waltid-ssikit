@@ -23,7 +23,6 @@ data class ExportKeyRequest(
 object CustodianController {
 
     private val custodian = Custodian.getService()
-    private val keyService = KeyService.getService()
 
     /* Keys */
 
@@ -108,7 +107,7 @@ object CustodianController {
     fun exportKey(ctx: Context) {
         val req = ctx.bodyAsClass(id.walt.rest.core.ExportKeyRequest::class.java)
         ctx.result(
-            keyService.export(
+            custodian.exportKey(
                 req.keyAlias,
                 req.format,
                 if (req.exportPrivate) KeyType.PRIVATE else KeyType.PUBLIC
