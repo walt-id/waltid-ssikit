@@ -54,12 +54,12 @@ object DidController {
     }.json<String>("200")
 
     fun delete(ctx: Context) {
-        ctx.json("todo")
+        DidService.deleteDid(ctx.pathParam("id"))
     }
 
     fun deleteDocs() = document().operation {
-        it.summary("Delete DID").operationId("deleteDid").addTagsItem("Decentralized Identifiers")
-    }.body<String> { it.description("ID of the DID to be deleted") }.json<String>("200")
+        it.summary("Delete DID by url").operationId("deleteDid").addTagsItem("Decentralized Identifiers")
+    }.json<String>("200") { it.description("Http OK") }
 
     fun create(ctx: Context) {
         val req = ctx.bodyAsClass(CreateDidRequest::class.java)

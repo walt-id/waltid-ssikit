@@ -12,7 +12,10 @@ import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.key.KeyService
 import id.walt.test.RESOURCES_PATH
 import io.kotest.assertions.json.shouldMatchJson
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.AnnotationSpec
+import io.kotest.data.blocking.forAll
+import io.kotest.data.row
 import io.kotest.matchers.collections.shouldBeOneOf
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -191,5 +194,34 @@ class DidServiceTest : AnnotationSpec() {
         did?.javaClass shouldBe DidEbsi::class.java
         println(did?.encodePretty())
         did?.encodePretty() shouldMatchJson didDoc
+    }
+
+    @Test
+    fun testDeleteDid() {
+        forAll(
+            row(DidMethod.key, null),
+            row(DidMethod.web, null),
+            row(DidMethod.ebsi, null),
+            row(DidMethod.key, keyService.generate(KeyAlgorithm.ECDSA_Secp256k1).id),
+            row(DidMethod.key, keyService.generate(KeyAlgorithm.EdDSA_Ed25519).id),
+            row(DidMethod.key, keyService.generate(KeyAlgorithm.RSA).id),
+            row(DidMethod.web, keyService.generate(KeyAlgorithm.ECDSA_Secp256k1).id),
+            row(DidMethod.web, keyService.generate(KeyAlgorithm.EdDSA_Ed25519).id),
+            row(DidMethod.web, keyService.generate(KeyAlgorithm.RSA).id),
+            row(DidMethod.ebsi, keyService.generate(KeyAlgorithm.ECDSA_Secp256k1).id),
+            row(DidMethod.ebsi, keyService.generate(KeyAlgorithm.EdDSA_Ed25519).id),
+            row(DidMethod.ebsi, keyService.generate(KeyAlgorithm.RSA).id),
+        ) { method, kid ->
+            val did = ds.create(method, kid)
+            val ids = ds.load(did).verificationMethod?.map { it.id }
+            ds.deleteDid(did)
+            shouldThrow<Exception> { ds.load(did) }
+            ids?.forEach {
+                println(it)
+                shouldThrow<Exception> {
+                    keyService.load(it)
+                }
+            }
+        }
     }
 }

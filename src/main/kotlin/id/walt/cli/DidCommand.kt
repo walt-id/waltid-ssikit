@@ -144,21 +144,25 @@ class ImportDidCommand : CliktCommand(
     name = "import",
     help = "Import DID to custodian store"
 ) {
-    val keyId: String? by option("-k", "--key-id", help = "Specify key ID for imported did, if left empty, only public key will be imported")
+    val keyId: String? by option(
+        "-k",
+        "--key-id",
+        help = "Specify key ID for imported did, if left empty, only public key will be imported"
+    )
     val didOrDoc: String by mutuallyExclusiveOptions(
         option("-f", "--file", help = "Load the DID document from the given file"),
         option("-d", "--did", help = "Try to resolve DID document for the given DID")
     ).single().required()
 
     override fun run() {
-        val did = when(DidUrl.isDidUrl(didOrDoc)) {
+        val did = when (DidUrl.isDidUrl(didOrDoc)) {
             true -> didOrDoc.also {
                 DidService.importDid(didOrDoc)
             }
             else -> DidService.importDidFromFile(File(didOrDoc))
         }
 
-        if(!keyId.isNullOrEmpty()) {
+        if (!keyId.isNullOrEmpty()) {
             DidService.setKeyIdForDid(did, keyId!!)
         } else {
             DidService.importKey(did)
@@ -168,3 +172,16 @@ class ImportDidCommand : CliktCommand(
     }
 }
 
+class DeleteDidCommand : CliktCommand(
+    name = "delete",
+    help = "Delete DID to custodian store"
+) {
+    val did: String by option("-d", "--did", help = "DID to be deleted").required()
+
+    override fun run() {
+        echo("Deleting \"$did\"...")
+
+        echo("\nDid deleted:\"$did\"\n")
+        DidService.deleteDid(did)
+    }
+}

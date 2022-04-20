@@ -93,7 +93,8 @@ object WaltCLI {
                         CreateDidCommand(),
                         ResolveDidCommand(),
                         ListDidsCommand(),
-                        ImportDidCommand()
+                        ImportDidCommand(),
+                        DeleteDidCommand()
                     ),
                     VcCommand().subcommands(
                         VcIssueCommand(),

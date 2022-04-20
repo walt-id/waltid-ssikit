@@ -389,6 +389,15 @@ object DidService {
         }
     }
 
+    fun deleteDid(didUrl: String){
+        loadOrResolveAnyDid(didUrl)?.let { did ->
+            ContextManager.hkvStore.delete(HKVKey("did", "created", didUrl), recursive = true)
+            did.verificationMethod?.forEach {
+                ContextManager.keyStore.delete(it.id)
+            }
+        }
+    }
+
     private fun tryImportKeyPem(did: String, vm: VerificationMethod): Boolean {
 
         vm.publicKeyPem ?: return false
