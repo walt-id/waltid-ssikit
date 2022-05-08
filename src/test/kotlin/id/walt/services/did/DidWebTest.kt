@@ -11,6 +11,7 @@ import id.walt.services.key.KeyService
 import id.walt.test.RESOURCES_PATH
 import io.kotest.core.spec.Spec
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.core.test.TestCase
 import io.kotest.matchers.shouldBe
 import kotlin.time.ExperimentalTime
 
@@ -98,8 +99,8 @@ class DidWebTest : StringSpec({
 
 }) {
 
-    override fun beforeSpec(spec: Spec) {
-        super.beforeSpec(spec)
+    override suspend fun beforeTest(testCase: TestCase) {
+        super.beforeTest(testCase)
 
         ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
     }

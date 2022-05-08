@@ -8,11 +8,11 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldStartWith
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
-import io.ktor.client.features.json.*
-import io.ktor.client.features.json.serializer.*
+import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.runBlocking
 
 class EssifApiTest : AnnotationSpec() {
@@ -20,8 +20,8 @@ class EssifApiTest : AnnotationSpec() {
     val ESSIF_API_URL = "http://localhost:7012"
 
     val client = HttpClient(CIO) {
-        install(JsonFeature) {
-            serializer = KotlinxSerializer()
+        install(ContentNegotiation) {
+            json()
         }
     }
 
@@ -41,37 +41,37 @@ class EssifApiTest : AnnotationSpec() {
 
     @Test
     fun testHealth() = runBlocking {
-        val response = client.get<HttpResponse>("$ESSIF_API_URL/health")
-        "OK" shouldBe response.readText()
+        val response = client.get("$ESSIF_API_URL/health")
+        "OK" shouldBe response.bodyAsText()
     }
 
     // @Test // Make sure that this EBSI DID got registered before and that all the meta-data is stored in folder data/ebsi.
     fun testTimestamp() = runBlocking {
         val did = "did:ebsi:z22LYRkZSiFLnfydBWuraxBQ"
         val ethDidAlias = did
-        val resp = client.post<String>("$ESSIF_API_URL/v1/client/timestamp") {
+        val resp = client.post("$ESSIF_API_URL/v1/client/timestamp") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
-            body = EbsiTimestampRequest(did, ethDidAlias, "{ \"my\": \"data\"}")
-        }
+            setBody(EbsiTimestampRequest(did, ethDidAlias, "{ \"my\": \"data\"}"))
+        }.bodyAsText()
         resp shouldStartWith "0x"
     }
 
     //@Test // disabled for now, as it times out on github builds
     fun testTimestampByTxHash() = runBlocking {
-        val resp = client.get<String>("$ESSIF_API_URL/v1/client/timestamp/txhash/0x42348e1ee94cc78d5e5494f71b502416aa566b626151f8dee333804f061bda1d") {
+        val resp = client.get("$ESSIF_API_URL/v1/client/timestamp/txhash/0x42348e1ee94cc78d5e5494f71b502416aa566b626151f8dee333804f061bda1d") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
-        }
+        }.bodyAsText()
         println(resp)
     }
 
     @Test
     fun testTimestampById() = runBlocking {
-        val resp = client.get<String>("$ESSIF_API_URL/v1/client/timestamp/id/uEiAUrAvVUpM5GymJQXsNUSvAPzIq_OaaX8uhdpSW5GjZJw") {
+        val resp = client.get("$ESSIF_API_URL/v1/client/timestamp/id/uEiAUrAvVUpM5GymJQXsNUSvAPzIq_OaaX8uhdpSW5GjZJw") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
-        }
+        }.bodyAsText()
         println(resp)
     }
 

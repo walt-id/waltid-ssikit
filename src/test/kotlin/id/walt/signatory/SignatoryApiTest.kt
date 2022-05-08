@@ -19,12 +19,13 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldStartWith
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
-import io.ktor.client.features.json.*
-import io.ktor.client.features.json.serializer.*
+import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.runBlocking
 
 class SignatoryApiTest : AnnotationSpec() {
@@ -38,8 +39,8 @@ class SignatoryApiTest : AnnotationSpec() {
     val SIGNATORY_API_URL = "http://$SIGNATORY_API_HOST:$SIGNATORY_API_PORT"
 
     val client = HttpClient(CIO) {
-        install(JsonFeature) {
-            serializer = KotlinxSerializer()
+        install(ContentNegotiation) {
+            json()
         }
         expectSuccess = false
     }
@@ -56,15 +57,15 @@ class SignatoryApiTest : AnnotationSpec() {
 
     @Test
     fun testHealth() = runBlocking {
-        val response: HttpResponse = client.get("$SIGNATORY_API_URL/health")
-        response.readText() shouldBe "OK"
+        val response = client.get("$SIGNATORY_API_URL/health").bodyAsText()
+        response shouldBe "OK"
     }
 
     @Test
     fun testListVcTemplates() = runBlocking {
-        val templates = client.get<List<String>>("$SIGNATORY_API_URL/v1/templates") {
+        val templates = client.get("$SIGNATORY_API_URL/v1/templates") {
             contentType(ContentType.Application.Json)
-        }
+        }.body<List<String>>()
 
         VcTemplateManager.getTemplateList().forEach { templateName -> templates shouldContain templateName }
 
@@ -78,9 +79,9 @@ class SignatoryApiTest : AnnotationSpec() {
 
         VcTemplateManager.getTemplateList().forEach { templateName ->
 
-            val templateJson = client.get<String>("$SIGNATORY_API_URL/v1/templates/$templateName") {
+            val templateJson = client.get("$SIGNATORY_API_URL/v1/templates/$templateName") {
                 contentType(ContentType.Application.Json)
-            }
+            }.bodyAsText()
 
             templateJson shouldContain templateName
         }
@@ -88,9 +89,9 @@ class SignatoryApiTest : AnnotationSpec() {
 
     @Test
     fun testLoadEuropass() = runBlocking {
-        val europassJson = client.get<String>("$SIGNATORY_API_URL/v1/templates/Europass") {
+        val europassJson = client.get("$SIGNATORY_API_URL/v1/templates/Europass") {
             contentType(ContentType.Application.Json)
-        }
+        }.bodyAsText()
 
         europassJson shouldEqualJson Europass.template!!.invoke().encode()
     }

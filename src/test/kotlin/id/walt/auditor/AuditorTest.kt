@@ -11,6 +11,7 @@ import id.walt.test.DummySignatoryDataProvider
 import id.walt.test.RESOURCES_PATH
 import io.kotest.core.spec.Spec
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.core.test.TestCase
 import io.kotest.matchers.collections.shouldBeSameSizeAs
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
@@ -22,8 +23,8 @@ class AuditorCommandTest : StringSpec() {
     private lateinit var vpStr: String
     private lateinit var vpJwt: String
 
-    override fun beforeSpec(spec: Spec) {
-        super.beforeSpec(spec)
+    override suspend fun beforeTest(testCase: TestCase) {
+        super.beforeTest(testCase)
 
         ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
 

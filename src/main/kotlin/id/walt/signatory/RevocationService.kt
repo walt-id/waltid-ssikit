@@ -2,10 +2,12 @@ package id.walt.signatory
 
 import com.beust.klaxon.Json
 import com.beust.klaxon.Klaxon
+import kotlinx.serialization.Serializable
 import org.apache.commons.codec.digest.DigestUtils
 import org.bouncycastle.util.encoders.Base32.toBase32String
 import org.joda.time.DateTimeZone
 import org.joda.time.LocalDateTime
+import java.time.Instant
 import kotlin.io.path.*
 
 object RevocationService {
@@ -18,10 +20,11 @@ object RevocationService {
 
     data class RevocationList(val revokedList: List<RevocationResult>)
 
+    @Serializable
     data class RevocationResult(
         val token: String,
         val isRevoked: Boolean,
-        @Json(serializeNull = false) val timeOfRevocation: LocalDateTime? = null
+        @Json(serializeNull = false) val timeOfRevocation: Long? = null
     )
 
     private fun getRevokedList() = klaxon.parse<RevocationList>(revokedPath.readText())!!.revokedList
@@ -40,7 +43,7 @@ object RevocationService {
         if (baseToken.length != 72) throw IllegalArgumentException("base token has to have 72 chars (uuiduuid)")
         val token = getRevocationToken(baseToken)
         val revoked = getRevokedList().toMutableList().apply {
-            add(RevocationResult(token, true, LocalDateTime.now(DateTimeZone.UTC)))
+            add(RevocationResult(token, true, Instant.now().toEpochMilli()))
         }
         setRevokedList(RevocationList(revoked))
     }

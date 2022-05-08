@@ -8,7 +8,9 @@ import id.walt.services.WaltIdServices
 import id.walt.services.essif.didebsi.EBSI_ENV_URL
 import id.walt.services.essif.enterprisewallet.EnterpriseWalletService
 import id.walt.services.essif.mock.DidRegistry
+import io.ktor.client.call.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
@@ -40,19 +42,19 @@ object TrustedIssuerClient {
 //    }
 
     fun generateAuthenticationRequest(): String = runBlocking {
-        return@runBlocking WaltIdServices.http.post<String>("$trustedIssuerUrl/generateAuthenticationRequest") {
+        return@runBlocking WaltIdServices.http.post("$trustedIssuerUrl/generateAuthenticationRequest") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
-        }
+        }.bodyAsText()
     }
 
 
     fun openSession(authResp: String): String = runBlocking {
-        return@runBlocking WaltIdServices.http.post<String>("$trustedIssuerUrl/openSession") {
+        return@runBlocking WaltIdServices.http.post("$trustedIssuerUrl/openSession") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
-            body = authResp
-        }
+            setBody(authResp)
+        }.body<String>()
     }
 
 
@@ -60,41 +62,41 @@ object TrustedIssuerClient {
     // Used for registering DID EBSI
 
     fun authenticationRequests(): AuthRequestResponse = runBlocking {
-        return@runBlocking WaltIdServices.http.post<AuthRequestResponse>("$onboarding/authentication-requests") {
+        return@runBlocking WaltIdServices.http.post("$onboarding/authentication-requests") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
-            body = mapOf("scope" to "ebsi users onboarding")
-        }
+            setBody(mapOf("scope" to "ebsi users onboarding"))
+        }.body<AuthRequestResponse>()
     }
 
     fun authenticationResponse(idToken: String, bearerToken: String): String = runBlocking {
-        return@runBlocking WaltIdServices.http.post<String>("$onboarding/authentication-responses") {
+        return@runBlocking WaltIdServices.http.post("$onboarding/authentication-responses") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
             headers {
                 append(HttpHeaders.Authorization, "Bearer $bearerToken")
             }
-            body = mapOf("id_token" to idToken)
-        }
+            setBody(mapOf("id_token" to idToken))
+        }.bodyAsText()
     }
 
     fun siopSession(idToken: String): String = runBlocking {
-        return@runBlocking WaltIdServices.http.post<String>("$authorisation/siop-sessions") {
+        return@runBlocking WaltIdServices.http.post("$authorisation/siop-sessions") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
-            body = mapOf("id_token" to idToken)
-        }
+            setBody(mapOf("id_token" to idToken))
+        }.bodyAsText()
     }
 
     fun siopSessionBearer(idToken: String, bearerToken: String): String = runBlocking {
-        return@runBlocking WaltIdServices.http.post<String>("$authorisation/siop-sessions") {
+        return@runBlocking WaltIdServices.http.post("$authorisation/siop-sessions") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
             headers {
                 append(HttpHeaders.Authorization, "Bearer $bearerToken")
             }
-            body = mapOf("id_token" to idToken)
-        }
+            setBody(mapOf("id_token" to idToken))
+        }.bodyAsText()
     }
 
     // GET /issuers/{did}
@@ -102,7 +104,8 @@ object TrustedIssuerClient {
     fun getIssuerRaw(did: String): String = runBlocking {
         log.debug { "Getting trusted issuer with DID $did" }
 
-        val trustedIssuer: String = WaltIdServices.http.get("https://api.preprod.ebsi.eu/trusted-issuers-registry/v2/issuers/$did")
+        val trustedIssuer: String =
+            WaltIdServices.http.get("https://api.preprod.ebsi.eu/trusted-issuers-registry/v2/issuers/$did").bodyAsText()
 
         log.debug { trustedIssuer }
 
@@ -112,7 +115,8 @@ object TrustedIssuerClient {
     fun getIssuer(did: String): TrustedIssuer = runBlocking {
         log.debug { "Getting trusted issuer with DID $did" }
 
-        val trustedIssuer: String = WaltIdServices.http.get("https://api.preprod.ebsi.eu/trusted-issuers-registry/v2/issuers/$did")
+        val trustedIssuer: String =
+            WaltIdServices.http.get("https://api.preprod.ebsi.eu/trusted-issuers-registry/v2/issuers/$did").bodyAsText()
 
         log.debug { trustedIssuer }
 

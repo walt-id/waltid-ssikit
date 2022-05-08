@@ -13,6 +13,7 @@ import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.model.toCredential
 import io.kotest.core.spec.Spec
 import io.kotest.core.spec.style.AnnotationSpec
+import io.kotest.core.test.TestCase
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockkObject
@@ -25,8 +26,8 @@ class TrustedIssuerRegistryPolicyTest : AnnotationSpec() {
     private lateinit var did: String
     private lateinit var verifiableCredential: VerifiableCredential
 
-    override fun beforeSpec(spec: Spec) {
-        super.beforeSpec(spec)
+    override suspend fun beforeTest(testCase: TestCase) {
+        super.beforeTest(testCase)
 
         val signatory = Signatory.getService()
 

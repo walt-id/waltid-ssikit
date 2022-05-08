@@ -14,12 +14,12 @@ import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.credentials.gaiax.GaiaxCredential
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.schema.SchemaService
-import io.ktor.client.features.*
 import kotlinx.serialization.Serializable
 import mu.KotlinLogging
 import java.text.SimpleDateFormat
 import java.util.*
 import id.walt.vclib.credentials.CredentialStatusCredential
+import io.ktor.client.plugins.*
 
 private const val TIR_TYPE_ATTRIBUTE = "attribute"
 private const val TIR_NAME_ISSUER = "issuer"

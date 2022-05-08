@@ -25,19 +25,19 @@ import io.kotest.data.row
 import io.kotest.matchers.shouldBe
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
-import io.ktor.client.features.json.*
-import io.ktor.client.features.json.serializer.*
+import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 
 class CustodianApiTest : StringSpec({
 
     ServiceMatrix("service-matrix.properties")
 
     val client = HttpClient(CIO) {
-        install(JsonFeature) {
-            serializer = KotlinxSerializer(kotlinx.serialization.json.Json { encodeDefaults = false })
+        install(ContentNegotiation) {
+            json()
         }
     }
 
@@ -45,6 +45,7 @@ class CustodianApiTest : StringSpec({
 
     beforeTest {
         CustodianAPI.start()
+
     }
 
     afterTest {
@@ -68,8 +69,8 @@ class CustodianApiTest : StringSpec({
         val response: String =
             client.post("http://${CustodianAPI.DEFAULT_BIND_ADDRESS}:${CustodianAPI.DEFAULT_Custodian_API_PORT}/credentials/present") {
                 contentType(ContentType.Application.Json)
-                body = PresentCredentialsRequest(listOf(vcJwt), did)
-            }
+                setBody(PresentCredentialsRequest(listOf(vcJwt), did))
+            }.bodyAsText()
 
         val vp = response.toCredential() as VerifiablePresentation
 
@@ -97,8 +98,8 @@ class CustodianApiTest : StringSpec({
         val response: String =
             client.post("http://${CustodianAPI.DEFAULT_BIND_ADDRESS}:${CustodianAPI.DEFAULT_Custodian_API_PORT}/credentials/present") {
                 contentType(ContentType.Application.Json)
-                body = PresentCredentialsRequest(listOf(vcJwt), did)
-            }
+                setBody(PresentCredentialsRequest(listOf(vcJwt), did))
+            }.bodyAsText()
 
         response.count { it == '.' } shouldBe 2
 
@@ -107,7 +108,7 @@ class CustodianApiTest : StringSpec({
         Auditor.getService().verify(response, listOf(SignaturePolicy())).valid shouldBe true
     }
 
-    "Test export key"{
+    "Test export key" {
         forAll(
             row(KeyAlgorithm.ECDSA_Secp256k1, KeyFormat.JWK, true),
             row(KeyAlgorithm.EdDSA_Ed25519, KeyFormat.JWK, true),
@@ -125,10 +126,10 @@ class CustodianApiTest : StringSpec({
             val kid = KeyService.getService().generate(alg)
             val response =
                 runBlocking {
-                    client.post<String>("http://${CustodianAPI.DEFAULT_BIND_ADDRESS}:${CustodianAPI.DEFAULT_Custodian_API_PORT}/keys/export") {
+                    client.post("http://${CustodianAPI.DEFAULT_BIND_ADDRESS}:${CustodianAPI.DEFAULT_Custodian_API_PORT}/keys/export") {
                         contentType(ContentType.Application.Json)
-                        body = ExportKeyRequest(kid.id, format, isPrivate)
-                    }
+                        setBody(ExportKeyRequest(kid.id, format, isPrivate))
+                    }.bodyAsText()
                 }
             println(response)
             response shouldBe KeyService.getService()
@@ -136,15 +137,15 @@ class CustodianApiTest : StringSpec({
         }
     }
 
-    "Test delete key"{
+    "Test delete key" {
         forAll(
             row(KeyAlgorithm.ECDSA_Secp256k1),
             row(KeyAlgorithm.EdDSA_Ed25519),
             row(KeyAlgorithm.RSA),
-        ){ alg ->
+        ) { alg ->
             val kid = KeyService.getService().generate(alg)
-            val response = runBlocking{
-                client.delete<HttpResponse>("http://${CustodianAPI.DEFAULT_BIND_ADDRESS}:${CustodianAPI.DEFAULT_Custodian_API_PORT}/keys/${kid.id}")
+            val response = runBlocking {
+                client.delete("http://${CustodianAPI.DEFAULT_BIND_ADDRESS}:${CustodianAPI.DEFAULT_Custodian_API_PORT}/keys/${kid.id}")
             }
             response.status shouldBe HttpStatusCode.OK
             shouldThrow<Exception> {
@@ -153,7 +154,7 @@ class CustodianApiTest : StringSpec({
         }
     }
 
-    "Test delete did"{
+    "Test delete did" {
         forAll(
             row(DidMethod.key, null),
             row(DidMethod.web, null),
@@ -167,10 +168,10 @@ class CustodianApiTest : StringSpec({
             row(DidMethod.ebsi, KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1).id),
             row(DidMethod.ebsi, KeyService.getService().generate(KeyAlgorithm.EdDSA_Ed25519).id),
             row(DidMethod.ebsi, KeyService.getService().generate(KeyAlgorithm.RSA).id),
-        ){ method, key ->
+        ) { method, key ->
             val did = DidService.create(method, key)
             val response = runBlocking {
-                client.delete<HttpResponse>("http://${CustodianAPI.DEFAULT_BIND_ADDRESS}:${CustodianAPI.DEFAULT_Custodian_API_PORT}/did/$did")
+                client.delete("http://${CustodianAPI.DEFAULT_BIND_ADDRESS}:${CustodianAPI.DEFAULT_Custodian_API_PORT}/did/$did")
             }
             response.status shouldBe HttpStatusCode.OK
             shouldThrow<Exception> {

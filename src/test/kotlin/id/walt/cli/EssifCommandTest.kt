@@ -22,6 +22,8 @@ import io.kotest.matchers.string.shouldNotBeEmpty
 import java.io.File
 import java.util.*
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
 
 
@@ -79,7 +81,7 @@ class EssifCommandTest : StringSpec({
 
     var transactionHash: String? = null
     "5. Insert timestamp".config(enabled = enableTests) {
-        retry(9, Duration.minutes(2), delay = Duration.seconds(4)) {
+        retry(9, 2.minutes, delay = 4.seconds) {
             println("Inserting timestamp.")
             shouldNotThrowAny {
 

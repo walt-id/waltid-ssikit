@@ -6,6 +6,7 @@ import id.walt.services.crypto.CryptoService
 import id.walt.services.essif.EssifClient
 import id.walt.services.hkvstore.HKVKey
 import id.walt.services.key.KeyService
+import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import mu.KotlinLogging
@@ -122,6 +123,6 @@ class WaltIdJsonRpcService : JsonRpcService() {
             append(HttpHeaders.Authorization, "Bearer $bearerToken")
         }
         //TODO: consider ID value. is random the generation ok?
-        body = JsonRpcRequest("2.0", method, params, (0..999).random())
-    }
+        setBody(JsonRpcRequest("2.0", method, params, (0..999).random()))
+    }.body<T>()
 }

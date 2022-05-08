@@ -15,13 +15,15 @@ import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
-import io.ktor.client.features.json.*
-import io.ktor.client.features.json.serializer.*
+import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.Json
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
@@ -38,10 +40,8 @@ class AuditorApiTest : AnnotationSpec() {
     val DEFAULT_POLICIES = "SignaturePolicy, JsonSchemaPolicy"
 
     val client = HttpClient(CIO) {
-        install(JsonFeature) {
-            serializer = KotlinxSerializer(kotlinx.serialization.json.Json {
-                ignoreUnknownKeys = true
-            })
+        install(ContentNegotiation) {
+            json(Json { ignoreUnknownKeys = true })
         }
         expectSuccess = false
     }
@@ -58,19 +58,24 @@ class AuditorApiTest : AnnotationSpec() {
 
     @Test
     fun testHealth() = runBlocking {
-        val response: HttpResponse = client.get("$Auditor_API_URL/health")
-        response.readText() shouldBe "OK"
+        val response = client.get("$Auditor_API_URL/health").bodyAsText()
+        response shouldBe "OK"
     }
 
     @Test
     fun testListVerificationPolicies() = runBlocking {
-        val policies = client.get<List<VerificationPolicyMetadata>>("$Auditor_API_URL/v1/policies") {
+        val policies = client.get("$Auditor_API_URL/v1/policies") {
             contentType(ContentType.Application.Json)
-        }
+        }.body<List<VerificationPolicyMetadata>>()
 
         policies shouldContain VerificationPolicyMetadata("Verify by signature", "SignaturePolicy", true, true)
         policies shouldContain VerificationPolicyMetadata("Verify by JSON schema", "JsonSchemaPolicy", true, true)
-        policies shouldContain VerificationPolicyMetadata("Verify by EBSI Trusted Schema Registry", "TrustedSchemaRegistryPolicy", true, true)
+        policies shouldContain VerificationPolicyMetadata(
+            "Verify by EBSI Trusted Schema Registry",
+            "TrustedSchemaRegistryPolicy",
+            true,
+            true
+        )
     }
 
     private fun postAndVerify(vcToVerify: String, policyList: String = DEFAULT_POLICIES) {
@@ -110,7 +115,10 @@ class AuditorApiTest : AnnotationSpec() {
 
     @Test
     fun testVerifiableAuthorizationCredential() {
-        postAndVerify(readVerifiableCredential("VerifiableAuthorization"), "JsonSchemaPolicy, SignaturePolicy,TrustedSubjectDidPolicy,TrustedIssuerDidPolicy")
+        postAndVerify(
+            readVerifiableCredential("VerifiableAuthorization"),
+            "JsonSchemaPolicy, SignaturePolicy,TrustedSubjectDidPolicy,TrustedIssuerDidPolicy"
+        )
     }
 
     @Test
@@ -120,7 +128,10 @@ class AuditorApiTest : AnnotationSpec() {
 
     @Test
     fun testVerifiableDiploma() {
-        postAndVerify(readVerifiableCredential("VerifiableDiploma"), "JsonSchemaPolicy,SignaturePolicy,TrustedSubjectDidPolicy,TrustedIssuerDidPolicy,TrustedSchemaRegistryPolicy")
+        postAndVerify(
+            readVerifiableCredential("VerifiableDiploma"),
+            "JsonSchemaPolicy,SignaturePolicy,TrustedSubjectDidPolicy,TrustedIssuerDidPolicy,TrustedSchemaRegistryPolicy"
+        )
     }
 
 // TODO: the issuer DID must be correctly inserted in the TIR

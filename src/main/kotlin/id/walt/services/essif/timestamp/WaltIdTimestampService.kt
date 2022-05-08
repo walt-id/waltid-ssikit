@@ -5,6 +5,7 @@ import id.walt.services.WaltIdServices
 import id.walt.services.essif.jsonrpc.JsonRpcService
 import id.walt.services.essif.jsonrpc.TimestampHashesParams
 import id.walt.services.key.KeyService
+import io.ktor.client.call.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
@@ -62,8 +63,12 @@ open class WaltIdTimestampService : TimestampService() {
 
     override fun getByTimestampId(timestampId: String): Timestamp? = runBlocking {
         val href = TIMESTAMPS + "/$timestampId"
+
+
+
+
         return@runBlocking runBlocking {
-            WaltIdServices.http.get<Timestamp>(href).also {
+            WaltIdServices.http.get(href).body<Timestamp>().also {
                 it.timestampId = timestampId
                 it.href = href
             }
@@ -71,22 +76,22 @@ open class WaltIdTimestampService : TimestampService() {
     }
 
     override fun getByTransactionHash(transactionHash: String): Timestamp? = runBlocking {
-        var timestamps = WaltIdServices.http.get<Timestamps>(
-            WaltIdServices.http.get<Timestamps>(TIMESTAMPS).links.last
-        )
+        var timestamps = WaltIdServices.http.get(
+            WaltIdServices.http.get(TIMESTAMPS).body<Timestamps>().links.last
+        ).body<Timestamps>()
 
         while (timestamps.self != timestamps.links.prev) {
             val timestampsIterator = timestamps.items.listIterator(timestamps.items.size)
             while (timestampsIterator.hasPrevious()) {
                 val timestampItem = timestampsIterator.previous()
-                val timestamp = runBlocking { WaltIdServices.http.get<Timestamp>(timestampItem.href) }
+                val timestamp = runBlocking { WaltIdServices.http.get(timestampItem.href).body<Timestamp>() }
                 if (timestamp.transactionHash == transactionHash) {
                     timestamp.timestampId = timestampItem.timestampId
                     timestamp.href = timestampItem.href
                     return@runBlocking timestamp
                 }
             }
-            timestamps = WaltIdServices.http.get(timestamps.links.prev)
+            timestamps = WaltIdServices.http.get(timestamps.links.prev).body()
         }
 
         return@runBlocking null

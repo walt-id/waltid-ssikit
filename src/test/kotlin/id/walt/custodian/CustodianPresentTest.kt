@@ -12,6 +12,7 @@ import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.model.toCredential
 import io.kotest.core.spec.Spec
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.core.test.TestCase
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.junit.jupiter.api.assertThrows
@@ -21,8 +22,8 @@ class CustodianPresentTest : StringSpec() {
     lateinit var vcJsonLd: String
     lateinit var vcJwt: String
 
-    override fun beforeSpec(spec: Spec) {
-        super.beforeSpec(spec)
+    override suspend fun beforeTest(testCase: TestCase) {
+        super.beforeTest(testCase)
 
         ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
 
