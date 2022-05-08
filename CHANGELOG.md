@@ -4,6 +4,8 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
 
 ## [Unreleased]
 
+- Bumped all dependencies
+
 ## [1.9.0] - 2022-04-08
 
 -   Features
