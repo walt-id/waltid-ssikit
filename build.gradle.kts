@@ -170,7 +170,12 @@ publishing {
             val usernameFile = File("secret_maven_username.txt")
             val passwordFile = File("secret_maven_password.txt")
             val secretMavenUsername = System.getenv()["MAVEN_USERNAME"] ?: if (usernameFile.isFile) { usernameFile.readLines()[0] } else { "" }
+            println("Deploy username length: ${secretMavenUsername.length}")
             val secretMavenPassword = System.getenv()["MAVEN_PASSWORD"] ?: if (passwordFile.isFile) { passwordFile.readLines()[0] } else { "" }
+
+            if (secretMavenPassword.isBlank()) {
+               println("WARNING: Password is blank!")
+            }
 
             credentials {
                 username = secretMavenUsername
