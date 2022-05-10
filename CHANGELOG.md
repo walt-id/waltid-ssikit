@@ -4,7 +4,9 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
 
 ## [Unreleased]
 
-- Bumped all dependencies
+## [1.10.0] - 2022-05-10
+
+-   Bumped all dependencies
 
 ## [1.9.0] - 2022-04-08
 
@@ -139,7 +141,9 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
     -   Fixed the way of finding the padding <https://github.com/walt-id/waltid-ssikit/pull/43>
     -   SignaturePolicy fails for issuers using did:ebsi <https://github.com/walt-id/waltid-ssikit/issues/52>
 
-[Unreleased]: https://github.com/walt-id/waltid-ssikit/compare/1.9.0...HEAD
+[Unreleased]: https://github.com/walt-id/waltid-ssikit/compare/1.10.0...HEAD
+
+[1.10.0]: https://github.com/walt-id/waltid-ssikit/compare/1.9.0...1.10.0
 
 [1.9.0]: https://github.com/walt-id/waltid-ssikit/compare/1.8.0...1.9.0
 
