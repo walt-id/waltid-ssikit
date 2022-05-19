@@ -4,6 +4,7 @@ import id.walt.signatory.ProofConfig
 import id.walt.signatory.SignatoryDataProvider
 import id.walt.vclib.credentials.VerifiableDiploma
 import id.walt.vclib.credentials.VerifiableId
+import id.walt.vclib.credentials.VerifiableMandate
 import id.walt.vclib.credentials.VerifiableVaccinationCertificate
 import id.walt.vclib.credentials.gaiax.DataSelfDescription
 import id.walt.vclib.credentials.gaiax.GaiaxCredential
@@ -27,12 +28,13 @@ fun promptInt(prompt: String, default: Int?): Int {
 object CLIDataProvider : SignatoryDataProvider {
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
         return when (template) {
-            is VerifiableDiploma -> VerifiableDiplomaCLIDataProvider
-            is VerifiableId -> VerifiableIDCLIDataProvider
-            is GaiaxCredential -> GaiaxCLIDataProvider
+            is VerifiableDiploma -> VerifiableDiplomaCliDataProvider
+            is VerifiableId -> VerifiableIdCliDataProvider
+            is GaiaxCredential -> GaiaxCliDataProvider
             is DataSelfDescription -> GaiaxSDProvider
-            is VerifiableVaccinationCertificate -> VerifiableVaccinationCertificateCLIDataProvider
+            is VerifiableVaccinationCertificate -> VerifiableVaccinationCertificateCliDataProvider
             is ParticipantCredential -> ParticipantCredentialProvider
+            is VerifiableMandate -> VerifiableMandateCliDataProvider
             else -> {
                 println("No CLI data provider defined for the given credential type. Only default meta data will be populated.")
                 DefaultDataProvider
@@ -41,7 +43,7 @@ object CLIDataProvider : SignatoryDataProvider {
     }
 }
 
-object VerifiableDiplomaCLIDataProvider : AbstractDataProvider<VerifiableDiploma>() {
+object VerifiableDiplomaCliDataProvider : AbstractDataProvider<VerifiableDiploma>() {
     override fun populateCustomData(template: VerifiableDiploma, proofConfig: ProofConfig): VerifiableDiploma {
         template.apply {
 
@@ -119,7 +121,7 @@ object VerifiableDiplomaCLIDataProvider : AbstractDataProvider<VerifiableDiploma
     }
 }
 
-object VerifiableVaccinationCertificateCLIDataProvider : AbstractDataProvider<VerifiableVaccinationCertificate>() {
+object VerifiableVaccinationCertificateCliDataProvider : AbstractDataProvider<VerifiableVaccinationCertificate>() {
     override fun populateCustomData(template: VerifiableVaccinationCertificate, proofConfig: ProofConfig): VerifiableVaccinationCertificate {
         template.apply {
 
@@ -149,7 +151,7 @@ object VerifiableVaccinationCertificateCLIDataProvider : AbstractDataProvider<Ve
     }
 }
 
-object GaiaxCLIDataProvider : AbstractDataProvider<GaiaxCredential>() {
+object GaiaxCliDataProvider : AbstractDataProvider<GaiaxCredential>() {
     override fun populateCustomData(template: GaiaxCredential, proofConfig: ProofConfig): GaiaxCredential {
         template.apply {
             println()
@@ -237,7 +239,7 @@ object GaiaxSDProvider : AbstractDataProvider<DataSelfDescription>() {
     }
 }
 
-object VerifiableIDCLIDataProvider : AbstractDataProvider<VerifiableId>() {
+object VerifiableIdCliDataProvider : AbstractDataProvider<VerifiableId>() {
     override fun populateCustomData(template: VerifiableId, proofConfig: ProofConfig): VerifiableId {
         println()
         println("Subject personal data, ID: ${proofConfig.subjectDid}")
@@ -272,6 +274,24 @@ object ParticipantCredentialProvider : AbstractDataProvider<ParticipantCredentia
             }
         }
 
+        return template
+    }
+}
+
+object VerifiableMandateCliDataProvider : AbstractDataProvider<VerifiableMandate>() {
+    override fun populateCustomData(template: VerifiableMandate, proofConfig: ProofConfig): VerifiableMandate {
+        println()
+        template.apply {
+            println()
+            println("> Grant")
+            println()
+            credentialSubject!!.holder!!.apply {
+                id = prompt("ID of holder", "did:ebsi:ze2dC9GezTtVSzjHVMQzpkE")!!
+                role = prompt("Role", "family")!!
+                grant = prompt("Name", "apply_to_masters")!!
+                constraints = mapOf("location" to prompt("Location", "Slovenia")!!)
+            }
+        }
         return template
     }
 }
