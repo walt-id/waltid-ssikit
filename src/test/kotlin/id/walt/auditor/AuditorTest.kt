@@ -144,9 +144,14 @@ class AuditorCommandTest : StringSpec() {
                 dataProvider = MergingDataProvider(mandateSubj)
             )
 
-            val verificationResult = Auditor.getService().verify(mandate, mapOf(VerifiableMandatePolicy() to mapOf(
+            /*val verificationResult = Auditor.getService().verify(mandate, mapOf(VerifiableMandatePolicy() to mapOf(
                 "user" to did, "action" to "apply_to_masters", "location" to "Slovenia"
-            )))
+            )))*/
+            println("Mandate:\n$mandate")
+            val query = """{"user": "$did", "action": "apply_to_masters", "location": "Slovenia"}"""
+            println("Testing query: $query")
+            val verificationResult = Auditor.getService()
+                .verify(mandate, mapOf(VerifiableMandatePolicy() to query))
             verificationResult.valid shouldBe true
         }
     }
