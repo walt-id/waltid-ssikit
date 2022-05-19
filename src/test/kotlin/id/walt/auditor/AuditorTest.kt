@@ -7,8 +7,10 @@ import id.walt.services.did.DidService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
+import id.walt.signatory.dataproviders.MergingDataProvider
 import id.walt.test.DummySignatoryDataProvider
 import id.walt.test.RESOURCES_PATH
+import id.walt.vclib.credentials.VerifiableMandate
 import io.kotest.core.spec.Spec
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.core.test.TestCase
@@ -116,6 +118,31 @@ class AuditorCommandTest : StringSpec() {
             res.policyResults.values.forEach {
                 it shouldBe true
             }
+        }
+
+        "5. verifiable mandate policy" {
+            val mandateSubj = mapOf("credentialSubject" to mapOf(
+                "id" to did,
+                "policySchemaURI" to "https://raw.githubusercontent.com/walt-id/waltid-ssikit/master/src/test/resources/verifiable-mandates/test-policy.rego",
+                "holder" to mapOf(
+                    "role" to "family",
+                    "grant" to "apply_to_masters",
+                    "id" to did,
+                    "constraints" to mapOf("location" to "Slovenia")
+                )
+            ))
+            val mandate = Signatory.getService().issue("VerifiableMandate",
+                config = ProofConfig(issuerDid = did, subjectDid = did, proofType = ProofType.LD_PROOF),
+                dataProvider = MergingDataProvider(mandateSubj)
+            )
+            val verificationResult = Auditor.getService().verify(mandate, listOf(VerifiableMandatePolicy(
+                mapOf(
+                    "user" to did,
+                    "action" to "apply_to_masters",
+                    "location" to "Slovenia"
+                )
+            )))
+            verificationResult.valid shouldBe true
         }
     }
 }

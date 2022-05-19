@@ -19,7 +19,9 @@ import mu.KotlinLogging
 import java.text.SimpleDateFormat
 import java.util.*
 import id.walt.vclib.credentials.CredentialStatusCredential
+import id.walt.vclib.credentials.VerifiableMandate
 import io.ktor.client.plugins.*
+import java.net.URL
 
 private const val TIR_TYPE_ATTRIBUTE = "attribute"
 private const val TIR_NAME_ISSUER = "issuer"
@@ -253,6 +255,16 @@ class GaiaxSDPolicy : VerificationPolicy() {
     override val description: String = "Verify Gaiax SD fields"
     override fun doVerify(vc: VerifiableCredential): Boolean {
         return true
+    }
+}
+
+class VerifiableMandatePolicy(val input: Map<String, Any?>) : VerificationPolicy() {
+    override val description = "Verify verifiable mandate policy"
+    override fun doVerify(vc: VerifiableCredential): Boolean {
+        if(vc is VerifiableMandate) {
+            return RegoValidator.validate(input, (vc.toMap()["credentialSubject"] as Map<String, Any?>)["holder"] as Map<String, Any?>, URL(vc.credentialSubject!!.policySchemaURI))
+        }
+        return false
     }
 }
 
