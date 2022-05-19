@@ -10,8 +10,6 @@ import id.walt.signatory.Signatory
 import id.walt.signatory.dataproviders.MergingDataProvider
 import id.walt.test.DummySignatoryDataProvider
 import id.walt.test.RESOURCES_PATH
-import id.walt.vclib.credentials.VerifiableMandate
-import io.kotest.core.spec.Spec
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.core.test.TestCase
 import io.kotest.matchers.collections.shouldBeSameSizeAs
@@ -36,22 +34,23 @@ class AuditorCommandTest : StringSpec() {
         did = DidService.create(DidMethod.key)
 
         println("Generated: $did")
-        vcStr = signatory.issue("VerifiableDiploma", ProofConfig(
-            issuerDid = did,
-            subjectDid = did,
-            issuerVerificationMethod = "Ed25519Signature2018",
-            proofPurpose = "Testing",
-            proofType = ProofType.LD_PROOF
-        ))
-
-        vpStr =
-            custodian.createPresentation(listOf(vcStr), did, did, "https://api.preprod.ebsi.eu", "d04442d3-661f-411e-a80f-42f19f594c9d", null)
-
-        vcJwt = signatory.issue(
+        vcStr = signatory.issue(
             "VerifiableDiploma", ProofConfig(
                 issuerDid = did,
                 subjectDid = did,
-                issuerVerificationMethod = "Ed25519Signature2018", proofType = ProofType.JWT
+                issuerVerificationMethod = "Ed25519Signature2018",
+                proofPurpose = "Testing",
+                proofType = ProofType.LD_PROOF
+            )
+        )
+
+        vpStr = custodian.createPresentation(
+            listOf(vcStr), did, did, "https://api.preprod.ebsi.eu", "d04442d3-661f-411e-a80f-42f19f594c9d", null
+        )
+
+        vcJwt = signatory.issue(
+            "VerifiableDiploma", ProofConfig(
+                issuerDid = did, subjectDid = did, issuerVerificationMethod = "Ed25519Signature2018", proofType = ProofType.JWT
             ),
             // Required at the moment because EBSI did not upgrade V_ID schema with necessary changes.
             DummySignatoryDataProvider()
@@ -78,13 +77,15 @@ class AuditorCommandTest : StringSpec() {
         }
 
         "2. verify vc" {
-            val res = Auditor.getService().verify(vcStr, listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy()))
+            val res =
+                Auditor.getService().verify(vcStr, listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy()))
 
             res.valid shouldBe true
-            res.policyResults.keys shouldBeSameSizeAs listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy())
+            res.policyResults.keys shouldBeSameSizeAs listOf(
+                SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy()
+            )
 
-            res.policyResults.keys shouldContainAll
-                    listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy()).map { it.id }
+            res.policyResults.keys shouldContainAll listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy()).map { it.id }
 
             res.policyResults.values.forEach {
                 it shouldBe true
@@ -92,13 +93,15 @@ class AuditorCommandTest : StringSpec() {
         }
 
         "3. verify vc jwt" {
-            val res = Auditor.getService().verify(vcJwt, listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy()))
+            val res =
+                Auditor.getService().verify(vcJwt, listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy()))
 
             res.valid shouldBe true
-            res.policyResults.keys shouldBeSameSizeAs listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy())
+            res.policyResults.keys shouldBeSameSizeAs listOf(
+                SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy()
+            )
 
-            res.policyResults.keys shouldContainAll
-                    listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy()).map { it.id }
+            res.policyResults.keys shouldContainAll listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy()).map { it.id }
 
             res.policyResults.values.forEach {
                 it shouldBe true
@@ -106,14 +109,16 @@ class AuditorCommandTest : StringSpec() {
         }
 
         "4. verify vp jwt" {
-            val res = Auditor.getService().verify(vpJwt, listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy()))
+            val res =
+                Auditor.getService().verify(vpJwt, listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy()))
 
             res.valid shouldBe true
 
-            res.policyResults.keys shouldBeSameSizeAs listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy())
+            res.policyResults.keys shouldBeSameSizeAs listOf(
+                SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy()
+            )
 
-            res.policyResults.keys shouldContainAll
-                    listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy()).map { it.id }
+            res.policyResults.keys shouldContainAll listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy()).map { it.id }
 
             res.policyResults.values.forEach {
                 it shouldBe true
@@ -121,26 +126,26 @@ class AuditorCommandTest : StringSpec() {
         }
 
         "5. verifiable mandate policy" {
-            val mandateSubj = mapOf("credentialSubject" to mapOf(
-                "id" to did,
-                "policySchemaURI" to "https://raw.githubusercontent.com/walt-id/waltid-ssikit/master/src/test/resources/verifiable-mandates/test-policy.rego",
-                "holder" to mapOf(
-                    "role" to "family",
-                    "grant" to "apply_to_masters",
+            val mandateSubj = mapOf(
+                "credentialSubject" to mapOf(
                     "id" to did,
-                    "constraints" to mapOf("location" to "Slovenia")
+                    "policySchemaURI" to "https://raw.githubusercontent.com/walt-id/waltid-ssikit/master/src/test/resources/verifiable-mandates/test-policy.rego",
+                    "holder" to mapOf(
+                        "role" to "family",
+                        "grant" to "apply_to_masters",
+                        "id" to did,
+                        "constraints" to mapOf("location" to "Slovenia")
+                    )
                 )
-            ))
-            val mandate = Signatory.getService().issue("VerifiableMandate",
+            )
+            val mandate = Signatory.getService().issue(
+                "VerifiableMandate",
                 config = ProofConfig(issuerDid = did, subjectDid = did, proofType = ProofType.LD_PROOF),
                 dataProvider = MergingDataProvider(mandateSubj)
             )
-            val verificationResult = Auditor.getService().verify(mandate, listOf(VerifiableMandatePolicy(
-                mapOf(
-                    "user" to did,
-                    "action" to "apply_to_masters",
-                    "location" to "Slovenia"
-                )
+
+            val verificationResult = Auditor.getService().verify(mandate, mapOf(VerifiableMandatePolicy() to mapOf(
+                "user" to did, "action" to "apply_to_masters", "location" to "Slovenia"
             )))
             verificationResult.valid shouldBe true
         }
