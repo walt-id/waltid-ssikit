@@ -30,8 +30,7 @@ import kotlin.io.path.readText
 private val log = KotlinLogging.logger {}
 
 class VcCommand : CliktCommand(
-    name = "vc",
-    help = """Verifiable Credentials (VCs).
+    name = "vc", help = """Verifiable Credentials (VCs).
 
         VC related operations like issuing, verifying and revoking VCs.
 
@@ -44,8 +43,7 @@ class VcCommand : CliktCommand(
 }
 
 class VcIssueCommand : CliktCommand(
-    name = "issue",
-    help = """Issues and save VC.
+    name = "issue", help = """Issues and save VC.
         
         """
 ) {
@@ -55,20 +53,15 @@ class VcIssueCommand : CliktCommand(
     val issuerDid: String by option("-i", "--issuer-did", help = "DID of the issuer (associated with signing key)").required()
     val subjectDid: String by option("-s", "--subject-did", help = "DID of the VC subject (receiver of VC)").required()
     val issuerVerificationMethod: String? by option(
-        "-v",
-        "--issuer-verification-method",
-        help = "KeyId of the issuers' signing key"
+        "-v", "--issuer-verification-method", help = "KeyId of the issuers' signing key"
     )
     val proofType: ProofType by option("-y", "--proof-type", help = "Proof type to be used [LD_PROOF]").enum<ProofType>()
         .default(ProofType.LD_PROOF)
     val proofPurpose: String by option(
-        "-p",
-        "--proof-purpose",
-        help = "Proof purpose to be used [assertion]"
+        "-p", "--proof-purpose", help = "Proof purpose to be used [assertion]"
     ).default("assertion")
     val interactive: Boolean by option(
-        "--interactive",
-        help = "Interactively prompt for VC data to fill in"
+        "--interactive", help = "Interactively prompt for VC data to fill in"
     ).flag(default = false)
 
     private val signatory = Signatory.getService()
@@ -80,15 +73,13 @@ class VcIssueCommand : CliktCommand(
         log.debug { "Loading credential template: $template" }
 
         val vcStr = signatory.issue(
-            template,
-            ProofConfig(
+            template, ProofConfig(
                 issuerDid = issuerDid,
                 subjectDid = subjectDid,
                 issuerVerificationMethod = issuerVerificationMethod,
                 proofType = proofType,
                 proofPurpose = proofPurpose
-            ),
-            when(interactive){
+            ), when (interactive) {
                 true -> CLIDataProvider
                 else -> null
             }
@@ -111,8 +102,7 @@ class VcIssueCommand : CliktCommand(
 }
 
 class VcImportCommand : CliktCommand(
-    name = "import",
-    help = "Import VC to custodian store"
+    name = "import", help = "Import VC to custodian store"
 ) {
 
     val src: File by argument().file()
@@ -128,8 +118,7 @@ class VcImportCommand : CliktCommand(
 }
 
 class PresentVcCommand : CliktCommand(
-    name = "present",
-    help = """Present VC.
+    name = "present", help = """Present VC.
         
         """
 ) {
@@ -169,8 +158,7 @@ class PresentVcCommand : CliktCommand(
 }
 
 class VerifyVcCommand : CliktCommand(
-    name = "verify",
-    help = """Verify VC or VP.
+    name = "verify", help = """Verify VC or VP.
         
         """
 ) {
@@ -178,23 +166,29 @@ class VerifyVcCommand : CliktCommand(
     val src: File by argument().file()
 
     //val isPresentation: Boolean by option("-p", "--is-presentation", help = "In case a VP is verified.").flag()
-    val policies: List<String> by option(
+    val policies: Map<String, Any> by option(
         "-p",
         "--policy",
         help = "Verification policy. Can be specified multiple times. By default, ${PolicyRegistry.defaultPolicyId} is used."
-    ).multiple(default = listOf(PolicyRegistry.defaultPolicyId))
+    ).associate()
+
 
     override fun run() {
+        val usedPolicies = if (policies.isNotEmpty()) policies else mapOf(PolicyRegistry.defaultPolicyId to Unit)
+
         echo("Verifying from file \"$src\"...\n")
 
         when {
             !src.exists() -> throw Exception("Could not load file: \"$src\".")
-            policies.any { !PolicyRegistry.contains(it) } -> throw Exception(
-                "Unknown verification policy specified: ${policies.minus(PolicyRegistry.listPolicies()).joinToString()}"
+            usedPolicies.keys.any { !PolicyRegistry.contains(it) } -> throw Exception(
+                "Unknown verification policy specified: ${
+                    usedPolicies.keys.minus(PolicyRegistry.listPolicies().toSet()).joinToString()
+                }"
             )
         }
 
-        val verificationResult = Auditor.getService().verify(src.readText(), policies.map { PolicyRegistry.getPolicy(it) })
+        val verificationResult = Auditor.getService()
+            .verify(src.readText(), usedPolicies.entries.associate { PolicyRegistry.getPolicy(it.key) to it.value })
 
         echo("\nResults:\n")
 
@@ -206,8 +200,7 @@ class VerifyVcCommand : CliktCommand(
 }
 
 class ListVerificationPoliciesCommand : CliktCommand(
-    name = "policies",
-    help = "List verification policies"
+    name = "policies", help = "List verification policies"
 ) {
     override fun run() {
         PolicyRegistry.listPolicies().forEachIndexed { index, verificationPolicy ->
@@ -217,8 +210,7 @@ class ListVerificationPoliciesCommand : CliktCommand(
 }
 
 class ListVcCommand : CliktCommand(
-    name = "list",
-    help = """List VC.
+    name = "list", help = """List VC.
         
         """
 ) {
@@ -233,8 +225,7 @@ class ListVcCommand : CliktCommand(
 }
 
 class VcTemplatesCommand : CliktCommand(
-    name = "templates",
-    help = """VC Templates.
+    name = "templates", help = """VC Templates.
 
         VC templates related operations e.g.: list & export.
 
@@ -247,8 +238,7 @@ class VcTemplatesCommand : CliktCommand(
 }
 
 class VcTemplatesListCommand : CliktCommand(
-    name = "list",
-    help = """List VC Templates.
+    name = "list", help = """List VC Templates.
 
         """
 ) {
@@ -263,8 +253,7 @@ class VcTemplatesListCommand : CliktCommand(
 }
 
 class VcTemplatesExportCommand : CliktCommand(
-    name = "export",
-    help = """Export VC Template.
+    name = "export", help = """Export VC Template.
 
         """
 ) {
