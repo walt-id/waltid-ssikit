@@ -26,5 +26,6 @@ object PolicyRegistry {
         register(ChallengePolicy(""))
         register(VpTokenClaimPolicy(null))
         register(CredentialStatusPolicy())
+        register(VerifiableMandatePolicy())
     }
 }
