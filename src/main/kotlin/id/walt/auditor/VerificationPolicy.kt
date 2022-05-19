@@ -261,11 +261,15 @@ class GaiaxSDPolicy : VerificationPolicy() {
     }
 }
 
-class VerifiableMandatePolicy(val input: Map<String, Any?>) : VerificationPolicy() {
+class VerifiableMandatePolicy : VerificationPolicy() {
     override val description = "Verify verifiable mandate policy"
     override fun doVerify(vc: VerifiableCredential): Boolean {
-        if(vc is VerifiableMandate) {
-            return RegoValidator.validate(input, (vc.toMap()["credentialSubject"] as Map<String, Any?>)["holder"] as Map<String, Any?>, URL(vc.credentialSubject!!.policySchemaURI))
+        if (vc is VerifiableMandate) {
+            return RegoValidator.validate(
+                input = arguments as Map<String, Any?>,
+                data = (vc.toMap()["credentialSubject"] as Map<String, Any?>)["holder"] as Map<String, Any?>,
+                regoUrl = URL(vc.credentialSubject!!.policySchemaURI)
+            )
         }
         return false
     }
