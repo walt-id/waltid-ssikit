@@ -3,6 +3,7 @@ package id.walt.auditor
 import com.beust.klaxon.JsonArray
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
+import com.beust.klaxon.Parser
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -11,6 +12,7 @@ import io.ktor.client.statement.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.runBlocking
 import java.io.StringReader
+import java.lang.StringBuilder
 import java.net.URL
 
 object RegoValidator {
@@ -19,6 +21,14 @@ object RegoValidator {
             json()
         }
     }
+
+
+    fun validate(jsonInput: String, data: Map<String, Any?>, regoUrl: URL): Boolean {
+        val input: Map<String, Any?> = Parser.default().parse(StringBuilder(jsonInput)) as JsonObject
+
+        return validate(input, data, regoUrl)
+    }
+
 
     fun validate(input: Map<String, Any?>, data: Map<String, Any?>, regoUrl: URL): Boolean {
         val rego = runBlocking {
