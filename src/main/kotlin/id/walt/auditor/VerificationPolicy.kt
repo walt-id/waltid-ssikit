@@ -41,6 +41,8 @@ abstract class VerificationPolicy {
     protected abstract fun doVerify(vc: VerifiableCredential): Boolean
     open var applyToVC: Boolean = true
     open var applyToVP: Boolean = true
+    open var arguments: Any? = null
+
     fun verify(vc: VerifiableCredential) = when {
         vc is VerifiablePresentation && applyToVP
                 || vc !is VerifiablePresentation && applyToVC -> doVerify(vc)
@@ -205,6 +207,7 @@ class CredentialStatusPolicy : VerificationPolicy() {
 
 class ChallengePolicy(val verifyChallenge: (c: String) -> Boolean) : VerificationPolicy() {
     constructor(challenge: String) : this({ c -> c == challenge })
+
     override val description: String = "Verify challenge"
     override fun doVerify(vc: VerifiableCredential): Boolean = vc.challenge?.let { verifyChallenge(it) } ?: false
 }
