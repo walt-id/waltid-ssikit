@@ -266,7 +266,7 @@ class VerifiableMandatePolicy : VerificationPolicy() {
     override fun doVerify(vc: VerifiableCredential): Boolean {
         if (vc is VerifiableMandate) {
             return RegoValidator.validate(
-                input = arguments as Map<String, Any?>,
+                jsonInput = arguments as String,
                 data = (vc.toMap()["credentialSubject"] as Map<String, Any?>)["holder"] as Map<String, Any?>,
                 regoUrl = URL(vc.credentialSubject!!.policySchemaURI)
             )
