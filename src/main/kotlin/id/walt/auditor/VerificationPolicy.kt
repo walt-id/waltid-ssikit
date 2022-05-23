@@ -206,23 +206,32 @@ class CredentialStatusPolicy : VerificationPolicy() {
     }
 }
 
-class ChallengePolicy(val verifyChallenge: (c: String) -> Boolean) : VerificationPolicy() {
-    constructor(challenge: String) : this({ c -> c == challenge })
+class ChallengePolicy(): VerificationPolicy() {
+    constructor(challenge: String) : this() { arguments = challenge }
+    constructor(challenges: Set<String>) : this() { arguments = challenges }
 
     override val description: String = "Verify challenge"
-    override fun doVerify(vc: VerifiableCredential): Boolean = vc.challenge?.let { verifyChallenge(it) } ?: false
+    override fun doVerify(vc: VerifiableCredential): Boolean {
+        //vc.challenge?.let { verifyChallenge(it) } ?: false
+        return when(arguments) {
+            is String -> vc.challenge?.let { it == arguments } ?: false
+            is Set<*> -> vc.challenge?.let { (arguments as Set<*>).contains(it) } ?: false
+            else -> return false
+        }
+    }
 }
 
-class VpTokenClaimPolicy(val vpTokenClaim: VpTokenClaim?) : VerificationPolicy() {
+class VpTokenClaimPolicy() : VerificationPolicy() {
+    constructor(vpTokenClaim: VpTokenClaim?): this() { arguments = vpTokenClaim }
     override val description: String = "Verify verifiable presentation by OIDC/SIOPv2 VP token claim"
     override fun doVerify(vc: VerifiableCredential): Boolean {
-        if (vpTokenClaim != null && vc is VerifiablePresentation) {
-            return vpTokenClaim.presentation_definition.input_descriptors.all { desc ->
+        if (arguments != null && arguments is VpTokenClaim && vc is VerifiablePresentation) {
+            return (arguments as VpTokenClaim).presentation_definition.input_descriptors.all { desc ->
                 vc.verifiableCredential.any { cred -> desc.schema?.uri == cred.credentialSchema?.id }
             }
         }
         // else: nothing to check
-        return true
+        return !(vc is VerifiablePresentation)
     }
 
     override var applyToVC: Boolean = false
@@ -262,10 +271,11 @@ class GaiaxSDPolicy : VerificationPolicy() {
     }
 }
 
-class VerifiableMandatePolicy : VerificationPolicy() {
+class VerifiableMandatePolicy() : VerificationPolicy() {
+    constructor(inputJson: String): this() { arguments = inputJson }
     override val description = "Verify verifiable mandate policy"
     override fun doVerify(vc: VerifiableCredential): Boolean {
-        if (vc is VerifiableMandate) {
+        if (vc is VerifiableMandate && arguments != null && arguments is String) {
             return RegoValidator.validate(
                 jsonInput = arguments as String,
                 data = JsonPath.parse(vc.json!!)?.read("$.credentialSubject.holder")!!,

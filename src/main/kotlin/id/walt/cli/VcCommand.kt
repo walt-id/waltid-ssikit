@@ -188,7 +188,7 @@ class VerifyVcCommand : CliktCommand(
         }
 
         val verificationResult = Auditor.getService()
-            .verify(src.readText(), usedPolicies.entries.associate { PolicyRegistry.getPolicy(it.key) to it.value })
+            .verify(src.readText(), usedPolicies.entries.map { PolicyRegistry.getPolicy(it.key, it.value) })
 
         echo("\nResults:\n")
 
@@ -203,7 +203,7 @@ class ListVerificationPoliciesCommand : CliktCommand(
     name = "policies", help = "List verification policies"
 ) {
     override fun run() {
-        PolicyRegistry.listPolicies().forEachIndexed { index, verificationPolicy ->
+        PolicyRegistry.listPolicies().map { PolicyRegistry.getPolicy(it) }.forEachIndexed { index, verificationPolicy ->
             echo("- ${index + 1}. ${verificationPolicy.id}: ${verificationPolicy.description}")
         }
     }

@@ -151,7 +151,7 @@ class AuditorCommandTest : StringSpec() {
             val query = """{"user": "$did", "action": "apply_to_masters", "location": "Slovenia"}"""
             println("Testing query: $query")
             val verificationResult = Auditor.getService()
-                .verify(mandate, mapOf(VerifiableMandatePolicy() to query))
+                .verify(mandate, listOf(VerifiableMandatePolicy(query)))
             verificationResult.valid shouldBe true
         }
     }
