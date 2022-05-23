@@ -1,6 +1,7 @@
 package id.walt.auditor
 
 import com.beust.klaxon.Klaxon
+import com.jayway.jsonpath.JsonPath
 import id.walt.model.AttributeInfo
 import id.walt.model.TrustedIssuer
 import id.walt.model.oidc.VpTokenClaim
@@ -267,7 +268,7 @@ class VerifiableMandatePolicy : VerificationPolicy() {
         if (vc is VerifiableMandate) {
             return RegoValidator.validate(
                 jsonInput = arguments as String,
-                data = (vc.toMap()["credentialSubject"] as Map<String, Any?>)["holder"] as Map<String, Any?>,
+                data = JsonPath.parse(vc.json!!)?.read("$.credentialSubject.holder")!!,
                 regoUrl = URL(vc.credentialSubject!!.policySchemaURI)
             )
         }

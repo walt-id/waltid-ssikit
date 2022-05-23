@@ -1,9 +1,8 @@
 package id.walt.auditor
 
-import com.beust.klaxon.JsonArray
 import com.beust.klaxon.JsonObject
-import com.beust.klaxon.Klaxon
 import com.beust.klaxon.Parser
+import com.jayway.jsonpath.JsonPath
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -11,8 +10,6 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.runBlocking
-import java.io.StringReader
-import java.lang.StringBuilder
 import java.net.URL
 
 object RegoValidator {
@@ -38,7 +35,7 @@ object RegoValidator {
     }
 
     fun validate(input: Map<String, Any?>, data: Map<String, Any?>, rego: String): Boolean {
-        val validationResultText = runBlocking {
+        val validationResultJson = runBlocking {
             client.post("https://play.openpolicyagent.org/v1/data") {
                 setBody(
                     JsonObject(
@@ -54,7 +51,7 @@ object RegoValidator {
                 )
             }.bodyAsText()
         }
-        val validationResult = Klaxon().parseJsonObject(StringReader(validationResultText))
-        return (((((validationResult["result"] as JsonArray<*>)[0] as JsonObject)["expressions"] as JsonArray<*>)[0] as JsonObject)["value"] as JsonObject)["allow"] as Boolean
+
+        return JsonPath.parse(validationResultJson)?.read("$.result[0].expressions[0].value.allow") ?: false
     }
 }
