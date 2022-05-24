@@ -10,6 +10,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.runBlocking
+import java.io.File
 import java.net.URL
 
 object RegoValidator {
@@ -20,21 +21,28 @@ object RegoValidator {
     }
 
 
-    fun validate(jsonInput: String, data: Map<String, Any?>, regoUrl: URL): Boolean {
+    fun validate(jsonInput: String, data: Map<String, Any?>, rego: String, resultPath: String): Boolean {
         val input: Map<String, Any?> = Parser.default().parse(StringBuilder(jsonInput)) as JsonObject
 
-        return validate(input, data, regoUrl)
+        return validate(input, data, rego, resultPath)
     }
 
 
-    fun validate(input: Map<String, Any?>, data: Map<String, Any?>, regoUrl: URL): Boolean {
-        val rego = runBlocking {
-            client.get(regoUrl).bodyAsText()
+    fun resolveRego(rego: String): String {
+        val isHttpUrl = Regex("^https?:\\/\\/.*$").matches(rego)
+        val isFile = !isHttpUrl && File(rego).exists()
+        if(isHttpUrl) {
+            return runBlocking {
+                client.get(rego).bodyAsText()
+            }
+        } else if(isFile) {
+            return File(rego).readText()
+        } else {
+            return rego
         }
-        return validate(input, data, rego)
     }
 
-    fun validate(input: Map<String, Any?>, data: Map<String, Any?>, rego: String): Boolean {
+    fun validate(input: Map<String, Any?>, data: Map<String, Any?>, rego: String, resultPath: String): Boolean {
         val validationResultJson = runBlocking {
             client.post("https://play.openpolicyagent.org/v1/data") {
                 setBody(
@@ -42,7 +50,7 @@ object RegoValidator {
                         mapOf(
                             "data" to data,
                             "input" to input,
-                            "rego_modules" to mapOf("policy.rego" to rego),
+                            "rego_modules" to mapOf("policy.rego" to resolveRego(rego)),
                             "strict" to true
                         )
                     ).toJsonString().also {
@@ -52,6 +60,6 @@ object RegoValidator {
             }.bodyAsText()
         }
 
-        return JsonPath.parse(validationResultJson)?.read("$.result[0].expressions[0].value.allow") ?: false
+        return JsonPath.parse(validationResultJson)?.read(resultPath) ?: false
     }
 }

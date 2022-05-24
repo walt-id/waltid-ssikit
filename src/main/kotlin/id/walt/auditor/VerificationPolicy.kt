@@ -279,7 +279,40 @@ class VerifiableMandatePolicy() : VerificationPolicy() {
             return RegoValidator.validate(
                 jsonInput = arguments as String,
                 data = JsonPath.parse(vc.json!!)?.read("$.credentialSubject.holder")!!,
-                regoUrl = URL(vc.credentialSubject!!.policySchemaURI)
+                rego = vc.credentialSubject!!.policySchemaURI,
+                resultPath = "\$.result[0].expressions[0].value.allow"
+            )
+        }
+        return false
+    }
+}
+
+data class RegoPolicyArg (
+    val input: String,
+    val rego: String,
+    val dataPath: String = "\$.credentialSubject",
+    val resultPath: String = "\$.result[0].expressions[0].value.allow"
+    )
+
+class RegoPolicy() : VerificationPolicy() {
+
+    constructor(regoPolicyArg: RegoPolicyArg): this() { arguments = regoPolicyArg }
+
+    override val description = "Verify credential by rego policy"
+    override fun doVerify(vc: VerifiableCredential): Boolean {
+        // params: rego (string, URL, file, credential property), input (json string), data jsonpath (default: $.credentialSubject)
+        if(arguments != null && arguments is RegoPolicyArg) {
+            val regoPolicyArg = arguments as RegoPolicyArg
+            val rego = if (regoPolicyArg.rego.startsWith("$")) {
+                JsonPath.parse(vc.json!!).read<String>(regoPolicyArg.rego)
+            } else {
+                regoPolicyArg.rego
+            }
+            return RegoValidator.validate(
+                jsonInput = regoPolicyArg.input,
+                data = JsonPath.parse(vc.json!!)?.read(regoPolicyArg.dataPath)!!,
+                rego = rego,
+                resultPath = regoPolicyArg.resultPath
             )
         }
         return false

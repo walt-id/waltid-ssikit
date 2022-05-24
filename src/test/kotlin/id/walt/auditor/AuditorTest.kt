@@ -154,5 +154,19 @@ class AuditorCommandTest : StringSpec() {
                 .verify(mandate, listOf(VerifiableMandatePolicy(query)))
             verificationResult.valid shouldBe true
         }
+
+        "6. rego policy" {
+            val query = """{"user": "$did" }"""
+            println("Testing query: $query")
+            val verificationResult = Auditor.getService().verify(vcStr,
+                listOf(RegoPolicy(
+                    RegoPolicyArg(
+                        input = query,
+                        rego = "src/test/resources/rego/subject-policy.rego",
+                        resultPath = "\$.result[0].expressions[0].value.test"
+                    )
+                )))
+            verificationResult.valid shouldBe true
+        }
     }
 }
