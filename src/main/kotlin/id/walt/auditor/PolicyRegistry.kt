@@ -35,5 +35,6 @@ object PolicyRegistry {
         register(VpTokenClaimPolicy::class)
         register(CredentialStatusPolicy::class)
         register(VerifiableMandatePolicy::class)
+        register(RegoPolicy::class)
     }
 }

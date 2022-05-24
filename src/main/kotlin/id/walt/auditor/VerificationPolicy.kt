@@ -1,6 +1,7 @@
 package id.walt.auditor
 
 import com.beust.klaxon.Klaxon
+import com.beust.klaxon.Parser
 import com.jayway.jsonpath.JsonPath
 import id.walt.model.AttributeInfo
 import id.walt.model.TrustedIssuer
@@ -301,8 +302,8 @@ class RegoPolicy() : VerificationPolicy() {
     override val description = "Verify credential by rego policy"
     override fun doVerify(vc: VerifiableCredential): Boolean {
         // params: rego (string, URL, file, credential property), input (json string), data jsonpath (default: $.credentialSubject)
-        if(arguments != null && arguments is RegoPolicyArg) {
-            val regoPolicyArg = arguments as RegoPolicyArg
+        if(arguments != null) {
+            val regoPolicyArg = if(arguments is RegoPolicyArg) { arguments as RegoPolicyArg } else { Klaxon().parse<RegoPolicyArg>(arguments.toString()) } ?: return false
             val rego = if (regoPolicyArg.rego.startsWith("$")) {
                 JsonPath.parse(vc.json!!).read<String>(regoPolicyArg.rego)
             } else {
