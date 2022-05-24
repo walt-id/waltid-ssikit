@@ -3,7 +3,7 @@ package app.rbac
 import future.keywords.in
 import future.keywords.every
 
-default allow = false
+default test = false
 
 # all inputs must contain user and actions
 

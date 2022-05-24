@@ -1,5 +1,6 @@
 package id.walt.auditor
 
+import com.sksamuel.hoplite.fp.valid
 import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
@@ -167,6 +168,17 @@ class AuditorCommandTest : StringSpec() {
                     )
                 )))
             verificationResult.valid shouldBe true
+
+            val negQuery = """{"user": "did:key:1234" }"""
+            val negResult = Auditor.getService().verify(vcStr,
+                listOf(RegoPolicy(
+                    RegoPolicyArg(
+                        input = negQuery,
+                        rego = "src/test/resources/rego/subject-policy.rego",
+                        resultPath = "\$.result[0].expressions[0].value.test"
+                    )
+                )))
+            negResult.valid shouldBe false
         }
     }
 }
