@@ -55,11 +55,10 @@ The documentation is hosted at: https://docs.walt.id/ssikit/
 
 Direct links for using the SSI Kit are:
 
-- Quick Start (running the SSI Kit with Docker or with **ssikit.sh**): https://docs.walt.id/ssikit/ssikit-usage.html#quick-start
-- Building the SSI Kit with Gradle or with Docker: https://docs.walt.id/ssikit/ssikit-usage.html#build
-- CLI Tool: https://docs.walt.id/ssikit/ssikit-usage.html#cli
-- APIs: https://docs.walt.id/ssikit/ssikit-usage.html#rest-apis
-- Configuration: https://docs.walt.id/ssikit/ssikit-usage.html#configuration
+- Quick Start (Build & run the SSI Kit with Docker or with **ssikit.sh**): https://docs.walt.id/getting-started/quick-start
+- Docs: https://docs.walt.id/what-is-the-ssi-kit/readme
+- CLI Tool:https://docs.walt.id/getting-started/cli-command-line-interface
+- APIs: https://docs.walt.id/getting-started/rest-apis
 
 ## Examples
 
