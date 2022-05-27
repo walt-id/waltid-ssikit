@@ -1,9 +1,8 @@
 package id.walt.auditor
 
-import com.beust.klaxon.JsonArray
 import com.beust.klaxon.JsonObject
-import com.beust.klaxon.Klaxon
 import com.beust.klaxon.Parser
+import com.jayway.jsonpath.JsonPath
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -11,8 +10,7 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.runBlocking
-import java.io.StringReader
-import java.lang.StringBuilder
+import java.io.File
 import java.net.URL
 
 object RegoValidator {
@@ -23,29 +21,36 @@ object RegoValidator {
     }
 
 
-    fun validate(jsonInput: String, data: Map<String, Any?>, regoUrl: URL): Boolean {
+    fun validate(jsonInput: String, data: Map<String, Any?>, rego: String, resultPath: String): Boolean {
         val input: Map<String, Any?> = Parser.default().parse(StringBuilder(jsonInput)) as JsonObject
 
-        return validate(input, data, regoUrl)
+        return validate(input, data, rego, resultPath)
     }
 
 
-    fun validate(input: Map<String, Any?>, data: Map<String, Any?>, regoUrl: URL): Boolean {
-        val rego = runBlocking {
-            client.get(regoUrl).bodyAsText()
+    fun resolveRego(rego: String): String {
+        val isHttpUrl = Regex("^https?:\\/\\/.*$").matches(rego)
+        val isFile = !isHttpUrl && File(rego).exists()
+        if(isHttpUrl) {
+            return runBlocking {
+                client.get(rego).bodyAsText()
+            }
+        } else if(isFile) {
+            return File(rego).readText()
+        } else {
+            return rego
         }
-        return validate(input, data, rego)
     }
 
-    fun validate(input: Map<String, Any?>, data: Map<String, Any?>, rego: String): Boolean {
-        val validationResultText = runBlocking {
+    fun validate(input: Map<String, Any?>, data: Map<String, Any?>, rego: String, resultPath: String): Boolean {
+        val validationResultJson = runBlocking {
             client.post("https://play.openpolicyagent.org/v1/data") {
                 setBody(
                     JsonObject(
                         mapOf(
                             "data" to data,
                             "input" to input,
-                            "rego_modules" to mapOf("policy.rego" to rego),
+                            "rego_modules" to mapOf("policy.rego" to resolveRego(rego)),
                             "strict" to true
                         )
                     ).toJsonString().also {
@@ -54,7 +59,7 @@ object RegoValidator {
                 )
             }.bodyAsText()
         }
-        val validationResult = Klaxon().parseJsonObject(StringReader(validationResultText))
-        return (((((validationResult["result"] as JsonArray<*>)[0] as JsonObject)["expressions"] as JsonArray<*>)[0] as JsonObject)["value"] as JsonObject)["allow"] as Boolean
+
+        return JsonPath.parse(validationResultJson)?.read(resultPath) ?: false
     }
 }

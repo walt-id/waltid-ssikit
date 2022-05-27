@@ -91,7 +91,7 @@ Following code snipped gives a first impression how to use the SSI Kit for creat
 
 ## Funded & supported by
 
-<img src="logos-supporter.png">
+<a href="https://essif-lab.eu/" target="_blank"><img src="logos-supporter.png"></a>
 
 ## License
 

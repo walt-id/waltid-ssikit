@@ -1,5 +1,6 @@
 package id.walt.auditor
 
+import com.sksamuel.hoplite.fp.valid
 import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
@@ -151,8 +152,33 @@ class AuditorCommandTest : StringSpec() {
             val query = """{"user": "$did", "action": "apply_to_masters", "location": "Slovenia"}"""
             println("Testing query: $query")
             val verificationResult = Auditor.getService()
-                .verify(mandate, mapOf(VerifiableMandatePolicy() to query))
+                .verify(mandate, listOf(VerifiableMandatePolicy(query)))
             verificationResult.valid shouldBe true
+        }
+
+        "6. rego policy" {
+            val query = """{"user": "$did" }"""
+            println("Testing query: $query")
+            val verificationResult = Auditor.getService().verify(vcStr,
+                listOf(RegoPolicy(
+                    RegoPolicyArg(
+                        input = query,
+                        rego = "src/test/resources/rego/subject-policy.rego",
+                        resultPath = "\$.result[0].expressions[0].value.test"
+                    )
+                )))
+            verificationResult.valid shouldBe true
+
+            val negQuery = """{"user": "did:key:1234" }"""
+            val negResult = Auditor.getService().verify(vcStr,
+                listOf(RegoPolicy(
+                    RegoPolicyArg(
+                        input = negQuery,
+                        rego = "src/test/resources/rego/subject-policy.rego",
+                        resultPath = "\$.result[0].expressions[0].value.test"
+                    )
+                )))
+            negResult.valid shouldBe false
         }
     }
 }

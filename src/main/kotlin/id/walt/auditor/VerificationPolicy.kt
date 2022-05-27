@@ -1,6 +1,7 @@
 package id.walt.auditor
 
 import com.beust.klaxon.Klaxon
+import com.jayway.jsonpath.JsonPath
 import id.walt.model.AttributeInfo
 import id.walt.model.TrustedIssuer
 import id.walt.model.oidc.VpTokenClaim
@@ -205,23 +206,32 @@ class CredentialStatusPolicy : VerificationPolicy() {
     }
 }
 
-class ChallengePolicy(val verifyChallenge: (c: String) -> Boolean) : VerificationPolicy() {
-    constructor(challenge: String) : this({ c -> c == challenge })
+class ChallengePolicy(): VerificationPolicy() {
+    constructor(challenge: String) : this() { arguments = challenge }
+    constructor(challenges: Set<String>) : this() { arguments = challenges }
 
     override val description: String = "Verify challenge"
-    override fun doVerify(vc: VerifiableCredential): Boolean = vc.challenge?.let { verifyChallenge(it) } ?: false
+    override fun doVerify(vc: VerifiableCredential): Boolean {
+        //vc.challenge?.let { verifyChallenge(it) } ?: false
+        return when(arguments) {
+            is String -> vc.challenge?.let { it == arguments } ?: false
+            is Set<*> -> vc.challenge?.let { (arguments as Set<*>).contains(it) } ?: false
+            else -> return false
+        }
+    }
 }
 
-class VpTokenClaimPolicy(val vpTokenClaim: VpTokenClaim?) : VerificationPolicy() {
+class VpTokenClaimPolicy() : VerificationPolicy() {
+    constructor(vpTokenClaim: VpTokenClaim?): this() { arguments = vpTokenClaim }
     override val description: String = "Verify verifiable presentation by OIDC/SIOPv2 VP token claim"
     override fun doVerify(vc: VerifiableCredential): Boolean {
-        if (vpTokenClaim != null && vc is VerifiablePresentation) {
-            return vpTokenClaim.presentation_definition.input_descriptors.all { desc ->
+        if (arguments != null && arguments is VpTokenClaim && vc is VerifiablePresentation) {
+            return (arguments as VpTokenClaim).presentation_definition.input_descriptors.all { desc ->
                 vc.verifiableCredential.any { cred -> desc.schema?.uri == cred.credentialSchema?.id }
             }
         }
         // else: nothing to check
-        return true
+        return !(vc is VerifiablePresentation)
     }
 
     override var applyToVC: Boolean = false
@@ -261,14 +271,48 @@ class GaiaxSDPolicy : VerificationPolicy() {
     }
 }
 
-class VerifiableMandatePolicy : VerificationPolicy() {
+class VerifiableMandatePolicy() : VerificationPolicy() {
+    constructor(inputJson: String): this() { arguments = inputJson }
     override val description = "Verify verifiable mandate policy"
     override fun doVerify(vc: VerifiableCredential): Boolean {
-        if (vc is VerifiableMandate) {
+        if (vc is VerifiableMandate && arguments != null && arguments is String) {
             return RegoValidator.validate(
                 jsonInput = arguments as String,
-                data = (vc.toMap()["credentialSubject"] as Map<String, Any?>)["holder"] as Map<String, Any?>,
-                regoUrl = URL(vc.credentialSubject!!.policySchemaURI)
+                data = JsonPath.parse(vc.json!!)?.read("$.credentialSubject.holder")!!,
+                rego = vc.credentialSubject!!.policySchemaURI,
+                resultPath = "\$.result[0].expressions[0].value.allow"
+            )
+        }
+        return false
+    }
+}
+
+data class RegoPolicyArg (
+    val input: String,
+    val rego: String,
+    val dataPath: String = "\$.credentialSubject",
+    val resultPath: String = "\$.result[0].expressions[0].value.allow"
+    )
+
+class RegoPolicy() : VerificationPolicy() {
+
+    constructor(regoPolicyArg: RegoPolicyArg): this() { arguments = regoPolicyArg }
+
+    override val description = "Verify credential by rego policy"
+    override fun doVerify(vc: VerifiableCredential): Boolean {
+        // params: rego (string, URL, file, credential property), input (json string), data jsonpath (default: $.credentialSubject)
+        if(arguments != null && arguments is RegoPolicyArg) {
+            val regoPolicyArg = arguments as RegoPolicyArg
+            val rego = if (regoPolicyArg.rego.startsWith("$")) {
+                JsonPath.parse(vc.json!!).read<String>(regoPolicyArg.rego)
+            } else {
+                regoPolicyArg.rego
+            }
+            return RegoValidator.validate(
+                jsonInput = regoPolicyArg.input,
+                data = JsonPath.parse(vc.json!!)?.read(regoPolicyArg.dataPath)!!,
+                rego = rego,
+                resultPath = regoPolicyArg.resultPath
             )
         }
         return false

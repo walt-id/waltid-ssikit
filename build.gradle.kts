@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "id.walt"
-version = "1.10.0"
+version = "1.11-SNAPSHOT"
 
 repositories {
     mavenCentral()
@@ -52,6 +52,7 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.2")
     implementation("io.ktor:ktor-client-jackson:2.0.1")
     implementation("io.ktor:ktor-client-content-negotiation:2.0.1")
+    implementation("com.jayway.jsonpath:json-path:2.7.0")
 
     //implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
 
