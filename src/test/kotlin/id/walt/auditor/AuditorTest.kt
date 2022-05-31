@@ -1,6 +1,5 @@
 package id.walt.auditor
 
-import com.sksamuel.hoplite.fp.valid
 import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
@@ -126,6 +125,8 @@ class AuditorCommandTest : StringSpec() {
             }
         }
 
+        // CLI call for testing VerifiableMandatePolicy
+        // ./ssikit.sh -v vc verify rego-vc.json -p VerifiableMandatePolicy='{"user": "did:ebsi:ze2dC9GezTtVSzjHVMQzpkE", "action": "apply_to_masters", "location": "Slovenia"}'
         "5. verifiable mandate policy" {
             val mandateSubj = mapOf(
                 "credentialSubject" to mapOf(
@@ -156,7 +157,10 @@ class AuditorCommandTest : StringSpec() {
             verificationResult.valid shouldBe true
         }
 
+        // CLI call for testing RegoPolicy
+        // ./ssikit.sh -v vc verify rego-vc.json -p RegoPolicy='{"dataPath" : "$.credentialSubject.holder", "input" : "{\"user\": \"did:ebsi:ze2dC9GezTtVSzjHVMQzpkE\", \"action\": \"apply_to_masters\", \"location\": \"Slovenia\" }", "rego" : "src/test/resources/rego/test-policy.rego", "resultPath" : "$.result[0].expressions[0].value.allow"}'
         "6. rego policy" {
+            // Successful testcase
             val query = """{"user": "$did" }"""
             println("Testing query: $query")
             val verificationResult = Auditor.getService().verify(vcStr,
@@ -169,6 +173,11 @@ class AuditorCommandTest : StringSpec() {
                 )))
             verificationResult.valid shouldBe true
 
+            // Successful testcase with Rego Policy Arg str
+            val verificationResultStr =Auditor.getService().verify(vcStr,listOf(RegoPolicy("{\"dataPath\" : \"\$.credentialSubject\", \"input\" : \"{\\\"user\\\": \\\"$did\\\" }\", \"rego\" : \"src/test/resources/rego/subject-policy.rego\", \"resultPath\" : \"\$.result[0].expressions[0].value.test\"}"))).valid
+            verificationResultStr shouldBe true
+
+            // Unsuccessful testcase
             val negQuery = """{"user": "did:key:1234" }"""
             val negResult = Auditor.getService().verify(vcStr,
                 listOf(RegoPolicy(

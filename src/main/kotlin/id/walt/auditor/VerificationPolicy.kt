@@ -1,6 +1,7 @@
 package id.walt.auditor
 
 import com.beust.klaxon.Klaxon
+import com.beust.klaxon.Parser
 import com.jayway.jsonpath.JsonPath
 import id.walt.model.AttributeInfo
 import id.walt.model.TrustedIssuer
@@ -22,6 +23,7 @@ import java.util.*
 import id.walt.vclib.credentials.CredentialStatusCredential
 import id.walt.vclib.credentials.VerifiableMandate
 import io.ktor.client.plugins.*
+import kotlinx.serialization.json.Json
 import java.net.URL
 
 private const val TIR_TYPE_ATTRIBUTE = "attribute"
@@ -290,19 +292,20 @@ class VerifiableMandatePolicy() : VerificationPolicy() {
 data class RegoPolicyArg (
     val input: String,
     val rego: String,
-    val dataPath: String = "\$.credentialSubject",
-    val resultPath: String = "\$.result[0].expressions[0].value.allow"
+    val dataPath: String = "\$.credentialSubject", // for specifying the input data
+    val resultPath: String = "\$.result[0].expressions[0].value.allow" // for evaluating the result from the rego engine
     )
 
 class RegoPolicy() : VerificationPolicy() {
 
     constructor(regoPolicyArg: RegoPolicyArg): this() { arguments = regoPolicyArg }
+    constructor(regoPolicyStr: String): this() { arguments = regoPolicyStr }
 
     override val description = "Verify credential by rego policy"
     override fun doVerify(vc: VerifiableCredential): Boolean {
         // params: rego (string, URL, file, credential property), input (json string), data jsonpath (default: $.credentialSubject)
-        if(arguments != null && arguments is RegoPolicyArg) {
-            val regoPolicyArg = arguments as RegoPolicyArg
+        if(arguments != null) {
+            val regoPolicyArg = if(arguments is RegoPolicyArg) { arguments as RegoPolicyArg } else { Klaxon().parse<RegoPolicyArg>(arguments.toString()) } ?: return false
             val rego = if (regoPolicyArg.rego.startsWith("$")) {
                 JsonPath.parse(vc.json!!).read<String>(regoPolicyArg.rego)
             } else {
