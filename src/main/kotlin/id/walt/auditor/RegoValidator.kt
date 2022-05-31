@@ -11,7 +11,6 @@ import io.ktor.client.statement.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.runBlocking
 import java.io.File
-import java.net.URL
 
 object RegoValidator {
     val client = HttpClient(CIO) {

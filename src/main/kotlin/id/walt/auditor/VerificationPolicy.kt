@@ -23,6 +23,7 @@ import java.util.*
 import id.walt.vclib.credentials.CredentialStatusCredential
 import id.walt.vclib.credentials.VerifiableMandate
 import io.ktor.client.plugins.*
+import kotlinx.serialization.json.Json
 import java.net.URL
 
 private const val TIR_TYPE_ATTRIBUTE = "attribute"
@@ -291,13 +292,14 @@ class VerifiableMandatePolicy() : VerificationPolicy() {
 data class RegoPolicyArg (
     val input: String,
     val rego: String,
-    val dataPath: String = "\$.credentialSubject",
-    val resultPath: String = "\$.result[0].expressions[0].value.allow"
+    val dataPath: String = "\$.credentialSubject", // for specifying the input data
+    val resultPath: String = "\$.result[0].expressions[0].value.allow" // for evaluating the result from the rego engine
     )
 
 class RegoPolicy() : VerificationPolicy() {
 
     constructor(regoPolicyArg: RegoPolicyArg): this() { arguments = regoPolicyArg }
+    constructor(regoPolicyStr: String): this() { arguments = regoPolicyStr }
 
     override val description = "Verify credential by rego policy"
     override fun doVerify(vc: VerifiableCredential): Boolean {
