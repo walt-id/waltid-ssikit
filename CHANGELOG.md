@@ -4,6 +4,12 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
 
 ## [Unreleased]
 
+- Roadmap Items
+  - Verifiable Mandate & Delegation https://github.com/walt-id/waltid-roadmap/issues/37
+  - Integration of Open Policy Agent https://github.com/walt-id/waltid-roadmap/issues/40
+- Features
+  - Support rego policy via CLI  https://github.com/walt-id/waltid-ssikit/pull/134
+
 ## [1.10.0] - 2022-05-10
 
 -   Bumped all dependencies
