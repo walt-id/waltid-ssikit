@@ -48,6 +48,8 @@ class AuditorCommandTest : StringSpec() {
             listOf(vcStr), did, did, "https://api.preprod.ebsi.eu", "d04442d3-661f-411e-a80f-42f19f594c9d", null
         )
 
+        println(vpStr)
+
         vcJwt = signatory.issue(
             "VerifiableDiploma", ProofConfig(
                 issuerDid = did, subjectDid = did, issuerVerificationMethod = "Ed25519Signature2018", proofType = ProofType.JWT

@@ -55,10 +55,10 @@ The documentation is hosted at: https://docs.walt.id/ssikit/
 
 Direct links for using the SSI Kit are:
 
-- Quick Start (Build & run the SSI Kit with Docker or with **ssikit.sh**): https://docs.walt.id/getting-started/quick-start
-- Docs: https://docs.walt.id/what-is-the-ssi-kit/readme
-- CLI Tool:https://docs.walt.id/getting-started/cli-command-line-interface
-- APIs: https://docs.walt.id/getting-started/rest-apis
+- Quick Start (Build & run the SSI Kit with Docker or with **ssikit.sh**): https://docs.walt.id/v/ssikit/getting-started/quick-start
+- Docs: https://docs.walt.id/v/ssikit/ssi-kit/ssi-kit
+- CLI Tool: https://docs.walt.id/v/ssikit/getting-started/cli-command-line-interface
+- APIs: https://docs.walt.id/v/ssikit/getting-started/rest-apis
 
 ## Examples
 
@@ -88,6 +88,15 @@ Following code snipped gives a first impression how to use the SSI Kit for creat
         println("JSON verification result: ${resJson.overallStatus}")
         println("JWT verification result: ${resJwt.overallStatus}")
     }
+
+## Relevant Standards
+
+- EBSI Wallet Conformance https://ec.europa.eu/digital-building-blocks/wikis/display/EBSIDOC/EBSI+Wallet+Conformance+Testing
+- Verifiable Credentials Data Model 1.0 https://www.w3.org/TR/vc-data-model/
+- Decentralized Identifiers (DIDs) v1.0 https://w3c.github.io/did-core/
+- DID Method Rubric https://w3c.github.io/did-rubric/
+- did:web Decentralized Identifier Method Specification https://w3c-ccg.github.io/did-method-web/
+- The did:key Method v0.7 https://w3c-ccg.github.io/did-method-key/
 
 ## Funded & supported by
 
