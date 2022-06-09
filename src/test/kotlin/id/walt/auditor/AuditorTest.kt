@@ -22,6 +22,7 @@ class AuditorCommandTest : StringSpec() {
     private lateinit var vcJwt: String
     private lateinit var vpStr: String
     private lateinit var vpJwt: String
+    val enableOPATests = kotlin.runCatching { ProcessBuilder("opa").start().waitFor() == 0 }.getOrElse { false }
 
     override suspend fun beforeTest(testCase: TestCase) {
         super.beforeTest(testCase)
@@ -129,7 +130,7 @@ class AuditorCommandTest : StringSpec() {
 
         // CLI call for testing VerifiableMandatePolicy
         // ./ssikit.sh -v vc verify rego-vc.json -p VerifiableMandatePolicy='{"user": "did:ebsi:ze2dC9GezTtVSzjHVMQzpkE", "action": "apply_to_masters", "location": "Slovenia"}'
-        "5. verifiable mandate policy" {
+        "5. verifiable mandate policy".config(enabled = enableOPATests) {
             val mandateSubj = mapOf(
                 "credentialSubject" to mapOf(
                     "id" to did,
@@ -161,7 +162,7 @@ class AuditorCommandTest : StringSpec() {
 
         // CLI call for testing RegoPolicy
         // ./ssikit.sh -v vc verify rego-vc.json -p RegoPolicy='{"dataPath" : "$.credentialSubject.holder", "input" : "{\"user\": \"did:ebsi:ze2dC9GezTtVSzjHVMQzpkE\", \"action\": \"apply_to_masters\", \"location\": \"Slovenia\" }", "rego" : "src/test/resources/rego/test-policy.rego", "resultPath" : "$.result[0].expressions[0].value.allow"}'
-        "6. rego policy" {
+        "6. rego policy".config(enabled = enableOPATests) {
             // Successful testcase
             val query = """{"user": "$did" }"""
             println("Testing query: $query")
@@ -169,14 +170,13 @@ class AuditorCommandTest : StringSpec() {
                 listOf(RegoPolicy(
                     RegoPolicyArg(
                         input = query,
-                        rego = "src/test/resources/rego/subject-policy.rego",
-                        resultPath = "\$.result[0].expressions[0].value.test"
+                        rego = "src/test/resources/rego/subject-policy.rego"
                     )
                 )))
             verificationResult.valid shouldBe true
 
             // Successful testcase with Rego Policy Arg str
-            val verificationResultStr =Auditor.getService().verify(vcStr,listOf(RegoPolicy("{\"dataPath\" : \"\$.credentialSubject\", \"input\" : \"{\\\"user\\\": \\\"$did\\\" }\", \"rego\" : \"src/test/resources/rego/subject-policy.rego\", \"resultPath\" : \"\$.result[0].expressions[0].value.test\"}"))).valid
+            val verificationResultStr =Auditor.getService().verify(vcStr,listOf(RegoPolicy("{\"dataPath\" : \"\$.credentialSubject\", \"input\" : \"{\\\"user\\\": \\\"$did\\\" }\", \"rego\" : \"src/test/resources/rego/subject-policy.rego\"}"))).valid
             verificationResultStr shouldBe true
 
             // Unsuccessful testcase
@@ -185,8 +185,7 @@ class AuditorCommandTest : StringSpec() {
                 listOf(RegoPolicy(
                     RegoPolicyArg(
                         input = negQuery,
-                        rego = "src/test/resources/rego/subject-policy.rego",
-                        resultPath = "\$.result[0].expressions[0].value.test"
+                        rego = "src/test/resources/rego/subject-policy.rego"
                     )
                 )))
             negResult.valid shouldBe false

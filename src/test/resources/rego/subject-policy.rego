@@ -1,12 +1,12 @@
-package app.rbac
+package system
 
 import future.keywords.in
 import future.keywords.every
 
-default test = false
+default main = false
 
 # all inputs must contain user and actions
 
-test {
+main {
     input.user == data.id
 }

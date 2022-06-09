@@ -282,7 +282,7 @@ class VerifiableMandatePolicy() : VerificationPolicy() {
                 jsonInput = arguments as String,
                 data = JsonPath.parse(vc.json!!)?.read("$.credentialSubject.holder")!!,
                 rego = vc.credentialSubject!!.policySchemaURI,
-                resultPath = "\$.result[0].expressions[0].value.allow"
+                regoQuery = "data.system.main"
             )
         }
         return false
@@ -293,7 +293,7 @@ data class RegoPolicyArg (
     val input: String,
     val rego: String,
     val dataPath: String = "\$.credentialSubject", // for specifying the input data
-    val resultPath: String = "\$.result[0].expressions[0].value.allow" // for evaluating the result from the rego engine
+    val regoQuery: String = "data.system.main" // for evaluating the result from the rego engine
     )
 
 class RegoPolicy() : VerificationPolicy() {
@@ -315,7 +315,7 @@ class RegoPolicy() : VerificationPolicy() {
                 jsonInput = regoPolicyArg.input,
                 data = JsonPath.parse(vc.json!!)?.read(regoPolicyArg.dataPath)!!,
                 rego = rego,
-                resultPath = regoPolicyArg.resultPath
+                regoQuery = regoPolicyArg.regoQuery
             )
         }
         return false
