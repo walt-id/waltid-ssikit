@@ -1,9 +1,9 @@
-package app.rbac
+package system
 
 import future.keywords.in
 import future.keywords.every
 
-default allow = false
+default main = false
 
 roles = ["family", "friend"]
 grants = {
@@ -17,7 +17,7 @@ constraints = {
 
 # all inputs must contain user and actions
 
-allow {
+main {
     input.user == data.id
     data.role in roles
     input.action in grants[data.role]
