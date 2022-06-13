@@ -22,7 +22,6 @@ import id.walt.model.DidMethod.*
 import id.walt.model.DidUrl
 import id.walt.services.crypto.CryptoService
 import id.walt.services.did.DidService
-import id.walt.services.jwt.keyId
 
 import java.io.File
 import java.nio.file.Path

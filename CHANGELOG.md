@@ -4,6 +4,10 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
 
 ## [Unreleased]
 
+- Features
+  - Added support for did:ebsi V2 by @xmartinez15 https://github.com/walt-id/waltid-ssikit/pull/139
+  - Added support for Open Badge V3 credential by https://github.com/walt-id/waltid-ssikit-vclib/issues/50
+  
 ## [1.11.0] - 2022-05-31
 
 -   Roadmap Items
