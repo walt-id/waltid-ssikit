@@ -1,5 +1,7 @@
 package id.walt.cli
 
+import com.beust.klaxon.JsonObject
+import com.beust.klaxon.Klaxon
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.arguments.argument
@@ -11,6 +13,7 @@ import com.github.ajalt.clikt.parameters.types.file
 import com.github.ajalt.clikt.parameters.types.path
 import id.walt.auditor.Auditor
 import id.walt.auditor.PolicyRegistry
+import id.walt.auditor.RegoPolicyArg
 import id.walt.common.prettyPrint
 import id.walt.custodian.Custodian
 import id.walt.signatory.ProofConfig
@@ -21,6 +24,7 @@ import id.walt.vclib.model.toCredential
 import io.ktor.util.date.*
 import mu.KotlinLogging
 import java.io.File
+import java.io.StringReader
 import java.nio.file.Path
 import java.sql.Timestamp
 import java.time.LocalDateTime
@@ -166,7 +170,7 @@ class VerifyVcCommand : CliktCommand(
     val src: File by argument().file()
 
     //val isPresentation: Boolean by option("-p", "--is-presentation", help = "In case a VP is verified.").flag()
-    val policies: Map<String, Any> by option(
+    val policies: Map<String, String?> by option(
         "-p",
         "--policy",
         help = "Verification policy. Can be specified multiple times. By default, ${PolicyRegistry.defaultPolicyId} is used."
@@ -174,7 +178,7 @@ class VerifyVcCommand : CliktCommand(
 
 
     override fun run() {
-        val usedPolicies = if (policies.isNotEmpty()) policies else mapOf(PolicyRegistry.defaultPolicyId to Unit)
+        val usedPolicies = if (policies.isNotEmpty()) policies else mapOf(PolicyRegistry.defaultPolicyId to null)
 
         echo("Verifying from file \"$src\"...\n")
 
@@ -188,7 +192,7 @@ class VerifyVcCommand : CliktCommand(
         }
 
         val verificationResult = Auditor.getService()
-            .verify(src.readText(), usedPolicies.entries.map { PolicyRegistry.getPolicy(it.key, it.value) })
+            .verify(src.readText(), usedPolicies.entries.map { PolicyRegistry.getPolicyWithJsonArg(it.key, it.value) })
 
         echo("\nResults:\n")
 
@@ -199,13 +203,37 @@ class VerifyVcCommand : CliktCommand(
     }
 }
 
+class VerificationPoliciesCommand : CliktCommand(
+    name = "policies", help = "Manage verification policies"
+) {
+    override fun run() {
+
+    }
+}
+
 class ListVerificationPoliciesCommand : CliktCommand(
-    name = "policies", help = "List verification policies"
+    name = "list", help = "List verification policies"
 ) {
     override fun run() {
         PolicyRegistry.listPolicyInfo().forEachIndexed { index, verificationPolicy ->
-            echo("- ${index + 1}. ${verificationPolicy.id}: ${verificationPolicy.description}")
+            echo("- ${index + 1}. ${verificationPolicy.id}: ${verificationPolicy.description ?: "- no description -"}, expects arguments: ${verificationPolicy.argumentType}")
         }
+    }
+}
+
+class CreateDynamicVerificationPolicyCommand : CliktCommand(
+    name = "create", help = "Create dynamic verification policy"
+) {
+    val name: String by option("-n", "--name", help = "Policy name").required()
+    val description: String? by option("-d", "--description", help = "Policy description (optional)")
+    val rego: String by option("-r", "--rego", help = "Path or URL to rego policy file").required()
+    val dataPath: String by option("-p", "--data-path", help = "JSON path to the data in the credential which should be verified").default("$.credentialSubject")
+    val regoQuery: String by option("-q", "--rego-query", help = "Rego query which should be queried on verification").default("data.system.main")
+    val input: JsonObject by option("-i", "--input", help = "Input JSON object for rego query, which can be overridden/extended on verification").convert { Klaxon().parseJsonObject(StringReader(it)) }.default(JsonObject())
+
+    override fun run() {
+        PolicyRegistry.createSavedPolicy(name, RegoPolicyArg(input, rego, dataPath, regoQuery))
+        echo("Policy created: $name")
     }
 }
 

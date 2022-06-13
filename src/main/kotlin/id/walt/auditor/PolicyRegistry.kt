@@ -66,15 +66,22 @@ object PolicyRegistry {
     fun listPolicies() = policies.keys
     fun listPolicyInfo() = policies.values.map{ p -> VerificationPolicyMetadata(p.name, p.description, p.requiredArgumentType) }
 
-    fun getPolicyWithJsonArg(id: String, argumentJson: String): VerificationPolicy {
+    fun getPolicyWithJsonArg(id: String, argumentJson: String?): VerificationPolicy {
         val policyFactory = policies[id]!!
         val argument =
             policyFactory.argType?.let {
-                Klaxon().fromJsonObject(
-                    Klaxon().parseJsonObject(StringReader(argumentJson)),
-                    policyFactory.argType.java,
-                    policyFactory.argType
-                )
+                argumentJson?.let {
+                    val jsonObj = Klaxon().parseJsonObject(StringReader(argumentJson))
+                    if(policyFactory.argType == JsonObject::class) {
+                        jsonObj
+                    } else {
+                        Klaxon().fromJsonObject(
+                            jsonObj,
+                            policyFactory.argType.java,
+                            policyFactory.argType
+                        )
+                    }
+                }
             }
 
         return policyFactory.create(argument)
