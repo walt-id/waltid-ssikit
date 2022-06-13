@@ -13,6 +13,7 @@ import io.github.rybalkinsd.kohttp.dsl.httpPost
 import io.github.rybalkinsd.kohttp.ext.asString
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -68,14 +69,7 @@ class AuditorApiTest : AnnotationSpec() {
             contentType(ContentType.Application.Json)
         }.body<List<VerificationPolicyMetadata>>()
 
-        policies shouldContain VerificationPolicyMetadata("Verify by signature", "SignaturePolicy", true, true)
-        policies shouldContain VerificationPolicyMetadata("Verify by JSON schema", "JsonSchemaPolicy", true, true)
-        policies shouldContain VerificationPolicyMetadata(
-            "Verify by EBSI Trusted Schema Registry",
-            "TrustedSchemaRegistryPolicy",
-            true,
-            true
-        )
+        policies.map { it.id } shouldContainAll  listOf("SignaturePolicy", "JsonSchemaPolicy", "TrustedSchemaRegistryPolicy")
     }
 
     private fun postAndVerify(vcToVerify: String, policyList: String = DEFAULT_POLICIES) {

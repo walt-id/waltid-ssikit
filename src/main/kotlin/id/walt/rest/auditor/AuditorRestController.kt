@@ -10,7 +10,7 @@ import org.apache.http.HttpStatus
 object AuditorRestController {
 
     fun listPolicies(ctx: Context) {
-        ctx.json(PolicyRegistry.listPolicies().map { PolicyRegistry.getPolicy(it) })
+        ctx.json(PolicyRegistry.listPolicyInfo())
     }
 
     fun listPoliciesDocs() = document().operation {

@@ -1,7 +1,7 @@
 package id.walt.auditor
 
+import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
-import com.beust.klaxon.Parser
 import com.jayway.jsonpath.JsonPath
 import id.walt.model.AttributeInfo
 import id.walt.model.TrustedIssuer
@@ -23,8 +23,6 @@ import java.util.*
 import id.walt.vclib.credentials.CredentialStatusCredential
 import id.walt.vclib.credentials.VerifiableMandate
 import io.ktor.client.plugins.*
-import kotlinx.serialization.json.Json
-import java.net.URL
 
 private const val TIR_TYPE_ATTRIBUTE = "attribute"
 private const val TIR_NAME_ISSUER = "issuer"
@@ -35,7 +33,7 @@ private val dateFormatter =
     SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").also { it.timeZone = TimeZone.getTimeZone("UTC") }
 
 @Serializable
-data class VerificationPolicyMetadata(val description: String, val id: String, val applyToVC: Boolean, val applyToVP: Boolean)
+data class VerificationPolicyMetadata(val id: String, val description: String?, val argumentType: String)
 
 abstract class VerificationPolicy {
     val id: String
@@ -44,7 +42,6 @@ abstract class VerificationPolicy {
     protected abstract fun doVerify(vc: VerifiableCredential): Boolean
     open var applyToVC: Boolean = true
     open var applyToVP: Boolean = true
-    open var arguments: Any? = null
 
     fun verify(vc: VerifiableCredential) = when {
         vc is VerifiablePresentation && applyToVP
@@ -53,7 +50,12 @@ abstract class VerificationPolicy {
     }
 }
 
-class SignaturePolicy : VerificationPolicy() {
+abstract class SimpleVerificationPolicy : VerificationPolicy() {
+}
+
+abstract class ParameterizedVerificationPolicy<T>(val argument: T): VerificationPolicy() {}
+
+class SignaturePolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by signature"
     override fun doVerify(vc: VerifiableCredential) = runCatching {
         log.debug { "is jwt: ${vc.jwt != null}" }
@@ -72,7 +74,7 @@ class SignaturePolicy : VerificationPolicy() {
     }.getOrDefault(false)
 }
 
-class JsonSchemaPolicy : VerificationPolicy() {
+class JsonSchemaPolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by JSON schema"
     override fun doVerify(vc: VerifiableCredential): Boolean = SchemaService.validateSchema(vc.json!!).run {
         return if (valid)
@@ -85,7 +87,7 @@ class JsonSchemaPolicy : VerificationPolicy() {
     }
 }
 
-class TrustedSchemaRegistryPolicy : VerificationPolicy() {
+class TrustedSchemaRegistryPolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by EBSI Trusted Schema Registry"
     override fun doVerify(vc: VerifiableCredential) = when (vc.jwt) {
         null -> jsonLdCredentialService.validateSchemaTsr(vc.encode()) // Schema already validated by json-ld?
@@ -93,7 +95,7 @@ class TrustedSchemaRegistryPolicy : VerificationPolicy() {
     }
 }
 
-class TrustedIssuerDidPolicy : VerificationPolicy() {
+class TrustedIssuerDidPolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by trusted issuer did"
     override fun doVerify(vc: VerifiableCredential): Boolean {
         return try {
@@ -105,7 +107,7 @@ class TrustedIssuerDidPolicy : VerificationPolicy() {
     }
 }
 
-class TrustedIssuerRegistryPolicy : VerificationPolicy() {
+class TrustedIssuerRegistryPolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by trusted EBSI Trusted Issuer Registry record"
     override fun doVerify(vc: VerifiableCredential): Boolean {
 
@@ -143,7 +145,7 @@ class TrustedIssuerRegistryPolicy : VerificationPolicy() {
     override var applyToVP: Boolean = false
 }
 
-class TrustedSubjectDidPolicy : VerificationPolicy() {
+class TrustedSubjectDidPolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by trusted subject did"
     override fun doVerify(vc: VerifiableCredential): Boolean {
         return vc.subject?.let {
@@ -158,7 +160,7 @@ class TrustedSubjectDidPolicy : VerificationPolicy() {
     }
 }
 
-class IssuedDateBeforePolicy : VerificationPolicy() {
+class IssuedDateBeforePolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by issuance date"
     override fun doVerify(vc: VerifiableCredential): Boolean {
         return when (vc) {
@@ -168,7 +170,7 @@ class IssuedDateBeforePolicy : VerificationPolicy() {
     }
 }
 
-class ValidFromBeforePolicy : VerificationPolicy() {
+class ValidFromBeforePolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by valid from"
     override fun doVerify(vc: VerifiableCredential): Boolean {
         return when (vc) {
@@ -178,7 +180,7 @@ class ValidFromBeforePolicy : VerificationPolicy() {
     }
 }
 
-class ExpirationDateAfterPolicy : VerificationPolicy() {
+class ExpirationDateAfterPolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by expiration date"
     override fun doVerify(vc: VerifiableCredential): Boolean {
         return when (vc) {
@@ -188,7 +190,7 @@ class ExpirationDateAfterPolicy : VerificationPolicy() {
     }
 }
 
-class CredentialStatusPolicy : VerificationPolicy() {
+class CredentialStatusPolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by credential status"
     override fun doVerify(vc: VerifiableCredential): Boolean {
         val cs = Klaxon().parse<CredentialStatusCredential>(vc.json!!)!!.credentialStatus!!
@@ -208,27 +210,22 @@ class CredentialStatusPolicy : VerificationPolicy() {
     }
 }
 
-class ChallengePolicy(): VerificationPolicy() {
-    constructor(challenge: String) : this() { arguments = challenge }
-    constructor(challenges: Set<String>) : this() { arguments = challenges }
+data class ChallengePolicyArg(val challenges: Set<String>)
+
+class ChallengePolicy(challengeArg: ChallengePolicyArg): ParameterizedVerificationPolicy<ChallengePolicyArg>(challengeArg) {
+    constructor(challenge: String) : this(ChallengePolicyArg(setOf(challenge))) { }
 
     override val description: String = "Verify challenge"
     override fun doVerify(vc: VerifiableCredential): Boolean {
-        //vc.challenge?.let { verifyChallenge(it) } ?: false
-        return when(arguments) {
-            is String -> vc.challenge?.let { it == arguments } ?: false
-            is Set<*> -> vc.challenge?.let { (arguments as Set<*>).contains(it) } ?: false
-            else -> return false
-        }
+        return vc.challenge?.let { argument.challenges.contains(it) } ?: false
     }
 }
 
-class VpTokenClaimPolicy() : VerificationPolicy() {
-    constructor(vpTokenClaim: VpTokenClaim?): this() { arguments = vpTokenClaim }
+class VpTokenClaimPolicy(tokenClaim: VpTokenClaim) : ParameterizedVerificationPolicy<VpTokenClaim>(tokenClaim) {
     override val description: String = "Verify verifiable presentation by OIDC/SIOPv2 VP token claim"
     override fun doVerify(vc: VerifiableCredential): Boolean {
-        if (arguments != null && arguments is VpTokenClaim && vc is VerifiablePresentation) {
-            return (arguments as VpTokenClaim).presentation_definition.input_descriptors.all { desc ->
+        if (vc is VerifiablePresentation) {
+            return argument.presentation_definition.input_descriptors.all { desc ->
                 vc.verifiableCredential.any { cred -> desc.schema?.uri == cred.credentialSchema?.id }
             }
         }
@@ -239,7 +236,7 @@ class VpTokenClaimPolicy() : VerificationPolicy() {
     override var applyToVC: Boolean = false
 }
 
-class GaiaxTrustedPolicy : VerificationPolicy() {
+class GaiaxTrustedPolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify Gaiax trusted fields"
     override fun doVerify(vc: VerifiableCredential): Boolean {
         // VPs are not considered
@@ -266,58 +263,36 @@ class GaiaxTrustedPolicy : VerificationPolicy() {
     }
 }
 
-class GaiaxSDPolicy : VerificationPolicy() {
+class GaiaxSDPolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify Gaiax SD fields"
     override fun doVerify(vc: VerifiableCredential): Boolean {
         return true
     }
 }
 
-class VerifiableMandatePolicy() : VerificationPolicy() {
-    constructor(inputJson: String): this() { arguments = inputJson }
-    override val description = "Verify verifiable mandate policy"
-    override fun doVerify(vc: VerifiableCredential): Boolean {
-        if (vc is VerifiableMandate && arguments != null && arguments is String) {
-            return RegoValidator.validate(
-                jsonInput = arguments as String,
-                data = JsonPath.parse(vc.json!!)?.read("$.credentialSubject.holder")!!,
-                rego = vc.credentialSubject!!.policySchemaURI,
-                regoQuery = "data.system.main"
-            )
-        }
-        return false
-    }
-}
-
 data class RegoPolicyArg (
-    val input: String,
+    val input: Map<String, Any?>,
     val rego: String,
     val dataPath: String = "\$.credentialSubject", // for specifying the input data
     val regoQuery: String = "data.system.main" // for evaluating the result from the rego engine
     )
 
-class RegoPolicy() : VerificationPolicy() {
-
-    constructor(regoPolicyArg: RegoPolicyArg): this() { arguments = regoPolicyArg }
-    constructor(regoPolicyStr: String): this() { arguments = regoPolicyStr }
+open class RegoPolicy(regoPolicyArg: RegoPolicyArg) : ParameterizedVerificationPolicy<RegoPolicyArg>(regoPolicyArg) {
 
     override val description = "Verify credential by rego policy"
     override fun doVerify(vc: VerifiableCredential): Boolean {
         // params: rego (string, URL, file, credential property), input (json string), data jsonpath (default: $.credentialSubject)
-        if(arguments != null) {
-            val regoPolicyArg = if(arguments is RegoPolicyArg) { arguments as RegoPolicyArg } else { Klaxon().parse<RegoPolicyArg>(arguments.toString()) } ?: return false
-            val rego = if (regoPolicyArg.rego.startsWith("$")) {
-                JsonPath.parse(vc.json!!).read<String>(regoPolicyArg.rego)
-            } else {
-                regoPolicyArg.rego
-            }
-            return RegoValidator.validate(
-                jsonInput = regoPolicyArg.input,
-                data = JsonPath.parse(vc.json!!)?.read(regoPolicyArg.dataPath)!!,
-                rego = rego,
-                regoQuery = regoPolicyArg.regoQuery
-            )
+        val rego = if (argument.rego.startsWith("$")) {
+            JsonPath.parse(vc.json!!).read<String>(argument.rego)
+        } else {
+            argument.rego
         }
+        return RegoValidator.validate(
+            input = argument.input,
+            data = JsonPath.parse(vc.json!!)?.read(argument.dataPath)!!,
+            regoPolicy = rego,
+            regoQuery = argument.regoQuery
+        )
         return false
     }
 }

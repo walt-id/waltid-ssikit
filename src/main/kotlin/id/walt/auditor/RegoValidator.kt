@@ -24,10 +24,10 @@ object RegoValidator {
     }
 
 
-    fun validate(jsonInput: String, data: Map<String, Any?>, rego: String, regoQuery: String): Boolean {
+    fun validate(jsonInput: String, data: Map<String, Any?>, regoPolicy: String, regoQuery: String): Boolean {
         val input: Map<String, Any?> = Parser.default().parse(StringBuilder(jsonInput)) as JsonObject
 
-        return validate(input, data, rego, regoQuery)
+        return validate(input, data, regoPolicy, regoQuery)
     }
 
     const val TEMP_PREFIX = "_TEMP_"

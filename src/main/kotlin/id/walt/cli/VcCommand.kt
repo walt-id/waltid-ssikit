@@ -203,7 +203,7 @@ class ListVerificationPoliciesCommand : CliktCommand(
     name = "policies", help = "List verification policies"
 ) {
     override fun run() {
-        PolicyRegistry.listPolicies().map { PolicyRegistry.getPolicy(it) }.forEachIndexed { index, verificationPolicy ->
+        PolicyRegistry.listPolicyInfo().forEachIndexed { index, verificationPolicy ->
             echo("- ${index + 1}. ${verificationPolicy.id}: ${verificationPolicy.description}")
         }
     }

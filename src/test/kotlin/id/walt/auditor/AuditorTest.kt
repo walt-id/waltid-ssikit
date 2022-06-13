@@ -1,5 +1,6 @@
 package id.walt.auditor
 
+import com.beust.klaxon.JsonObject
 import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
@@ -153,10 +154,10 @@ class AuditorCommandTest : StringSpec() {
                 "user" to did, "action" to "apply_to_masters", "location" to "Slovenia"
             )))*/
             println("Mandate:\n$mandate")
-            val query = """{"user": "$did", "action": "apply_to_masters", "location": "Slovenia"}"""
+            val query = mapOf("user" to did, "action" to "apply_to_masters", "location" to "Slovenia")
             println("Testing query: $query")
             val verificationResult = Auditor.getService()
-                .verify(mandate, listOf(VerifiableMandatePolicy(query)))
+                .verify(mandate, listOf(PolicyRegistry.getPolicy("VerifiableMandatePolicy", JsonObject(query))))
             verificationResult.valid shouldBe true
         }
 
@@ -164,7 +165,7 @@ class AuditorCommandTest : StringSpec() {
         // ./ssikit.sh -v vc verify rego-vc.json -p RegoPolicy='{"dataPath" : "$.credentialSubject.holder", "input" : "{\"user\": \"did:ebsi:ze2dC9GezTtVSzjHVMQzpkE\", \"action\": \"apply_to_masters\", \"location\": \"Slovenia\" }", "rego" : "src/test/resources/rego/test-policy.rego", "resultPath" : "$.result[0].expressions[0].value.allow"}'
         "6. rego policy".config(enabled = enableOPATests) {
             // Successful testcase
-            val query = """{"user": "$did" }"""
+            val query = mapOf("user" to did)
             println("Testing query: $query")
             val verificationResult = Auditor.getService().verify(vcStr,
                 listOf(RegoPolicy(
@@ -176,11 +177,11 @@ class AuditorCommandTest : StringSpec() {
             verificationResult.valid shouldBe true
 
             // Successful testcase with Rego Policy Arg str
-            val verificationResultStr =Auditor.getService().verify(vcStr,listOf(RegoPolicy("{\"dataPath\" : \"\$.credentialSubject\", \"input\" : \"{\\\"user\\\": \\\"$did\\\" }\", \"rego\" : \"src/test/resources/rego/subject-policy.rego\"}"))).valid
+            val verificationResultStr =Auditor.getService().verify(vcStr,listOf(PolicyRegistry.getPolicyWithJsonArg("RegoPolicy", "{\"dataPath\" : \"\$.credentialSubject\", \"input\" : {\"user\": \"$did\" }, \"rego\" : \"src/test/resources/rego/subject-policy.rego\"}"))).valid
             verificationResultStr shouldBe true
 
             // Unsuccessful testcase
-            val negQuery = """{"user": "did:key:1234" }"""
+            val negQuery = mapOf("user" to "did:key:1234")
             val negResult = Auditor.getService().verify(vcStr,
                 listOf(RegoPolicy(
                     RegoPolicyArg(
