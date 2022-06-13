@@ -11,6 +11,7 @@ import id.walt.services.context.ContextManager
 import id.walt.services.crypto.CryptoService
 import id.walt.services.hkvstore.HKVKey
 import id.walt.services.key.KeyService
+import id.walt.services.keystore.KeyType
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.ProofConfig
 import io.ktor.client.plugins.*
@@ -41,7 +42,7 @@ object DidService {
 
     sealed class DidOptions
     data class DidWebOptions(val domain: String?, val path: String? = null) : DidOptions()
-    data class DidEbsiOptions(val addEidasKey: Boolean) : DidOptions()
+    data class DidEbsiOptions(val version: Int) : DidOptions()
 
 
     private val credentialService = JsonLdCredentialService.getService()
@@ -119,8 +120,23 @@ object DidService {
         val key = ContextManager.keyStore.load(keyId.id)
 
         // Created identifier
-        val didUrlStr = DidUrl.generateDidEbsiV2DidUrl().did
-        ContextManager.keyStore.addAlias(keyId, didUrlStr)
+        var didUrlStr: String? = didEbsiOptions?.let {
+            when (it.version) {
+                1 -> {
+                    DidUrl.generateDidEbsiV1DidUrl().did
+                }
+                2 -> {
+                    val publicKeyJwk = keyService.toJwk(keyId.id, KeyType.PUBLIC)
+                    val publicKeyJwkThumbprint = publicKeyJwk.computeThumbprint().decode()
+                    DidUrl.generateDidEbsiV2DidUrl(publicKeyJwkThumbprint).did
+                }
+                else -> null
+            }
+        } ?: let {
+            DidUrl.generateDidEbsiV1DidUrl().did
+        }
+
+        ContextManager.keyStore.addAlias(keyId, didUrlStr!!)
 
         // Created DID doc
         val kid = didUrlStr + "#" + key.keyId

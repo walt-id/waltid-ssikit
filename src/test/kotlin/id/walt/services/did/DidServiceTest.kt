@@ -10,6 +10,7 @@ import id.walt.model.DidMethod
 import id.walt.model.DidUrl
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.key.KeyService
+import id.walt.services.keystore.KeyType
 import id.walt.test.RESOURCES_PATH
 import io.kotest.assertions.json.shouldMatchJson
 import io.kotest.assertions.throwables.shouldThrow
@@ -96,13 +97,28 @@ class DidServiceTest : AnnotationSpec() {
     }
 
     @Test
-    fun createDidEbsiV2Identifier() {
-        val didUrl = DidUrl.generateDidEbsiV2DidUrl()
+    fun createDidEbsiV1Identifier() {
+        val didUrl = DidUrl.generateDidEbsiV1DidUrl()
         val did = didUrl.did
         did.substring(0, 9) shouldBe  "did:ebsi:"
         didUrl.identifier.length shouldBeOneOf listOf(23, 24)
         didUrl.identifier[0] shouldBe 'z'
         didUrl.identifier.substring(1).decodeBase58()[0] shouldBe 0x01
+        didUrl.method shouldBe "ebsi"
+    }
+
+    @Test
+    fun createDidEbsiV2Identifier() {
+        val keyService = KeyService.getService()
+        val keyId = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
+        val publicKeyJwk = keyService.toJwk(keyId.id, KeyType.PUBLIC)
+        val publicKeyJwkThumbprint = publicKeyJwk.computeThumbprint().decode()
+        val didUrl = DidUrl.generateDidEbsiV2DidUrl(publicKeyJwkThumbprint)
+        val did = didUrl.did
+        did.substring(0, 9) shouldBe  "did:ebsi:"
+        didUrl.identifier.length shouldBe 45
+        didUrl.identifier[0] shouldBe 'z'
+        didUrl.identifier.substring(1).decodeBase58()[0] shouldBe 0x02
         didUrl.method shouldBe "ebsi"
     }
 

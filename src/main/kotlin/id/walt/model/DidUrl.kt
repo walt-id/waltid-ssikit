@@ -33,8 +33,11 @@ data class DidUrl(
             return DidUrl(matchResult.groups[1]!!.value, identifierStr, fragmentStr)
         }
 
-        fun generateDidEbsiV2DidUrl() =
+        fun generateDidEbsiV1DidUrl() =
             DidUrl(DidMethod.ebsi.name, "z" + (ByteArray(1) { 0x01.toByte() }.plus(Random.nextBytes(16)).encodeBase58()))
+
+        fun generateDidEbsiV2DidUrl(publicKeyJwkThumbprint: ByteArray) =
+            DidUrl(DidMethod.ebsi.name, "z" + (ByteArray(1) { 0x02.toByte() }.plus(publicKeyJwkThumbprint).encodeBase58()))
 
         fun isDidUrl(url: String): Boolean {
             return PATTERN.toRegex().matches(url)
