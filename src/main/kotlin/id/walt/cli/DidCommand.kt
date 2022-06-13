@@ -13,13 +13,17 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
+import com.github.ajalt.clikt.parameters.types.int
 import com.github.ajalt.clikt.parameters.types.path
 import id.walt.common.prettyPrint
 import id.walt.crypto.KeyAlgorithm
 import id.walt.model.DidMethod
+import id.walt.model.DidMethod.*
 import id.walt.model.DidUrl
 import id.walt.services.crypto.CryptoService
 import id.walt.services.did.DidService
+import id.walt.services.jwt.keyId
+
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
@@ -49,20 +53,27 @@ class CreateDidCommand : CliktCommand(
         .choice("key", "web", "ebsi").default("key")
 
     val keyAlias: String? by option("-k", "--key", help = "Specific key (ID or alias)")
-    val domain: String by option("-d", "--domain", help = "Domain for did:web").default("walt.id")
-    val path: String? by option("-p", "--path", help = "Path for did:web")
+    val didWebDomain: String by option("-d", "--domain", help = "Domain for did:web").default("walt.id")
+    val didWebPath: String? by option("-p", "--path", help = "Path for did:web")
+    val didEbsiVersion: Int by option("-v", "--version", help = "Version of did:ebsi. Allowed values: 1 (default), 2").int().default(1)
     val dest: Path? by argument("destination-file").path().optional()
 
     override fun run() {
 
-        val keyId = keyAlias ?: when (method) {
-            "ebsi" -> CryptoService.getService().generateKey(KeyAlgorithm.ECDSA_Secp256k1).id
+        val didMethod = DidMethod.valueOf(method)
+
+        val keyId = keyAlias ?: when (didMethod) {
+            ebsi -> CryptoService.getService().generateKey(KeyAlgorithm.ECDSA_Secp256k1).id
             else -> CryptoService.getService().generateKey(KeyAlgorithm.EdDSA_Ed25519).id
         }
 
         echo("Creating did:${method} (key: ${keyId})")
 
-        val did = DidService.create(DidMethod.valueOf(method), keyId, DidService.DidWebOptions(domain, path))
+        val did = when(didMethod) {
+            web -> DidService.create(web, keyId, DidService.DidWebOptions(didWebDomain, didWebPath))
+            ebsi -> DidService.create(ebsi, keyId, DidService.DidEbsiOptions(didEbsiVersion))
+            key -> DidService.create(key, keyId)
+        }
 
         echo("\nResults:\n")
         echo("\nDID created: $did\n")
@@ -75,10 +86,10 @@ class CreateDidCommand : CliktCommand(
             dest!!.writeText(encodedDid)
         }
 
-        when (method) {
-            "web" -> echo(
-                "\nInstall this did:web at: https://$domain/.well-known/${
-                    path?.replace(":", "/") ?: ""
+        when (didMethod) {
+            web -> echo(
+                "\nInstall this did:web at: https://$didWebDomain/.well-known/${
+                    didWebPath?.replace(":", "/") ?: ""
                 }/did.json"
             )
         }

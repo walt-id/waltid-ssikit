@@ -42,7 +42,7 @@ object DidService {
 
     sealed class DidOptions
     data class DidWebOptions(val domain: String?, val path: String? = null) : DidOptions()
-    data class DidEbsiOptions(val addEidasKey: Boolean, val version: Int) : DidOptions()
+    data class DidEbsiOptions(val version: Int) : DidOptions()
 
 
     private val credentialService = JsonLdCredentialService.getService()
