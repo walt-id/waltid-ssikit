@@ -237,16 +237,13 @@ class CreateDynamicVerificationPolicyCommand : CliktCommand(
     val engine: PolicyEngineType by option("-e", "--policy-engine", help = "Policy engine type, default: OPA").enum<PolicyEngineType>().default(PolicyEngineType.OPA)
 
     override fun run() {
-        val policyContent = when(save) {
-            true -> resolveContent(policy)
-            false -> policy
-        }
-        if(PolicyRegistry.canCreatePolicy(name, force)) {
-            val savedRegoArg = PolicyRegistry.createSavedPolicy(
+        if(PolicyRegistry.createSavedPolicy(
                 name,
-                DynamicPolicyArg(name, description, input, policyContent, dataPath, policyQuery)
-            )
-            echo("Policy created: ${savedRegoArg.name}")
+                DynamicPolicyArg(name, description, input, policy, dataPath, policyQuery),
+                force,
+                save
+            )) {
+            echo("Policy created: ${name}")
         } else {
             echo("Policy already exists! Only dynamic policies can be overridden using the --force flag.")
         }

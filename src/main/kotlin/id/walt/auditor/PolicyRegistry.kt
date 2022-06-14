@@ -5,6 +5,7 @@ import com.beust.klaxon.Klaxon
 import id.walt.auditor.dynamic.DynamicPolicy
 import id.walt.auditor.dynamic.DynamicPolicyArg
 import id.walt.common.deepMerge
+import id.walt.common.resolveContent
 import id.walt.model.oidc.VpTokenClaim
 import id.walt.services.context.WaltIdContext
 import id.walt.services.hkvstore.HKVKey
@@ -97,10 +98,18 @@ object PolicyRegistry {
         return !policies.contains(name) || (policies[name] is DynamicPolicyFactory && override)
     }
 
-    fun createSavedPolicy(name: String, dynPolArg: DynamicPolicyArg): DynamicPolicyArg {
-        WaltIdContext.hkvStore.put(HKVKey(SAVED_POLICY_ROOT_KEY, name), Klaxon().toJsonString(dynPolArg))
-        registerSavedPolicy(name, dynPolArg)
-        return dynPolArg
+    fun createSavedPolicy(name: String, dynPolArg: DynamicPolicyArg, override: Boolean, download: Boolean): Boolean {
+        if(canCreatePolicy(name, override)) {
+            val policyContent = when(download) {
+                true -> resolveContent(dynPolArg.policy)
+                false -> dynPolArg.policy
+            }
+            val dynPolArgMod = DynamicPolicyArg(name, dynPolArg.description, dynPolArg.input, policyContent, dynPolArg.dataPath, dynPolArg.policyQuery)
+            WaltIdContext.hkvStore.put(HKVKey(SAVED_POLICY_ROOT_KEY, name), Klaxon().toJsonString(dynPolArgMod))
+            registerSavedPolicy(name, dynPolArgMod)
+            return true
+        }
+        return false
     }
 
     fun deleteSavedPolicy(name: String) {
