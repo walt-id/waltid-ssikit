@@ -28,8 +28,11 @@ fun resolveContent(fileUrlContent: String): String {
   return fileUrlContent
 }
 
-fun resolveContentToTempFile(fileUrlContent: String, prefix: String = "TEMP", postfix: String = ".txt"): File {
-  val file = File.createTempFile(prefix, postfix)
+fun resolveContentToFile(fileUrlContent: String, tempPrefix: String = "TEMP", tempPostfix: String = ".txt"): File {
+  val fileCheck = File(fileUrlContent)
+  if(fileCheck.exists())
+    return fileCheck
+  val file = File.createTempFile(tempPrefix, tempPostfix)
   file.writeText(resolveContent(fileUrlContent))
   return file
 }
