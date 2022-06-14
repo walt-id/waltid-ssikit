@@ -165,7 +165,7 @@ class AuditorCommandTest : StringSpec() {
 
         // CLI call for testing RegoPolicy
         // ./ssikit.sh -v vc verify rego-vc.json -p RegoPolicy='{"dataPath" : "$.credentialSubject.holder", "input" : "{\"user\": \"did:ebsi:ze2dC9GezTtVSzjHVMQzpkE\", \"action\": \"apply_to_masters\", \"location\": \"Slovenia\" }", "rego" : "src/test/resources/rego/test-policy.rego", "resultPath" : "$.result[0].expressions[0].value.allow"}'
-        "6. rego policy".config(enabled = enableOPATests) {
+        "6. dynamic policy".config(enabled = enableOPATests) {
             // Successful testcase
             val query = mapOf("user" to did)
             println("Testing query: $query")
@@ -181,7 +181,7 @@ class AuditorCommandTest : StringSpec() {
             verificationResult.valid shouldBe true
 
             // Successful testcase with Rego Policy Arg str
-            val verificationResultStr =Auditor.getService().verify(vcStr,listOf(PolicyRegistry.getPolicyWithJsonArg("RegoPolicy", "{\"dataPath\" : \"\$.credentialSubject\", \"input\" : {\"user\": \"$did\" }, \"rego\" : \"src/test/resources/rego/subject-policy.rego\"}"))).valid
+            val verificationResultStr =Auditor.getService().verify(vcStr,listOf(PolicyRegistry.getPolicyWithJsonArg("DynamicPolicy", "{\"dataPath\" : \"\$.credentialSubject\", \"input\" : {\"user\": \"$did\" }, \"policy\" : \"src/test/resources/rego/subject-policy.rego\"}"))).valid
             verificationResultStr shouldBe true
 
             // Unsuccessful testcase
