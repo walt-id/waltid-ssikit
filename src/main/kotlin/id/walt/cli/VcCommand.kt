@@ -14,6 +14,7 @@ import com.github.ajalt.clikt.parameters.types.path
 import id.walt.auditor.Auditor
 import id.walt.auditor.PolicyRegistry
 import id.walt.auditor.RegoPolicyArg
+import id.walt.auditor.RegoValidator
 import id.walt.common.prettyPrint
 import id.walt.custodian.Custodian
 import id.walt.signatory.ProofConfig
@@ -192,7 +193,7 @@ class VerifyVcCommand : CliktCommand(
         }
 
         val verificationResult = Auditor.getService()
-            .verify(src.readText(), usedPolicies.entries.map { PolicyRegistry.getPolicyWithJsonArg(it.key, it.value) })
+            .verify(src.readText(), usedPolicies.entries.map { PolicyRegistry.getPolicyWithJsonArg(it.key, it.value?.ifEmpty { null }) })
 
         echo("\nResults:\n")
 
@@ -216,7 +217,7 @@ class ListVerificationPoliciesCommand : CliktCommand(
 ) {
     override fun run() {
         PolicyRegistry.listPolicyInfo().forEachIndexed { index, verificationPolicy ->
-            echo("- ${index + 1}. ${verificationPolicy.id}: ${verificationPolicy.description ?: "- no description -"}, expects arguments: ${verificationPolicy.argumentType}")
+            echo("- ${index + 1}. ${verificationPolicy.id}\t ${verificationPolicy.description ?: "- no description -"},\t Argument: ${verificationPolicy.argumentType}\n")
         }
     }
 }
@@ -230,9 +231,20 @@ class CreateDynamicVerificationPolicyCommand : CliktCommand(
     val dataPath: String by option("-p", "--data-path", help = "JSON path to the data in the credential which should be verified").default("$.credentialSubject")
     val regoQuery: String by option("-q", "--rego-query", help = "Rego query which should be queried on verification").default("data.system.main")
     val input: JsonObject by option("-i", "--input", help = "Input JSON object for rego query, which can be overridden/extended on verification").convert { Klaxon().parseJsonObject(StringReader(it)) }.default(JsonObject())
+    val saveRego: Boolean by option("-s", "--save-rego", help = "Downloads and/or saves the rego policy locally, rather than keeping the reference to the original URL").flag(default = false)
 
     override fun run() {
-        PolicyRegistry.createSavedPolicy(name, RegoPolicyArg(input, rego, dataPath, regoQuery))
+        val regoContent = when(saveRego) {
+            true -> {
+                val f = RegoValidator.resolveRego(rego)
+                val content = f.readText()
+                if(f.name.startsWith(RegoValidator.TEMP_PREFIX)) { f.delete() }
+                content
+            }
+            false -> rego
+        }
+
+        PolicyRegistry.createSavedPolicy(name, RegoPolicyArg(input, regoContent, dataPath, regoQuery, name, description = description))
         echo("Policy created: $name")
     }
 }

@@ -41,7 +41,8 @@ class SavedPolicyFactory(val regoPolicyArg: RegoPolicyArg, name: String, descrip
             input = mergedInput,
             rego = regoPolicyArg.rego,
             dataPath = regoPolicyArg.dataPath,
-            regoQuery = regoPolicyArg.regoQuery
+            regoQuery = regoPolicyArg.regoQuery,
+            policyId = name
         ))
     }
 }
@@ -57,8 +58,8 @@ object PolicyRegistry {
     fun <P : SimpleVerificationPolicy> register(policy: KClass<P>, description: String? = null)
         = policies.put(policy.simpleName!!, PolicyFactory<P, Unit>(policy, null, policy.simpleName!!, description))
 
-    fun registerSavedPolicy(name: String, regoPolicyArg: RegoPolicyArg, description: String? = null)
-        = policies.put(name, SavedPolicyFactory(regoPolicyArg, name, description))
+    fun registerSavedPolicy(name: String, regoPolicyArg: RegoPolicyArg)
+        = policies.put(name, SavedPolicyFactory(regoPolicyArg, name, regoPolicyArg.description))
 
     fun <A: Any> getPolicy(id: String, argument: A? = null) = policies[id]!!.create(argument)
     fun getPolicy(id: String) = getPolicy(id, null)
@@ -105,27 +106,27 @@ object PolicyRegistry {
 
     init {
         defaultPolicyId = SignaturePolicy::class.simpleName!!
-        register(SignaturePolicy::class, "Verifies signature")
-        register(JsonSchemaPolicy::class)
-        register(TrustedSchemaRegistryPolicy::class)
-        register(TrustedIssuerDidPolicy::class)
-        register(TrustedIssuerRegistryPolicy::class)
-        register(TrustedSubjectDidPolicy::class)
-        register(IssuedDateBeforePolicy::class)
-        register(ValidFromBeforePolicy::class)
-        register(ExpirationDateAfterPolicy::class)
-        register(GaiaxTrustedPolicy::class)
-        register(GaiaxSDPolicy::class)
-        register(ChallengePolicy::class, ChallengePolicyArg::class)
-        register(VpTokenClaimPolicy::class, VpTokenClaim::class)
-        register(CredentialStatusPolicy::class)
-        register(RegoPolicy::class, RegoPolicyArg::class)
+        register(SignaturePolicy::class, "Verify by signature")
+        register(JsonSchemaPolicy::class, "Verify by JSON schema")
+        register(TrustedSchemaRegistryPolicy::class, "Verify by EBSI Trusted Schema Registry")
+        register(TrustedIssuerDidPolicy::class, "Verify by trusted issuer did")
+        register(TrustedIssuerRegistryPolicy::class, "Verify by trusted EBSI Trusted Issuer Registry record")
+        register(TrustedSubjectDidPolicy::class, "Verify by trusted subject did")
+        register(IssuedDateBeforePolicy::class, "Verify by issuance date")
+        register(ValidFromBeforePolicy::class, "Verify by valid from")
+        register(ExpirationDateAfterPolicy::class, "Verify by expiration date")
+        register(GaiaxTrustedPolicy::class, "Verify Gaiax trusted fields")
+        register(GaiaxSDPolicy::class, "Verify Gaiax SD fields")
+        register(ChallengePolicy::class, ChallengePolicyArg::class, "Verify challenge")
+        register(VpTokenClaimPolicy::class, VpTokenClaim::class, "Verify verifiable presentation by OIDC/SIOPv2 VP token claim")
+        register(CredentialStatusPolicy::class, "Verify by credential status")
+        register(RegoPolicy::class, RegoPolicyArg::class, "Verify credential by rego policy")
 
         // predefined, hardcoded rego policy specializations
         // VerifiableMandate policy as specialized rego policy
         registerSavedPolicy("VerifiableMandatePolicy", RegoPolicyArg(
             JsonObject(), "$.credentialSubject.policySchemaURI",
-            "$.credentialSubject.holder", "data.system.main"))
+            "$.credentialSubject.holder", "data.system.main", description = "Verify verifiable mandate"))
 
         // other saved (Rego) policies
         initSavedPolicies()

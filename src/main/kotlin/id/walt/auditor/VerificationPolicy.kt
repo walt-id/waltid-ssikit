@@ -36,7 +36,7 @@ private val dateFormatter =
 data class VerificationPolicyMetadata(val id: String, val description: String?, val argumentType: String)
 
 abstract class VerificationPolicy {
-    val id: String
+    open val id: String
         get() = this.javaClass.simpleName
     abstract val description: String
     protected abstract fun doVerify(vc: VerifiableCredential): Boolean
@@ -274,11 +274,14 @@ data class RegoPolicyArg (
     val input: Map<String, Any?>,
     val rego: String,
     val dataPath: String = "\$.credentialSubject", // for specifying the input data
-    val regoQuery: String = "data.system.main" // for evaluating the result from the rego engine
+    val regoQuery: String = "data.system.main", // for evaluating the result from the rego engine
+    val policyId: String = "RegoPolicy",
+    val description: String? = null
     )
 
 open class RegoPolicy(regoPolicyArg: RegoPolicyArg) : ParameterizedVerificationPolicy<RegoPolicyArg>(regoPolicyArg) {
-
+    override val id: String
+        get() = argument.policyId
     override val description = "Verify credential by rego policy"
     override fun doVerify(vc: VerifiableCredential): Boolean {
         // params: rego (string, URL, file, credential property), input (json string), data jsonpath (default: $.credentialSubject)
