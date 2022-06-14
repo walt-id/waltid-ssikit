@@ -13,9 +13,10 @@ import com.github.ajalt.clikt.parameters.types.file
 import com.github.ajalt.clikt.parameters.types.path
 import id.walt.auditor.Auditor
 import id.walt.auditor.PolicyRegistry
-import id.walt.auditor.RegoPolicyArg
-import id.walt.auditor.RegoValidator
+import id.walt.auditor.dynamic.DynamicPolicyArg
+import id.walt.auditor.dynamic.PolicyEngineType
 import id.walt.common.prettyPrint
+import id.walt.common.resolveContent
 import id.walt.custodian.Custodian
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
@@ -217,7 +218,7 @@ class ListVerificationPoliciesCommand : CliktCommand(
 ) {
     override fun run() {
         PolicyRegistry.listPolicyInfo().forEachIndexed { index, verificationPolicy ->
-            echo("- ${index + 1}. ${verificationPolicy.id}\t ${verificationPolicy.description ?: "- no description -"},\t Argument: ${verificationPolicy.argumentType}\n")
+            echo("- ${index + 1}. ${verificationPolicy.id}${if(verificationPolicy.isDynamic) " (dynamic)" else ""}\t ${verificationPolicy.description ?: "- no description -"},\t Argument: ${verificationPolicy.argumentType}")
         }
     }
 }
@@ -225,27 +226,30 @@ class ListVerificationPoliciesCommand : CliktCommand(
 class CreateDynamicVerificationPolicyCommand : CliktCommand(
     name = "create", help = "Create dynamic verification policy"
 ) {
-    val name: String by option("-n", "--name", help = "Policy name, will be prepended with ${PolicyRegistry.OPA_POLICY_PREFIX}, if prefix is not already specified").required()
-    val description: String? by option("-d", "--description", help = "Policy description (optional)")
-    val rego: String by option("-r", "--rego", help = "Path or URL to rego policy file").required()
-    val dataPath: String by option("-p", "--data-path", help = "JSON path to the data in the credential which should be verified").default("$.credentialSubject")
-    val regoQuery: String by option("-q", "--rego-query", help = "Rego query which should be queried on verification").default("data.system.main")
+    val name: String by option("-n", "--name", help = "Policy name, must not conflict with existing policies").required()
+    val description: String? by option("-D", "--description", help = "Policy description (optional)")
+    val policy: String by option("-p", "--policy", help = "Path or URL to policy definition. e.g.: rego file for OPA policy engine").required()
+    val dataPath: String by option("-d", "--data-path", help = "JSON path to the data in the credential which should be verified").default("$.credentialSubject")
+    val policyQuery: String by option("-q", "--policy-query", help = "Policy query which should be queried by policy engine").default("data.system.main")
     val input: JsonObject by option("-i", "--input", help = "Input JSON object for rego query, which can be overridden/extended on verification").convert { Klaxon().parseJsonObject(StringReader(it)) }.default(JsonObject())
-    val saveRego: Boolean by option("-s", "--save-rego", help = "Downloads and/or saves the rego policy locally, rather than keeping the reference to the original URL").flag(default = false)
+    val save: Boolean by option("-s", "--save-policy", help = "Downloads and/or saves the policy definition locally, rather than keeping the reference to the original URL").flag(default = false)
+    val force: Boolean by option("-f", "--force", help = "Override existing policy with that name (static policies cannot be overridden!)").flag(default = false)
+    val engine: PolicyEngineType by option("-e", "--policy-engine", help = "Policy engine type, default: OPA").enum<PolicyEngineType>().default(PolicyEngineType.OPA)
 
     override fun run() {
-        val regoContent = when(saveRego) {
-            true -> {
-                val f = RegoValidator.resolveRego(rego)
-                val content = f.readText()
-                if(f.name.startsWith(RegoValidator.TEMP_PREFIX)) { f.delete() }
-                content
-            }
-            false -> rego
+        val policyContent = when(save) {
+            true -> resolveContent(policy)
+            false -> policy
         }
-
-        val savedRegoArg = PolicyRegistry.createSavedPolicy(name, RegoPolicyArg(input, regoContent, dataPath, regoQuery, name, description = description))
-        echo("Policy created: ${savedRegoArg.policyId}")
+        if(PolicyRegistry.canCreatePolicy(name, force)) {
+            val savedRegoArg = PolicyRegistry.createSavedPolicy(
+                name,
+                DynamicPolicyArg(name, description, input, policyContent, dataPath, policyQuery)
+            )
+            echo("Policy created: ${savedRegoArg.name}")
+        } else {
+            echo("Policy already exists! Only dynamic policies can be overridden using the --force flag.")
+        }
     }
 }
 

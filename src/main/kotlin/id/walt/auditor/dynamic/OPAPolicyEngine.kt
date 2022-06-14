@@ -1,9 +1,9 @@
-package id.walt.auditor
+package id.walt.auditor.dynamic
 
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
 import com.beust.klaxon.Parser
-import com.jayway.jsonpath.JsonPath
+import id.walt.common.resolveContentToTempFile
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
@@ -12,16 +12,11 @@ import io.ktor.client.statement.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
-import org.web3j.abi.datatypes.Bool
 import java.io.File
 
-object RegoValidator {
+object OPAPolicyEngine : PolicyEngine {
     private val log = KotlinLogging.logger {}
-    val client = HttpClient(CIO) {
-        install(ContentNegotiation) {
-            json()
-        }
-    }
+
 
 
     fun validate(jsonInput: String, data: Map<String, Any?>, regoPolicy: String, regoQuery: String): Boolean {
@@ -30,31 +25,12 @@ object RegoValidator {
         return validate(input, data, regoPolicy, regoQuery)
     }
 
-    const val TEMP_PREFIX = "_TEMP_"
-
-    fun resolveRego(rego: String): File {
-        var regoFile = File(rego)
-        if(regoFile.exists()) {
-            return regoFile
-        }
-        regoFile = File.createTempFile(TEMP_PREFIX, ".rego")
-        regoFile.writeText(
-            when(Regex("^https?:\\/\\/.*$").matches(rego)) {
-                true -> runBlocking {
-                    client.get(rego).bodyAsText()
-                }
-                else -> rego
-            }
-        )
-        return regoFile
-    }
-
-    fun validate(input: Map<String, Any?>, data: Map<String, Any?>, regoPolicy: String, regoQuery: String): Boolean {
-        val regoFile = resolveRego(regoPolicy)
+    override fun validate(input: Map<String, Any?>, data: Map<String, Any?>, policy: String, query: String): Boolean {
+        val regoFile = resolveContentToTempFile(policy)
         val dataFile = File.createTempFile("data", ".json")
         dataFile.writeText(JsonObject(data).toJsonString())
         try {
-            val p = ProcessBuilder("opa", "eval", "-d", regoFile.absolutePath, "-d", dataFile.absolutePath, "-I", "-f", "values", regoQuery)
+            val p = ProcessBuilder("opa", "eval", "-d", regoFile.absolutePath, "-d", dataFile.absolutePath, "-I", "-f", "values", query)
                 .start()
             p.outputStream.writer().use { it.write(JsonObject(input).toJsonString()) }
             val output = p.inputStream.reader().use { it.readText() }
@@ -62,7 +38,7 @@ object RegoValidator {
             log.debug("rego eval output: {}", output)
             return Klaxon().parseArray<Boolean>(output)?.all { it } ?: false
         } finally {
-            if(regoFile.exists() && regoFile.name.startsWith(TEMP_PREFIX)) {
+            if(regoFile.exists()) {
               regoFile.delete()
             }
             if(dataFile.exists()) {
@@ -70,4 +46,6 @@ object RegoValidator {
             }
         }
     }
+
+    override val type: PolicyEngineType = PolicyEngineType.OPA
 }

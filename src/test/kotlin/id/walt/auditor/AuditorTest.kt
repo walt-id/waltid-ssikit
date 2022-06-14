@@ -1,6 +1,8 @@
 package id.walt.auditor
 
 import com.beust.klaxon.JsonObject
+import id.walt.auditor.dynamic.DynamicPolicy
+import id.walt.auditor.dynamic.DynamicPolicyArg
 import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
@@ -168,12 +170,14 @@ class AuditorCommandTest : StringSpec() {
             val query = mapOf("user" to did)
             println("Testing query: $query")
             val verificationResult = Auditor.getService().verify(vcStr,
-                listOf(RegoPolicy(
-                    RegoPolicyArg(
+                listOf(
+                    DynamicPolicy(
+                    DynamicPolicyArg(
                         input = query,
-                        rego = "src/test/resources/rego/subject-policy.rego"
+                        policy = "src/test/resources/rego/subject-policy.rego"
                     )
-                )))
+                )
+                ))
             verificationResult.valid shouldBe true
 
             // Successful testcase with Rego Policy Arg str
@@ -183,12 +187,14 @@ class AuditorCommandTest : StringSpec() {
             // Unsuccessful testcase
             val negQuery = mapOf("user" to "did:key:1234")
             val negResult = Auditor.getService().verify(vcStr,
-                listOf(RegoPolicy(
-                    RegoPolicyArg(
+                listOf(
+                    DynamicPolicy(
+                    DynamicPolicyArg(
                         input = negQuery,
-                        rego = "src/test/resources/rego/subject-policy.rego"
+                        policy = "src/test/resources/rego/subject-policy.rego"
                     )
-                )))
+                )
+                ))
             negResult.valid shouldBe false
         }
     }

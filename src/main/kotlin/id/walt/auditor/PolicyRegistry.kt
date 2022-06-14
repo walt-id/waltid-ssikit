@@ -1,15 +1,14 @@
 package id.walt.auditor
 
-import com.beust.klaxon.Json
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.google.common.collect.ImmutableMap
+import id.walt.auditor.dynamic.DynamicPolicy
+import id.walt.auditor.dynamic.DynamicPolicyArg
 import id.walt.common.deepMerge
 import id.walt.model.oidc.VpTokenClaim
 import id.walt.services.context.WaltIdContext
 import id.walt.services.hkvstore.HKVKey
-import io.javalin.core.util.RouteOverviewUtil.metaInfo
+import org.web3j.abi.datatypes.Bool
 import java.io.StringReader
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
@@ -30,26 +29,28 @@ open class PolicyFactory<P : VerificationPolicy, A: Any>(val policyType: KClass<
     }
 }
 
-class SavedPolicyFactory(val regoPolicyArg: RegoPolicyArg, name: String, description: String?) : PolicyFactory<RegoPolicy, JsonObject>(RegoPolicy::class, JsonObject::class, name, description) {
-    override fun create(argument: Any?): RegoPolicy {
+class DynamicPolicyFactory(val dynamicPolicyArg: DynamicPolicyArg, name: String, description: String?) : PolicyFactory<DynamicPolicy, JsonObject>(
+    DynamicPolicy::class, JsonObject::class, name, description) {
+    override fun create(argument: Any?): DynamicPolicy {
         val mergedInput = if(argument != null) {
-            JsonObject(regoPolicyArg.input).deepMerge(argument as JsonObject)
+            JsonObject(dynamicPolicyArg.input).deepMerge(argument as JsonObject)
         } else {
-            regoPolicyArg.input
+            dynamicPolicyArg.input
         }
-        return super.create(RegoPolicyArg(
+        return super.create(
+            DynamicPolicyArg(
             input = mergedInput,
-            rego = regoPolicyArg.rego,
-            dataPath = regoPolicyArg.dataPath,
-            regoQuery = regoPolicyArg.regoQuery,
-            policyId = name
-        ))
+            policy = dynamicPolicyArg.policy,
+            dataPath = dynamicPolicyArg.dataPath,
+            policyQuery = dynamicPolicyArg.policyQuery,
+            name = name
+        )
+        )
     }
 }
 
 object PolicyRegistry {
     const val SAVED_POLICY_ROOT_KEY = "policies"
-    const val OPA_POLICY_PREFIX = "OPA-"
     private val policies = LinkedHashMap<String, PolicyFactory<*, *>>()
     val defaultPolicyId: String
 
@@ -59,14 +60,14 @@ object PolicyRegistry {
     fun <P : SimpleVerificationPolicy> register(policy: KClass<P>, description: String? = null)
         = policies.put(policy.simpleName!!, PolicyFactory<P, Unit>(policy, null, policy.simpleName!!, description))
 
-    fun registerSavedPolicy(name: String, regoPolicyArg: RegoPolicyArg)
-        = policies.put(name, SavedPolicyFactory(regoPolicyArg, name, regoPolicyArg.description))
+    fun registerSavedPolicy(name: String, dynamicPolicyArg: DynamicPolicyArg)
+        = policies.put(name, DynamicPolicyFactory(dynamicPolicyArg, name, dynamicPolicyArg.description))
 
     fun <A: Any> getPolicy(id: String, argument: A? = null) = policies[id]!!.create(argument)
     fun getPolicy(id: String) = getPolicy(id, null)
     fun contains(id: String) = policies.containsKey(id)
     fun listPolicies() = policies.keys
-    fun listPolicyInfo() = policies.values.map{ p -> VerificationPolicyMetadata(p.name, p.description, p.requiredArgumentType) }
+    fun listPolicyInfo() = policies.values.map{ p -> VerificationPolicyMetadata(p.name, p.description, p.requiredArgumentType, p is DynamicPolicyFactory) }
 
     fun getPolicyWithJsonArg(id: String, argumentJson: String?): VerificationPolicy {
         val policyFactory = policies[id]!!
@@ -89,12 +90,14 @@ object PolicyRegistry {
         return policyFactory.create(argument)
     }
 
-    fun createSavedPolicy(name: String, regoPolicyArg: RegoPolicyArg): RegoPolicyArg {
-        val polName = if(name.startsWith(OPA_POLICY_PREFIX)) name else "$OPA_POLICY_PREFIX$name"
-        val regoArg = RegoPolicyArg(regoPolicyArg.input, regoPolicyArg.rego, regoPolicyArg.dataPath, regoPolicyArg.regoQuery, polName, regoPolicyArg.description)
-        WaltIdContext.hkvStore.put(HKVKey(SAVED_POLICY_ROOT_KEY, polName), Klaxon().toJsonString(regoArg))
-        registerSavedPolicy(polName, regoArg)
-        return regoArg
+    fun canCreatePolicy(name: String, override: Boolean): Boolean {
+        return !policies.contains(name) || (policies[name] is DynamicPolicyFactory && override)
+    }
+
+    fun createSavedPolicy(name: String, dynPolArg: DynamicPolicyArg): DynamicPolicyArg {
+        WaltIdContext.hkvStore.put(HKVKey(SAVED_POLICY_ROOT_KEY, name), Klaxon().toJsonString(dynPolArg))
+        registerSavedPolicy(name, dynPolArg)
+        return dynPolArg
     }
 
     fun deleteSavedPolicy(name: String) {
@@ -124,13 +127,15 @@ object PolicyRegistry {
         register(ChallengePolicy::class, ChallengePolicyArg::class, "Verify challenge")
         register(VpTokenClaimPolicy::class, VpTokenClaim::class, "Verify verifiable presentation by OIDC/SIOPv2 VP token claim")
         register(CredentialStatusPolicy::class, "Verify by credential status")
-        register(RegoPolicy::class, RegoPolicyArg::class, "Verify credential by rego policy")
+        register(DynamicPolicy::class, DynamicPolicyArg::class, "Verify credential by rego policy")
 
         // predefined, hardcoded rego policy specializations
         // VerifiableMandate policy as specialized rego policy
-        registerSavedPolicy("VerifiableMandatePolicy", RegoPolicyArg(
+        registerSavedPolicy("VerifiableMandatePolicy", DynamicPolicyArg(
+            "VerifiableMandatePolicy", "Predefined policy for verifiable mandates",
             JsonObject(), "$.credentialSubject.policySchemaURI",
-            "$.credentialSubject.holder", "data.system.main", description = "Verify verifiable mandate"))
+            "$.credentialSubject.holder", "data.system.main" )
+        )
 
         // other saved (Rego) policies
         initSavedPolicies()

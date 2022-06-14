@@ -1,8 +1,6 @@
 package id.walt.auditor
 
-import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
-import com.jayway.jsonpath.JsonPath
 import id.walt.model.AttributeInfo
 import id.walt.model.TrustedIssuer
 import id.walt.model.oidc.VpTokenClaim
@@ -21,7 +19,6 @@ import mu.KotlinLogging
 import java.text.SimpleDateFormat
 import java.util.*
 import id.walt.vclib.credentials.CredentialStatusCredential
-import id.walt.vclib.credentials.VerifiableMandate
 import io.ktor.client.plugins.*
 
 private const val TIR_TYPE_ATTRIBUTE = "attribute"
@@ -33,7 +30,7 @@ private val dateFormatter =
     SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").also { it.timeZone = TimeZone.getTimeZone("UTC") }
 
 @Serializable
-data class VerificationPolicyMetadata(val id: String, val description: String?, val argumentType: String)
+data class VerificationPolicyMetadata(val id: String, val description: String?, val argumentType: String, val isDynamic: Boolean)
 
 abstract class VerificationPolicy {
     open val id: String
@@ -267,36 +264,6 @@ class GaiaxSDPolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify Gaiax SD fields"
     override fun doVerify(vc: VerifiableCredential): Boolean {
         return true
-    }
-}
-
-data class RegoPolicyArg (
-    val input: Map<String, Any?>,
-    val rego: String,
-    val dataPath: String = "\$.credentialSubject", // for specifying the input data
-    val regoQuery: String = "data.system.main", // for evaluating the result from the rego engine
-    val policyId: String = "RegoPolicy",
-    val description: String? = null
-    )
-
-open class RegoPolicy(regoPolicyArg: RegoPolicyArg) : ParameterizedVerificationPolicy<RegoPolicyArg>(regoPolicyArg) {
-    override val id: String
-        get() = argument.policyId
-    override val description = "Verify credential by rego policy"
-    override fun doVerify(vc: VerifiableCredential): Boolean {
-        // params: rego (string, URL, file, credential property), input (json string), data jsonpath (default: $.credentialSubject)
-        val rego = if (argument.rego.startsWith("$")) {
-            JsonPath.parse(vc.json!!).read<String>(argument.rego)
-        } else {
-            argument.rego
-        }
-        return RegoValidator.validate(
-            input = argument.input,
-            data = JsonPath.parse(vc.json!!)?.read(argument.dataPath)!!,
-            regoPolicy = rego,
-            regoQuery = argument.regoQuery
-        )
-        return false
     }
 }
 
