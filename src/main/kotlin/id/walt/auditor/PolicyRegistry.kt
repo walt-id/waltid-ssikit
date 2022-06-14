@@ -49,6 +49,7 @@ class SavedPolicyFactory(val regoPolicyArg: RegoPolicyArg, name: String, descrip
 
 object PolicyRegistry {
     const val SAVED_POLICY_ROOT_KEY = "policies"
+    const val OPA_POLICY_PREFIX = "OPA-"
     private val policies = LinkedHashMap<String, PolicyFactory<*, *>>()
     val defaultPolicyId: String
 
@@ -88,9 +89,12 @@ object PolicyRegistry {
         return policyFactory.create(argument)
     }
 
-    fun createSavedPolicy(name: String, regoPolicyArg: RegoPolicyArg) {
-        WaltIdContext.hkvStore.put(HKVKey(SAVED_POLICY_ROOT_KEY, name), Klaxon().toJsonString(regoPolicyArg))
-        registerSavedPolicy(name, regoPolicyArg)
+    fun createSavedPolicy(name: String, regoPolicyArg: RegoPolicyArg): RegoPolicyArg {
+        val polName = if(name.startsWith(OPA_POLICY_PREFIX)) name else "$OPA_POLICY_PREFIX$name"
+        val regoArg = RegoPolicyArg(regoPolicyArg.input, regoPolicyArg.rego, regoPolicyArg.dataPath, regoPolicyArg.regoQuery, polName, regoPolicyArg.description)
+        WaltIdContext.hkvStore.put(HKVKey(SAVED_POLICY_ROOT_KEY, polName), Klaxon().toJsonString(regoArg))
+        registerSavedPolicy(polName, regoArg)
+        return regoArg
     }
 
     fun deleteSavedPolicy(name: String) {

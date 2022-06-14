@@ -225,7 +225,7 @@ class ListVerificationPoliciesCommand : CliktCommand(
 class CreateDynamicVerificationPolicyCommand : CliktCommand(
     name = "create", help = "Create dynamic verification policy"
 ) {
-    val name: String by option("-n", "--name", help = "Policy name").required()
+    val name: String by option("-n", "--name", help = "Policy name, will be prepended with ${PolicyRegistry.OPA_POLICY_PREFIX}, if prefix is not already specified").required()
     val description: String? by option("-d", "--description", help = "Policy description (optional)")
     val rego: String by option("-r", "--rego", help = "Path or URL to rego policy file").required()
     val dataPath: String by option("-p", "--data-path", help = "JSON path to the data in the credential which should be verified").default("$.credentialSubject")
@@ -244,8 +244,8 @@ class CreateDynamicVerificationPolicyCommand : CliktCommand(
             false -> rego
         }
 
-        PolicyRegistry.createSavedPolicy(name, RegoPolicyArg(input, regoContent, dataPath, regoQuery, name, description = description))
-        echo("Policy created: $name")
+        val savedRegoArg = PolicyRegistry.createSavedPolicy(name, RegoPolicyArg(input, regoContent, dataPath, regoQuery, name, description = description))
+        echo("Policy created: ${savedRegoArg.policyId}")
     }
 }
 
