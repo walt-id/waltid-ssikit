@@ -13,6 +13,8 @@ import id.walt.signatory.Signatory
 import id.walt.test.RESOURCES_PATH
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.string.shouldContain
 import java.io.File
 
@@ -60,5 +62,13 @@ class VcVerifyCommandTest : StringSpec({
         } finally {
             vpFile.delete()
         }
+    }
+
+    "dynamic policies management CLI" {
+        PolicyRegistry.listPolicyInfo().map { it.id } shouldNotContain "TestPolicy"
+        CreateDynamicVerificationPolicyCommand().parse(listOf("-n", "TestPolicy", "-p", "src/test/resources/rego/subject-policy.rego"))
+        PolicyRegistry.listPolicyInfo().map { it.id } shouldContain "TestPolicy"
+        RemoveDynamicVerificationPolicyCommand().parse(listOf("-n", "TestPolicy"))
+        PolicyRegistry.listPolicyInfo().map { it.id } shouldNotContain "TestPolicy"
     }
 })
