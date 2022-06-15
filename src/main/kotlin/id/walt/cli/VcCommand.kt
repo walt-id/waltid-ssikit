@@ -216,10 +216,13 @@ class VerificationPoliciesCommand : CliktCommand(
 class ListVerificationPoliciesCommand : CliktCommand(
     name = "list", help = "List verification policies"
 ) {
+    val mutablesOnly: Boolean by option("-m", "--mutable", help = "Show only mutable policies").flag(default = false)
     override fun run() {
-        PolicyRegistry.listPolicyInfo().forEachIndexed { index, verificationPolicy ->
-            echo("- ${index + 1}. ${verificationPolicy.id}${if(verificationPolicy.isDynamic) " (dynamic)" else ""}\t ${verificationPolicy.description ?: "- no description -"},\t Argument: ${verificationPolicy.argumentType}")
+        PolicyRegistry.listPolicyInfo().filter { vp -> vp.isMutable || !mutablesOnly }.forEach { verificationPolicy ->
+            echo("${if(verificationPolicy.isMutable) "*" else "-"} ${verificationPolicy.id}\t ${verificationPolicy.description ?: "- no description -"},\t Argument: ${verificationPolicy.argumentType}")
         }
+        echo()
+        echo ("(*) ... mutable dynamic policy")
     }
 }
 
@@ -237,15 +240,41 @@ class CreateDynamicVerificationPolicyCommand : CliktCommand(
     val engine: PolicyEngineType by option("-e", "--policy-engine", help = "Policy engine type, default: OPA").enum<PolicyEngineType>().default(PolicyEngineType.OPA)
 
     override fun run() {
+        if(PolicyRegistry.contains(name)) {
+            if(PolicyRegistry.isMutable(name) && !force) {
+                echo("Policy $name already exists, use --force to update.")
+                return
+            } else if(!PolicyRegistry.isMutable(name)) {
+                echo("Immutable existing policy $name cannot be overridden.")
+                return
+            }
+        }
         if(PolicyRegistry.createSavedPolicy(
                 name,
                 DynamicPolicyArg(name, description, input, policy, dataPath, policyQuery),
                 force,
                 save
             )) {
-            echo("Policy created: ${name}")
+            echo("Policy created/updated: ${name}")
         } else {
-            echo("Policy already exists! Only dynamic policies can be overridden using the --force flag.")
+            echo("Failed to create dynamic policy")
+        }
+    }
+}
+
+class RemoveDynamicVerificationPolicyCommand : CliktCommand(
+    name = "remove", help = "Remove a dynamic verification policy"
+) {
+    val name: String by option("-n", "--name", help = "Name of the dynamic policy to remove").required()
+
+    override fun run() {
+        if(PolicyRegistry.contains(name)) {
+            if(PolicyRegistry.deleteSavedPolicy(name))
+                echo("Policy removed: $name")
+            else
+                echo("Could not be removed: $name")
+        } else {
+            echo("Policy not found: $name")
         }
     }
 }

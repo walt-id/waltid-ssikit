@@ -103,7 +103,8 @@ object WaltCLI {
                         ListVcCommand(),
                         VerificationPoliciesCommand().subcommands(
                             ListVerificationPoliciesCommand(),
-                            CreateDynamicVerificationPolicyCommand()
+                            CreateDynamicVerificationPolicyCommand(),
+                            RemoveDynamicVerificationPolicyCommand()
                         ),
                         VcTemplatesCommand().subcommands(
                             VcTemplatesListCommand(),

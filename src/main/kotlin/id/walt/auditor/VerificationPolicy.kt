@@ -30,7 +30,7 @@ private val dateFormatter =
     SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").also { it.timeZone = TimeZone.getTimeZone("UTC") }
 
 @Serializable
-data class VerificationPolicyMetadata(val id: String, val description: String?, val argumentType: String, val isDynamic: Boolean)
+data class VerificationPolicyMetadata(val id: String, val description: String?, val argumentType: String, val isMutable: Boolean)
 
 abstract class VerificationPolicy {
     open val id: String

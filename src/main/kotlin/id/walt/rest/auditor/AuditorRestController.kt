@@ -24,15 +24,6 @@ object AuditorRestController {
         it.summary("List verification policies").operationId("listPolicies").addTagsItem("Verification Policies")
     }.json<Array<VerificationPolicy>>("200")
 
-    fun createDynamicPolicyDocs() = document().operation {
-        it.summary("Create dynamic verification policy").operationId("createDynamicPolicy").addTagsItem("Verification Policies")
-    }
-        .pathParam<String>("name")
-        .queryParam<Boolean>("update")
-        .queryParam<Boolean>("downloadPolicy")
-        .body<DynamicPolicyArg>()
-        .json<DynamicPolicyArg>("200")
-
     fun verifyVP(ctx: Context) {
         val verificationRequest = VerifiableCredential.klaxon.parse<VerificationRequest>(ctx.body()) ?: throw BadRequestResponse("Could not parse verification request object")
 
@@ -44,6 +35,11 @@ object AuditorRestController {
         ctx.json(VerificationResponse(valid = results.all { it.valid }, results = results))
     }
 
+    fun verifyVPDocs() = document()
+        .operation { it.summary("Verify a W3C VerifiableCredential or VerifiablePresentation").operationId("verifyVP").addTagsItem("Verification Policies") }
+        .body<VerificationRequest> { it.description("VC or VP verification request object") }
+        .jsonArray<VerificationResponse>("200") { it.description("Request processed successfully (VP might not be valid)") }
+
     fun createDynamicPolicy(ctx: Context) {
         val dynArg = Klaxon().parse<DynamicPolicyArg>(ctx.body()) ?: throw BadRequestResponse("Could not parse dynamic policy argument")
         val name = ctx.pathParam("name")
@@ -54,8 +50,31 @@ object AuditorRestController {
             ctx.status(HttpCode.BAD_REQUEST).result("Failed to create dynamic policy")
     }
 
-    fun verifyVPDocs() = document()
-        .operation { it.summary("Verify a W3C VerifiableCredential or VerifiablePresentation").operationId("verifyVP").addTagsItem("Verification Policies") }
-        .body<VerificationRequest> { it.description("VC or VP verification request object") }
-        .jsonArray<VerificationResponse>("200") { it.description("Request processed successfully (VP might not be valid)") }
+    fun createDynamicPolicyDocs() = document().operation {
+        it.summary("Create dynamic verification policy").operationId("createDynamicPolicy").addTagsItem("Verification Policies")
+    }
+        .pathParam<String>("name")
+        .queryParam<Boolean>("update")
+        .queryParam<Boolean>("downloadPolicy")
+        .body<DynamicPolicyArg>()
+        .json<DynamicPolicyArg>("200")
+
+    fun deleteDynamicPolicy(ctx: Context) {
+        val name = ctx.pathParam("name")
+        if(!PolicyRegistry.contains(name)) {
+            ctx.status(HttpCode.NOT_FOUND).result("Policy not found")
+        } else if(!PolicyRegistry.isMutable(name)) {
+            ctx.status(HttpCode.FORBIDDEN).result("Policy cannot be removed")
+        } else {
+            if (!PolicyRegistry.deleteSavedPolicy(name)) {
+                ctx.status(HttpCode.INTERNAL_SERVER_ERROR).result("Failed to remove policy")
+            } else {
+                ctx.result("Policy removed")
+            }
+        }
+    }
+
+    fun deleteDynamicPolicyDocs() = document().operation {
+        it.summary("Delete a dynamic verification policy").operationId("deletePolicy").addTagsItem("Verification Policies")
+    }.pathParam<String>("name")
 }
