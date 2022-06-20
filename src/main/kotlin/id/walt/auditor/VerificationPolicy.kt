@@ -207,15 +207,21 @@ class CredentialStatusPolicy : SimpleVerificationPolicy() {
     }
 }
 
-data class ChallengePolicyArg(val challenges: Set<String>)
+data class ChallengePolicyArg(val challenges: Set<String>, val applyToVC: Boolean = true, val applyToVP: Boolean = true)
 
 class ChallengePolicy(challengeArg: ChallengePolicyArg): ParameterizedVerificationPolicy<ChallengePolicyArg>(challengeArg) {
-    constructor(challenge: String) : this(ChallengePolicyArg(setOf(challenge))) { }
+    constructor(challenge: String, applyToVC: Boolean = true, applyToVP: Boolean = true) : this(ChallengePolicyArg(setOf(challenge), applyToVC, applyToVP)) { }
 
     override val description: String = "Verify challenge"
     override fun doVerify(vc: VerifiableCredential): Boolean {
         return vc.challenge?.let { argument.challenges.contains(it) } ?: false
     }
+
+    override val applyToVC: Boolean
+        get() = argument.applyToVC
+
+    override val applyToVP: Boolean
+        get() = argument.applyToVP
 }
 
 class VpTokenClaimPolicy(tokenClaim: VpTokenClaim) : ParameterizedVerificationPolicy<VpTokenClaim>(tokenClaim) {
