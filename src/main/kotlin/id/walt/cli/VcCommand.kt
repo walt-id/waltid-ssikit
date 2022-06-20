@@ -238,6 +238,8 @@ class CreateDynamicVerificationPolicyCommand : CliktCommand(
     val save: Boolean by option("-s", "--save-policy", help = "Downloads and/or saves the policy definition locally, rather than keeping the reference to the original URL").flag(default = false)
     val force: Boolean by option("-f", "--force", help = "Override existing policy with that name (static policies cannot be overridden!)").flag(default = false)
     val engine: PolicyEngineType by option("-e", "--policy-engine", help = "Policy engine type, default: OPA").enum<PolicyEngineType>().default(PolicyEngineType.OPA)
+    val applyToVC: Boolean by option("--vc", help = "Apply/Don't apply to verifiable credentials (default: apply)").flag("--no-vc", default = true, defaultForHelp = "apply")
+    val applyToVP: Boolean by option("--vp", help = "Apply/Don't apply to verifiable presentations (default: don't apply)").flag("--no-vp", default = false, defaultForHelp = "don't apply")
 
     override fun run() {
         if(PolicyRegistry.contains(name)) {
@@ -251,7 +253,7 @@ class CreateDynamicVerificationPolicyCommand : CliktCommand(
         }
         if(PolicyRegistry.createSavedPolicy(
                 name,
-                DynamicPolicyArg(name, description, input, policy, dataPath, policyQuery),
+                DynamicPolicyArg(name, description, input, policy, dataPath, policyQuery, engine, applyToVC, applyToVP),
                 force,
                 save
             )) {

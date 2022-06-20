@@ -105,7 +105,7 @@ object PolicyRegistry {
                 true -> resolveContent(dynPolArg.policy)
                 false -> dynPolArg.policy
             }
-            val dynPolArgMod = DynamicPolicyArg(name, dynPolArg.description, dynPolArg.input, policyContent, dynPolArg.dataPath, dynPolArg.policyQuery)
+            val dynPolArgMod = DynamicPolicyArg(name, dynPolArg.description, dynPolArg.input, policyContent, dynPolArg.dataPath, dynPolArg.policyQuery, dynPolArg.policyEngine, dynPolArg.applyToVC, dynPolArg.applyToVP)
             WaltIdContext.hkvStore.put(HKVKey(SAVED_POLICY_ROOT_KEY, name), Klaxon().toJsonString(dynPolArgMod))
             registerSavedPolicy(name, dynPolArgMod)
             return true

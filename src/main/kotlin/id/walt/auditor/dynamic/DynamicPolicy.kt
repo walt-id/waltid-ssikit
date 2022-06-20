@@ -23,4 +23,10 @@ open class DynamicPolicy(dynPolArg: DynamicPolicyArg) : ParameterizedVerificatio
         )
         return false
     }
+
+    override val applyToVC: Boolean
+        get() = argument.applyToVC
+
+    override val applyToVP: Boolean
+        get() = argument.applyToVP
 }

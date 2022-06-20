@@ -37,8 +37,8 @@ abstract class VerificationPolicy {
         get() = this.javaClass.simpleName
     abstract val description: String
     protected abstract fun doVerify(vc: VerifiableCredential): Boolean
-    open var applyToVC: Boolean = true
-    open var applyToVP: Boolean = true
+    open val applyToVC: Boolean = true
+    open val applyToVP: Boolean = true
 
     fun verify(vc: VerifiableCredential) = when {
         vc is VerifiablePresentation && applyToVP
