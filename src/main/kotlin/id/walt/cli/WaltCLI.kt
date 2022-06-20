@@ -101,7 +101,11 @@ object WaltCLI {
                         PresentVcCommand(),
                         VerifyVcCommand(),
                         ListVcCommand(),
-                        ListVerificationPoliciesCommand(),
+                        VerificationPoliciesCommand().subcommands(
+                            ListVerificationPoliciesCommand(),
+                            CreateDynamicVerificationPolicyCommand(),
+                            RemoveDynamicVerificationPolicyCommand()
+                        ),
                         VcTemplatesCommand().subcommands(
                             VcTemplatesListCommand(),
                             VcTemplatesExportCommand()

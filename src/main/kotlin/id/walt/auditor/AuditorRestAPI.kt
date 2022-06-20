@@ -88,6 +88,8 @@ object AuditorRestAPI {
             path("v1") {
                 get("policies", documented(AuditorRestController.listPoliciesDocs(), AuditorRestController::listPolicies))
                 post("verify", documented(AuditorRestController.verifyVPDocs(), AuditorRestController::verifyVP))
+                post("create/{name}", documented(AuditorRestController.createDynamicPolicyDocs(), AuditorRestController::createDynamicPolicy))
+                delete("delete/{name}", documented(AuditorRestController.deleteDynamicPolicyDocs(), AuditorRestController::deleteDynamicPolicy))
             }
         }.exception(IllegalArgumentException::class.java) { e, ctx ->
             log.error(e.stackTraceToString())

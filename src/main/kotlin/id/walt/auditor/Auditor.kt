@@ -3,6 +3,7 @@ package id.walt.auditor
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
 import id.walt.vclib.credentials.VerifiablePresentation
+import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.model.toCredential
 import mu.KotlinLogging
 
@@ -14,6 +15,9 @@ abstract class Auditor : WaltIdService() {
     override val implementation: Auditor get() = serviceImplementation()
 
     protected fun allAccepted(policyResults: Map<String, Boolean>) = policyResults.values.all { it }
+
+    open fun verify(vc: VerifiableCredential, policies: List<VerificationPolicy>): VerificationResult =
+        implementation.verify(vc, policies)
 
     open fun verify(vcJson: String, policies: List<VerificationPolicy>): VerificationResult =
         implementation.verify(vcJson, policies)
@@ -27,6 +31,11 @@ abstract class Auditor : WaltIdService() {
 class WaltIdAuditor : Auditor() {
     override fun verify(vcJson: String, policies: List<VerificationPolicy>): VerificationResult {
         val vc = vcJson.toCredential()
+        return verify(vc, policies)
+    }
+
+    override fun verify(vc: VerifiableCredential, policies: List<VerificationPolicy>): VerificationResult {
+
         val policyResults = policies
             .associateBy(keySelector = VerificationPolicy::id) { policy ->
                 log.debug { "Verifying vc with ${policy.id} ..." }

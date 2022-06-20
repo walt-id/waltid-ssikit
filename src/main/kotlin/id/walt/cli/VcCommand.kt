@@ -1,5 +1,7 @@
 package id.walt.cli
 
+import com.beust.klaxon.JsonObject
+import com.beust.klaxon.Klaxon
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.arguments.argument
@@ -11,7 +13,10 @@ import com.github.ajalt.clikt.parameters.types.file
 import com.github.ajalt.clikt.parameters.types.path
 import id.walt.auditor.Auditor
 import id.walt.auditor.PolicyRegistry
+import id.walt.auditor.dynamic.DynamicPolicyArg
+import id.walt.auditor.dynamic.PolicyEngineType
 import id.walt.common.prettyPrint
+import id.walt.common.resolveContent
 import id.walt.custodian.Custodian
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
@@ -21,6 +26,7 @@ import id.walt.vclib.model.toCredential
 import io.ktor.util.date.*
 import mu.KotlinLogging
 import java.io.File
+import java.io.StringReader
 import java.nio.file.Path
 import java.sql.Timestamp
 import java.time.LocalDateTime
@@ -166,7 +172,7 @@ class VerifyVcCommand : CliktCommand(
     val src: File by argument().file()
 
     //val isPresentation: Boolean by option("-p", "--is-presentation", help = "In case a VP is verified.").flag()
-    val policies: Map<String, Any> by option(
+    val policies: Map<String, String?> by option(
         "-p",
         "--policy",
         help = "Verification policy. Can be specified multiple times. By default, ${PolicyRegistry.defaultPolicyId} is used."
@@ -174,7 +180,7 @@ class VerifyVcCommand : CliktCommand(
 
 
     override fun run() {
-        val usedPolicies = if (policies.isNotEmpty()) policies else mapOf(PolicyRegistry.defaultPolicyId to Unit)
+        val usedPolicies = if (policies.isNotEmpty()) policies else mapOf(PolicyRegistry.defaultPolicyId to null)
 
         echo("Verifying from file \"$src\"...\n")
 
@@ -188,7 +194,7 @@ class VerifyVcCommand : CliktCommand(
         }
 
         val verificationResult = Auditor.getService()
-            .verify(src.readText(), usedPolicies.entries.map { PolicyRegistry.getPolicy(it.key, it.value) })
+            .verify(src.readText(), usedPolicies.entries.map { PolicyRegistry.getPolicyWithJsonArg(it.key, it.value?.ifEmpty { null }) })
 
         echo("\nResults:\n")
 
@@ -199,12 +205,76 @@ class VerifyVcCommand : CliktCommand(
     }
 }
 
-class ListVerificationPoliciesCommand : CliktCommand(
-    name = "policies", help = "List verification policies"
+class VerificationPoliciesCommand : CliktCommand(
+    name = "policies", help = "Manage verification policies"
 ) {
     override fun run() {
-        PolicyRegistry.listPolicies().map { PolicyRegistry.getPolicy(it) }.forEachIndexed { index, verificationPolicy ->
-            echo("- ${index + 1}. ${verificationPolicy.id}: ${verificationPolicy.description}")
+
+    }
+}
+
+class ListVerificationPoliciesCommand : CliktCommand(
+    name = "list", help = "List verification policies"
+) {
+    val mutablesOnly: Boolean by option("-m", "--mutable", help = "Show only mutable policies").flag(default = false)
+    override fun run() {
+        PolicyRegistry.listPolicyInfo().filter { vp -> vp.isMutable || !mutablesOnly }.forEach { verificationPolicy ->
+            echo("${if(verificationPolicy.isMutable) "*" else "-"} ${verificationPolicy.id}\t ${verificationPolicy.description ?: "- no description -"},\t Argument: ${verificationPolicy.argumentType}")
+        }
+        echo()
+        echo ("(*) ... mutable dynamic policy")
+    }
+}
+
+class CreateDynamicVerificationPolicyCommand : CliktCommand(
+    name = "create", help = "Create dynamic verification policy"
+) {
+    val name: String by option("-n", "--name", help = "Policy name, must not conflict with existing policies").required()
+    val description: String? by option("-D", "--description", help = "Policy description (optional)")
+    val policy: String by option("-p", "--policy", help = "Path or URL to policy definition. e.g.: rego file for OPA policy engine").required()
+    val dataPath: String by option("-d", "--data-path", help = "JSON path to the data in the credential which should be verified").default("$.credentialSubject")
+    val policyQuery: String by option("-q", "--policy-query", help = "Policy query which should be queried by policy engine").default("data.system.main")
+    val input: JsonObject by option("-i", "--input", help = "Input JSON object for rego query, which can be overridden/extended on verification").convert { Klaxon().parseJsonObject(StringReader(it)) }.default(JsonObject())
+    val save: Boolean by option("-s", "--save-policy", help = "Downloads and/or saves the policy definition locally, rather than keeping the reference to the original URL").flag(default = false)
+    val force: Boolean by option("-f", "--force", help = "Override existing policy with that name (static policies cannot be overridden!)").flag(default = false)
+    val engine: PolicyEngineType by option("-e", "--policy-engine", help = "Policy engine type, default: OPA").enum<PolicyEngineType>().default(PolicyEngineType.OPA)
+
+    override fun run() {
+        if(PolicyRegistry.contains(name)) {
+            if(PolicyRegistry.isMutable(name) && !force) {
+                echo("Policy $name already exists, use --force to update.")
+                return
+            } else if(!PolicyRegistry.isMutable(name)) {
+                echo("Immutable existing policy $name cannot be overridden.")
+                return
+            }
+        }
+        if(PolicyRegistry.createSavedPolicy(
+                name,
+                DynamicPolicyArg(name, description, input, policy, dataPath, policyQuery),
+                force,
+                save
+            )) {
+            echo("Policy created/updated: ${name}")
+        } else {
+            echo("Failed to create dynamic policy")
+        }
+    }
+}
+
+class RemoveDynamicVerificationPolicyCommand : CliktCommand(
+    name = "remove", help = "Remove a dynamic verification policy"
+) {
+    val name: String by option("-n", "--name", help = "Name of the dynamic policy to remove").required()
+
+    override fun run() {
+        if(PolicyRegistry.contains(name)) {
+            if(PolicyRegistry.deleteSavedPolicy(name))
+                echo("Policy removed: $name")
+            else
+                echo("Could not be removed: $name")
+        } else {
+            echo("Policy not found: $name")
         }
     }
 }

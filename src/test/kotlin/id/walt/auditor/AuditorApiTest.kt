@@ -9,10 +9,12 @@ import id.walt.signatory.Signatory
 import id.walt.test.RESOURCES_PATH
 import id.walt.test.readVerifiableCredential
 import id.walt.test.readVerifiablePresentation
+import id.walt.vclib.model.VerifiableCredential
+import id.walt.vclib.model.toCredential
 import io.github.rybalkinsd.kohttp.dsl.httpPost
 import io.github.rybalkinsd.kohttp.ext.asString
 import io.kotest.core.spec.style.AnnotationSpec
-import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -68,32 +70,28 @@ class AuditorApiTest : AnnotationSpec() {
             contentType(ContentType.Application.Json)
         }.body<List<VerificationPolicyMetadata>>()
 
-        policies shouldContain VerificationPolicyMetadata("Verify by signature", "SignaturePolicy", true, true)
-        policies shouldContain VerificationPolicyMetadata("Verify by JSON schema", "JsonSchemaPolicy", true, true)
-        policies shouldContain VerificationPolicyMetadata(
-            "Verify by EBSI Trusted Schema Registry",
-            "TrustedSchemaRegistryPolicy",
-            true,
-            true
-        )
+        policies.map { it.id } shouldContainAll  listOf("SignaturePolicy", "JsonSchemaPolicy", "TrustedSchemaRegistryPolicy")
     }
 
     private fun postAndVerify(vcToVerify: String, policyList: String = DEFAULT_POLICIES) {
-        val verificationResultJson = httpPost {
+        val verificationResponseJson = httpPost {
             host = Auditor_HOST
             port = Auditor_API_PORT
             path = "/v1/verify"
-            param {
-                "policyList" to policyList
-            }
             body {
-                json(vcToVerify)
+                json(
+                    VerifiableCredential.klaxon.toJsonString(VerificationRequest(
+                    policies = policyList.split(",").map { p -> PolicyRequest(policy = p.trim()) }.toList(),
+                    credentials = listOf(
+                        vcToVerify.toCredential()
+                    ))
+                ))
             }
         }.asString()!!
 
-        println(verificationResultJson)
+        println(verificationResponseJson)
 
-        val vr = Klaxon().parse<VerificationResult>(verificationResultJson)!!
+        val vr = Klaxon().parse<VerificationResponse>(verificationResponseJson)!!
         vr.valid shouldBe true
     }
 
@@ -145,10 +143,10 @@ class AuditorApiTest : AnnotationSpec() {
         postAndVerify(readVerifiableCredential("VerifiableId"))
     }
 
-    @Test
+    /*@Test
     fun testDeqarCredential() {
         postAndVerify(readVerifiableCredential("DeqarCredential"), "SignaturePolicy")
-    }
+    }*/
 
     @Test
     fun testGaiaxCredential() {
