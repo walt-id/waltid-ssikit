@@ -9,9 +9,12 @@ request := {"method": "POST", "url": "https://compliance.gaia-x.eu/api/v1/partic
            "complianceCredential": input.verifiableCredential[1]
            }}
 
+
 response := http.send(request)
 
 main {
+#print(request)
+#print(response)
     response.status_code == 200
     response.body.conforms == true
     response.body.content.conforms == true
