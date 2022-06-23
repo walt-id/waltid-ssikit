@@ -7,6 +7,7 @@ import id.walt.model.oidc.VpTokenClaim
 import id.walt.services.did.DidService
 import id.walt.services.essif.TrustedIssuerClient
 import id.walt.services.key.KeyService
+import id.walt.services.oidc.OIDCUtils
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
 import id.walt.signatory.RevocationClientService
@@ -229,7 +230,7 @@ class VpTokenClaimPolicy(tokenClaim: VpTokenClaim) : ParameterizedVerificationPo
     override fun doVerify(vc: VerifiableCredential): Boolean {
         if (vc is VerifiablePresentation) {
             return argument.presentation_definition.input_descriptors.all { desc ->
-                vc.verifiableCredential.any { cred -> desc.schema?.uri == cred.credentialSchema?.id }
+                vc.verifiableCredential.any { cred -> OIDCUtils.matchesInputDescriptor(cred, desc) }
             }
         }
         // else: nothing to check
