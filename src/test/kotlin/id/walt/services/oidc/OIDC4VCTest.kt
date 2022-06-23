@@ -229,6 +229,20 @@ class OIDC4VCTest : AnnotationSpec() {
         vcclaim.credentials!![0].vp_token shouldNotBe null
         vcclaim.credentials!![0].vp_token!! shouldNot beEmpty()
         vcclaim.credentials!![0].vp_token!![0] shouldBe instanceOf<VerifiablePresentation>()
+
+        val claim2 = "{\"vp_token\" : {\"presentation_definition\" : {\"format\" : null, \"id\" : \"1\", \"input_descriptors\" : [{\"constraints\" : {\"fields\" : [{\"filter\" : {\"constant\": \"VerifiableId\"}, \"id\" : \"1\", \"path\" : [\"\$.type\"], \"purpose\" : null}]}, \"format\" : null, \"group\" : [\"A\"], \"id\" : \"0\", \"name\" : null, \"purpose\" : null, \"schema\" : null}], \"name\" : null, \"purpose\" : null, \"submission_requirements\" : [{\"count\" : null, \"from\" : \"A\", \"from_nested\" : null, \"max\" : null, \"min\" : null, \"name\" : null, \"purpose\" : null, \"rule\" : \"all\"}]}}}"
+        val authReq2 = AuthorizationRequest.Builder(URI.create("http://blank"), ClientID())
+            .customParameter("claims", claim2).build()
+        val vcclaim2 = OIDCUtils.getVCClaims(authReq2)
+        vcclaim2.vp_token shouldNotBe null
+    }
+
+    @Test
+    fun testVCClaimParsingWhenMissing() {
+        val authReq = AuthorizationRequest.Builder(URI.create("http://blank"), ClientID()).build()
+        val vcclaim = OIDCUtils.getVCClaims(authReq)
+        vcclaim.credentials shouldBe null
+        vcclaim.vp_token shouldBe null
     }
 
     @Test
