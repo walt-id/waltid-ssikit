@@ -5,7 +5,6 @@ import id.walt.crypto.Key
 import id.walt.crypto.KeyAlgorithm
 import id.walt.custodian.Custodian
 import id.walt.services.key.KeyFormat
-import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
 import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.VerifiableCredential
@@ -23,12 +22,10 @@ data class ExportKeyRequest(
 object CustodianController {
 
     private val custodian = Custodian.getService()
-    private val keyService = KeyService.getService()
 
     /* Keys */
 
     data class GenerateKeyRequest(val keyAlgorithm: KeyAlgorithm)
-    data class ImportKeyRequest(val key: Key)
     data class StoreCredentialRequest(val alias: String, val vc: VerifiableCredential)
     data class ListKeyResponse(val list: List<Key>)
 
@@ -77,13 +74,15 @@ object CustodianController {
 //        requestBody = OpenApiRequestBody([OpenApiContent(StoreKeyRequest::class)], true, "Store Key Request"),
 //        responses = [OpenApiResponse("200")]
 //    )
-    fun importKeysDocs() = document()
-        .operation { it.summary("Imports a key").operationId("importKey").addTagsItem("Keys") }
-        // TODO: Serilize .body<ImportKeyRequest> { it.description("Import Key Request") }
-        .json<String>("200") { it.description("Http OK") }
+
+    fun importKeysDocs() = document().operation {
+        it.summary("Import key").operationId("importKey").addTagsItem("Keys")
+    }.body<String> {
+        it.description("Imports the key (JWK and PEM format) to the key store")
+    }.json<String>("200")
 
     fun importKey(ctx: Context) {
-        custodian.importKey(ctx.bodyAsClass<ImportKeyRequest>().key)
+        ctx.json(custodian.importKey(ctx.body()))
     }
 
     //    @OpenApi(
@@ -107,7 +106,7 @@ object CustodianController {
     fun exportKey(ctx: Context) {
         val req = ctx.bodyAsClass(id.walt.rest.core.ExportKeyRequest::class.java)
         ctx.result(
-            keyService.export(
+            custodian.exportKey(
                 req.keyAlias,
                 req.format,
                 if (req.exportPrivate) KeyType.PRIVATE else KeyType.PUBLIC
