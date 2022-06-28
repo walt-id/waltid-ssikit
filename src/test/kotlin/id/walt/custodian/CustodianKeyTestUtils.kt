@@ -1,11 +1,14 @@
 package id.walt.custodian
 
+import id.walt.common.readWhenContent
 import id.walt.crypto.Key
 import id.walt.crypto.KeyAlgorithm
+import id.walt.services.key.KeyService
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.ints.shouldBeExactly
 import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.shouldBe
+import java.io.File
 
 object CustodianKeyTestUtils {
 
@@ -49,11 +52,13 @@ object CustodianKeyTestUtils {
         }
 
         "5.1: Store EdDSA_Ed25519 key" {
-            custodian.importKey(key1)
+//            custodian.importKey(key1)
+            custodian.importKey(readWhenContent(File("src/test/resource/cli/privKeyEd25519Jwk.json")))
         }
 
         "5.2: Store ECDSA_Secp256k1 key" {
-            custodian.importKey(key2)
+//            custodian.importKey(key2)
+            custodian.importKey(readWhenContent(File("src/test/resource/key/privKeySecp256k1Jwk.json")))
         }
 
         "6.1: Retrieve stored EdDSA_Ed25519 key" {
