@@ -1,0 +1,17 @@
+{
+  "serviceIds": [
+    "string"
+  ],
+  "did": "string",
+  "keys": [
+    {
+      "purposes": [
+        "DLT_TRANSACTIONS"
+      ],
+      "algorithm": "SECP256K1",
+      "encoding": "hex",
+      "kidFragment": "string",
+      "key": "string"
+    }
+  ]
+}

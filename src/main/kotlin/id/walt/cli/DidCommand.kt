@@ -72,6 +72,7 @@ class CreateDidCommand : CliktCommand(
             web -> DidService.create(web, keyId, DidService.DidWebOptions(didWebDomain, didWebPath))
             ebsi -> DidService.create(ebsi, keyId, DidService.DidEbsiOptions(didEbsiVersion))
             key -> DidService.create(key, keyId)
+            velocity -> TODO("Not Implemented")
         }
 
         echo("\nResults:\n")
@@ -96,10 +97,10 @@ class CreateDidCommand : CliktCommand(
 }
 
 fun resolveDidHelper(did: String, raw: Boolean) = when {
-    did.contains("web") -> DidService.resolve(DidUrl.from(did)).encodePretty()
+    did.contains("web") -> DidService.resolve(did).encodePretty()
     did.contains("ebsi") -> when (raw) {
         true -> DidService.resolveDidEbsiRaw(did).prettyPrint()
-        else -> DidService.resolveDidEbsi(did).encodePretty()
+        else -> DidService.resolve(did).encodePretty()
     }
     else -> DidService.resolve(did).encodePretty()
 }

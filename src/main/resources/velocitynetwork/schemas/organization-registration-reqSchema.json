@@ -1,0 +1,48 @@
+{
+  "title": "organization-registration-req",
+  "description": "Auto generated JSON schema based on the 'organization-registration-req' file",
+  "type": "object",
+  "properties": {
+    "profile": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "founded": {
+          "type": "string"
+        },
+        "logo": {
+          "type": "string"
+        },
+        "location": {
+          "type": "object",
+          "properties": {
+            "regionCode": {
+              "type": "string"
+            },
+            "countryCode": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "serviceEndpoints": {
+      "type": "array",
+      "items": {
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "serviceEndpoint": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
