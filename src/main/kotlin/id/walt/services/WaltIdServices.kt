@@ -31,6 +31,7 @@ object WaltIdServices {
     const val dataDir = "data"
     const val keyDir = "$dataDir/key/"
     const val ebsiDir = "$dataDir/ebsi/"
+    const val velocityDir = "$dataDir/velocity/"
 
     val httpLogging = false
     private val log = KotlinLogging.logger {}

@@ -53,6 +53,7 @@ dependencies {
     implementation("io.ktor:ktor-client-jackson:2.0.2")
     implementation("io.ktor:ktor-client-content-negotiation:2.0.2")
     implementation("com.jayway.jsonpath:json-path:2.7.0")
+    implementation("net.pwall.json:json-kotlin-schema:0.35")
 
     //implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
 

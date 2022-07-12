@@ -9,6 +9,7 @@ import id.walt.services.CryptoProvider
 import id.walt.services.WaltIdServices
 import id.walt.services.context.ContextManager
 import id.walt.services.crypto.CryptoService
+import id.walt.services.did.resolvers.DidResolverFactory
 import id.walt.services.hkvstore.HKVKey
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
@@ -63,15 +64,19 @@ object DidService {
         return didUrl
     }
 
-    fun resolve(did: String): Did = resolve(DidUrl.from(did))
-    fun resolve(didUrl: DidUrl): Did {
-        return when (didUrl.method) {
-            DidMethod.key.name -> resolveDidKey(didUrl)
-            DidMethod.web.name -> resolveDidWeb(didUrl)
-            DidMethod.ebsi.name -> resolveDidEbsi(didUrl)
-            else -> TODO("did:${didUrl.method} not implemented yet")
-        }
-    }
+    fun resolve(did: String): Did = DidResolverFactory.create(DidUrl.from(did)).resolve(did)
+
+//    fun resolve(did: String): Did = resolve(DidUrl.from(did))
+//    fun resolve(didUrl: DidUrl): Did {
+//        return DidResolverFactory.create()
+//        return when (didUrl.method) {
+//            DidMethod.key.name -> resolveDidKey(didUrl)
+//            DidMethod.web.name -> resolveDidWeb(didUrl)
+//            DidMethod.ebsi.name -> resolveDidEbsi(didUrl)
+//            DidMethod.velocity.name -> resolveDidVelocity(didUrl)
+//            else -> TODO("did:${didUrl.method} not implemented yet")
+//        }
+//    }
 
     fun load(did: String): Did = load(DidUrl.from(did))
     fun load(didUrl: DidUrl): Did = Did.decode(loadDid(didUrl.did)!!)!!
@@ -84,30 +89,6 @@ object DidService {
         log.debug { didDoc }
 
         return@runBlocking didDoc
-    }
-
-    fun resolveDidEbsi(did: String): DidEbsi = resolveDidEbsi(DidUrl.from(did))
-    fun resolveDidEbsi(didUrl: DidUrl): DidEbsi = runBlocking {
-
-        log.debug { "Resolving DID ${didUrl.did}..." }
-
-        var didDoc: String
-        var lastEx: ClientRequestException? = null
-
-        for (i in 1..5) {
-            try {
-                log.debug { "Resolving did:ebsi at: https://api.preprod.ebsi.eu/did-registry/v2/identifiers/${didUrl.did}" }
-                didDoc = WaltIdServices.http.get("https://api.preprod.ebsi.eu/did-registry/v2/identifiers/${didUrl.did}").bodyAsText()
-                log.debug { "Result: $didDoc" }
-                return@runBlocking Did.decode(didDoc)!! as DidEbsi
-            } catch (e: ClientRequestException) {
-                log.debug { "Resolving did ebsi failed: fail $i" }
-                delay(1000)
-                lastEx = e
-            }
-        }
-        log.debug { "Could not resolve did ebsi!" }
-        throw lastEx ?: Exception("Could not resolve did ebsi!")
     }
 
     fun loadDidEbsi(did: String): DidEbsi = loadDidEbsi(DidUrl.from(did))
@@ -276,28 +257,6 @@ object DidService {
         )
     }
 
-    private fun resolveDidWeb(didUrl: DidUrl): Did = runBlocking {
-        log.debug { "Resolving DID $didUrl" }
-
-        val didDocUri = DidWeb.getDidDocUri(didUrl)
-
-        log.debug { "Fetching DID from $didDocUri" }
-
-        val didDoc = WaltIdServices.http.get(didDocUri.toString()).bodyAsText()
-
-        log.debug { didDoc }
-
-        return@runBlocking Did.decode(didDoc)!!
-    }
-
-    private fun resolveDidKey(didUrl: DidUrl): Did {
-        val keyAlgorithm = getKeyAlgorithmFromMultibase(didUrl.identifier)
-
-        val pubKey = convertMultiBase58BtcToRawKey(didUrl.identifier)
-
-        return constructDidKey(didUrl, pubKey, keyAlgorithm)
-    }
-
     private fun ebsiDid(didUrl: DidUrl, pubKey: ByteArray): DidEbsi {
         val (keyAgreementKeys, verificationMethods, keyRef) = generateEdParams(pubKey, didUrl)
 
@@ -322,7 +281,7 @@ object DidService {
         )
     }
 
-    private fun constructDidKey(didUrl: DidUrl, pubKey: ByteArray, keyAlgorithm: KeyAlgorithm): Did {
+    /*private*/ fun constructDidKey(didUrl: DidUrl, pubKey: ByteArray, keyAlgorithm: KeyAlgorithm): Did {
 
         val (keyAgreementKeys, verificationMethods, keyRef) = when (keyAlgorithm) {
             EdDSA_Ed25519 -> generateEdParams(pubKey, didUrl)
