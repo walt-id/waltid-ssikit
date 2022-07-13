@@ -79,3 +79,12 @@ jobs:
             build/libs/*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Prepare CD K8S
+        run: sed "s/_DEFAULT_DEPLOYMENT_/$GITHUB_SHA/g" k8s/deployment-prod.yaml > k8s/deployment-prod_mod.yaml
+      - name: Continuous deployment K8S
+        uses: actions-hub/kubectl@master
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG_PROD }}
+        with:
+          args: apply -n default -f k8s/deployment-prod_mod.yaml
