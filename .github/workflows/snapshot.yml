@@ -44,14 +44,6 @@ jobs:
           DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
           DOCKER_FILE: Dockerfile
           CONTAINER_TAG: waltid/ssikit:latest
-      - name: Continuous deployment
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          password: ${{ secrets.SSH_PASSWORD }}
-          port: ${{ secrets.SSH_PORT }}
-          script: docker rm $(docker stop $(docker ps -a -q --filter ancestor=waltid/ssikit:latest --format="{{.ID}}")); docker pull waltid/ssikit:latest && docker container run -p 7000-7004:7000-7004 -itdv $(pwd)/data:/app/data docker.io/waltid/ssikit:latest serve -b 0.0.0.0
       - name: Prepare CD K8S
         run: sed "s/_DEFAULT_DEPLOYMENT_/$GITHUB_SHA/g" k8s/deployment-dev.yaml > k8s/deployment-dev_mod.yaml
       - name: Continuous deployment K8S
