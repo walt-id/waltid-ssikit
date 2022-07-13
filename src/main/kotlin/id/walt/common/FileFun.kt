@@ -1,6 +1,5 @@
 package id.walt.common
 
-import id.walt.services.essif.EssifClient
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
@@ -18,7 +17,7 @@ fun readWhenContent(file: Path, errorMessage: String? = null) = when {
     else -> throw Exception(errorMessage ?: "Expecting file with content at: ${file.absolutePathString()}")
 }
 
-fun readEssifBearerToken(): String = readWhenContent(
-    EssifClient.bearerTokenFile,
-    "The bearer token must be placed in file ${EssifClient.bearerTokenFile.absolutePath}. Visit https://app.preprod.ebsi.eu/users-onboarding for requesting a token."
+fun readBearerToken(tokenFile: File, errMsg: String? = null): String = readWhenContent(
+    tokenFile,
+    errMsg
 ).replace("\n", "")
