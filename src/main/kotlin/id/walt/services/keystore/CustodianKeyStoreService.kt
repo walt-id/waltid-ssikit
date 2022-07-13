@@ -8,7 +8,7 @@ class CustodianKeyStoreService : KeyStoreService() {
 
     private val custodian = Custodian.getService()
 
-    override fun store(key: Key): Unit = custodian.importKey(key)
+    override fun store(key: Key): Unit = TODO("Not implemented")
     override fun load(alias: String, keyType: KeyType): Key = custodian.getKey(alias)
     override fun addAlias(keyId: KeyId, alias: String): Unit = TODO("Not implemented")
     override fun delete(alias: String): Unit = custodian.deleteKey(alias)

@@ -14,11 +14,6 @@ data class GenKeyRequest(
     val keyAlgorithm: KeyAlgorithm,
 )
 
-//@Serializable
-//data class ImportKeyRequest(
-//    val jwkKey: String,
-//)
-
 @Serializable
 data class ExportKeyRequest(
     val keyAlias: String,
@@ -95,7 +90,6 @@ object KeyController {
     }.json<Array<String>>("200") { it.description("The desired key IDs") }
 
     fun import(ctx: Context) {
-        // val req = ctx.bodyAsClass(ImportKeyRequest::class.java)
         ctx.json(keyService.importKey(ctx.body()))
     }
 

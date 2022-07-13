@@ -2,10 +2,13 @@ package id.walt.custodian
 
 import id.walt.crypto.Key
 import id.walt.crypto.KeyAlgorithm
+import id.walt.crypto.KeyId
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
 import id.walt.services.context.ContextManager
+import id.walt.services.key.KeyFormat
 import id.walt.services.key.KeyService
+import id.walt.services.keystore.KeyType
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
 import id.walt.vclib.model.VerifiableCredential
@@ -17,8 +20,10 @@ abstract class Custodian : WaltIdService() {
     open fun generateKey(keyAlgorithm: KeyAlgorithm): Key = implementation.generateKey(keyAlgorithm)
     open fun getKey(alias: String): Key = implementation.getKey(alias)
     open fun listKeys(): List<Key> = implementation.listKeys()
-    open fun importKey(key: Key): Unit = implementation.importKey(key)
+    open fun importKey(keyStr: String): KeyId = implementation.importKey(keyStr)
     open fun deleteKey(id: String): Unit = implementation.deleteKey(id)
+    open fun exportKey(keyAlias: String, format: KeyFormat = KeyFormat.JWK, type: KeyType = KeyType.PUBLIC): String =
+        implementation.exportKey(keyAlias, format, type)
 
     open fun getCredential(id: String): VerifiableCredential? = implementation.getCredential(id)
     open fun listCredentials(): List<VerifiableCredential> = implementation.listCredentials()
@@ -52,8 +57,10 @@ open class WaltIdCustodian : Custodian() {
 
     override fun getKey(alias: String): Key = ContextManager.keyStore.load(alias)
     override fun listKeys(): List<Key> = ContextManager.keyStore.listKeys()
-    override fun importKey(key: Key) = ContextManager.keyStore.store(key)
+    override fun importKey(keyStr: String) = keyService.importKey(keyStr)
     override fun deleteKey(id: String) = ContextManager.keyStore.delete(id)
+    override fun exportKey(keyAlias: String, format: KeyFormat, type: KeyType) =
+        keyService.export(keyAlias, format, type)
 
     override fun getCredential(id: String) = ContextManager.vcStore.getCredential(id, VC_GROUP)
     override fun listCredentials(): List<VerifiableCredential> = ContextManager.vcStore.listCredentials(VC_GROUP)

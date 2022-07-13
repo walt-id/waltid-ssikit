@@ -2,7 +2,9 @@ package id.walt.rest
 
 import id.walt.auditor.Auditor
 import id.walt.auditor.SignaturePolicy
+import id.walt.common.readWhenContent
 import id.walt.crypto.KeyAlgorithm
+import id.walt.crypto.KeyId
 import id.walt.model.DidMethod
 import id.walt.rest.custodian.CustodianAPI
 import id.walt.rest.custodian.ExportKeyRequest
@@ -24,12 +26,14 @@ import io.kotest.data.blocking.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import java.io.File
 
 class CustodianApiTest : StringSpec({
 
@@ -44,6 +48,9 @@ class CustodianApiTest : StringSpec({
     println("${CustodianAPI.DEFAULT_BIND_ADDRESS}/${CustodianAPI.DEFAULT_Custodian_API_PORT}")
 
     beforeTest {
+        KeyService.getService().listKeys().forEach{
+            KeyService.getService().delete(it.keyId.id)
+        }
         CustodianAPI.start()
 
     }
@@ -150,6 +157,51 @@ class CustodianApiTest : StringSpec({
             response.status shouldBe HttpStatusCode.OK
             shouldThrow<Exception> {
                 KeyService.getService().load(kid.id)
+            }
+        }
+    }
+
+    "Test import key JWK"{
+        forAll(
+//            Ed25519 Private
+            row(readWhenContent(File("src/test/resources/cli/privKeyEd25519Jwk.json")).replace(Regex("(\r\n|\r|\n| )"), ""), KeyType.PRIVATE),
+//            Ed25519 Public
+            row(readWhenContent(File("src/test/resources/cli/pubKeyEd25519Jwk.json")).replace(Regex("(\r\n|\r|\n| )"), ""), KeyType.PUBLIC),
+//            Secp256k1 Private
+            row(readWhenContent(File("src/test/resources/key/privKeySecp256k1Jwk.json")).replace(Regex("(\r\n|\r|\n| )"), ""), KeyType.PRIVATE),
+//            Secp256k1 Public
+            row(readWhenContent(File("src/test/resources/key/pubKeySecp256k1Jwk.json")).replace(Regex("(\r\n|\r|\n| )"), ""), KeyType.PUBLIC),
+//            RSA Private
+            row(readWhenContent(File("src/test/resources/key/privkey.jwk")).replace(Regex("(\r\n|\r|\n| )"), ""), KeyType.PRIVATE),
+//            RSA Public
+            row(readWhenContent(File("src/test/resources/key/pubkey.jwk")).replace(Regex("(\r\n|\r|\n| )"), ""), KeyType.PUBLIC),
+        ){ keyStr, type ->
+            runBlocking {
+                val response = client.post("http://${CustodianAPI.DEFAULT_BIND_ADDRESS}:${CustodianAPI.DEFAULT_Custodian_API_PORT}/keys/import") {
+                    setBody(keyStr)
+                }
+                val export = KeyService.getService().export(response.body<KeyId>().id, KeyFormat.JWK, type)
+                export shouldBe keyStr
+            }
+        }
+    }
+
+    "Test import key PEM"{
+        forAll(
+//            RSA PEM
+            row(readWhenContent(File("src/test/resources/key/rsa.pem"))),
+//            Ed25519 PEM
+            row(readWhenContent(File("src/test/resources/key/ed25519.pem"))),
+//            Secp256k1 PEM
+            row(readWhenContent(File("src/test/resources/key/secp256k1.pem"))),
+        ) { keyStr ->
+            runBlocking {
+                val response = client.post("http://${CustodianAPI.DEFAULT_BIND_ADDRESS}:${CustodianAPI.DEFAULT_Custodian_API_PORT}/keys/import") {
+                    setBody(keyStr)
+                }
+                val priv = KeyService.getService().export(response.body<KeyId>().id, KeyFormat.PEM, KeyType.PRIVATE)
+                val pub = KeyService.getService().export(response.body<KeyId>().id, KeyFormat.PEM, KeyType.PUBLIC)
+                priv.plus(System.lineSeparator()).plus(pub) shouldBe keyStr
             }
         }
     }
