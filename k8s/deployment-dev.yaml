@@ -73,14 +73,14 @@ metadata:
 spec:
   tls:
     - hosts:
-        - core.ssikit.waltid.org
-        - signatory.ssikit.waltid.org
-        - custodian.ssikit.waltid.org
-        - auditor.ssikit.waltid.org
-        - essif.ssikit.waltid.org
+        - core.ssikit.walt-test.cloud
+        - signatory.ssikit.walt-test.cloud
+        - custodian.ssikit.walt-test.cloud
+        - auditor.ssikit.walt-test.cloud
+        - essif.ssikit.walt-test.cloud
       secretName: ssikit-tls-secret
   rules:
-    - host: core.ssikit.waltid.org
+    - host: core.ssikit.walt-test.cloud
       http:
         paths:
           - path: /
@@ -90,7 +90,7 @@ spec:
                 name: ssikit
                 port:
                   name: http-core
-    - host: signatory.ssikit.waltid.org
+    - host: signatory.ssikit.walt-test.cloud
       http:
         paths:
           - path: /
@@ -100,7 +100,7 @@ spec:
                 name: ssikit
                 port:
                   name: http-signatory
-    - host: custodian.ssikit.waltid.org
+    - host: custodian.ssikit.walt-test.cloud
       http:
         paths:
           - path: /
@@ -110,7 +110,7 @@ spec:
                 name: ssikit
                 port:
                   name: http-custodian
-    - host: auditor.ssikit.waltid.org
+    - host: auditor.ssikit.walt-test.cloud
       http:
         paths:
           - path: /
@@ -120,7 +120,7 @@ spec:
                 name: ssikit
                 port:
                   name: http-auditor
-    - host: essif.ssikit.waltid.org
+    - host: essif.ssikit.walt-test.cloud
       http:
         paths:
           - path: /
