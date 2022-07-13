@@ -81,6 +81,7 @@ object WaltIdServices {
         Files.createDirectories(Path.of("$dataDir/vc/created"))
         Files.createDirectories(Path.of("$dataDir/vc/presented"))
         Files.createDirectories(Path.of(ebsiDir))
+        Files.createDirectories(Path.of(velocityDir))
     }
 
     fun loadConfig() = ConfigLoader.builder()

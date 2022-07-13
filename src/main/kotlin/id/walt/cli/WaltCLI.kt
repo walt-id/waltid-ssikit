@@ -145,6 +145,9 @@ object WaltCLI {
                             OidcVerificationRespondCommand()
                         )
                     ),
+                    VelocityCommand().subcommands(
+                        VelocityRegistrationCommand(),
+                    ),
                     ServeCommand()
                 )
                 .main(args)

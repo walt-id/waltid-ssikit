@@ -1,40 +1,165 @@
 {
+  "id": "did:ion:EiCJw0ljOVka9isXxIuEpIL8TGkzzdhvp04f6QaCNShQEw",
+  "didDoc":
+  {
+    "@context":
+    [
+      "https://www.w3.org/ns/did/v1",
+      {
+        "@base": "did:ion:EiCJw0ljOVka9isXxIuEpIL8TGkzzdhvp04f6QaCNShQEw"
+      }
+    ],
+    "id": "did:ion:EiCJw0ljOVka9isXxIuEpIL8TGkzzdhvp04f6QaCNShQEw",
+    "verificationMethod":
+    [
+      {
+        "id": "#vc-signing-key-1",
+        "type": "EcdsaSecp256k1VerificationKey2019",
+        "controller": "",
+        "publicKeyJwk":
+        {
+          "crv": "secp256k1",
+          "x": "jW2j_uRXVX6F15ZpAY5ub8f66tJAojJ0M_3BT9SC7Yc",
+          "y": "f24kAg23-gKgeCtD4TAm72YRh2hIM7hto3k9DmHmqqo",
+          "kty": "EC"
+        }
+      },
+      {
+        "id": "#eth-account-key-1",
+        "type": "EcdsaSecp256k1VerificationKey2019",
+        "controller": "",
+        "publicKeyJwk":
+        {
+          "crv": "secp256k1",
+          "x": "RfIcMIdJBXZPF6RrQIysPGKRc95XPkFW9M8dj-GMbFw",
+          "y": "bwSYYOyJzomp9g8052BfyMDQshB7Y3AvAHoj73imzKs",
+          "kty": "EC"
+        }
+      },
+      {
+        "id": "#exchange-key-1",
+        "type": "EcdsaSecp256k1VerificationKey2019",
+        "controller": "",
+        "publicKeyJwk":
+        {
+          "crv": "secp256k1",
+          "x": "n_aX5r1DBuZs2SNJx-IVV02JYHjjNzh2UaG2H-yjL4c",
+          "y": "SDMfE8VpI2ibR8nQV8lR_8EswLHVsrc5VcuyRnxjiiI",
+          "kty": "EC"
+        }
+      }
+    ],
+    "assertionMethod":
+    [
+      "#vc-signing-key-1",
+      "#eth-account-key-1",
+      "#exchange-key-1"
+    ],
+    "service":
+    [
+      {
+        "type": "VlcCredentialAgentOperator_v1",
+        "id": "#credentialagent-1",
+        "serviceEndpoint": "https://agent.samplevendor.com/acme"
+      },
+      {
+        "type": "VlcCareerIssuer_v1",
+        "id": "#issuer-1",
+        "serviceEndpoint": "https://agent.samplevendor.com/acme",
+        "credentialTypes":
+        [
+          "CertificationV1.1",
+          "LicenseV1.1",
+          "CourseCompletionV1.1",
+          "EducationDegreeGraduationV1.1",
+          "EmploymentCurrentV1.1",
+          "EmploymentPastV1.1"
+        ]
+      },
+      {
+        "type": "VlcInspector_v1",
+        "id": "#inspector-1",
+        "serviceEndpoint": "https://agent.samplevendor.com/acme"
+      }
+    ]
+  },
   "profile":
   {
-    "name": "TEST_COMPANY_NAME",
+    "name": "Test Organization",
     "location":
     {
       "countryCode": "US",
-      "regionCode": "GA"
+      "regionCode": "NY"
     },
-    "founded": "2000",
-    "logo": "https://example.com/logo.png"
+    "logo": "http://www.organization.com/logo.png",
+    "website": "http://www.organization.com",
+    "cntactEmail": "contact@example.com",
+    "founded": "2020-01-01",
+    "closed": "2020-01-01",
+    "registrationNumbers":
+    [
+      {
+        "authority": "DunnAndBradstreet",
+        "number": "1",
+        "uri": "uri://uri"
+      }
+    ],
+    "id": "did:ion:EiCJw0ljOVka9isXxIuEpIL8TGkzzdhvp04f6QaCNShQEw",
+    "verifiableCredentialJwt": "http://registrar.velocitynetwork.foundation/api/v0.6/organizations/did:ion:EiCJw0ljOVka9isXxIuEpIL8TGkzzdhvp04f6QaCNShQEw/resolve-vc/4f280209-6d64-45f9-a929-288f93b3d36c",
+    "permittedVelocityServiceCategory":
+    [
+      "CredentialAgentOperator",
+      "Issuer",
+      "Inspector"
+    ]
   },
-  "serviceEndpoints":
+  "keys":
   [
     {
-      "id": "#credential-agent-operator-1",
-      "serviceEndpoint": "op.example.com",
-      "type": "VlcCredentialAgentOperator_v1"
-    },
-    {
-      "id": "#credential-agent-inspector-1",
-      "serviceEndpoint": "verifier.example.com",
-      "type": "VlcInspector_v1"
-    },
-    {
-      "id": "#credential-agent-issuer-1",
-      "serviceEndpoint": "issuer.example.com",
-      "type": "VlcCareerIssuer_v1",
-      "credentialTypes":
+      "id": "#vc-signing-key-1",
+      "purposes":
       [
-        "CertificationV1.1",
-        "LicenseV1.1",
-        "CourseCompletionV1.1",
-        "EducationDegreeGraduationV1.1",
-        "EmploymentCurrentV1.1",
-        "EmploymentPastV1.1"
-      ]
+        "ISSUING_METADATA"
+      ],
+      "key": "138983b8296544b87d90ee2f49cbc8cf98bd1c7114bdd23b1fc24a1895d981f0",
+      "publicKey": "048d6da3fee457557e85d79669018e6e6fc7faead240a2327433fdc14fd482ed877f6e24020db7fa02a0782b43e13026ef661187684833b86da3793d0e61e6aaaa",
+      "algorithm": "SECP256K1",
+      "encoding": "hex",
+      "controller": "did:ion:EiCJw0ljOVka9isXxIuEpIL8TGkzzdhvp04f6QaCNShQE"
+    },
+    {
+      "id": "#eth-account-key-1",
+      "purposes":
+      [
+        "DLT_TRANSACTIONS"
+      ],
+      "key": "b8754c1fa1bfe8c0705f68bdcc4c8dbba858f63dc929d0cc0f096039ca6a7c29",
+      "publicKey": "0445f21c30874905764f17a46b408cac3c629173de573e4156f4cf1d8fe18c6c5c6f049860ec89ce89a9f60f34e7605fc8c0d0b2107b63702f007a23ef78a6ccab",
+      "algorithm": "SECP256K1",
+      "encoding": "hex",
+      "controller": "did:ion:EiCJw0ljOVka9isXxIuEpIL8TGkzzdhvp04f6QaCNShQEw"
+    },
+    {
+      "id": "#exchange-key-1",
+      "purposes":
+      [
+        "EXCHANGES"
+      ],
+      "key": "116cf6b8c6bd56d96f0004a94da671c8a66a608a9097e7486a932ed9cf03c247",
+      "publicKey": "049ff697e6bd4306e66cd92349c7e215574d896078e337387651a1b61feca32f8748331f13c56923689b47c9d057c951ffc12cc0b1d5b2b73955cbb2467c638a22",
+      "algorithm": "SECP256K1",
+      "encoding": "hex",
+      "controller": "did:ion:EiCJw0ljOVka9isXxIuEpIL8TGkzzdhvp04f6QaCNShQEw"
+    }
+  ],
+  "authClients":
+  [
+    {
+      "type": "auth0",
+      "clientType": "cao-node-client",
+      "clientId": "x8c4son6afk-gt93cd7Yw",
+      "clientSecret": "rxksx8r6EjBKyzUyx0TXs",
+      "serviceId": "#credentialagent-1"
     }
   ]
 }
