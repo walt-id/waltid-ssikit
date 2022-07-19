@@ -1,7 +1,8 @@
-package id.walt.services.velocitynetwork.models
+package id.walt.services.velocitynetwork.models.responses
 
-import id.walt.model.Did
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class CreateOrganizationResponse(
     val id: String,
     val didDoc: String,
@@ -9,6 +10,7 @@ data class CreateOrganizationResponse(
     val authClients: List<AuthClient>,
 ) {
 
+    @Serializable
     data class AuthClient(
         val type: String,
         val clientType: String,
@@ -17,6 +19,7 @@ data class CreateOrganizationResponse(
         val serviceId: String,
     )
 
+    @Serializable
     data class Key(
         val id: String,
         val purposes: List<String>,

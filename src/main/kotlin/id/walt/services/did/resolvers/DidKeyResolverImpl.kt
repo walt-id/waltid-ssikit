@@ -9,7 +9,7 @@ import id.walt.services.did.DidService
 
 class DidKeyResolverImpl : DidResolverBase<DidKey>() {
 
-    override fun resolve(did: String) = resolveDidKey(DidUrl.from(did)) as DidKey
+    override fun resolve(did: String) = resolveDidKey(DidUrl.from(did))
 
     private fun resolveDidKey(didUrl: DidUrl): Did {
         val keyAlgorithm = getKeyAlgorithmFromMultibase(didUrl.identifier)

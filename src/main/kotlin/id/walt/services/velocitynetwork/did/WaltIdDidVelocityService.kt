@@ -1,15 +1,13 @@
 package id.walt.services.velocitynetwork.did
 
 import com.beust.klaxon.Klaxon
-import id.walt.common.readWhenContent
 import id.walt.services.WaltIdServices
-import id.walt.services.velocitynetwork.models.CreateOrganizationResponse
+import id.walt.services.velocitynetwork.models.responses.CreateOrganizationResponse
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import net.pwall.json.schema.JSONSchema
-import java.io.File
 
 class WaltIdDidVelocityService : DidVelocityService() {
     companion object {
@@ -38,6 +36,7 @@ class WaltIdDidVelocityService : DidVelocityService() {
         Klaxon().parse<CreateOrganizationResponse>(
             WaltIdServices.http.post(VELOCITY_NETWORK_REGISTRAR_API) {
                 setBody(data)
+                header("Bearer", token)
             }.bodyAsText()
         )?.let {
             log.debug { "Registration completed successfully" }
