@@ -1,6 +1,6 @@
 package id.walt
 
 object Values {
-    const val version = "1.12.0"
+    const val version = "1.11.0-SNAPSHOT"
     const val isSnapshot = false
 }
