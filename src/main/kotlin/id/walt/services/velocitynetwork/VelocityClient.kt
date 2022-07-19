@@ -1,6 +1,9 @@
 package id.walt.services.velocitynetwork
 
 import com.beust.klaxon.Klaxon
+import id.walt.model.Did
+import id.walt.model.DidUrl
+import id.walt.model.DidVelocity
 import id.walt.services.WaltIdServices
 import id.walt.services.did.DidService
 import id.walt.services.keystore.KeyStoreService
@@ -31,7 +34,7 @@ object VelocityClient {
     val agentBearerTokenFile = File("${WaltIdServices.velocityDir}agent-bearer-token.txt")
 
 
-    private val VELOCITY_NETWORK_ENV = System.getenv().get("VN_ENV") ?: "staging"
+    private val VELOCITY_NETWORK_ENV = System.getenv().get("VN_ENV") ?: "dev"
     private val VELOCITY_NETWORK_REGISTRAR_API = when (VELOCITY_NETWORK_ENV) {
         "prod" -> ""
         else -> VELOCITY_NETWORK_ENV
@@ -44,6 +47,7 @@ object VelocityClient {
     const val offersPath = "/api/holder/v0.6/org/%s/issue/credential-offers"
     const val finalizePath = "/api/holder/v0.6/org/%s/issue/finalize-offers"
     const val registerOrganizationPath = "/api/v0.6/organizations/full"
+    const val didResolvePath = "api/v0.6/resolve-did/%s"
 
     private val log = KotlinLogging.logger {}
     private val bearerTokenStorage = mutableListOf<BearerTokens>()
@@ -67,7 +71,7 @@ object VelocityClient {
 
     fun registerOrganization(data: String, token: String) = runBlocking {
         log.debug { "Registering organization on Velocity Network... " }
-//        if (!validate(data)) throw Exception("Schema validation failed.")
+        if (!validate(data)) throw Exception("Schema validation failed.")
         bearerTokenStorage.add(BearerTokens(token, token))
         httpWithAuth.post(VELOCITY_NETWORK_REGISTRAR_API + registerOrganizationPath) {
             setBody(data)
@@ -109,13 +113,25 @@ object VelocityClient {
             val credentials = httpWithAuth.post(agentUrl + finalizePath.format(issuerDid)) {
                 contentType(ContentType.Application.Json)
                 accept(ContentType.Application.Json)
-                setBody(FinalizeOfferRequestBody(exchangeId.exchangeId, offers.map { it.id }, emptyList()))//TODO
+                setBody(FinalizeOfferRequestBody(exchangeId.exchangeId, offers.map { it.id }, emptyList()))
             }.body<List<String>>()
             log.debug { "Credentials $credentials" }
             credentials
         }
 
+    fun resolveDid(did: String) = runBlocking {
+        val didUrl = DidUrl.from(did)
+        log.debug { "Resolving DID ${didUrl.did}..." }
+        bearerTokenStorage.add(BearerTokens(agentBearerTokenFile.readText(), ""))
+        httpWithAuth.get(
+            VELOCITY_NETWORK_REGISTRAR_ENDPOINT + didResolvePath.format(didUrl.did)
+        ){
+            contentType(ContentType.Application.Json)
+            accept(ContentType.Application.Json)
+        }.body<Did>() as DidVelocity
+    }
+
     private fun validate(data: String) =
-        JSONSchema.parse("/velocitynetwork/schemas/organization-registration-reqSchema.json")
+        JSONSchema.parse("src/main/resources/velocitynetwork/schemas/organization-registration-reqSchema.json")
             .validateBasic(data).valid
 }
