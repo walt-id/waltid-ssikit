@@ -1,7 +1,6 @@
 package id.walt.services.did.resolvers
 
 import id.walt.model.Did
-import id.walt.model.DidEbsi
 import id.walt.model.DidUrl
 import id.walt.model.DidVelocity
 import id.walt.services.WaltIdServices

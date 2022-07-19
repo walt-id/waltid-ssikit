@@ -2,7 +2,7 @@ package id.walt.services.velocitynetwork.did
 
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
-import id.walt.services.velocitynetwork.models.CreateOrganizationResponse
+import id.walt.services.velocitynetwork.models.responses.CreateOrganizationResponse
 
 open class DidVelocityService : WaltIdService() {
     override val implementation get() = serviceImplementation<DidVelocityService>()

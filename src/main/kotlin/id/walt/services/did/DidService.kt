@@ -1,6 +1,7 @@
 package id.walt.services.did
 
 import com.beust.klaxon.Klaxon
+import id.walt.common.prettyPrint
 import id.walt.crypto.*
 import id.walt.crypto.KeyAlgorithm.*
 import id.walt.crypto.LdVerificationKeyType.*
@@ -218,7 +219,7 @@ object DidService {
     }
 
     fun importDid(did: String) {
-        val did2 = did.replace("-", ":")
+        val did2 = didFormat(did)
         resolveAndStore(did2)
 
         when {
@@ -244,12 +245,16 @@ object DidService {
         log.debug { "Key imported for: $did" }
     }
 
+    fun importDidAndDoc(did: String, doc: String) = storeDid(didFormat(did), doc.prettyPrint())
+
     fun setKeyIdForDid(did: String, keyId: String) {
         val key = ContextManager.keyStore.load(keyId)
         log.debug { "Loaded key: $keyId" }
 
         ContextManager.keyStore.addAlias(key.keyId, did)
     }
+
+    private fun didFormat(did: String) = did.replace("-", ":")
 
     private fun signDid(issuerDid: String, verificationMethod: String, edDidStr: String): String {
         return credentialService.sign(
