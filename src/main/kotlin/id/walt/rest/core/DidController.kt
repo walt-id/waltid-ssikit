@@ -98,6 +98,6 @@ object DidController {
 
     fun importDocs() = document().operation {
         it.summary("Import DID").operationId("importDid").addTagsItem("Decentralized Identifiers")
-    }.body<String> { it.description("Imports the DID to the underlying data store") }
+    }.body<String> { it.description("Resolves and imports a DID (e.g. did:key:z6MkiFniw3DEmvQ1AmF818vtFirrY1eJeYxtSoGCaGeqP5Mu) to the underlying data store") }
         .json<String>("201")
 }

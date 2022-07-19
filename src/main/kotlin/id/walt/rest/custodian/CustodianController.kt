@@ -26,14 +26,8 @@ object CustodianController {
     /* Keys */
 
     data class GenerateKeyRequest(val keyAlgorithm: KeyAlgorithm)
-    data class StoreCredentialRequest(val alias: String, val vc: VerifiableCredential)
     data class ListKeyResponse(val list: List<Key>)
 
-    //    @OpenApi(
-//        summary = "Generates a key with a specific key algorithm", operationId = "generateKey", tags = ["Keys"],
-//        requestBody = OpenApiRequestBody([OpenApiContent(GenerateKeyRequest::class)], true, "Generate Key Request"),
-//        responses = [OpenApiResponse("200", [OpenApiContent(Key::class)], "Created Key")]
-//    )
     fun generateKeyDocs() = document()
         .operation {
             it.summary("Generates a key with a specific key algorithm").operationId("generateKey").addTagsItem("Keys")
@@ -45,10 +39,6 @@ object CustodianController {
         ctx.json(custodian.generateKey(ctx.bodyAsClass<GenerateKeyRequest>().keyAlgorithm))
     }
 
-    //    @OpenApi(
-//        summary = "Gets a key specified by its alias", operationId = "getKey", tags = ["Keys"],
-//        responses = [OpenApiResponse("200", [OpenApiContent(Key::class)], "Key by alias")]
-//    )
     fun getKeysDocs() = document()
         .operation {
             it.summary("Gets the metadata of a key specified by its alias").operationId("getKey").addTagsItem("Keys")
@@ -59,10 +49,6 @@ object CustodianController {
         ctx.json(custodian.getKey(ctx.pathParam("alias")))
     }
 
-    //    @OpenApi(
-//        summary = "Lists all keys the custodian knows of", operationId = "listKeys", tags = ["Keys"],
-//        responses = [OpenApiResponse("200", [OpenApiContent(ListKeyResponse::class)], "List of Keys")]
-//    )
     fun listKeysDocs() = document()
         .operation { it.summary("Lists all keys the custodian knows of").operationId("listKeys").addTagsItem("Keys") }
         .json<String>("200") { it.description("Array of keys") }
@@ -70,12 +56,6 @@ object CustodianController {
     fun listKeys(ctx: Context) {
         ctx.json(ListKeyResponse(custodian.listKeys()))
     }
-
-    //    @OpenApi(
-//        summary = "Stores a key", operationId = "storeKey", tags = ["Keys"],
-//        requestBody = OpenApiRequestBody([OpenApiContent(StoreKeyRequest::class)], true, "Store Key Request"),
-//        responses = [OpenApiResponse("200")]
-//    )
 
     fun importKeysDocs() = document().operation {
         it.summary("Import key").operationId("importKey").addTagsItem("Keys")
@@ -87,10 +67,6 @@ object CustodianController {
         ctx.json(custodian.importKey(ctx.body()))
     }
 
-    //    @OpenApi(
-//        summary = "Deletes a specific key", operationId = "deleteKey",
-//        tags = ["Keys"], responses = [OpenApiResponse("200")]
-//    )
     fun deleteKeysDocs() = document()
         .operation { it.summary("Deletes a specific key").operationId("deleteKey").addTagsItem("Keys") }
         .json<String>("200") { it.description("Http OK") }
@@ -121,10 +97,6 @@ object CustodianController {
     data class ListCredentialsResponse(val list: List<VerifiableCredential>)
     data class ListCredentialIdsResponse(val list: List<String>)
 
-    //    @OpenApi(
-//        summary = "Gets a specific Credential by id", operationId = "getCredential", tags = ["Credentials"],
-//        responses = [OpenApiResponse("200", [OpenApiContent(VerifiableCredential::class)], "Created Credential")]
-//    )
     fun getCredentialDocs() = document()
         .operation {
             it.summary("Gets a specific Credential by id").operationId("getCredential").addTagsItem("Credentials")
@@ -140,10 +112,6 @@ object CustodianController {
             ctx.json(vc)
     }
 
-    //    @OpenApi(
-//        summary = "Lists all credentials the custodian knows of", operationId = "listCredentials", tags = ["Credentials"],
-//        responses = [OpenApiResponse("200", [OpenApiContent(ListCredentialsResponse::class)], "Credential list")]
-//    )
     fun listCredentialsDocs() = document()
         .operation {
             it.summary("Lists all credentials the custodian knows of").operationId("listCredentials")
@@ -163,10 +131,6 @@ object CustodianController {
             )
     }
 
-    //    @OpenApi(
-//        summary = "Lists all credential ids the custodian knows of", operationId = "listCredentialIds", tags = ["Credentials"],
-//        responses = [OpenApiResponse("200", [OpenApiContent(ListCredentialIdsResponse::class)], "Credential id list")]
-//    )
     fun listCredentialIdsDocs() = document()
         .operation {
             it.summary("Lists all credential IDs the custodian knows of").operationId("listCredentialIds")
@@ -178,11 +142,6 @@ object CustodianController {
         ctx.json(ListCredentialIdsResponse(custodian.listCredentialIds()))
     }
 
-    //    @OpenApi(
-//        summary = "Lists all credential ids the custodian knows of", operationId = "listCredentialIds", tags = ["Credentials"],
-//        requestBody = OpenApiRequestBody([OpenApiContent(StoreCredentialRequest::class)], true, "Store Credential Request"),
-//        responses = [OpenApiResponse("200")]
-//    )
     fun storeCredentialsDocs() = document()
         .operation { it.summary("Stores a credential").operationId("storeCredential").addTagsItem("Credentials") }
         .body<VerifiableCredential> { it.description("The body should contain, the VC you want to store. If you don't want to adjust anything in the VC." +
@@ -195,10 +154,6 @@ object CustodianController {
         custodian.storeCredential(ctx.pathParam("alias"), vc)
     }
 
-    //    @OpenApi(
-//        summary = "Deletes a specific credential by alias", operationId = "deleteCredential",
-//        tags = ["Credentials"], responses = [OpenApiResponse("200")]
-//    )
     fun deleteCredentialDocs() = document()
         .operation {
             it.summary("Deletes a specific credential by alias").operationId("deleteCredential")
@@ -250,5 +205,4 @@ object CustodianController {
 
         ctx.result(custodian.createPresentation(ids, req.holderDid, req.verifierDid, req.domain, req.challenge, null))
     }
-
 }
