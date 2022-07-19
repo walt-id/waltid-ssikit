@@ -4,9 +4,16 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
 
 ## [Unreleased]
 
+- Roadmap
+  - Dynamic Policies powered by the OpenPolicyAgent https://github.com/walt-id/waltid-roadmap/issues/42
 - Features
   - Added support for did:ebsi V2 by @xmartinez15 https://github.com/walt-id/waltid-ssikit/pull/139
   - Added support for Open Badge V3 credential by https://github.com/walt-id/waltid-ssikit-vclib/issues/50
+  - Dynamically register opa enabled policies with the auditor https://github.com/walt-id/waltid-ssikit/pull/140
+- Fixes
+  - Fix custodian importkey api https://github.com/walt-id/waltid-ssikit/pull/131
+ 
+
   
 ## [1.11.0] - 2022-05-31
 
