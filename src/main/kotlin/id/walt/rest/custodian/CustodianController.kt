@@ -50,7 +50,9 @@ object CustodianController {
 //        responses = [OpenApiResponse("200", [OpenApiContent(Key::class)], "Key by alias")]
 //    )
     fun getKeysDocs() = document()
-        .operation { it.summary("Gets the metadata of a key specified by its alias").operationId("getKey").addTagsItem("Keys") }
+        .operation {
+            it.summary("Gets the metadata of a key specified by its alias").operationId("getKey").addTagsItem("Keys")
+        }
         .json<String>("200") { it.description("Key by alias") }
 
     fun getKey(ctx: Context) {
@@ -124,7 +126,9 @@ object CustodianController {
 //        responses = [OpenApiResponse("200", [OpenApiContent(VerifiableCredential::class)], "Created Credential")]
 //    )
     fun getCredentialDocs() = document()
-        .operation { it.summary("Gets a specific Credential by id").operationId("getCredential").addTagsItem("Credentials") }
+        .operation {
+            it.summary("Gets a specific Credential by id").operationId("getCredential").addTagsItem("Credentials")
+        }
         .json<String>("200") { it.description("Created Credential") }
         .result<String>("404")
 
@@ -142,7 +146,8 @@ object CustodianController {
 //    )
     fun listCredentialsDocs() = document()
         .operation {
-            it.summary("Lists all credentials the custodian knows of").operationId("listCredentials").addTagsItem("Credentials")
+            it.summary("Lists all credentials the custodian knows of").operationId("listCredentials")
+                .addTagsItem("Credentials")
         }
         .queryParam<String>("id", isRepeatable = true)
         .json<String>("200") { it.description("Credentials list") }
@@ -152,7 +157,10 @@ object CustodianController {
         if (ids.isEmpty())
             ctx.json(ListCredentialsResponse(custodian.listCredentials()))
         else
-            ctx.json(ListCredentialsResponse(custodian.listCredentials().filter { it.id != null && ids.contains(it.id!!) }))
+            ctx.json(
+                ListCredentialsResponse(
+                    custodian.listCredentials().filter { it.id != null && ids.contains(it.id!!) })
+            )
     }
 
     //    @OpenApi(
@@ -177,7 +185,8 @@ object CustodianController {
 //    )
     fun storeCredentialsDocs() = document()
         .operation { it.summary("Stores a credential").operationId("storeCredential").addTagsItem("Credentials") }
-        .body<VerifiableCredential> { it.description("the vc") }
+        .body<VerifiableCredential> { it.description("The body should contain, the VC you want to store. If you don't want to adjust anything in the VC." +
+                "You can simply paste the response you've got from the create VC endpoint and ignore the described parameters.") }
         .json<Int>("201") { it.description("Http OK") }
 
     fun storeCredential(ctx: Context) {
@@ -192,7 +201,8 @@ object CustodianController {
 //    )
     fun deleteCredentialDocs() = document()
         .operation {
-            it.summary("Deletes a specific credential by alias").operationId("deleteCredential").addTagsItem("Credentials")
+            it.summary("Deletes a specific credential by alias").operationId("deleteCredential")
+                .addTagsItem("Credentials")
         }
         .json<String>("200") { it.description("Http OK") }
 
@@ -211,12 +221,22 @@ object CustodianController {
 
     fun presentCredentials(ctx: Context) {
         val req = ctx.bodyAsClass<PresentCredentialsRequest>()
-        ctx.result(custodian.createPresentation(req.vcs, req.holderDid, req.verifierDid, req.domain, req.challenge, null))
+        ctx.result(
+            custodian.createPresentation(
+                req.vcs,
+                req.holderDid,
+                req.verifierDid,
+                req.domain,
+                req.challenge,
+                null
+            )
+        )
     }
 
     fun presentCredentialIdsDocs() = document()
         .operation {
-            it.summary("Create a VerifiablePresentation from specific credential IDs)").operationId("presentCredentialIds")
+            it.summary("Create a VerifiablePresentation from specific credential IDs)")
+                .operationId("presentCredentialIds")
                 .addTagsItem("Credentials")
         }
         .body<PresentCredentialIdsRequest>()
