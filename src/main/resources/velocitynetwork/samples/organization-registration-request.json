@@ -1,0 +1,31 @@
+{
+  "profile": {
+    "name": "WaltID",
+    "location": {
+      "countryCode": "AT",
+      "regionCode": "W"
+    },
+    "founded": "2021",
+    "logo": "https://images.squarespace-cdn.com/content/v1/609c0ddf94bcc0278a7cbdb4/d7a7bc88-c700-4efe-a95f-8d3086bccb9d/Walt.id_Logo_round.png?format=1500w"
+  },
+  "serviceEndpoints": [
+    {
+      "id": "#credential-agent-operator-1",
+      "serviceEndpoint": "https://agent.velocity.walt.id",
+      "type": "VlcCredentialAgentOperator_v1"
+    },
+    {
+      "id": "#credential-agent-inspector-1",
+      "serviceEndpoint": "https://agent.velocity.walt.id",
+      "type": "VlcInspector_v1"
+    },
+    {
+      "id": "#credential-agent-issuer-1",
+      "serviceEndpoint": "https://agent.velocity.walt.id",
+      "type": "VlcCareerIssuer_v1",
+      "credentialTypes": [
+        "OpenBadgeCredential", "EducationDegree", "CurrentEmploymentPosition", "PastEmploymentPosition", "Badge", "Certification", "Course", "Assessment", "AssessmentDec2020", "VaccinationCertificate-Apr2021", "CourseRegistrationV1.0", "CourseCompletionV1.0", "CourseAttendanceV1.0", "EducationDegreeRegistrationV1.0", "EducationDegreeStudyV1.0", "EducationDegreeGraduationV1.0", "CertificationV1.0", "LicenseV1.0", "OpenBadgeV1.0", "AssessmentV1.0", "EmploymentCurrentV1.0", "EmploymentPastV1.0", "VerifiableCredential", "ComprehensiveLearnerRecord", "CourseRegistrationV1.1", "CourseCompletionV1.1", "CourseAttendanceV1.1", "EducationDegreeRegistrationV1.1", "EducationDegreeStudyV1.1", "EducationDegreeGraduationV1.1", "CertificationV1.1", "LicenseV1.1", "AssessmentV1.1", "EmploymentCurrentV1.1", "EmploymentPastV1.1", "BadgeV1.1", "OpenBadgeV2.0", "OpenBadgeV2.1"
+      ]
+    }
+  ]
+}

@@ -6,8 +6,6 @@ import id.walt.model.DidUrl
 import id.walt.model.DidVelocity
 import id.walt.services.WaltIdServices
 import id.walt.services.did.DidService
-import id.walt.services.keystore.KeyStoreService
-import id.walt.services.velocitynetwork.did.DidVelocityService
 import id.walt.services.velocitynetwork.models.requests.*
 import id.walt.services.velocitynetwork.models.responses.CreateOrganizationResponse
 import id.walt.services.velocitynetwork.models.responses.DisclosureResponse
@@ -72,7 +70,7 @@ object VelocityClient {
 
     fun registerOrganization(data: String, token: String) = runBlocking {
         log.debug { "Registering organization on Velocity Network... " }
-//        if (!validate(data)) throw Exception("Schema validation failed.")
+        if (!validate(data)) throw Exception("Schema validation failed.")
         bearerTokenStorage.add(BearerTokens(token, token))
         httpWithAuth.post(VELOCITY_NETWORK_REGISTRAR_API + registerOrganizationPath) {
             setBody(data)
@@ -133,6 +131,6 @@ object VelocityClient {
     }
 
     private fun validate(data: String) =
-        JSONSchema.parse("src/main/resources/velocitynetwork/schemas/organization-registration-reqSchema.json")
+        JSONSchema.parseFile("src/main/resources/velocitynetwork/schemas/organization-registration-reqSchema.json")
             .validateBasic(data).valid
 }
