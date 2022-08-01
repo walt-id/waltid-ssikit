@@ -33,7 +33,7 @@ class DidTypeAdapter : TypeAdapter<Did> {
         DidMethod.key.name -> DidKey::class
         DidMethod.ebsi.name -> DidEbsi::class
         DidMethod.web.name -> DidWeb::class
-        DidMethod.velocity.name -> DidVelocity::class
+        DidMethod.ion.name, DidMethod.velocity.name -> DidVelocity::class
         else -> throw IllegalArgumentException("Unsupported did method for $type")
     }
 }
@@ -43,6 +43,7 @@ enum class DidMethod {
     web,
     ebsi,
     velocity,
+    ion,
 }
 @Serializable
 @TypeFor(field = "id", adapter = DidTypeAdapter::class)

@@ -41,7 +41,8 @@ object VelocityClient {
     }.let { String.format(VELOCITY_NETWORK_REGISTRAR_ENDPOINT, it) }
 
     const val VELOCITY_NETWORK_REGISTRAR_ENDPOINT = "https://%sregistrar.velocitynetwork.foundation/"
-    const val agentUrl = "https://devagent.velocitycareerlabs.io"
+//    const val agentUrl = "https://devagent.velocitycareerlabs.io"
+    const val agentUrl = "http://localhost:8080"
     const val exchangePath = "/api/holder/v0.6/org/%s/exchange"
     const val disclosurePath = "/api/holder/v0.6/org/%s/identify"
     const val offersPath = "/api/holder/v0.6/org/%s/issue/credential-offers"
@@ -71,13 +72,13 @@ object VelocityClient {
 
     fun registerOrganization(data: String, token: String) = runBlocking {
         log.debug { "Registering organization on Velocity Network... " }
-        if (!validate(data)) throw Exception("Schema validation failed.")
+//        if (!validate(data)) throw Exception("Schema validation failed.")
         bearerTokenStorage.add(BearerTokens(token, token))
         httpWithAuth.post(VELOCITY_NETWORK_REGISTRAR_API + registerOrganizationPath) {
             setBody(data)
         }.bodyAsText().let { response ->
             Klaxon().parse<CreateOrganizationResponse>(response)?.let {
-                DidService.importDidAndDoc(it.id, it.didDoc)
+                DidService.importDidAndDoc(it.id, it.didDoc.encodePretty())
                 File(WaltIdServices.velocityDir + it.id).writeText(response)
                 it.id
             } ?: throw Exception("Error parsing response")

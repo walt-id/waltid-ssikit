@@ -40,7 +40,7 @@ class WaltIdDidVelocityService : DidVelocityService() {
             }.bodyAsText()
         )?.let {
             log.debug { "Registration completed successfully" }
-            onResult(it.id, it.didDoc, it.keys, it.authClients)
+//            onResult(it.id, it.didDoc, it.keys, it.authClients)
         } ?: throw Exception("Empty result")
     }
 

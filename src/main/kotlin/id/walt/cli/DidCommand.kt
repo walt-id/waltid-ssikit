@@ -72,7 +72,7 @@ class CreateDidCommand : CliktCommand(
             web -> DidService.create(web, keyId, DidService.DidWebOptions(didWebDomain, didWebPath))
             ebsi -> DidService.create(ebsi, keyId, DidService.DidEbsiOptions(didEbsiVersion))
             key -> DidService.create(key, keyId)
-            velocity -> TODO("Not Implemented")
+            ion, velocity -> TODO("Not Implemented")
         }
 
         echo("\nResults:\n")
