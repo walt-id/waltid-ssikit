@@ -68,7 +68,7 @@ open class WaltIdTimestampService : TimestampService() {
 
 
         return@runBlocking runBlocking {
-            WaltIdServices.http.get(href).body<Timestamp>().also {
+            WaltIdServices.httpNoAuth.get(href).body<Timestamp>().also {
                 it.timestampId = timestampId
                 it.href = href
             }
@@ -76,22 +76,22 @@ open class WaltIdTimestampService : TimestampService() {
     }
 
     override fun getByTransactionHash(transactionHash: String): Timestamp? = runBlocking {
-        var timestamps = WaltIdServices.http.get(
-            WaltIdServices.http.get(TIMESTAMPS).body<Timestamps>().links.last
+        var timestamps = WaltIdServices.httpNoAuth.get(
+            WaltIdServices.httpNoAuth.get(TIMESTAMPS).body<Timestamps>().links.last
         ).body<Timestamps>()
 
         while (timestamps.self != timestamps.links.prev) {
             val timestampsIterator = timestamps.items.listIterator(timestamps.items.size)
             while (timestampsIterator.hasPrevious()) {
                 val timestampItem = timestampsIterator.previous()
-                val timestamp = runBlocking { WaltIdServices.http.get(timestampItem.href).body<Timestamp>() }
+                val timestamp = runBlocking { WaltIdServices.httpNoAuth.get(timestampItem.href).body<Timestamp>() }
                 if (timestamp.transactionHash == transactionHash) {
                     timestamp.timestampId = timestampItem.timestampId
                     timestamp.href = timestampItem.href
                     return@runBlocking timestamp
                 }
             }
-            timestamps = WaltIdServices.http.get(timestamps.links.prev).body()
+            timestamps = WaltIdServices.httpNoAuth.get(timestamps.links.prev).body()
         }
 
         return@runBlocking null

@@ -16,7 +16,7 @@ class DidWebResolverImpl : DidResolverBase<DidWeb>() {
         log.debug { "Resolving DID $didUrl" }
         val didDocUri = DidWeb.getDidDocUri(didUrl)
         log.debug { "Fetching DID from $didDocUri" }
-        val didDoc = WaltIdServices.http.get(didDocUri.toString()).bodyAsText()
+        val didDoc = WaltIdServices.httpNoAuth.get(didDocUri.toString()).bodyAsText()
         log.debug { didDoc }
         return@runBlocking Did.decode(didDoc)!!
     }

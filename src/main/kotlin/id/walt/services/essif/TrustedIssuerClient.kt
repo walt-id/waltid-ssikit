@@ -42,7 +42,7 @@ object TrustedIssuerClient {
 //    }
 
     fun generateAuthenticationRequest(): String = runBlocking {
-        return@runBlocking WaltIdServices.http.post("$trustedIssuerUrl/generateAuthenticationRequest") {
+        return@runBlocking WaltIdServices.httpNoAuth.post("$trustedIssuerUrl/generateAuthenticationRequest") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
         }.bodyAsText()
@@ -50,7 +50,7 @@ object TrustedIssuerClient {
 
 
     fun openSession(authResp: String): String = runBlocking {
-        return@runBlocking WaltIdServices.http.post("$trustedIssuerUrl/openSession") {
+        return@runBlocking WaltIdServices.httpNoAuth.post("$trustedIssuerUrl/openSession") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
             setBody(authResp)
@@ -62,7 +62,7 @@ object TrustedIssuerClient {
     // Used for registering DID EBSI
 
     fun authenticationRequests(): AuthRequestResponse = runBlocking {
-        return@runBlocking WaltIdServices.http.post("$onboarding/authentication-requests") {
+        return@runBlocking WaltIdServices.httpNoAuth.post("$onboarding/authentication-requests") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
             setBody(mapOf("scope" to "ebsi users onboarding"))
@@ -70,7 +70,7 @@ object TrustedIssuerClient {
     }
 
     fun authenticationResponse(idToken: String, bearerToken: String): String = runBlocking {
-        return@runBlocking WaltIdServices.http.post("$onboarding/authentication-responses") {
+        return@runBlocking WaltIdServices.httpNoAuth.post("$onboarding/authentication-responses") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
             headers {
@@ -81,7 +81,7 @@ object TrustedIssuerClient {
     }
 
     fun siopSession(idToken: String): String = runBlocking {
-        return@runBlocking WaltIdServices.http.post("$authorisation/siop-sessions") {
+        return@runBlocking WaltIdServices.httpNoAuth.post("$authorisation/siop-sessions") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
             setBody(mapOf("id_token" to idToken))
@@ -89,7 +89,7 @@ object TrustedIssuerClient {
     }
 
     fun siopSessionBearer(idToken: String, bearerToken: String): String = runBlocking {
-        return@runBlocking WaltIdServices.http.post("$authorisation/siop-sessions") {
+        return@runBlocking WaltIdServices.httpNoAuth.post("$authorisation/siop-sessions") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
             headers {
@@ -105,7 +105,7 @@ object TrustedIssuerClient {
         log.debug { "Getting trusted issuer with DID $did" }
 
         val trustedIssuer: String =
-            WaltIdServices.http.get("https://api.preprod.ebsi.eu/trusted-issuers-registry/v2/issuers/$did").bodyAsText()
+            WaltIdServices.httpNoAuth.get("https://api.preprod.ebsi.eu/trusted-issuers-registry/v2/issuers/$did").bodyAsText()
 
         log.debug { trustedIssuer }
 
@@ -116,7 +116,7 @@ object TrustedIssuerClient {
         log.debug { "Getting trusted issuer with DID $did" }
 
         val trustedIssuer: String =
-            WaltIdServices.http.get("https://api.preprod.ebsi.eu/trusted-issuers-registry/v2/issuers/$did").bodyAsText()
+            WaltIdServices.httpNoAuth.get("https://api.preprod.ebsi.eu/trusted-issuers-registry/v2/issuers/$did").bodyAsText()
 
         log.debug { trustedIssuer }
 

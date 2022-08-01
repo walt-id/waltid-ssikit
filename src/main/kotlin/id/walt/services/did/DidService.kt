@@ -16,10 +16,8 @@ import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.ProofConfig
-import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.bouncycastle.asn1.edec.EdECObjectIdentifiers
@@ -85,7 +83,7 @@ object DidService {
     fun resolveDidEbsiRaw(did: String): String = runBlocking {
         log.debug { "Resolving DID $did" }
 
-        val didDoc = WaltIdServices.http.get("https://api.preprod.ebsi.eu/did-registry/v2/identifiers/$did").bodyAsText()
+        val didDoc = WaltIdServices.httpNoAuth.get("https://api.preprod.ebsi.eu/did-registry/v2/identifiers/$did").bodyAsText()
 
         log.debug { didDoc }
 

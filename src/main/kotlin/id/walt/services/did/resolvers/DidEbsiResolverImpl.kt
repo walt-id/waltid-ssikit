@@ -25,7 +25,7 @@ class DidEbsiResolverImpl : DidResolverBase<DidEbsi>() {
             try {
                 log.debug { "Resolving did:ebsi at: https://api.preprod.ebsi.eu/did-registry/v2/identifiers/${didUrl.did}" }
                 didDoc =
-                    WaltIdServices.http.get("https://api.preprod.ebsi.eu/did-registry/v2/identifiers/${didUrl.did}")
+                    WaltIdServices.httpNoAuth.get("https://api.preprod.ebsi.eu/did-registry/v2/identifiers/${didUrl.did}")
                         .bodyAsText()
                 log.debug { "Result: $didDoc" }
                 return@runBlocking Did.decode(didDoc)!! as DidEbsi

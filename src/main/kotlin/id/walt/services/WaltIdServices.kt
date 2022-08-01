@@ -9,6 +9,7 @@ import com.zaxxer.hikari.HikariDataSource
 import id.walt.Values
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.serialization.kotlinx.json.*
@@ -35,8 +36,9 @@ object WaltIdServices {
 
     val httpLogging = false
     private val log = KotlinLogging.logger {}
+    private val bearerTokenStorage = mutableListOf<BearerTokens>()
 
-    val http = HttpClient(CIO) {
+    val httpNoAuth = HttpClient(CIO) {
         install(ContentNegotiation) {
             json(Json { ignoreUnknownKeys = true })
         }
@@ -45,6 +47,23 @@ object WaltIdServices {
                 logger = Logger.SIMPLE
                 level = LogLevel.HEADERS
             }
+        }
+    }
+
+    val httpWithAuth = HttpClient(CIO) {
+        install(ContentNegotiation) {
+            json(Json { ignoreUnknownKeys = true })
+        }
+        install(io.ktor.client.plugins.auth.Auth) {
+            bearer {
+                loadTokens {
+                    bearerTokenStorage.last()
+                }
+            }
+        }
+        install(Logging) {
+            logger = Logger.SIMPLE
+            level = LogLevel.HEADERS
         }
     }
 
@@ -91,5 +110,9 @@ object WaltIdServices {
         .addDecoder(HikariDataSourceDecoder())
         .build()
         .loadConfigOrThrow<WaltIdConfig>()
+
+    fun addBearerToken(token: String) = bearerTokenStorage.add(BearerTokens(token, token))
+
+    fun clearBearerTokens() = bearerTokenStorage.clear()
 
 }
