@@ -33,7 +33,7 @@ class VelocityRegistrationCommand : CliktCommand(
     override fun run() {
 
         echo("Registering organization on Velocity Network...\n")
-        val did = VelocityClient.registerOrganization(data.readText(), registrarBearerTokenFile.readText().replace("\n", ""))
+        val did = VelocityClient.register(data.readText(), registrarBearerTokenFile.readText().replace("\n", ""))
         echo("Velocity Network DID acquired successfully: $did")
     }
 }
@@ -48,7 +48,9 @@ class VelocityIssueCommand: CliktCommand(
 
     override fun run() {
         echo("Issuing by $issuer on Velocity Network the credentials:\n$types")
-        val credentials = VelocityClient.issue(subject.readText(), issuer, *types.toTypedArray())
+        val credentials = VelocityClient.issue(subject.readText(), issuer, *types.toTypedArray()) {
+            VelocityClient.OfferChoice(it.map { it.id }, emptyList())
+        }
         echo("The issued credentials:\n$credentials")
     }
 }

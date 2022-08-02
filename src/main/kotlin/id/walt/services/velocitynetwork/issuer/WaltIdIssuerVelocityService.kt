@@ -42,10 +42,10 @@ class WaltIdIssuerVelocityService : IssuerVelocityService() {
             setBody(GetOffersRequestBody(exchangeId, credentialTypes))
         }.body<List<OfferResponse>>()
 
-    override suspend fun finalizeOffers(exchangeId: String, issuerDid: String, offers: List<String>) =
+    override suspend fun finalizeOffers(exchangeId: String, issuerDid: String, accepted: List<String>, rejected: List<String>) =
         WaltIdServices.httpWithAuth.post(VelocityNetwork.agentUrl + finalizePath.format(issuerDid)) {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
-            setBody(FinalizeOfferRequestBody(exchangeId, offers, emptyList()))
+            setBody(FinalizeOfferRequestBody(exchangeId, accepted, rejected))
         }.body<List<String>>()
 }

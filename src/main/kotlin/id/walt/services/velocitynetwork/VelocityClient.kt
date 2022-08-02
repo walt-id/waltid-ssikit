@@ -4,11 +4,17 @@ import id.walt.model.DidUrl
 import id.walt.services.WaltIdServices
 import id.walt.services.velocitynetwork.did.DidVelocityService
 import id.walt.services.velocitynetwork.issuer.IssuerVelocityService
+import id.walt.services.velocitynetwork.models.responses.OfferResponse
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import net.pwall.json.schema.JSONSchema
 
 object VelocityClient {
+
+    data class OfferChoice(
+        val accepted: List<String>,
+        val rejected: List<String>,
+    )
 
     private val log = KotlinLogging.logger {}
     private val issuerService = IssuerVelocityService.getService()
@@ -26,16 +32,23 @@ object VelocityClient {
 //            } ?: throw Exception("Error parsing response")
 //        }
 //    }
-    
+
     fun register(data: String, token: String) = runBlocking {
         log.debug { "Registering organization on Velocity Network... " }
         if (!validate(data)) throw Exception("Schema validation failed.")
         WaltIdServices.addBearerToken(token)
-        didService.onboard(data)
+        val org = didService.onboard(data)
+        WaltIdServices.clearBearerTokens()
+        org
     }
 
     //TODO: holder data - accept email instead of credential
-    fun issue(holderIdentity: String, issuerDid: String, vararg credentialTypes: String): List<String> =
+    fun issue(
+        holderIdentity: String,
+        issuerDid: String,
+        vararg credentialTypes: String,
+        offerSelection: suspend (offers: List<OfferResponse>) -> OfferChoice
+    ): List<String> =
         runBlocking {
             // step 1: exchange id
             val exchangeId = issuerService.initExchange(issuerDid).exchangeId
@@ -46,10 +59,14 @@ object VelocityClient {
             log.debug { "Using token $token" }
             // step 3: offers
             val offers = issuerService.generateOffers(exchangeId, issuerDid, credentialTypes.toList())
-            log.debug { "Finalizing offers ${offers.map { it.id }}" }
+            log.debug { "Selecting offers from ${offers.map { it.id }}" }
+            // step 3.1
+            val selection = offerSelection(offers)
+            log.debug { "Finalizing offers ${selection.accepted}" }
             // step 4: get credential
-            val credentials = issuerService.finalizeOffers(exchangeId, issuerDid, offers.map { it.id })
+            val credentials = issuerService.finalizeOffers(exchangeId, issuerDid, selection.accepted, selection.rejected)
             log.debug { "Credentials $credentials" }
+            WaltIdServices.clearBearerTokens()
             credentials
         }
 
@@ -57,7 +74,9 @@ object VelocityClient {
         val didUrl = DidUrl.from(did)
         log.debug { "Resolving DID ${didUrl.did}..." }
         WaltIdServices.addBearerToken(VelocityNetwork.agentBearerTokenFile.readText())
-        didService.resolveDid(didUrl)
+        val resolved = didService.resolveDid(didUrl)
+        WaltIdServices.clearBearerTokens()
+        resolved
     }
 
     private fun validate(data: String) =

@@ -17,8 +17,13 @@ open class IssuerVelocityService : WaltIdService() {
         issuerDid: String,
         credentialTypes: List<String>
     ): List<OfferResponse> = implementation.generateOffers(exchangeId, issuerDid, credentialTypes)
-    open suspend fun finalizeOffers(exchangeId: String, issuerDid: String, offers: List<String>): List<String> =
-        implementation.finalizeOffers(exchangeId, issuerDid, offers)
+    open suspend fun finalizeOffers(
+        exchangeId: String,
+        issuerDid: String,
+        accepted: List<String>,
+        rejected: List<String>
+    ): List<String> =
+        implementation.finalizeOffers(exchangeId, issuerDid, accepted, rejected)
 
     companion object : ServiceProvider {
         override fun getService() = object : IssuerVelocityService() {}
