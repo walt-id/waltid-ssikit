@@ -1,0 +1,39 @@
+{
+  "type": [
+    "PastEmploymentPosition"
+  ],
+  "credentialSubject": {
+    "vendorUserId": "adam.smith@example.com",
+    "company": "did:velocity:0xd4df29726d500f9b85bc6c7f1b3c021f16305692",
+    "companyName": {
+      "localized": {
+        "en": "Microsoft Corporation"
+      }
+    },
+    "title": {
+      "localized": {
+        "en": "Director, Communications (HoloLens & Mixed Reality Experiences)"
+      }
+    },
+    "startMonthYear": {
+      "month": 10,
+      "year": 2010
+    },
+    "endMonthYear": {
+      "month": 5,
+      "year": 2022
+    },
+    "location": {
+      "countryCode": "US",
+      "regionCode": "MA"
+    },
+    "description": {
+      "localized": {
+        "en": "Big Data, AI, Hybrid, IoT, Datacenter, Mixed Reality/HoloLens, D365, Power Platform - all kinds of fun stuff!!!"
+      }
+    }
+  },
+  "offerCreationDate": "2020-08-04T21:13:32.019Z",
+  "offerExpirationDate": "2021-08-04T21:13:32.019Z",
+  "offerId": "ptIQrgxaicFX0QPVf_Z1L"
+}

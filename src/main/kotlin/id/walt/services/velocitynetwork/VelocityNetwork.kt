@@ -5,8 +5,8 @@ import java.io.File
 
 object VelocityNetwork {
     const val VELOCITY_NETWORK_REGISTRAR_ENDPOINT = "https://%sregistrar.velocitynetwork.foundation/"
-    const val agentUrl = "https://devagent.velocitycareerlabs.io"
-    //    const val agentUrl = "http://localhost:8080"
+//    const val agentUrl = "https://devagent.velocitycareerlabs.io"
+        const val agentUrl = "http://localhost:8080"
 
     val VELOCITY_NETWORK_ENV = System.getenv().get("VN_ENV") ?: "staging"
     val VELOCITY_NETWORK_REGISTRAR_API = when (VELOCITY_NETWORK_ENV) {

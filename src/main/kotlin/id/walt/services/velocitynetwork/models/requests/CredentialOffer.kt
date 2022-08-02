@@ -1,25 +1,15 @@
-package id.walt.services.velocitynetwork.models.responses
+package id.walt.services.velocitynetwork.models.requests
 
 import kotlinx.serialization.Serializable
 
-// TODO: inherit from VerifiableCredential
 @Serializable
-data class OfferResponse(
+data class CredentialOffer(
     val type: List<String>,
     val credentialSubject: CredentialSubject,
     val offerCreationDate: String, // date
     val offerExpirationDate: String, // date
     val offerId: String,
-    val id: String,
-    val createdAt: String,
-    val updatedAt: String,
-    val exchangeId: String,
-    val issuer: Issuer,
 ){
-    @Serializable
-    data class Issuer(
-        val id: String, // did
-    )
     @Serializable
     data class CredentialSubject(
         val vendorUserId: String,

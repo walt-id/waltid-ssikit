@@ -5,9 +5,12 @@ import id.walt.services.WaltIdServices
 import id.walt.services.velocitynetwork.did.DidVelocityService
 import id.walt.services.velocitynetwork.issuer.IssuerVelocityService
 import id.walt.services.velocitynetwork.models.responses.OfferResponse
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import net.pwall.json.schema.JSONSchema
+import java.net.URLDecoder
 
 object VelocityClient {
 
@@ -42,6 +45,18 @@ object VelocityClient {
         org
     }
 
+    fun issue(issuerDid: String, credential: String, token: String): String = runBlocking {
+        WaltIdServices.addBearerToken(token)
+        val exchangeId = issuerService.initExchange(issuerDid).id
+        issuerService.addOffer(issuerDid, exchangeId, credential)
+        issuerService.completeOffer(issuerDid, exchangeId)
+        val uri = issuerService.claimOffer(issuerDid, exchangeId)
+        WaltIdServices.clearBearerTokens()
+        withContext(Dispatchers.IO) {
+            URLDecoder.decode(uri, "UTF-8")
+        }
+    }
+
     //TODO: holder data - accept email instead of credential
     fun issue(
         holderIdentity: String,
@@ -51,7 +66,7 @@ object VelocityClient {
     ): List<String> =
         runBlocking {
             // step 1: exchange id
-            val exchangeId = issuerService.initExchange(issuerDid).exchangeId
+            val exchangeId = issuerService.initExchange(issuerDid).id
             log.debug { "Using exchangeId $exchangeId" }
             // step 2: identification
             val token = issuerService.initDisclosure(exchangeId, holderIdentity, issuerDid).token

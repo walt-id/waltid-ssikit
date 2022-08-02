@@ -1,32 +1,57 @@
 package id.walt.services.velocitynetwork.issuer
 
+import com.beust.klaxon.Klaxon
 import id.walt.services.WaltIdServices
 import id.walt.services.velocitynetwork.VelocityNetwork
 import id.walt.services.velocitynetwork.models.requests.*
+import id.walt.services.velocitynetwork.models.responses.CompleteOfferResponse
 import id.walt.services.velocitynetwork.models.responses.DisclosureResponse
 import id.walt.services.velocitynetwork.models.responses.ExchangeResponse
 import id.walt.services.velocitynetwork.models.responses.OfferResponse
 import io.ktor.client.call.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import mu.KotlinLogging
 
 class WaltIdIssuerVelocityService : IssuerVelocityService() {
     companion object {
-        const val exchangePath = "/api/holder/v0.6/org/%s/exchange"
+        const val holderExchangePath = "/api/holder/v0.6/org/%s/exchange"
         const val disclosurePath = "/api/holder/v0.6/org/%s/identify"
         const val offersPath = "/api/holder/v0.6/org/%s/issue/credential-offers"
         const val finalizePath = "/api/holder/v0.6/org/%s/issue/finalize-offers"
+
+        const val exchangePath = "/operator-api/v0.8/tenants/%s/exchanges"
+        const val offerPath = "/operator-api/v0.8/tenants/%s/exchanges/%s/offers"
+        const val complete = "/operator-api/v0.8/tenants/%s/exchanges/%s/offers/complete"
+        const val claim = "/operator-api/v0.8/tenants/%s/exchanges/%s/qrcode.uri"
     }
 
     private val log = KotlinLogging.logger {}
 
     override suspend fun initExchange(issuerDid: String) =
-        WaltIdServices.httpNoAuth.post(VelocityNetwork.agentUrl + exchangePath.format(issuerDid)) {
+        WaltIdServices.httpWithAuth.post(VelocityNetwork.agentUrl + exchangePath.format(issuerDid)) {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
             setBody(ExchangeRequestBody(ExchangeType.ISSUING.name))
         }.body<ExchangeResponse>()
+
+    override suspend fun addOffer(issuerDid: String, exchangeId: String, credential: String) =
+        WaltIdServices.httpWithAuth.post(VelocityNetwork.agentUrl + offerPath.format(issuerDid, exchangeId)) {
+            contentType(ContentType.Application.Json)
+            accept(ContentType.Application.Json)
+            setBody(Klaxon().parse<CredentialOffer>(credential))
+        }.body<OfferResponse>()
+
+    override suspend fun completeOffer(issuerDid: String, exchangeId: String) =
+        WaltIdServices.httpWithAuth.post(VelocityNetwork.agentUrl + complete.format(issuerDid, exchangeId))
+            .body<CompleteOfferResponse>()
+
+    override suspend fun claimOffer(issuerDid: String, exchangeId: String) =
+        WaltIdServices.httpWithAuth.get(VelocityNetwork.agentUrl + claim.format(issuerDid, exchangeId))
+            .bodyAsText()
+
+
 
     override suspend fun initDisclosure(exchangeId: String, holder: String, issuerDid: String) =
         WaltIdServices.httpNoAuth.post(VelocityNetwork.agentUrl + disclosurePath.format(issuerDid)) {
