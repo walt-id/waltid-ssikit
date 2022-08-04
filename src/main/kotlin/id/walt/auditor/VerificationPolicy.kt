@@ -274,6 +274,46 @@ class GaiaxSDPolicy : SimpleVerificationPolicy() {
     }
 }
 
+class VelocityTrustedIssuerPolicy: SimpleVerificationPolicy(){
+    override val description: String
+        get() = "Verify Velocity TRUSTED_ISSUER credential check"
+
+    override fun doVerify(vc: VerifiableCredential): Boolean {
+        TODO("Not yet implemented")
+    }
+
+}
+
+class VelocityUnrevokedPolicy: SimpleVerificationPolicy(){
+    override val description: String
+        get() = "Verify Velocity UNREVOKED credential check"
+
+    override fun doVerify(vc: VerifiableCredential): Boolean {
+        TODO("Not yet implemented")
+    }
+
+}
+
+class VelocityUnexpiredPolicy: SimpleVerificationPolicy(){
+    override val description: String
+        get() = "Verify Velocity UNEXPIRED credential check"
+
+    override fun doVerify(vc: VerifiableCredential): Boolean {
+        TODO("Not yet implemented")
+    }
+
+}
+
+class VelocityUntamperedPolicy: SimpleVerificationPolicy(){
+    override val description: String
+        get() = "Verify Velocity UNTAMPERED credential check"
+
+    override fun doVerify(vc: VerifiableCredential): Boolean {
+        TODO("Not yet implemented")
+    }
+
+}
+
 private fun parseDate(date: String?) = try {
     dateFormatter.parse(date)
 } catch (e: Exception) {

@@ -5,4 +5,5 @@ enum class CredentialCheckValue {
     FAIL,
     VOUCHER_RESERVE_EXHAUSTED,
     SELF_SIGNED,
+    NOT_APPLICABLE,
 }

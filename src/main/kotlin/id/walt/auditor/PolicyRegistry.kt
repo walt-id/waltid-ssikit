@@ -145,6 +145,10 @@ object PolicyRegistry {
         register(VpTokenClaimPolicy::class, VpTokenClaim::class, "Verify verifiable presentation by OIDC/SIOPv2 VP token claim")
         register(CredentialStatusPolicy::class, "Verify by credential status")
         register(DynamicPolicy::class, DynamicPolicyArg::class, "Verify credential by rego policy")
+        register(VelocityTrustedIssuerPolicy::class, "Verify Velocity TRUSTED_ISSUER credential check")
+        register(VelocityUnexpiredPolicy::class, "Verify Velocity UNEXPIRED credential check")
+        register(VelocityUnrevokedPolicy::class, "Verify Velocity UNREVOKED credential check")
+        register(VelocityUntamperedPolicy::class, "Verify Velocity UNTAMPERED credential check")
 
         // predefined, hardcoded rego policy specializations
         // VerifiableMandate policy as specialized rego policy
