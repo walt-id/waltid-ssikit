@@ -51,18 +51,14 @@ Please go ahead and find further CLI commands and well as other ways how to use 
 
 ## Documentation
 
-The documentation is hosted at: https://docs.walt.id/ssikit/
-
 Direct links for using the SSI Kit are:
 
+- Docs: https://docs.walt.id/v/ssikit
 - Quick Start (Build & run the SSI Kit with Docker or with **ssikit.sh**): https://docs.walt.id/v/ssikit/getting-started/quick-start
-- Docs: https://docs.walt.id/v/ssikit/ssi-kit/ssi-kit
 - CLI Tool: https://docs.walt.id/v/ssikit/getting-started/cli-command-line-interface
 - APIs: https://docs.walt.id/v/ssikit/getting-started/rest-apis
 
 ## Examples
-
-This project demonstrates how to integrate & use the SSI Kit in any Kotlin/Java app: https://github.com/walt-id/waltid-ssikit-examples. Also the **Gradle** and **Maven** build instructions are provided there.
 
 Following code snipped gives a first impression how to use the SSI Kit for creating **W3C Decentralized Identifiers** and for issuing/verifying **W3C Verifiable Credentials** in **JSON_LD** as well as **JWT** format.
 
@@ -88,8 +84,10 @@ Following code snipped gives a first impression how to use the SSI Kit for creat
         println("JSON verification result: ${resJson.overallStatus}")
         println("JWT verification result: ${resJwt.overallStatus}")
     }
+    
+ Furthermore, this [example project](https://github.com/walt-id/waltid-ssikit-examples) demonstrates how to integrate & use the SSI Kit in any Kotlin/Java app. Also the **Gradle** and **Maven** build instructions are provided.
 
-## Relevant Standards
+## Relevant Standards & Specifications
 
 - EBSI Wallet Conformance https://ec.europa.eu/digital-building-blocks/wikis/display/EBSIDOC/EBSI+Wallet+Conformance+Testing
 - Verifiable Credentials Data Model 1.0 https://www.w3.org/TR/vc-data-model/
@@ -97,10 +95,9 @@ Following code snipped gives a first impression how to use the SSI Kit for creat
 - DID Method Rubric https://w3c.github.io/did-rubric/
 - did:web Decentralized Identifier Method Specification https://w3c-ccg.github.io/did-method-web/
 - The did:key Method v0.7 https://w3c-ccg.github.io/did-method-key/
-
-## Funded & supported by
-
-<a href="https://essif-lab.eu/" target="_blank"><img src="logos-supporter.png"></a>
+- Self-Issued OpenID Provider v2 https://openid.net/specs/openid-connect-self-issued-v2-1_0.html
+- OpenID Connect for Verifiable Presentations https://openid.net/specs/openid-connect-4-verifiable-presentations-1_0-07.html
+- OpenID Connect for Verifiable Credential Issuance https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html
 
 ## License
 
@@ -119,3 +116,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ```
+
+## Funded & supported by
+
+<a href="https://essif-lab.eu/" target="_blank"><img src="logos-supporter.png"></a>
