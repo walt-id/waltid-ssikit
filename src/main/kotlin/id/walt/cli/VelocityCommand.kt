@@ -4,6 +4,7 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
+import com.github.ajalt.clikt.parameters.options.split
 import com.github.ajalt.clikt.parameters.types.file
 import id.walt.services.velocitynetwork.VelocityClient
 import java.io.File
@@ -37,9 +38,9 @@ class VelocityRegistrationCommand : CliktCommand(
     }
 }
 
-class VelocityIssueCommand: CliktCommand(
-    name = "issue",
-    help = "Issue credential on Velocity Network"
+class VelocityOfferCommand: CliktCommand(
+    name = "offer",
+    help = "Create offer on Velocity Network"
 ){
     val issuer: String by option("-i", "--issuer", help = "DID of the issuer.").required()
     val credential: File by argument("CREDENTIAL-FILE", help = "File containing credential").file()
@@ -50,10 +51,47 @@ class VelocityIssueCommand: CliktCommand(
         val tokenContent = token.readText()
         echo("Issuing with $issuer on Velocity Network the credentials:\n$credentialContent")
         echo("using token:\n$tokenContent")
-//        val credentials = VelocityClient.issue(subject.readText(), issuer, *types.toTypedArray()) {
-//            VelocityClient.OfferChoice(it.map { it.id }, emptyList())
-//        }
         val uri = VelocityClient.issue(issuer, credentialContent, tokenContent)
         echo("The issued credential uri:\n$uri")
+    }
+}
+
+class VelocityIssueCommand: CliktCommand(
+    name = "issue",
+    help = "Issue credential on Velocity Network"
+){
+    val issuer: String by option("-i", "--issuer", help = "DID of the issuer.").required()
+    val types: List<String> by option("-c", "--credentials", help = "Credential types list").split(" ").required()
+    val holder: File by argument("CREDENTIAL-FILE", help = "File containing credential").file()
+    val token: File by argument("AUTH-TOKEN-FILE", help = "File containing the Auth Bearer Token").file()
+
+    override fun run() {
+        val holderContent = holder.readText()
+        val tokenContent = token.readText()
+        echo("Issuing types $types with $issuer on Velocity Network for holder:\n$holderContent")
+        echo("using token:\n$tokenContent")
+        val credentials = VelocityClient.issue(holderContent, issuer, *types.toTypedArray()) {
+            VelocityClient.OfferChoice(it.map { it.id }, emptyList())
+        }
+        echo("The issued credential:\n$credentials")
+    }
+}
+
+class VelocityVerifyCommand: CliktCommand(
+    name = "verify",
+    help = "Verify credential on Velocity Network"
+){
+    val issuer: String by option("-i", "--issuer", help = "DID of the issuer.").required()
+    val credentialId: String by option("-c", "--credentialid", help = "Credential id.").required()
+    val credential: File by argument("CREDENTIAL-FILE", help = "File containing credential").file()
+    val token: File by argument("AUTH-TOKEN-FILE", help = "File containing the Auth Bearer Token").file()
+
+    override fun run() {
+        val credentialContent = credential.readText()
+        val tokenContent = token.readText()
+        echo("Verifying with $issuer on Velocity Network the credentials:\n$credentialContent")
+        echo("using token:\n$tokenContent")
+        val result = VelocityClient.verify(issuer, credentialId, credentialContent, tokenContent)
+        echo("Verification result:\n$result")
     }
 }

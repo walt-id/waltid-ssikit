@@ -5,6 +5,7 @@ import id.walt.services.WaltIdServices
 import id.walt.services.velocitynetwork.did.DidVelocityService
 import id.walt.services.velocitynetwork.issuer.IssuerVelocityService
 import id.walt.services.velocitynetwork.models.responses.OfferResponse
+import id.walt.services.velocitynetwork.verifier.VerifierVelocityService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -22,6 +23,7 @@ object VelocityClient {
     private val log = KotlinLogging.logger {}
     private val issuerService = IssuerVelocityService.getService()
     private val didService = DidVelocityService.getService()
+    private val verifierService = VerifierVelocityService.getService()
 
 //    fun registerOrganization(data: String, token: String) = runBlocking {
 //        log.debug { "Registering organization on Velocity Network... " }
@@ -92,6 +94,13 @@ object VelocityClient {
         val resolved = didService.resolveDid(didUrl)
         WaltIdServices.clearBearerTokens()
         resolved
+    }
+
+    fun verify(issuer: String, credentialId: String, credential: String, token: String) = runBlocking {
+        WaltIdServices.addBearerToken(token)
+        val inspectionResult = verifierService.check(issuer, credentialId, credential)
+        WaltIdServices.clearBearerTokens()
+        inspectionResult
     }
 
     private fun validate(data: String) =
