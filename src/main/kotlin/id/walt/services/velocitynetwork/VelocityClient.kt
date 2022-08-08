@@ -9,6 +9,7 @@ import id.walt.services.velocitynetwork.models.CredentialCheckType
 import id.walt.services.velocitynetwork.models.CredentialCheckValue
 import id.walt.services.velocitynetwork.models.responses.InspectionResult
 import id.walt.services.velocitynetwork.models.responses.OfferResponse
+import id.walt.services.velocitynetwork.onboarding.TenantVelocityService
 import id.walt.services.velocitynetwork.verifier.VerifierVelocityService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -32,6 +33,7 @@ object VelocityClient {
     private val issuerService = IssuerVelocityService.getService()
     private val didService = DidVelocityService.getService()
     private val verifierService = VerifierVelocityService.getService()
+    private val tenantService = TenantVelocityService.getService()
 
 //    fun registerOrganization(data: String, token: String) = runBlocking {
 //        log.debug { "Registering organization on Velocity Network... " }
@@ -53,6 +55,22 @@ object VelocityClient {
         val org = didService.onboard(data)
         WaltIdServices.clearBearerTokens()
         org
+    }
+
+    fun addTenant(data: String) = runBlocking {
+        log.debug { "Setting up new tenant with credential agent... " }
+        WaltIdServices.addBearerToken(agentTokenFile.readText())
+        val response = tenantService.create(data)
+        WaltIdServices.clearBearerTokens()
+        response
+    }
+
+    fun addDisclosure(did: String, data: String) = runBlocking {
+        log.debug { "Adding disclosure" }
+        WaltIdServices.addBearerToken(agentTokenFile.readText())
+        val response = tenantService.addDisclosure(did, data)
+        WaltIdServices.clearBearerTokens()
+        response
     }
 
     fun issue(issuerDid: String, credential: String, token: String): String = runBlocking {
@@ -124,7 +142,7 @@ object VelocityClient {
     private fun validateInspection(
         credential: InspectionResult.Credential,
         checks: Map<CredentialCheckType, CredentialCheckValue>
-    ) = credential.checks.filter {
+    ) = credential.credentialChecks.filter {
         checks.containsKey(it.key)
     }.equals(checks)
 

@@ -10,6 +10,6 @@ data class InspectionResult(
 ){
     @Serializable
     data class Credential(
-        val checks: Map<CredentialCheckType, CredentialCheckValue>
+        val credentialChecks: Map<CredentialCheckType, CredentialCheckValue>
     )
 }

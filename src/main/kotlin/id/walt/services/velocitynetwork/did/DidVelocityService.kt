@@ -10,7 +10,7 @@ open class DidVelocityService : WaltIdService() {
     override val implementation get() = serviceImplementation<DidVelocityService>()
 
     open suspend fun resolveDid(didUrl: DidUrl): Did = implementation.resolveDid(didUrl)
-    open suspend fun onboard(orgData: String): CreateOrganizationResponse = implementation.onboard(orgData)
+    open suspend fun onboard(orgData: String): String = implementation.onboard(orgData)
 
     companion object : ServiceProvider {
         override fun getService() = object : DidVelocityService() {}

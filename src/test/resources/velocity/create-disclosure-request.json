@@ -14,5 +14,7 @@
   "purpose": "Job Application",
   "duration": "6m",
   "termsUrl": "https://example.com/terms.html",
-  "vendorDisclosureId": "abc123"
+  "vendorDisclosureId": "abc123",
+  "vendorEndpoint": "issuing-identification",
+  "activationDate": "2021-02-16T00:00:01Z"
 }

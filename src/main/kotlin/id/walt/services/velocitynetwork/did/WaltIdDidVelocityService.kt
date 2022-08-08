@@ -8,6 +8,7 @@ import id.walt.services.velocitynetwork.VelocityNetwork
 import id.walt.services.velocitynetwork.models.responses.CreateOrganizationResponse
 import io.ktor.client.call.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import mu.KotlinLogging
 
@@ -29,5 +30,5 @@ class WaltIdDidVelocityService : DidVelocityService() {
     override suspend fun onboard(orgData: String) =
         WaltIdServices.httpWithAuth.post(VelocityNetwork.VELOCITY_NETWORK_REGISTRAR_API + registerOrganizationPath) {
             setBody(orgData)
-        }.body<CreateOrganizationResponse>()
+        }.bodyAsText()
 }

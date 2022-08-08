@@ -3,6 +3,7 @@ package id.walt.cli
 import com.beust.klaxon.Klaxon
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.arguments.argument
+import com.github.ajalt.clikt.parameters.groups.OptionGroup
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.options.split
@@ -21,6 +22,15 @@ class VelocityCommand : CliktCommand(
     override fun run() {}
 }
 
+class VelocityOnboardingCommand: CliktCommand(
+    name = "onboarding",
+    help = "Velocity Network onboarding functions"
+){
+    override fun run() {
+        echo()
+    }
+}
+
 class VelocityRegistrationCommand : CliktCommand(
     name = "register",
     help = """Velocity Network DID acquisition flow
@@ -31,13 +41,47 @@ class VelocityRegistrationCommand : CliktCommand(
         https://docs.velocitynetwork.foundation/docs/developers/developers-guide-getting-started#register-an-organization"""
 ) {
     val data: File by argument("ORGANIZATION-DATA-JSON", help = "File containing the organization data").file()
-    val registrarBearerTokenFile: File by argument("BEARER-TOKEN-FILE", help = "File containing the bearer token for VN registrar").file()
 
     override fun run() {
 
         echo("Registering organization on Velocity Network...\n")
         val did = VelocityClient.register(data.readText())
         echo("Velocity Network DID acquired successfully: $did")
+    }
+}
+
+class VelocityTenantCommand: CliktCommand(
+    name = "tenant",
+    help = """Velocity Network tenant functions
+        
+        Set up tenants with the credential agent
+            """
+){
+    val data: File by argument("TENANT-DATA-JSON", help = "File containing the tenant request data").file()
+    override fun run() {
+        val tenant = data.readText()
+        echo("Setting up new tenant on credential agent")
+        echo(tenant)
+        val result = VelocityClient.addTenant(tenant)
+        echo("Result:\n$result")
+    }
+}
+
+class VelocityDisclosureCommand: CliktCommand(
+    name = "disclosure",
+    help = """Velocity Network disclosure functions
+        
+        Add disclosure
+    """
+){
+    val issuer: String by option("-i", "--issuer", help = "DID of the issuer.").required()
+    val data: File by argument("DISCLOSURE-DATA-JSON", help = "File containing the disclosure request data").file()
+    override fun run() {
+        val disclosure = data.readText()
+        echo("Adding disclosure for $issuer")
+        echo(disclosure)
+        val result = VelocityClient.addDisclosure(issuer, disclosure)
+        echo("Result:\n$result")
     }
 }
 
