@@ -4,12 +4,15 @@ import com.beust.klaxon.Klaxon
 import id.walt.model.AttributeInfo
 import id.walt.model.TrustedIssuer
 import id.walt.model.oidc.VpTokenClaim
+import id.walt.model.velocity.CredentialCheckPolicyParam
 import id.walt.services.did.DidService
 import id.walt.services.essif.TrustedIssuerClient
 import id.walt.services.key.KeyService
 import id.walt.services.oidc.OIDCUtils
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
+import id.walt.services.velocitynetwork.VelocityClient
+import id.walt.services.velocitynetwork.verifier.VerifierVelocityService
 import id.walt.signatory.RevocationClientService
 import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.credentials.gaiax.GaiaxCredential
@@ -20,7 +23,11 @@ import mu.KotlinLogging
 import java.text.SimpleDateFormat
 import java.util.*
 import id.walt.vclib.credentials.CredentialStatusCredential
+import id.walt.vclib.credentials.velocity.Email
+import id.walt.vclib.credentials.velocity.IdDocument
+import id.walt.vclib.credentials.velocity.Phone
 import io.ktor.client.plugins.*
+import kotlinx.coroutines.runBlocking
 
 private const val TIR_TYPE_ATTRIBUTE = "attribute"
 private const val TIR_NAME_ISSUER = "issuer"
@@ -274,44 +281,18 @@ class GaiaxSDPolicy : SimpleVerificationPolicy() {
     }
 }
 
-class VelocityTrustedIssuerPolicy: SimpleVerificationPolicy(){
+class VelocityCredentialCheckPolicy(credentialChecks: CredentialCheckPolicyParam) :
+    ParameterizedVerificationPolicy<CredentialCheckPolicyParam>(credentialChecks) {
     override val description: String
-        get() = "Verify Velocity TRUSTED_ISSUER credential check"
+        get() = "Verify Velocity ${argument.checkList.keys.joinToString(",")} credential check" +
+                if (argument.checkList.size > 1) "s" else ""
 
-    override fun doVerify(vc: VerifiableCredential): Boolean {
-        TODO("Not yet implemented")
-    }
-
-}
-
-class VelocityUnrevokedPolicy: SimpleVerificationPolicy(){
-    override val description: String
-        get() = "Verify Velocity UNREVOKED credential check"
-
-    override fun doVerify(vc: VerifiableCredential): Boolean {
-        TODO("Not yet implemented")
-    }
-
-}
-
-class VelocityUnexpiredPolicy: SimpleVerificationPolicy(){
-    override val description: String
-        get() = "Verify Velocity UNEXPIRED credential check"
-
-    override fun doVerify(vc: VerifiableCredential): Boolean {
-        TODO("Not yet implemented")
-    }
-
-}
-
-class VelocityUntamperedPolicy: SimpleVerificationPolicy(){
-    override val description: String
-        get() = "Verify Velocity UNTAMPERED credential check"
-
-    override fun doVerify(vc: VerifiableCredential): Boolean {
-        TODO("Not yet implemented")
-    }
-
+    override fun doVerify(vc: VerifiableCredential) = vc.takeIf {
+//        it is Phone || it is Email || it is IdDocument
+        false
+    }?.let {
+        VelocityClient.verify(vc.issuer!!, vc.jwt!!, argument.checkList)
+    } ?: false
 }
 
 private fun parseDate(date: String?) = try {

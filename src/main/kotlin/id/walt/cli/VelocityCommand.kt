@@ -1,5 +1,6 @@
 package id.walt.cli
 
+import com.beust.klaxon.Klaxon
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.options.option
@@ -7,6 +8,8 @@ import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.options.split
 import com.github.ajalt.clikt.parameters.types.file
 import id.walt.services.velocitynetwork.VelocityClient
+import id.walt.services.velocitynetwork.models.CredentialCheckType
+import id.walt.services.velocitynetwork.models.CredentialCheckValue
 import java.io.File
 
 class VelocityCommand : CliktCommand(
@@ -33,7 +36,7 @@ class VelocityRegistrationCommand : CliktCommand(
     override fun run() {
 
         echo("Registering organization on Velocity Network...\n")
-        val did = VelocityClient.register(data.readText(), registrarBearerTokenFile.readText().replace("\n", ""))
+        val did = VelocityClient.register(data.readText())
         echo("Velocity Network DID acquired successfully: $did")
     }
 }
@@ -82,16 +85,14 @@ class VelocityVerifyCommand: CliktCommand(
     help = "Verify credential on Velocity Network"
 ){
     val issuer: String by option("-i", "--issuer", help = "DID of the issuer.").required()
-    val credentialId: String by option("-c", "--credentialid", help = "Credential id.").required()
     val credential: File by argument("CREDENTIAL-FILE", help = "File containing credential").file()
-    val token: File by argument("AUTH-TOKEN-FILE", help = "File containing the Auth Bearer Token").file()
+    val checkList: File by argument("CHECK-LIST-FILE", help = "File containing the checks to verify against").file()
 
     override fun run() {
         val credentialContent = credential.readText()
-        val tokenContent = token.readText()
+        val checks = Klaxon().parse<Map<CredentialCheckType, CredentialCheckValue>>(checkList.readText())
         echo("Verifying with $issuer on Velocity Network the credentials:\n$credentialContent")
-        echo("using token:\n$tokenContent")
-        val result = VelocityClient.verify(issuer, credentialId, credentialContent, tokenContent)
+        val result = VelocityClient.verify(issuer, credentialContent, checks!!)
         echo("Verification result:\n$result")
     }
 }

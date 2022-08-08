@@ -8,7 +8,6 @@ data class CheckCredentialRequest(
 ) {
     @Serializable
     data class RawCredential(
-        val id: String,
         val rawCredential: String,
     )
 }

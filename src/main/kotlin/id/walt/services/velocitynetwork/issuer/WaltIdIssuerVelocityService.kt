@@ -3,6 +3,7 @@ package id.walt.services.velocitynetwork.issuer
 import com.beust.klaxon.Klaxon
 import id.walt.services.WaltIdServices
 import id.walt.services.velocitynetwork.VelocityNetwork
+import id.walt.services.velocitynetwork.models.ExchangeType
 import id.walt.services.velocitynetwork.models.requests.*
 import id.walt.services.velocitynetwork.models.responses.CompleteOfferResponse
 import id.walt.services.velocitynetwork.models.responses.DisclosureResponse

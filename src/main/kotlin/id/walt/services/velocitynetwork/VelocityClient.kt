@@ -1,9 +1,13 @@
 package id.walt.services.velocitynetwork
 
+import com.beust.klaxon.Klaxon
 import id.walt.model.DidUrl
 import id.walt.services.WaltIdServices
 import id.walt.services.velocitynetwork.did.DidVelocityService
 import id.walt.services.velocitynetwork.issuer.IssuerVelocityService
+import id.walt.services.velocitynetwork.models.CredentialCheckType
+import id.walt.services.velocitynetwork.models.CredentialCheckValue
+import id.walt.services.velocitynetwork.models.responses.InspectionResult
 import id.walt.services.velocitynetwork.models.responses.OfferResponse
 import id.walt.services.velocitynetwork.verifier.VerifierVelocityService
 import kotlinx.coroutines.Dispatchers
@@ -11,6 +15,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import mu.KotlinLogging
 import net.pwall.json.schema.JSONSchema
+import java.io.File
 import java.net.URLDecoder
 
 object VelocityClient {
@@ -19,6 +24,9 @@ object VelocityClient {
         val accepted: List<String>,
         val rejected: List<String>,
     )
+
+    val agentTokenFile = File("${WaltIdServices.velocityDir}agent-token.txt")
+    val registrarTokenFile = File("${WaltIdServices.velocityDir}registrar-token.txt")
 
     private val log = KotlinLogging.logger {}
     private val issuerService = IssuerVelocityService.getService()
@@ -38,17 +46,17 @@ object VelocityClient {
 //        }
 //    }
 
-    fun register(data: String, token: String) = runBlocking {
+    fun register(data: String) = runBlocking {
         log.debug { "Registering organization on Velocity Network... " }
         if (!validate(data)) throw Exception("Schema validation failed.")
-        WaltIdServices.addBearerToken(token)
+        WaltIdServices.addBearerToken(registrarTokenFile.readText())
         val org = didService.onboard(data)
         WaltIdServices.clearBearerTokens()
         org
     }
 
     fun issue(issuerDid: String, credential: String, token: String): String = runBlocking {
-        WaltIdServices.addBearerToken(token)
+        WaltIdServices.addBearerToken(agentTokenFile.readText())
         val exchangeId = issuerService.initExchange(issuerDid).id
         issuerService.addOffer(issuerDid, exchangeId, credential)
         issuerService.completeOffer(issuerDid, exchangeId)
@@ -90,18 +98,35 @@ object VelocityClient {
     fun resolveDid(did: String) = runBlocking {
         val didUrl = DidUrl.from(did)
         log.debug { "Resolving DID ${didUrl.did}..." }
-        WaltIdServices.addBearerToken(VelocityNetwork.agentBearerTokenFile.readText())
+        WaltIdServices.addBearerToken(agentTokenFile.readText())
         val resolved = didService.resolveDid(didUrl)
         WaltIdServices.clearBearerTokens()
         resolved
     }
 
-    fun verify(issuer: String, credentialId: String, credential: String, token: String) = runBlocking {
-        WaltIdServices.addBearerToken(token)
-        val inspectionResult = verifierService.check(issuer, credentialId, credential)
-        WaltIdServices.clearBearerTokens()
-        inspectionResult
+    fun verify(issuer: String, credential: String, checks: Map<CredentialCheckType, CredentialCheckValue>) = runBlocking {
+        val checkResult = checkCredential(issuer, credential)
+        //TODO: specify failed check
+        Klaxon().parse<InspectionResult>(checkResult)?.let {
+            it.credentials.all {
+                validateInspection(it, checks)
+            }
+        } ?: error("Unexpected result: $checkResult")
     }
+
+    private suspend fun checkCredential(issuer: String, credential: String): String {
+        WaltIdServices.addBearerToken(agentTokenFile.readText())
+        val inspectionResult = verifierService.check(issuer, credential)
+        WaltIdServices.clearBearerTokens()
+        return inspectionResult
+    }
+
+    private fun validateInspection(
+        credential: InspectionResult.Credential,
+        checks: Map<CredentialCheckType, CredentialCheckValue>
+    ) = credential.checks.filter {
+        checks.containsKey(it.key)
+    }.equals(checks)
 
     private fun validate(data: String) =
         JSONSchema.parseFile("src/main/resources/velocitynetwork/schemas/organization-registration-reqSchema.json")

@@ -14,7 +14,4 @@ object VelocityNetwork {
         "prod" -> ""
         else -> VELOCITY_NETWORK_ENV
     }.let { String.format(VELOCITY_NETWORK_REGISTRAR_ENDPOINT, it) }
-
-    val registrarBearerTokenFile = File("${WaltIdServices.velocityDir}registrar-bearer-token.txt")
-    val agentBearerTokenFile = File("${WaltIdServices.velocityDir}agent-bearer-token.txt")
 }

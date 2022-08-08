@@ -1,4 +1,4 @@
-package id.walt.services.velocitynetwork.models.requests
+package id.walt.services.velocitynetwork.models
 
 enum class CredentialCheckValue {
     PASS,

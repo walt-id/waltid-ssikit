@@ -7,9 +7,9 @@ import id.walt.auditor.dynamic.DynamicPolicyArg
 import id.walt.common.deepMerge
 import id.walt.common.resolveContent
 import id.walt.model.oidc.VpTokenClaim
+import id.walt.model.velocity.CredentialCheckPolicyParam
 import id.walt.services.context.WaltIdContext
 import id.walt.services.hkvstore.HKVKey
-import org.web3j.abi.datatypes.Bool
 import java.io.StringReader
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
@@ -145,10 +145,7 @@ object PolicyRegistry {
         register(VpTokenClaimPolicy::class, VpTokenClaim::class, "Verify verifiable presentation by OIDC/SIOPv2 VP token claim")
         register(CredentialStatusPolicy::class, "Verify by credential status")
         register(DynamicPolicy::class, DynamicPolicyArg::class, "Verify credential by rego policy")
-        register(VelocityTrustedIssuerPolicy::class, "Verify Velocity TRUSTED_ISSUER credential check")
-        register(VelocityUnexpiredPolicy::class, "Verify Velocity UNEXPIRED credential check")
-        register(VelocityUnrevokedPolicy::class, "Verify Velocity UNREVOKED credential check")
-        register(VelocityUntamperedPolicy::class, "Verify Velocity UNTAMPERED credential check")
+//        register(VelocityCredentialCheckPolicy::class, CredentialCheckPolicyParam::class, "Verify Velocity credential checks")
 
         // predefined, hardcoded rego policy specializations
         // VerifiableMandate policy as specialized rego policy

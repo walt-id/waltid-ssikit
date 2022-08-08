@@ -1,5 +1,6 @@
 package id.walt.services.velocitynetwork.models.requests
 
+import id.walt.services.velocitynetwork.models.LocalizedString
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -20,15 +21,6 @@ data class CredentialOffer(
         val endMonthYear: MonthYear,
         val location: Location,
     ){
-        @Serializable
-        data class LocalizedString(
-            val localized: En,
-        ){
-            @Serializable
-            data class En(
-                val en: String,
-            )
-        }
 
         @Serializable
         data class MonthYear(

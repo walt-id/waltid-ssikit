@@ -12,5 +12,5 @@ open class VerifierVelocityService : WaltIdService() {
 
     override val implementation get() = serviceImplementation<VerifierVelocityService>()
 
-    open suspend fun check(issuerDid: String, id: String, credential: String): String = implementation.check(issuerDid, id, credential)
+    open suspend fun check(issuerDid: String, credential: String): String = implementation.check(issuerDid, credential)
 }

@@ -1,5 +1,6 @@
 package id.walt.services.velocitynetwork.models.responses
 
+import id.walt.services.velocitynetwork.models.LocalizedString
 import kotlinx.serialization.Serializable
 
 // TODO: inherit from VerifiableCredential
@@ -30,17 +31,7 @@ data class OfferResponse(
         val endMonthYear: MonthYear,
         val location: Location,
     ){
-        @Serializable
-        data class LocalizedString(
-            val localized: En,
-        ){
-            @Serializable
-            data class En(
-                val en: String,
-            )
-        }
-
-        @Serializable
+       @Serializable
         data class MonthYear(
             val month: Int,
             val year: Int,

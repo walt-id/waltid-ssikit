@@ -1,4 +1,4 @@
-package id.walt.services.velocitynetwork.models.requests
+package id.walt.services.velocitynetwork.models
 
 import kotlinx.serialization.Serializable
 
