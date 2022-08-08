@@ -12,22 +12,17 @@ import id.walt.services.oidc.OIDCUtils
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
 import id.walt.services.velocitynetwork.VelocityClient
-import id.walt.services.velocitynetwork.verifier.VerifierVelocityService
 import id.walt.signatory.RevocationClientService
+import id.walt.vclib.credentials.CredentialStatusCredential
 import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.credentials.gaiax.GaiaxCredential
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.schema.SchemaService
+import io.ktor.client.plugins.*
 import kotlinx.serialization.Serializable
 import mu.KotlinLogging
 import java.text.SimpleDateFormat
 import java.util.*
-import id.walt.vclib.credentials.CredentialStatusCredential
-import id.walt.vclib.credentials.velocity.Email
-import id.walt.vclib.credentials.velocity.IdDocument
-import id.walt.vclib.credentials.velocity.Phone
-import io.ktor.client.plugins.*
-import kotlinx.coroutines.runBlocking
 
 private const val TIR_TYPE_ATTRIBUTE = "attribute"
 private const val TIR_NAME_ISSUER = "issuer"
