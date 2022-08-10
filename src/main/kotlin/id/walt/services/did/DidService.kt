@@ -10,6 +10,7 @@ import id.walt.services.WaltIdServices
 import id.walt.services.context.ContextManager
 import id.walt.services.crypto.CryptoService
 import id.walt.services.hkvstore.HKVKey
+import id.walt.services.iota.IotaService
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
 import id.walt.services.vc.JsonLdCredentialService
@@ -57,6 +58,7 @@ object DidService {
             DidMethod.web -> createDidWeb(keyAlias,
                 options?.let { it as DidWebOptions } ?: DidWebOptions("walt.id", UUID.randomUUID().toString()))
             DidMethod.ebsi -> createDidEbsi(keyAlias, options as? DidEbsiOptions)
+            DidMethod.iota -> createDidIota(keyAlias)
             else -> throw Exception("DID method $method not supported")
         }
 
@@ -69,6 +71,7 @@ object DidService {
             DidMethod.key.name -> resolveDidKey(didUrl)
             DidMethod.web.name -> resolveDidWeb(didUrl)
             DidMethod.ebsi.name -> resolveDidEbsi(didUrl)
+            DidMethod.iota.name -> IotaService.resolveDid(didUrl.did) ?: throw Exception("Could not resolve $didUrl")
             else -> TODO("did:${didUrl.method} not implemented yet")
         }
     }
@@ -217,6 +220,11 @@ object DidService {
         return didUrlStr
     }
 
+    private fun createDidIota(keyAlias: String?): String {
+        val didIota = IotaService.createDid(keyAlias)
+        storeDid(didIota.id, didIota.encode())
+        return didIota.id
+    }
 
     private fun buildVerificationMethods(
         key: Key,
