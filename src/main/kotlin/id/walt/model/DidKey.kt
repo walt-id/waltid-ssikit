@@ -7,7 +7,7 @@ class DidKey(
   authentication: List<String>? = null,
   assertionMethod: List<String>? = null,
   capabilityDelegation: List<String>? = null,
-  capabilityInvocation: List<String>? = null,
+  capabilityInvocation: List<VerificationMethod>? = null,
   keyAgreement: List<String>? = null,
   serviceEndpoint: List<ServiceEndpoint>? = null
 ) : Did(
@@ -27,7 +27,7 @@ class DidKey(
               authentication: List<String>? = null,
               assertionMethod: List<String>? = null,
               capabilityDelegation: List<String>? = null,
-              capabilityInvocation: List<String>? = null,
+              capabilityInvocation: List<VerificationMethod>? = null,
               keyAgreement: List<String>? = null,
               serviceEndpoint: List<ServiceEndpoint>? = null) : this(listOf(context), id, verificationMethod, authentication, assertionMethod, capabilityDelegation, capabilityInvocation, keyAgreement, serviceEndpoint)
 }

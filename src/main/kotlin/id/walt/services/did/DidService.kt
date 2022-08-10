@@ -318,7 +318,7 @@ object DidService {
 
         return DidEbsi(
             listOf(DID_CONTEXT_URL), // TODO Context not working "https://ebsi.org/ns/did/v1"
-            didUrl.did, verificationMethods, keyRef, keyRef, keyRef, keyRef, keyAgreementKeys, null
+            didUrl.did, verificationMethods, keyRef, keyRef, keyRef, verificationMethods, keyAgreementKeys, null
         )
     }
 
@@ -330,7 +330,7 @@ object DidService {
         }
 
         return Did(
-            DID_CONTEXT_URL, didUrl.did, verificationMethods, keyRef, keyRef, keyRef, keyRef, keyAgreementKeys, null
+            DID_CONTEXT_URL, didUrl.did, verificationMethods, keyRef, keyRef, keyRef, verificationMethods, keyAgreementKeys, null
         )
     }
 

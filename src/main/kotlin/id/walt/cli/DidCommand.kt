@@ -72,6 +72,7 @@ class CreateDidCommand : CliktCommand(
             web -> DidService.create(web, keyId, DidService.DidWebOptions(didWebDomain, didWebPath))
             ebsi -> DidService.create(ebsi, keyId, DidService.DidEbsiOptions(didEbsiVersion))
             key -> DidService.create(key, keyId)
+            else -> DidService.create(didMethod, keyId)
         }
 
         echo("\nResults:\n")

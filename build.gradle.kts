@@ -97,6 +97,9 @@ dependencies {
     // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.6.21")
 
+    // JNR-FFI
+    implementation("com.github.jnr:jnr-ffi:2.2.12")
+
     // Testing
     //testImplementation(kotlin("test-junit"))
     testImplementation("io.mockk:mockk:1.12.4")

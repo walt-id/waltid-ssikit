@@ -1,0 +1,54 @@
+package id.walt.services.iota
+
+import id.walt.crypto.KeyAlgorithm
+import id.walt.model.Did
+import id.walt.model.DidMethod
+import id.walt.servicematrix.ServiceMatrix
+import id.walt.services.essif.EBSI_BEARER_TOKEN_FILE
+import id.walt.services.key.KeyService
+import id.walt.test.RESOURCES_PATH
+import io.kotest.assertions.json.shouldEqualJson
+import io.kotest.core.annotation.EnabledCondition
+import io.kotest.core.annotation.EnabledIf
+import io.kotest.core.spec.Spec
+import io.kotest.core.spec.style.AnnotationSpec
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldStartWith
+import jnr.ffi.LibraryLoader
+import jnr.ffi.LibraryOption
+import java.io.File
+import kotlin.reflect.KClass
+
+class IOTAEnabled: EnabledCondition {
+  override fun enabled(kclass: KClass<out Spec>): Boolean {
+    return true
+  }
+}
+
+@EnabledIf(IOTAEnabled::class)
+class IotaTest: AnnotationSpec() {
+
+  @BeforeAll
+  fun setup() {
+    ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
+  }
+
+  @Test
+  fun testCreateDid() {
+    val key = KeyService.getService().generate(KeyAlgorithm.EdDSA_Ed25519)
+    val doc = IotaService.createDid(key.id)
+    println(doc.encodePretty())
+
+    doc.id shouldStartWith "did:iota"
+    doc.method shouldBe DidMethod.iota
+    doc.capabilityInvocation shouldNotBe null
+    doc.capabilityInvocation?.shouldHaveSize(1)
+    doc.capabilityInvocation!!.first().publicKeyMultibase shouldNotBe null
+
+    val docResolved = IotaService.resolveDid(doc.id)
+    docResolved shouldNotBe null
+    docResolved!!.encode() shouldEqualJson doc.encode()
+  }
+}

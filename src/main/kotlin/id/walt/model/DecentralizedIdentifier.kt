@@ -33,14 +33,16 @@ class DidTypeAdapter : TypeAdapter<Did> {
         DidMethod.key.name -> DidKey::class
         DidMethod.ebsi.name -> DidEbsi::class
         DidMethod.web.name -> DidWeb::class
-        else -> throw IllegalArgumentException("Unsupported did method for $type")
+        DidMethod.iota.name -> DidIota::class
+        else -> Did::class
     }
 }
 
 enum class DidMethod {
     key,
     web,
-    ebsi
+    ebsi,
+    iota
 }
 @Serializable
 @TypeFor(field = "id", adapter = DidTypeAdapter::class)
@@ -54,7 +56,7 @@ open class Did (
     @Json(serializeNull = false) var authentication: List<String>? = null,
     @Json(serializeNull = false) var assertionMethod: List<String>? = null,
     @Json(serializeNull = false) var capabilityDelegation: List<String>? = null,
-    @Json(serializeNull = false) var capabilityInvocation: List<String>? = null,
+    @Json(serializeNull = false) var capabilityInvocation: List<VerificationMethod>? = null,
     @Json(serializeNull = false) var keyAgreement: List<String>? = null,
     @Json(serializeNull = false) var serviceEndpoint: List<ServiceEndpoint>? = null //TODO change to service-endpoint
 ) {
@@ -65,7 +67,7 @@ open class Did (
         authentication: List<String>? = null,
         assertionMethod: List<String>? = null,
         capabilityDelegation: List<String>? = null,
-        capabilityInvocation: List<String>? = null,
+        capabilityInvocation: List<VerificationMethod>? = null,
         keyAgreement: List<String>? = null,
         serviceEndpoint: List<ServiceEndpoint>? = null
     ) : this(listOf(context), id, verificationMethod, authentication, assertionMethod, capabilityDelegation, capabilityInvocation, keyAgreement, serviceEndpoint) {
@@ -94,6 +96,7 @@ data class VerificationMethod(
     @Json(serializeNull = false) val publicKeyBase58: String? = null,
     @Json(serializeNull = false) val publicKeyPem: String? = null,
     @Json(serializeNull = false) val publicKeyJwk: Jwk? = null,
+    @Json(serializeNull = false) val publicKeyMultibase: String? = null,
     @Json(serializeNull = false) val ethereumAddress: String? = null,
 )
 
