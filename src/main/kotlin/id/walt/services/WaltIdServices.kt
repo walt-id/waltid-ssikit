@@ -109,6 +109,9 @@ object WaltIdServices {
         Files.createDirectories(Path.of("$dataDir/vc/presented"))
         Files.createDirectories(Path.of(ebsiDir))
         Files.createDirectories(Path.of(velocityDir))
+        Files.createDirectories(Path.of(organizationDir))
+        Files.createDirectories(Path.of(tenantDir))
+        Files.createDirectories(Path.of(disclosureDir))
     }
 
     fun loadConfig() = ConfigLoader.builder()
