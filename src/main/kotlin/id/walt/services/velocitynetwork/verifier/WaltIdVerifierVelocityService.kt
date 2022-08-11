@@ -4,7 +4,6 @@ import id.walt.services.WaltIdServices
 import id.walt.services.velocitynetwork.VelocityNetwork
 import id.walt.services.velocitynetwork.models.requests.CheckCredentialRequest
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import mu.KotlinLogging
 
@@ -16,9 +15,9 @@ class WaltIdVerifierVelocityService: VerifierVelocityService() {
 
     override suspend fun check(issuerDid: String, credential: String) =
         WaltIdServices.httpWithAuth.post(
-            VelocityNetwork.agentUrl + inspectionPath.format(VelocityNetwork.API_VERSION, issuerDid)) {
+            VelocityNetwork.agentUrl + inspectionPath.format(VelocityNetwork.AGENT_API_VERSION, issuerDid)) {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
             setBody(CheckCredentialRequest(listOf(CheckCredentialRequest.RawCredential(credential))))
-        }.bodyAsText()
+        }
 }

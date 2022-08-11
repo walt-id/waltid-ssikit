@@ -2,6 +2,7 @@ package id.walt.services.velocitynetwork.verifier
 
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
+import io.ktor.client.statement.*
 
 open class VerifierVelocityService : WaltIdService() {
 
@@ -12,5 +13,5 @@ open class VerifierVelocityService : WaltIdService() {
 
     override val implementation get() = serviceImplementation<VerifierVelocityService>()
 
-    open suspend fun check(issuerDid: String, credential: String): String = implementation.check(issuerDid, credential)
+    open suspend fun check(issuerDid: String, credential: String): HttpResponse = implementation.check(issuerDid, credential)
 }

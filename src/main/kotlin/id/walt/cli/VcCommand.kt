@@ -17,6 +17,7 @@ import id.walt.auditor.dynamic.DynamicPolicyArg
 import id.walt.auditor.dynamic.PolicyEngineType
 import id.walt.common.prettyPrint
 import id.walt.common.resolveContent
+import id.walt.common.saveToFile
 import id.walt.custodian.Custodian
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
@@ -158,7 +159,7 @@ class PresentVcCommand : CliktCommand(
         // Storing VP
         val vpFileName = "data/vc/presented/vp-${Timestamp.valueOf(LocalDateTime.now()).time}.json"
         log.debug { "Writing VP to file $vpFileName" }
-        File(vpFileName).writeText(vp)
+        saveToFile(vpFileName, vp)
         echo("\nVerifiable presentation was saved to file: \"$vpFileName\"")
     }
 }

@@ -6,7 +6,6 @@ import id.walt.services.velocitynetwork.VelocityNetwork
 import id.walt.services.velocitynetwork.models.requests.CreateDisclosureRequest
 import id.walt.services.velocitynetwork.models.requests.CreateTenantRequest
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 
 class WaltIdTenantVelocityService: TenantVelocityService() {
@@ -16,17 +15,17 @@ class WaltIdTenantVelocityService: TenantVelocityService() {
     }
 
     override suspend fun create(tenantData: String) =
-        WaltIdServices.httpWithAuth.post(VelocityNetwork.agentUrl + createTenantPath.format(VelocityNetwork.API_VERSION)) {
+        WaltIdServices.httpWithAuth.post(VelocityNetwork.agentUrl + createTenantPath.format(VelocityNetwork.AGENT_API_VERSION)) {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
             setBody(Klaxon().parse<CreateTenantRequest>(tenantData))
-        }.bodyAsText()
+        }
 
     override suspend fun addDisclosure(did: String, disclosureData: String) =
         WaltIdServices.httpWithAuth.post(
-            VelocityNetwork.agentUrl + addDisclosurePath.format(VelocityNetwork.API_VERSION, did)) {
+            VelocityNetwork.agentUrl + addDisclosurePath.format(VelocityNetwork.AGENT_API_VERSION, did)) {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
             setBody(Klaxon().parse<CreateDisclosureRequest>(disclosureData))
-        }.bodyAsText()
+        }
 }

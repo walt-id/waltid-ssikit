@@ -13,7 +13,9 @@ import java.io.File
 
 class VelocityClientTest : StringSpec({
 
-    "verify credential returns expected"{
+    val agentAvailable = VelocityClient.healthCheck()
+
+    "verify credential returns expected".config(enabled = agentAvailable) {
         forAll(
             row("src/test/resources/velocity/id-credential-check-true.json", true),
             row("src/test/resources/velocity/id-credential-check-partial-true.json", true),

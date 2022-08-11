@@ -286,7 +286,8 @@ class VelocityCredentialCheckPolicy(credentialChecks: CredentialCheckPolicyParam
 //        it is Phone || it is Email || it is IdDocument
         false
     }?.let {
-        VelocityClient.verify(vc.issuer!!, vc.jwt!!, argument.checkList)
+//        VelocityClient.verify(vc.issuer!!, vc.jwt!!, argument.checkList)
+        false
     } ?: false
 }
 

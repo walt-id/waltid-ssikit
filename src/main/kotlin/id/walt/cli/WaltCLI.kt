@@ -147,7 +147,7 @@ object WaltCLI {
                     ),
                     VelocityCommand().subcommands(
                         VelocityOnboardingCommand().subcommands(
-                            VelocityRegistrationCommand(),
+                            VelocityOrganizationCommand(),
                             VelocityTenantCommand(),
                             VelocityDisclosureCommand()
                         ),

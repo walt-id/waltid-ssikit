@@ -5,6 +5,7 @@ import com.sksamuel.hoplite.ConfigLoader
 import com.sksamuel.hoplite.PropertySource
 import com.sksamuel.hoplite.hikari.HikariDataSourceDecoder
 import com.sksamuel.hoplite.yaml.YamlParser
+import com.sun.net.httpserver.Authenticator
 import com.zaxxer.hikari.HikariDataSource
 import id.walt.Values
 import io.ktor.client.*
@@ -12,6 +13,8 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import mu.KotlinLogging
@@ -32,7 +35,10 @@ object WaltIdServices {
     const val dataDir = "data"
     const val keyDir = "$dataDir/key/"
     const val ebsiDir = "$dataDir/ebsi/"
-    const val velocityDir = "$dataDir/velocity/"
+    const val velocityDir = "$dataDir/velocity"
+    const val organizationDir = "$velocityDir/organization"
+    const val tenantDir = "$velocityDir/tenant"
+    const val disclosureDir = "$velocityDir/disclosure"
 
     val httpLogging = false
     private val log = KotlinLogging.logger {}
@@ -61,9 +67,11 @@ object WaltIdServices {
                 }
             }
         }
-        install(Logging) {
-            logger = Logger.SIMPLE
-            level = LogLevel.HEADERS
+        if (httpLogging) {
+            install(Logging) {
+                logger = Logger.SIMPLE
+                level = LogLevel.HEADERS
+            }
         }
     }
 
@@ -115,4 +123,16 @@ object WaltIdServices {
 
     fun clearBearerTokens() = bearerTokenStorage.clear()
 
+    suspend inline fun <T> callWithToken(token: String, vararg arg: T, callback: (Any) -> HttpResponse): Result<String> {
+        addBearerToken(token)
+        val result = callback(arg)
+        clearBearerTokens()
+        return when (result.status) {
+            HttpStatusCode.Accepted,
+            HttpStatusCode.Created,
+            HttpStatusCode.OK -> Result.success(result.bodyAsText())
+            else -> Result.failure(Exception(result.bodyAsText()))
+
+        }
+    }
 }

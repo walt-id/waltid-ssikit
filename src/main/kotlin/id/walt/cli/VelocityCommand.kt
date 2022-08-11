@@ -3,15 +3,21 @@ package id.walt.cli
 import com.beust.klaxon.Klaxon
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.arguments.argument
-import com.github.ajalt.clikt.parameters.groups.OptionGroup
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.options.split
 import com.github.ajalt.clikt.parameters.types.file
+import id.walt.common.prettyPrint
+import id.walt.common.saveToFile
+import id.walt.services.WaltIdServices
 import id.walt.services.velocitynetwork.VelocityClient
 import id.walt.services.velocitynetwork.models.CredentialCheckType
 import id.walt.services.velocitynetwork.models.CredentialCheckValue
+import id.walt.services.velocitynetwork.models.responses.CreateOrganizationResponse
+import net.pwall.json.schema.JSONSchema
 import java.io.File
+import java.sql.Timestamp
+import java.time.LocalDateTime
 
 class VelocityCommand : CliktCommand(
     name = "velocity",
@@ -22,17 +28,17 @@ class VelocityCommand : CliktCommand(
     override fun run() {}
 }
 
-class VelocityOnboardingCommand: CliktCommand(
+class VelocityOnboardingCommand : CliktCommand(
     name = "onboarding",
     help = "Velocity Network onboarding functions"
-){
+) {
     override fun run() {
         echo()
     }
 }
 
-class VelocityRegistrationCommand : CliktCommand(
-    name = "register",
+class VelocityOrganizationCommand : CliktCommand(
+    name = "organization",
     help = """Velocity Network DID acquisition flow
 
         Registers a new organization to the Velocity Network ecosystem. 
@@ -43,52 +49,78 @@ class VelocityRegistrationCommand : CliktCommand(
     val data: File by argument("ORGANIZATION-DATA-JSON", help = "File containing the organization data").file()
 
     override fun run() {
-
         echo("Registering organization on Velocity Network...\n")
-        val did = VelocityClient.register(data.readText())
-        echo("Velocity Network DID acquired successfully: $did")
+        VelocityClient.register(data.readText())
+            .onSuccess { response ->
+                runCatching {
+                    Klaxon().parse<CreateOrganizationResponse>(response)!!
+                }.onSuccess {
+                    echo("Velocity Network DID acquired successfully:\n${it.id}")
+                    val filepath = "${WaltIdServices.organizationDir}/${it.profile.name}.json"
+                    saveToFile(filepath, response)
+                    echo("Organization data saved at: $filepath")
+                }.onFailure {
+                    echo("Registration failed:\n$response")
+                }
+            }.onFailure {
+                throw it
+            }
     }
 }
 
-class VelocityTenantCommand: CliktCommand(
+class VelocityTenantCommand : CliktCommand(
     name = "tenant",
     help = """Velocity Network tenant functions
         
-        Set up tenants with the credential agent
+        Set up tenants with the credential agent:
+        https://docs.velocitynetwork.foundation/docs/developers/developers-guide-credential-agent-configuration#tenants
             """
-){
+) {
     val data: File by argument("TENANT-DATA-JSON", help = "File containing the tenant request data").file()
     override fun run() {
         val tenant = data.readText()
         echo("Setting up new tenant on credential agent")
         echo(tenant)
-        val result = VelocityClient.addTenant(tenant)
-        echo("Result:\n$result")
+        VelocityClient.addTenant(tenant).onSuccess {
+            echo("Tenant created successfully!\n${it.prettyPrint()}")
+            val filepath = "${WaltIdServices.tenantDir}/disclosure-${Timestamp.valueOf(LocalDateTime.now()).time}.json"
+            saveToFile(filepath, it)
+            echo("Tenant data saved at: $filepath")
+        }.onFailure {
+            echo("Could not create tenant:\n$it")
+        }
     }
 }
 
-class VelocityDisclosureCommand: CliktCommand(
+class VelocityDisclosureCommand : CliktCommand(
     name = "disclosure",
     help = """Velocity Network disclosure functions
         
-        Add disclosure
+        Add disclosure type for issuer:
+        https://docs.velocitynetwork.foundation/docs/developers/developers-guide-credential-agent-configuration#disclosure-requests
     """
-){
+) {
     val issuer: String by option("-i", "--issuer", help = "DID of the issuer.").required()
-    val data: File by argument("DISCLOSURE-DATA-JSON", help = "File containing the disclosure request data").file()
+    val data: File by argument("DISCLOSURE-DATA-JSON", help = "File containing the disclosure type request data").file()
     override fun run() {
         val disclosure = data.readText()
         echo("Adding disclosure for $issuer")
         echo(disclosure)
-        val result = VelocityClient.addDisclosure(issuer, disclosure)
-        echo("Result:\n$result")
+        VelocityClient.addDisclosure(issuer, disclosure).onSuccess {
+            echo("Disclosure added successfuly!\n${it.prettyPrint()}")
+            val filepath = "${WaltIdServices.disclosureDir}/disclosure-${Timestamp.valueOf(LocalDateTime.now()).time}.json"
+            saveToFile(filepath, it)
+            echo("Organization data saved at: $filepath")
+        }.onFailure {
+            echo("Could not add disclosure:\n$it")
+        }
     }
 }
 
-class VelocityOfferCommand: CliktCommand(
+class VelocityOfferCommand : CliktCommand(
     name = "offer",
     help = "Create offer on Velocity Network"
-){
+) {
     val issuer: String by option("-i", "--issuer", help = "DID of the issuer.").required()
     val credential: File by argument("CREDENTIAL-FILE", help = "File containing credential").file()
     val token: File by argument("AUTH-TOKEN-FILE", help = "File containing the Auth Bearer Token").file()
@@ -103,10 +135,10 @@ class VelocityOfferCommand: CliktCommand(
     }
 }
 
-class VelocityIssueCommand: CliktCommand(
+class VelocityIssueCommand : CliktCommand(
     name = "issue",
     help = "Issue credential on Velocity Network"
-){
+) {
     val issuer: String by option("-i", "--issuer", help = "DID of the issuer.").required()
     val types: List<String> by option("-c", "--credentials", help = "Credential types list").split(" ").required()
     val holder: File by argument("CREDENTIAL-FILE", help = "File containing credential").file()
@@ -124,10 +156,10 @@ class VelocityIssueCommand: CliktCommand(
     }
 }
 
-class VelocityVerifyCommand: CliktCommand(
+class VelocityVerifyCommand : CliktCommand(
     name = "verify",
     help = "Verify credential on Velocity Network"
-){
+) {
     val issuer: String by option("-i", "--issuer", help = "DID of the issuer.").required()
     val credential: File by argument("CREDENTIAL-FILE", help = "File containing credential").file()
     val checkList: File by argument("CHECK-LIST-FILE", help = "File containing the checks to verify against").file()
