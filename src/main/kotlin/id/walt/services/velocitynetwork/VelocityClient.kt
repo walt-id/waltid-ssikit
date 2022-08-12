@@ -9,6 +9,7 @@ import id.walt.services.velocitynetwork.did.DidVelocityService
 import id.walt.services.velocitynetwork.issuer.IssuerVelocityService
 import id.walt.services.velocitynetwork.models.CredentialCheckType
 import id.walt.services.velocitynetwork.models.CredentialCheckValue
+import id.walt.services.velocitynetwork.models.VerificationResult
 import id.walt.services.velocitynetwork.models.responses.InspectionResult
 import id.walt.services.velocitynetwork.models.responses.OfferResponse
 import id.walt.services.velocitynetwork.onboarding.TenantVelocityService
@@ -30,8 +31,10 @@ object VelocityClient {
         val rejected: List<String>,
     )
 
-    val agentTokenFile = File("${WaltIdServices.velocityDir}agent-token.txt")
-    val registrarTokenFile = File("${WaltIdServices.velocityDir}registrar-token.txt")
+    val agentTokenFile = File("${WaltIdServices.velocityDir}/agent-token.txt")
+    val registrarTokenFile = File("${WaltIdServices.velocityDir}/registrar-token.txt")
+
+    val config = WaltIdServices.loadVelocityConfig()
 
     private val log = KotlinLogging.logger {}
     private val issuerService = IssuerVelocityService.getService()
@@ -59,21 +62,21 @@ object VelocityClient {
                 data
             )
         ) throw Exception("Schema validation failed.")
-        WaltIdServices.callWithToken(registrarTokenFile.readText(), data){
+        WaltIdServices.callWithToken(registrarTokenFile.readText()){
             didService.onboard(data)
         }
     }
 
     fun addTenant(data: String) = runBlocking {
         log.debug { "Setting up new tenant with credential agent.. " }
-        WaltIdServices.callWithToken(agentTokenFile.readText(), data) {
+        WaltIdServices.callWithToken(agentTokenFile.readText()) {
             tenantService.create(data)
         }
     }
 
     fun addDisclosure(did: String, data: String) = runBlocking {
         log.debug { "Adding disclosure.." }
-        WaltIdServices.callWithToken(agentTokenFile.readText(), did, data){
+        WaltIdServices.callWithToken(agentTokenFile.readText()){
             tenantService.addDisclosure(did, data)
         }
     }
@@ -120,7 +123,7 @@ object VelocityClient {
     fun resolveDid(did: String) = runBlocking {
         val didUrl = DidUrl.from(did)
         log.debug { "Resolving DID ${didUrl.did}.." }
-        WaltIdServices.callWithToken(agentTokenFile.readText(), didUrl){
+        WaltIdServices.callWithToken(agentTokenFile.readText()){
             didService.resolveDid(didUrl)
         }
     }
@@ -132,16 +135,16 @@ object VelocityClient {
                     Result.success(validateResult(checkResult, checks))
                 },
                 onFailure = {
-                    throw it
+                    Result.failure(it)
                 })
         }
 
     fun healthCheck() = runBlocking {
-        runCatching { WaltIdServices.httpNoAuth.get(VelocityNetwork.agentUrl).status == HttpStatusCode.OK }.getOrElse { false }
+        runCatching { WaltIdServices.httpNoAuth.get(config.agentEndpoint).status == HttpStatusCode.OK }.getOrElse { false }
     }
 
     private suspend fun checkCredential(issuer: String, credential: String) =
-        WaltIdServices.callWithToken(agentTokenFile.readText(), issuer, credential) {
+        WaltIdServices.callWithToken(agentTokenFile.readText()) {
             verifierService.check(issuer, credential)
         }
 
@@ -155,9 +158,9 @@ object VelocityClient {
     private fun validateResult(inspectionResult: String, checks: Map<CredentialCheckType, CredentialCheckValue>) =
         try {
             Klaxon().parse<InspectionResult>(inspectionResult)!!.let {
-                it.credentials.all {
+                it.credentials.map {
                     //TODO: specify failed check
-                    validateInspection(it, checks)
+                    VerificationResult(it.credentialChecks, validateInspection(it, checks))
                 }
             }
         } catch (e: Exception) {

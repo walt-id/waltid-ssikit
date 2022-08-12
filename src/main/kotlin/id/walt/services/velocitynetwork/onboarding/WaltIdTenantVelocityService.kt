@@ -2,7 +2,7 @@ package id.walt.services.velocitynetwork.onboarding
 
 import com.beust.klaxon.Klaxon
 import id.walt.services.WaltIdServices
-import id.walt.services.velocitynetwork.VelocityNetwork
+import id.walt.services.velocitynetwork.VelocityClient
 import id.walt.services.velocitynetwork.models.requests.CreateDisclosureRequest
 import id.walt.services.velocitynetwork.models.requests.CreateTenantRequest
 import io.ktor.client.request.*
@@ -15,7 +15,7 @@ class WaltIdTenantVelocityService: TenantVelocityService() {
     }
 
     override suspend fun create(tenantData: String) =
-        WaltIdServices.httpWithAuth.post(VelocityNetwork.agentUrl + createTenantPath.format(VelocityNetwork.AGENT_API_VERSION)) {
+        WaltIdServices.httpWithAuth.post(VelocityClient.config.agentEndpoint + createTenantPath.format(VelocityClient.config.agentApiVersion)) {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
             setBody(Klaxon().parse<CreateTenantRequest>(tenantData))
@@ -23,7 +23,7 @@ class WaltIdTenantVelocityService: TenantVelocityService() {
 
     override suspend fun addDisclosure(did: String, disclosureData: String) =
         WaltIdServices.httpWithAuth.post(
-            VelocityNetwork.agentUrl + addDisclosurePath.format(VelocityNetwork.AGENT_API_VERSION, did)) {
+            VelocityClient.config.agentEndpoint + addDisclosurePath.format(VelocityClient.config.agentApiVersion, did)) {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
             setBody(Klaxon().parse<CreateDisclosureRequest>(disclosureData))

@@ -14,7 +14,6 @@ import id.walt.services.velocitynetwork.VelocityClient
 import id.walt.services.velocitynetwork.models.CredentialCheckType
 import id.walt.services.velocitynetwork.models.CredentialCheckValue
 import id.walt.services.velocitynetwork.models.responses.CreateOrganizationResponse
-import net.pwall.json.schema.JSONSchema
 import java.io.File
 import java.sql.Timestamp
 import java.time.LocalDateTime
@@ -59,11 +58,9 @@ class VelocityOrganizationCommand : CliktCommand(
                     val filepath = "${WaltIdServices.organizationDir}/${it.profile.name}.json"
                     saveToFile(filepath, response)
                     echo("Organization data saved at: $filepath")
-                }.onFailure {
-                    echo("Registration failed:\n$response")
                 }
             }.onFailure {
-                throw it
+                echo("Registration failed:\n${it.message}")
             }
     }
 }
@@ -87,7 +84,7 @@ class VelocityTenantCommand : CliktCommand(
             saveToFile(filepath, it)
             echo("Tenant data saved at: $filepath")
         }.onFailure {
-            echo("Could not create tenant:\n$it")
+            echo("Could not create tenant:\n${it.message}")
         }
     }
 }
@@ -112,7 +109,7 @@ class VelocityDisclosureCommand : CliktCommand(
             saveToFile(filepath, it)
             echo("Organization data saved at: $filepath")
         }.onFailure {
-            echo("Could not add disclosure:\n$it")
+            echo("Could not add disclosure:\n${it.message}")
         }
     }
 }
@@ -158,17 +155,39 @@ class VelocityIssueCommand : CliktCommand(
 
 class VelocityVerifyCommand : CliktCommand(
     name = "verify",
-    help = "Verify credential on Velocity Network"
+    help = """Verify credential on Velocity Network
+        
+        Verify credential issued on Velocity Network:
+        https://docs.velocitynetwork.foundation/docs/developers/developers-guide-disclosure-exchange#the-verification-process
+        """
 ) {
     val issuer: String by option("-i", "--issuer", help = "DID of the issuer.").required()
-    val credential: File by argument("CREDENTIAL-FILE", help = "File containing credential").file()
-    val checkList: File by argument("CHECK-LIST-FILE", help = "File containing the checks to verify against").file()
+    val credential: File by argument("CREDENTIAL-FILE", help = "File containing the jwt-formatted credential to be verified").file()
+    val checkList: File by argument(
+        "CHECK-LIST-FILE",
+        """help = "File containing the check-list to verify against
+                e.g. 
+                {
+                  "TRUSTED_ISSUER": "PASS",
+                  "UNREVOKED": "PASS",
+                  "UNEXPIRED": "NOT_APPLICABLE",
+                  "UNTAMPERED": "PASS"
+                }
+            """).file()
 
     override fun run() {
         val credentialContent = credential.readText()
         val checks = Klaxon().parse<Map<CredentialCheckType, CredentialCheckValue>>(checkList.readText())
-        echo("Verifying with $issuer on Velocity Network the credentials:\n$credentialContent")
-        val result = VelocityClient.verify(issuer, credentialContent, checks!!)
-        echo("Verification result:\n$result")
+        echo("Verifying with $issuer on Velocity Network..")
+        VelocityClient.verify(issuer, credentialContent, checks!!).onSuccess {
+            echo(
+                "Verification result:" +
+                        "${it.map { it.result }.reduce { acc, b -> acc && b }}" +
+                        "\n${it.map{ it.checks.prettyPrint() }}"
+            )
+        }.onFailure {
+            echo("Verification failed:\n${it.message}")
+        }
+
     }
 }

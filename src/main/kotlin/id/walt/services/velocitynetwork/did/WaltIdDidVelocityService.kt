@@ -2,7 +2,7 @@ package id.walt.services.velocitynetwork.did
 
 import id.walt.model.DidUrl
 import id.walt.services.WaltIdServices
-import id.walt.services.velocitynetwork.VelocityNetwork
+import id.walt.services.velocitynetwork.VelocityClient
 import io.ktor.client.request.*
 import io.ktor.http.*
 import mu.KotlinLogging
@@ -17,13 +17,13 @@ class WaltIdDidVelocityService : DidVelocityService() {
     private val log = KotlinLogging.logger {}
 
     override suspend fun resolveDid(didUrl: DidUrl) =
-        WaltIdServices.httpWithAuth.get(VelocityNetwork.VELOCITY_NETWORK_REGISTRAR_ENDPOINT + didResolvePath.format(VelocityNetwork.AGENT_API_VERSION, didUrl.did)) {
+        WaltIdServices.httpWithAuth.get(VelocityClient.config.registrarEndpoint + didResolvePath.format(VelocityClient.config.registrarApiVersion, didUrl.did)) {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
         }
 
     override suspend fun onboard(orgData: String) =
-        WaltIdServices.httpWithAuth.post(VelocityNetwork.VELOCITY_NETWORK_REGISTRAR_API + registerOrganizationPath.format(VelocityNetwork.REGISTRAR_API_VERSION)) {
+        WaltIdServices.httpWithAuth.post(VelocityClient.config.registrarEndpoint + registerOrganizationPath.format(VelocityClient.config.registrarApiVersion)) {
             setBody(orgData)
         }
 }

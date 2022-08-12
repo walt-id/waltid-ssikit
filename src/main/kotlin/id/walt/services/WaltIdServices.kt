@@ -27,7 +27,15 @@ import java.security.Security
 enum class CryptoProvider { SUN, TINK, CUSTOM }
 
 data class WaltIdConfig(
-    val hikariDataSource: HikariDataSource = HikariDataSource()
+    val hikariDataSource: HikariDataSource = HikariDataSource(),
+    val velocityConfig: VelocityConfig,
+)
+
+data class VelocityConfig(
+    val agentApiVersion: String,
+    val registrarApiVersion: String,
+    val agentEndpoint: String,
+    val registrarEndpoint: String,
 )
 
 object WaltIdServices {
@@ -99,6 +107,8 @@ object WaltIdServices {
         return conf.hikariDataSource
     }
 
+    fun loadVelocityConfig() = loadConfig().velocityConfig
+
     fun createDirStructure() {
         log.debug { "Creating dir-structure at: $dataDir" }
         Files.createDirectories(Path.of(keyDir))
@@ -126,16 +136,15 @@ object WaltIdServices {
 
     fun clearBearerTokens() = bearerTokenStorage.clear()
 
-    suspend inline fun <T> callWithToken(token: String, vararg arg: T, callback: (Any) -> HttpResponse): Result<String> {
+    suspend inline fun callWithToken(token: String, callback: () -> HttpResponse): Result<String> {
         addBearerToken(token)
-        val result = callback(arg)
+        val result = callback()
         clearBearerTokens()
         return when (result.status) {
             HttpStatusCode.Accepted,
             HttpStatusCode.Created,
             HttpStatusCode.OK -> Result.success(result.bodyAsText())
             else -> Result.failure(Exception(result.bodyAsText()))
-
         }
     }
 }
