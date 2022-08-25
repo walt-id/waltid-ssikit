@@ -20,7 +20,7 @@ import java.security.interfaces.RSAPublicKey
 class LdVerifier {
 
     class EcdsaSecp256k1Signature2019(val publicKey: PublicKey) : LdVerifier<EcdsaSecp256k1Signature2019SignatureSuite?>(
-        SignatureSuites.SIGNATURE_SUITE_ECDSASECP256L1SIGNATURE2019, null, Canonicalizers.CANONICALIZER_JCSCANONICALIZER
+        SignatureSuites.SIGNATURE_SUITE_ECDSASECP256L1SIGNATURE2019, null, Canonicalizers.CANONICALIZER_URDNA2015CANONICALIZER
     ) {
 
         override fun verify(signingInput: ByteArray, ldProof: LdProof): Boolean {
@@ -34,7 +34,7 @@ class LdVerifier {
     class Ed25519Signature2018(val publicKey: Key) : LdVerifier<Ed25519Signature2018SignatureSuite?>(
         SignatureSuites.SIGNATURE_SUITE_ED25519SIGNATURE2018,
         null,
-        Canonicalizers.CANONICALIZER_JCSCANONICALIZER
+        Canonicalizers.CANONICALIZER_URDNA2015CANONICALIZER
     ) {
 
         private val keyService = KeyService.getService()
@@ -50,7 +50,7 @@ class LdVerifier {
     class RsaSignature2018(val publicKey: PublicKey) : LdVerifier<RsaSignature2018SignatureSuite?>(
         SignatureSuites.SIGNATURE_SUITE_RSASIGNATURE2018,
         null,
-        Canonicalizers.CANONICALIZER_JCSCANONICALIZER
+        Canonicalizers.CANONICALIZER_URDNA2015CANONICALIZER
     ) {
 
         override fun verify(signingInput: ByteArray, ldProof: LdProof): Boolean {

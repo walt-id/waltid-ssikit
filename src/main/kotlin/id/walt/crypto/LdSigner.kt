@@ -15,12 +15,10 @@ import id.walt.services.crypto.CryptoService
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
 import info.weboftrust.ldsignatures.LdProof
+import info.weboftrust.ldsignatures.canonicalizer.Canonicalizer
 import info.weboftrust.ldsignatures.canonicalizer.Canonicalizers
 import info.weboftrust.ldsignatures.signer.LdSigner
-import info.weboftrust.ldsignatures.suites.EcdsaSecp256k1Signature2019SignatureSuite
-import info.weboftrust.ldsignatures.suites.Ed25519Signature2018SignatureSuite
-import info.weboftrust.ldsignatures.suites.RsaSignature2018SignatureSuite
-import info.weboftrust.ldsignatures.suites.SignatureSuites
+import info.weboftrust.ldsignatures.suites.*
 import info.weboftrust.ldsignatures.util.JWSUtil
 import java.security.InvalidKeyException
 import java.security.PrivateKey
@@ -92,61 +90,108 @@ class LdSigner {
 
     }
 
-    class EcdsaSecp256k1Signature2019(val keyId: KeyId) : LdSigner<EcdsaSecp256k1Signature2019SignatureSuite?>(
-        SignatureSuites.SIGNATURE_SUITE_ECDSASECP256L1SIGNATURE2019, null, Canonicalizers.CANONICALIZER_JCSCANONICALIZER
+    abstract class AbstractLdSignature<S : SignatureSuite?>(val keyId: KeyId, signatureSuite: S, canonicalizer: Canonicalizer): LdSigner<S>(signatureSuite, null, canonicalizer) {
+
+        abstract fun getJwsAlgorithm(): JWSAlgorithm
+
+        abstract fun getJwsSigner(): JWSSigner
+
+        open fun createJwsHeader(): JWSHeader {
+            val jwsAlg = getJwsAlgorithm()
+            return JWSHeader.Builder(jwsAlg).base64URLEncodePayload(false).criticalParams(setOf("b64")).build()
+        }
+
+        override fun sign(ldProofBuilder: LdProof.Builder<*>, signingInput: ByteArray?) {
+            val jwsHeader = createJwsHeader()
+            val jwsSigningInput = JWSUtil.getJwsSigningInput(jwsHeader, signingInput)
+            val jwsSigner = getJwsSigner()
+            val signature = jwsSigner.sign(jwsHeader, jwsSigningInput)
+            val jws = JWSUtil.serializeDetachedJws(jwsHeader, signature)
+            ldProofBuilder.jws(jws)
+        }
+
+    }
+
+    class EcdsaSecp256K1LdSignature2019(keyId: KeyId) : AbstractLdSignature<EcdsaSecp256k1Signature2019SignatureSuite?>(keyId,
+        SignatureSuites.SIGNATURE_SUITE_ECDSASECP256L1SIGNATURE2019, Canonicalizers.CANONICALIZER_URDNA2015CANONICALIZER
     ) {
 
-        override fun sign(ldProofBuilder: LdProof.Builder<*>, signingInput: ByteArray) {
-            val jwsHeader =
-                JWSHeader.Builder(JWSAlgorithm.ES256K).base64URLEncodePayload(false).criticalParams(setOf("b64")).build()
-            val jwsSigningInput = JWSUtil.getJwsSigningInput(jwsHeader, signingInput)
-            //val jwsSigner = JcaSigner(ECPrivateKeyHandle(keyId))
+        override fun getJwsAlgorithm(): JWSAlgorithm {
+            return JWSAlgorithm.ES256K
+        }
+
+        override fun getJwsSigner(): JWSSigner {
             val jwsSigner = ECDSASigner(ECPrivateKeyHandle(keyId), Curve.SECP256K1)
             jwsSigner.jcaContext.provider = WaltIdProvider()
-            val signature = jwsSigner.sign(jwsHeader, jwsSigningInput)
-            val jws = JWSUtil.serializeDetachedJws(jwsHeader, signature)
-            ldProofBuilder.jws(jws)
+            return jwsSigner
         }
     }
 
-    class Ed25519Signature2018(val keyId: KeyId) : LdSigner<Ed25519Signature2018SignatureSuite?>(
-        SignatureSuites.SIGNATURE_SUITE_ED25519SIGNATURE2018, null, Canonicalizers.CANONICALIZER_JCSCANONICALIZER
+    class Ed25519LdSignature2018(keyId: KeyId) : AbstractLdSignature<Ed25519Signature2018SignatureSuite?>(keyId,
+        SignatureSuites.SIGNATURE_SUITE_ED25519SIGNATURE2018, Canonicalizers.CANONICALIZER_URDNA2015CANONICALIZER
     ) {
 
-        override fun sign(ldProofBuilder: LdProof.Builder<*>, signingInput: ByteArray) {
-            val jwsHeader =
-                JWSHeader.Builder(JWSAlgorithm.EdDSA).base64URLEncodePayload(false).criticalParams(setOf("b64")).build()
-            val jwsSigningInput = JWSUtil.getJwsSigningInput(jwsHeader, signingInput)
-            val signature = JwsLtSigner(keyId).sign(jwsHeader, jwsSigningInput)
-            val jws = JWSUtil.serializeDetachedJws(jwsHeader, signature)
+        override fun getJwsAlgorithm(): JWSAlgorithm {
+            return JWSAlgorithm.EdDSA
+        }
 
-            ldProofBuilder.jws(jws)
+        override fun getJwsSigner(): JWSSigner {
+            return JwsLtSigner(keyId)
         }
     }
 
-    class RsaSignature2018(val keyId: KeyId) : LdSigner<RsaSignature2018SignatureSuite?>(
-        SignatureSuites.SIGNATURE_SUITE_RSASIGNATURE2018, null, Canonicalizers.CANONICALIZER_JCSCANONICALIZER
+    class RsaLdSignature2018(keyId: KeyId) : AbstractLdSignature<RsaSignature2018SignatureSuite?>(keyId,
+        SignatureSuites.SIGNATURE_SUITE_RSASIGNATURE2018, Canonicalizers.CANONICALIZER_URDNA2015CANONICALIZER
     ) {
-        override fun sign(ldProofBuilder: LdProof.Builder<*>, signingInput: ByteArray) {
-            val jwsHeader =
-                JWSHeader.Builder(JWSAlgorithm.RS256).base64URLEncodePayload(false).criticalParams(setOf("b64")).build()
 
-            val jwsSigningInput = JWSUtil.getJwsSigningInput(jwsHeader, signingInput)
-            //val jwsSigner = JcaSigner(ECPrivateKeyHandle(keyId))
+        override fun getJwsAlgorithm(): JWSAlgorithm {
+            return JWSAlgorithm.RS256
+        }
 
+        override fun getJwsSigner(): JWSSigner {
             val keyService = KeyService.getService()
             val jwk = keyService.toJwk(keyId.id, KeyType.PRIVATE)
-
-
             val rsaKey = RSAKey.Builder(jwk.toPublicJWK().toRSAKey()).privateKey(jwk.toRSAKey().toRSAPrivateKey()).build()
-
-            val jwsSigner = RSASSASigner(rsaKey.toRSAPrivateKey())
-            //jwsSigner.jcaContext.provider = WaltIdProvider()
-
-            val signature = jwsSigner.sign(jwsHeader, jwsSigningInput)
-            val jws = JWSUtil.serializeDetachedJws(jwsHeader, signature)
-
-            ldProofBuilder.jws(jws)
+            return RSASSASigner(rsaKey.toRSAPrivateKey())
         }
     }
+
+    class JsonWebLdSignature2020(keyId: KeyId) : AbstractLdSignature<JsonWebSignature2020SignatureSuite?>(keyId,
+        SignatureSuites.SIGNATURE_SUITE_JSONWEBSIGNATURE2020, Canonicalizers.CANONICALIZER_URDNA2015CANONICALIZER
+    ) {
+
+        override fun getJwsAlgorithm(): JWSAlgorithm {
+            val keyService = KeyService.getService()
+            val key = keyService.load(keyId.id)
+            return when(key.algorithm) {
+                KeyAlgorithm.RSA -> JWSAlgorithm.PS256
+                KeyAlgorithm.EdDSA_Ed25519 -> JWSAlgorithm.EdDSA
+                KeyAlgorithm.ECDSA_Secp256k1 -> JWSAlgorithm.ES256K
+            }
+        }
+
+        override fun getJwsSigner(): JWSSigner {
+            val keyService = KeyService.getService()
+            val key = keyService.load(keyId.id)
+            return when(key.algorithm) {
+                KeyAlgorithm.RSA -> RsaLdSignature2018(keyId).getJwsSigner()
+                KeyAlgorithm.EdDSA_Ed25519 -> Ed25519LdSignature2018(keyId).getJwsSigner()
+                KeyAlgorithm.ECDSA_Secp256k1 -> EcdsaSecp256K1LdSignature2019(keyId).getJwsSigner()
+            }
+        }
+    }
+
+    class JCSEd25519LdSignature2020(keyId: KeyId): AbstractLdSignature<JcsEd25519Signature2020SignatureSuite?>(keyId,
+        SignatureSuites.SIGNATURE_SUITE_JCSED25519SIGNATURE2020, Canonicalizers.CANONICALIZER_JCSCANONICALIZER
+    ) {
+        override fun getJwsAlgorithm(): JWSAlgorithm {
+            return JWSAlgorithm.EdDSA
+        }
+
+        override fun getJwsSigner(): JWSSigner {
+            return JwsLtSigner(keyId)
+        }
+
+    }
+
 }

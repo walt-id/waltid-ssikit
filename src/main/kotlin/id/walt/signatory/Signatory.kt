@@ -20,6 +20,15 @@ enum class ProofType {
     JWT, LD_PROOF
 }
 
+enum class LdSignatureType {
+    Auto,
+    EcdsaSecp256k1Signature2019,
+    Ed25519Signature2018,
+    RsaSignature2018,
+    JsonWebSignature2020,
+    JcsEd25519Signature2020
+}
+
 data class ProofConfig(
     val issuerDid: String,
     @Json(serializeNull = false) val subjectDid: String? = null,
@@ -33,7 +42,8 @@ data class ProofConfig(
     @Json(serializeNull = false) val issueDate: Instant? = null, // issue date from json-input or current system time if null
     @Json(serializeNull = false) val validDate: Instant? = null, // valid date from json-input or current system time if null
     @Json(serializeNull = false) val expirationDate: Instant? = null,
-    @Json(serializeNull = false) val dataProviderIdentifier: String? = null // may be used for mapping data-sets from a custom data-provider
+    @Json(serializeNull = false) val dataProviderIdentifier: String? = null, // may be used for mapping data-sets from a custom data-provider
+    @Json(serializeNull = false) val ldSignatureType: LdSignatureType = LdSignatureType.Auto
 )
 
 data class SignatoryConfig(
@@ -81,7 +91,8 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
                 issueDate = config.issueDate ?: Instant.now(),
                 validDate = config.validDate ?: Instant.now(),
                 expirationDate = config.expirationDate,
-                dataProviderIdentifier = config.dataProviderIdentifier
+                dataProviderIdentifier = config.dataProviderIdentifier,
+                ldSignatureType = config.ldSignatureType
             )
             else -> config
         }
