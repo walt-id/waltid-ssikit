@@ -20,6 +20,7 @@ import info.weboftrust.ldsignatures.canonicalizer.Canonicalizers
 import info.weboftrust.ldsignatures.signer.LdSigner
 import info.weboftrust.ldsignatures.suites.*
 import info.weboftrust.ldsignatures.util.JWSUtil
+import io.ipfs.multibase.Base58
 import java.security.InvalidKeyException
 import java.security.PrivateKey
 import java.security.SecureRandom
@@ -90,7 +91,7 @@ class LdSigner {
 
     }
 
-    abstract class AbstractLdSignature<S : SignatureSuite?>(val keyId: KeyId, signatureSuite: S, canonicalizer: Canonicalizer): LdSigner<S>(signatureSuite, null, canonicalizer) {
+    abstract class JwsLdSignature<S : SignatureSuite?>(val keyId: KeyId, signatureSuite: S, canonicalizer: Canonicalizer): LdSigner<S>(signatureSuite, null, canonicalizer) {
 
         abstract fun getJwsAlgorithm(): JWSAlgorithm
 
@@ -112,7 +113,7 @@ class LdSigner {
 
     }
 
-    class EcdsaSecp256K1LdSignature2019(keyId: KeyId) : AbstractLdSignature<EcdsaSecp256k1Signature2019SignatureSuite?>(keyId,
+    class EcdsaSecp256K1Signature2019(keyId: KeyId) : JwsLdSignature<EcdsaSecp256k1Signature2019SignatureSuite?>(keyId,
         SignatureSuites.SIGNATURE_SUITE_ECDSASECP256L1SIGNATURE2019, Canonicalizers.CANONICALIZER_URDNA2015CANONICALIZER
     ) {
 
@@ -127,7 +128,7 @@ class LdSigner {
         }
     }
 
-    class Ed25519LdSignature2018(keyId: KeyId) : AbstractLdSignature<Ed25519Signature2018SignatureSuite?>(keyId,
+    class Ed25519Signature2018(keyId: KeyId) : JwsLdSignature<Ed25519Signature2018SignatureSuite?>(keyId,
         SignatureSuites.SIGNATURE_SUITE_ED25519SIGNATURE2018, Canonicalizers.CANONICALIZER_URDNA2015CANONICALIZER
     ) {
 
@@ -140,7 +141,7 @@ class LdSigner {
         }
     }
 
-    class RsaLdSignature2018(keyId: KeyId) : AbstractLdSignature<RsaSignature2018SignatureSuite?>(keyId,
+    class RsaSignature2018(keyId: KeyId) : JwsLdSignature<RsaSignature2018SignatureSuite?>(keyId,
         SignatureSuites.SIGNATURE_SUITE_RSASIGNATURE2018, Canonicalizers.CANONICALIZER_URDNA2015CANONICALIZER
     ) {
 
@@ -156,7 +157,7 @@ class LdSigner {
         }
     }
 
-    class JsonWebLdSignature2020(keyId: KeyId) : AbstractLdSignature<JsonWebSignature2020SignatureSuite?>(keyId,
+    class JsonWebSignature2020(keyId: KeyId) : JwsLdSignature<JsonWebSignature2020SignatureSuite?>(keyId,
         SignatureSuites.SIGNATURE_SUITE_JSONWEBSIGNATURE2020, Canonicalizers.CANONICALIZER_URDNA2015CANONICALIZER
     ) {
 
@@ -174,23 +175,24 @@ class LdSigner {
             val keyService = KeyService.getService()
             val key = keyService.load(keyId.id)
             return when(key.algorithm) {
-                KeyAlgorithm.RSA -> RsaLdSignature2018(keyId).getJwsSigner()
-                KeyAlgorithm.EdDSA_Ed25519 -> Ed25519LdSignature2018(keyId).getJwsSigner()
-                KeyAlgorithm.ECDSA_Secp256k1 -> EcdsaSecp256K1LdSignature2019(keyId).getJwsSigner()
+                KeyAlgorithm.RSA -> RsaSignature2018(keyId).getJwsSigner()
+                KeyAlgorithm.EdDSA_Ed25519 -> Ed25519Signature2018(keyId).getJwsSigner()
+                KeyAlgorithm.ECDSA_Secp256k1 -> EcdsaSecp256K1Signature2019(keyId).getJwsSigner()
             }
         }
     }
 
-    class JCSEd25519LdSignature2020(keyId: KeyId): AbstractLdSignature<JcsEd25519Signature2020SignatureSuite?>(keyId,
-        SignatureSuites.SIGNATURE_SUITE_JCSED25519SIGNATURE2020, Canonicalizers.CANONICALIZER_JCSCANONICALIZER
+    class JcsEd25519Signature2020(val keyId: KeyId): LdSigner<JcsEd25519Signature2020SignatureSuite?>(
+        SignatureSuites.SIGNATURE_SUITE_JCSED25519SIGNATURE2020, null, Canonicalizers.CANONICALIZER_JCSCANONICALIZER
     ) {
-        override fun getJwsAlgorithm(): JWSAlgorithm {
-            return JWSAlgorithm.EdDSA
+        private val cryptoService = CryptoService.getService()
+
+        override fun sign(ldProofBuilder: LdProof.Builder<*>, signingInput: ByteArray) {
+            val signature = cryptoService.sign(keyId, signingInput)
+            val signatureValue = Base58.encode(signature)
+            ldProofBuilder.properties(mapOf("signatureValue" to signatureValue))
         }
 
-        override fun getJwsSigner(): JWSSigner {
-            return JwsLtSigner(keyId)
-        }
 
     }
 

@@ -54,9 +54,9 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
         val key = keyStore.load(config.issuerDid)
 
         val signer = when (key.algorithm) {
-            KeyAlgorithm.ECDSA_Secp256k1 -> LdSigner.EcdsaSecp256K1LdSignature2019(key.keyId)
-            KeyAlgorithm.EdDSA_Ed25519 -> LdSigner.Ed25519LdSignature2018(key.keyId)
-            KeyAlgorithm.RSA -> LdSigner.RsaLdSignature2018(key.keyId)
+            KeyAlgorithm.ECDSA_Secp256k1 -> LdSigner.EcdsaSecp256K1Signature2019(key.keyId)
+            KeyAlgorithm.EdDSA_Ed25519 -> LdSigner.Ed25519Signature2018(key.keyId)
+            KeyAlgorithm.RSA -> LdSigner.RsaSignature2018(key.keyId)
             else -> throw Exception("Signature for key algorithm ${key.algorithm} not supported")
         }
 
@@ -98,9 +98,9 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
         log.debug { "Decoded Json LD object: $jsonLdObject" }
 
         val verifier = when (publicKey.algorithm) {
-            KeyAlgorithm.ECDSA_Secp256k1 -> id.walt.crypto.LdVerifier.EcdsaSecp256k1Signature2019(publicKey.getPublicKey())
+            KeyAlgorithm.ECDSA_Secp256k1 -> id.walt.crypto.LdVerifier.EcdsaSecp256k1Signature2019(publicKey)
             KeyAlgorithm.EdDSA_Ed25519 -> id.walt.crypto.LdVerifier.Ed25519Signature2018(publicKey)
-            KeyAlgorithm.RSA -> id.walt.crypto.LdVerifier.RsaSignature2018(publicKey.getPublicKey())
+            KeyAlgorithm.RSA -> id.walt.crypto.LdVerifier.RsaSignature2018(publicKey)
             else -> throw Exception("Signature for key algorithm ${publicKey.algorithm} not supported")
         }
 

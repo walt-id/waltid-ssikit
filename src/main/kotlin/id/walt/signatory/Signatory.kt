@@ -1,6 +1,7 @@
 package id.walt.signatory
 
 import com.beust.klaxon.Json
+import id.walt.crypto.LdSignatureType
 import id.walt.servicematrix.ServiceConfiguration
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
@@ -20,15 +21,6 @@ enum class ProofType {
     JWT, LD_PROOF
 }
 
-enum class LdSignatureType {
-    Auto,
-    EcdsaSecp256k1Signature2019,
-    Ed25519Signature2018,
-    RsaSignature2018,
-    JsonWebSignature2020,
-    JcsEd25519Signature2020
-}
-
 data class ProofConfig(
     val issuerDid: String,
     @Json(serializeNull = false) val subjectDid: String? = null,
@@ -43,7 +35,7 @@ data class ProofConfig(
     @Json(serializeNull = false) val validDate: Instant? = null, // valid date from json-input or current system time if null
     @Json(serializeNull = false) val expirationDate: Instant? = null,
     @Json(serializeNull = false) val dataProviderIdentifier: String? = null, // may be used for mapping data-sets from a custom data-provider
-    @Json(serializeNull = false) val ldSignatureType: LdSignatureType = LdSignatureType.Auto
+    @Json(serializeNull = false) val ldSignatureType: LdSignatureType? = null
 )
 
 data class SignatoryConfig(
