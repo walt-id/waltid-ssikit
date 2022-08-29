@@ -1,4 +1,8 @@
-# SSI Kit
+<div align="center">
+ <h1>SSI Kit</h1>
+ <span>by </span><a href="https://walt.id">walt.id</a>
+ <p>Use web3 identity / self-sovereign identity (SSI)<p>
+
 
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=walt-id_waltid-ssikit&metric=security_rating)](https://sonarcloud.io/dashboard?id=walt-id_waltid-ssikit)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=walt-id_waltid-ssikit&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=walt-id_waltid-ssikit)
@@ -6,62 +10,51 @@
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=walt-id_waltid-ssikit&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=walt-id_waltid-ssikit)
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=walt-id_waltid-ssikit&metric=ncloc)](https://sonarcloud.io/dashboard?id=walt-id_waltid-ssikit)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=walt-id_waltid-ssikit-examples&metric=alert_status)](https://sonarcloud.io/dashboard?id=walt-id_waltid-ssikit)
-  
+
 [![CI/CD Workflow for walt.id SSI Kit](https://github.com/walt-id/waltid-ssikit/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/walt-id/waltid-ssikit/actions/workflows/build.yml)
+<a href="https://walt.id/community">
+<img src="https://img.shields.io/badge/Join-The Community-blue.svg?style=flat" alt="Join community!" />
+</a>
+<a href="https://twitter.com/intent/follow?screen_name=walt_id">
+<img src="https://img.shields.io/twitter/follow/medusajs.svg?label=Follow%20@walt_id" alt="Follow @walt_id" />
+</a>
 
-The **SSI Kit** by **walt.id** is a holistic Self-Sovereign-Identity solution, with primarily focus on the European EBSI/ESSIF ecosystem.
 
-The core services are in the scope of:
- - **Key Management** generation, import/export
- - **Decentralized Identifier (DID)** operations (create, register, update, deactivate)
- - **Verifiable Credential (VC)** operations (issue, present, verify)
- - **EBSI/ESSIF** related Use Cases (onboarding, VC exchange, etc.)
-
-The EBSI/ESSIF functions are in the scope of:
- - **Onboarding EBSI/ESSIF** onboarding a natural person/legal entity including the DID creation and registration
- - **Enable Trusted Issuer** process for entitling a legal entity to become a Trusted Issuer in the ESSIF ecosystem.
- - **Credential Issuance** protocols and data formats for issuing W3C credentials from a Trusted Issuer to a natural person.
- - **Credential Verification** verification facilities in order to determine the validity of a W3C Verifiable Credential aligned with EBSI/ESSIF standards.
-
-The library is written in **Kotlin/Java** and can be directly integrated as Maven/Gradle dependency. Alternatively the library or the additional **Docker container** can be run as RESTful webservice.
+</div>
 
 ## Getting Started
 
-### Via Docker
+- [CLI | Command Line Interface](https://docs.walt.id/v/ssikit/getting-started/cli-command-line-interface) - Try out the functions of the SSI Kit locally.
+- [REST Api](https://docs.walt.id/v/ssikit/getting-started/rest-apis) - Use the functions of the SSI Kit via an REST api. 
+- [Maven/Gradle Dependency](https://docs.walt.id/v/ssikit/getting-started/dependency-jvm) - Use the functions of the SSI Kit directly in a Kotlin/Java project.
+- [Example Projects](https://github.com/walt-id/waltid-ssikit-examples) - Demonstrate how to use the SSI Kit in any Kotlin/Java app
 
-The easiest way to getting your hands dirty and to "play" with the functions the SSI Kit provides is by running the **CLI tool** with _Docker_.
+Checkout the [Official Documentation](https://docs.walt.id/v/ssikit), to dive deeper into the architecture and configuration options available.
 
-    docker run -itv $(pwd)/data:/app/data waltid/ssikit -h
 
-### As dependency
+## What is the SSI Kit?
 
-_Gradle_
+A **library** written in Kotlin/Java **to manage Keys, DIDs and VCs**. Functions can be used via **Maven/Gradle** or a **REST api**.
 
-        implementation("id.walt:waltid-ssi-kit:1.12.0")
+### Features
+- **Key Management** generation, import/export
+- **Decentralized Identifier (DID)** operations (create, register, update, deactivate)
+- **Verifiable Credential (VC)** operations (issue, present, verify)
+- **EBSI/ESSIF** related Use Cases (onboarding, VC exchange, etc.)
 
-_Maven_
+#### For EBSI
+- **Onboarding EBSI/ESSIF** onboarding a natural person/legal entity including the DID creation and registration
+- **Enable Trusted Issuer** process for entitling a legal entity to become a Trusted Issuer in the ESSIF ecosystem.
+- **Credential Issuance** protocols and data formats for issuing W3C credentials from a Trusted Issuer to a natural person.
+- **Credential Verification** verification facilities in order to determine the validity of a W3C Verifiable Credential aligned with EBSI/ESSIF standards.
 
-        <dependency>
-            <groupId>id.walt</groupId>
-            <artifactId>waltid-ssi-kit</artifactId>
-            <version>1.12.0</version>
-        </dependency>
-    
-Please go ahead and find further CLI commands and well as other ways how to use the SSI Kit in the documentation section below.
 
-## Documentation
+## Example
 
-Direct links for using the SSI Kit are:
+- Creating W3C Decentralized Identifiers 
+- Issuing/verifying W3C Verifiable Credentials in JSON_LD and JWT format
 
-- Docs: https://docs.walt.id/v/ssikit
-- Quick Start (Build & run the SSI Kit with Docker or with **ssikit.sh**): https://docs.walt.id/v/ssikit/getting-started/quick-start
-- CLI Tool: https://docs.walt.id/v/ssikit/getting-started/cli-command-line-interface
-- APIs: https://docs.walt.id/v/ssikit/getting-started/rest-apis
-
-## Examples
-
-Following code snipped gives a first impression how to use the SSI Kit for creating **W3C Decentralized Identifiers** and for issuing/verifying **W3C Verifiable Credentials** in **JSON_LD** as well as **JWT** format.
-
+```kotlin
     fun main() {
 
         ServiceMatrix("service-matrix.properties")
@@ -85,37 +78,28 @@ Following code snipped gives a first impression how to use the SSI Kit for creat
         println("JWT verification result: ${resJwt.overallStatus}")
     }
     
- Furthermore, this [example project](https://github.com/walt-id/waltid-ssikit-examples) demonstrates how to integrate & use the SSI Kit in any Kotlin/Java app. Also the **Gradle** and **Maven** build instructions are provided.
+ ```
 
-## Relevant Standards & Specifications
+## Join the community
 
-- EBSI Wallet Conformance https://ec.europa.eu/digital-building-blocks/wikis/display/EBSIDOC/EBSI+Wallet+Conformance+Testing
-- Verifiable Credentials Data Model 1.0 https://www.w3.org/TR/vc-data-model/
-- Decentralized Identifiers (DIDs) v1.0 https://w3c.github.io/did-core/
-- DID Method Rubric https://w3c.github.io/did-rubric/
-- did:web Decentralized Identifier Method Specification https://w3c-ccg.github.io/did-method-web/
-- The did:key Method v0.7 https://w3c-ccg.github.io/did-method-key/
-- Self-Issued OpenID Provider v2 https://openid.net/specs/openid-connect-self-issued-v2-1_0.html
-- OpenID Connect for Verifiable Presentations https://openid.net/specs/openid-connect-4-verifiable-presentations-1_0-07.html
-- OpenID Connect for Verifiable Credential Issuance https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html
+* Connect and get the latest updates: <a href="https://discord.com/invite/zUnxncExF5">Discord</a> | <a href="https://walt.id/newsletter">Newsletter</a> | <a href="https://www.youtube.com/channel/UCXfOzrv3PIvmur_CmwwmdLA">YouTube</a> | <a href="https://mobile.twitter.com/walt_id" target="_blank">Twitter</a>
+* Get help, request features and report bugs: <a href="https://github.com/walt-id/.github/discussions" target="_blank">GitHub Discussions</a>
+
+## Standards & Specifications
+
+- [EBSI Wallet Conformance](https://ec.europa.eu/digital-building-blocks/wikis/display/EBSIDOC/EBSI+Wallet+Conformance+Testing) 
+- [Verifiable Credentials Data Model 1.0](https://www.w3.org/TR/vc-data-model/) 
+- [Decentralized Identifiers (DIDs) v1.0](https://w3c.github.io/did-core/) 
+- [DID Method Rubric](https://w3c.github.io/did-rubric/)
+- [did:web Decentralized Identifier Method Specification](https://w3c-ccg.github.io/did-method-web/) 
+- [The did:key Method v0.7](https://w3c-ccg.github.io/did-method-key/)
+- [Self-Issued OpenID Provider v2](https://openid.net/specs/openid-connect-self-issued-v2-1_0.html)
+- [OpenID Connect for Verifiable Presentations](https://openid.net/specs/openid-connect-4-verifiable-presentations-1_0-07.html) 
+- [OpenID Connect for Verifiable Credential Issuance](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html) 
 
 ## License
 
-```
-Copyright ((C)) 2022 walt.id GmbH
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-   http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-```
+Licensed under the [Apache License, Version 2.0](https://github.com/walt-id/waltid-ssikit/blob/master/LICENSE)
 
 ## Funded & supported by
 
