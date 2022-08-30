@@ -3,18 +3,22 @@
   "credentialSubject" : {
     "birthDate" : "1958-08-17",
     "givenName" : "JOHN",
-    "id" : "did:ebsi:zhhdvx3tS4hJsA23gXs7Qc9",
+    "id" : "did:ebsi:zkj7imP3niDPWANqWAJ6nLp",
     "type" : [ "PermanentResident", "Person" ]
   },
-  "id" : "identity#PermanentResidentCard#b2dad6e9-6f2d-4ea7-a7e0-de61f12444a7",
-  "issuer" : "did:ebsi:zhhdvx3tS4hJsA23gXs7Qc9",
+  "id" : "urn:uuid:e4f467c4-30b5-4cd7-80f5-a6f1a98c01c1",
+  "issued" : "2022-08-30T11:07:12.472240677Z",
+  "issuer" : "did:ebsi:zkj7imP3niDPWANqWAJ6nLp",
+  "validFrom" : "2022-08-30T11:07:12.472244168Z",
+  "issuanceDate" : "2022-08-30T11:07:12.472244168Z",
   "type" : [ "VerifiableCredential", "PermanentResidentCard" ],
   "proof" : {
     "type" : "EcdsaSecp256k1Signature2019",
-    "creator" : "did:ebsi:zhhdvx3tS4hJsA23gXs7Qc9",
-    "created" : "2021-11-07T10:17:28Z",
+    "creator" : "did:ebsi:zkj7imP3niDPWANqWAJ6nLp",
+    "created" : "2022-08-30T11:07:12Z",
     "domain" : "https://api.preprod.ebsi.eu",
-    "nonce" : "af64f8fa-d919-443b-b07e-d5bda9f09cef",
-    "jws" : "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFUzI1NksifQ..qwiS77CsUzgBQnofeh4rVkovm3H8RFAAAFTtcm_j2wm0CFO2ROFmpohF3JMmknQtNfXoBCUnY7rsQk1xNA_UWw"
+    "nonce" : "3d90b3e7-9208-4b9a-ad8a-5702efe431b7",
+    "proofPurpose" : "assertion",
+    "jws" : "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFUzI1NksifQ..ltK2qM34oa304C5nJGa1DoyHlXgfaC7iPejjaK4j3Z-1x1s7Yq7asCLH_7TFTqtmYyrUBmY_fjU1qxP3N_dN1Q"
   }
 }

@@ -141,6 +141,19 @@ class LdSigner {
         }
     }
 
+    class Ed25519Signature2020(keyId: KeyId) : JwsLdSignature<Ed25519Signature2020SignatureSuite?>(keyId,
+        SignatureSuites.SIGNATURE_SUITE_ED25519SIGNATURE2020, Canonicalizers.CANONICALIZER_URDNA2015CANONICALIZER
+    ) {
+
+        override fun getJwsAlgorithm(): JWSAlgorithm {
+            return JWSAlgorithm.EdDSA
+        }
+
+        override fun getJwsSigner(): JWSSigner {
+            return JwsLtSigner(keyId)
+        }
+    }
+
     class RsaSignature2018(keyId: KeyId) : JwsLdSignature<RsaSignature2018SignatureSuite?>(keyId,
         SignatureSuites.SIGNATURE_SUITE_RSASIGNATURE2018, Canonicalizers.CANONICALIZER_URDNA2015CANONICALIZER
     ) {

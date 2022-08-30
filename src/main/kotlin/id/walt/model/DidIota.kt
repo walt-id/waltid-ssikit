@@ -7,11 +7,11 @@ class DidIota(
     context: List<String> = listOf("https://www.w3.org/ns/did/v1"),
     id: String,
     verificationMethod: List<VerificationMethod>? = null,
-    authentication: List<String>? = null,
-    assertionMethod: List<String>? = null,
-    capabilityDelegation: List<String>? = null,
+    authentication: List<VerificationMethod>? = null,
+    assertionMethod: List<VerificationMethod>? = null,
+    capabilityDelegation: List<VerificationMethod>? = null,
     capabilityInvocation: List<VerificationMethod>? = null,
-    keyAgreement: List<String>? = null,
+    keyAgreement: List<VerificationMethod>? = null,
     serviceEndpoint: List<ServiceEndpoint>? = null,
     @Json(serializeNull = false) var proof: Proof? = null
 ) : Did(
@@ -28,11 +28,11 @@ class DidIota(
     constructor(context: String,
                 id: String,
                 verificationMethod: List<VerificationMethod>? = null,
-                authentication: List<String>? = null,
-                assertionMethod: List<String>? = null,
-                capabilityDelegation: List<String>? = null,
+                authentication: List<VerificationMethod>? = null,
+                assertionMethod: List<VerificationMethod>? = null,
+                capabilityDelegation: List<VerificationMethod>? = null,
                 capabilityInvocation: List<VerificationMethod>? = null,
-                keyAgreement: List<String>? = null,
+                keyAgreement: List<VerificationMethod>? = null,
                 serviceEndpoint: List<ServiceEndpoint>? = null,
                 proof: Proof? = null) : this(listOf(context), id, verificationMethod, authentication, assertionMethod, capabilityDelegation, capabilityInvocation, keyAgreement, serviceEndpoint, proof)
 }

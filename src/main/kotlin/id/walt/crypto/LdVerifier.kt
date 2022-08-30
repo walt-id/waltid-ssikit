@@ -47,6 +47,22 @@ class LdVerifier {
         }
     }
 
+    class Ed25519Signature2020(val publicKey: Key) : LdVerifier<Ed25519Signature2020SignatureSuite?>(
+        SignatureSuites.SIGNATURE_SUITE_ED25519SIGNATURE2020,
+        null,
+        Canonicalizers.CANONICALIZER_URDNA2015CANONICALIZER
+    ) {
+
+        private val keyService = KeyService.getService()
+
+        override fun verify(signingInput: ByteArray, ldProof: LdProof): Boolean {
+            val detachedJwsObject = JWSObject.parse(ldProof.jws)
+            val jwsSigningInput = JWSUtil.getJwsSigningInput(detachedJwsObject.header, signingInput)
+            val jwsVerifier = Ed25519Verifier(keyService.toEd25519Jwk(publicKey))
+            return jwsVerifier.verify(detachedJwsObject.header, jwsSigningInput, detachedJwsObject.signature)
+        }
+    }
+
     class RsaSignature2018(val publicKey: Key) : LdVerifier<RsaSignature2018SignatureSuite?>(
         SignatureSuites.SIGNATURE_SUITE_RSASIGNATURE2018,
         null,

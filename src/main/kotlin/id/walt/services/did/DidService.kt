@@ -149,7 +149,7 @@ object DidService {
 
         val did = DidEbsi(
             listOf(DID_CONTEXT_URL), // TODO Context not working "https://ebsi.org/ns/did/v1"
-            didUrlStr, verificationMethods, listOf(kid)
+            didUrlStr, verificationMethods, listOf(VerificationMethod.Reference(kid))
         )
         val ebsiDid = did.encode()
 
@@ -211,7 +211,7 @@ object DidService {
         val verificationMethods = buildVerificationMethods(key, kid, didUrlStr)
 
 
-        val keyRef = listOf(kid)
+        val keyRef = listOf(VerificationMethod.Reference(kid))
 
         val didDoc = DidWeb(DID_CONTEXT_URL, didUrlStr, verificationMethods, keyRef, keyRef)
 
@@ -344,7 +344,7 @@ object DidService {
 
     private fun generateDidKeyParams(
         pubKey: ByteArray, didUrl: DidUrl
-    ): Triple<List<String>?, MutableList<VerificationMethod>, List<String>> {
+    ): Triple<List<VerificationMethod>?, MutableList<VerificationMethod>, List<VerificationMethod>> {
 
         val pubKeyId = didUrl.did + "#" + didUrl.identifier
 
@@ -352,13 +352,13 @@ object DidService {
             VerificationMethod(pubKeyId, RsaVerificationKey2018.name, didUrl.did, pubKey.encodeBase58()),
         )
 
-        val keyRef = listOf(pubKeyId)
+        val keyRef = listOf(VerificationMethod.Reference(pubKeyId))
         return Triple(null, verificationMethods, keyRef)
     }
 
     private fun generateEdParams(
         pubKey: ByteArray, didUrl: DidUrl
-    ): Triple<List<String>?, MutableList<VerificationMethod>, List<String>> {
+    ): Triple<List<VerificationMethod>?, MutableList<VerificationMethod>, List<VerificationMethod>> {
         val dhKey = convertPublicKeyEd25519ToCurve25519(pubKey)
 
         val dhKeyMb = convertX25519PublicKeyToMultiBase58Btc(dhKey)
@@ -371,7 +371,7 @@ object DidService {
             VerificationMethod(dhKeyId, "X25519KeyAgreementKey2019", didUrl.did, dhKey.encodeBase58())
         )
 
-        return Triple(listOf(dhKeyId), verificationMethods, listOf(pubKeyId))
+        return Triple(listOf(VerificationMethod.Reference(dhKeyId)), verificationMethods, listOf(VerificationMethod.Reference(pubKeyId)))
     }
 
     fun getAuthenticationMethods(did: String) = load(did).authentication

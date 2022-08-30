@@ -11,6 +11,9 @@ const val DID_CONTEXT_URL: String = "https://www.w3.org/ns/did/v1"
 @Target(AnnotationTarget.FIELD)
 annotation class ListOrSingleValue
 
+@Target(AnnotationTarget.FIELD)
+annotation class DidVerificationRelationships
+
 val listOrSingleValueConverter = object: Converter {
     override fun canConvert(cls: Class<*>) = cls == List::class.java
 
@@ -27,6 +30,34 @@ val listOrSingleValueConverter = object: Converter {
             else -> Klaxon().toJsonString(value)
         }
 }
+
+val verificationRelationshipsConverter = object: Converter {
+    override fun canConvert(cls: Class<*>) = cls == List::class.java
+
+    override fun fromJson(jv: JsonValue): Any? {
+        if(jv.array != null) {
+            return jv.array!!.map { item ->
+                when(item) {
+                    is String -> VerificationMethod.Reference(item)
+                    is JsonObject -> Klaxon().parseFromJsonObject<VerificationMethod>(item)
+                    else -> throw Exception("Verification relationship must be either String or JsonObject")
+                }
+            }
+        }
+        return null
+    }
+
+    override fun toJson(value: Any): String {
+        return (value as List<VerificationMethod>).map { item -> if(item.isReference) {
+                Klaxon().toJsonString(item.id)
+            } else {
+                Klaxon().toJsonString(item)
+            }
+        }.joinToString(",", "[", "]")
+    }
+}
+
+val didSerializer = Klaxon().fieldConverter(ListOrSingleValue::class, listOrSingleValueConverter).fieldConverter(DidVerificationRelationships::class, verificationRelationshipsConverter)
 
 class DidTypeAdapter : TypeAdapter<Did> {
     override fun classFor(type: Any): KClass<out Did> = when(DidUrl.from(type.toString()).method) {
@@ -53,22 +84,22 @@ open class Did (
     val context: List<String>,
     val id: String,
     @Json(serializeNull = false) var verificationMethod: List<VerificationMethod>? = null,
-    @Json(serializeNull = false) var authentication: List<String>? = null,
-    @Json(serializeNull = false) var assertionMethod: List<String>? = null,
-    @Json(serializeNull = false) var capabilityDelegation: List<String>? = null,
-    @Json(serializeNull = false) var capabilityInvocation: List<VerificationMethod>? = null,
-    @Json(serializeNull = false) var keyAgreement: List<String>? = null,
+    @Json(serializeNull = false) @DidVerificationRelationships var authentication: List<VerificationMethod>? = null,
+    @Json(serializeNull = false) @DidVerificationRelationships var assertionMethod: List<VerificationMethod>? = null,
+    @Json(serializeNull = false) @DidVerificationRelationships var capabilityDelegation: List<VerificationMethod>? = null,
+    @Json(serializeNull = false) @DidVerificationRelationships var capabilityInvocation: List<VerificationMethod>? = null,
+    @Json(serializeNull = false) @DidVerificationRelationships var keyAgreement: List<VerificationMethod>? = null,
     @Json(serializeNull = false) var serviceEndpoint: List<ServiceEndpoint>? = null //TODO change to service-endpoint
 ) {
     constructor( // secondary constructor with context as string
         context: String,
         id: String,
         verificationMethod: List<VerificationMethod>? = null,
-        authentication: List<String>? = null,
-        assertionMethod: List<String>? = null,
-        capabilityDelegation: List<String>? = null,
+        authentication: List<VerificationMethod>? = null,
+        assertionMethod: List<VerificationMethod>? = null,
+        capabilityDelegation: List<VerificationMethod>? = null,
         capabilityInvocation: List<VerificationMethod>? = null,
-        keyAgreement: List<String>? = null,
+        keyAgreement: List<VerificationMethod>? = null,
         serviceEndpoint: List<ServiceEndpoint>? = null
     ) : this(listOf(context), id, verificationMethod, authentication, assertionMethod, capabilityDelegation, capabilityInvocation, keyAgreement, serviceEndpoint) {
     }
@@ -78,12 +109,12 @@ open class Did (
     @Json(ignored = true) val method: DidMethod
         get() = DidMethod.valueOf(url.method)
 
-    fun encode() = Klaxon().fieldConverter(ListOrSingleValue::class, listOrSingleValueConverter).toJsonString(this)
-    fun encodePretty() = Klaxon().fieldConverter(ListOrSingleValue::class, listOrSingleValueConverter).toJsonString(this).prettyPrint()
+    fun encode() = didSerializer.toJsonString(this)
+    fun encodePretty() = didSerializer.toJsonString(this).prettyPrint()
 
     companion object {
         fun decode(didDoc: String): Did? {
-            return Klaxon().fieldConverter(ListOrSingleValue::class, listOrSingleValueConverter).parse<Did>(didDoc)
+            return didSerializer.parse<Did>(didDoc)
         }
     }
 }
@@ -98,7 +129,18 @@ data class VerificationMethod(
     @Json(serializeNull = false) val publicKeyJwk: Jwk? = null,
     @Json(serializeNull = false) val publicKeyMultibase: String? = null,
     @Json(serializeNull = false) val ethereumAddress: String? = null,
-)
+    @Json(ignored = true) val isReference: Boolean = false,
+) {
+    companion object {
+        fun Reference(id: String): VerificationMethod {
+            return VerificationMethod(id, "", "", isReference = true)
+        }
+    }
+
+    fun toReference(): VerificationMethod {
+        return VerificationMethod.Reference(id)
+    }
+}
 
 @Serializable
 data class Jwk(

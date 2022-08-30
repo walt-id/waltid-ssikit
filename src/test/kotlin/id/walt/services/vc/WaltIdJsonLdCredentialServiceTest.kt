@@ -57,7 +57,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
         vp.proof?.domain shouldBe "domain.com"
         vp.proof?.nonce shouldBe "nonce"
         vp.proof?.proofPurpose shouldBe "authentication"
-        vp.proof?.verificationMethod shouldBe DidService.load(holderDid).authentication?.get(0)
+        vp.proof?.verificationMethod shouldBe DidService.load(holderDid).authentication?.get(0)?.id
 
         val vpVerified = credentialService.verify(vpStr)
         vpVerified.verified shouldBe true

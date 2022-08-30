@@ -63,7 +63,6 @@ enum class KeyFormat {
 // https://w3c-ccg.github.io/ld-cryptosuite-registry/
 enum class LdSignatureType {
     Ed25519Signature2018,
-    Ed25519Signature2019,
     Ed25519Signature2020,
     EcdsaSecp256k1Signature2019,
     RsaSignature2018,
