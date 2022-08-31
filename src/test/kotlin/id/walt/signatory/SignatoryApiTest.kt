@@ -183,7 +183,7 @@ class SignatoryApiTest : AnnotationSpec() {
                     )
                 )
             }
-        }.asString()
+        }.also { it.code shouldBe 200 }.asString()
 
         println(vc)
         val cred = vc?.toCredential() as Europass
