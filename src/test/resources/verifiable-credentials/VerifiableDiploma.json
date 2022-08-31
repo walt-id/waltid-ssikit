@@ -13,7 +13,7 @@
       "awardingBody" : {
         "eidasLegalIdentifier" : "Unknown",
         "homepage" : "https://leaston.bcdiploma.com/",
-        "id" : "did:ebsi:zkj7imP3niDPWANqWAJ6nLp",
+        "id" : "did:ebsi:zeKk952Yw9Kqgx6ckzQkief",
         "preferredName" : "Leaston University",
         "registration" : "0597065J"
       },
@@ -30,7 +30,7 @@
       "id" : "https://leaston.bcdiploma.com/law-economics-management#GradingScheme",
       "title" : "Lower Second-Class Honours"
     },
-    "id" : "did:ebsi:zkj7imP3niDPWANqWAJ6nLp",
+    "id" : "did:ebsi:zeKk952Yw9Kqgx6ckzQkief",
     "identifier" : "0904008084H",
     "learningAchievement" : {
       "additionalNote" : [ "DISTRIBUTION MANAGEMENT" ],
@@ -54,20 +54,20 @@
     "type" : [ "DocumentVerification" ],
     "verifier" : "did:ebsi:2962fb784df61baa267c8132497539f8c674b37c1244a7a"
   },
-  "id" : "urn:uuid:781df0d4-3e0f-4793-9615-86e9a2c62d81",
-  "issued" : "2022-08-30T11:09:58.163645666Z",
-  "issuer" : "did:ebsi:zkj7imP3niDPWANqWAJ6nLp",
-  "validFrom" : "2022-08-30T11:09:58.163648819Z",
-  "issuanceDate" : "2022-08-30T11:09:58.163648819Z",
+  "id" : "urn:uuid:51ca93f8-120c-46d1-8257-0c86ab033a05",
+  "issued" : "2022-08-31T09:23:22.311939526Z",
+  "issuer" : "did:ebsi:zeKk952Yw9Kqgx6ckzQkief",
+  "validFrom" : "2022-08-31T09:23:22.311942693Z",
+  "issuanceDate" : "2022-08-31T09:23:22.311942693Z",
   "type" : [ "VerifiableCredential", "VerifiableAttestation", "VerifiableDiploma" ],
   "proof" : {
     "type" : "EcdsaSecp256k1Signature2019",
-    "creator" : "did:ebsi:zkj7imP3niDPWANqWAJ6nLp",
-    "created" : "2022-08-30T11:09:58Z",
+    "creator" : "did:ebsi:zeKk952Yw9Kqgx6ckzQkief",
+    "created" : "2022-08-31T09:23:22Z",
     "domain" : "https://api.preprod.ebsi.eu",
-    "nonce" : "85d6dc75-b8e8-479f-b1d4-feba45b1318f",
+    "nonce" : "5e4568ff-c476-470b-8c76-c097e4a7ff0b",
     "proofPurpose" : "assertion",
-    "verificationMethod": "did:ebsi:zkj7imP3niDPWANqWAJ6nLp#564e1cd7fb6c45938f1c0b4b9270ecda",
-    "jws" : "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFUzI1NksifQ..pEdQY47nmUfx7iQ1gK7A0Woo4b_S1xRjIdcq4kyJtcad4CUjA9oxhMu4f_cfti9IyDG39ZMWxO9Ya1rYSum9fw"
+    "verificationMethod" : "did:ebsi:zeKk952Yw9Kqgx6ckzQkief#cad07615cfb740668fbf27a67aea41f9",
+    "jws" : "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFUzI1NksifQ..FEtj-xJcrcdO1a9kJTcdAb1FhyV-2M6PQBUX1oFu5KCGCCeyWkU9RvSmXbkDrJh3NqI7z8aRFHpjmBGbXyc-5w"
   }
 }

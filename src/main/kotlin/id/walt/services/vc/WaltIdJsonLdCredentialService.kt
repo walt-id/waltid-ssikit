@@ -1,8 +1,10 @@
 package id.walt.services.vc
 
+import com.apicatalog.jsonld.JsonLdErrorCode
 import com.danubetech.keyformats.crypto.provider.Ed25519Provider
 import com.danubetech.keyformats.crypto.provider.impl.TinkEd25519Provider
 import foundation.identity.jsonld.ConfigurableDocumentLoader
+import foundation.identity.jsonld.JsonLDException
 import foundation.identity.jsonld.JsonLDObject
 import id.walt.crypto.Key
 import id.walt.crypto.KeyAlgorithm
@@ -148,10 +150,10 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
         log.debug { "Document loader config: isEnableHttp (${confLoader.isEnableHttp}), isEnableHttps (${confLoader.isEnableHttps}), isEnableFile (${confLoader.isEnableFile}), isEnableLocalCache (${confLoader.isEnableLocalCache})" }
 
         val jsonLdObject = JsonLDObject.fromJson(vc)
-        val ldProof = LdProof.getFromJsonLDObject(jsonLdObject)
         jsonLdObject.documentLoader = LDSecurityContexts.DOCUMENT_LOADER
         log.debug { "Decoded Json LD object: $jsonLdObject" }
 
+        val ldProof = LdProof.getFromJsonLDObject(jsonLdObject)
         if(ldProof == null) {
             log.info { "No LD proof found on VC" }
             return false
@@ -163,7 +165,17 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
 
         log.debug { "Loaded Json LD verifier with signature suite: ${verifier.signatureSuite}" }
 
-        val verificatioResult = verifier.verify(jsonLdObject)
+        val verificatioResult = try {
+            verifier.verify(jsonLdObject)
+        } catch (ldExc: JsonLDException) {
+            if(ldExc.code == JsonLdErrorCode.LOADING_REMOTE_CONTEXT_FAILED) {
+                // if JSON LD remote context failed to load, retry once
+                log.warn { "JSON LD remote context failed to load, retrying once..." }
+                verifier.verify(jsonLdObject)
+            } else {
+                throw ldExc
+            }
+        }
 
         log.debug { "Json LD verifier returned: $verificatioResult" }
 
