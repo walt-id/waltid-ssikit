@@ -82,7 +82,7 @@ A **library** written in Kotlin/Java **to manage Keys, DIDs and VCs**. Functions
 
 ## Join the community
 
-* Connect and get the latest updates: <a href="https://discord.com/invite/zUnxncExF5">Discord</a> | <a href="https://walt.id/newsletter">Newsletter</a> | <a href="https://www.youtube.com/channel/UCXfOzrv3PIvmur_CmwwmdLA">YouTube</a> | <a href="https://mobile.twitter.com/walt_id" target="_blank">Twitter</a>
+* Connect and get the latest updates: <a href="https://discord.gg/zUnxncExF5">Discord</a> | <a href="https://walt.id/newsletter">Newsletter</a> | <a href="https://www.youtube.com/channel/UCXfOzrv3PIvmur_CmwwmdLA">YouTube</a> | <a href="https://mobile.twitter.com/walt_id" target="_blank">Twitter</a>
 * Get help, request features and report bugs: <a href="https://github.com/walt-id/.github/discussions" target="_blank">GitHub Discussions</a>
 
 ## Standards & Specifications
