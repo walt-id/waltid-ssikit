@@ -223,6 +223,7 @@ object DidService {
     private fun createDidIota(keyAlias: String?): String {
         val didIota = IotaService.createDid(keyAlias)
         storeDid(didIota.id, didIota.encode())
+        keyAlias?.let { ContextManager.keyStore.addAlias(KeyId(it), didIota.id) }
         return didIota.id
     }
 

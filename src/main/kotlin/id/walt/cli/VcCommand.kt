@@ -65,8 +65,8 @@ class VcIssueCommand : CliktCommand(
     val proofType: ProofType by option("-y", "--proof-type", help = "Proof type to be used [LD_PROOF]").enum<ProofType>()
         .default(ProofType.LD_PROOF)
     val proofPurpose: String by option(
-        "-p", "--proof-purpose", help = "Proof purpose to be used [assertion]"
-    ).default("assertion")
+        "-p", "--proof-purpose", help = "Proof purpose to be used [assertionMethod]"
+    ).default("assertionMethod")
     val interactive: Boolean by option(
         "--interactive", help = "Interactively prompt for VC data to fill in"
     ).flag(default = false)
