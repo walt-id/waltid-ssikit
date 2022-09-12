@@ -73,14 +73,14 @@ metadata:
 spec:
   tls:
     - hosts:
-        - core.ssikit.ssikit.walt.id
-        - signatory.ssikit.ssikit.walt.id
-        - custodian.ssikit.ssikit.walt.id
-        - auditor.ssikit.ssikit.walt.id
-        - essif.ssikit.ssikit.walt.id
+        - core.ssikit.walt.id
+        - signatory.ssikit.walt.id
+        - custodian.ssikit.walt.id
+        - auditor.ssikit.walt.id
+        - essif.ssikit.walt.id
       secretName: ssikit-tls-secret
   rules:
-    - host: core.ssikit.ssikit.walt.id
+    - host: core.ssikit.walt.id
       http:
         paths:
           - path: /
@@ -90,7 +90,7 @@ spec:
                 name: ssikit
                 port:
                   name: http-core
-    - host: signatory.ssikit.ssikit.walt.id
+    - host: signatory.ssikit.walt.id
       http:
         paths:
           - path: /
@@ -100,7 +100,7 @@ spec:
                 name: ssikit
                 port:
                   name: http-signatory
-    - host: custodian.ssikit.ssikit.walt.id
+    - host: custodian.ssikit.walt.id
       http:
         paths:
           - path: /
@@ -110,7 +110,7 @@ spec:
                 name: ssikit
                 port:
                   name: http-custodian
-    - host: auditor.ssikit.ssikit.walt.id
+    - host: auditor.ssikit.walt.id
       http:
         paths:
           - path: /
@@ -120,7 +120,7 @@ spec:
                 name: ssikit
                 port:
                   name: http-auditor
-    - host: essif.ssikit.ssikit.walt.id
+    - host: essif.ssikit.walt.id
       http:
         paths:
           - path: /
