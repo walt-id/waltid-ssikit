@@ -76,8 +76,8 @@ dependencies {
     implementation("io.github.rybalkinsd:kohttp:0.12.0")
 
     // REST
-    implementation("io.javalin:javalin:4.6.1")
-    implementation("io.javalin:javalin-openapi:4.6.1")
+    implementation("io.javalin:javalin:4.6.4")
+    implementation("io.javalin:javalin-openapi:4.6.4")
     // implementation("io.javalin:javalin-test-tools:4.5.0")
 
     // Logging
