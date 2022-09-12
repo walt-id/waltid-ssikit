@@ -57,12 +57,6 @@ class SignaturePolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by signature"
     override fun doVerify(vc: VerifiableCredential) = runCatching {
         log.debug { "is jwt: ${vc.jwt != null}" }
-
-        val issuerDid = vc.issuer!!
-
-        if (!KeyService.getService().hasKey(issuerDid))
-            DidService.importKey(issuerDid)
-
         when (vc.jwt) {
             null -> jsonLdCredentialService.verify(vc.json!!).verified
             else -> jwtCredentialService.verify(vc.jwt!!).verified

@@ -84,7 +84,7 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
         "capabilityInvocation" -> did.capabilityInvocation?.firstOrNull { m -> config.issuerVerificationMethod == null || m.id == config.issuerVerificationMethod }
         "keyAgreement" -> did.keyAgreement?.firstOrNull { m -> config.issuerVerificationMethod == null || m.id == config.issuerVerificationMethod }
         else -> did.verificationMethod?.firstOrNull { m -> config.issuerVerificationMethod == null || m.id == config.issuerVerificationMethod }
-      }?.id
+      }?.id ?: config.issuerVerificationMethod
     }
 
     override fun issue(templateId: String, config: ProofConfig, dataProvider: SignatoryDataProvider?): String {

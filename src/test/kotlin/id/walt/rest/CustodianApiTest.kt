@@ -61,6 +61,8 @@ class CustodianApiTest : StringSpec({
 
     "Check Custodian Presentation generation LD_PROOF" {
         val did = DidService.create(DidMethod.key)
+        val didDoc = DidService.load(did)
+        val vm = didDoc.verificationMethod!!.first().id
 
         // Issuance is Signatory stuff, we're just testing the Custodian here
         val vcJwt = Signatory.getService().issue(
@@ -68,7 +70,7 @@ class CustodianApiTest : StringSpec({
             ProofConfig(
                 issuerDid = did,
                 subjectDid = did,
-                issuerVerificationMethod = "Ed25519Signature2018",
+                issuerVerificationMethod = vm,
                 proofType = ProofType.LD_PROOF
             )
         )

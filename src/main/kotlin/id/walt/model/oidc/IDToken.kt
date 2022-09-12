@@ -28,7 +28,7 @@ data class IDToken(
     fun verify(): Boolean {
       if(jwt != null) {
         if (KeyStoreService.getService().getKeyId(subject) == null) {
-          DidService.importKey(subject)
+          DidService.importKeys(subject)
         }
         return JwtService.getService().verify(jwt!!)
       }

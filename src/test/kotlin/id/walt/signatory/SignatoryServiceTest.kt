@@ -26,6 +26,8 @@ class SignatoryServiceTest : StringSpec({
     val signatory = Signatory.getService()
 
     val did = DidService.create(DidMethod.key)
+    val didDoc = DidService.load(did)
+    val vm = didDoc.verificationMethod!!.first().id
 
     "VerifiableId ld-proof" {
 
@@ -34,7 +36,7 @@ class SignatoryServiceTest : StringSpec({
                 subjectDid = did,
                 issuerDid = did,
                 issueDate = LocalDateTime.of(2020, 11, 3, 0, 0).toInstant(ZoneOffset.UTC),
-                issuerVerificationMethod = "Ed25519Signature2018"
+                issuerVerificationMethod = vm
             )
         )
 
@@ -45,7 +47,7 @@ class SignatoryServiceTest : StringSpec({
         vc shouldContain "Jane DOE"
         (vc.toCredential() as VerifiableId).issued shouldBe "2020-11-03T00:00:00Z"
 
-        JsonLdCredentialService.getService().verifyVc(vc) shouldBe true
+        JsonLdCredentialService.getService().verify(vc).verified shouldBe true
     }
 
     "VerifiableId jwt-proof" {
@@ -74,7 +76,7 @@ class SignatoryServiceTest : StringSpec({
                 subjectDid = did,
                 issuerDid = did,
                 issueDate = LocalDateTime.of(2020, 11, 3, 0, 0).toInstant(ZoneOffset.UTC),
-                issuerVerificationMethod = "Ed25519Signature2018"
+                issuerVerificationMethod = vm
             )
         )
 
@@ -85,7 +87,7 @@ class SignatoryServiceTest : StringSpec({
         vc shouldContain "MASTERS LAW, ECONOMICS AND MANAGEMENT"
         (vc.toCredential() as VerifiableDiploma).issued shouldBe "2020-11-03T00:00:00Z"
 
-        JsonLdCredentialService.getService().verifyVc(vc) shouldBe true
+        JsonLdCredentialService.getService().verify(vc).verified shouldBe true
     }
 
     "VerifiableDiploma jwt-proof" {

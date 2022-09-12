@@ -176,7 +176,7 @@ class ImportDidCommand : CliktCommand(
         if (!keyId.isNullOrEmpty()) {
             DidService.setKeyIdForDid(did, keyId!!)
         } else {
-            DidService.importKey(did)
+            DidService.importKeys(did)
         }
 
         println("DID imported: $did")

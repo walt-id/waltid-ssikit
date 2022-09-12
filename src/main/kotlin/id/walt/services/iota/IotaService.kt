@@ -1,5 +1,6 @@
 package id.walt.services.iota
 
+import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.toBase64
 import id.walt.model.Did
 import id.walt.model.DidIota
@@ -10,11 +11,20 @@ import java.security.interfaces.EdECPrivateKey
 object IotaService {
   val iotaWrapper = IotaWrapper.createInstance()
 
-  fun createDid(keyId: String? = null): DidIota {
-    val privKeyBytes = keyId?.let { KeyService.getService().load(it, KeyType.PRIVATE).keyPair?.private }?.let {
+  fun createDid(keyId: String): DidIota {
+    // TODO: implement iota key store interface, to avoid exposing private key!
+    val privKey = KeyService.getService().load(keyId, KeyType.PRIVATE)
+    if(privKey.algorithm != KeyAlgorithm.EdDSA_Ed25519) {
+      throw Exception("did:iota only supports keys of type ${KeyAlgorithm.EdDSA_Ed25519}")
+    }
+
+    val privKeyBytes = privKey.keyPair?.private?.let {
       (it as EdECPrivateKey).bytes.orElse(null)
     }
-    val ptr = iotaWrapper.create_did(privKeyBytes, privKeyBytes?.size?.toLong() ?: 0)
+    if(privKeyBytes == null) {
+      throw Exception("Couldn't get private key bytes")
+    }
+    val ptr = iotaWrapper.create_did(privKeyBytes, privKeyBytes.size.toLong())
     if(ptr.address() != 0L) {
       val doc = ptr.getString(0)
       iotaWrapper.free_str(ptr)

@@ -36,14 +36,16 @@ class AuditorCommandTest : StringSpec() {
         val custodian = Custodian.getService()
 
         did = DidService.create(DidMethod.key)
+        val didDoc = DidService.load(did)
+        val vm = didDoc.assertionMethod!!.first()!!.id
 
         println("Generated: $did")
         vcStr = signatory.issue(
             "VerifiableDiploma", ProofConfig(
                 issuerDid = did,
                 subjectDid = did,
-                issuerVerificationMethod = "Ed25519Signature2018",
-                proofPurpose = "Testing",
+                issuerVerificationMethod = vm,
+                proofPurpose = "assertionMethod",
                 proofType = ProofType.LD_PROOF
             )
         )

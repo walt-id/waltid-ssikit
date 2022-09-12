@@ -4,6 +4,7 @@ import id.walt.crypto.KeyAlgorithm
 import id.walt.model.Did
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
+import id.walt.services.did.DidService
 import id.walt.services.essif.EBSI_BEARER_TOKEN_FILE
 import id.walt.services.key.KeyService
 import id.walt.test.RESOURCES_PATH
@@ -23,7 +24,7 @@ import kotlin.reflect.KClass
 
 class IOTAEnabled: EnabledCondition {
   override fun enabled(kclass: KClass<out Spec>): Boolean {
-    return false
+    return true
   }
 }
 
@@ -38,14 +39,19 @@ class IotaTest: AnnotationSpec() {
   @Test
   fun testCreateDid() {
     val key = KeyService.getService().generate(KeyAlgorithm.EdDSA_Ed25519)
-    val doc = IotaService.createDid(key.id)
+    val did = DidService.create(DidMethod.iota, key.id)
+    val doc = DidService.load(did)
     println(doc.encodePretty())
 
     doc.id shouldStartWith "did:iota"
     doc.method shouldBe DidMethod.iota
+    doc.verificationMethod shouldNotBe null
+    doc.verificationMethod?.shouldHaveSize(1)
+    doc.verificationMethod!!.first().publicKeyMultibase shouldNotBe null
     doc.capabilityInvocation shouldNotBe null
     doc.capabilityInvocation?.shouldHaveSize(1)
-    doc.capabilityInvocation!!.first().publicKeyMultibase shouldNotBe null
+    doc.capabilityInvocation!!.first().id shouldBe doc.verificationMethod!!.first().id
+    KeyService.getService().hasKey(doc.verificationMethod!!.first().id) shouldBe true
 
     val docResolved = IotaService.resolveDid(doc.id)
     docResolved shouldNotBe null

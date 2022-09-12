@@ -36,6 +36,13 @@ class DidServiceTest : AnnotationSpec() {
 
     val ds = DidService
 
+    private fun assertVerificationMethodAliases(did: Did) {
+        did.verificationMethod shouldNotBe null
+        did.verificationMethod!!.forEach { vm ->
+            keyService.hasKey(vm.id) shouldBe true
+        }
+    }
+
     @Test
     fun parseDidUrlTest() {
 
@@ -60,6 +67,8 @@ class DidServiceTest : AnnotationSpec() {
         val resolvedDid = ds.resolve(did)
         val encoded = Klaxon().toJsonString(resolvedDid)
         println(encoded)
+
+        assertVerificationMethodAliases(resolvedDid)
     }
 
     @Test
@@ -77,6 +86,8 @@ class DidServiceTest : AnnotationSpec() {
         val resolvedDid = ds.resolve(did)
         val encoded = Klaxon().toJsonString(resolvedDid)
         println(encoded)
+
+        assertVerificationMethodAliases(resolvedDid)
     }
 
     @Test
@@ -94,6 +105,8 @@ class DidServiceTest : AnnotationSpec() {
         val resolvedDid = ds.resolve(did)
         val encoded = Klaxon().toJsonString(resolvedDid)
         println(encoded)
+
+        assertVerificationMethodAliases(resolvedDid)
     }
 
     @Test
@@ -133,6 +146,8 @@ class DidServiceTest : AnnotationSpec() {
         val resolvedDid = ds.load(did) as DidEbsi
         val encoded = Klaxon().toJsonString(resolvedDid)
         println(encoded)
+
+        assertVerificationMethodAliases(resolvedDid)
 
         // Update
         resolvedDid.assertionMethod = listOf(resolvedDid.verificationMethod!!.get(0).toReference())

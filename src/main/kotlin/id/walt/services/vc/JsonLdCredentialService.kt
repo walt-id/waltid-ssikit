@@ -23,9 +23,6 @@ abstract class JsonLdCredentialService : WaltIdService() {
     open fun sign(jsonCred: String, config: ProofConfig): String = implementation.sign(jsonCred, config)
 
     open fun verify(vcOrVp: String): VerificationResult = implementation.verify(vcOrVp)
-    open fun verifyVc(issuerDid: String, vc: String): Boolean = implementation.verifyVc(issuerDid, vc)
-    open fun verifyVc(vcJson: String): Boolean = implementation.verifyVc(vcJson)
-    open fun verifyVp(vpJson: String): Boolean = implementation.verifyVp(vpJson)
 
     open fun present(
         vcs: List<String>,
