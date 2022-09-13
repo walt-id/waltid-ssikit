@@ -150,7 +150,9 @@ object DidService {
 
         val did = DidEbsi(
             listOf(DID_CONTEXT_URL), // TODO Context not working "https://ebsi.org/ns/did/v1"
-            didUrlStr, verificationMethods, listOf(VerificationMethod.Reference(kid))
+            didUrlStr,
+            verificationMethods,
+            listOf(VerificationMethod.Reference(kid)), listOf(VerificationMethod.Reference(kid))
         )
         val ebsiDid = did.encode()
 

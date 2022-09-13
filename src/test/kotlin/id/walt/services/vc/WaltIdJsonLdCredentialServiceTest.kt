@@ -189,12 +189,14 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
 
     @Test
     fun testValidateSchemaTsr() {
+        val issuerKeyDidDoc = DidService.load(issuerKeyDid)
+        val issuerKeyDidVM = issuerKeyDidDoc.assertionMethod!!.first()!!.id
         val noSchemaVc = VerifiableId().encode()
         val validVc = Signatory.getService().issue("VerifiableId", ProofConfig(
             issuerDid = issuerKeyDid,
             subjectDid = subjectKeyDid,
-            proofPurpose = "testing",
-            issuerVerificationMethod = "testing",
+            proofPurpose = "assertionMethod",
+            issuerVerificationMethod = issuerKeyDidVM,
             proofType = ProofType.LD_PROOF))
         val invalidDataVc = Signatory.getService().issue("VerifiableId", ProofConfig(
             issuerDid = issuerKeyDid,

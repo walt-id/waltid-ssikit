@@ -113,7 +113,8 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
         confLoader.isEnableLocalCache = true
         jsonLdObject.documentLoader = LDSecurityContexts.DOCUMENT_LOADER
 
-        val key = keyStore.load(config.issuerDid)
+        val vm = config.issuerVerificationMethod ?: config.issuerDid
+        val key = keyStore.load(vm)
 
         val signer = selectLdSigner(config, key)
 

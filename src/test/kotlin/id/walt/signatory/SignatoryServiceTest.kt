@@ -63,7 +63,7 @@ class SignatoryServiceTest : StringSpec({
         println(jwt.serialize())
 
         "EdDSA" shouldBe jwt.header.algorithm.name
-        did shouldBe jwt.header.keyID
+        vm shouldBe jwt.header.keyID
         did shouldBe jwt.jwtClaimsSet.claims["iss"]
         did shouldBe jwt.jwtClaimsSet.claims["sub"]
 
@@ -102,7 +102,7 @@ class SignatoryServiceTest : StringSpec({
         println(jwt.serialize())
 
         "EdDSA" shouldBe jwt.header.algorithm.name
-        did shouldBe jwt.header.keyID
+        vm shouldBe jwt.header.keyID
         did shouldBe jwt.jwtClaimsSet.claims["iss"]
         did shouldBe jwt.jwtClaimsSet.claims["sub"]
 

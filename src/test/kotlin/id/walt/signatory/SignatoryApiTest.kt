@@ -99,6 +99,8 @@ class SignatoryApiTest : AnnotationSpec() {
     @Test
     fun testIssueVerifiableDiplomaJsonLd() = runBlocking {
         val did = DidService.create(DidMethod.key)
+        val didDoc = DidService.load(did)
+        val vm = didDoc.assertionMethod!!.first().id
 
         val vc = httpPost {
             host = SIGNATORY_API_HOST
@@ -113,7 +115,7 @@ class SignatoryApiTest : AnnotationSpec() {
                             ProofConfig(
                                 issuerDid = did,
                                 subjectDid = did,
-                                issuerVerificationMethod = "$did#key-1",
+                                issuerVerificationMethod = vm,
                                 proofType = ProofType.LD_PROOF
                             )
                         )
@@ -126,12 +128,14 @@ class SignatoryApiTest : AnnotationSpec() {
         val cred = vc?.toCredential() as VerifiableDiploma
         cred.issuer shouldBe did
         cred.credentialSubject?.id shouldBe did
-        cred.proof?.verificationMethod shouldBe "$did#key-1"
+        cred.proof?.verificationMethod shouldBe vm
     }
 
     @Test
     fun testIssueVerifiableIdJwt() = runBlocking {
         val did = DidService.create(DidMethod.ebsi)
+        val didDoc = DidService.load(did)
+        val vm = didDoc.assertionMethod!!.first().id
 
         val vc = httpPost {
             host = SIGNATORY_API_HOST
@@ -146,7 +150,7 @@ class SignatoryApiTest : AnnotationSpec() {
                             ProofConfig(
                                 issuerDid = did,
                                 subjectDid = did,
-                                issuerVerificationMethod = "$did#key-1",
+                                issuerVerificationMethod = vm,
                                 proofType = ProofType.JWT
                             )
                         )
@@ -162,6 +166,8 @@ class SignatoryApiTest : AnnotationSpec() {
     @Test
     fun testIssueEuropassJsonLd() = runBlocking {
         val did = DidService.create(DidMethod.ebsi)
+        val didDoc = DidService.load(did)
+        val vm = didDoc.assertionMethod!!.first().id
 
         val vc = httpPost {
             host = SIGNATORY_API_HOST
@@ -176,7 +182,7 @@ class SignatoryApiTest : AnnotationSpec() {
                             ProofConfig(
                                 issuerDid = did,
                                 subjectDid = did,
-                                issuerVerificationMethod = "$did#key-1",
+                                issuerVerificationMethod = vm,
                                 proofType = ProofType.LD_PROOF
                             )
                         )
@@ -189,12 +195,14 @@ class SignatoryApiTest : AnnotationSpec() {
         val cred = vc?.toCredential() as Europass
         cred.issuer shouldBe did
         cred.credentialSubject?.id shouldBe did
-        cred.proof?.verificationMethod shouldBe "$did#key-1"
+        cred.proof?.verificationMethod shouldBe vm
     }
 
     @Test
     fun testIssuePermanentResidentCardJsonLd() = runBlocking {
         val did = DidService.create(DidMethod.ebsi)
+        val didDoc = DidService.load(did)
+        val vm = didDoc.assertionMethod!!.first().id
 
         val vc = httpPost {
             host = SIGNATORY_API_HOST
@@ -209,7 +217,7 @@ class SignatoryApiTest : AnnotationSpec() {
                             ProofConfig(
                                 issuerDid = did,
                                 subjectDid = did,
-                                issuerVerificationMethod = "$did#key-1",
+                                issuerVerificationMethod = vm,
                                 proofType = ProofType.LD_PROOF
                             )
                         )
@@ -222,12 +230,14 @@ class SignatoryApiTest : AnnotationSpec() {
         val cred = vc?.toCredential() as PermanentResidentCard
         cred.issuer shouldBe did
         cred.credentialSubject?.id shouldBe did
-        cred.proof?.verificationMethod shouldBe "$did#key-1"
+        cred.proof?.verificationMethod shouldBe vm
     }
 
     @Test
     fun testIssueVerifiableAuthorizationJsonLd() = runBlocking {
         val did = DidService.create(DidMethod.ebsi)
+        val didDoc = DidService.load(did)
+        val vm = didDoc.assertionMethod!!.first().id
 
         val vc = httpPost {
             host = SIGNATORY_API_HOST
@@ -242,7 +252,7 @@ class SignatoryApiTest : AnnotationSpec() {
                             ProofConfig(
                                 issuerDid = did,
                                 subjectDid = did,
-                                issuerVerificationMethod = "$did#key-1",
+                                issuerVerificationMethod = vm,
                                 proofType = ProofType.LD_PROOF
                             )
                         )
@@ -255,12 +265,14 @@ class SignatoryApiTest : AnnotationSpec() {
         val cred = vc?.toCredential() as VerifiableAuthorization
         cred.issuer shouldBe did
         cred.credentialSubject?.id shouldBe did
-        cred.proof?.verificationMethod shouldBe "$did#key-1"
+        cred.proof?.verificationMethod shouldBe vm
     }
 
     @Test
     fun testIssueVerifiableAttestationJsonLd() = runBlocking {
         val did = DidService.create(DidMethod.key)
+        val didDoc = DidService.load(did)
+        val vm = didDoc.assertionMethod!!.first().id
 
         val vc = httpPost {
             host = SIGNATORY_API_HOST
@@ -275,7 +287,7 @@ class SignatoryApiTest : AnnotationSpec() {
                             ProofConfig(
                                 issuerDid = did,
                                 subjectDid = did,
-                                issuerVerificationMethod = "$did#key-1",
+                                issuerVerificationMethod = vm,
                                 proofType = ProofType.LD_PROOF
                             )
                         )
@@ -288,6 +300,6 @@ class SignatoryApiTest : AnnotationSpec() {
         val cred = vc?.toCredential() as VerifiableAttestation
         // cred.issuer shouldBe did // "NEW ISSUER" set by Command test
         // cred.credentialSubject?.id shouldBe did // "id123" set by Command test
-        cred.proof?.verificationMethod shouldBe "$did#key-1"
+        cred.proof?.verificationMethod shouldBe vm
     }
 }

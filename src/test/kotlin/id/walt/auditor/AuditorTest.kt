@@ -58,7 +58,7 @@ class AuditorCommandTest : StringSpec() {
 
         vcJwt = signatory.issue(
             "VerifiableDiploma", ProofConfig(
-                issuerDid = did, subjectDid = did, issuerVerificationMethod = "Ed25519Signature2018", proofType = ProofType.JWT
+                issuerDid = did, subjectDid = did, issuerVerificationMethod = vm, proofType = ProofType.JWT
             ),
             // Required at the moment because EBSI did not upgrade V_ID schema with necessary changes.
             DummySignatoryDataProvider()

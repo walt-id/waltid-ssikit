@@ -92,6 +92,8 @@ class CustodianApiTest : StringSpec({
 
     "Check Custodian Presentation generation JWT" {
         val did = DidService.create(DidMethod.key)
+        val didDoc = DidService.load(did)
+        val vm = didDoc.assertionMethod!!.first()!!.id
 
         // Issuance is Signatory stuff, we're just testing the Custodian here
         val vcJwt = Signatory.getService().issue(
@@ -99,7 +101,7 @@ class CustodianApiTest : StringSpec({
             ProofConfig(
                 issuerDid = did,
                 subjectDid = did,
-                issuerVerificationMethod = "Ed25519Signature2018",
+                issuerVerificationMethod = vm,
                 proofType = ProofType.JWT
             )
         )

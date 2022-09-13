@@ -24,7 +24,7 @@ import kotlin.reflect.KClass
 
 class IOTAEnabled: EnabledCondition {
   override fun enabled(kclass: KClass<out Spec>): Boolean {
-    return true
+    return false
   }
 }
 
