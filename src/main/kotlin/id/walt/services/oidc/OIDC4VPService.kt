@@ -1,8 +1,15 @@
 package id.walt.services.oidc
 
 import com.nimbusds.oauth2.sdk.AuthorizationRequest
+import com.nimbusds.oauth2.sdk.ResponseMode
+import com.nimbusds.oauth2.sdk.ResponseType
+import com.nimbusds.oauth2.sdk.Scope
 import com.nimbusds.oauth2.sdk.http.HTTPRequest
+import com.nimbusds.oauth2.sdk.id.ClientID
+import com.nimbusds.oauth2.sdk.id.State
+import com.nimbusds.openid.connect.sdk.OIDCScopeValue
 import id.walt.model.dif.DescriptorMapping
+import id.walt.model.dif.PresentationDefinition
 import id.walt.model.dif.PresentationSubmission
 import id.walt.model.oidc.*
 import id.walt.vclib.credentials.VerifiablePresentation
@@ -49,22 +56,22 @@ class OIDC4VPService (val verifier: OIDCProvider) {
     return null
   }
 
-  fun getSIOPResponseFor(req: SIOPv2Request, subjectDid: String, vps: List<VerifiablePresentation>): SIOPv2Response {
+  fun getSIOPResponseFor(req: AuthorizationRequest, subjectDid: String, vps: List<VerifiablePresentation>): SIOPv2Response {
+    val presentationDefinition = getPresentationDefinition(req)
     return SIOPv2Response(
-      id_token = IDToken(
-        subject = subjectDid,
-        client_id = req.redirect_uri,
-        nonce = req.nonce ?: "",
-        vpTokenRef = VpTokenRef(
-          presentation_submission = PresentationSubmission(
-            descriptor_map = DescriptorMapping.fromVPs(vps),
-            definition_id = req.claims.vp_token?.presentation_definition?.id,
-            id = "1"
-          )
-        )
-      ),
       vp_token = vps,
-      state = req.state
+      presentation_submission = PresentationSubmission(
+        descriptor_map = DescriptorMapping.fromVPs(vps),
+        definition_id = presentationDefinition.id,
+        id = "1"
+      ),
+      id_token = SelfIssuedIDToken(
+        subject = subjectDid,
+        client_id = req.clientID.toString(),
+        nonce = req.customParameters["nonce"]?.firstOrNull(),
+        expiration = null
+      ),
+      state = req.state.toString()
     )
   }
 
@@ -87,5 +94,61 @@ class OIDC4VPService (val verifier: OIDCProvider) {
       return result.location.toString()
     else
       return result.content
+  }
+
+  companion object {
+    fun createOIDCVPRequest(
+      wallet_url: URI,
+      redirect_uri: URI,
+      nonce: String,
+      response_type: ResponseType = ResponseType("vp_token"),
+      response_mode: ResponseMode = ResponseMode.FRAGMENT,
+      scope: String? = null,
+      presentation_definition: PresentationDefinition? = null,
+      presentation_definition_uri: URI? = null,
+      state: String? = null
+    ): AuthorizationRequest {
+      if(listOf(scope, presentation_definition, presentation_definition_uri).filter { it != null && !(it is String && it.isEmpty()) }.size != 1 ) {
+        throw Exception("One and only one parameter of [scope, presentation_definition, presentation_definition_url] MUST be given.")
+      }
+      val customParams = mutableMapOf("nonce" to listOf(nonce))
+      if(scope.isNullOrEmpty()) {
+        val presentationDefinitionKey = presentation_definition?.let { "presentation_definition" } ?: "presentation_definition_uri"
+        val presentationDefinitionValue = presentation_definition?.let { klaxon.toJsonString(it) } ?: presentation_definition_uri!!.toString()
+        customParams[presentationDefinitionKey] = listOf(presentationDefinitionValue)
+      }
+      return AuthorizationRequest(
+        wallet_url,
+        response_type,
+        response_mode,
+        ClientID(redirect_uri.toString()),
+        redirect_uri, scope?.let { Scope(it) } ?: Scope(OIDCScopeValue.OPENID),
+        state?.let { State(it) } ?: State(),
+        null, null, null, false, null, null, null,
+        customParams
+      )
+    }
+
+    fun getPresentationDefinition(authRequest: AuthorizationRequest): PresentationDefinition {
+      val scope = if(authRequest.scope.size == 1 && authRequest.scope.none { it == OIDCScopeValue.OPENID }) {
+        authRequest.scope.first().toString()
+      } else { null }
+      val presentationDefinition = authRequest.customParameters["presentation_definition"]?.first()?.let { klaxon.parse<PresentationDefinition>(it) }
+      val presentationDefinitionUri = authRequest.customParameters["presentation_definition_uri"]?.firstOrNull()
+      if(listOf(scope, presentationDefinition, presentationDefinitionUri).filter { it != null && !(it is String && it.isEmpty()) }.size != 1 ) {
+        throw Exception("One and only one parameter of [scope, presentation_definition, presentation_definition_url] MUST be given.")
+      }
+      if(!scope.isNullOrEmpty()) {
+        TODO("How to find pre-definied presentation definition by scope")
+      }
+      if(presentationDefinition != null) {
+        return presentationDefinition
+      }
+      val response = HTTPRequest(HTTPRequest.Method.GET, URI.create(presentationDefinitionUri!!)).send()
+      if(response.indicatesSuccess()) {
+        return klaxon.parse<PresentationDefinition>(response.content) ?: throw Exception("Error parsing presentation_definition_url response as PresentationDefinition object")
+      }
+      throw Exception("Error fetching presentation definition from presentation_definition_uri")
+    }
   }
 }

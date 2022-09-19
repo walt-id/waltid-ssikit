@@ -3,14 +3,17 @@ package id.walt.cli
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.*
 import com.github.ajalt.clikt.parameters.types.enum
+import com.nimbusds.oauth2.sdk.AuthorizationRequest
+import com.nimbusds.oauth2.sdk.ResponseMode
+import com.nimbusds.oauth2.sdk.ResponseType
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken
+import com.nimbusds.openid.connect.sdk.Nonce
 import id.walt.common.prettyPrint
 import id.walt.custodian.Custodian
-import id.walt.model.dif.InputDescriptor
-import id.walt.model.dif.PresentationDefinition
-import id.walt.model.dif.VCSchema
+import id.walt.model.dif.*
 import id.walt.model.oidc.*
 import id.walt.services.oidc.CompatibilityMode
+import id.walt.services.oidc.OIDC4VPService
 import id.walt.services.oidc.OIDCUtils
 import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.toCredential
@@ -213,21 +216,35 @@ class OidcVerificationGenUrlCommand: CliktCommand(name = "gen-url", help = "Get 
 
   val verifier_url: String by option("-v", "--verifier", help = "Verifier base URL").required()
   val verifier_path: String by option("-p", "--path", help = "API path relative verifier url, to redirect the response to").required()
-  val client_url: String by option("-c", "--client-url", help = "Base URL of client, e.g. Wallet, default: openid://").default("openid://")
-  val response_mode: String by option("-r", "--response-mode", help = "Response mode, default: fragment").default("fragment")
+  val client_url: String by option("-c", "--client-url", help = "Base URL of client, e.g. Wallet, default: openid:///").default("openid:///")
+  val response_type: String by option("--response-type", help = "Response type, default: vp_token").default("vp_token")
+  val response_mode: String by option("--response-mode", help = "Response mode, default: fragment").default("fragment")
   val nonce: String? by option("-n", "--nonce", help = "Nonce, default: auto-generated")
-  val schemaIds: List<String> by option("-s", "--schema-id", help = "Schema IDs to request, supports multiple").multiple(listOf())
+  val scope: String? by option("--scope", help = "Set OIDC scope defining pre-defined presentation definition")
+  val presentationDefinitionUrl: String? by option("--presentation-definition-url", help = "URL to presentation definition")
+  val credentialTypes: List<String>? by option("--credential-type", help = "Credential types to request, supports multiple").multiple(required = false)
   val state: String? by option("--state", help = "State to be passed through")
 
   override fun run() {
-    val req = SIOPv2Request(
-      redirect_uri = "${verifier_url.trimEnd('/')}/${verifier_path.trimStart('/')}",
-      response_mode = response_mode,
-      nonce = nonce ?: UUID.randomUUID().toString(),
-      claims = VCClaims(vp_token = VpTokenClaim(PresentationDefinition("1", schemaIds.mapIndexed { idx, id -> InputDescriptor("$idx", schema = VCSchema(id)) }))),
+    val req = OIDC4VPService.createOIDCVPRequest(
+      wallet_url = URI.create(client_url),
+      redirect_uri = URI.create("${verifier_url.trimEnd('/')}/${verifier_path.trimStart('/')}"),
+      nonce = nonce ?: Nonce().toString(),
+      response_type = ResponseType.parse(response_type),
+      response_mode = ResponseMode(response_mode),
+      scope = scope,
+      presentation_definition = if(scope.isNullOrEmpty() && presentationDefinitionUrl.isNullOrEmpty()) {
+        PresentationDefinition("1",
+          input_descriptors = credentialTypes?.map { credType ->
+            InputDescriptor("1",
+              constraints = InputDescriptorConstraints(
+                listOf(InputDescriptorField(listOf("$.type"), "1", filter = mapOf("const" to credType)))
+        ))} ?: listOf())
+      } else { null },
+      presentation_definition_uri = presentationDefinitionUrl?.let { URI.create(it) },
       state = state
     )
-    println("${client_url}?${req.toUriQueryString()}")
+    println("${req.toURI()}")
   }
 }
 
@@ -237,15 +254,13 @@ class OidcVerificationParseCommand: CliktCommand(name = "parse", help = "Parse S
 
   override fun run() {
     val verifier = OIDCProvider("", "")
-    val req = verifier.vpSvc.parseSIOPv2RequestUri(URI.create(authUrl))
+    val req = AuthorizationRequest.parse(URI.create(authUrl))
     if(req == null) {
       println("Error parsing SIOP request")
     } else {
-      println("Requested credentials:")
-      req.claims?.vp_token?.presentation_definition?.input_descriptors?.forEach { id ->
-        println("- "  + (VcTemplateManager.getTemplateList().firstOrNull { t -> VcTemplateManager.loadTemplate(t).credentialSchema?.id == id.schema?.uri } ?: "Unknown type"))
-        println("Schema ID: ${id.schema?.uri}")
-      }
+      val presentationDefinition = OIDC4VPService.getPresentationDefinition(req)
+      println("Presentation requirements:")
+      println(klaxon.toJsonString(presentationDefinition).prettyPrint())
     }
   }
 }
