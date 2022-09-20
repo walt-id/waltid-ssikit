@@ -15,7 +15,7 @@ import java.util.*
 data class SIOPv2Response(
   val vp_token: List<VerifiablePresentation>,
   val presentation_submission: PresentationSubmission,
-  val id_token: SelfIssuedIDToken?,
+  val id_token: String?,
   val state: String?
 ) {
 
@@ -25,8 +25,8 @@ data class SIOPv2Response(
     val vpTokenString = OIDCUtils.toVpToken(vp_token)
     return buildMap {
       put("vp_token", vpTokenString)
-      put("presentation_submission", enc(klaxon.toJsonString(presentation_submission)))
-      id_token?.let { put("id_token", it.sign()) }
+      put("presentation_submission", klaxon.toJsonString(presentation_submission))
+      id_token?.let { put("id_token", it) }
       state?.let { put("state", it) }
     }
   }
@@ -36,10 +36,11 @@ data class SIOPv2Response(
   }
 
   fun toEBSIWctJson(): String {
+    val idToken = SelfIssuedIDToken.parse(id_token!!)
     return klaxon.toJsonString(
-      mapOf("id_token" to id_token!!.sign(), "vp_token" to vp_token.flatMap { vp -> vp.verifiableCredential }.map { vc ->
-        mapOf("format" to "jwt_vp", "presentation" to JwtService.getService().sign(id_token.subject,
-          JWTClaimsSet.Builder().subject(id_token.subject).issuer(id_token.subject).issueTime(Date()).claim("nonce", vp_token.first().challenge).jwtID(vc.id).claim("vc", vc.encode()).build().toString())
+      mapOf("id_token" to id_token, "vp_token" to vp_token.flatMap { vp -> vp.verifiableCredential }.map { vc ->
+        mapOf("format" to "jwt_vp", "presentation" to JwtService.getService().sign(idToken!!.subject,
+          JWTClaimsSet.Builder().subject(idToken.subject).issuer(idToken.subject).issueTime(Date()).claim("nonce", vp_token.first().challenge).jwtID(vc.id).claim("vc", vc.encode()).build().toString())
         )
     }))
   }
@@ -47,13 +48,12 @@ data class SIOPv2Response(
   companion object {
     fun fromFormParams(params: Map<String, String>): SIOPv2Response? {
       if(params.containsKey("id_token") && params.containsKey("vp_token")) {
-        val idToken = SelfIssuedIDToken.parse(params["id_token"]!!)
         val vpTokenStr = params["vp_token"] ?: return null
         val presentationSubmissionStr = params["presentation_submission"] ?: return null
         return SIOPv2Response(
           vp_token = OIDCUtils.fromVpToken(vpTokenStr),
           presentation_submission = klaxon.parse<PresentationSubmission>(presentationSubmissionStr) ?: return null,
-          id_token = idToken,
+          id_token = params["id_token"],
           state = params["state"]
         )
       }

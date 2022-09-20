@@ -6,6 +6,8 @@ import com.github.ajalt.clikt.parameters.types.enum
 import com.nimbusds.oauth2.sdk.AuthorizationRequest
 import com.nimbusds.oauth2.sdk.ResponseMode
 import com.nimbusds.oauth2.sdk.ResponseType
+import com.nimbusds.oauth2.sdk.Scope
+import com.nimbusds.oauth2.sdk.id.State
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken
 import com.nimbusds.openid.connect.sdk.Nonce
 import id.walt.common.prettyPrint
@@ -203,11 +205,11 @@ class OidcVerificationGetUrlCommand: CliktCommand(name = "get-url", help = "Get 
 
   override fun run() {
     val verifier = OIDCProvider(verifier_url, verifier_url)
-    val req = verifier.vpSvc.fetchSIOPv2Request()
+    val req = verifier.vpSvc.fetchOIDC4VPRequest()
     if(req == null) {
       println("<Error fetching redirection url>")
     } else {
-      println("$client_url?${req.toUriQueryString()}")
+      println("$client_url?${req.toQueryString()}")
     }
   }
 }
@@ -226,13 +228,13 @@ class OidcVerificationGenUrlCommand: CliktCommand(name = "gen-url", help = "Get 
   val state: String? by option("--state", help = "State to be passed through")
 
   override fun run() {
-    val req = OIDC4VPService.createOIDCVPRequest(
+    val req = OIDC4VPService.createOIDC4VPRequest(
       wallet_url = URI.create(client_url),
       redirect_uri = URI.create("${verifier_url.trimEnd('/')}/${verifier_path.trimStart('/')}"),
-      nonce = nonce ?: Nonce().toString(),
+      nonce = nonce?.let { Nonce(it) } ?: Nonce(),
       response_type = ResponseType.parse(response_type),
       response_mode = ResponseMode(response_mode),
-      scope = scope,
+      scope = Scope(scope),
       presentation_definition = if(scope.isNullOrEmpty() && presentationDefinitionUrl.isNullOrEmpty()) {
         PresentationDefinition("1",
           input_descriptors = credentialTypes?.map { credType ->
@@ -242,7 +244,7 @@ class OidcVerificationGenUrlCommand: CliktCommand(name = "gen-url", help = "Get 
         ))} ?: listOf())
       } else { null },
       presentation_definition_uri = presentationDefinitionUrl?.let { URI.create(it) },
-      state = state
+      state = state?.let { State(it) }
     )
     println("${req.toURI()}")
   }
@@ -254,7 +256,7 @@ class OidcVerificationParseCommand: CliktCommand(name = "parse", help = "Parse S
 
   override fun run() {
     val verifier = OIDCProvider("", "")
-    val req = AuthorizationRequest.parse(URI.create(authUrl))
+    val req = OIDC4VPService.parseOIDC4VPRequestUri(URI.create(authUrl))
     if(req == null) {
       println("Error parsing SIOP request")
     } else {
@@ -274,20 +276,22 @@ class OidcVerificationRespondCommand: CliktCommand(name = "present", help = "Cre
 
   override fun run() {
     val verifier = OIDCProvider("", "")
-    val req = verifier.vpSvc.parseSIOPv2RequestUri(URI.create(authUrl))
-    val resp = verifier.vpSvc.getSIOPResponseFor(req!!, did, listOf(Custodian.getService().createPresentation(credentialIds.map { Custodian.getService().getCredential(it)!!.encode() }, did, challenge = req.nonce, expirationDate = null).toCredential() as VerifiablePresentation))
+    val req = OIDC4VPService.parseOIDC4VPRequestUri(URI.create(authUrl))
+    val nonce = req.getCustomParameter("nonce")?.firstOrNull()
+    val vp = Custodian.getService().createPresentation(credentialIds.map { Custodian.getService().getCredential(it)!!.encode() }, did, challenge = nonce, expirationDate = null).toCredential() as VerifiablePresentation
+    val resp = verifier.vpSvc.getSIOPResponseFor(req!!, did, listOf(vp))
     println("Presentation response:")
     println(resp.toFormParams().prettyPrint())
 
     println()
-    if(req.response_mode.lowercase(Locale.getDefault()).contains("post")) { // "post" or "form_post"
+    if(setOf(ResponseMode.FORM_POST, ResponseMode("post")).contains(req.responseMode)) { // "post" or "form_post"
       val result = verifier.vpSvc.postSIOPResponse(req, resp, mode)
       println()
       println("Response:")
       println(result)
     } else {
       println("Redirect to:")
-      println("${req.redirect_uri}${when(req.response_mode) { "fragment" -> "#"; else -> "?" }}${resp.toFormBody()}")
+      println("${req.redirectionURI}${when(req.responseMode) { ResponseMode.FRAGMENT -> "#"; else -> "?" }}${resp.toFormBody()}")
     }
   }
 }
