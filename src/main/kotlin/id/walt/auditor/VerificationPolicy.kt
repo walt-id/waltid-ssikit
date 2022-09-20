@@ -3,6 +3,7 @@ package id.walt.auditor
 import com.beust.klaxon.Klaxon
 import id.walt.model.AttributeInfo
 import id.walt.model.TrustedIssuer
+import id.walt.model.dif.PresentationDefinition
 import id.walt.model.oidc.VpTokenClaim
 import id.walt.services.did.DidService
 import id.walt.services.essif.TrustedIssuerClient
@@ -225,16 +226,16 @@ class ChallengePolicy(challengeArg: ChallengePolicyArg): ParameterizedVerificati
         get() = argument.applyToVP
 }
 
-class VpTokenClaimPolicy(tokenClaim: VpTokenClaim) : ParameterizedVerificationPolicy<VpTokenClaim>(tokenClaim) {
-    override val description: String = "Verify verifiable presentation by OIDC/SIOPv2 VP token claim"
+class PresentationDefinitionPolicy(presentationDefinition: PresentationDefinition) : ParameterizedVerificationPolicy<PresentationDefinition>(presentationDefinition) {
+    override val description: String = "Verify that verifiable presentation complies with presentation definition"
     override fun doVerify(vc: VerifiableCredential): Boolean {
         if (vc is VerifiablePresentation) {
-            return argument.presentation_definition.input_descriptors.all { desc ->
+            return argument.input_descriptors.all { desc ->
                 vc.verifiableCredential.any { cred -> OIDCUtils.matchesInputDescriptor(cred, desc) }
             }
         }
         // else: nothing to check
-        return !(vc is VerifiablePresentation)
+        return false
     }
 
     override var applyToVC: Boolean = false
