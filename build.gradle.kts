@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.6.21"
+    kotlin("jvm") version "1.7.10"
     kotlin("plugin.serialization") version "1.6.10"
     id("com.github.kkdad.dependency-license-report") version "1.16.6"
     id("org.owasp.dependencycheck") version "6.5.3"
