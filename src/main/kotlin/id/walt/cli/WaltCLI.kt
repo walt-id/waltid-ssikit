@@ -130,6 +130,9 @@ object WaltCLI {
                         EssifTaorCommand(),
                         EssifTsrCommand()
                     ),
+                    GaiaxCommand().subcommands(
+
+                    ),
                     OidcCommand().subcommands(
                         OidcIssuanceCommand().subcommands(
                             OidcIssuanceInfoCommand(),
