@@ -8,7 +8,9 @@ import id.walt.vclib.credentials.VerifiableMandate
 import id.walt.vclib.credentials.VerifiableVaccinationCertificate
 import id.walt.vclib.credentials.gaiax.DataSelfDescription
 import id.walt.vclib.credentials.gaiax.GaiaxCredential
-import id.walt.vclib.credentials.gaiax.ParticipantCredential
+import id.walt.vclib.credentials.gaiax.n.ParticipantCredential
+import id.walt.vclib.credentials.gaiax.n.LegalPerson
+import id.walt.vclib.credentials.gaiax.n.ServiceOfferingCredential
 import id.walt.vclib.model.VerifiableCredential
 
 fun prompt(prompt: String, default: String?): String? {
@@ -33,8 +35,10 @@ object CLIDataProvider : SignatoryDataProvider {
             is GaiaxCredential -> GaiaxCliDataProvider
             is DataSelfDescription -> GaiaxSDProvider
             is VerifiableVaccinationCertificate -> VerifiableVaccinationCertificateCliDataProvider
-            is ParticipantCredential -> ParticipantCredentialProvider
             is VerifiableMandate -> VerifiableMandateCliDataProvider
+            is LegalPerson -> LegalPersonCredentialCliDataProvider
+            is ServiceOfferingCredential -> ServiceOfferingCredentialCliDataProvider
+            is ParticipantCredential -> ParticipantCredentialCliDataProvider
             else -> {
                 println("No CLI data provider defined for the given credential type. Only default meta data will be populated.")
                 DefaultDataProvider
@@ -122,7 +126,10 @@ object VerifiableDiplomaCliDataProvider : AbstractDataProvider<VerifiableDiploma
 }
 
 object VerifiableVaccinationCertificateCliDataProvider : AbstractDataProvider<VerifiableVaccinationCertificate>() {
-    override fun populateCustomData(template: VerifiableVaccinationCertificate, proofConfig: ProofConfig): VerifiableVaccinationCertificate {
+    override fun populateCustomData(
+        template: VerifiableVaccinationCertificate,
+        proofConfig: ProofConfig
+    ): VerifiableVaccinationCertificate {
         template.apply {
 
             credentialSubject!!.apply {
@@ -227,7 +234,10 @@ object GaiaxSDProvider : AbstractDataProvider<DataSelfDescription>() {
                 hasVersion = prompt("Version", "0.1.0") ?: ""
                 providedBy = prompt("Provided by", "GAIA-X") ?: ""
                 hasMarketingImage =
-                    prompt("Marketing Image", "https://www.data-infrastructure.eu/GAIAX/Redaktion/EN/Bilder/UseCases/ai-marketplace-for-product-development.jpg?__blob=normal")
+                    prompt(
+                        "Marketing Image",
+                        "https://www.data-infrastructure.eu/GAIAX/Redaktion/EN/Bilder/UseCases/ai-marketplace-for-product-development.jpg?__blob=normal"
+                    )
                         ?: ""
                 hasCertifications = listOf(prompt("Certifications", hasCertifications?.get(0)) ?: "")
                 utilizes = listOf(prompt("Utilizes", utilizes?.get(0)) ?: "")
@@ -249,12 +259,14 @@ object VerifiableIdCliDataProvider : AbstractDataProvider<VerifiableId>() {
         template.credentialSubject!!.dateOfBirth = prompt("Date of birth", template.credentialSubject!!.dateOfBirth)
         template.credentialSubject!!.gender = prompt("Gender", template.credentialSubject!!.gender)
         template.credentialSubject!!.placeOfBirth = prompt("Place of birth", template.credentialSubject!!.placeOfBirth)
-        template.credentialSubject!!.currentAddress = prompt("Current address", template.credentialSubject!!.currentAddress!![0])?.let { listOf(it) }
+        template.credentialSubject!!.currentAddress =
+            prompt("Current address", template.credentialSubject!!.currentAddress!![0])?.let { listOf(it) }
 
         return template
     }
 }
 
+/*
 object ParticipantCredentialProvider : AbstractDataProvider<ParticipantCredential>() {
     override fun populateCustomData(template: ParticipantCredential, proofConfig: ProofConfig): ParticipantCredential {
         template.apply {
@@ -277,6 +289,7 @@ object ParticipantCredentialProvider : AbstractDataProvider<ParticipantCredentia
         return template
     }
 }
+ */
 
 object VerifiableMandateCliDataProvider : AbstractDataProvider<VerifiableMandate>() {
     override fun populateCustomData(template: VerifiableMandate, proofConfig: ProofConfig): VerifiableMandate {
@@ -285,7 +298,7 @@ object VerifiableMandateCliDataProvider : AbstractDataProvider<VerifiableMandate
             println()
             println("> Grant")
             println()
-            credentialSubject!!.holder!!.apply {
+            credentialSubject!!.holder.apply {
                 id = prompt("ID of holder", "did:ebsi:ze2dC9GezTtVSzjHVMQzpkE")!!
                 role = prompt("Role", "family")!!
                 grant = prompt("Name", "apply_to_masters")!!
@@ -293,5 +306,143 @@ object VerifiableMandateCliDataProvider : AbstractDataProvider<VerifiableMandate
             }
         }
         return template
+    }
+}
+
+object LegalPersonCredentialCliDataProvider : AbstractDataProvider<LegalPerson>() {
+    override fun populateCustomData(template: LegalPerson, proofConfig: ProofConfig): LegalPerson {
+        return template.apply {
+            id = prompt("Id", "https://delta-dao.com/.well-known/participant.json")
+            issuer = prompt("Issuer", "did:web:delta-dao.com")
+
+            println()
+            println("> Subject information")
+            println()
+            credentialSubject?.apply {
+                id = prompt("Id", "did:web:delta-dao.com")
+                gxParticipantLegalName = prompt("Legal name", "deltaDAO AG")
+                gxParticipantBlockchainAccountId =
+                    prompt("Blockchain Account Id", "0x4C84a36fCDb7Bc750294A7f3B5ad5CA8F74C4A52") ?: ""
+                gxParticipantTermsAndConditions = prompt("Terms and conditions", "0x4C84a36fCDb7Bc750294A7f3B5ad5CA8F74C4A52")
+
+                println()
+                println("Registration number")
+                println("----------------------")
+                gxParticipantRegistrationNumber =
+                    LegalPerson.LegalPersonCredentialSubject.GxParticipantRegistrationNumber(
+                        gxParticipantRegistrationNumberType = prompt("Registration number type", "leiCode"),
+                        gxParticipantRegistrationNumberNumber = prompt("Registration number", "391200FJBNU0YW987L26")
+                    )
+
+                println()
+                println("Headquarter address")
+                println("----------------------")
+                gxParticipantHeadquarterAddress?.apply {
+                    gxParticipantAddressCountryCode = prompt("Country code", "DE")
+                    gxParticipantAddressCode = prompt("Adress code", "DE-HH")
+                    gxParticipantStreetAddress = prompt("Street adress", "Geibelstraße 46b")
+                    gxParticipantPostalCode = prompt("Postal code", "22303")
+                }
+
+                println()
+                println("Legal address")
+                println("----------------------")
+                gxParticipantLegalAddress?.apply {
+                    gxParticipantAddressCountryCode = prompt("Country code", "DE")
+                    gxParticipantAddressCode = prompt("Adress code", "DE-HH")
+                    gxParticipantStreetAddress = prompt("Street adress", "Geibelstraße 46b")
+                    gxParticipantPostalCode = prompt("Postal code", "22303")
+                }
+            }
+        }
+    }
+}
+
+object ServiceOfferingCredentialCliDataProvider : AbstractDataProvider<ServiceOfferingCredential>() {
+    override fun populateCustomData(template: ServiceOfferingCredential, proofConfig: ProofConfig): ServiceOfferingCredential {
+        return template.apply {
+            id = prompt("Id", "https://compliance.gaia-x.eu/.well-known/serviceComplianceService.json")
+
+            println()
+            println("> Subject information")
+            println()
+            credentialSubject?.apply {
+                id = prompt("Id", "https://compliance.gaia-x.eu/.well-known/serviceComplianceService.json")
+                gxServiceOfferingProvidedBy = prompt("Provided by", "https://compliance.gaia-x.eu/.well-known/participant.json")
+                gxServiceOfferingName = prompt("Offering name", "Gaia-X Lab Compliance Service")
+                gxServiceOfferingDescription = prompt(
+                    "Offering description",
+                    "The Compliance Service will validate the shape and content of Self Descriptions. Required fields and consistency rules are defined in the Gaia-X Trust Framework."
+                )
+                gxServiceOfferingWebAddress = prompt("Web adress", "https://compliance.gaia-x.eu/")
+
+                println()
+                println("Terms and conditions")
+                println("----------------------")
+                gxServiceOfferingTermsAndConditions = listOf(
+                    ServiceOfferingCredential.ServiceOfferingCredentialSubject.GxServiceOfferingTermsAndCondition(
+                        gxServiceOfferingUrl = prompt("Offering URL", "https://compliance.gaia-x.eu/terms"),
+                        gxServiceOfferingHash = prompt("Offering hash", "myrandomhash")
+                    )
+                )
+
+                println()
+                println("GDPR")
+                println("----------------------")
+                gxServiceOfferingGdpr = listOf(
+                    ServiceOfferingCredential.ServiceOfferingCredentialSubject.GxServiceOfferingGdpr(
+                        gxServiceOfferingImprint = prompt("Offering imprint", "https://gaia-x.eu/imprint/"),
+                        gxServiceOfferingPrivacyPolicy = prompt("Offering privacy policy", "https://gaia-x.eu/privacy-policy/")
+                    )
+                )
+
+                println()
+                println("Data protection regime")
+                println("----------------------")
+                gxServiceOfferingDataProtectionRegime =
+                    prompt("Protection regime (vertical bar '|' seperated)", "GDPR2016")?.split("|")?.toList()
+
+                println()
+                println("Offering data export")
+                println("----------------------")
+                gxServiceOfferingDataExport = listOf(
+                    ServiceOfferingCredential.ServiceOfferingCredentialSubject.GxServiceOfferingDataExport(
+                        gxServiceOfferingRequestType = prompt("Request type", "emails"),
+                        gxServiceOfferingAccessType = prompt("Access type", "digital"),
+                        gxServiceOfferingFormatType = prompt("Format type", "mime/png")
+                    )
+                )
+
+                println()
+                println("Depends on")
+                println("----------------------")
+                gxServiceOfferingDependsOn =
+                    prompt(
+                        "Dependents (vertical bar '|' seperated)",
+                        "https://compliance.gaia-x.eu/.well-known/serviceManagedPostgreSQLOVH.json|https://compliance.gaia-x.eu/.well-known/serviceManagedK8sOVH.json"
+                    )?.split("|")?.toList()
+
+            }
+        }
+    }
+}
+
+object ParticipantCredentialCliDataProvider : AbstractDataProvider<ParticipantCredential>() {
+    override fun populateCustomData(
+        template: ParticipantCredential,
+        proofConfig: ProofConfig
+    ): ParticipantCredential {
+        return template.apply {
+            id = prompt("Id", "https://catalogue.gaia-x.eu/credentials/ParticipantCredential/1663271448939")
+            issuer = prompt("Issuer", "did:web:compliance.lab.gaia-x.eu")
+
+            println()
+            println("> Subject information")
+            println()
+            credentialSubject!!.apply {
+                id = prompt("Id", "did:web:delta-dao.com")
+                hash = prompt("Issuer", "5bf0e1921de342ae8c9a7f3d0c274386a8d7f6497d03d99269d445fb20a3922f")!!
+            }
+        }
     }
 }
