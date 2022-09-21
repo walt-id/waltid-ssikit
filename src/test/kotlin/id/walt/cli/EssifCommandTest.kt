@@ -19,6 +19,7 @@ import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotBeBlank
 import io.kotest.matchers.string.shouldNotBeEmpty
+import io.kotest.mpp.log
 import java.io.File
 import java.util.*
 import kotlin.time.Duration
@@ -88,6 +89,7 @@ class EssifCommandTest : StringSpec({
                 EssifTimestampCreateCommand().parse(listOf("--did", did, "--eth-key", ethKey.id, "${RESOURCES_PATH}/ebsi/test-data.json"))
 
                 transactionHash = WaltIdTimestampService().createTimestamp(did, ethKey.id, "{\"test\": \"${UUID.randomUUID()}\"}")
+                log { "ESSIFCOMMANDTEST: $transactionHash" }
                 transactionHash.shouldNotBeEmpty()
                 transactionHash.shouldNotBeBlank()
             }
