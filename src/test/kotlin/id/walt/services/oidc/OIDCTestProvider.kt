@@ -81,8 +81,6 @@ object OIDCTestProvider {
       ctx.formParamMap().map { Pair(it.key, it.value.first()) }.toMap()
     )
     siopResponse shouldNotBe null
-    siopResponse!!.id_token shouldNotBe null
-    SelfIssuedIDToken.verify(siopResponse.id_token!!) shouldBe true
     siopResponse.vp_token shouldNot beEmpty()
     siopResponse.vp_token.forEach { vp ->
       Auditor.getService().verify(vp.encode(), listOf(SignaturePolicy())).valid shouldBe true

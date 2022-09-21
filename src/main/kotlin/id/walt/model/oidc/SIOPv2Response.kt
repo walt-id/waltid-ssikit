@@ -46,18 +46,15 @@ data class SIOPv2Response(
   }
 
   companion object {
-    fun fromFormParams(params: Map<String, String>): SIOPv2Response? {
-      if(params.containsKey("id_token") && params.containsKey("vp_token")) {
-        val vpTokenStr = params["vp_token"] ?: return null
-        val presentationSubmissionStr = params["presentation_submission"] ?: return null
-        return SIOPv2Response(
-          vp_token = OIDCUtils.fromVpToken(vpTokenStr),
-          presentation_submission = klaxon.parse<PresentationSubmission>(presentationSubmissionStr) ?: return null,
-          id_token = params["id_token"],
-          state = params["state"]
-        )
-      }
-      return null
+    fun fromFormParams(params: Map<String, String>): SIOPv2Response {
+      val vpTokenStr = params["vp_token"] ?: throw Exception("vp_token parameter must be set")
+      val presentationSubmissionStr = params["presentation_submission"] ?: throw Exception("presentation_submission parameter must be set")
+      return SIOPv2Response(
+        vp_token = OIDCUtils.fromVpToken(vpTokenStr),
+        presentation_submission = klaxon.parse<PresentationSubmission>(presentationSubmissionStr) ?: throw Exception("Could not parse presentation_submission parameter"),
+        id_token = params["id_token"],
+        state = params["state"]
+      )
     }
   }
 }

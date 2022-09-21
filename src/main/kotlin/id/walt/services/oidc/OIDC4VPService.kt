@@ -37,47 +37,8 @@ class OIDC4VPService (val verifier: OIDCProvider) {
     return null
   }
 
-  fun getSIOPResponseFor(req: AuthorizationRequest, subjectDid: String, vps: List<VerifiablePresentation>): SIOPv2Response {
-    val presentationDefinition = getPresentationDefinition(req)
-    return SIOPv2Response(
-      vp_token = vps,
-      presentation_submission = PresentationSubmission(
-        descriptor_map = DescriptorMapping.fromVPs(vps),
-        definition_id = presentationDefinition.id,
-        id = "1"
-      ),
-      id_token = SelfIssuedIDToken(
-          subject = subjectDid,
-          client_id = req.clientID.toString(),
-          nonce = req.customParameters["nonce"]?.firstOrNull(),
-          expiration = null
-        ).sign(),
-      state = req.state.toString()
-    )
-  }
-
-  fun postSIOPResponse(req: AuthorizationRequest, resp: SIOPv2Response, mode: CompatibilityMode = CompatibilityMode.OIDC): String {
-    val result = HTTPRequest(HTTPRequest.Method.POST, req.redirectionURI).apply {
-      if(mode == CompatibilityMode.EBSI_WCT) {
-        setHeader("Content-Type", "application/json")
-        query = resp.toEBSIWctJson() // EBSI WCT expects json body with incorrect presentation jwt format
-      } else {
-        query = resp.toFormBody()
-      }
-      followRedirects = false
-    }.also {
-      log.info("Sending SIOP response to {}\n {}", it.uri, it.query)
-    }.send()
-    if(!result.indicatesSuccess() && result.statusCode != 302) {
-      log.error("Got error response from SIOP endpoint: {}: {}", result.statusCode, result.content)
-    }
-    if(result.statusCode == 302)
-      return result.location.toString()
-    else
-      return result.content
-  }
-
   companion object {
+    private val log = KotlinLogging.logger {}
     fun createOIDC4VPRequest(
       wallet_url: URI,
       redirect_uri: URI,
@@ -165,6 +126,46 @@ class OIDC4VPService (val verifier: OIDCProvider) {
     fun parseOIDC4VPRequestUriFromHttpCtx(ctx: Context): AuthorizationRequest {
       val authReq = AuthorizationRequest.parse(ctx.queryString())
       return authRequest2OIDC4VPRequest(authReq)
+    }
+
+    fun getSIOPResponseFor(req: AuthorizationRequest, subjectDid: String, vps: List<VerifiablePresentation>): SIOPv2Response {
+      val presentationDefinition = getPresentationDefinition(req)
+      return SIOPv2Response(
+        vp_token = vps,
+        presentation_submission = PresentationSubmission(
+          descriptor_map = DescriptorMapping.fromVPs(vps),
+          definition_id = presentationDefinition.id,
+          id = "1"
+        ),
+        id_token = if(req.responseType.contains(OIDCResponseTypeValue.ID_TOKEN)) { SelfIssuedIDToken(
+          subject = subjectDid,
+          client_id = req.clientID.toString(),
+          nonce = req.customParameters["nonce"]?.firstOrNull(),
+          expiration = null
+        ).sign() } else { null },
+        state = req.state.toString()
+      )
+    }
+
+    fun postSIOPResponse(req: AuthorizationRequest, resp: SIOPv2Response, mode: CompatibilityMode = CompatibilityMode.OIDC): String {
+      val result = HTTPRequest(HTTPRequest.Method.POST, req.redirectionURI).apply {
+        if(mode == CompatibilityMode.EBSI_WCT) {
+          setHeader("Content-Type", "application/json")
+          query = resp.toEBSIWctJson() // EBSI WCT expects json body with incorrect presentation jwt format
+        } else {
+          query = resp.toFormBody()
+        }
+        followRedirects = false
+      }.also {
+        log.info("Sending SIOP response to {}\n {}", it.uri, it.query)
+      }.send()
+      if(!result.indicatesSuccess() && result.statusCode != 302) {
+        log.error("Got error response from SIOP endpoint: {}: {}", result.statusCode, result.content)
+      }
+      return if(result.statusCode == 302)
+        result.location.toString()
+      else
+        result.content
     }
   }
 }

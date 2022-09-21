@@ -121,8 +121,8 @@ class WCTTest: AnnotationSpec() {
 
     val presentation = Custodian.getService().createPresentation(listOf(vc!!.encode()), did, expirationDate = null).toCredential() as VerifiablePresentation
 
-    val siopResponse = verifier.vpSvc.getSIOPResponseFor(siopReqMod, did, listOf(presentation))
-    val result = verifier.vpSvc.postSIOPResponse(siopReqMod, siopResponse, CompatibilityMode.EBSI_WCT)
+    val siopResponse = OIDC4VPService.getSIOPResponseFor(siopReqMod, did, listOf(presentation))
+    val result = OIDC4VPService.postSIOPResponse(siopReqMod, siopResponse, CompatibilityMode.EBSI_WCT)
     (JSONParser(-1).parse(result) as JSONObject).get("result") shouldBe true
   }
 

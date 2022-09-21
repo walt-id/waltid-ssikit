@@ -87,7 +87,7 @@ class OIDC4VCTest : AnnotationSpec() {
             nonce = Nonce(),
             presentation_definition = OIDCTestProvider.TEST_PRESENTATION_DEFINITION
         )
-        val resp = testProvider.vpSvc.getSIOPResponseFor(req, SUBJECT_DID, listOf(presentation))
+        val resp = OIDC4VPService.getSIOPResponseFor(req, SUBJECT_DID, listOf(presentation))
 
         resp.presentation_submission?.definition_id shouldBe OIDCTestProvider.TEST_PRESENTATION_DEFINITION.id
         resp.presentation_submission?.descriptor_map?.get(0)?.path shouldBe "$"
@@ -95,7 +95,7 @@ class OIDC4VCTest : AnnotationSpec() {
         resp.presentation_submission?.descriptor_map?.get(0)?.path_nested?.path shouldBe "$.verifiableCredential[0]"
         resp.presentation_submission?.descriptor_map?.get(0)?.path_nested?.format shouldBe "ldp_vc"
 
-        val result = testProvider.vpSvc.postSIOPResponse(req, resp)
+        val result = OIDC4VPService.postSIOPResponse(req, resp)
         result.trim() shouldBe resp.toFormBody() // test service returns siop response
     }
 
@@ -109,7 +109,7 @@ class OIDC4VCTest : AnnotationSpec() {
             nonce = Nonce(),
             presentation_definition = OIDCTestProvider.TEST_PRESENTATION_DEFINITION
         )
-        val resp = testProvider.vpSvc.getSIOPResponseFor(req, SUBJECT_DID, listOf(presentation))
+        val resp = OIDC4VPService.getSIOPResponseFor(req, SUBJECT_DID, listOf(presentation))
 
         resp.presentation_submission?.definition_id shouldBe OIDCTestProvider.TEST_PRESENTATION_DEFINITION.id
         resp.presentation_submission?.descriptor_map?.get(0)?.path shouldBe "$"
@@ -117,7 +117,7 @@ class OIDC4VCTest : AnnotationSpec() {
         resp.presentation_submission?.descriptor_map?.get(0)?.path_nested?.path shouldBe "$.verifiableCredential[0]"
         resp.presentation_submission?.descriptor_map?.get(0)?.path_nested?.format shouldBe "jwt_vc"
 
-        val result = testProvider.vpSvc.postSIOPResponse(req, resp)
+        val result = OIDC4VPService.postSIOPResponse(req, resp)
         result.trim() shouldBe resp.toFormBody() // test service returns siop response
     }
 
@@ -131,7 +131,7 @@ class OIDC4VCTest : AnnotationSpec() {
             nonce = Nonce(),
             presentation_definition = OIDCTestProvider.TEST_PRESENTATION_DEFINITION
         )
-        val resp = testProvider.vpSvc.getSIOPResponseFor(req, SUBJECT_DID, listOf(presentation, presentation))
+        val resp = OIDC4VPService.getSIOPResponseFor(req, SUBJECT_DID, listOf(presentation, presentation))
 
         resp.presentation_submission?.definition_id shouldBe OIDCTestProvider.TEST_PRESENTATION_DEFINITION.id
         resp.presentation_submission?.descriptor_map!! shouldHaveSize 2
@@ -144,7 +144,7 @@ class OIDC4VCTest : AnnotationSpec() {
         resp.presentation_submission?.descriptor_map?.get(1)?.path_nested?.path shouldBe "$[1].verifiableCredential[0]"
         resp.presentation_submission?.descriptor_map?.get(1)?.path_nested?.format shouldBe "ldp_vc"
 
-        val result = testProvider.vpSvc.postSIOPResponse(req, resp)
+        val result = OIDC4VPService.postSIOPResponse(req, resp)
         result.trim() shouldBe resp.toFormBody() // test service returns siop response
     }
 
@@ -158,7 +158,7 @@ class OIDC4VCTest : AnnotationSpec() {
             nonce = Nonce(),
             presentation_definition = OIDCTestProvider.TEST_PRESENTATION_DEFINITION
         )
-        val resp = testProvider.vpSvc.getSIOPResponseFor(req, SUBJECT_DID, listOf(presentation, presentation))
+        val resp = OIDC4VPService.getSIOPResponseFor(req, SUBJECT_DID, listOf(presentation, presentation))
 
         resp.presentation_submission?.definition_id shouldBe OIDCTestProvider.TEST_PRESENTATION_DEFINITION.id
         resp.presentation_submission?.descriptor_map!! shouldHaveSize 2
@@ -171,7 +171,7 @@ class OIDC4VCTest : AnnotationSpec() {
         resp.presentation_submission?.descriptor_map?.get(1)?.path_nested?.path shouldBe "$[1].verifiableCredential[0]"
         resp.presentation_submission?.descriptor_map?.get(1)?.path_nested?.format shouldBe "jwt_vc"
 
-        val result = testProvider.vpSvc.postSIOPResponse(req, resp)
+        val result = OIDC4VPService.postSIOPResponse(req, resp)
         result.trim() shouldBe resp.toFormBody() // test service returns siop response
     }
 

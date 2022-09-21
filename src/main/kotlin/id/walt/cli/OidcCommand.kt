@@ -275,17 +275,16 @@ class OidcVerificationRespondCommand: CliktCommand(name = "present", help = "Cre
   val mode: CompatibilityMode by option("-m", "--mode", help = "Request body mode [oidc|ebsi_wct]").enum<CompatibilityMode>().default(CompatibilityMode.OIDC)
 
   override fun run() {
-    val verifier = OIDCProvider("", "")
     val req = OIDC4VPService.parseOIDC4VPRequestUri(URI.create(authUrl))
     val nonce = req.getCustomParameter("nonce")?.firstOrNull()
     val vp = Custodian.getService().createPresentation(credentialIds.map { Custodian.getService().getCredential(it)!!.encode() }, did, challenge = nonce, expirationDate = null).toCredential() as VerifiablePresentation
-    val resp = verifier.vpSvc.getSIOPResponseFor(req!!, did, listOf(vp))
+    val resp = OIDC4VPService.getSIOPResponseFor(req!!, did, listOf(vp))
     println("Presentation response:")
     println(resp.toFormParams().prettyPrint())
 
     println()
     if(setOf(ResponseMode.FORM_POST, ResponseMode("post")).contains(req.responseMode)) { // "post" or "form_post"
-      val result = verifier.vpSvc.postSIOPResponse(req, resp, mode)
+      val result = OIDC4VPService.postSIOPResponse(req, resp, mode)
       println()
       println("Response:")
       println(result)
