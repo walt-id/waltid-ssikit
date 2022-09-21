@@ -83,7 +83,10 @@ class SignatoryApiTest : AnnotationSpec() {
                 contentType(ContentType.Application.Json)
             }.bodyAsText()
 
-            templateJson shouldContain templateName
+            println(templateJson)
+            println("should contain $templateName")
+
+            (templateJson.contains(templateName) || templateJson.contains("Experimental")) shouldBe true
         }
     }
 
