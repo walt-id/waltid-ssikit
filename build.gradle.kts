@@ -30,8 +30,8 @@ dependencies {
     implementation("com.github.multiformats:java-multibase:v1.1.0")
     implementation("com.microsoft.azure:azure-keyvault:1.2.6")
     implementation("com.microsoft.azure:azure-client-authentication:1.7.14")
-    implementation("com.nimbusds:nimbus-jose-jwt:9.23")
-    implementation("com.nimbusds:oauth2-oidc-sdk:9.37.2")
+    implementation("com.nimbusds:nimbus-jose-jwt:9.24.4")
+    implementation("com.nimbusds:oauth2-oidc-sdk:9.43.1")
 
     implementation("org.bouncycastle:bcprov-jdk15to18:1.71")
     implementation("org.bouncycastle:bcpkix-jdk15to18:1.71")
