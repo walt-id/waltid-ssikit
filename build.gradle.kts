@@ -60,8 +60,8 @@ dependencies {
     implementation("com.zaxxer:HikariCP:5.0.1")
 
     // CLI
-    implementation("com.github.ajalt.clikt:clikt-jvm:3.4.2")
-    implementation("com.github.ajalt.clikt:clikt:3.4.2")
+    implementation("com.github.ajalt.clikt:clikt-jvm:3.5.0")
+    implementation("com.github.ajalt.clikt:clikt:3.5.0")
 
     // Misc
     implementation("commons-io:commons-io:2.11.0")
