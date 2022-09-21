@@ -1,19 +1,17 @@
 package id.walt.services.essif
 
-import com.beust.klaxon.Klaxon
+import com.nimbusds.openid.connect.sdk.Nonce
 import id.walt.crypto.KeyAlgorithm
 import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
 import id.walt.model.oidc.CredentialClaim
 import id.walt.model.oidc.OIDCProvider
-import id.walt.model.oidc.SIOPv2Request
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
 import id.walt.services.essif.didebsi.DidEbsiService
 import id.walt.services.essif.didebsi.EBSI_ENV_URL
 import id.walt.services.key.KeyService
 import id.walt.services.oidc.CompatibilityMode
-import id.walt.services.oidc.OIDC4CIService
 import id.walt.services.oidc.OIDC4VPService
 import id.walt.services.oidc.OIDCUtils
 import id.walt.test.RESOURCES_PATH
@@ -25,7 +23,6 @@ import io.kotest.core.annotation.EnabledCondition
 import io.kotest.core.annotation.EnabledIf
 import io.kotest.core.spec.Spec
 import io.kotest.core.spec.style.AnnotationSpec
-import io.kotest.extensions.system.SystemEnvironmentTestListener
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import net.minidev.json.JSONObject
@@ -105,23 +102,27 @@ class WCTTest: AnnotationSpec() {
 
     val verifier = OIDCProvider("ebsi wct issuer", "$EBSI_WCT_ENV/conformance/v1/verifier-mock")
 
-    val siopReq = verifier.vpSvc.fetchSIOPv2Request()
+    val siopReq = verifier.vpSvc.fetchOIDC4VPRequest()
     siopReq shouldNotBe null
 
-    val redirectUri = URI.create(siopReq!!.redirect_uri)
+    val redirectUri = siopReq!!.redirectionURI
     val ebsiEnvOverride = URI.create(EBSI_WCT_ENV)
-    val siopReqMod = SIOPv2Request(
-      redirect_uri = URI(ebsiEnvOverride.scheme, ebsiEnvOverride.authority, redirectUri.path, redirectUri.query, redirectUri.fragment).toString(),
-      response_mode = siopReq!!.response_mode,
-      nonce = siopReq!!.nonce,
-      claims = siopReq!!.claims,
-      state = siopReq!!.state
+    val claims = OIDCUtils.getVCClaims(siopReq) // legacy spec
+
+    val siopReqMod = OIDC4VPService.createOIDC4VPRequest(
+      siopReq.requestURI,
+      redirect_uri = URI(ebsiEnvOverride.scheme, ebsiEnvOverride.authority, redirectUri.path, redirectUri.query, redirectUri.fragment),
+      nonce = siopReq.getCustomParameter("nonce")?.firstOrNull()?.let { Nonce(it) } ?: Nonce(),
+      response_type = siopReq.responseType,
+      response_mode = siopReq.responseMode,
+      presentation_definition = claims.vp_token?.presentation_definition,
+      state = siopReq.state
     )
 
     val presentation = Custodian.getService().createPresentation(listOf(vc!!.encode()), did, expirationDate = null).toCredential() as VerifiablePresentation
 
-    val siopResponse = verifier.vpSvc.getSIOPResponseFor(siopReqMod!!, did, listOf(presentation))
-    val result = verifier.vpSvc.postSIOPResponse(siopReqMod, siopResponse, CompatibilityMode.EBSI_WCT)
+    val siopResponse = OIDC4VPService.getSIOPResponseFor(siopReqMod, did, listOf(presentation))
+    val result = OIDC4VPService.postSIOPResponse(siopReqMod, siopResponse, CompatibilityMode.EBSI_WCT)
     (JSONParser(-1).parse(result) as JSONObject).get("result") shouldBe true
   }
 

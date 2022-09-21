@@ -15,6 +15,7 @@ import net.minidev.json.JSONObject
 import net.minidev.json.parser.JSONParser
 import java.io.StringReader
 import java.net.URI
+import java.net.URL
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.util.regex.Pattern
@@ -51,7 +52,7 @@ object OIDCUtils {
       }
     }
 
-  fun fromVpToken(vp_token: String): List<VerifiablePresentation>? {
+  fun fromVpToken(vp_token: String): List<VerifiablePresentation> {
     if(vp_token.trim().startsWith('[')) {
       return Klaxon().parseJsonArray(StringReader(vp_token)).map {
         when(it) {
