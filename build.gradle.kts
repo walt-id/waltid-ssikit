@@ -94,7 +94,7 @@ dependencies {
     implementation("id.walt.servicematrix:WaltID-ServiceMatrix:1.1.1")
 
     // Kotlin
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.6.21")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.7.10")
 
     // Testing
     //testImplementation(kotlin("test-junit"))
