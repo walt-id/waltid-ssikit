@@ -56,7 +56,7 @@ dependencies {
     //implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
 
     // DB
-    implementation("org.xerial:sqlite-jdbc:3.36.0.3")
+    implementation("org.xerial:sqlite-jdbc:3.39.3.0")
     implementation("com.zaxxer:HikariCP:5.0.1")
 
     // CLI
