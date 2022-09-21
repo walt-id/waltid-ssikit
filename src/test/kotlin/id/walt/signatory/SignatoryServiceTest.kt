@@ -27,8 +27,8 @@ class SignatoryServiceTest : StringSpec({
 
     val did = DidService.create(DidMethod.key)
 
-    "VerifiableId ld-proof" {
-
+    "Issue and verify: VerifiableId (LD-Proof)" {
+        println("ISSUING CREDENTIAL...")
         val vc = signatory.issue(
             "VerifiableId", ProofConfig(
                 subjectDid = did,
@@ -38,37 +38,48 @@ class SignatoryServiceTest : StringSpec({
             )
         )
 
+        println("VC:")
         println(vc)
 
+        println("Running Checks...")
         vc shouldContain "VerifiableId"
         vc shouldContain "0904008084H"
         vc shouldContain "Jane DOE"
         (vc.toCredential() as VerifiableId).issued shouldBe "2020-11-03T00:00:00Z"
 
+        println("VERIFYING VC")
         JsonLdCredentialService.getService().verifyVc(vc) shouldBe true
     }
 
-    "VerifiableId jwt-proof" {
+    "Issue and verify: VerifiableId (JWT-Proof)" {
+        println("ISSUING CREDENTIAL...")
         val jwtStr = signatory.issue(
-            "VerifiableId",
-            ProofConfig(subjectDid = did, issuerDid = did, proofType = ProofType.JWT)
+            "VerifiableId", ProofConfig(
+                subjectDid = did,
+                issuerDid = did,
+                proofType = ProofType.JWT
+            )
         )
 
+        println("VC:")
         println(jwtStr)
 
         val jwt = SignedJWT.parse(jwtStr)
 
         println(jwt.serialize())
 
+        println("Running Checks...")
         "EdDSA" shouldBe jwt.header.algorithm.name
         did shouldBe jwt.header.keyID
         did shouldBe jwt.jwtClaimsSet.claims["iss"]
         did shouldBe jwt.jwtClaimsSet.claims["sub"]
 
+        println("VERIFYING VC")
         JwtService.getService().verify(jwtStr) shouldBe true
     }
 
-    "VerifiableDiploma ld-proof" {
+    "Issue and verify: VerifiableDiploma (LD-Proof)" {
+        println("ISSUING CREDENTIAL...")
         val vc = signatory.issue(
             "VerifiableDiploma", ProofConfig(
                 subjectDid = did,
@@ -78,32 +89,39 @@ class SignatoryServiceTest : StringSpec({
             )
         )
 
+        println("VC:")
         println(vc)
 
+        println("Running Checks...")
         vc shouldContain "VerifiableDiploma"
         vc shouldContain "Leaston University"
         vc shouldContain "MASTERS LAW, ECONOMICS AND MANAGEMENT"
         (vc.toCredential() as VerifiableDiploma).issued shouldBe "2020-11-03T00:00:00Z"
 
+        println("VERIFYING VC")
         JsonLdCredentialService.getService().verifyVc(vc) shouldBe true
     }
 
-    "VerifiableDiploma jwt-proof" {
+    "Issue and verify: VerifiableDiploma (JWT-Proof)" {
+        println("ISSUING CREDENTIAL...")
         val jwtStr = signatory.issue(
             "VerifiableDiploma", ProofConfig(subjectDid = did, issuerDid = did, proofType = ProofType.JWT)
         )
 
+        println("VC:")
         println(jwtStr)
 
         val jwt = SignedJWT.parse(jwtStr)
 
         println(jwt.serialize())
 
+        println("Running Checks...")
         "EdDSA" shouldBe jwt.header.algorithm.name
         did shouldBe jwt.header.keyID
         did shouldBe jwt.jwtClaimsSet.claims["iss"]
         did shouldBe jwt.jwtClaimsSet.claims["sub"]
 
+        println("VERIFYING VC")
         JwtService.getService().verify(jwtStr) shouldBe true
     }
 
