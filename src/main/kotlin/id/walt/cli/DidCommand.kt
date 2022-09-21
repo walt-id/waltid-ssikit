@@ -85,13 +85,11 @@ class CreateDidCommand : CliktCommand(
             dest!!.writeText(encodedDid)
         }
 
-        when (didMethod) {
-            web -> echo(
-                "\nInstall this did:web at: https://$didWebDomain/.well-known/${
-                    didWebPath?.replace(":", "/") ?: ""
-                }/did.json"
-            )
-        }
+        if (didMethod == web) echo(
+            "\nInstall this did:web at: https://$didWebDomain/.well-known/${
+                didWebPath?.replace(":", "/") ?: ""
+            }/did.json"
+        )
     }
 }
 
