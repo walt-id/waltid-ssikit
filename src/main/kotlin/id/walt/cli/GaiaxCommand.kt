@@ -1,11 +1,16 @@
 package id.walt.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
-import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
-import com.github.ajalt.clikt.parameters.types.file
-import java.io.File
+import com.github.ajalt.clikt.parameters.types.path
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import kotlinx.coroutines.runBlocking
+import java.nio.file.Path
+import kotlin.io.path.readText
 
 class GaiaxCommand : CliktCommand(
     name = "gaiax",
@@ -24,7 +29,6 @@ class GaiaxOnboardingCommand : CliktCommand(
         
         """
 ) {
-    val bearerTokenFile: File by argument("BEARER-TOKEN-FILE", help = "File containing the bearer token from EOS").file()
     val did: String by option("-d", "--did", help = "DID to be onboarded").required()
 
     override fun run() {
@@ -34,6 +38,34 @@ class GaiaxOnboardingCommand : CliktCommand(
         //GaiaxClient.onboard(did, bearerTokenFile.readText().replace("\n", ""))
 
         echo("Gaia-X onboarding for DID $did was performed successfully.")
+    }
+}
+
+class GaiaxGenerateParticipantCredentialCommand : CliktCommand(
+    name = "generate-participant",
+    help = "Generate the Compliance Credential (ParticipantCredential VC) from a Self Description."
+) {
+
+    private val selfDescriptionPath: Path by option("-s", "--self-description", help = "Self Description to canonize, hash and sign").path(mustExist = true, mustBeReadable = true).required()
+    private val saveFile: Path? by option("-f", help = "Optionally specify output file").path()
+    override fun run() {
+        val client = HttpClient(CIO)
+
+        val sdText = selfDescriptionPath.readText()
+        echo("Generating ParticipantCredential from \"$selfDescriptionPath\"...")
+
+        val complianceCredential = runBlocking {
+            client.post("https://compliance.lab.gaia-x.eu/api/v2206/sign") {
+                setBody(sdText)
+            }.bodyAsText()
+        }
+
+        echo("Compliance credential:")
+        echo(complianceCredential)
+
+        if (saveFile != null) {
+            echo("Saving to \"$saveFile\"...")
+        }
     }
 }
 
