@@ -68,10 +68,10 @@ dependencies {
     implementation("io.minio:minio:8.4.3")
 
     // HTTP
-    implementation("io.ktor:ktor-client-core:2.0.2")
-    implementation("io.ktor:ktor-client-cio:2.0.2")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:2.0.2")
-    implementation("io.ktor:ktor-client-logging:2.0.2")
+    implementation("io.ktor:ktor-client-core:2.1.1")
+    implementation("io.ktor:ktor-client-cio:2.1.1")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.1.1")
+    implementation("io.ktor:ktor-client-logging:2.1.1")
     implementation("io.github.rybalkinsd:kohttp:0.12.0")
 
     // REST
