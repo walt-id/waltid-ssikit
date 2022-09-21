@@ -4,7 +4,13 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.path
+import id.walt.model.gaiax.GaiaxCredentialGroup
+import id.walt.model.gaiax.ParticipantVerificationResult
+import id.walt.vclib.credentials.gaiax.n.LegalPerson
+import id.walt.vclib.credentials.gaiax.n.ParticipantCredential
+import id.walt.vclib.model.toCredential
 import io.ktor.client.*
+import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -49,13 +55,11 @@ class GaiaxGenerateParticipantCredentialCommand : CliktCommand(
     private val selfDescriptionPath: Path by option("-s", "--self-description", help = "Self Description to canonize, hash and sign").path(mustExist = true, mustBeReadable = true).required()
     private val saveFile: Path? by option("-f", help = "Optionally specify output file").path()
     override fun run() {
-        val client = HttpClient(CIO)
-
         val sdText = selfDescriptionPath.readText()
         echo("Generating ParticipantCredential from \"$selfDescriptionPath\"...")
 
         val complianceCredential = runBlocking {
-            client.post("https://compliance.lab.gaia-x.eu/api/v2206/sign") {
+            HttpClient(CIO).post("https://compliance.lab.gaia-x.eu/api/v2206/sign") {
                 setBody(sdText)
             }.bodyAsText()
         }
@@ -66,6 +70,31 @@ class GaiaxGenerateParticipantCredentialCommand : CliktCommand(
         if (saveFile != null) {
             echo("Saving to \"$saveFile\"...")
         }
+    }
+}
+
+class GaiaxVerifyCredentialGroupCommand : CliktCommand(
+    name = "verify",
+    help = "Validate a Participant Self Descriptor Gaia-X Credential Group"
+) {
+
+    private val selfDescriptionPath: Path by option("-s", "--self-description", help = "Existing Self Description").path(mustExist = true, mustBeReadable = true).required()
+    private val participantCredentialPath: Path by option("-p", "--participant", help = "Participant Credential").path(mustExist = true, mustBeReadable = true).required()
+    override fun run() {
+        echo("Creating Credential Group...")
+        val credentialGroup = GaiaxCredentialGroup(
+            complianceCredential = selfDescriptionPath.readText().toCredential() as ParticipantCredential,
+            selfDescriptionCredential = participantCredentialPath.readText().toCredential() as LegalPerson
+        )
+
+        val verificationResult = runBlocking {
+            HttpClient(CIO).post("https://compliance.lab.gaia-x.eu/api/v2206/participant/verify/raw") {
+                setBody(credentialGroup)
+            }.body<ParticipantVerificationResult>()
+        }
+
+        echo("Verification:")
+        echo(verificationResult.toString())
     }
 }
 
