@@ -43,7 +43,7 @@ dependencies {
     implementation("com.google.guava:guava:31.1-jre")
 
     // VC
-    implementation("id.walt:waltid-ssikit-vclib:1.22.0")
+    implementation("id.walt:waltid-ssikit-vclib:1.23.0")
 
     // JSON
     implementation("org.json:json:20220320")
