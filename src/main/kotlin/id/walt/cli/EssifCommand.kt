@@ -205,10 +205,6 @@ class EssifTirCommand : CliktCommand(
     override fun run() {}
 }
 
-fun getIssuerHelper(did: String, raw: Boolean) = when (raw) { 
-    true -> TrustedIssuerClient.getIssuerRaw(did).prettyPrint()
-    else -> TrustedIssuerClient.getIssuer(did).encodePretty()
-}
 
 class EssifTirGetIssuerCommand : CliktCommand(
     name = "get",
@@ -218,6 +214,11 @@ class EssifTirGetIssuerCommand : CliktCommand(
 ) {
     val did: String by option("-d", "--did", help = "DID of the issuer.").required()
     val raw by option("--raw", "-r").flag("--typed", "-t", default = false)
+
+    fun getIssuerHelper(did: String, raw: Boolean) = when (raw) {
+        true -> TrustedIssuerClient.getIssuerRaw(did).prettyPrint()
+        else -> TrustedIssuerClient.getIssuer(did).encodePretty()
+    }
 
     override fun run() {
         echo("Getting issuer with DID \"$did\"...")
