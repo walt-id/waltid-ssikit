@@ -91,7 +91,7 @@ dependencies {
     implementation("com.sksamuel.hoplite:hoplite-hikaricp:2.6.2")
 
     // Service-Matrix
-    implementation("id.walt.servicematrix:WaltID-ServiceMatrix:1.1.1")
+    implementation("id.walt.servicematrix:WaltID-ServiceMatrix:1.1.2")
 
     // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.7.10")
