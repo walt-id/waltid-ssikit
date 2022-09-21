@@ -1,7 +1,6 @@
 package id.walt.essif
 
 import com.beust.klaxon.Klaxon
-import com.nimbusds.jose.shaded.json.JSONObject
 import com.nimbusds.jwt.SignedJWT
 import id.walt.common.readEssif
 import id.walt.common.urlEncode
@@ -70,7 +69,8 @@ class VcIssuanceFlowTest : AnnotationSpec() {
         val clientId = urlEncode(didAuthReq.client_id)
         val scope = urlEncode(didAuthReq.scope)
 
-        val uri = "openid://?response_type=id_token&client_id=$clientId&scope=$scope&request=$authRequestJwt&nonce=${didAuthReq.nonce}"
+        val uri =
+            "openid://?response_type=id_token&client_id=$clientId&scope=$scope&request=$authRequestJwt&nonce=${didAuthReq.nonce}"
         return OidcRequest(uri, didAuthReq.callback)
     }
 
@@ -114,10 +114,10 @@ class VcIssuanceFlowTest : AnnotationSpec() {
 
         val jwt = SignedJWT.parse(idToken)
 
-        val claims = jwt.jwtClaimsSet.getClaim("claims") as JSONObject
+        val claims = jwt.jwtClaimsSet.getClaim("claims") as Map<String, Any>
 
-        val vp = claims.get("verified_claims")
-        val encryption_key = claims.get("encryption_key") as JSONObject
+        val vp = claims["verified_claims"]
+        val encryption_key = claims["encryption_key"] as Map<String, Any>
 
         // TODO verify VP
         println(vp)
