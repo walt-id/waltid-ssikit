@@ -6,6 +6,7 @@ import id.walt.auditor.dynamic.DynamicPolicy
 import id.walt.auditor.dynamic.DynamicPolicyArg
 import id.walt.common.deepMerge
 import id.walt.common.resolveContent
+import id.walt.model.dif.PresentationDefinition
 import id.walt.model.oidc.VpTokenClaim
 import id.walt.services.context.WaltIdContext
 import id.walt.services.hkvstore.HKVKey
@@ -142,7 +143,7 @@ object PolicyRegistry {
         register(GaiaxTrustedPolicy::class, "Verify Gaiax trusted fields")
         register(GaiaxSDPolicy::class, "Verify Gaiax SD fields")
         register(ChallengePolicy::class, ChallengePolicyArg::class, "Verify challenge")
-        register(VpTokenClaimPolicy::class, VpTokenClaim::class, "Verify verifiable presentation by OIDC/SIOPv2 VP token claim")
+        register(PresentationDefinitionPolicy::class, PresentationDefinition::class, "Verify that verifiable presentation complies with presentation definition")
         register(CredentialStatusPolicy::class, "Verify by credential status")
         register(DynamicPolicy::class, DynamicPolicyArg::class, "Verify credential by rego policy")
 

@@ -34,7 +34,7 @@ import java.util.*
 object OIDCTestProvider {
 
   val TEST_CREDENTIAL_CLAIM = CredentialClaim(type = VcTemplateManager.loadTemplate("VerifiableId").credentialSchema!!.id, manifest_id = null)
-  val TEST_VP_CLAIM = VpTokenClaim(PresentationDefinition("1", listOf(InputDescriptor("1", schema = VCSchema(uri = VcTemplateManager.loadTemplate("VerifiableId").credentialSchema!!.id)))))
+  val TEST_PRESENTATION_DEFINITION = PresentationDefinition("1", listOf(InputDescriptor("1", schema = VCSchema(uri = VcTemplateManager.loadTemplate("VerifiableId").credentialSchema!!.id))))
   val TEST_REQUEST_URI = "urn:ietf:params:oauth:request_uri:test"
   val TEST_AUTH_CODE = "testcode"
   val TEST_ACCESS_TOKEN = "testtoken"
@@ -46,8 +46,8 @@ object OIDCTestProvider {
     val authReq = AuthorizationRequest.parse(ServletUtils.createHTTPRequest(ctx.req))
     val claims = OIDCUtils.getVCClaims(authReq)
 
-    claims?.credentials shouldNotBe null
-    claims!!.credentials!! shouldContain TEST_CREDENTIAL_CLAIM
+    claims.credentials shouldNotBe null
+    claims.credentials!! shouldContain TEST_CREDENTIAL_CLAIM
     ctx.status(HttpCode.CREATED).json(PushedAuthorizationSuccessResponse(URI(TEST_REQUEST_URI), 3600).toJSONObject())
   }
 
@@ -81,7 +81,6 @@ object OIDCTestProvider {
       ctx.formParamMap().map { Pair(it.key, it.value.first()) }.toMap()
     )
     siopResponse shouldNotBe null
-    siopResponse!!.id_token.verify() shouldBe true
     siopResponse.vp_token shouldNot beEmpty()
     siopResponse.vp_token.forEach { vp ->
       Auditor.getService().verify(vp.encode(), listOf(SignaturePolicy())).valid shouldBe true
