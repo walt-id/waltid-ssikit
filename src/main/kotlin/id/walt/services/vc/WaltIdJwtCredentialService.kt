@@ -56,7 +56,10 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
         val payload = jwtClaimsSet.build().toString()
         log.debug { "Signing: $payload" }
 
-        return jwtService.sign(issuerDid, payload)
+        val signed = jwtService.sign(issuerDid, payload)
+        log.debug { "Payload was signed: $signed" }
+
+        return signed
     }
 
     override fun verifyVc(issuerDid: String, vc: String): Boolean {
