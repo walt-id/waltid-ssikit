@@ -48,9 +48,9 @@ dependencies {
     // JSON
     implementation("org.json:json:20220320")
     implementation("com.beust:klaxon:5.6")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.3")
-    implementation("io.ktor:ktor-client-jackson:2.0.2")
-    implementation("io.ktor:ktor-client-content-negotiation:2.0.2")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.4")
+    implementation("io.ktor:ktor-client-jackson:2.1.1")
+    implementation("io.ktor:ktor-client-content-negotiation:2.1.1")
     implementation("com.jayway.jsonpath:json-path:2.7.0")
 
     //implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
