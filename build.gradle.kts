@@ -86,9 +86,9 @@ dependencies {
     implementation("io.github.microutils:kotlin-logging-jvm:2.1.23")
 
     // Config
-    implementation("com.sksamuel.hoplite:hoplite-core:2.1.5")
-    implementation("com.sksamuel.hoplite:hoplite-yaml:2.1.5")
-    implementation("com.sksamuel.hoplite:hoplite-hikaricp:2.1.5")
+    implementation("com.sksamuel.hoplite:hoplite-core:2.6.2")
+    implementation("com.sksamuel.hoplite:hoplite-yaml:2.6.2")
+    implementation("com.sksamuel.hoplite:hoplite-hikaricp:2.6.2")
 
     // Service-Matrix
     implementation("id.walt.servicematrix:WaltID-ServiceMatrix:1.1.1")
