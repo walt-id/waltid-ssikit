@@ -80,8 +80,8 @@ dependencies {
     // implementation("io.javalin:javalin-test-tools:4.5.0")
 
     // Logging
-    implementation("org.slf4j:slf4j-api:2.0.0-alpha6")
-    implementation("org.slf4j:slf4j-simple:2.0.0-alpha6")
+    implementation("org.slf4j:slf4j-api:2.0.0")
+    implementation("org.slf4j:slf4j-simple:2.0.0")
 
     implementation("io.github.microutils:kotlin-logging-jvm:2.1.23")
 
