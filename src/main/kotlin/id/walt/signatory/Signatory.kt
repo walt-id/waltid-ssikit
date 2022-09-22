@@ -40,7 +40,8 @@ data class ProofConfig(
     @Json(serializeNull = false) val validDate: Instant? = null, // valid date from json-input or current system time if null
     @Json(serializeNull = false) val expirationDate: Instant? = null,
     @Json(serializeNull = false) val dataProviderIdentifier: String? = null, // may be used for mapping data-sets from a custom data-provider
-    @Json(serializeNull = false) val ldSignatureType: LdSignatureType? = null
+    @Json(serializeNull = false) val ldSignatureType: LdSignatureType? = null,
+    @Json(serializeNull = false) val creator: String? = issuerDid
 )
 
 data class SignatoryConfig(
@@ -109,7 +110,8 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
                 validDate = config.validDate ?: Instant.now(),
                 expirationDate = config.expirationDate,
                 dataProviderIdentifier = config.dataProviderIdentifier,
-                ldSignatureType = config.ldSignatureType ?: defaultLdSignatureByDidMethod(config.issuerDid)
+                ldSignatureType = config.ldSignatureType ?: defaultLdSignatureByDidMethod(config.issuerDid),
+                creator = config.creator
             )
 
         val selectedDataProvider = dataProvider ?: DataProviderRegistry.getProvider(vcTemplate::class)

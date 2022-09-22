@@ -118,10 +118,10 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
 
         val signer = selectLdSigner(config, key)
 
-        signer.creator = URI.create(config.issuerDid)
+        signer.creator = config.creator?.let { URI.create(it) }
         signer.created = Date() // Use the current date
-        signer.domain = config.domain ?: domain
-        signer.nonce = config.nonce ?: nonce
+        signer.domain = config.domain
+        signer.nonce = config.nonce
         config.issuerVerificationMethod?.let { signer.verificationMethod = URI.create(config.issuerVerificationMethod) }
         signer.proofPurpose = config.proofPurpose
 
