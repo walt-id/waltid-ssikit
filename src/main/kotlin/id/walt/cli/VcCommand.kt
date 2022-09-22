@@ -71,6 +71,7 @@ class VcIssueCommand : CliktCommand(
         "--interactive", help = "Interactively prompt for VC data to fill in"
     ).flag(default = false)
     val ldSignatureType: LdSignatureType? by option("--ld-signature", "--ld-sig").enum<LdSignatureType>()
+    val ecosystem: String? by option("--ecosystem", help = "Specify ecosystem, for specific defaults of issuing parameters e.g.: gaiax. iota, essi")
 
     private val signatory = Signatory.getService()
 
@@ -87,7 +88,8 @@ class VcIssueCommand : CliktCommand(
                 issuerVerificationMethod = issuerVerificationMethod,
                 proofType = proofType,
                 proofPurpose = proofPurpose,
-                ldSignatureType = ldSignatureType
+                ldSignatureType = ldSignatureType,
+                creator = if(ecosystem == "gaiax") null else issuerDid
             ), when (interactive) {
                 true -> CLIDataProvider
                 else -> null
