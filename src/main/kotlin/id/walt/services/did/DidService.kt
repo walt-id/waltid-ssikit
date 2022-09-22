@@ -78,7 +78,9 @@ object DidService {
     }
 
     fun load(did: String): Did = load(DidUrl.from(did))
-    fun load(didUrl: DidUrl): Did = Did.decode(loadDid(didUrl.did)!!)!!
+    fun load(didUrl: DidUrl): Did = Did.decode(
+        loadDid(didUrl.did) ?: throw IllegalArgumentException("DID $didUrl not found.")
+    ) ?: throw IllegalArgumentException("DID $didUrl not found.")
 
     fun resolveDidEbsiRaw(did: String): String = runBlocking {
         log.debug { "Resolving DID $did" }

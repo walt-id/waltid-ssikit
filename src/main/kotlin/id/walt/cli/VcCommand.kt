@@ -81,20 +81,28 @@ class VcIssueCommand : CliktCommand(
         // Loading VC template
         log.debug { "Loading credential template: $template" }
 
-        val vcStr = signatory.issue(
-            template, ProofConfig(
-                issuerDid = issuerDid,
-                subjectDid = subjectDid,
-                issuerVerificationMethod = issuerVerificationMethod,
-                proofType = proofType,
-                proofPurpose = proofPurpose,
-                ldSignatureType = ldSignatureType,
-                creator = if(ecosystem == "gaiax") null else issuerDid
-            ), when (interactive) {
-                true -> CLIDataProvider
-                else -> null
+        val vcStr: String = runCatching {
+            signatory.issue(
+                template, ProofConfig(
+                    issuerDid = issuerDid,
+                    subjectDid = subjectDid,
+                    issuerVerificationMethod = issuerVerificationMethod,
+                    proofType = proofType,
+                    proofPurpose = proofPurpose,
+                    ldSignatureType = ldSignatureType,
+                    creator = if (ecosystem == "gaiax") null else issuerDid
+                ), when (interactive) {
+                    true -> CLIDataProvider
+                    else -> null
+                }
+            )
+        }.getOrElse { err ->
+            when (err) {
+                is IllegalArgumentException -> echo("Illegal argument: ${err.message}")
+                else -> echo("Error: ${err.message}")
             }
-        )
+            return
+        }
 
         echo("\nResults:\n")
 
