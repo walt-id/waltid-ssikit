@@ -28,6 +28,8 @@ class CustodianPresentTest : StringSpec() {
         ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
 
         did = DidService.create(DidMethod.key)
+        val didDoc = DidService.load(did)
+        val vm = didDoc.assertionMethod!!.first()!!.id
 
         println("Generated: $did")
 
@@ -35,7 +37,7 @@ class CustodianPresentTest : StringSpec() {
             "VerifiableDiploma", ProofConfig(
                 issuerDid = did,
                 subjectDid = did,
-                issuerVerificationMethod = "Ed25519Signature2018", proofType = ProofType.LD_PROOF
+                issuerVerificationMethod = vm, proofType = ProofType.LD_PROOF
             )
         )
 
@@ -43,7 +45,7 @@ class CustodianPresentTest : StringSpec() {
             "VerifiableDiploma", ProofConfig(
                 issuerDid = did,
                 subjectDid = did,
-                issuerVerificationMethod = "Ed25519Signature2018", proofType = ProofType.JWT
+                issuerVerificationMethod = vm, proofType = ProofType.JWT
             )
         )
     }

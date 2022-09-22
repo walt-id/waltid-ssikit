@@ -4,11 +4,11 @@ class DidKey(
   context: List<String>,
   id: String,
   verificationMethod: List<VerificationMethod>? = null,
-  authentication: List<String>? = null,
-  assertionMethod: List<String>? = null,
-  capabilityDelegation: List<String>? = null,
-  capabilityInvocation: List<String>? = null,
-  keyAgreement: List<String>? = null,
+  authentication: List<VerificationMethod>? = null,
+  assertionMethod: List<VerificationMethod>? = null,
+  capabilityDelegation: List<VerificationMethod>? = null,
+  capabilityInvocation: List<VerificationMethod>? = null,
+  keyAgreement: List<VerificationMethod>? = null,
   serviceEndpoint: List<ServiceEndpoint>? = null
 ) : Did(
   context,
@@ -24,10 +24,10 @@ class DidKey(
   constructor(context: String,
               id: String,
               verificationMethod: List<VerificationMethod>? = null,
-              authentication: List<String>? = null,
-              assertionMethod: List<String>? = null,
-              capabilityDelegation: List<String>? = null,
-              capabilityInvocation: List<String>? = null,
-              keyAgreement: List<String>? = null,
+              authentication: List<VerificationMethod>? = null,
+              assertionMethod: List<VerificationMethod>? = null,
+              capabilityDelegation: List<VerificationMethod>? = null,
+              capabilityInvocation: List<VerificationMethod>? = null,
+              keyAgreement: List<VerificationMethod>? = null,
               serviceEndpoint: List<ServiceEndpoint>? = null) : this(listOf(context), id, verificationMethod, authentication, assertionMethod, capabilityDelegation, capabilityInvocation, keyAgreement, serviceEndpoint)
 }

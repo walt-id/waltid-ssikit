@@ -2,6 +2,7 @@ package id.walt.services.vc
 
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
+import id.walt.services.did.DidService
 import id.walt.services.jwt.JwtService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
@@ -56,10 +57,8 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
         val payload = jwtClaimsSet.build().toString()
         log.debug { "Signing: $payload" }
 
-        val signed = jwtService.sign(issuerDid, payload)
-        log.debug { "Payload was signed: $signed" }
-
-        return signed
+        val vm = config.issuerVerificationMethod ?: issuerDid
+        return jwtService.sign(vm, payload)
     }
 
     override fun verifyVc(issuerDid: String, vc: String): Boolean {
@@ -101,7 +100,8 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
             proofType = ProofType.JWT,
             nonce = challenge,
             credentialId = id,
-            expirationDate = expirationDate
+            expirationDate = expirationDate,
+            issuerVerificationMethod = DidService.getAuthenticationMethods(holderDid)!!.first().id
         )
         val vpReqStr = VerifiablePresentation(holder = holderDid, verifiableCredential = vcs.map { it.toCredential() }).encode()
 

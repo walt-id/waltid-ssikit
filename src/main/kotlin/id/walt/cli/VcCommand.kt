@@ -17,6 +17,7 @@ import id.walt.auditor.dynamic.DynamicPolicyArg
 import id.walt.auditor.dynamic.PolicyEngineType
 import id.walt.common.prettyPrint
 import id.walt.common.resolveContent
+import id.walt.crypto.LdSignatureType
 import id.walt.custodian.Custodian
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
@@ -64,11 +65,12 @@ class VcIssueCommand : CliktCommand(
     val proofType: ProofType by option("-y", "--proof-type", help = "Proof type to be used [LD_PROOF]").enum<ProofType>()
         .default(ProofType.LD_PROOF)
     val proofPurpose: String by option(
-        "-p", "--proof-purpose", help = "Proof purpose to be used [assertion]"
-    ).default("assertion")
+        "-p", "--proof-purpose", help = "Proof purpose to be used [assertionMethod]"
+    ).default("assertionMethod")
     val interactive: Boolean by option(
         "--interactive", help = "Interactively prompt for VC data to fill in"
     ).flag(default = false)
+    val ldSignatureType: LdSignatureType? by option("--ld-signature", "--ld-sig").enum<LdSignatureType>()
 
     private val signatory = Signatory.getService()
 
@@ -84,7 +86,8 @@ class VcIssueCommand : CliktCommand(
                 subjectDid = subjectDid,
                 issuerVerificationMethod = issuerVerificationMethod,
                 proofType = proofType,
-                proofPurpose = proofPurpose
+                proofPurpose = proofPurpose,
+                ldSignatureType = ldSignatureType
             ), when (interactive) {
                 true -> CLIDataProvider
                 else -> null

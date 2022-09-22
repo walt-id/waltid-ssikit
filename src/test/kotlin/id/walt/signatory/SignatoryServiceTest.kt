@@ -26,6 +26,8 @@ class SignatoryServiceTest : StringSpec({
     val signatory = Signatory.getService()
 
     val did = DidService.create(DidMethod.key)
+    val didDoc = DidService.load(did)
+    val vm = didDoc.verificationMethod!!.first().id
 
     "Issue and verify: VerifiableId (LD-Proof)" {
         println("ISSUING CREDENTIAL...")
@@ -34,7 +36,7 @@ class SignatoryServiceTest : StringSpec({
                 subjectDid = did,
                 issuerDid = did,
                 issueDate = LocalDateTime.of(2020, 11, 3, 0, 0).toInstant(ZoneOffset.UTC),
-                issuerVerificationMethod = "Ed25519Signature2018"
+                issuerVerificationMethod = vm
             )
         )
 
@@ -47,8 +49,7 @@ class SignatoryServiceTest : StringSpec({
         vc shouldContain "Jane DOE"
         (vc.toCredential() as VerifiableId).issued shouldBe "2020-11-03T00:00:00Z"
 
-        println("VERIFYING VC")
-        JsonLdCredentialService.getService().verifyVc(vc) shouldBe true
+        JsonLdCredentialService.getService().verify(vc).verified shouldBe true
     }
 
     "Issue and verify: VerifiableId (JWT-Proof)" {
@@ -70,7 +71,7 @@ class SignatoryServiceTest : StringSpec({
 
         println("Running Checks...")
         "EdDSA" shouldBe jwt.header.algorithm.name
-        did shouldBe jwt.header.keyID
+        vm shouldBe jwt.header.keyID
         did shouldBe jwt.jwtClaimsSet.claims["iss"]
         did shouldBe jwt.jwtClaimsSet.claims["sub"]
 
@@ -85,7 +86,7 @@ class SignatoryServiceTest : StringSpec({
                 subjectDid = did,
                 issuerDid = did,
                 issueDate = LocalDateTime.of(2020, 11, 3, 0, 0).toInstant(ZoneOffset.UTC),
-                issuerVerificationMethod = "Ed25519Signature2018"
+                issuerVerificationMethod = vm
             )
         )
 
@@ -98,8 +99,7 @@ class SignatoryServiceTest : StringSpec({
         vc shouldContain "MASTERS LAW, ECONOMICS AND MANAGEMENT"
         (vc.toCredential() as VerifiableDiploma).issued shouldBe "2020-11-03T00:00:00Z"
 
-        println("VERIFYING VC")
-        JsonLdCredentialService.getService().verifyVc(vc) shouldBe true
+        JsonLdCredentialService.getService().verify(vc).verified shouldBe true
     }
 
     "Issue and verify: VerifiableDiploma (JWT-Proof)" {
@@ -117,7 +117,7 @@ class SignatoryServiceTest : StringSpec({
 
         println("Running Checks...")
         "EdDSA" shouldBe jwt.header.algorithm.name
-        did shouldBe jwt.header.keyID
+        vm shouldBe jwt.header.keyID
         did shouldBe jwt.jwtClaimsSet.claims["iss"]
         did shouldBe jwt.jwtClaimsSet.claims["sub"]
 

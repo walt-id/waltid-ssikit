@@ -30,7 +30,7 @@ open class EnterpriseWalletService : WaltIdService() {
     fun constructAuthResponseJwt(did: String, redirectUri: String, nonce: String): String {
 
         //val kid = "$did#key-1"
-        val kid = DidService.load(did).authentication!![0]
+        val kid = DidService.load(did).authentication!![0].id
         val key = keyService.toJwk(did, jwkKeyId = kid)
         val thumbprint = key.computeThumbprint().toString()
 

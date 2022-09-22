@@ -8,6 +8,8 @@ import com.nimbusds.jose.jwk.gen.OctetKeyPairGenerator
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import id.walt.crypto.*
+import id.walt.model.DidUrl
+import id.walt.services.did.DidService
 import id.walt.services.key.KeyService
 import mu.KotlinLogging
 import java.security.Provider
@@ -132,10 +134,16 @@ open class WaltIdJwtService : JwtService() {
     override fun verify(token: String): Boolean {
         log.debug { "Verifying token:  $token" }
         val jwt = SignedJWT.parse(token)
+        val issuer = jwt.jwtClaimsSet.issuer
+        var keyAlias = jwt.header.keyID
+        if(DidUrl.isDidUrl(issuer)) { // issuer is a valid DID
+            if(!DidService.importKeys(issuer)) {
+                throw Exception("Could not resolve verification keys")
+            }
+            keyAlias = keyAlias.orEmpty().ifEmpty { issuer }
+        }
 
-        //TODO: key might also be entirely extracted out of the header",
-        // Maybe resolve DID (verification method)
-        val verifierKey = keyService.load(jwt.header.keyID)
+        val verifierKey = keyService.load(keyAlias)
         if (verifierKey == null) {
             log.error { "Could not load verifying key for $jwt.header.keyID" }
             throw Exception("Could not load verifying key for $jwt.header.keyID")

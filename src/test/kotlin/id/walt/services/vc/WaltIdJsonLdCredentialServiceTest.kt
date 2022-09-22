@@ -7,6 +7,7 @@ import id.walt.services.did.DidService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
+import id.walt.signatory.dataproviders.DefaultDataProvider
 import id.walt.test.RESOURCES_PATH
 import id.walt.test.getTemplate
 import id.walt.test.readCredOffer
@@ -57,7 +58,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
         vp.proof?.domain shouldBe "domain.com"
         vp.proof?.nonce shouldBe "nonce"
         vp.proof?.proofPurpose shouldBe "authentication"
-        vp.proof?.verificationMethod shouldBe DidService.load(holderDid).authentication?.get(0)
+        vp.proof?.verificationMethod shouldBe DidService.load(holderDid).authentication?.get(0)?.id
 
         val vpVerified = credentialService.verify(vpStr)
         vpVerified.verified shouldBe true
@@ -132,8 +133,8 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
         val vp = credentialService.present(listOf(vc), vcSigned.subject!!, domain, challenge, null)
         println("Presentation generated: $vp")
 
-        val vpVerified = credentialService.verifyVp(vp)
-        vpVerified shouldBe true
+        val vpVerified = credentialService.verify(vp)
+        vpVerified.verified shouldBe true
 
     }
 
@@ -141,75 +142,61 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
     // TODO: consider methods below, as old data-model might be used
     @Test
     fun signCredentialECDSASecp256k1Test() {
-
-        val credOffer = readCredOffer("WorkHistory")
-
         val domain = "example.com"
         val nonce: String? = null
+        val proof = ProofConfig(subjectDid = issuerWebDid, issuerDid = issuerWebDid, nonce = nonce, domain = domain)
+        val credOffer = DefaultDataProvider.populate(readCredOffer("WorkHistory").toCredential(), proof).encode()
 
-        val vc = credentialService.sign(credOffer, ProofConfig(issuerDid = issuerWebDid, nonce = nonce, domain = domain))
+        val vc = credentialService.sign(credOffer, proof)
         vc shouldNotBe null
         println("Credential generated: $vc")
 
-        val vcVerified = credentialService.verifyVc(issuerWebDid, vc)
-        vcVerified shouldBe true
+        val vcVerified = credentialService.verify(vc)
+        vcVerified.verified shouldBe true
     }
 
     @Test
     fun signCredentialEd25519k1Test() {
-
-        val credOffer = readCredOffer("WorkHistory")
-
         val domain = "example.com"
         val nonce: String? = null
 
-        val vc = credentialService.sign(credOffer, ProofConfig(issuerDid = issuerKeyDid, nonce = nonce, domain = domain))
+        val proof = ProofConfig(subjectDid = issuerKeyDid, issuerDid = issuerKeyDid, nonce = nonce, domain = domain)
+        val credOffer = DefaultDataProvider.populate(readCredOffer("WorkHistory").toCredential(), proof).encode()
+
+        val vc = credentialService.sign(credOffer, proof)
         vc shouldNotBe null
         println("Credential generated: $vc")
 
-        val vcVerified = credentialService.verifyVc(issuerKeyDid, vc)
-        vcVerified shouldBe true
+        val vcVerified = credentialService.verify(vc)
+        vcVerified.verified shouldBe true
     }
 
     @Test
     fun signEuropassCredentialTest() {
 
-        val credOffer = readCredOffer("VerifiableAttestation-Europass")
-
         val domain = "example.com"
         val nonce: String? = null
+        val proof = ProofConfig(subjectDid = issuerKeyDid, issuerDid = issuerKeyDid, nonce = nonce, domain = domain)
+        val credOffer = DefaultDataProvider.populate(readCredOffer("VerifiableAttestation-Europass").toCredential(), proof).encode()
 
-        val vc = credentialService.sign(credOffer, ProofConfig(issuerDid = issuerKeyDid, nonce = nonce, domain = domain))
+        val vc = credentialService.sign(credOffer, proof)
         vc shouldNotBe null
         println("Credential generated: $vc")
 
-        val vcVerified = credentialService.verifyVc(issuerKeyDid, vc)
-        vcVerified shouldBe true
-    }
-
-
-    @Test
-    fun signCredentialWrongValidationKeyTest() {
-
-        val credOffer = readCredOffer("WorkHistory")
-
-        val vc = credentialService.sign(credOffer, ProofConfig(issuerDid = issuerKeyDid))
-
-        vc shouldNotBe null
-        println("Credential generated: $vc")
-
-        val vcVerified = credentialService.verifyVc(anotherKeyDid, vc)
-        vcVerified shouldBe false
+        val vcVerified = credentialService.verify(vc)
+        vcVerified.verified shouldBe true
     }
 
     @Test
     fun testValidateSchemaTsr() {
+        val issuerKeyDidDoc = DidService.load(issuerKeyDid)
+        val issuerKeyDidVM = issuerKeyDidDoc.assertionMethod!!.first()!!.id
         val noSchemaVc = VerifiableId().encode()
         val validVc = Signatory.getService().issue("VerifiableId", ProofConfig(
             issuerDid = issuerKeyDid,
             subjectDid = subjectKeyDid,
-            proofPurpose = "testing",
-            issuerVerificationMethod = "testing",
+            proofPurpose = "assertionMethod",
+            issuerVerificationMethod = issuerKeyDidVM,
             proofType = ProofType.LD_PROOF))
         val invalidDataVc = Signatory.getService().issue("VerifiableId", ProofConfig(
             issuerDid = issuerKeyDid,

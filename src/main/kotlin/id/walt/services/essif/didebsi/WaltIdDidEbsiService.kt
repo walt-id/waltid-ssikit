@@ -37,7 +37,7 @@ open class WaltIdDidEbsiService : DidEbsiService() {
 
     // TODO: Verify all params are properly defined according to EBSI expectations => https://ec.europa.eu/cefdigital/wiki/pages/viewpage.action?spaceKey=EBP&title=DID+Registry+Smart+Contract
     override fun buildUnsignedTransactionParams(did: String, ethKeyAlias: String?): List<InsertDidDocumentParams> {
-        val didDocumentString = Klaxon().toJsonString(DidService.load(did))
+        val didDocumentString = DidService.load(did).encode()
 
         val from = keyService.getEthereumAddress(ethKeyAlias ?: did)
         val identifier = Numeric.toHexString(did.toByteArray())

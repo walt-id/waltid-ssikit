@@ -306,7 +306,7 @@ object UserWalletService {
             null
         )
 
-        val authKeyId = DidService.load(holderDid).authentication!![0]
+        val authKeyId = DidService.load(holderDid).authentication!![0].id
 
         val encodedVp = Klaxon().toJsonString(vpReq)
         // val vp = credentialService.sign(holderDid, encodedVp, null, null, authKeyId, "assertionMethod")
