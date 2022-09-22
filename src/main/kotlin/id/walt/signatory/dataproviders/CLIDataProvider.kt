@@ -313,6 +313,7 @@ object LegalPersonCredentialCliDataProvider : SignatoryDataProvider {
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
         return (template as LegalPerson).apply {
             id = prompt("Id", "https://delta-dao.com/.well-known/participant.json")
+            issuer = prompt("Issuer", "https://delta-dao.com/.well-known/participant.json")
 
             println()
             println("> Subject information")
