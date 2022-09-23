@@ -3,8 +3,8 @@ package id.walt.model
 import com.beust.klaxon.Json
 import id.walt.vclib.model.Proof
 
-class DidEbsi(
-    context: List<String>,
+class DidIota(
+    context: List<String> = listOf("https://www.w3.org/ns/did/v1"),
     id: String,
     verificationMethod: List<VerificationMethod>? = null,
     authentication: List<VerificationMethod>? = null,

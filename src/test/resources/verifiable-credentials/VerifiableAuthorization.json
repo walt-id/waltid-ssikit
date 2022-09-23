@@ -1,24 +1,24 @@
 {
   "@context" : [ "https://www.w3.org/2018/credentials/v1" ],
   "credentialSubject" : {
-    "id" : "did:ebsi:zvRGx6vm7ANVkzaMQGyLGjZ",
+    "id" : "did:ebsi:zkj7imP3niDPWANqWAJ6nLp",
     "naturalPerson" : {
       "did" : "did:example:00001111"
     }
   },
-  "id" : "urn:uuid:6830ff8a-e5ef-4b62-a4f5-6d7d45a6f130",
-  "issued" : "2022-06-15T10:09:55.890428406Z",
-  "issuer" : "did:ebsi:zvRGx6vm7ANVkzaMQGyLGjZ",
-  "validFrom" : "2022-06-15T10:09:55.890431550Z",
-  "issuanceDate" : "2022-06-15T10:09:55.890431550Z",
+  "id" : "urn:uuid:39204226-d48c-4715-9331-b1bc7b71c1b5",
+  "issued" : "2022-08-30T11:09:34.390674245Z",
+  "issuer" : "did:ebsi:zkj7imP3niDPWANqWAJ6nLp",
+  "validFrom" : "2022-08-30T11:09:34.390677685Z",
+  "issuanceDate" : "2022-08-30T11:09:34.390677685Z",
   "type" : [ "VerifiableCredential", "VerifiableAuthorization" ],
   "proof" : {
     "type" : "EcdsaSecp256k1Signature2019",
-    "creator" : "did:ebsi:zvRGx6vm7ANVkzaMQGyLGjZ",
-    "created" : "2022-06-15T10:09:56Z",
+    "creator" : "did:ebsi:zkj7imP3niDPWANqWAJ6nLp",
+    "created" : "2022-08-30T11:09:34Z",
     "domain" : "https://api.preprod.ebsi.eu",
-    "nonce" : "4f361918-0bf9-4d49-b5d4-5febd4eb5095",
+    "nonce" : "9dafc141-961b-4437-b3f3-9f4457d0d0da",
     "proofPurpose" : "assertion",
-    "jws" : "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFUzI1NksifQ..j8FFQbEFQUQpIv9dKLk77gzBxbjeMib0HzbhR7xhlIZFhd0yGyIS7KxGaiOUzQ13oSWszMqKaZlC2SCsn5QM_A"
+    "jws" : "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFUzI1NksifQ..EaEQJH-dbB_41D-aIvRh_HygGg0bwKJPTN5P9dbUBOmbqYRe5p5fNKilD1h1_o7iFtcLpEdiFJENqSp1bjRKLA"
   }
 }

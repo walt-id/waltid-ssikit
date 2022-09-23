@@ -3,6 +3,7 @@ package id.walt.services.did
 import com.beust.klaxon.Klaxon
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.LdVerificationKeyType.*
+import id.walt.model.Did
 import id.walt.model.DidMethod
 import id.walt.model.DidUrl
 import id.walt.model.DidWeb
@@ -13,6 +14,7 @@ import io.kotest.core.spec.Spec
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.core.test.TestCase
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import kotlin.time.ExperimentalTime
 
 
@@ -20,22 +22,19 @@ import kotlin.time.ExperimentalTime
 class DidWebTest : StringSpec({
 
     "create did:web RSA" {
-        val did = createAndTestDidWeb(KeyAlgorithm.RSA)
-        val didDoc = DidService.load(did)
+        val didDoc = createAndTestDidWeb(KeyAlgorithm.RSA)
         println(didDoc.encodePretty())
         didDoc.verificationMethod!![0].type shouldBe RsaVerificationKey2018.name
     }
 
     "create did:web Secp256k1" {
-        val did = createAndTestDidWeb(KeyAlgorithm.ECDSA_Secp256k1)
-        val didDoc = DidService.load(did)
+        val didDoc = createAndTestDidWeb(KeyAlgorithm.ECDSA_Secp256k1)
         println(didDoc.encodePretty())
         didDoc.verificationMethod!![0].type shouldBe EcdsaSecp256k1VerificationKey2019.name
     }
 
     "create did:web Ed25519" {
-        val did = createAndTestDidWeb(KeyAlgorithm.EdDSA_Ed25519)
-        val didDoc = DidService.load(did)
+        val didDoc = createAndTestDidWeb(KeyAlgorithm.EdDSA_Ed25519)
         println(didDoc.encodePretty())
         didDoc.verificationMethod!![0].type shouldBe Ed25519VerificationKey2019.name
     }
@@ -51,9 +50,8 @@ class DidWebTest : StringSpec({
 
     "create did:web custom domain and path" {
         val options = DidService.DidWebOptions("example.com", "api/users/1234")
-        val did = createAndTestDidWeb(KeyAlgorithm.RSA, options)
-        did shouldBe "did:web:example.com:api:users:1234"
-        val didDoc = DidService.load(did)
+        val didDoc = createAndTestDidWeb(KeyAlgorithm.RSA, options)
+        didDoc.id shouldBe "did:web:example.com:api:users:1234"
         println(didDoc.encodePretty())
     }
 
@@ -106,12 +104,18 @@ class DidWebTest : StringSpec({
     }
 }
 
-fun createAndTestDidWeb(keyAlgorith: KeyAlgorithm, options: DidService.DidWebOptions? = null): String {
-    val keyId = KeyService.getService().generate(keyAlgorith).id
+fun createAndTestDidWeb(keyAlgorith: KeyAlgorithm, options: DidService.DidWebOptions? = null): Did {
+    val keyService = KeyService.getService()
+    val keyId = keyService.generate(keyAlgorith).id
     val did = DidService.create(DidMethod.web, keyId, options)
     println(did)
     val didUrl = DidUrl.from(did)
     did shouldBe didUrl.did
     "web" shouldBe didUrl.method
-    return did
+    val didDoc = DidService.load(did)
+    didDoc.verificationMethod shouldNotBe null
+    didDoc.verificationMethod!!.forEach { vm ->
+        keyService.hasKey(vm.id)
+    }
+    return didDoc
 }

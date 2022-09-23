@@ -36,6 +36,13 @@ class DidServiceTest : AnnotationSpec() {
 
     val ds = DidService
 
+    private fun assertVerificationMethodAliases(did: Did) {
+        did.verificationMethod shouldNotBe null
+        did.verificationMethod!!.forEach { vm ->
+            keyService.hasKey(vm.id) shouldBe true
+        }
+    }
+
     @Test
     fun parseDidUrlTest() {
 
@@ -60,6 +67,8 @@ class DidServiceTest : AnnotationSpec() {
         val resolvedDid = ds.resolve(did)
         val encoded = Klaxon().toJsonString(resolvedDid)
         println(encoded)
+
+        assertVerificationMethodAliases(resolvedDid)
     }
 
     @Test
@@ -77,6 +86,8 @@ class DidServiceTest : AnnotationSpec() {
         val resolvedDid = ds.resolve(did)
         val encoded = Klaxon().toJsonString(resolvedDid)
         println(encoded)
+
+        assertVerificationMethodAliases(resolvedDid)
     }
 
     @Test
@@ -94,6 +105,8 @@ class DidServiceTest : AnnotationSpec() {
         val resolvedDid = ds.resolve(did)
         val encoded = Klaxon().toJsonString(resolvedDid)
         println(encoded)
+
+        assertVerificationMethodAliases(resolvedDid)
     }
 
     @Test
@@ -134,8 +147,10 @@ class DidServiceTest : AnnotationSpec() {
         val encoded = Klaxon().toJsonString(resolvedDid)
         println(encoded)
 
+        assertVerificationMethodAliases(resolvedDid)
+
         // Update
-        resolvedDid.assertionMethod = listOf(resolvedDid.verificationMethod!!.get(0).id)
+        resolvedDid.assertionMethod = listOf(resolvedDid.verificationMethod!!.get(0).toReference())
         ds.updateDidEbsi(resolvedDid)
         val encodedUpd = Klaxon().toJsonString(resolvedDid)
         println(encodedUpd)
@@ -239,5 +254,48 @@ class DidServiceTest : AnnotationSpec() {
                 }
             }
         }
+    }
+
+    @Test
+    fun testParseAndSerializeDidWithMixedVerificationRelationships() {
+        val didDoc = "{\n" +
+            "  \"@context\": \"https://www.w3.org/ns/did/v1\",\n" +
+            "  \"id\": \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k\",\n" +
+            "  \"verificationMethod\": [\n" +
+            "    {\n" +
+            "      \"id\": \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k#keys-1\",\n" +
+            "      \"type\": \"Secp256k1VerificationKey2018\",\n" +
+            "      \"controller\": \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k\",\n" +
+            "      \"publicKeyJwk\": {\n" +
+            "        \"kty\": \"EC\",\n" +
+            "        \"crv\": \"secp256k1\",\n" +
+            "        \"x\": \"Iq579rsuHREntinz8NnlG_e8gDjNNQt4DbChj9mBt7Y\",\n" +
+            "        \"y\": \"V-Tr9B56eA7H_UJN9q6dyMWlYkQkHFvtvDDlE66LXkk\"\n" +
+            "      }\n" +
+            "    }\n" +
+            "  ],\n" +
+            "  \"capabilityInvocation\": [\n" +
+            "    \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k#keys-1\",\n" +
+            "    {\n" +
+            "      \"id\": \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k#keys-1\",\n" +
+            "      \"type\": \"Secp256k1VerificationKey2018\",\n" +
+            "      \"controller\": \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k\",\n" +
+            "      \"publicKeyJwk\": {\n" +
+            "        \"kty\": \"EC\",\n" +
+            "        \"crv\": \"secp256k1\",\n" +
+            "        \"x\": \"Iq579rsuHREntinz8NnlG_e8gDjNNQt4DbChj9mBt7Y\",\n" +
+            "        \"y\": \"V-Tr9B56eA7H_UJN9q6dyMWlYkQkHFvtvDDlE66LXkk\"\n" +
+            "      }\n" +
+            "    }\n" +
+            "  ]\n" +
+            "}"
+
+        val did = Did.decode(didDoc)
+        did!!.capabilityInvocation!!.size shouldBe 2
+        did.capabilityInvocation!![0].isReference shouldBe true
+        did.capabilityInvocation!![1].isReference shouldBe false
+
+        val reEncodedDid = did.encode()
+        reEncodedDid shouldMatchJson didDoc
     }
 }

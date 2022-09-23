@@ -13,7 +13,10 @@
   "validFrom": "2020-11-03T00:00:00Z",
   "credentialSubject": {
     "id": "did:ebsi:22AhtW7XMssv7es4YcQTdV2MCM3c8b1VsiBfi5weHsjcCY9o",
-    "identifier": "0904008084H",
+    "identifier": {
+      "schemeID": "http://example.com/",
+      "value": "0904008084H"
+    },
     "givenNames": "Jane",
     "familyName": "DOE",
     "dateOfBirth": "1993-04-08T00:00:00Z",

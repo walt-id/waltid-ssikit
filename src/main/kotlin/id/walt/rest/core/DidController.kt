@@ -92,7 +92,7 @@ object DidController {
         .json<String>("200") { it.description("DID document of the resolved DID") }
 
     fun import(ctx: Context) {
-        DidService.importDidAndKey(ctx.body())
+        DidService.importDidAndKeys(ctx.body())
         ctx.status(201)
     }
 

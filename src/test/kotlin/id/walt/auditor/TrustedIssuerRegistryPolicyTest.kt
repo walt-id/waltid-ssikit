@@ -32,6 +32,8 @@ class TrustedIssuerRegistryPolicyTest : AnnotationSpec() {
         val signatory = Signatory.getService()
 
         did = DidService.create(DidMethod.key)
+        val didDoc = DidService.load(did)
+        val vm = didDoc.assertionMethod!!.first()!!.id
 
         println("Generated: $did")
 
@@ -39,7 +41,7 @@ class TrustedIssuerRegistryPolicyTest : AnnotationSpec() {
             "VerifiableDiploma", ProofConfig(
                 issuerDid = did,
                 subjectDid = did,
-                issuerVerificationMethod = "Ed25519Signature2018",
+                issuerVerificationMethod = vm,
                 proofPurpose = "Testing",
                 proofType = ProofType.LD_PROOF
             )

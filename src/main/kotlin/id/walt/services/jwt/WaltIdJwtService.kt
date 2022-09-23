@@ -8,6 +8,8 @@ import com.nimbusds.jose.jwk.gen.OctetKeyPairGenerator
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import id.walt.crypto.*
+import id.walt.model.DidUrl
+import id.walt.services.did.DidService
 import id.walt.services.key.KeyService
 import mu.KotlinLogging
 import java.security.Provider
@@ -62,6 +64,20 @@ open class WaltIdJwtService : JwtService() {
         return jweObj.payload.toString()
     }
 
+    private fun createSignedJwt(jwsAlgorithm: JWSAlgorithm, keyAlias: String, claimsSet: JWTClaimsSet) =
+        SignedJWT(
+            /* header = */ JWSHeader
+                .Builder(jwsAlgorithm)
+                .keyID(keyAlias)
+                .type(JOSEObjectType.JWT)
+                .build()
+            ,
+            /* claimsSet = */ claimsSet
+        ).also {
+            // log.debug { "Created signable JWT object: $it." }
+        }
+
+
     override fun sign(
         keyAlias: String, // verification method
         payload: String?
@@ -84,19 +100,21 @@ open class WaltIdJwtService : JwtService() {
             throw Exception("Could not load signing key for $keyAlias")
         }
 
-        val jwt = when (issuerKey.algorithm) {
+        log.debug { "Signing JWT with algorithm: ${issuerKey.algorithm}" }
+
+
+
+        val signedJwt = when (issuerKey.algorithm) {
             KeyAlgorithm.EdDSA_Ed25519 -> {
-                var jwt = SignedJWT(
-                    JWSHeader.Builder(JWSAlgorithm.EdDSA).keyID(keyAlias).type(JOSEObjectType.JWT).build(), claimsSet
-                )
+                val jwt = createSignedJwt(JWSAlgorithm.EdDSA, keyAlias, claimsSet)
+
                 //jwt.sign(Ed25519Signer(issuerKey.toOctetKeyPair()))
                 jwt.sign(LdSigner.JwsLtSigner(issuerKey.keyId))
                 jwt
             }
             KeyAlgorithm.ECDSA_Secp256k1 -> {
-                val jwt = SignedJWT(
-                    JWSHeader.Builder(JWSAlgorithm.ES256K).keyID(keyAlias).type(JOSEObjectType.JWT).build(), claimsSet
-                )
+                val jwt = createSignedJwt(JWSAlgorithm.ES256K, keyAlias, claimsSet)
+
                 val jwsSigner = ECDSASigner(ECPrivateKeyHandle(issuerKey.keyId), Curve.SECP256K1)
                 jwsSigner.jcaContext.provider = provider
                 jwt.sign(jwsSigner)
@@ -108,18 +126,24 @@ open class WaltIdJwtService : JwtService() {
             }
         }
 
-        val jwtStr = jwt.serialize()
-        log.debug { "Signed JWT:  $jwtStr" }
-        return jwtStr
+        val serializedSignedJwt = signedJwt.serialize()
+        log.debug { "Signed JWT:  $serializedSignedJwt" }
+        return serializedSignedJwt
     }
 
     override fun verify(token: String): Boolean {
         log.debug { "Verifying token:  $token" }
         val jwt = SignedJWT.parse(token)
+        val issuer = jwt.jwtClaimsSet.issuer
+        var keyAlias = jwt.header.keyID
+        if(DidUrl.isDidUrl(issuer)) { // issuer is a valid DID
+            if(!DidService.importKeys(issuer)) {
+                throw Exception("Could not resolve verification keys")
+            }
+            keyAlias = keyAlias.orEmpty().ifEmpty { issuer }
+        }
 
-        //TODO: key might also be entirely extracted out of the header",
-        // Maybe resolve DID (verification method)
-        val verifierKey = keyService.load(jwt.header.keyID)
+        val verifierKey = keyService.load(keyAlias)
         if (verifierKey == null) {
             log.error { "Could not load verifying key for $jwt.header.keyID" }
             throw Exception("Could not load verifying key for $jwt.header.keyID")
