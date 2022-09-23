@@ -8,6 +8,7 @@ import id.walt.common.deepMerge
 import id.walt.common.resolveContent
 import id.walt.model.dif.PresentationDefinition
 import id.walt.model.oidc.VpTokenClaim
+import id.walt.services.context.ContextManager
 import id.walt.services.context.WaltIdContext
 import id.walt.services.hkvstore.HKVKey
 import org.web3j.abi.datatypes.Bool
@@ -53,7 +54,14 @@ class DynamicPolicyFactory(val dynamicPolicyArg: DynamicPolicyArg, val immutable
 
 object PolicyRegistry {
     const val SAVED_POLICY_ROOT_KEY = "policies"
-    private val policies = LinkedHashMap<String, PolicyFactory<*, *>>()
+    private var _policies: LinkedHashMap<String, PolicyFactory<*, *>>? = null
+    private val policies: LinkedHashMap<String, PolicyFactory<*, *>>
+        get() {
+            if(_policies == null) {
+                initPolicies()
+            }
+            return _policies!!
+        }
     val defaultPolicyId: String
 
     fun <P : ParameterizedVerificationPolicy<A>, A: Any> register(policy: KClass<P>, argType: KClass<A>, description: String? = null)
@@ -107,7 +115,7 @@ object PolicyRegistry {
                 false -> dynPolArg.policy
             }
             val dynPolArgMod = DynamicPolicyArg(name, dynPolArg.description, dynPolArg.input, policyContent, dynPolArg.dataPath, dynPolArg.policyQuery, dynPolArg.policyEngine, dynPolArg.applyToVC, dynPolArg.applyToVP)
-            WaltIdContext.hkvStore.put(HKVKey(SAVED_POLICY_ROOT_KEY, name), Klaxon().toJsonString(dynPolArgMod))
+            ContextManager.hkvStore.put(HKVKey(SAVED_POLICY_ROOT_KEY, name), Klaxon().toJsonString(dynPolArgMod))
             registerSavedPolicy(name, dynPolArgMod)
             return true
         }
@@ -116,21 +124,21 @@ object PolicyRegistry {
 
     fun deleteSavedPolicy(name: String): Boolean {
         if(isMutable(name)) {
-            WaltIdContext.hkvStore.delete(HKVKey(SAVED_POLICY_ROOT_KEY, name))
+            ContextManager.hkvStore.delete(HKVKey(SAVED_POLICY_ROOT_KEY, name))
             policies.remove(name)
             return true
         }
         return false
     }
 
-    fun initSavedPolicies() {
-        WaltIdContext.hkvStore.listChildKeys(HKVKey(SAVED_POLICY_ROOT_KEY)).forEach {
-            registerSavedPolicy(it.name, Klaxon().parse(WaltIdContext.hkvStore.getAsString(it)!!)!!)
+    private fun initSavedPolicies() {
+        ContextManager.hkvStore.listChildKeys(HKVKey(SAVED_POLICY_ROOT_KEY)).forEach {
+            registerSavedPolicy(it.name, Klaxon().parse(ContextManager.hkvStore.getAsString(it)!!)!!)
         }
     }
 
-    init {
-        defaultPolicyId = SignaturePolicy::class.simpleName!!
+    private fun initPolicies() {
+        _policies = linkedMapOf()
         register(SignaturePolicy::class, "Verify by signature")
         register(JsonSchemaPolicy::class, "Verify by JSON schema")
         register(TrustedSchemaRegistryPolicy::class, "Verify by EBSI Trusted Schema Registry")
@@ -160,6 +168,9 @@ object PolicyRegistry {
         initSavedPolicies()
 
         //RegoPolicy(RegoPolicyArg(mapOf(), "")).argument.input
+    }
 
+    init {
+        defaultPolicyId = SignaturePolicy::class.simpleName!!
     }
 }
