@@ -91,7 +91,8 @@ class LdSigner {
 
     }
 
-    abstract class JwsLdSignature<S : SignatureSuite?>(val keyId: KeyId, signatureSuite: S, canonicalizer: Canonicalizer): LdSigner<S>(signatureSuite, null, canonicalizer) {
+    abstract class JwsLdSignature<S : SignatureSuite?>(val keyId: KeyId, signatureSuite: S, canonicalizer: Canonicalizer) :
+        LdSigner<S>(signatureSuite, null, canonicalizer) {
 
         abstract fun getJwsAlgorithm(): JWSAlgorithm
 
@@ -99,7 +100,11 @@ class LdSigner {
 
         open fun createJwsHeader(): JWSHeader {
             val jwsAlg = getJwsAlgorithm()
-            return JWSHeader.Builder(jwsAlg).base64URLEncodePayload(false).criticalParams(setOf("b64")).build()
+            return JWSHeader.Builder(jwsAlg)
+                .base64URLEncodePayload(false)
+                .criticalParams(setOf("b64"))
+                // .x509CertURL()
+                .build()
         }
 
         override fun sign(ldProofBuilder: LdProof.Builder<*>, signingInput: ByteArray?) {
@@ -113,7 +118,8 @@ class LdSigner {
 
     }
 
-    class EcdsaSecp256K1Signature2019(keyId: KeyId) : JwsLdSignature<EcdsaSecp256k1Signature2019SignatureSuite?>(keyId,
+    class EcdsaSecp256K1Signature2019(keyId: KeyId) : JwsLdSignature<EcdsaSecp256k1Signature2019SignatureSuite?>(
+        keyId,
         SignatureSuites.SIGNATURE_SUITE_ECDSASECP256L1SIGNATURE2019, Canonicalizers.CANONICALIZER_URDNA2015CANONICALIZER
     ) {
 
@@ -128,7 +134,8 @@ class LdSigner {
         }
     }
 
-    class Ed25519Signature2018(keyId: KeyId) : JwsLdSignature<Ed25519Signature2018SignatureSuite?>(keyId,
+    class Ed25519Signature2018(keyId: KeyId) : JwsLdSignature<Ed25519Signature2018SignatureSuite?>(
+        keyId,
         SignatureSuites.SIGNATURE_SUITE_ED25519SIGNATURE2018, Canonicalizers.CANONICALIZER_URDNA2015CANONICALIZER
     ) {
 
@@ -141,7 +148,8 @@ class LdSigner {
         }
     }
 
-    class Ed25519Signature2020(keyId: KeyId) : JwsLdSignature<Ed25519Signature2020SignatureSuite?>(keyId,
+    class Ed25519Signature2020(keyId: KeyId) : JwsLdSignature<Ed25519Signature2020SignatureSuite?>(
+        keyId,
         SignatureSuites.SIGNATURE_SUITE_ED25519SIGNATURE2020, Canonicalizers.CANONICALIZER_URDNA2015CANONICALIZER
     ) {
 
@@ -154,7 +162,8 @@ class LdSigner {
         }
     }
 
-    class RsaSignature2018(keyId: KeyId) : JwsLdSignature<RsaSignature2018SignatureSuite?>(keyId,
+    class RsaSignature2018(keyId: KeyId) : JwsLdSignature<RsaSignature2018SignatureSuite?>(
+        keyId,
         SignatureSuites.SIGNATURE_SUITE_RSASIGNATURE2018, Canonicalizers.CANONICALIZER_URDNA2015CANONICALIZER
     ) {
 
@@ -170,14 +179,15 @@ class LdSigner {
         }
     }
 
-    class JsonWebSignature2020(keyId: KeyId) : JwsLdSignature<JsonWebSignature2020SignatureSuite?>(keyId,
+    class JsonWebSignature2020(keyId: KeyId) : JwsLdSignature<JsonWebSignature2020SignatureSuite?>(
+        keyId,
         SignatureSuites.SIGNATURE_SUITE_JSONWEBSIGNATURE2020, Canonicalizers.CANONICALIZER_URDNA2015CANONICALIZER
     ) {
 
         override fun getJwsAlgorithm(): JWSAlgorithm {
             val keyService = KeyService.getService()
             val key = keyService.load(keyId.id)
-            return when(key.algorithm) {
+            return when (key.algorithm) {
                 KeyAlgorithm.RSA -> JWSAlgorithm.PS256
                 KeyAlgorithm.EdDSA_Ed25519 -> JWSAlgorithm.EdDSA
                 KeyAlgorithm.ECDSA_Secp256k1 -> JWSAlgorithm.ES256K
@@ -187,7 +197,7 @@ class LdSigner {
         override fun getJwsSigner(): JWSSigner {
             val keyService = KeyService.getService()
             val key = keyService.load(keyId.id)
-            return when(key.algorithm) {
+            return when (key.algorithm) {
                 KeyAlgorithm.RSA -> RsaSignature2018(keyId).getJwsSigner()
                 KeyAlgorithm.EdDSA_Ed25519 -> Ed25519Signature2018(keyId).getJwsSigner()
                 KeyAlgorithm.ECDSA_Secp256k1 -> EcdsaSecp256K1Signature2019(keyId).getJwsSigner()
@@ -195,7 +205,7 @@ class LdSigner {
         }
     }
 
-    class JcsEd25519Signature2020(val keyId: KeyId): LdSigner<JcsEd25519Signature2020SignatureSuite?>(
+    class JcsEd25519Signature2020(val keyId: KeyId) : LdSigner<JcsEd25519Signature2020SignatureSuite?>(
         SignatureSuites.SIGNATURE_SUITE_JCSED25519SIGNATURE2020, null, Canonicalizers.CANONICALIZER_JCSCANONICALIZER
     ) {
         private val cryptoService = CryptoService.getService()
