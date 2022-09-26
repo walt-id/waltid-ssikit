@@ -17,6 +17,7 @@ import io.ktor.client.statement.*
 import kotlinx.coroutines.runBlocking
 import java.nio.file.Path
 import kotlin.io.path.readText
+import kotlin.io.path.writeText
 
 class GaiaxCommand : CliktCommand(
     name = "gaiax",
@@ -69,6 +70,7 @@ class GaiaxGenerateParticipantCredentialCommand : CliktCommand(
 
         if (saveFile != null) {
             echo("Saving to \"$saveFile\"...")
+            saveFile!!.writeText(complianceCredential)
         }
     }
 }
@@ -120,10 +122,8 @@ class GaiaxDidRegisterCommand : CliktCommand(
 
     override fun run() {
 
-        echo("EBSI ledger registration for DID $did running...\n")
 
         //GaiaxClient.registerDid(did, ethKeyAlias ?: did)
 
-        echo("EBSI ledger registration for DID $did was performed successfully.\nCall command: 'did resolve --did $did' in order to retrieve the DID document from the EBSI ledger.")
     }
 }
