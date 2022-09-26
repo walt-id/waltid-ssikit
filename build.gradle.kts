@@ -30,7 +30,7 @@ dependencies {
     implementation("com.github.multiformats:java-multibase:v1.1.0")
     implementation("com.microsoft.azure:azure-keyvault:1.2.6")
     implementation("com.microsoft.azure:azure-client-authentication:1.7.14")
-    implementation("com.nimbusds:nimbus-jose-jwt:9.24.4")
+    implementation("com.nimbusds:nimbus-jose-jwt:9.25.1")
     implementation("com.nimbusds:oauth2-oidc-sdk:9.43.1")
 
     implementation("org.bouncycastle:bcprov-jdk15to18:1.71")
@@ -65,7 +65,7 @@ dependencies {
 
     // Misc
     implementation("commons-io:commons-io:2.11.0")
-    implementation("io.minio:minio:8.4.3")
+    implementation("io.minio:minio:8.4.4")
 
     // HTTP
     implementation("io.ktor:ktor-client-core:2.1.1")
@@ -80,15 +80,15 @@ dependencies {
     // implementation("io.javalin:javalin-test-tools:4.5.0")
 
     // Logging
-    implementation("org.slf4j:slf4j-api:2.0.0")
+    implementation("org.slf4j:slf4j-api:2.0.1")
     implementation("org.slf4j:slf4j-simple:2.0.0")
 
-    implementation("io.github.microutils:kotlin-logging-jvm:2.1.23")
+    implementation("io.github.microutils:kotlin-logging-jvm:3.0.0")
 
     // Config
-    implementation("com.sksamuel.hoplite:hoplite-core:2.6.2")
-    implementation("com.sksamuel.hoplite:hoplite-yaml:2.6.2")
-    implementation("com.sksamuel.hoplite:hoplite-hikaricp:2.6.2")
+    implementation("com.sksamuel.hoplite:hoplite-core:2.6.3")
+    implementation("com.sksamuel.hoplite:hoplite-yaml:2.6.3")
+    implementation("com.sksamuel.hoplite:hoplite-hikaricp:2.6.3")
 
     // Service-Matrix
     implementation("id.walt.servicematrix:WaltID-ServiceMatrix:1.1.2")
@@ -101,7 +101,7 @@ dependencies {
 
     // Testing
     //testImplementation(kotlin("test-junit"))
-    testImplementation("io.mockk:mockk:1.12.7")
+    testImplementation("io.mockk:mockk:1.12.8")
 
     testImplementation("io.kotest:kotest-runner-junit5:5.4.2")
     testImplementation("io.kotest:kotest-assertions-core:5.4.2")
