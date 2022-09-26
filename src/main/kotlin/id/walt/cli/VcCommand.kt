@@ -19,6 +19,7 @@ import id.walt.common.prettyPrint
 import id.walt.common.resolveContent
 import id.walt.crypto.LdSignatureType
 import id.walt.custodian.Custodian
+import id.walt.signatory.Ecosystem
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
@@ -71,7 +72,9 @@ class VcIssueCommand : CliktCommand(
         "--interactive", help = "Interactively prompt for VC data to fill in"
     ).flag(default = false)
     val ldSignatureType: LdSignatureType? by option("--ld-signature", "--ld-sig").enum<LdSignatureType>()
-    val ecosystem: String? by option("--ecosystem", help = "Specify ecosystem, for specific defaults of issuing parameters e.g.: gaiax. iota, essi")
+    val ecosystem: Ecosystem by option("--ecosystem", help = "Specify ecosystem, for specific defaults of issuing parameters")
+        .enum<Ecosystem>()
+        .default(Ecosystem.DEFAULT)
 
     private val signatory = Signatory.getService()
 
@@ -90,7 +93,8 @@ class VcIssueCommand : CliktCommand(
                     proofType = proofType,
                     proofPurpose = proofPurpose,
                     ldSignatureType = ldSignatureType,
-                    creator = if (ecosystem == "gaiax") null else issuerDid
+                    ecosystem = ecosystem,
+                    creator = if (ecosystem == Ecosystem.GAIAX) null else issuerDid
                 ), when (interactive) {
                     true -> CLIDataProvider
                     else -> null
