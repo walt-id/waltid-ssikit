@@ -12,9 +12,6 @@ import id.walt.crypto.LdSignatureType
 import id.walt.crypto.LdSigner
 import id.walt.services.context.ContextManager
 import id.walt.services.did.DidService
-import id.walt.services.essif.EssifServer.nonce
-import id.walt.services.essif.TrustedIssuerClient.domain
-import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyStoreService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
@@ -46,24 +43,28 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
     }
 
     private fun selectLdSigner(config: ProofConfig, key: Key): info.weboftrust.ldsignatures.signer.LdSigner<*> {
-        return if(config.ldSignatureType != null) {
-            when(config.ldSignatureType) {
+        return if (config.ldSignatureType != null) {
+            when (config.ldSignatureType) {
                 LdSignatureType.EcdsaSecp256k1Signature2019 -> {
                     require(key.algorithm == KeyAlgorithm.ECDSA_Secp256k1) { "Unsupported key algorithm ${key.algorithm} for ld signature type ${config.ldSignatureType}" };
                     LdSigner.EcdsaSecp256K1Signature2019(key.keyId)
                 }
+
                 LdSignatureType.Ed25519Signature2018 -> {
                     require(key.algorithm == KeyAlgorithm.EdDSA_Ed25519) { "Unsupported key algorithm ${key.algorithm} for ld signature type ${config.ldSignatureType}" }
                     LdSigner.Ed25519Signature2018(key.keyId)
                 }
+
                 LdSignatureType.Ed25519Signature2020 -> {
                     require(key.algorithm == KeyAlgorithm.EdDSA_Ed25519) { "Unsupported key algorithm ${key.algorithm} for ld signature type ${config.ldSignatureType}" }
                     LdSigner.Ed25519Signature2020(key.keyId)
                 }
+
                 LdSignatureType.JcsEd25519Signature2020 -> {
                     require(key.algorithm == KeyAlgorithm.EdDSA_Ed25519) { "Unsupported key algorithm ${key.algorithm} for ld signature type ${config.ldSignatureType}" }
                     LdSigner.JcsEd25519Signature2020(key.keyId)
                 }
+
                 LdSignatureType.JsonWebSignature2020 -> LdSigner.JsonWebSignature2020(key.keyId)
                 LdSignatureType.RsaSignature2018 -> {
                     require(key.algorithm == KeyAlgorithm.RSA) { "Unsupported key algorithm ${key.algorithm} for ld signature type ${config.ldSignatureType}" }
@@ -76,27 +77,32 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
     }
 
     private fun selectLdVerifier(ldSignatureType: LdSignatureType, publicKey: Key): LdVerifier<*> {
-        return when(ldSignatureType) {
+        return when (ldSignatureType) {
             LdSignatureType.RsaSignature2018 -> {
                 require(publicKey.algorithm == KeyAlgorithm.RSA) { "Unsupported key algorithm ${publicKey.algorithm} for ld signature type ${ldSignatureType}" }
                 id.walt.crypto.LdVerifier.RsaSignature2018(publicKey)
             }
+
             LdSignatureType.JcsEd25519Signature2020 -> {
                 require(publicKey.algorithm == KeyAlgorithm.EdDSA_Ed25519) { "Unsupported key algorithm ${publicKey.algorithm} for ld signature type ${ldSignatureType}" }
                 id.walt.crypto.LdVerifier.JcsEd25519Signature2020(publicKey)
             }
+
             LdSignatureType.Ed25519Signature2020 -> {
                 require(publicKey.algorithm == KeyAlgorithm.EdDSA_Ed25519) { "Unsupported key algorithm ${publicKey.algorithm} for ld signature type ${ldSignatureType}" }
                 id.walt.crypto.LdVerifier.Ed25519Signature2020(publicKey)
             }
+
             LdSignatureType.Ed25519Signature2018 -> {
                 require(publicKey.algorithm == KeyAlgorithm.EdDSA_Ed25519) { "Unsupported key algorithm ${publicKey.algorithm} for ld signature type ${ldSignatureType}" }
                 id.walt.crypto.LdVerifier.Ed25519Signature2018(publicKey)
             }
+
             LdSignatureType.EcdsaSecp256k1Signature2019 -> {
                 require(publicKey.algorithm == KeyAlgorithm.ECDSA_Secp256k1) { "Unsupported key algorithm ${publicKey.algorithm} for ld signature type ${ldSignatureType}" }
                 id.walt.crypto.LdVerifier.EcdsaSecp256k1Signature2019(publicKey)
             }
+
             LdSignatureType.JsonWebSignature2020 -> id.walt.crypto.LdVerifier.JsonWebSignature2020(publicKey)
         }
     }
@@ -127,10 +133,10 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
 
 
         log.debug { "Signing: $jsonLdObject" }
-        val proof = try {
+        try {
             signer.sign(jsonLdObject)
         } catch (ldExc: JsonLDException) {
-            if(ldExc.code == JsonLdErrorCode.LOADING_REMOTE_CONTEXT_FAILED) {
+            if (ldExc.code == JsonLdErrorCode.LOADING_REMOTE_CONTEXT_FAILED) {
                 // if JSON LD remote context failed to load, retry once
                 log.warn { "JSON LD remote context failed to load, retrying once..." }
                 signer.sign(jsonLdObject)
@@ -139,13 +145,26 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
             }
         }
 
-        // TODO Fix: this hack is needed as, signature-ld encodes type-field as array, which is not correct
-        // return correctProofStructure(proof, jsonCred)
         return jsonLdObject.toJson(true)
 
+        /*val jsonLdObjectMap = jsonLdObject.toMap()
+
+        when (config.ecosystem) {
+            Ecosystem.GAIAX -> {
+                val proofMap = jsonLdObjectMap["proof"] as Map<String, Any>
+                val proof = klaxon.parse<Proof>(klaxon.toJsonString(proofMap))!!
+
+                val prevJWS = proof.jws!!
+                val jwsHeader = prevJWS.split(".").first()
+            }
+
+            else -> {}
+        }
+
+        return klaxon.toJsonString(jsonLdObjectMap)*/
     }
 
-    private fun getVerificationTypeFor(vcOrVp: VerifiableCredential): VerificationType = when(vcOrVp) {
+    private fun getVerificationTypeFor(vcOrVp: VerifiableCredential): VerificationType = when (vcOrVp) {
         is VerifiablePresentation -> VerificationType.VERIFIABLE_PRESENTATION
         else -> VerificationType.VERIFIABLE_CREDENTIAL
     }
@@ -155,7 +174,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
         val issuer = vcObj.issuer ?: throw Exception("No issuer DID found for VC or VP")
         val vm = vcObj.proof?.verificationMethod ?: issuer
 
-        if(!DidService.importKeys(issuer)) {
+        if (!DidService.importKeys(issuer)) {
             throw Exception("Could not resolve verification keys")
         }
 
@@ -179,7 +198,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
         log.debug { "Decoded Json LD object: $jsonLdObject" }
 
         val ldProof = LdProof.getFromJsonLDObject(jsonLdObject)
-        if(ldProof == null) {
+        if (ldProof == null) {
             log.info { "No LD proof found on VC" }
             throw Exception("No LD proof found on VC")
         }
@@ -193,7 +212,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
         val verificatioResult = try {
             verifier.verify(jsonLdObject)
         } catch (ldExc: JsonLDException) {
-            if(ldExc.code == JsonLdErrorCode.LOADING_REMOTE_CONTEXT_FAILED) {
+            if (ldExc.code == JsonLdErrorCode.LOADING_REMOTE_CONTEXT_FAILED) {
                 // if JSON LD remote context failed to load, retry once
                 log.warn { "JSON LD remote context failed to load, retrying once..." }
                 verifier.verify(jsonLdObject)
@@ -295,7 +314,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
         val results = SchemaService.validateSchema(vc.json!!, schema)
         if (!results.valid) {
             log.debug { "Could not validate vc against schema . The validation errors are:" }
-            results.errors?.forEach {  log.debug { it }  }
+            results.errors?.forEach { log.debug { it } }
         }
         return results.valid
     }
