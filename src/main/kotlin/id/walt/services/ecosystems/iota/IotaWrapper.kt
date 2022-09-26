@@ -1,4 +1,4 @@
-package id.walt.services.iota
+package id.walt.services.ecosystems.iota
 
 import jnr.ffi.LibraryLoader
 import jnr.ffi.Pointer

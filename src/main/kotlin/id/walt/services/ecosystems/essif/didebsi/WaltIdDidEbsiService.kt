@@ -1,10 +1,9 @@
-package id.walt.services.essif.didebsi
+package id.walt.services.ecosystems.essif.didebsi
 
-import com.beust.klaxon.Klaxon
 import id.walt.crypto.canonicalize
 import id.walt.services.did.DidService
-import id.walt.services.essif.jsonrpc.InsertDidDocumentParams
-import id.walt.services.essif.jsonrpc.JsonRpcService
+import id.walt.services.ecosystems.essif.jsonrpc.InsertDidDocumentParams
+import id.walt.services.ecosystems.essif.jsonrpc.JsonRpcService
 import id.walt.services.key.KeyService
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
@@ -18,7 +17,7 @@ open class WaltIdDidEbsiService : DidEbsiService() {
 
     companion object {
         private val DID_REGISTRY_JSONRPC =
-            "${EBSI_ENV_URL}/did-registry/v2/jsonrpc" // TODO: make url configurable
+            "$EBSI_ENV_URL/did-registry/v2/jsonrpc" // TODO: make url configurable
     }
 
     private val log = KotlinLogging.logger {}

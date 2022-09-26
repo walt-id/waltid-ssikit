@@ -1,4 +1,4 @@
-package id.walt.services.iota
+package id.walt.services.ecosystems.iota
 
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.toBase64

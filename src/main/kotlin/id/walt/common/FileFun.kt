@@ -1,6 +1,6 @@
 package id.walt.common
 
-import id.walt.services.essif.EssifClient
+import id.walt.services.ecosystems.essif.EssifClient
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString

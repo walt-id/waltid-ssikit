@@ -1,13 +1,13 @@
-package id.walt.services.essif
+package id.walt.services.ecosystems.essif
 
 import com.beust.klaxon.Klaxon
 import id.walt.common.readEssif
 import id.walt.model.AuthRequestResponse
 import id.walt.model.TrustedIssuer
 import id.walt.services.WaltIdServices
-import id.walt.services.essif.didebsi.EBSI_ENV_URL
-import id.walt.services.essif.enterprisewallet.EnterpriseWalletService
-import id.walt.services.essif.mock.DidRegistry
+import id.walt.services.ecosystems.essif.didebsi.EBSI_ENV_URL
+import id.walt.services.ecosystems.essif.enterprisewallet.EnterpriseWalletService
+import id.walt.services.ecosystems.essif.mock.DidRegistry
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*

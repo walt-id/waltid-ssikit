@@ -1,18 +1,17 @@
-package id.walt.services.essif
+package id.walt.services.ecosystems.essif
 
 import id.walt.common.readEssifBearerToken
 import id.walt.services.WaltIdServices
 import id.walt.services.context.ContextManager
-import id.walt.services.essif.didebsi.DidEbsiService
-import id.walt.services.essif.enterprisewallet.EnterpriseWalletService
-import id.walt.services.essif.mock.RelyingParty
-import id.walt.services.essif.timestamp.Timestamp
-import id.walt.services.essif.timestamp.WaltIdTimestampService
-import id.walt.services.essif.userwallet.UserWalletService
+import id.walt.services.ecosystems.essif.didebsi.DidEbsiService
+import id.walt.services.ecosystems.essif.enterprisewallet.EnterpriseWalletService
+import id.walt.services.ecosystems.essif.timestamp.Timestamp
+import id.walt.services.ecosystems.essif.timestamp.WaltIdTimestampService
+import id.walt.services.ecosystems.essif.userwallet.UserWalletService
+import id.walt.services.ecosystems.essif.mock.RelyingParty
 import id.walt.services.hkvstore.HKVKey
 import mu.KotlinLogging
 import java.io.File
-
 
 object EssifClient {
 
@@ -53,7 +52,7 @@ object EssifClient {
 
         log.debug { "Requesting a Verifiable ID from ESSIF Onboarding Service (EOS)" }
 
-        val authRequestResponse = LegalEntityClient.eos.authenticationRequests()
+        val authRequestResponse = TrustedIssuerClient.authenticationRequests()
 
         log.debug { "AuthRequestResponse:\n$authRequestResponse" }
 
@@ -68,7 +67,7 @@ object EssifClient {
         val idToken =
             enterpriseWalletService.constructAuthResponseJwt(did, didAuthRequest.client_id, didAuthRequest.nonce)
 
-        val verifiableAuthorization = LegalEntityClient.eos.authenticationResponse(idToken, bearerToken)
+        val verifiableAuthorization = TrustedIssuerClient.authenticationResponse(idToken, bearerToken)
 
         ///////////////////////////////////////////////////////////////////////////
         // Storing the received Verifiable Authorization

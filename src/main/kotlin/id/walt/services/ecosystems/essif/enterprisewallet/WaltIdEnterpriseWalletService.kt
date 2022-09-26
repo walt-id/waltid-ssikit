@@ -1,4 +1,4 @@
-package id.walt.services.essif.enterprisewallet
+package id.walt.services.ecosystems.essif.enterprisewallet
 
 class WaltIdEnterpriseWalletService : EnterpriseWalletService() {
 

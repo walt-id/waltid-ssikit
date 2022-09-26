@@ -5,7 +5,7 @@ import id.walt.crypto.KeyId
 import id.walt.crypto.buildKey
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.context.ContextManager
-import id.walt.services.essif.didebsi.DidEbsiService
+import id.walt.services.ecosystems.essif.didebsi.DidEbsiService
 import id.walt.services.hkvstore.HKVKey
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe

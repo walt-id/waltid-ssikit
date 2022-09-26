@@ -1,9 +1,9 @@
-package id.walt.services.essif.jsonrpc
+package id.walt.services.ecosystems.essif.jsonrpc
 
 import id.walt.services.WaltIdServices
 import id.walt.services.context.ContextManager
 import id.walt.services.crypto.CryptoService
-import id.walt.services.essif.EssifClient
+import id.walt.services.ecosystems.essif.EssifClient
 import id.walt.services.hkvstore.HKVKey
 import id.walt.services.key.KeyService
 import io.ktor.client.call.*

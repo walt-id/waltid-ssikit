@@ -1,4 +1,4 @@
-package id.walt.services.essif.jsonrpc
+package id.walt.services.ecosystems.essif.jsonrpc
 
 import id.walt.servicematrix.BaseService
 import id.walt.servicematrix.ServiceProvider

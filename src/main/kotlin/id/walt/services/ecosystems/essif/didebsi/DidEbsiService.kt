@@ -1,8 +1,8 @@
-package id.walt.services.essif.didebsi
+package id.walt.services.ecosystems.essif.didebsi
 
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
-import id.walt.services.essif.jsonrpc.InsertDidDocumentParams
+import id.walt.services.ecosystems.essif.jsonrpc.InsertDidDocumentParams
 
 open class DidEbsiService : WaltIdService() {
 

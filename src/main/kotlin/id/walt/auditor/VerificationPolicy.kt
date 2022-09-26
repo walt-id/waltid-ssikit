@@ -4,10 +4,8 @@ import com.beust.klaxon.Klaxon
 import id.walt.model.AttributeInfo
 import id.walt.model.TrustedIssuer
 import id.walt.model.dif.PresentationDefinition
-import id.walt.model.oidc.VpTokenClaim
 import id.walt.services.did.DidService
-import id.walt.services.essif.TrustedIssuerClient
-import id.walt.services.key.KeyService
+import id.walt.services.ecosystems.essif.TrustedIssuerClient
 import id.walt.services.oidc.OIDCUtils
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService

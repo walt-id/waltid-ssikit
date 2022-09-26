@@ -5,6 +5,7 @@ import id.walt.model.Did
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
+import id.walt.services.ecosystems.iota.IotaService
 import id.walt.services.essif.EBSI_BEARER_TOKEN_FILE
 import id.walt.services.key.KeyService
 import id.walt.test.RESOURCES_PATH

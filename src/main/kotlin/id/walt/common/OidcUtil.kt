@@ -5,7 +5,7 @@ import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import id.walt.model.*
-import id.walt.services.essif.userwallet.UserWalletService
+import id.walt.services.ecosystems.essif.userwallet.UserWalletService
 import id.walt.services.jwt.JwtService
 import id.walt.services.key.KeyService
 import kotlinx.serialization.json.Json

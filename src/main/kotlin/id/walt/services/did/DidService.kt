@@ -10,7 +10,7 @@ import id.walt.services.WaltIdServices
 import id.walt.services.context.ContextManager
 import id.walt.services.crypto.CryptoService
 import id.walt.services.hkvstore.HKVKey
-import id.walt.services.iota.IotaService
+import id.walt.services.ecosystems.iota.IotaService
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
 import id.walt.services.vc.JsonLdCredentialService

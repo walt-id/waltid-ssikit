@@ -1,4 +1,4 @@
-package id.walt.services.essif
+package id.walt.services.ecosystems.essif
 
 import com.beust.klaxon.Klaxon
 import com.nimbusds.jose.jwk.OctetKeyPair
@@ -12,7 +12,6 @@ import id.walt.services.jwt.JwtService
 import id.walt.services.key.KeyService
 import mu.KotlinLogging
 import java.util.*
-
 
 object EssifServer {
 
@@ -96,11 +95,3 @@ object EssifServer {
         return encToken
     }
 }
-
-/*
-fun main() {
-    ServiceMatrix("service-matrix.properties")
-    WaltIdServices.setLogLevel(Level.DEBUG)
-    EssifClient.authenticate()
-}
-*/

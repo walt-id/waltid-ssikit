@@ -8,8 +8,9 @@ import id.walt.model.oidc.CredentialClaim
 import id.walt.model.oidc.OIDCProvider
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
-import id.walt.services.essif.didebsi.DidEbsiService
-import id.walt.services.essif.didebsi.EBSI_ENV_URL
+import id.walt.services.ecosystems.essif.didebsi.DidEbsiService
+import id.walt.services.ecosystems.essif.didebsi.EBSI_ENV_URL
+import id.walt.services.ecosystems.essif.EssifClient
 import id.walt.services.key.KeyService
 import id.walt.services.oidc.CompatibilityMode
 import id.walt.services.oidc.OIDC4VPService

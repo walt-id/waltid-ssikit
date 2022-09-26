@@ -9,10 +9,10 @@ import com.github.ajalt.clikt.parameters.types.file
 import id.walt.Values
 import id.walt.common.prettyPrint
 import id.walt.model.encodePretty
-import id.walt.services.essif.EssifClient
-import id.walt.services.essif.TrustedIssuerClient
-import id.walt.services.essif.timestamp.Timestamp
-import id.walt.services.essif.timestamp.WaltIdTimestampService
+import id.walt.services.ecosystems.essif.EssifClient
+import id.walt.services.ecosystems.essif.TrustedIssuerClient
+import id.walt.services.ecosystems.essif.timestamp.Timestamp
+import id.walt.services.ecosystems.essif.timestamp.WaltIdTimestampService
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json

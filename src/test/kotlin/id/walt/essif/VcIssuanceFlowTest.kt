@@ -8,9 +8,9 @@ import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.encBase64
 import id.walt.model.*
 import id.walt.servicematrix.ServiceMatrix
-import id.walt.services.essif.EssifClient
-import id.walt.services.essif.EssifServer
-import id.walt.services.essif.userwallet.UserWalletService
+import id.walt.services.ecosystems.essif.EssifClient
+import id.walt.services.ecosystems.essif.EssifServer
+import id.walt.services.ecosystems.essif.userwallet.UserWalletService
 import id.walt.services.key.InMemoryKeyService
 import id.walt.services.key.KeyService
 import id.walt.test.RESOURCES_PATH

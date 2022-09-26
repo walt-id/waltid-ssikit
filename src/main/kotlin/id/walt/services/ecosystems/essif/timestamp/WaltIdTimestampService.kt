@@ -1,9 +1,9 @@
-package id.walt.services.essif.timestamp
+package id.walt.services.ecosystems.essif.timestamp
 
 import id.walt.crypto.canonicalize
 import id.walt.services.WaltIdServices
-import id.walt.services.essif.jsonrpc.JsonRpcService
-import id.walt.services.essif.jsonrpc.TimestampHashesParams
+import id.walt.services.ecosystems.essif.jsonrpc.JsonRpcService
+import id.walt.services.ecosystems.essif.jsonrpc.TimestampHashesParams
 import id.walt.services.key.KeyService
 import io.ktor.client.call.*
 import io.ktor.client.request.*

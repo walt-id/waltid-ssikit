@@ -1,4 +1,4 @@
-package id.walt.services.essif.enterprisewallet
+package id.walt.services.ecosystems.essif.enterprisewallet
 
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
@@ -7,12 +7,11 @@ import id.walt.common.toParamMap
 import id.walt.model.AuthRequestResponse
 import id.walt.model.AuthenticationRequestJwt
 import id.walt.model.DidAuthRequest
-import id.walt.servicematrix.BaseService
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
 import id.walt.services.did.DidService
-import id.walt.services.essif.TrustedIssuerClient
-import id.walt.services.essif.userwallet.UserWalletService
+import id.walt.services.ecosystems.essif.TrustedIssuerClient
+import id.walt.services.ecosystems.essif.userwallet.UserWalletService
 import id.walt.services.jwt.JwtService
 import id.walt.services.key.KeyService
 import mu.KotlinLogging

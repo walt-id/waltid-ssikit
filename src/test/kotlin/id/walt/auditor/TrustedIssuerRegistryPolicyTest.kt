@@ -5,13 +5,12 @@ import id.walt.model.Attribute
 import id.walt.model.DidMethod
 import id.walt.model.TrustedIssuer
 import id.walt.services.did.DidService
-import id.walt.services.essif.TrustedIssuerClient
+import id.walt.services.ecosystems.essif.TrustedIssuerClient
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.model.toCredential
-import io.kotest.core.spec.Spec
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.core.test.TestCase
 import io.kotest.matchers.shouldBe

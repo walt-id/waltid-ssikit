@@ -1,6 +1,6 @@
-package id.walt.services.essif.mock
+package id.walt.services.ecosystems.essif.mock
 
-import id.walt.services.essif.enterprisewallet.EnterpriseWalletService
+import id.walt.services.ecosystems.essif.enterprisewallet.EnterpriseWalletService
 
 object RelyingParty {
 

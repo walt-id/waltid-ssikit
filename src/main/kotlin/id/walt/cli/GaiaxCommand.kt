@@ -6,6 +6,7 @@ import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.path
 import id.walt.model.gaiax.GaiaxCredentialGroup
 import id.walt.model.gaiax.ParticipantVerificationResult
+import id.walt.services.ecosystems.gaiax.GaiaxService
 import id.walt.vclib.credentials.gaiax.n.LegalPerson
 import id.walt.vclib.credentials.gaiax.n.ParticipantCredential
 import id.walt.vclib.model.toCredential
@@ -60,12 +61,7 @@ class GaiaxGenerateParticipantCredentialCommand : CliktCommand(
         echo("Generating ParticipantCredential from \"$selfDescriptionPath\"...")
         val sdText = selfDescriptionPath.readText()
 
-        val complianceCredential = runBlocking {
-            HttpClient(CIO).post("https://compliance.lab.gaia-x.eu/v2206/api/sign") {
-                contentType(ContentType.Application.Json)
-                setBody(sdText)
-            }.bodyAsText()
-        }
+        val complianceCredential = GaiaxService.getService().generateGaiaxComplianceCredential(sdText)
 
         echo("Compliance credential:")
         echo(complianceCredential)

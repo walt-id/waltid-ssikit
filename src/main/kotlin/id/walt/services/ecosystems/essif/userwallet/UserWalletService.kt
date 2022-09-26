@@ -1,4 +1,4 @@
-package id.walt.services.essif.userwallet
+package id.walt.services.ecosystems.essif.userwallet
 
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
@@ -16,10 +16,10 @@ import id.walt.services.context.ContextManager
 import id.walt.services.did.DidService
 import id.walt.services.essif.EbsiVAWrapper
 import id.walt.services.essif.EbsiVaVp
-import id.walt.services.essif.EssifClient
-import id.walt.services.essif.LegalEntityClient
-import id.walt.services.essif.enterprisewallet.EnterpriseWalletService
-import id.walt.services.essif.mock.DidRegistry
+import id.walt.services.ecosystems.essif.EssifClient
+import id.walt.services.ecosystems.essif.LegalEntityClient
+import id.walt.services.ecosystems.essif.enterprisewallet.EnterpriseWalletService
+import id.walt.services.ecosystems.essif.mock.DidRegistry
 import id.walt.services.hkvstore.HKVKey
 import id.walt.services.jwt.InMemoryJwtService
 import id.walt.services.key.InMemoryKeyService
@@ -80,7 +80,7 @@ object UserWalletService {
     fun vcAuthResponse(vcExchangeRequest: String): String {
         println("10. [UWallet] Validate request")
 
-        return this.didAuthResponse(vcExchangeRequest)
+        return didAuthResponse(vcExchangeRequest)
     }
 
     fun didAuthResponse(didAuthRequest: String): String {

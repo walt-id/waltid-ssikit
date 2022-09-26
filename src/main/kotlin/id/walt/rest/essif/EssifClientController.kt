@@ -1,6 +1,6 @@
 package id.walt.rest.essif
 
-import id.walt.services.essif.EssifClient
+import id.walt.services.ecosystems.essif.EssifClient
 import io.javalin.http.Context
 import io.javalin.plugin.openapi.dsl.document
 import kotlinx.serialization.Serializable

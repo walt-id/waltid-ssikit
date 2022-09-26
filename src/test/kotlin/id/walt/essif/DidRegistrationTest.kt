@@ -1,7 +1,7 @@
 package id.walt.essif
 
-import id.walt.services.essif.enterprisewallet.EnterpriseWalletService
-import id.walt.services.essif.mock.DidRegistry
+import id.walt.services.ecosystems.essif.enterprisewallet.EnterpriseWalletService
+import id.walt.services.ecosystems.essif.mock.DidRegistry
 import io.kotest.core.spec.style.AnnotationSpec
 import mu.KotlinLogging
 

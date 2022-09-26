@@ -6,8 +6,8 @@ import id.walt.model.DidMethod
 import id.walt.model.DidUrl
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
-import id.walt.services.essif.timestamp.Timestamp
-import id.walt.services.essif.timestamp.WaltIdTimestampService
+import id.walt.services.ecosystems.essif.timestamp.Timestamp
+import id.walt.services.ecosystems.essif.timestamp.WaltIdTimestampService
 import id.walt.services.key.KeyService
 import id.walt.test.RESOURCES_PATH
 import io.kotest.assertions.retry

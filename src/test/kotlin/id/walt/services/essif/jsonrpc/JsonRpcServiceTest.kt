@@ -5,6 +5,8 @@ import id.walt.crypto.KeyId
 import id.walt.crypto.buildKey
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.context.ContextManager
+import id.walt.services.ecosystems.essif.jsonrpc.JsonRpcService
+import id.walt.services.ecosystems.essif.jsonrpc.UnsignedTransaction
 import id.walt.services.hkvstore.HKVKey
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe

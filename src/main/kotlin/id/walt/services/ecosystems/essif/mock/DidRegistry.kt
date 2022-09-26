@@ -1,4 +1,4 @@
-package id.walt.services.essif.mock
+package id.walt.services.ecosystems.essif.mock
 
 object DidRegistry {
     fun get(did: String): String {
