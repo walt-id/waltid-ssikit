@@ -1,6 +1,9 @@
 package id.walt.model
 
 import com.beust.klaxon.*
+import com.nimbusds.jose.jwk.KeyOperation
+import com.nimbusds.jose.util.Base64
+import com.nimbusds.jose.util.Base64URL
 import id.walt.common.prettyPrint
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -145,13 +148,34 @@ data class VerificationMethod(
 @Serializable
 data class Jwk(
     @Json(serializeNull = false) var kid: String? = null, // "6a838696803b4140974a3d09b74ee6ec"
+
+    //@Json(serializeNull = false) val KeyType kty = null,
     @Json(serializeNull = false) val kty: String? = null, // "EC",
+
+    // @Json(serializeNull = false) val Algorithm alg = null,
     @Json(serializeNull = false) val alg: String? = null, // "ES256K"
     @Json(serializeNull = false) val crv: String? = null, // "secp256k1",
+
+    // @Json(serializeNull = false) val KeyUse use = null,
     @Json(serializeNull = false) val use: String? = null, // "sig"
     @Json(serializeNull = false) val x: String? = null, // "Ou6y1zrJBeVnpV739kcTyez7RmQZFYg3F9bWGm6V5dQ",
     @Json(serializeNull = false) val y: String? = null, // "jOq6B8CsOxoXj-WXAGY28PH0Ype1x6bnOB6_YOo3lK0"
-    @Json(serializeNull = false) val d: String? = null // HQCAQEEILZCiMcEeFuVLrciYxycmvTXffR
+    @Json(serializeNull = false) val d: String? = null, // HQCAQEEILZCiMcEeFuVLrciYxycmvTXffR
+
+    @Json(serializeNull = false) val n: String? = null,
+    @Json(serializeNull = false) val e: String? = null,
+
+
+    // X509
+    @Json(serializeNull = false) val x5u: String? = null
+
+
+    //@Json(serializeNull = false) val Set<KeyOperation> ops,
+    //@Json(serializeNull = false) val List<Base64> x5c,
+    //@Json(serializeNull = false) val KeyStore ks = null
+
+    //@Json(serializeNull = false) val x5t: Base64URL = null,
+    // @Json(serializeNull = false) val Base64URL x5t256 = null,
 )
 
 @Serializable
