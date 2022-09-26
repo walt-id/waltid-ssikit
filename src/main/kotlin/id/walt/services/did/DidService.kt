@@ -183,7 +183,8 @@ object DidService {
             ContextManager.keyStore.load(keyId.id)
         }.onSuccess {
             if (it != null) {
-                throw IllegalArgumentException("A key with the id \"${keyId.id}\" already exists.")
+                log.debug { "A key with the id \"${keyId.id}\" exists." }
+                //throw IllegalArgumentException("A key with the id \"${keyId.id}\" already exists.")
             }
         }
         ContextManager.keyStore.addAlias(keyId, didUrl)
