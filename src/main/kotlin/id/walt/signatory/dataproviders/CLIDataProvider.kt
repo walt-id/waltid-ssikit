@@ -313,7 +313,7 @@ object LegalPersonCredentialCliDataProvider : SignatoryDataProvider {
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
         return (template as LegalPerson).apply {
             id = prompt("Id", "https://delta-dao.com/.well-known/participant.json")
-            issuer = prompt("Issuer", "https://delta-dao.com/.well-known/participant.json")
+            issuer = prompt("Issuer", "did:web:dids.walt-test.cloud")
 
             println()
             println("> Subject information")
@@ -441,7 +441,7 @@ object ParticipantCredentialCliDataProvider : AbstractDataProvider<ParticipantCr
             println()
             credentialSubject!!.apply {
                 id = prompt("Id", "did:web:delta-dao.com")
-                hash = prompt("Issuer", "5bf0e1921de342ae8c9a7f3d0c274386a8d7f6497d03d99269d445fb20a3922f")!!
+                hash = prompt("Hash", "5bf0e1921de342ae8c9a7f3d0c274386a8d7f6497d03d99269d445fb20a3922f")!!
             }
         }
     }
