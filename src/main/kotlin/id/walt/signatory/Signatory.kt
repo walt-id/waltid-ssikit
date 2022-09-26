@@ -2,7 +2,6 @@ package id.walt.signatory
 
 import com.beust.klaxon.Json
 import id.walt.crypto.LdSignatureType
-import id.walt.crypto.LdSigner
 import id.walt.model.DidMethod
 import id.walt.model.DidUrl
 import id.walt.servicematrix.ServiceConfiguration
@@ -15,7 +14,6 @@ import id.walt.services.vc.JwtCredentialService
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.model.toCredential
 import id.walt.vclib.templates.VcTemplateManager
-import io.ktor.client.plugins.*
 import mu.KotlinLogging
 import java.time.Instant
 import java.util.*
@@ -24,6 +22,13 @@ private val log = KotlinLogging.logger {}
 
 enum class ProofType {
     JWT, LD_PROOF
+}
+
+enum class Ecosystem {
+    DEFAULT,
+    ESSIF,
+    GAIAX,
+    IOTA
 }
 
 data class ProofConfig(
@@ -41,7 +46,8 @@ data class ProofConfig(
     @Json(serializeNull = false) val expirationDate: Instant? = null,
     @Json(serializeNull = false) val dataProviderIdentifier: String? = null, // may be used for mapping data-sets from a custom data-provider
     @Json(serializeNull = false) val ldSignatureType: LdSignatureType? = null,
-    @Json(serializeNull = false) val creator: String? = issuerDid
+    @Json(serializeNull = false) val creator: String? = issuerDid,
+    @Json(serializeNull = false) val ecosystem: Ecosystem = Ecosystem.DEFAULT
 )
 
 data class SignatoryConfig(
@@ -69,23 +75,23 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
 
     private fun defaultLdSignatureByDidMethod(did: String): LdSignatureType? {
         val didUrl = DidUrl.from(did)
-        return when(didUrl.method) {
+        return when (didUrl.method) {
             DidMethod.iota.name -> LdSignatureType.JcsEd25519Signature2020
             else -> null
         }
     }
 
     private fun issuerVerificationMethodFor(config: ProofConfig): String? {
-      val did = DidService.load(config.issuerDid)
-      val proofPurpose = config.proofPurpose ?: "assertionMethod";
-      return when(proofPurpose) {
-        "assertionMethod" -> did.assertionMethod?.firstOrNull { m -> config.issuerVerificationMethod == null || m.id == config.issuerVerificationMethod }
-        "authentication" -> did.authentication?.firstOrNull { m -> config.issuerVerificationMethod == null || m.id == config.issuerVerificationMethod }
-        "capabilityDelegation" -> did.capabilityDelegation?.firstOrNull { m -> config.issuerVerificationMethod == null || m.id == config.issuerVerificationMethod }
-        "capabilityInvocation" -> did.capabilityInvocation?.firstOrNull { m -> config.issuerVerificationMethod == null || m.id == config.issuerVerificationMethod }
-        "keyAgreement" -> did.keyAgreement?.firstOrNull { m -> config.issuerVerificationMethod == null || m.id == config.issuerVerificationMethod }
-        else -> did.verificationMethod?.firstOrNull { m -> config.issuerVerificationMethod == null || m.id == config.issuerVerificationMethod }
-      }?.id ?: config.issuerVerificationMethod
+        val did = DidService.load(config.issuerDid)
+        val proofPurpose = config.proofPurpose ?: "assertionMethod";
+        return when (proofPurpose) {
+            "assertionMethod" -> did.assertionMethod?.firstOrNull { m -> config.issuerVerificationMethod == null || m.id == config.issuerVerificationMethod }
+            "authentication" -> did.authentication?.firstOrNull { m -> config.issuerVerificationMethod == null || m.id == config.issuerVerificationMethod }
+            "capabilityDelegation" -> did.capabilityDelegation?.firstOrNull { m -> config.issuerVerificationMethod == null || m.id == config.issuerVerificationMethod }
+            "capabilityInvocation" -> did.capabilityInvocation?.firstOrNull { m -> config.issuerVerificationMethod == null || m.id == config.issuerVerificationMethod }
+            "keyAgreement" -> did.keyAgreement?.firstOrNull { m -> config.issuerVerificationMethod == null || m.id == config.issuerVerificationMethod }
+            else -> did.verificationMethod?.firstOrNull { m -> config.issuerVerificationMethod == null || m.id == config.issuerVerificationMethod }
+        }?.id ?: config.issuerVerificationMethod
     }
 
     override fun issue(templateId: String, config: ProofConfig, dataProvider: SignatoryDataProvider?): String {
@@ -97,22 +103,22 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
         }.getOrElse { throw Exception("Could not load template: $templateId") }
 
         val configDP = ProofConfig(
-                issuerDid = config.issuerDid,
-                subjectDid = config.subjectDid,
-                null,
-                issuerVerificationMethod = issuerVerificationMethodFor(config),
-                proofType = config.proofType,
-                domain = config.domain,
-                nonce = config.nonce,
-                proofPurpose = config.proofPurpose,
-                credentialId = config.credentialId.orEmpty().ifEmpty { "urn:uuid:${UUID.randomUUID()}" },
-                issueDate = config.issueDate ?: Instant.now(),
-                validDate = config.validDate ?: Instant.now(),
-                expirationDate = config.expirationDate,
-                dataProviderIdentifier = config.dataProviderIdentifier,
-                ldSignatureType = config.ldSignatureType ?: defaultLdSignatureByDidMethod(config.issuerDid),
-                creator = config.creator
-            )
+            issuerDid = config.issuerDid,
+            subjectDid = config.subjectDid,
+            null,
+            issuerVerificationMethod = issuerVerificationMethodFor(config),
+            proofType = config.proofType,
+            domain = config.domain,
+            nonce = config.nonce,
+            proofPurpose = config.proofPurpose,
+            credentialId = config.credentialId.orEmpty().ifEmpty { "urn:uuid:${UUID.randomUUID()}" },
+            issueDate = config.issueDate ?: Instant.now(),
+            validDate = config.validDate ?: Instant.now(),
+            expirationDate = config.expirationDate,
+            dataProviderIdentifier = config.dataProviderIdentifier,
+            ldSignatureType = config.ldSignatureType ?: defaultLdSignatureByDidMethod(config.issuerDid),
+            creator = config.creator
+        )
 
         val selectedDataProvider = dataProvider ?: DataProviderRegistry.getProvider(vcTemplate::class)
         val vcRequest = selectedDataProvider.populate(vcTemplate, configDP)
