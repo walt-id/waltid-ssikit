@@ -14,6 +14,7 @@ import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import java.nio.file.Path
 import kotlin.io.path.readText
@@ -56,11 +57,12 @@ class GaiaxGenerateParticipantCredentialCommand : CliktCommand(
     private val selfDescriptionPath: Path by option("-s", "--self-description", help = "Self Description to canonize, hash and sign").path(mustExist = true, mustBeReadable = true).required()
     private val saveFile: Path? by option("-f", help = "Optionally specify output file").path()
     override fun run() {
-        val sdText = selfDescriptionPath.readText()
         echo("Generating ParticipantCredential from \"$selfDescriptionPath\"...")
+        val sdText = selfDescriptionPath.readText()
 
         val complianceCredential = runBlocking {
-            HttpClient(CIO).post("https://compliance.lab.gaia-x.eu/api/v2206/sign") {
+            HttpClient(CIO).post("https://compliance.lab.gaia-x.eu/v2206/api/sign") {
+                contentType(ContentType.Application.Json)
                 setBody(sdText)
             }.bodyAsText()
         }
