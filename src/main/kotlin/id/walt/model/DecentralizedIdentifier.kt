@@ -129,7 +129,7 @@ data class VerificationMethod(
     val controller: String,
     @Json(serializeNull = false) val publicKeyBase58: String? = null,
     @Json(serializeNull = false) val publicKeyPem: String? = null,
-    @Json(serializeNull = false) val publicKeyJwk: Jwk? = null,
+    @Json(serializeNull = false) var publicKeyJwk: Jwk? = null,
     @Json(serializeNull = false) val publicKeyMultibase: String? = null,
     @Json(serializeNull = false) val ethereumAddress: String? = null,
     @Json(ignored = true) val isReference: Boolean = false,
