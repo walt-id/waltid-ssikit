@@ -40,7 +40,7 @@ private val log = KotlinLogging.logger {}
  */
 object DidService {
 
-    val DEFAULT_KEY_ALGORITHM = EdDSA_Ed25519
+    private val DEFAULT_KEY_ALGORITHM = EdDSA_Ed25519
 
     sealed class DidOptions
     data class DidWebOptions(val domain: String?, val path: String? = null) : DidOptions()
@@ -128,7 +128,7 @@ object DidService {
         val key = ContextManager.keyStore.load(keyId.id)
 
         // Created identifier
-        var didUrlStr: String? = didEbsiOptions?.let {
+        val didUrlStr: String = didEbsiOptions?.let {
             when (it.version) {
                 1 -> {
                     DidUrl.generateDidEbsiV1DidUrl().did
@@ -146,7 +146,7 @@ object DidService {
             DidUrl.generateDidEbsiV1DidUrl().did
         }
 
-        ContextManager.keyStore.addAlias(keyId, didUrlStr!!)
+        ContextManager.keyStore.addAlias(keyId, didUrlStr)
 
         // Created DID doc
         val kid = didUrlStr + "#" + key.keyId
@@ -289,7 +289,7 @@ object DidService {
         val doc = file.readText(StandardCharsets.UTF_8)
         val did = Did.decode(doc)
         storeDid(did!!.id, doc)
-        return did!!.id
+        return did.id
     }
 
     fun importDidAndKeys(did: String) {
