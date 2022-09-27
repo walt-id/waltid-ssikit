@@ -53,6 +53,20 @@ object DidService {
 
     // Public methods
 
+    fun getWebPathForDidWeb(didWebDomain: String, didWebPath: String?) = "https://$didWebDomain/.well-known" +
+            (didWebPath?.replace(":", "/") ?: "").let {
+                when {
+                    it.endsWith("/") -> it
+                    else -> "$it/"
+                }
+            }.let {
+                when {
+                    it.startsWith("/") -> it
+                    else -> "/$it"
+                }
+            } +
+            "did.json"
+
     fun create(method: DidMethod, keyAlias: String? = null, options: DidOptions? = null): String {
         val didUrl = when (method) {
             DidMethod.key -> createDidKey(keyAlias)

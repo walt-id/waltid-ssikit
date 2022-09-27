@@ -87,19 +87,7 @@ class CreateDidCommand : CliktCommand(
         }
 
         if (didMethod == web) echo(
-            "\nInstall this did:web at: https://$didWebDomain/.well-known" +
-                    (didWebPath?.replace(":", "/") ?: "").let {
-                        when {
-                            it.endsWith("/") -> it
-                            else -> "$it/"
-                        }
-                    }.let {
-                        when {
-                            it.startsWith("/") -> it
-                            else -> "/$it"
-                        }
-                    } +
-                    "did.json"
+            "\nInstall this did:web at: " + DidService.getWebPathForDidWeb(didWebDomain, didWebPath)
         )
     }
 }
