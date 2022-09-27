@@ -131,6 +131,7 @@ object WaltCLI {
                         EssifTsrCommand()
                     ),
                     GaiaxCommand().subcommands(
+                        GaiaxOnboardingCommand(),
                         GaiaxGenerateParticipantCredentialCommand(),
                         GaiaxVerifyCredentialGroupCommand()
                     ),
