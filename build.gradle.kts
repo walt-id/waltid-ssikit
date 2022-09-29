@@ -180,7 +180,7 @@ publishing {
             val usernameFile = File("secret_maven_username.txt")
             val passwordFile = File("secret_maven_password.txt")
 
-            val secretMavenUsername = envUsername ?: usernameFile.let { if(it.isFile) it.readLines().first() else "" }
+            val secretMavenUsername = envUsername ?: usernameFile.let { if (it.isFile) it.readLines().first() else "" }
             //println("Deploy username length: ${secretMavenUsername.length}")
             val secretMavenPassword = envPassword ?: passwordFile.let { if (it.isFile) it.readLines().first() else "" }
 
