@@ -81,7 +81,7 @@ dependencies {
 
     // Logging
     implementation("org.slf4j:slf4j-api:2.0.1")
-    implementation("org.slf4j:slf4j-simple:2.0.0")
+    implementation("org.slf4j:slf4j-simple:2.0.1")
 
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.0")
 
