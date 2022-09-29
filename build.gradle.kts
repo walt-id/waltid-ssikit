@@ -24,7 +24,7 @@ repositories {
 dependencies {
     // Crypto
     api("com.google.crypto.tink:tink:1.7.0")
-    api("info.weboftrust:ld-signatures-java:0.5-SNAPSHOT")
+    api("info.weboftrust:ld-signatures-java:1.0.0")
     api("decentralized-identity:jsonld-common-java:0.2.0")
     implementation("com.goterl:lazysodium-java:5.1.1")
     implementation("com.github.multiformats:java-multibase:v1.1.0")
