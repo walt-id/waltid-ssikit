@@ -28,9 +28,9 @@ keys/
 *.log
 data
 logs
+keystore
 
-secret_maven_username.txt
-secret_maven_password.txt
+secret*
 
 credential-store
 
