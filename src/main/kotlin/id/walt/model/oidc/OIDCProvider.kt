@@ -32,31 +32,21 @@ import java.net.URI
 import java.util.*
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class OIDCProvider(
+open class OIDCProvider(
   val id: String,
   val url: String,
   @Json(serializeNull = false) val description: String? = null,
   @Json(serializeNull = false) val client_id: String? = null,
   @Json(serializeNull = false) val client_secret: String? = null
-) {
-  private var _ciSvc: OIDC4CIService? = null
-  private var _vpSvc: OIDC4VPService? = null
+)
 
-  @Json(ignored = true)
-  val ciSvc: OIDC4CIService
-    get() {
-      if(_ciSvc == null) {
-        _ciSvc = OIDC4CIService(this)
-      }
-      return _ciSvc!!
-    }
+class OIDCProviderWithMetadata(
+  id: String,
+  url: String,
+  description: String? = null,
+  client_id: String? = null,
+  client_secret: String? = null,
+  @Json(ignored = true) val oidc_provider_metadata: OIDCProviderMetadata
+) : OIDCProvider (id, url, description, client_id, client_secret) {
 
-  @Json(ignored = true)
-  val vpSvc: OIDC4VPService
-    get() {
-      if(_vpSvc == null) {
-        _vpSvc = OIDC4VPService(this)
-      }
-      return _vpSvc!!
-    }
 }

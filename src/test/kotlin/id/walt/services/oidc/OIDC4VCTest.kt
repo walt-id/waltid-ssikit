@@ -9,6 +9,7 @@ import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
 import id.walt.model.dif.*
 import id.walt.model.oidc.OIDCProvider
+import id.walt.model.oidc.OIDCProviderWithMetadata
 import id.walt.model.oidc.VCClaims
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
@@ -35,7 +36,7 @@ import java.net.URI
 
 class OIDC4VCTest : AnnotationSpec() {
 
-    val testProvider = OIDCProvider("test provider", "http://localhost:9000")
+    lateinit var testProvider: OIDCProviderWithMetadata
     val redirectUri = URI.create("http://blank")
     lateinit var SUBJECT_DID: String
 
@@ -44,26 +45,27 @@ class OIDC4VCTest : AnnotationSpec() {
         ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
         SUBJECT_DID = DidService.create(DidMethod.key)
         OIDCTestProvider.start(9000)
+        testProvider = OIDC4CIService.getWithProviderMetadata(OIDCProvider("test provider", "http://localhost:9000"))
     }
 
     @Test
     fun testIssuerPAR() {
-        val uri = testProvider.ciSvc.executePushedAuthorizationRequest(redirectUri, listOf(OIDCTestProvider.TEST_CREDENTIAL_CLAIM))
+        val uri = OIDC4CIService.executePushedAuthorizationRequest(testProvider, redirectUri, listOf(OIDCTestProvider.TEST_CREDENTIAL_CLAIM))
         uri shouldNotBe null
         uri!!.query shouldContain "request_uri=${OIDCTestProvider.TEST_REQUEST_URI}"
     }
 
     @Test
     fun testIssuerToken() {
-        val tokenResponse = testProvider.ciSvc.getAccessToken(OIDCTestProvider.TEST_AUTH_CODE, redirectUri.toString())
+        val tokenResponse = OIDC4CIService.getAccessToken(testProvider, OIDCTestProvider.TEST_AUTH_CODE, redirectUri.toString())
         tokenResponse.customParameters["c_nonce"] shouldBe OIDCTestProvider.TEST_NONCE
         tokenResponse.oidcTokens.accessToken.toString() shouldBe OIDCTestProvider.TEST_ACCESS_TOKEN
     }
 
     @Test
     fun testIssuerCredential() {
-        val credential = testProvider.ciSvc.getCredential(BearerAccessToken(OIDCTestProvider.TEST_ACCESS_TOKEN), SUBJECT_DID, OIDCTestProvider.TEST_CREDENTIAL_CLAIM.type!!,
-            testProvider.ciSvc.generateDidProof(SUBJECT_DID, OIDCTestProvider.TEST_NONCE))
+        val credential = OIDC4CIService.getCredential(testProvider, BearerAccessToken(OIDCTestProvider.TEST_ACCESS_TOKEN), SUBJECT_DID, OIDCTestProvider.TEST_CREDENTIAL_CLAIM.type!!,
+            OIDC4CIService.generateDidProof(SUBJECT_DID, OIDCTestProvider.TEST_NONCE))
         credential shouldNotBe null
         credential!!.credentialSchema!!.id shouldBe OIDCTestProvider.TEST_CREDENTIAL_CLAIM.type
         credential!!.subject shouldBe SUBJECT_DID
@@ -72,7 +74,7 @@ class OIDC4VCTest : AnnotationSpec() {
 
     @Test
     fun testGetNonce() {
-        val nonceResp = testProvider.ciSvc.getNonce()
+        val nonceResp = OIDC4CIService.getNonce(testProvider)
         nonceResp shouldNotBe null
         nonceResp!!.p_nonce shouldBe OIDCTestProvider.TEST_NONCE
     }

@@ -1,6 +1,7 @@
 package id.walt.services.oidc
 
 import com.beust.klaxon.Klaxon
+import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.oauth2.sdk.*
 import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic
@@ -12,6 +13,7 @@ import com.nimbusds.oauth2.sdk.id.State
 import com.nimbusds.oauth2.sdk.token.AccessToken
 import com.nimbusds.openid.connect.sdk.*
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata
+import id.walt.crypto.LdSignatureType
 import id.walt.model.dif.CredentialManifest
 import id.walt.model.dif.OutputDescriptor
 import id.walt.model.oidc.*
@@ -31,64 +33,85 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.util.*
 
-class OIDC4CIService(
-  val issuer: OIDCProvider
-) {
+object OIDC4CIService {
   private val log = KotlinLogging.logger {}
-  val metadataEndpoint: URI
-    get() = URI.create("${issuer.url.trimEnd('/')}/.well-known/openid-configuration")
-
-  val credentialManifests: List<CredentialManifest>
-    get() = metadata?.getCustomParameter("credential_manifests")?.let { klaxon.parseArray(it.toString()) } ?: listOf()
-
-  var metadata: OIDCProviderMetadata? = null
-    get() {
-      if (field == null) {
-        val resp = HTTPRequest(HTTPRequest.Method.GET, metadataEndpoint).send()
-        if (resp.indicatesSuccess())
-          field = OIDCProviderMetadata.parse(resp.content)
-        else {
-          // initialize default metadata
-          log.warn("Cannot get OIDC provider configuration ({}: {}), falling back to defaults", resp.statusCode, resp.content)
-          field = OIDCProviderMetadata(
-            Issuer(issuer.url),
-            listOf(SubjectType.PAIRWISE, SubjectType.PUBLIC),
-            URI.create("http://blank")
-          )
-            .also {
-              it.authorizationEndpointURI = URI("${issuer.url}/authorize")
-              it.pushedAuthorizationRequestEndpointURI = URI("${issuer.url}/par")
-              it.tokenEndpointURI = URI("${issuer.url}/token")
-              it.setCustomParameter("credential_endpoint", "${issuer.url}/credential")
-              it.setCustomParameter("nonce_endpoint", "${issuer.url}/nonce")
-              it.setCustomParameter("credential_manifests", listOf(
-                CredentialManifest(
-                  issuer = id.walt.model.dif.Issuer("", ""),
-                  outputDescriptors = VcTypeRegistry.getTypesWithTemplate().values
-                    .filter {
-                      it.isPrimary &&
-                          AbstractVerifiableCredential::class.java.isAssignableFrom(it.vc.java) &&
-                          !it.metadata.template?.invoke()?.credentialSchema?.id.isNullOrEmpty()
-                    }
-                    .map {
-                      OutputDescriptor(
-                        it.metadata.type.last(),
-                        it.metadata.template!!.invoke()!!.credentialSchema!!.id,
-                        it.metadata.type.last()
-                      )
-                    }
-                )).map { net.minidev.json.parser.JSONParser().parse(Klaxon().toJsonString(it)) }
-              )
-            }
-        }
-      }
-      return field
+  fun getMetadataEndpoint(issuer: OIDCProvider) = URI.create("${issuer.url.trimEnd('/')}/.well-known/openid-configuration")
+  fun getMetadata(issuer: OIDCProvider): OIDCProviderMetadata? {
+    val resp = HTTPRequest(HTTPRequest.Method.GET, getMetadataEndpoint(issuer)).send()
+    if (resp.indicatesSuccess())
+      return OIDCProviderMetadata.parse(resp.content)
+    else {
+      log.error { "Error loading issuer provider metadata" }
+      return null
     }
+  }
+
+  fun getWithProviderMetadata(issuer: OIDCProvider): OIDCProviderWithMetadata {
+    return OIDCProviderWithMetadata(
+      issuer.id, issuer.url, issuer.description, issuer.client_id, issuer.client_secret,
+      getMetadata(issuer) ?: OIDCProviderMetadata(
+        Issuer(issuer.url),
+        listOf(SubjectType.PAIRWISE, SubjectType.PUBLIC),
+        URI.create("http://blank")
+      )
+      .apply {
+        authorizationEndpointURI = URI("${issuer.url}/authorize")
+        pushedAuthorizationRequestEndpointURI = URI("${issuer.url}/par")
+        tokenEndpointURI = URI("${issuer.url}/token")
+        setCustomParameter("credential_endpoint", "${issuer.url}/credential")
+        setCustomParameter("nonce_endpoint", "${issuer.url}/nonce")
+        setCustomParameter("credential_issuer", CredentialIssuer(listOf(
+          CredentialIssuerDisplay("Issuer")
+        )))
+        setCustomParameter("credentials_supported", VcTypeRegistry.getTypesWithTemplate().values
+          .filter {
+            it.isPrimary &&
+                AbstractVerifiableCredential::class.java.isAssignableFrom(it.vc.java) &&
+                !it.metadata.template?.invoke()?.credentialSchema?.id.isNullOrEmpty()
+          }
+          .map {cred -> mapOf(
+            cred.metadata.type.last() to CredentialMetadata(
+              formats = mapOf(
+                "ldp_vc" to CredentialFormat(
+                  types = cred.metadata.type,
+                  cryptographic_binding_methods_supported = listOf("did"),
+                  cryptographic_suites_supported = LdSignatureType.values().map { it.name }
+                ),
+                "jwt_vc" to CredentialFormat(
+                  types = cred.metadata.type,
+                  cryptographic_binding_methods_supported = listOf("did"),
+                  cryptographic_suites_supported = listOf(JWSAlgorithm.ES256K, JWSAlgorithm.EdDSA, JWSAlgorithm.RS256, JWSAlgorithm.PS256).map { it.name }
+                )
+              ),
+              display = listOf(
+                CredentialDisplay(
+                  name = cred.metadata.type.last()
+                )
+              )
+            )
+          )}
+        )
+      }
+    )
+  }
+
+  fun getIssuerInfo(issuer: OIDCProviderWithMetadata): CredentialIssuer? {
+    return issuer.oidc_provider_metadata.customParameters["credential_issuer"]?.let {
+      klaxon.parse(it.toString())
+    }
+  }
+
+  fun getSupportedCredentials(issuer: OIDCProviderWithMetadata): Map<String, CredentialMetadata> {
+    return issuer.oidc_provider_metadata.customParameters["credentials_supported"]?.let {
+      klaxon.parse(it.toString())
+    } ?: mapOf()
+  }
 
   private fun createIssuanceAuthRequest(
-    endpoint: URI,
+    issuer: OIDCProviderWithMetadata,
     redirectUri: URI,
     claimedCredentials: List<CredentialClaim>,
+    pushedAuthorization: Boolean,
     vp_token: List<VerifiablePresentation>? = null,
     nonce: String? = null,
     state: String? = null
@@ -102,7 +125,7 @@ class OIDC4CIService(
       .state(state?.let { State(it) } ?: State())
       .nonce(nonce?.let { Nonce(it) } ?: Nonce())
       .claims(VCClaims(credentials = claimedCredentials))
-      .endpointURI(endpoint)
+      .endpointURI(if (pushedAuthorization) issuer.oidc_provider_metadata.pushedAuthorizationRequestEndpointURI else issuer.oidc_provider_metadata.authorizationEndpointURI)
 
     if(vp_token != null) {
       builder.customParameter("vp_token", OIDCUtils.toVpToken(vp_token))
@@ -111,6 +134,7 @@ class OIDC4CIService(
   }
 
   fun executePushedAuthorizationRequest(
+    issuer: OIDCProviderWithMetadata,
     redirectUri: URI,
     claimedCredentials: List<CredentialClaim>,
     vp_token: List<VerifiablePresentation>? = null,
@@ -118,9 +142,10 @@ class OIDC4CIService(
     state: String? = null
   ): URI? {
     val response = createIssuanceAuthRequest(
-      metadata!!.pushedAuthorizationRequestEndpointURI,
+      issuer,
       redirectUri,
       claimedCredentials,
+      pushedAuthorization = true,
       vp_token,
       nonce,
       state
@@ -133,7 +158,7 @@ class OIDC4CIService(
         log.info("Sending PAR request to {}\n {}", it.uri, it.query)
       }.send()
     if (response.indicatesSuccess()) {
-      return URI.create("${metadata!!.authorizationEndpointURI}?client_id=${issuer.client_id ?: redirectUri}&request_uri=${
+      return URI.create("${issuer.oidc_provider_metadata.authorizationEndpointURI}?client_id=${issuer.client_id ?: redirectUri}&request_uri=${
         PushedAuthorizationResponse.parse(
           response
         ).toSuccessResponse().requestURI
@@ -146,6 +171,7 @@ class OIDC4CIService(
 
   // only meant for EBSI WCT (https://api.conformance.intebsi.xyz/docs/?urls.primaryName=Conformance%20API#/Mock%20Credential%20Issuer/get-conformance-v1-issuer-mock-authorize)
   fun executeGetAuthorizationRequest(
+    issuer: OIDCProviderWithMetadata,
     redirectUri: URI,
     claimedCredentials: List<CredentialClaim>,
     vp_token: List<VerifiablePresentation>? = null,
@@ -153,7 +179,7 @@ class OIDC4CIService(
     state: String? = null
   ): URI? {
     val response =
-      createIssuanceAuthRequest(metadata!!.authorizationEndpointURI, redirectUri, claimedCredentials, vp_token, nonce, state)
+      createIssuanceAuthRequest(issuer, redirectUri, claimedCredentials, pushedAuthorization = false, vp_token, nonce, state)
         .toHTTPRequest(HTTPRequest.Method.GET).apply {
           if (issuer.client_id != null && issuer.client_secret != null) {
             authorization = ClientSecretBasic(ClientID(issuer.client_id), Secret(issuer.client_secret)).toHTTPAuthorizationHeader()
@@ -170,20 +196,21 @@ class OIDC4CIService(
   }
 
   fun getUserAgentAuthorizationURL(
+    issuer: OIDCProviderWithMetadata,
     redirectUri: URI,
     claimedCredentials: List<CredentialClaim>,
     vp_token: List<VerifiablePresentation>? = null,
     nonce: String? = null,
     state: String? = null
   ): URI? {
-    val req = createIssuanceAuthRequest(metadata!!.authorizationEndpointURI, redirectUri, claimedCredentials, vp_token, nonce, state)
-    return URI.create("${metadata!!.authorizationEndpointURI}?${req.toQueryString()}")
+    val req = createIssuanceAuthRequest(issuer, redirectUri, claimedCredentials, pushedAuthorization = false, vp_token, nonce, state)
+    return URI.create("${issuer.oidc_provider_metadata.authorizationEndpointURI}?${req.toQueryString()}")
   }
 
-  fun getAccessToken(code: String, redirect_uri: String, mode: CompatibilityMode = CompatibilityMode.OIDC): OIDCTokenResponse {
+  fun getAccessToken(issuer: OIDCProviderWithMetadata, code: String, redirect_uri: String, mode: CompatibilityMode = CompatibilityMode.OIDC): OIDCTokenResponse {
     val codeGrant = AuthorizationCodeGrant(AuthorizationCode(code), URI.create(redirect_uri))
     val clientAuth = ClientSecretBasic(issuer.client_id?. let { ClientID(it) } ?: ClientID(), issuer.client_secret?.let { Secret(it) } ?: Secret())
-    val resp = TokenRequest(metadata!!.tokenEndpointURI, clientAuth, codeGrant).toHTTPRequest().apply {
+    val resp = TokenRequest(issuer.oidc_provider_metadata.tokenEndpointURI, clientAuth, codeGrant).toHTTPRequest().apply {
       if (mode == CompatibilityMode.EBSI_WCT) {
         setHeader("Content-Type", "application/json")
         query =
@@ -199,6 +226,7 @@ class OIDC4CIService(
   }
 
   fun getCredential(
+    issuer: OIDCProviderWithMetadata,
     accessToken: AccessToken,
     did: String,
     schemaId: String,
@@ -208,7 +236,7 @@ class OIDC4CIService(
   ): VerifiableCredential? {
     val resp = HTTPRequest(
       HTTPRequest.Method.POST,
-      URI.create(metadata!!.customParameters["credential_endpoint"].toString())
+      URI.create(issuer.oidc_provider_metadata.customParameters["credential_endpoint"].toString())
     ).apply {
       authorization = accessToken.toAuthorizationHeader()
       if (mode == CompatibilityMode.EBSI_WCT) {
@@ -250,8 +278,8 @@ class OIDC4CIService(
     )
   }
 
-  fun getNonce(): NonceResponse? {
-    val resp = HTTPRequest(HTTPRequest.Method.POST, URI.create(metadata!!.customParameters["nonce_endpoint"].toString())).apply {
+  fun getNonce(issuer: OIDCProviderWithMetadata): NonceResponse? {
+    val resp = HTTPRequest(HTTPRequest.Method.POST, URI.create(issuer.oidc_provider_metadata.customParameters["nonce_endpoint"].toString())).apply {
       if (issuer.client_id != null && issuer.client_secret != null) {
         authorization = ClientSecretBasic(ClientID(issuer.client_id), Secret(issuer.client_secret)).toHTTPAuthorizationHeader()
       }
