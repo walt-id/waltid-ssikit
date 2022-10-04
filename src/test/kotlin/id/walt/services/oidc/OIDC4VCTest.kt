@@ -8,6 +8,7 @@ import com.nimbusds.openid.connect.sdk.Nonce
 import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
 import id.walt.model.dif.*
+import id.walt.model.oidc.CredentialAuthorizationDetails
 import id.walt.model.oidc.OIDCProvider
 import id.walt.model.oidc.OIDCProviderWithMetadata
 import id.walt.model.oidc.VCClaims
@@ -50,7 +51,9 @@ class OIDC4VCTest : AnnotationSpec() {
 
     @Test
     fun testIssuerPAR() {
-        val uri = OIDC4CIService.executePushedAuthorizationRequest(testProvider, redirectUri, listOf(OIDCTestProvider.TEST_CREDENTIAL_CLAIM))
+        val uri = OIDC4CIService.executePushedAuthorizationRequest(testProvider, redirectUri, listOf(
+            CredentialAuthorizationDetails(OIDCTestProvider.TEST_CREDENTIAL_ID, OIDCTestProvider.TEST_CREDENTIAL_FORMAT)
+        ))
         uri shouldNotBe null
         uri!!.query shouldContain "request_uri=${OIDCTestProvider.TEST_REQUEST_URI}"
     }
@@ -63,20 +66,23 @@ class OIDC4VCTest : AnnotationSpec() {
     }
 
     @Test
-    fun testIssuerCredential() {
-        val credential = OIDC4CIService.getCredential(testProvider, BearerAccessToken(OIDCTestProvider.TEST_ACCESS_TOKEN), SUBJECT_DID, OIDCTestProvider.TEST_CREDENTIAL_CLAIM.type!!,
-            OIDC4CIService.generateDidProof(SUBJECT_DID, OIDCTestProvider.TEST_NONCE))
-        credential shouldNotBe null
-        credential!!.credentialSchema!!.id shouldBe OIDCTestProvider.TEST_CREDENTIAL_CLAIM.type
-        credential!!.subject shouldBe SUBJECT_DID
-        credential!!.issuer shouldBe OIDCTestProvider.ISSUER_DID
+    fun testIssuerTokenPreauthz() {
+        val tokenResponse = OIDC4CIService.getAccessToken(testProvider, OIDCTestProvider.TEST_PREAUTHZ_CODE, redirectUri.toString(), isPreAuthorized = true)
+        tokenResponse.customParameters["c_nonce"] shouldBe OIDCTestProvider.TEST_NONCE
+        tokenResponse.oidcTokens.accessToken.toString() shouldBe OIDCTestProvider.TEST_ACCESS_TOKEN
     }
 
     @Test
-    fun testGetNonce() {
-        val nonceResp = OIDC4CIService.getNonce(testProvider)
-        nonceResp shouldNotBe null
-        nonceResp!!.p_nonce shouldBe OIDCTestProvider.TEST_NONCE
+    fun testIssuerCredential() {
+        val credential = OIDC4CIService.getCredential(testProvider,
+            BearerAccessToken(OIDCTestProvider.TEST_ACCESS_TOKEN),
+            OIDCTestProvider.TEST_CREDENTIAL_ID,
+            OIDC4CIService.generateDidProof(testProvider, SUBJECT_DID, OIDCTestProvider.TEST_NONCE),
+            OIDCTestProvider.TEST_CREDENTIAL_FORMAT)
+        credential shouldNotBe null
+        credential!!.type.last() shouldBe OIDCTestProvider.TEST_CREDENTIAL_ID
+        credential.subject shouldBe SUBJECT_DID
+        credential.issuer shouldBe OIDCTestProvider.ISSUER_DID
     }
 
     @Test
