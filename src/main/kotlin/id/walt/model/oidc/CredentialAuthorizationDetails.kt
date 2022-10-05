@@ -22,6 +22,6 @@ open class AuthorizationDetails (
 
 class CredentialAuthorizationDetails (
   val credential_type: String,
-  val format: String,
+  val format: String? = null,
   val locations: List<String>? = null
     ): AuthorizationDetails(OPENID_CREDENTIAL_DETAILS_TYPE)
