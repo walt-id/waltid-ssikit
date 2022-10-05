@@ -50,10 +50,15 @@ object OIDCTestProvider {
   val TEST_ACCESS_TOKEN = "testtoken"
   val TEST_NONCE = "testnonce"
   val TEST_ID_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+  val TEST_OP_STATE = "opstate"
   lateinit var ISSUER_DID: String
 
   fun testPar(ctx: Context) {
     val authReq = AuthorizationRequest.parse(ServletUtils.createHTTPRequest(ctx.req))
+    if(authReq.customParameters.containsKey("op_state")) {
+      authReq.customParameters["op_state"]!!.first() shouldBe TEST_OP_STATE
+    }
+
     val credentialDetails = OIDC4CIService.getCredentialAuthorizationDetails(authReq)
 
     credentialDetails shouldNot beEmpty()

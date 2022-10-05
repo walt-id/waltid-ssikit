@@ -4,14 +4,12 @@ import com.nimbusds.oauth2.sdk.AuthorizationRequest
 import com.nimbusds.oauth2.sdk.id.ClientID
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken
 import com.nimbusds.oauth2.sdk.util.URIUtils
+import com.nimbusds.oauth2.sdk.util.URLUtils
 import com.nimbusds.openid.connect.sdk.Nonce
 import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
 import id.walt.model.dif.*
-import id.walt.model.oidc.CredentialAuthorizationDetails
-import id.walt.model.oidc.OIDCProvider
-import id.walt.model.oidc.OIDCProviderWithMetadata
-import id.walt.model.oidc.VCClaims
+import id.walt.model.oidc.*
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
 import id.walt.signatory.ProofConfig
@@ -37,16 +35,27 @@ import java.net.URI
 
 class OIDC4VCTest : AnnotationSpec() {
 
+    val TEST_ISSUER_PORT = 9000
     lateinit var testProvider: OIDCProviderWithMetadata
     val redirectUri = URI.create("http://blank")
     lateinit var SUBJECT_DID: String
+
+    val FULL_AUTH_INITIATION_REQUEST = URI.create("openid-initiate-issuance:/?" +
+        "issuer=http%3A%2F%2Flocalhost%3A$TEST_ISSUER_PORT" +
+        "&credential_type=${OIDCTestProvider.TEST_CREDENTIAL_ID}" +
+        "&op_state=${OIDCTestProvider.TEST_OP_STATE}")
+    val PRE_AUTH_INITIATION_REQUEST = URI.create("openid-initiate-issuance:/?" +
+        "issuer=http%3A%2F%2Flocalhost%3A$TEST_ISSUER_PORT" +
+        "&credential_type=${OIDCTestProvider.TEST_CREDENTIAL_ID}" +
+        "&pre-authorized_code=${OIDCTestProvider.TEST_PREAUTHZ_CODE}")
+
 
     @BeforeAll
     fun init() {
         ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
         SUBJECT_DID = DidService.create(DidMethod.key)
-        OIDCTestProvider.start(9000)
-        testProvider = OIDC4CIService.getWithProviderMetadata(OIDCProvider("test provider", "http://localhost:9000"))
+        OIDCTestProvider.start(TEST_ISSUER_PORT)
+        testProvider = OIDC4CIService.getWithProviderMetadata(OIDCProvider("test provider", "http://localhost:$TEST_ISSUER_PORT"))
     }
 
     @Test
@@ -70,6 +79,31 @@ class OIDC4VCTest : AnnotationSpec() {
         val tokenResponse = OIDC4CIService.getAccessToken(testProvider, OIDCTestProvider.TEST_PREAUTHZ_CODE, redirectUri.toString(), isPreAuthorized = true)
         tokenResponse.customParameters["c_nonce"] shouldBe OIDCTestProvider.TEST_NONCE
         tokenResponse.oidcTokens.accessToken.toString() shouldBe OIDCTestProvider.TEST_ACCESS_TOKEN
+    }
+
+    @Test
+    fun testFullAuthIssuanceInitiationRequest() {
+        val issuanceInitiationReq = IssuanceInitiationRequest.fromQueryParams(URLUtils.parseParameters(FULL_AUTH_INITIATION_REQUEST.query))
+        issuanceInitiationReq.isPreAuthorized shouldBe false
+        issuanceInitiationReq.op_state shouldNotBe null
+        val issuer = OIDC4CIService.getWithProviderMetadata(OIDCProvider("issuer", issuanceInitiationReq.issuer_url))
+        issuer.oidc_provider_metadata.pushedAuthorizationRequestEndpointURI shouldBe testProvider.oidc_provider_metadata.pushedAuthorizationRequestEndpointURI
+        val uri = OIDC4CIService.executePushedAuthorizationRequest(issuer, redirectUri,
+            issuanceInitiationReq.credential_types.map { CredentialAuthorizationDetails(it, OIDCTestProvider.TEST_CREDENTIAL_FORMAT) },
+            op_state = issuanceInitiationReq.op_state)
+        uri shouldNotBe null
+        uri!!.query shouldContain "request_uri=${OIDCTestProvider.TEST_REQUEST_URI}"
+    }
+
+    @Test
+    fun testPreAuthIssuanceInitiationRequest() {
+        val issuanceInitiationReq = IssuanceInitiationRequest.fromQueryParams(URLUtils.parseParameters(PRE_AUTH_INITIATION_REQUEST.query))
+        issuanceInitiationReq.isPreAuthorized shouldBe true
+        issuanceInitiationReq.op_state shouldBe null
+        val issuer = OIDC4CIService.getWithProviderMetadata(OIDCProvider("issuer", issuanceInitiationReq.issuer_url))
+        issuer.oidc_provider_metadata.tokenEndpointURI shouldBe testProvider.oidc_provider_metadata.tokenEndpointURI
+        val tokens = OIDC4CIService.getAccessToken(issuer, issuanceInitiationReq.pre_authorized_code!!, redirectUri.toString(), isPreAuthorized = true)
+        tokens.oidcTokens.accessToken.value shouldBe OIDCTestProvider.TEST_ACCESS_TOKEN
     }
 
     @Test
