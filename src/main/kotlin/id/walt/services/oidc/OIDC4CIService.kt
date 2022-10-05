@@ -34,6 +34,7 @@ object OIDC4CIService {
     if (resp.indicatesSuccess()) {
       val jsonObj = JSONObjectUtils.parse(resp.content)
       if(!jsonObj.containsKey("subject_types_supported")) {
+        // WORKAROUND to fix parsing spruce/NGI metadata document from: https://ngi-oidc4vci-test.spruceid.xyz/.well-known/openid-configuration
         jsonObj.put("subject_types_supported", listOf("public"))
       }
       return OIDCProviderMetadata.parse(jsonObj)
