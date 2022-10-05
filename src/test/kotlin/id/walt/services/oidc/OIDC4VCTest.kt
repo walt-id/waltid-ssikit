@@ -21,10 +21,7 @@ import id.walt.vclib.model.toCredential
 import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.inspectors.shouldForAll
-import io.kotest.matchers.collections.beEmpty
-import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldContainAll
-import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.*
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNot
 import io.kotest.matchers.shouldNotBe
@@ -104,6 +101,20 @@ class OIDC4VCTest : AnnotationSpec() {
         issuer.oidc_provider_metadata.tokenEndpointURI shouldBe testProvider.oidc_provider_metadata.tokenEndpointURI
         val tokens = OIDC4CIService.getAccessToken(issuer, issuanceInitiationReq.pre_authorized_code!!, redirectUri.toString(), isPreAuthorized = true)
         tokens.oidcTokens.accessToken.value shouldBe OIDCTestProvider.TEST_ACCESS_TOKEN
+    }
+
+    @Test
+    fun testParseNGIPreAuthIssuanceInitiationRequest() {
+        // https://ngi-oidc4vci-test.spruceid.xyz/
+        val reqUri = URI.create("openid-initiate-issuance://?" +
+            "issuer=https%3A%2F%2Fngi%2Doidc4vci%2Dtest%2Espruceid%2Exyz&" +
+            "credential_type=OpenBadgeCredential&" +
+            "pre-authorized_code=eyJhbGciOiJFZERTQSJ9.eyJjcmVkZW50aWFsX3R5cGUiOlsiT3BlbkJhZGdlQ3JlZGVudGlhbCJdLCJleHAiOiIyMDIyLTEwLTA1VDExOjQ1OjQxLjk1NzM0MDYxNVoiLCJub25jZSI6IlFZMm15MDVKWHJPczd1Szg4OUVZSk1CSktkaXBnUXp0In0.f_-BNsLrL2LVTNxAjfJzX33pwC2zQDPGBMrY5LK88zdytOSRdyDfceat5Uzdb3MG3JNUEXEvLUoHYkgx95UCDQ")
+        val issuanceInitiationReq = IssuanceInitiationRequest.fromQueryParams(URLUtils.parseParameters(reqUri.query))
+        issuanceInitiationReq.isPreAuthorized shouldBe true
+        issuanceInitiationReq.issuer_url shouldBe "https://ngi-oidc4vci-test.spruceid.xyz"
+        issuanceInitiationReq.credential_types shouldContain "OpenBadgeCredential"
+        issuanceInitiationReq.pre_authorized_code shouldBe "eyJhbGciOiJFZERTQSJ9.eyJjcmVkZW50aWFsX3R5cGUiOlsiT3BlbkJhZGdlQ3JlZGVudGlhbCJdLCJleHAiOiIyMDIyLTEwLTA1VDExOjQ1OjQxLjk1NzM0MDYxNVoiLCJub25jZSI6IlFZMm15MDVKWHJPczd1Szg4OUVZSk1CSktkaXBnUXp0In0.f_-BNsLrL2LVTNxAjfJzX33pwC2zQDPGBMrY5LK88zdytOSRdyDfceat5Uzdb3MG3JNUEXEvLUoHYkgx95UCDQ"
     }
 
     @Test
