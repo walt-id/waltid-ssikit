@@ -11,6 +11,7 @@ import com.nimbusds.oauth2.sdk.id.Issuer
 import com.nimbusds.oauth2.sdk.id.State
 import com.nimbusds.oauth2.sdk.pkce.CodeVerifier
 import com.nimbusds.oauth2.sdk.token.AccessToken
+import com.nimbusds.oauth2.sdk.util.JSONObjectUtils
 import com.nimbusds.openid.connect.sdk.*
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata
 import id.walt.crypto.LdSignatureType
@@ -30,8 +31,13 @@ object OIDC4CIService {
   fun getMetadataEndpoint(issuer: OIDCProvider) = URI.create("${issuer.url.trimEnd('/')}/.well-known/openid-configuration")
   fun getMetadata(issuer: OIDCProvider): OIDCProviderMetadata? {
     val resp = HTTPRequest(HTTPRequest.Method.GET, getMetadataEndpoint(issuer)).send()
-    if (resp.indicatesSuccess())
-      return OIDCProviderMetadata.parse(resp.content)
+    if (resp.indicatesSuccess()) {
+      val jsonObj = JSONObjectUtils.parse(resp.content)
+      if(!jsonObj.containsKey("subject_types_supported")) {
+        jsonObj.put("subject_types_supported", listOf("public"))
+      }
+      return OIDCProviderMetadata.parse(jsonObj)
+    }
     else {
       log.error { "Error loading issuer provider metadata" }
       return null

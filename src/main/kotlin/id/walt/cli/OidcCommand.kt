@@ -9,6 +9,7 @@ import com.nimbusds.oauth2.sdk.ResponseType
 import com.nimbusds.oauth2.sdk.Scope
 import com.nimbusds.oauth2.sdk.id.State
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken
+import com.nimbusds.oauth2.sdk.util.URLUtils
 import com.nimbusds.openid.connect.sdk.Nonce
 import id.walt.common.prettyPrint
 import id.walt.custodian.Custodian
@@ -59,6 +60,35 @@ class OidcIssuanceInfoCommand: CliktCommand(name = "info", help = "List issuer i
       println("Issuable credentials:")
       println("- ${supported_cred.key}")
       println("---")
+    }
+  }
+}
+
+class OidcIssuanceInitiationCommand: CliktCommand(name = "initiation", help = "Parse issuance initiation request") {
+  val uri: String by option("-u", "--uri", help = "OIDC4VCI issuance initiation request URI").required()
+
+  override fun run() {
+    val issuanceInitiationRequest = IssuanceInitiationRequest.fromQueryParams(URLUtils.parseParameters(URI.create(uri).query))
+    println("Issuer: ${issuanceInitiationRequest.issuer_url}")
+    println("Pre-authorized: ${issuanceInitiationRequest.isPreAuthorized}")
+    println("Credential types: ${issuanceInitiationRequest.credential_types.joinToString (", ")}")
+    println("---")
+    if(issuanceInitiationRequest.isPreAuthorized) {
+      println("Now get the access token using:")
+      println("ssikit oidc ci token -i ${issuanceInitiationRequest.issuer_url}" +
+          " --pre" +
+          " -c \"${issuanceInitiationRequest.pre_authorized_code}\"" +
+          " -r \"<wallet redirectUri>\"" +
+          " --client-id <optional: your_client_id>" +
+          " --client-secret <optional: your_client_secret>")
+    } else {
+      println("Now continue with the authorization step:")
+      println("ssikit oidc ci auth -i ${issuanceInitiationRequest.issuer_url} " +
+          issuanceInitiationRequest.credential_types.map { "-c $it" }.joinToString (" ") +
+          " -r \"<wallet redirectUri>\"" +
+          " --client-id <optional: your_client_id>" +
+          " --client-secret <optional: your_client_secret>" +
+          " -n <nonce> -f <format>")
     }
   }
 }
@@ -126,6 +156,8 @@ class OidcIssuanceTokenCommand: CliktCommand(name = "token", help = "Get access 
   val redirect_uri: String by option("-r", "--redirect-uri", help = "Redirect URI, same as in 'oidc issue auth' command, can contain ?code parameter, to read code from").default("http://blank")
   val client_id: String? by option("--client-id", help = "Client ID for authorization at the issuer API")
   val client_secret: String? by option("--client-secret", help = "Client Secret for authorization at the issuer API")
+  val isPreAuthorized: Boolean by option("--pre", "--pre-authz", help = "Set if this is a pre-authorized code, from an issuance initiation request, requires --code parameter.").flag(default = false)
+  val userPin: String? by option("--pin", "--user-pin", help = "Optional user PIN for pre-authorized flow, if required by issuer")
 
   override fun run() {
     val issuer = OIDC4CIService.getWithProviderMetadata(OIDCProvider(issuer_url, issuer_url, client_id = client_id, client_secret = client_secret))
@@ -133,7 +165,7 @@ class OidcIssuanceTokenCommand: CliktCommand(name = "token", help = "Get access 
     if(authCode == null) {
       println("Error: Code not specified")
     } else {
-      val tokenResponse = OIDC4CIService.getAccessToken(issuer, authCode, redirect_uri.substringBeforeLast("?"))
+      val tokenResponse = OIDC4CIService.getAccessToken(issuer, authCode, redirect_uri.substringBeforeLast("?"), isPreAuthorized, userPin)
       println("Access token response:")
       val jsonObj = tokenResponse.toJSONObject()
       println(jsonObj.prettyPrint())

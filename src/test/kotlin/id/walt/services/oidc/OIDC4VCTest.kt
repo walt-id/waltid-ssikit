@@ -6,6 +6,7 @@ import com.nimbusds.oauth2.sdk.token.BearerAccessToken
 import com.nimbusds.oauth2.sdk.util.URIUtils
 import com.nimbusds.oauth2.sdk.util.URLUtils
 import com.nimbusds.openid.connect.sdk.Nonce
+import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata
 import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
 import id.walt.model.dif.*
@@ -19,6 +20,7 @@ import id.walt.test.RESOURCES_PATH
 import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.toCredential
 import io.kotest.assertions.json.shouldEqualJson
+import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.collections.*
@@ -115,6 +117,12 @@ class OIDC4VCTest : AnnotationSpec() {
         issuanceInitiationReq.issuer_url shouldBe "https://ngi-oidc4vci-test.spruceid.xyz"
         issuanceInitiationReq.credential_types shouldContain "OpenBadgeCredential"
         issuanceInitiationReq.pre_authorized_code shouldBe "eyJhbGciOiJFZERTQSJ9.eyJjcmVkZW50aWFsX3R5cGUiOlsiT3BlbkJhZGdlQ3JlZGVudGlhbCJdLCJleHAiOiIyMDIyLTEwLTA1VDExOjQ1OjQxLjk1NzM0MDYxNVoiLCJub25jZSI6IlFZMm15MDVKWHJPczd1Szg4OUVZSk1CSktkaXBnUXp0In0.f_-BNsLrL2LVTNxAjfJzX33pwC2zQDPGBMrY5LK88zdytOSRdyDfceat5Uzdb3MG3JNUEXEvLUoHYkgx95UCDQ"
+    }
+
+    @Test
+    fun testParseSpruceNGIOpenIDConfiguration() {
+        val oidc_config = "{\"subject_types_supported\": [ \"public\" ], \"issuer\":\"https://ngi-oidc4vci-test.spruceid.xyz\",\"credential_endpoint\":\"https://ngi-oidc4vci-test.spruceid.xyz/credential\",\"token_endpoint\":\"https://ngi-oidc4vci-test.spruceid.xyz/token\",\"jwks_uri\":\"https://ngi-oidc4vci-test.spruceid.xyz/jwks\",\"grant_types_supported\":[\"urn:ietf:params:oauth:grant-type:pre-authorized_code\"],\"credentials_supported\":{\"OpenBadgeCredential\":{\"formats\":{\"jwt_vc\":{\"types\":[\"https://imsglobal.github.io/openbadges-specification/ob_v3p0.html#OpenBadgeCredential\",\"https://w3id.org/ngi/OpenBadgeExtendedCredential\"],\"binding_methods_supported\":[\"did\"],\"cryptographic_suites_supported\":[\"ES256\"]}}}}}"
+        shouldNotThrowAny { OIDCProviderMetadata.parse(oidc_config) }
     }
 
     @Test
