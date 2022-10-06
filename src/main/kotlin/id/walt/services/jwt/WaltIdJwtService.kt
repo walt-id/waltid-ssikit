@@ -135,19 +135,14 @@ open class WaltIdJwtService : JwtService() {
         log.debug { "Verifying token:  $token" }
         val jwt = SignedJWT.parse(token)
         val issuer = jwt.jwtClaimsSet.issuer
-        var keyAlias = jwt.header.keyID
-        if(DidUrl.isDidUrl(issuer)) { // issuer is a valid DID
-            if(!DidService.importKeys(issuer)) {
+        var keyAlias = jwt.header.keyID.orEmpty().ifEmpty { issuer }
+        if(DidUrl.isDidUrl(keyAlias)) { // issuer is a valid DID
+            if(!DidService.importKeys(DidUrl.from(keyAlias).did)) {
                 throw Exception("Could not resolve verification keys")
             }
-            keyAlias = keyAlias.orEmpty().ifEmpty { issuer }
         }
 
         val verifierKey = keyService.load(keyAlias)
-        if (verifierKey == null) {
-            log.error { "Could not load verifying key for $jwt.header.keyID" }
-            throw Exception("Could not load verifying key for $jwt.header.keyID")
-        }
 
         val res = when (verifierKey.algorithm) {
             KeyAlgorithm.EdDSA_Ed25519 -> jwt.verify(Ed25519Verifier(keyService.toEd25519Jwk(verifierKey)))

@@ -92,7 +92,7 @@ object OIDCTestProvider {
     val jwt = JWTParser.parse(credentialReq.proof!!.jwt) as SignedJWT
     val kid = jwt.header.keyID?.toString()
     kid shouldNotBe null
-    val did = DidUrl.from(kid!!.substringBefore("/")).did
+    val did = DidUrl.from(kid!!).did
     val credential = Signatory.getService().issue("VerifiableId", ProofConfig(ISSUER_DID, did))
     ctx.json(CredentialResponse(credentialReq.format, Base64.getUrlEncoder().encodeToString(credential.toByteArray(StandardCharsets.UTF_8))))
   }
