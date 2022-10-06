@@ -9,6 +9,9 @@ import id.walt.vclib.model.toCredential
 @Target(AnnotationTarget.FIELD)
 annotation class ListOrSingleVC
 
+@Target(AnnotationTarget.FIELD)
+annotation class SingleVC
+
 val listOrSingleVCConverter = object: Converter {
   override fun canConvert(cls: Class<*>) = cls == List::class.java
 
@@ -30,4 +33,17 @@ val listOrSingleVCConverter = object: Converter {
   }
 }
 
-val klaxon = Klaxon().fieldConverter(ListOrSingleValue::class, listOrSingleValueConverter).fieldConverter(ListOrSingleVC::class, listOrSingleVCConverter)
+val singleVCConverter = object: Converter {
+  override fun canConvert(cls: Class<*>) = cls == VerifiableCredential::class.java
+
+  override fun fromJson(jv: JsonValue) = (jv.string ?: jv.obj?.toJsonString())?.toCredential()
+
+  override fun toJson(value: Any): String {
+    return when((value as VerifiableCredential).jwt) {
+      null -> value.encode()
+      else -> "\"${value.encode()}\""
+    }
+  }
+}
+
+val klaxon = Klaxon().fieldConverter(ListOrSingleValue::class, listOrSingleValueConverter).fieldConverter(ListOrSingleVC::class, listOrSingleVCConverter).fieldConverter(SingleVC::class, singleVCConverter)

@@ -21,8 +21,10 @@ import id.walt.model.oidc.*
 import id.walt.services.did.DidService
 import id.walt.services.jwt.JwtService
 import id.walt.signatory.ProofConfig
+import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.vclib.model.Proof
+import id.walt.vclib.model.toCredential
 import id.walt.vclib.templates.VcTemplateManager
 import io.javalin.Javalin
 import io.javalin.http.Context
@@ -93,8 +95,8 @@ object OIDCTestProvider {
     val kid = jwt.header.keyID?.toString()
     kid shouldNotBe null
     val did = DidUrl.from(kid!!).did
-    val credential = Signatory.getService().issue("VerifiableId", ProofConfig(ISSUER_DID, did))
-    ctx.json(CredentialResponse(credentialReq.format, Base64.getUrlEncoder().encodeToString(credential.toByteArray(StandardCharsets.UTF_8))))
+    val credential = Signatory.getService().issue("VerifiableId", ProofConfig(ISSUER_DID, did, proofType = if(credentialReq.format == "jwt_vc") ProofType.JWT else ProofType.LD_PROOF))
+    ctx.json(klaxon.toJsonString(CredentialResponse(credentialReq.format, credential.toCredential())))
   }
 
   fun testPresent(ctx: Context) {

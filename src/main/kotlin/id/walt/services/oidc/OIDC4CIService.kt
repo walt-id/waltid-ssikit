@@ -265,10 +265,7 @@ object OIDC4CIService {
     if (resp.indicatesSuccess()) {
       log.info("Credential received: {}", resp.content)
       val credResp = klaxon.parse<CredentialResponse>(resp.content)
-      return when (credResp?.format) {
-        "jwt_vc" -> credResp.credential?.toCredential()
-        else -> credResp?.credential?.let { String(Base64.getUrlDecoder().decode(it)).toCredential() }
-      }
+      return credResp?.credential
     } else {
       log.error("Got error response from credential endpoint: {}: {}", resp.statusCode, resp.content)
     }
