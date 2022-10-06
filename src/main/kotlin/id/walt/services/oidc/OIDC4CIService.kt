@@ -1,5 +1,6 @@
 package id.walt.services.oidc
 
+import com.beust.klaxon.json
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.oauth2.sdk.*
@@ -23,6 +24,7 @@ import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.model.toCredential
 import id.walt.vclib.registry.VcTypeRegistry
 import mu.KotlinLogging
+import java.io.StringReader
 import java.net.URI
 import java.util.*
 
@@ -101,9 +103,10 @@ object OIDC4CIService {
   }
 
   fun getSupportedCredentials(issuer: OIDCProviderWithMetadata): Map<String, CredentialMetadata> {
-    return issuer.oidc_provider_metadata.customParameters["credentials_supported"]?.let {
-      klaxon.parse(it.toString())
-    } ?: mapOf()
+    return (issuer.oidc_provider_metadata.customParameters["credentials_supported"]?.let {
+      val jsonObj = klaxon.parseJsonObject(StringReader(it.toString()))
+      jsonObj.keys.associateBy({it}) { jsonObj.obj(it)?.toJsonString()?.let { klaxon.parse<CredentialMetadata>(it) } }
+    }?.filterValues { v -> v != null } as Map<String, CredentialMetadata>?) ?: mapOf()
   }
 
   private fun createIssuanceAuthRequest(
