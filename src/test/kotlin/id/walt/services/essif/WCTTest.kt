@@ -13,6 +13,7 @@ import id.walt.services.ecosystems.essif.didebsi.EBSI_ENV_URL
 import id.walt.services.ecosystems.essif.EssifClient
 import id.walt.services.key.KeyService
 import id.walt.services.oidc.CompatibilityMode
+import id.walt.services.oidc.OIDC4CIService
 import id.walt.services.oidc.OIDC4VPService
 import id.walt.services.oidc.OIDCUtils
 import id.walt.test.RESOURCES_PATH
@@ -78,23 +79,24 @@ class WCTTest: AnnotationSpec() {
     shouldNotThrowAny {
       DidService.resolve(did)
     }
+    // EBSI WCT Test is no longer functional, TODO: adapt test if needed
+/*
+    val issuer = OIDC4CIService.getWithProviderMetadata(OIDCProvider("ebsi wct issuer", "$EBSI_WCT_ENV/conformance/v1/issuer-mock"))
 
-    val issuer = OIDCProvider("ebsi wct issuer", "$EBSI_WCT_ENV/conformance/v1/issuer-mock")
-
-    val redirectUri = issuer.ciSvc.executeGetAuthorizationRequest(URI.create(REDIRECT_URI), listOf(CredentialClaim(type = SCHEMA_ID, manifest_id = null)), nonce = NONCE, state = STATE)
+    val redirectUri = OIDC4CIService.executeGetAuthorizationRequest(issuer, URI.create(REDIRECT_URI), listOf(CredentialClaim(type = SCHEMA_ID, manifest_id = null)), nonce = NONCE, state = STATE)
     redirectUri shouldNotBe null
 
     val code = OIDCUtils.getCodeFromRedirectUri(redirectUri!!)
     code shouldNotBe null
 
-    val tokenResponse = issuer.ciSvc.getAccessToken(code!!, REDIRECT_URI, CompatibilityMode.EBSI_WCT)
+    val tokenResponse = OIDC4CIService.getAccessToken(issuer, code!!, REDIRECT_URI, CompatibilityMode.EBSI_WCT)
     tokenResponse.indicatesSuccess() shouldBe true
 
-    val proof = issuer.ciSvc.generateDidProof(did, tokenResponse.customParameters["c_nonce"]?.toString())
-    vc = issuer.ciSvc.getCredential(tokenResponse.toSuccessResponse().oidcTokens.accessToken, did, SCHEMA_ID, proof, mode = CompatibilityMode.EBSI_WCT)
+    val proof = OIDC4CIService.generateDidProof(did, tokenResponse.customParameters["c_nonce"]?.toString())
+    vc = OIDC4CIService.getCredential(issuer, tokenResponse.toSuccessResponse().oidcTokens.accessToken, did, SCHEMA_ID, proof, mode = CompatibilityMode.EBSI_WCT)
     vc shouldNotBe null
     vc?.credentialSchema shouldNotBe null
-    vc?.credentialSchema?.id shouldBe SCHEMA_ID
+    vc?.credentialSchema?.id shouldBe SCHEMA_ID*/
   }
 
   @Test
@@ -103,7 +105,7 @@ class WCTTest: AnnotationSpec() {
 
     val verifier = OIDCProvider("ebsi wct issuer", "$EBSI_WCT_ENV/conformance/v1/verifier-mock")
 
-    val siopReq = verifier.vpSvc.fetchOIDC4VPRequest()
+    val siopReq = OIDC4VPService.fetchOIDC4VPRequest(verifier)
     siopReq shouldNotBe null
 
     val redirectUri = siopReq!!.redirectionURI

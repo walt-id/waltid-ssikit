@@ -4,12 +4,13 @@ import com.nimbusds.oauth2.sdk.AuthorizationRequest
 import com.nimbusds.oauth2.sdk.id.ClientID
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken
 import com.nimbusds.oauth2.sdk.util.URIUtils
+import com.nimbusds.oauth2.sdk.util.URLUtils
 import com.nimbusds.openid.connect.sdk.Nonce
+import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata
 import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
 import id.walt.model.dif.*
-import id.walt.model.oidc.OIDCProvider
-import id.walt.model.oidc.VCClaims
+import id.walt.model.oidc.*
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
 import id.walt.signatory.ProofConfig
@@ -19,12 +20,10 @@ import id.walt.test.RESOURCES_PATH
 import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.toCredential
 import io.kotest.assertions.json.shouldEqualJson
+import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.inspectors.shouldForAll
-import io.kotest.matchers.collections.beEmpty
-import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldContainAll
-import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.*
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNot
 import io.kotest.matchers.shouldNotBe
@@ -35,46 +34,108 @@ import java.net.URI
 
 class OIDC4VCTest : AnnotationSpec() {
 
-    val testProvider = OIDCProvider("test provider", "http://localhost:9000")
+    val TEST_ISSUER_PORT = 9000
+    lateinit var testProvider: OIDCProviderWithMetadata
     val redirectUri = URI.create("http://blank")
     lateinit var SUBJECT_DID: String
+
+    val FULL_AUTH_INITIATION_REQUEST = URI.create("openid-initiate-issuance:/?" +
+        "issuer=http%3A%2F%2Flocalhost%3A$TEST_ISSUER_PORT" +
+        "&credential_type=${OIDCTestProvider.TEST_CREDENTIAL_ID}" +
+        "&op_state=${OIDCTestProvider.TEST_OP_STATE}")
+    val PRE_AUTH_INITIATION_REQUEST = URI.create("openid-initiate-issuance:/?" +
+        "issuer=http%3A%2F%2Flocalhost%3A$TEST_ISSUER_PORT" +
+        "&credential_type=${OIDCTestProvider.TEST_CREDENTIAL_ID}" +
+        "&pre-authorized_code=${OIDCTestProvider.TEST_PREAUTHZ_CODE}")
+
 
     @BeforeAll
     fun init() {
         ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
         SUBJECT_DID = DidService.create(DidMethod.key)
-        OIDCTestProvider.start(9000)
+        OIDCTestProvider.start(TEST_ISSUER_PORT)
+        testProvider = OIDC4CIService.getWithProviderMetadata(OIDCProvider("test provider", "http://localhost:$TEST_ISSUER_PORT"))
     }
 
     @Test
     fun testIssuerPAR() {
-        val uri = testProvider.ciSvc.executePushedAuthorizationRequest(redirectUri, listOf(OIDCTestProvider.TEST_CREDENTIAL_CLAIM))
+        val uri = OIDC4CIService.executePushedAuthorizationRequest(testProvider, redirectUri, listOf(
+            CredentialAuthorizationDetails(OIDCTestProvider.TEST_CREDENTIAL_ID, OIDCTestProvider.TEST_CREDENTIAL_FORMAT)
+        ))
         uri shouldNotBe null
         uri!!.query shouldContain "request_uri=${OIDCTestProvider.TEST_REQUEST_URI}"
     }
 
     @Test
     fun testIssuerToken() {
-        val tokenResponse = testProvider.ciSvc.getAccessToken(OIDCTestProvider.TEST_AUTH_CODE, redirectUri.toString())
+        val tokenResponse = OIDC4CIService.getAccessToken(testProvider, OIDCTestProvider.TEST_AUTH_CODE, redirectUri.toString())
         tokenResponse.customParameters["c_nonce"] shouldBe OIDCTestProvider.TEST_NONCE
         tokenResponse.oidcTokens.accessToken.toString() shouldBe OIDCTestProvider.TEST_ACCESS_TOKEN
     }
 
     @Test
-    fun testIssuerCredential() {
-        val credential = testProvider.ciSvc.getCredential(BearerAccessToken(OIDCTestProvider.TEST_ACCESS_TOKEN), SUBJECT_DID, OIDCTestProvider.TEST_CREDENTIAL_CLAIM.type!!,
-            testProvider.ciSvc.generateDidProof(SUBJECT_DID, OIDCTestProvider.TEST_NONCE))
-        credential shouldNotBe null
-        credential!!.credentialSchema!!.id shouldBe OIDCTestProvider.TEST_CREDENTIAL_CLAIM.type
-        credential!!.subject shouldBe SUBJECT_DID
-        credential!!.issuer shouldBe OIDCTestProvider.ISSUER_DID
+    fun testIssuerTokenPreauthz() {
+        val tokenResponse = OIDC4CIService.getAccessToken(testProvider, OIDCTestProvider.TEST_PREAUTHZ_CODE, redirectUri.toString(), isPreAuthorized = true)
+        tokenResponse.customParameters["c_nonce"] shouldBe OIDCTestProvider.TEST_NONCE
+        tokenResponse.oidcTokens.accessToken.toString() shouldBe OIDCTestProvider.TEST_ACCESS_TOKEN
     }
 
     @Test
-    fun testGetNonce() {
-        val nonceResp = testProvider.ciSvc.getNonce()
-        nonceResp shouldNotBe null
-        nonceResp!!.p_nonce shouldBe OIDCTestProvider.TEST_NONCE
+    fun testFullAuthIssuanceInitiationRequest() {
+        val issuanceInitiationReq = IssuanceInitiationRequest.fromQueryParams(URLUtils.parseParameters(FULL_AUTH_INITIATION_REQUEST.query))
+        issuanceInitiationReq.isPreAuthorized shouldBe false
+        issuanceInitiationReq.op_state shouldNotBe null
+        val issuer = OIDC4CIService.getWithProviderMetadata(OIDCProvider("issuer", issuanceInitiationReq.issuer_url))
+        issuer.oidc_provider_metadata.pushedAuthorizationRequestEndpointURI shouldBe testProvider.oidc_provider_metadata.pushedAuthorizationRequestEndpointURI
+        val uri = OIDC4CIService.executePushedAuthorizationRequest(issuer, redirectUri,
+            issuanceInitiationReq.credential_types.map { CredentialAuthorizationDetails(it, OIDCTestProvider.TEST_CREDENTIAL_FORMAT) },
+            op_state = issuanceInitiationReq.op_state)
+        uri shouldNotBe null
+        uri!!.query shouldContain "request_uri=${OIDCTestProvider.TEST_REQUEST_URI}"
+    }
+
+    @Test
+    fun testPreAuthIssuanceInitiationRequest() {
+        val issuanceInitiationReq = IssuanceInitiationRequest.fromQueryParams(URLUtils.parseParameters(PRE_AUTH_INITIATION_REQUEST.query))
+        issuanceInitiationReq.isPreAuthorized shouldBe true
+        issuanceInitiationReq.op_state shouldBe null
+        val issuer = OIDC4CIService.getWithProviderMetadata(OIDCProvider("issuer", issuanceInitiationReq.issuer_url))
+        issuer.oidc_provider_metadata.tokenEndpointURI shouldBe testProvider.oidc_provider_metadata.tokenEndpointURI
+        val tokens = OIDC4CIService.getAccessToken(issuer, issuanceInitiationReq.pre_authorized_code!!, redirectUri.toString(), isPreAuthorized = true)
+        tokens.oidcTokens.accessToken.value shouldBe OIDCTestProvider.TEST_ACCESS_TOKEN
+    }
+
+    @Test
+    fun testParseNGIPreAuthIssuanceInitiationRequest() {
+        // https://ngi-oidc4vci-test.spruceid.xyz/
+        val reqUri = URI.create("openid-initiate-issuance://?" +
+            "issuer=https%3A%2F%2Fngi%2Doidc4vci%2Dtest%2Espruceid%2Exyz&" +
+            "credential_type=OpenBadgeCredential&" +
+            "pre-authorized_code=eyJhbGciOiJFZERTQSJ9.eyJjcmVkZW50aWFsX3R5cGUiOlsiT3BlbkJhZGdlQ3JlZGVudGlhbCJdLCJleHAiOiIyMDIyLTEwLTA1VDExOjQ1OjQxLjk1NzM0MDYxNVoiLCJub25jZSI6IlFZMm15MDVKWHJPczd1Szg4OUVZSk1CSktkaXBnUXp0In0.f_-BNsLrL2LVTNxAjfJzX33pwC2zQDPGBMrY5LK88zdytOSRdyDfceat5Uzdb3MG3JNUEXEvLUoHYkgx95UCDQ")
+        val issuanceInitiationReq = IssuanceInitiationRequest.fromQueryParams(URLUtils.parseParameters(reqUri.query))
+        issuanceInitiationReq.isPreAuthorized shouldBe true
+        issuanceInitiationReq.issuer_url shouldBe "https://ngi-oidc4vci-test.spruceid.xyz"
+        issuanceInitiationReq.credential_types shouldContain "OpenBadgeCredential"
+        issuanceInitiationReq.pre_authorized_code shouldBe "eyJhbGciOiJFZERTQSJ9.eyJjcmVkZW50aWFsX3R5cGUiOlsiT3BlbkJhZGdlQ3JlZGVudGlhbCJdLCJleHAiOiIyMDIyLTEwLTA1VDExOjQ1OjQxLjk1NzM0MDYxNVoiLCJub25jZSI6IlFZMm15MDVKWHJPczd1Szg4OUVZSk1CSktkaXBnUXp0In0.f_-BNsLrL2LVTNxAjfJzX33pwC2zQDPGBMrY5LK88zdytOSRdyDfceat5Uzdb3MG3JNUEXEvLUoHYkgx95UCDQ"
+    }
+
+    @Test
+    fun testParseSpruceNGIOpenIDConfiguration() {
+        val oidc_config = "{\"subject_types_supported\": [ \"public\" ], \"issuer\":\"https://ngi-oidc4vci-test.spruceid.xyz\",\"credential_endpoint\":\"https://ngi-oidc4vci-test.spruceid.xyz/credential\",\"token_endpoint\":\"https://ngi-oidc4vci-test.spruceid.xyz/token\",\"jwks_uri\":\"https://ngi-oidc4vci-test.spruceid.xyz/jwks\",\"grant_types_supported\":[\"urn:ietf:params:oauth:grant-type:pre-authorized_code\"],\"credentials_supported\":{\"OpenBadgeCredential\":{\"formats\":{\"jwt_vc\":{\"types\":[\"https://imsglobal.github.io/openbadges-specification/ob_v3p0.html#OpenBadgeCredential\",\"https://w3id.org/ngi/OpenBadgeExtendedCredential\"],\"binding_methods_supported\":[\"did\"],\"cryptographic_suites_supported\":[\"ES256\"]}}}}}"
+        shouldNotThrowAny { OIDCProviderMetadata.parse(oidc_config) }
+    }
+
+    @Test
+    fun testIssuerCredential() {
+        val credential = OIDC4CIService.getCredential(testProvider,
+            BearerAccessToken(OIDCTestProvider.TEST_ACCESS_TOKEN),
+            OIDCTestProvider.TEST_CREDENTIAL_ID,
+            OIDC4CIService.generateDidProof(testProvider, SUBJECT_DID, OIDCTestProvider.TEST_NONCE),
+            OIDCTestProvider.TEST_CREDENTIAL_FORMAT)
+        credential shouldNotBe null
+        credential!!.type.last() shouldBe OIDCTestProvider.TEST_CREDENTIAL_ID
+        credential.subject shouldBe SUBJECT_DID
+        credential.issuer shouldBe OIDCTestProvider.ISSUER_DID
     }
 
     @Test

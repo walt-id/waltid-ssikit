@@ -138,7 +138,7 @@ object WaltCLI {
                     OidcCommand().subcommands(
                         OidcIssuanceCommand().subcommands(
                             OidcIssuanceInfoCommand(),
-                            OidcIssuanceNonceCommand(),
+                            OidcIssuanceInitiationCommand(),
                             OidcIssuanceAuthCommand(),
                             OidcIssuanceTokenCommand(),
                             OidcIssuanceCredentialCommand()
