@@ -90,7 +90,7 @@ object CustodianAPI {
                         return Klaxon().toJsonString(obj)
                     }
 
-                    override fun <T : Any?> fromJsonString(json: String, targetClass: Class<T>): T {
+                    override fun <T : Any> fromJsonString(json: String, targetClass: Class<T>): T {
                         return JavalinJackson().fromJsonString(json, targetClass)
                     }
                 })
@@ -131,12 +131,19 @@ object CustodianAPI {
                 get("/", documented(CustodianController.listCredentialsDocs(), CustodianController::listCredentials))
                 path("list/") {
                     get("credentialIds", documented(CustodianController.listCredentialIdsDocs(), CustodianController::listCredentialIds))
+                    get("credentialModels", documented(CustodianController.listCredentialModelsDocs(), CustodianController::listCredentialModels))
                 }
-                get("{id}",  documented(CustodianController.getCredentialDocs(), CustodianController::getCredential))
-                put("{alias}",  documented(CustodianController.storeCredentialsDocs(),CustodianController::storeCredential))
+                get("{id}", documented(CustodianController.getCredentialDocs(), CustodianController::getCredential))
+                put("{alias}", documented(CustodianController.storeCredentialsDocs(), CustodianController::storeCredential))
                 delete("{alias}", documented(CustodianController.deleteCredentialDocs(), CustodianController::deleteCredential))
-                post("present", documented(CustodianController.presentCredentialsDocs(), CustodianController::presentCredentials))
-                post("presentIds", documented(CustodianController.presentCredentialIdsDocs(), CustodianController::presentCredentialIds))
+                post(
+                    "present",
+                    documented(CustodianController.presentCredentialsDocs(), CustodianController::presentCredentials)
+                )
+                post(
+                    "presentIds",
+                    documented(CustodianController.presentCredentialIdsDocs(), CustodianController::presentCredentialIds)
+                )
             }
         }.exception(IllegalArgumentException::class.java) { e, ctx ->
             log.error { e.stackTraceToString() }

@@ -243,6 +243,7 @@ fun convertX25519PublicKeyFromMultibase58Btc(mbase58: String): ByteArray {
 // 0xed ed25519-pub
 // 0xe7 secp256k1-pub
 
+@Suppress("REDUNDANT_ELSE_IN_WHEN")
 fun getMulticodecKeyCode(algorithm: KeyAlgorithm) = when (algorithm) {
     KeyAlgorithm.EdDSA_Ed25519 -> 0xed01
     KeyAlgorithm.ECDSA_Secp256k1 -> 0xe701
@@ -253,9 +254,7 @@ fun getMulticodecKeyCode(algorithm: KeyAlgorithm) = when (algorithm) {
 fun getKeyAlgorithmFromMultibase(mb: String): KeyAlgorithm {
     val decoded = mb.decodeMultiBase58Btc()
 
-    val code = (decoded[0].toInt().shl(8) and 0xFFFF) + decoded[1]
-
-    return when (code) {
+    return when (val code = (decoded[0].toInt().shl(8) and 0xFFFF) + decoded[1]) {
         0xed01 -> KeyAlgorithm.EdDSA_Ed25519
         0xe701 -> KeyAlgorithm.ECDSA_Secp256k1
         0x1205 -> KeyAlgorithm.RSA

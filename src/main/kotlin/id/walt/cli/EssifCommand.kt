@@ -162,7 +162,8 @@ class EssifTimestampCreateCommand : CliktCommand(
 
         if (!dataFile.exists()) throw Exception("File ${dataFile.absoluteFile} not found.")
 
-        val transactionHash = WaltIdTimestampService().createTimestamp(did, ethKeyAlias ?: did, "{\"test\": \"${UUID.randomUUID()}\"}")
+        val transactionHash =
+            WaltIdTimestampService().createTimestamp(did, ethKeyAlias ?: did, "{\"test\": \"${UUID.randomUUID()}\"}")
 
         echo("\nReturned transaction hash:\n")
 
@@ -183,11 +184,11 @@ class EssifTimestampGetCommand : CliktCommand(
         echo("Getting timestamp.")
 
         val timestamp: Timestamp? = runBlocking {
-             when {
-                 id != null -> WaltIdTimestampService().getByTimestampId(id!!)
-                 txhash != null -> WaltIdTimestampService().getByTransactionHash(txhash!!)
-                 else -> throw Exception("Either timestamp ID or transaction hash need to be specified")
-             }
+            when {
+                id != null -> WaltIdTimestampService().getByTimestampId(id!!)
+                txhash != null -> WaltIdTimestampService().getByTransactionHash(txhash!!)
+                else -> throw Exception("Either timestamp ID or transaction hash need to be specified")
+            }
         }
 
         echo("\nResult:\n")

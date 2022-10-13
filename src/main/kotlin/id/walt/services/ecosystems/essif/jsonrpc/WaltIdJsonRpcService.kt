@@ -124,5 +124,5 @@ class WaltIdJsonRpcService : JsonRpcService() {
         }
         //TODO: consider ID value. is random the generation ok?
         setBody(JsonRpcRequest("2.0", method, params, (0..999).random()))
-    }.body<T>()
+    }.body()
 }

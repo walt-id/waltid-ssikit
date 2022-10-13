@@ -20,13 +20,13 @@
 package com.nimbusds.oauth2.sdk;
 
 
-import java.util.List;
-import java.util.Map;
-
 import com.nimbusds.oauth2.sdk.ciba.CIBAGrant;
 import com.nimbusds.oauth2.sdk.device.DeviceCodeGrant;
 import com.nimbusds.oauth2.sdk.tokenexchange.TokenExchangeGrant;
 import com.nimbusds.oauth2.sdk.util.MultivaluedMapUtils;
+
+import java.util.List;
+import java.util.Map;
 
 
 /**

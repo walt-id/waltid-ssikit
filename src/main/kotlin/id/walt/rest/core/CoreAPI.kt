@@ -110,7 +110,7 @@ object CoreAPI {
                         return Klaxon().toJsonString(obj)
                     }
 
-                    override fun <T : Any?> fromJsonString(json: String, targetClass: Class<T>): T {
+                    override fun <T : Any> fromJsonString(json: String, targetClass: Class<T>): T {
                         return JavalinJackson(mapper).fromJsonString(json, targetClass)
                     }
                 })

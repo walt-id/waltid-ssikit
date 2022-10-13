@@ -1,7 +1,6 @@
-package id.walt.services.essif
+package id.walt.services.ecosystems.essif
 
 import com.beust.klaxon.Json
-import id.walt.vclib.model.CredentialSchema
 import id.walt.vclib.model.Proof
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

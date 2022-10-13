@@ -9,8 +9,8 @@ import id.walt.services.CryptoProvider
 import id.walt.services.WaltIdServices
 import id.walt.services.context.ContextManager
 import id.walt.services.crypto.CryptoService
-import id.walt.services.hkvstore.HKVKey
 import id.walt.services.ecosystems.iota.IotaService
+import id.walt.services.hkvstore.HKVKey
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
 import id.walt.services.vc.JsonLdCredentialService
@@ -68,6 +68,7 @@ object DidService {
             "did.json"
 
     fun create(method: DidMethod, keyAlias: String? = null, options: DidOptions? = null): String {
+        @Suppress("REDUNDANT_ELSE_IN_WHEN")
         val didUrl = when (method) {
             DidMethod.key -> createDidKey(keyAlias)
             DidMethod.web -> createDidWeb(keyAlias,
@@ -204,8 +205,8 @@ object DidService {
         ContextManager.keyStore.addAlias(keyId, didUrl)
 
         val didDoc = resolve(didUrl)
-        didDoc.verificationMethod?.forEach { vm ->
-            ContextManager.keyStore.addAlias(keyId, vm.id)
+        didDoc.verificationMethod?.forEach { (id) ->
+            ContextManager.keyStore.addAlias(keyId, id)
         }
         storeDid(didUrl, didDoc.encodePretty())
 
@@ -226,7 +227,7 @@ object DidService {
         val path = when {
             options.path.isNullOrEmpty() -> ""
             else -> ":${
-                options.path.split("/").map { part -> URLEncoder.encode(part, StandardCharsets.UTF_8) }.joinToString(":")
+                options.path.split("/").joinToString(":") { part -> URLEncoder.encode(part, StandardCharsets.UTF_8) }
             }"
         }
 
@@ -478,17 +479,19 @@ object DidService {
     fun importKeys(didUrl: String): Boolean {
         val did = loadOrResolveAnyDid(didUrl) ?: throw Exception("Could not load or resolve $didUrl")
 
-        return (did.verificationMethod ?: listOf()).plus(
-            did.capabilityInvocation ?: listOf()
-        ).plus(
-            did.capabilityDelegation ?: listOf()
-        ).plus(
-            did.assertionMethod ?: listOf()
-        ).plus(
-            did.authentication ?: listOf()
-        ).plus(
-            did.keyAgreement ?: listOf()
-        )
+        return (did.verificationMethod ?: listOf())
+            .asSequence()
+            .plus(
+                did.capabilityInvocation ?: listOf()
+            ).plus(
+                did.capabilityDelegation ?: listOf()
+            ).plus(
+                did.assertionMethod ?: listOf()
+            ).plus(
+                did.authentication ?: listOf()
+            ).plus(
+                did.keyAgreement ?: listOf()
+            )
             .filter { vm -> !vm.isReference }
             .mapIndexed { idx, vm -> tryImportVerificationKey(didUrl, vm, idx == 0) }
             .reduce { acc, b -> acc || b } ?: false

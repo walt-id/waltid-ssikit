@@ -188,7 +188,7 @@ open class FileSystemKeyStoreService : KeyStoreService() {
 ////        return null
 //    }>
 
-    private fun saveKeyFile(keyId: String, suffix: String, data: ByteArray): Unit {
+    private fun saveKeyFile(keyId: String, suffix: String, data: ByteArray) {
         var keyId = keyId
         if (keyId.length > FILE_NAME_MAX_LENGTH) {
             keyId = keyId.substring(0, FILE_NAME_MAX_LENGTH)

@@ -14,8 +14,8 @@ import id.walt.crypto.*
 import id.walt.model.*
 import id.walt.services.context.ContextManager
 import id.walt.services.did.DidService
-import id.walt.services.essif.EbsiVAWrapper
-import id.walt.services.essif.EbsiVaVp
+import id.walt.services.ecosystems.essif.EbsiVAWrapper
+import id.walt.services.ecosystems.essif.EbsiVaVp
 import id.walt.services.ecosystems.essif.EssifClient
 import id.walt.services.ecosystems.essif.LegalEntityClient
 import id.walt.services.ecosystems.essif.enterprisewallet.EnterpriseWalletService

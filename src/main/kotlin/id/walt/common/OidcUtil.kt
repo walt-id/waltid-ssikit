@@ -118,11 +118,11 @@ object OidcUtil {
         }
 
         if (scope != request.scope) {
-            throw Exception("Scopes in OidcRequest data structure are not matching we got: ${scope} & ${request.scope}")
+            throw Exception("Scopes in OidcRequest data structure are not matching we got: $scope & ${request.scope}")
         }
 
-        if (responseType != request.reponse_type) {
-            throw Exception("Scopes in OidcRequest data structure are not matching we got: ${responseType} & ${request.reponse_type}")
+        if (responseType != request.response_type) {
+            throw Exception("Scopes in OidcRequest data structure are not matching we got: $responseType & ${request.response_type}")
         }
 
         return request

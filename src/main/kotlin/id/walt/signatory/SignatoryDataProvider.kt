@@ -31,7 +31,7 @@ object DataProviderRegistry {
 class DeltaDaoDataProvider : AbstractDataProvider<GaiaxCredential>() {
     override fun populateCustomData(template: GaiaxCredential, proofConfig: ProofConfig): GaiaxCredential {
         // TODO: Load and replace data wherever required
-        // val idData = DeltaDaoDatabase.get(proofConfig.dataProviderIdentifier!!) ?: throw Exception("No ID data found for the given data-povider identifier")
+        // val idData = DeltaDaoDatabase.get(proofConfig.dataProviderIdentifier!!) ?: throw Exception("No ID data found for the given data-provider identifier")
 
         template.apply {
             credentialSubject?.apply {

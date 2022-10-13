@@ -1,6 +1,5 @@
 package id.walt.signatory
 
-import com.beust.klaxon.Klaxon
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
 import id.walt.services.WaltIdServices

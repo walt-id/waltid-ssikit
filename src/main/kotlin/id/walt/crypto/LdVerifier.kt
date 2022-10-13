@@ -4,7 +4,6 @@ import com.nimbusds.jose.JWSObject
 import com.nimbusds.jose.crypto.ECDSAVerifier
 import com.nimbusds.jose.crypto.Ed25519Verifier
 import com.nimbusds.jose.crypto.RSASSAVerifier
-import id.walt.services.crypto.CryptoService
 import id.walt.services.key.KeyService
 import info.weboftrust.ldsignatures.LdProof
 import info.weboftrust.ldsignatures.canonicalizer.Canonicalizers

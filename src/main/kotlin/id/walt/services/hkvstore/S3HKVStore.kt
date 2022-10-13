@@ -2,18 +2,14 @@ package id.walt.services.hkvstore
 
 import id.walt.servicematrix.ServiceConfiguration
 import io.minio.*
-import io.minio.messages.Tags
 import mu.KotlinLogging
-import java.nio.file.Path
 
 data class S3StoreConfig(
   val endpoint: String,
   val bucket: String,
   val access_key: String? = null,
   val secret_key: String? = null
-) : ServiceConfiguration {
-
-}
+) : ServiceConfiguration
 
 class S3HKVStore(configPath: String) : HKVStoreService() {
   override lateinit var configuration: S3StoreConfig
@@ -61,12 +57,12 @@ class S3HKVStore(configPath: String) : HKVStoreService() {
   }
 
   override fun getAsByteArray(key: HKVKey): ByteArray? {
-    return s3Client.listObjects(ListObjectsArgs.builder()
-      .bucket(configuration.bucket)
-      .prefix(key.toString())
-      .recursive(false).build())
-      .filter { it.get().objectName() == key.toString().trim('/') }
-      .firstOrNull()?.let {
+    return s3Client.listObjects(
+      ListObjectsArgs.builder()
+        .bucket(configuration.bucket)
+        .prefix(key.toString())
+        .recursive(false).build()
+    ).firstOrNull { it.get().objectName() == key.toString().trim('/') }?.let {
         s3Client.getObject(GetObjectArgs.builder()
           .bucket(configuration.bucket)
           .`object`(key.toString())

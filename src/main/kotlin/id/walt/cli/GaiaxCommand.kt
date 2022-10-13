@@ -68,6 +68,7 @@ class GaiaxOnboardingCommand : CliktCommand(
                 echo(">>> Generating RSA key...")
                 keyService.generate(KeyAlgorithm.RSA)
             }
+
             else -> {
                 val rsaKeyFilePath = Path.of(rsaKeyFile)
                 echo("Importing RSA key from: $rsaKeyFilePath")

@@ -52,8 +52,8 @@ class DidWeb(
             didUrl.identifier.substringBefore(":").let { URLDecoder.decode(it, StandardCharsets.UTF_8) }
 
         fun getPath(didUrl: DidUrl) =
-            didUrl.identifier.substringAfter(":", "").split(":").map { part -> URLDecoder.decode(part, StandardCharsets.UTF_8) }
-                .joinToString("/")
+            didUrl.identifier.substringAfter(":", "").split(":")
+                .joinToString("/") { part -> URLDecoder.decode(part, StandardCharsets.UTF_8) }
 
         fun getDidDocUri(didUrl: DidUrl): URI =
             getPath(didUrl).let { path ->

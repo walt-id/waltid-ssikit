@@ -135,7 +135,7 @@ open class WaltIdJwtService : JwtService() {
         log.debug { "Verifying token:  $token" }
         val jwt = SignedJWT.parse(token)
         val issuer = jwt.jwtClaimsSet.issuer
-        var keyAlias = jwt.header.keyID.orEmpty().ifEmpty { issuer }
+        val keyAlias = jwt.header.keyID.orEmpty().ifEmpty { issuer }
         if(DidUrl.isDidUrl(keyAlias)) { // issuer is a valid DID
             if(!DidService.importKeys(DidUrl.from(keyAlias).did)) {
                 throw Exception("Could not resolve verification keys")

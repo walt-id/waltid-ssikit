@@ -10,16 +10,16 @@ import id.walt.services.oidc.OIDCUtils
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
 import id.walt.signatory.RevocationClientService
+import id.walt.vclib.credentials.CredentialStatusCredential
 import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.credentials.gaiax.GaiaxCredential
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.schema.SchemaService
+import io.ktor.client.plugins.*
 import kotlinx.serialization.Serializable
 import mu.KotlinLogging
 import java.text.SimpleDateFormat
 import java.util.*
-import id.walt.vclib.credentials.CredentialStatusCredential
-import io.ktor.client.plugins.*
 
 private const val TIR_TYPE_ATTRIBUTE = "attribute"
 private const val TIR_NAME_ISSUER = "issuer"
@@ -47,10 +47,9 @@ abstract class VerificationPolicy {
     }
 }
 
-abstract class SimpleVerificationPolicy : VerificationPolicy() {
-}
+abstract class SimpleVerificationPolicy : VerificationPolicy()
 
-abstract class ParameterizedVerificationPolicy<T>(val argument: T): VerificationPolicy() {}
+abstract class ParameterizedVerificationPolicy<T>(val argument: T): VerificationPolicy()
 
 class SignaturePolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by signature"
@@ -246,12 +245,12 @@ class GaiaxTrustedPolicy : SimpleVerificationPolicy() {
             return false
         }
         // TODO: validate trusted fields properly
-        if (gaiaxVc.credentialSubject!!.DNSpublicKey.length < 1) {
+        if (gaiaxVc.credentialSubject!!.DNSpublicKey.isEmpty()) {
             log.debug { "DNS Public key not valid." }
             return false
         }
 
-        if (gaiaxVc.credentialSubject!!.ethereumAddress.id.length < 1) {
+        if (gaiaxVc.credentialSubject!!.ethereumAddress.id.isEmpty()) {
             log.debug { "ETH address not valid." }
             return false
         }

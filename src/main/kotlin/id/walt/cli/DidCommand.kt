@@ -54,7 +54,8 @@ class CreateDidCommand : CliktCommand(
     val keyAlias: String? by option("-k", "--key", help = "Specific key (ID or alias)")
     val didWebDomain: String by option("-d", "--domain", help = "Domain for did:web").default("walt.id")
     val didWebPath: String? by option("-p", "--path", help = "Path for did:web")
-    val didEbsiVersion: Int by option("-v", "--version", help = "Version of did:ebsi. Allowed values: 1 (default), 2").int().default(1)
+    val didEbsiVersion: Int by option("-v", "--version", help = "Version of did:ebsi. Allowed values: 1 (default), 2").int()
+        .default(1)
     val dest: Path? by argument("destination-file").path().optional()
 
     override fun run() {
@@ -68,7 +69,7 @@ class CreateDidCommand : CliktCommand(
 
         echo("Creating did:${method} (key: ${keyId})")
 
-        val did = when(didMethod) {
+        val did = when (didMethod) {
             web -> DidService.create(web, keyId, DidService.DidWebOptions(didWebDomain, didWebPath))
             ebsi -> DidService.create(ebsi, keyId, DidService.DidEbsiOptions(didEbsiVersion))
             key -> DidService.create(key, keyId)
@@ -98,6 +99,7 @@ fun resolveDidHelper(did: String, raw: Boolean) = when {
         true -> DidService.resolveDidEbsiRaw(did).prettyPrint()
         else -> DidService.resolveDidEbsi(did).encodePretty()
     }
+
     else -> DidService.resolve(did).encodePretty()
 }
 
@@ -166,6 +168,7 @@ class ImportDidCommand : CliktCommand(
             true -> didOrDoc.also {
                 DidService.importDid(didOrDoc)
             }
+
             else -> DidService.importDidFromFile(File(didOrDoc))
         }
 

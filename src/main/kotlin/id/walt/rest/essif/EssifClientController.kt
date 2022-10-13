@@ -52,7 +52,7 @@ object EssifClientController {
 
     fun createTimestamp(ctx: Context) {
         val req = ctx.bodyAsClass(EbsiTimestampRequest::class.java)
-        ctx.result(EssifClient.createTimestamp(req.did,req.ethDidAlias, req.data))
+        ctx.result(EssifClient.createTimestamp(req.did, req.ethDidAlias, req.data))
     }
 
     fun createTimestampDocs() = document().operation {
@@ -68,7 +68,8 @@ object EssifClientController {
     }
 
     fun getByTransactionHashDocs() = document().operation {
-        it.summary("Get a timestamp based on the transaction Hash").operationId("getByTransactionHash").addTagsItem("ESSIF Client")
+        it.summary("Get a timestamp based on the transaction Hash").operationId("getByTransactionHash")
+            .addTagsItem("ESSIF Client")
     }.json<String>("200") { it.description("The resolved timestamp") }
 
     fun getByTimestampId(ctx: Context) {

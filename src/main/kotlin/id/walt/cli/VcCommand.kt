@@ -197,7 +197,7 @@ class VerifyVcCommand : CliktCommand(
 
 
     override fun run() {
-        val usedPolicies = if (policies.isNotEmpty()) policies else mapOf(PolicyRegistry.defaultPolicyId to null)
+        val usedPolicies = policies.ifEmpty { mapOf(PolicyRegistry.defaultPolicyId to null) }
 
         echo("Verifying from file \"$src\"...\n")
 
@@ -237,8 +237,8 @@ class ListVerificationPoliciesCommand : CliktCommand(
 ) {
     val mutablesOnly: Boolean by option("-m", "--mutable", help = "Show only mutable policies").flag(default = false)
     override fun run() {
-        PolicyRegistry.listPolicyInfo().filter { vp -> vp.isMutable || !mutablesOnly }.forEach { verificationPolicy ->
-            echo("${if (verificationPolicy.isMutable) "*" else "-"} ${verificationPolicy.id}\t ${verificationPolicy.description ?: "- no description -"},\t Argument: ${verificationPolicy.argumentType}")
+        PolicyRegistry.listPolicyInfo().filter { vp -> vp.isMutable || !mutablesOnly }.forEach { (id, description, argumentType, isMutable) ->
+            echo("${if (isMutable) "*" else "-"} ${id}\t ${description ?: "- no description -"},\t Argument: ${argumentType}")
         }
         echo()
         echo("(*) ... mutable dynamic policy")
@@ -311,7 +311,7 @@ class CreateDynamicVerificationPolicyCommand : CliktCommand(
                 save
             )
         ) {
-            echo("Policy created/updated: ${name}")
+            echo("Policy created/updated: $name")
         } else {
             echo("Failed to create dynamic policy")
         }

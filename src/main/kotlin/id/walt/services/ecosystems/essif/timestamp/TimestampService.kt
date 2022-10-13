@@ -1,6 +1,5 @@
 package id.walt.services.ecosystems.essif.timestamp
 
-import id.walt.servicematrix.BaseService
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
 import id.walt.services.ecosystems.essif.jsonrpc.TimestampHashesParams

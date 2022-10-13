@@ -19,7 +19,7 @@ class HKVVcStoreService : VcStoreService() {
         HKVKey(vcRoot, group, id)
 
     override fun getCredential(id: String, group: String): VerifiableCredential? =
-        hkvStore.getAsString(getStoreKeyFor(id, group))?.let { it.toCredential() }
+        hkvStore.getAsString(getStoreKeyFor(id, group))?.toCredential()
 
     override fun listCredentials(group: String): List<VerifiableCredential> =
         listCredentialIds(group).map { hkvStore.getAsString(getStoreKeyFor(it, group))!!.toCredential() }

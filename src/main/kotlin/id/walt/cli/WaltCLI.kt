@@ -2,7 +2,6 @@ package id.walt.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.subcommands
-import com.github.ajalt.clikt.output.TermUi
 import com.github.ajalt.clikt.parameters.options.associate
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
@@ -155,7 +154,7 @@ object WaltCLI {
                 .main(args)
 
         } catch (e: Exception) {
-            TermUi.echo(e.message)
+            println(e.message)
 
             if (log.isDebugEnabled)
                 e.printStackTrace()

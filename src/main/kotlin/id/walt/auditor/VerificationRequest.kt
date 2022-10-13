@@ -11,8 +11,7 @@ data class PolicyRequest (
 data class VerificationRequest (
   val policies: List<PolicyRequest>,
   @NestedVCs val credentials: List<VerifiableCredential>
-    ) {
-}
+    )
 
 data class VerificationResponse (
   val valid: Boolean,

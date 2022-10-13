@@ -3,8 +3,7 @@ package id.walt.services.keystore.azure
 import com.microsoft.aad.adal4j.AuthenticationContext
 import com.microsoft.aad.adal4j.ClientCredential
 import com.microsoft.azure.keyvault.authentication.KeyVaultCredentials
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.*
 import kotlin.math.min
 
 class TokenKeyVaultCredentials(private val id: String, private val secret: String) : KeyVaultCredentials() {

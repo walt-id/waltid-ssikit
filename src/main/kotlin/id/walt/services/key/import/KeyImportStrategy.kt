@@ -45,7 +45,7 @@ class PEMImportImpl(val keyString: String) : KeyImportStrategy {
      * @param keyStr the key string
      *
      *               - for RSA keys: the PEM private key file
-     *               - for other key types: concatenated public and private key in PEM format)
+     *               - for other key types: concatenated public and private key in PEM format
      * @return the imported key id
      */
     private fun importPem(keyStr: String, keyStore: KeyStoreService): KeyId {

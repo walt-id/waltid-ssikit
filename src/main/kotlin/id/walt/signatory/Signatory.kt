@@ -83,14 +83,14 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
 
     private fun issuerVerificationMethodFor(config: ProofConfig): String? {
         val did = DidService.load(config.issuerDid)
-        val proofPurpose = config.proofPurpose ?: "assertionMethod";
+        val proofPurpose = config.proofPurpose ?: "assertionMethod"
         return when (proofPurpose) {
-            "assertionMethod" -> did.assertionMethod?.firstOrNull { m -> config.issuerVerificationMethod == null || m.id == config.issuerVerificationMethod }
-            "authentication" -> did.authentication?.firstOrNull { m -> config.issuerVerificationMethod == null || m.id == config.issuerVerificationMethod }
-            "capabilityDelegation" -> did.capabilityDelegation?.firstOrNull { m -> config.issuerVerificationMethod == null || m.id == config.issuerVerificationMethod }
-            "capabilityInvocation" -> did.capabilityInvocation?.firstOrNull { m -> config.issuerVerificationMethod == null || m.id == config.issuerVerificationMethod }
-            "keyAgreement" -> did.keyAgreement?.firstOrNull { m -> config.issuerVerificationMethod == null || m.id == config.issuerVerificationMethod }
-            else -> did.verificationMethod?.firstOrNull { m -> config.issuerVerificationMethod == null || m.id == config.issuerVerificationMethod }
+            "assertionMethod" -> did.assertionMethod?.firstOrNull { (id) -> config.issuerVerificationMethod == null || id == config.issuerVerificationMethod }
+            "authentication" -> did.authentication?.firstOrNull { (id) -> config.issuerVerificationMethod == null || id == config.issuerVerificationMethod }
+            "capabilityDelegation" -> did.capabilityDelegation?.firstOrNull { (id) -> config.issuerVerificationMethod == null || id == config.issuerVerificationMethod }
+            "capabilityInvocation" -> did.capabilityInvocation?.firstOrNull { (id) -> config.issuerVerificationMethod == null || id == config.issuerVerificationMethod }
+            "keyAgreement" -> did.keyAgreement?.firstOrNull { (id) -> config.issuerVerificationMethod == null || id == config.issuerVerificationMethod }
+            else -> did.verificationMethod?.firstOrNull { (id) -> config.issuerVerificationMethod == null || id == config.issuerVerificationMethod }
         }?.id ?: config.issuerVerificationMethod
     }
 

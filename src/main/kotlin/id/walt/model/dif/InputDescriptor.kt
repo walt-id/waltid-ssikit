@@ -1,10 +1,10 @@
 package id.walt.model.dif
 
-data class VCSchema (
+data class VCSchema(
     val uri: String
 )
 
-data class InputDescriptor (
+data class InputDescriptor(
     val id: String = "1",
     val name: String? = null,
     val purpose: String? = null,

@@ -2,7 +2,6 @@ package id.walt.services.hkvstore
 
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
-import id.walt.services.crypto.SunCryptoService
 import java.nio.charset.StandardCharsets
 
 /**

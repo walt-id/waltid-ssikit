@@ -1,6 +1,5 @@
 package id.walt.services.oidc
 
-import com.beust.klaxon.json
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.oauth2.sdk.*
@@ -21,7 +20,6 @@ import id.walt.services.did.DidService
 import id.walt.services.jwt.JwtService
 import id.walt.vclib.model.AbstractVerifiableCredential
 import id.walt.vclib.model.VerifiableCredential
-import id.walt.vclib.model.toCredential
 import id.walt.vclib.registry.VcTypeRegistry
 import mu.KotlinLogging
 import java.io.StringReader
@@ -30,20 +28,20 @@ import java.util.*
 
 object OIDC4CIService {
   private val log = KotlinLogging.logger {}
-  fun getMetadataEndpoint(issuer: OIDCProvider) = URI.create("${issuer.url.trimEnd('/')}/.well-known/openid-configuration")
+  fun getMetadataEndpoint(issuer: OIDCProvider): URI = URI.create("${issuer.url.trimEnd('/')}/.well-known/openid-configuration")
   fun getMetadata(issuer: OIDCProvider): OIDCProviderMetadata? {
     val resp = HTTPRequest(HTTPRequest.Method.GET, getMetadataEndpoint(issuer)).send()
-    if (resp.indicatesSuccess()) {
+    return if (resp.indicatesSuccess()) {
       val jsonObj = JSONObjectUtils.parse(resp.content)
       if(!jsonObj.containsKey("subject_types_supported")) {
         // WORKAROUND to fix parsing spruce/NGI metadata document from: https://ngi-oidc4vci-test.spruceid.xyz/.well-known/openid-configuration
-        jsonObj.put("subject_types_supported", listOf("public"))
+        jsonObj["subject_types_supported"] = listOf("public")
       }
-      return OIDCProviderMetadata.parse(jsonObj)
+      OIDCProviderMetadata.parse(jsonObj)
     }
     else {
       log.error { "Error loading issuer provider metadata" }
-      return null
+      null
     }
   }
 
@@ -205,7 +203,7 @@ object OIDC4CIService {
           log.info("Sending auth GET request to {}\n {}", it.uri, it.query)
         }.send()
     if (response.indicatesSuccess()) {
-      return URI.create("$redirectUri?code=${response.contentAsJSONObject.get("code")}&state=${response.contentAsJSONObject.get("state")}")
+      return URI.create("$redirectUri?code=${response.contentAsJSONObject["code"]}&state=${response.contentAsJSONObject["state"]}")
     } else {
       log.error("Got error response from auth endpoint: {}: {}", response.statusCode, response.content)
     }

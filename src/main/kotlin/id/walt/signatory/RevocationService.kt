@@ -5,10 +5,11 @@ import com.beust.klaxon.Klaxon
 import kotlinx.serialization.Serializable
 import org.apache.commons.codec.digest.DigestUtils
 import org.bouncycastle.util.encoders.Base32.toBase32String
-import org.joda.time.DateTimeZone
-import org.joda.time.LocalDateTime
 import java.time.Instant
-import kotlin.io.path.*
+import kotlin.io.path.Path
+import kotlin.io.path.exists
+import kotlin.io.path.readText
+import kotlin.io.path.writeText
 
 object RevocationService {
 

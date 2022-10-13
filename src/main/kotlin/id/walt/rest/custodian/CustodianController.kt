@@ -4,6 +4,7 @@ import com.beust.klaxon.Klaxon
 import id.walt.crypto.Key
 import id.walt.crypto.KeyAlgorithm
 import id.walt.custodian.Custodian
+import id.walt.model.VerifiableCredentialModel
 import id.walt.services.key.KeyFormat
 import id.walt.services.keystore.KeyType
 import id.walt.vclib.credentials.VerifiablePresentation
@@ -129,6 +130,18 @@ object CustodianController {
                 ListCredentialsResponse(
                     custodian.listCredentials().filter { it.id != null && ids.contains(it.id!!) })
             )
+
+
+    }
+    fun listCredentialModelsDocs() = document()
+        .operation {
+            it.summary("Lists all credential models the custodian knows of").operationId("listCredentialModels")
+                .addTagsItem("Credentials")
+        }
+        .json<List<VerifiableCredentialModel>>("200") { it.description("Credentials ID list") }
+
+    fun listCredentialModels(ctx: Context) {
+        ctx.json(custodian.listCredentials().map { VerifiableCredentialModel(it) })
     }
 
     fun listCredentialIdsDocs() = document()
@@ -144,8 +157,12 @@ object CustodianController {
 
     fun storeCredentialsDocs() = document()
         .operation { it.summary("Stores a credential").operationId("storeCredential").addTagsItem("Credentials") }
-        .body<VerifiableCredential> { it.description("The body should contain, the VC you want to store. If you don't want to adjust anything in the VC." +
-                "You can simply paste the response you've got from the create VC endpoint and ignore the described parameters.") }
+        .body<VerifiableCredential> {
+            it.description(
+                "The body should contain, the VC you want to store. If you don't want to adjust anything in the VC." +
+                        "You can simply paste the response you've got from the create VC endpoint and ignore the described parameters."
+            )
+        }
         .json<Int>("201") { it.description("Http OK") }
 
     fun storeCredential(ctx: Context) {

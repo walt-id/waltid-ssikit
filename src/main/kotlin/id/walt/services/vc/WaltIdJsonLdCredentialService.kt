@@ -46,7 +46,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
         return if (config.ldSignatureType != null) {
             when (config.ldSignatureType) {
                 LdSignatureType.EcdsaSecp256k1Signature2019 -> {
-                    require(key.algorithm == KeyAlgorithm.ECDSA_Secp256k1) { "Unsupported key algorithm ${key.algorithm} for ld signature type ${config.ldSignatureType}" };
+                    require(key.algorithm == KeyAlgorithm.ECDSA_Secp256k1) { "Unsupported key algorithm ${key.algorithm} for ld signature type ${config.ldSignatureType}" }
                     LdSigner.EcdsaSecp256K1Signature2019(key.keyId)
                 }
 
@@ -79,27 +79,27 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
     private fun selectLdVerifier(ldSignatureType: LdSignatureType, publicKey: Key): LdVerifier<*> {
         return when (ldSignatureType) {
             LdSignatureType.RsaSignature2018 -> {
-                require(publicKey.algorithm == KeyAlgorithm.RSA) { "Unsupported key algorithm ${publicKey.algorithm} for ld signature type ${ldSignatureType}" }
+                require(publicKey.algorithm == KeyAlgorithm.RSA) { "Unsupported key algorithm ${publicKey.algorithm} for ld signature type $ldSignatureType" }
                 id.walt.crypto.LdVerifier.RsaSignature2018(publicKey)
             }
 
             LdSignatureType.JcsEd25519Signature2020 -> {
-                require(publicKey.algorithm == KeyAlgorithm.EdDSA_Ed25519) { "Unsupported key algorithm ${publicKey.algorithm} for ld signature type ${ldSignatureType}" }
+                require(publicKey.algorithm == KeyAlgorithm.EdDSA_Ed25519) { "Unsupported key algorithm ${publicKey.algorithm} for ld signature type $ldSignatureType" }
                 id.walt.crypto.LdVerifier.JcsEd25519Signature2020(publicKey)
             }
 
             LdSignatureType.Ed25519Signature2020 -> {
-                require(publicKey.algorithm == KeyAlgorithm.EdDSA_Ed25519) { "Unsupported key algorithm ${publicKey.algorithm} for ld signature type ${ldSignatureType}" }
+                require(publicKey.algorithm == KeyAlgorithm.EdDSA_Ed25519) { "Unsupported key algorithm ${publicKey.algorithm} for ld signature type $ldSignatureType" }
                 id.walt.crypto.LdVerifier.Ed25519Signature2020(publicKey)
             }
 
             LdSignatureType.Ed25519Signature2018 -> {
-                require(publicKey.algorithm == KeyAlgorithm.EdDSA_Ed25519) { "Unsupported key algorithm ${publicKey.algorithm} for ld signature type ${ldSignatureType}" }
+                require(publicKey.algorithm == KeyAlgorithm.EdDSA_Ed25519) { "Unsupported key algorithm ${publicKey.algorithm} for ld signature type $ldSignatureType" }
                 id.walt.crypto.LdVerifier.Ed25519Signature2018(publicKey)
             }
 
             LdSignatureType.EcdsaSecp256k1Signature2019 -> {
-                require(publicKey.algorithm == KeyAlgorithm.ECDSA_Secp256k1) { "Unsupported key algorithm ${publicKey.algorithm} for ld signature type ${ldSignatureType}" }
+                require(publicKey.algorithm == KeyAlgorithm.ECDSA_Secp256k1) { "Unsupported key algorithm ${publicKey.algorithm} for ld signature type $ldSignatureType" }
                 id.walt.crypto.LdVerifier.EcdsaSecp256k1Signature2019(publicKey)
             }
 

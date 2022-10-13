@@ -11,7 +11,7 @@ open class DynamicPolicy(dynPolArg: DynamicPolicyArg) : ParameterizedVerificatio
     override fun doVerify(vc: VerifiableCredential): Boolean {
         // params: rego (string, URL, file, credential property), input (json string), data jsonpath (default: $.credentialSubject)
         val rego = if (argument.policy.startsWith("$")) {
-            JsonPath.parse(vc.json!!).read<String>(argument.policy)
+            JsonPath.parse(vc.json!!).read(argument.policy)
         } else {
             argument.policy
         }
@@ -21,7 +21,6 @@ open class DynamicPolicy(dynPolArg: DynamicPolicyArg) : ParameterizedVerificatio
             policy = rego,
             query = argument.policyQuery
         )
-        return false
     }
 
     override val applyToVC: Boolean

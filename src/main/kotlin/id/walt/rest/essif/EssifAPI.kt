@@ -105,7 +105,7 @@ object EssifAPI {
                         return Klaxon().toJsonString(obj)
                     }
 
-                    override fun <T : Any?> fromJsonString(json: String, targetClass: Class<T>): T {
+                    override fun <T : Any> fromJsonString(json: String, targetClass: Class<T>): T {
                         return JavalinJackson().fromJsonString(json, targetClass)
                     }
                 })

@@ -15,10 +15,9 @@ import net.minidev.json.JSONObject
 import net.minidev.json.parser.JSONParser
 import java.io.StringReader
 import java.net.URI
-import java.net.URL
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
-import java.util.regex.Pattern
+import java.util.regex.*
 
 object OIDCUtils {
   fun getVCClaims(authRequest: AuthorizationRequest): VCClaims {

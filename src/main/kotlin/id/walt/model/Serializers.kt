@@ -1,5 +1,6 @@
 package id.walt.model
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializer
 import kotlinx.serialization.encoding.Decoder
@@ -17,6 +18,7 @@ object DateAsTimestampSerializer : KSerializer<Date> {
     override fun deserialize(decoder: Decoder): Date = Date(decoder.decodeLong())
 }*/
 
+@OptIn(ExperimentalSerializationApi::class)
 @Serializer(forClass = LocalDateTime::class)
 object DateAsIso8601UtcStringSerializer : KSerializer<LocalDateTime> {
     override fun serialize(encoder: Encoder, value: LocalDateTime) {

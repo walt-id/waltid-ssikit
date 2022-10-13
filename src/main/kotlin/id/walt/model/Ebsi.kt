@@ -111,11 +111,11 @@ data class AttributeInfo(
     companion object {
         fun from(base64Body: String): AttributeInfo? {
             val decodedAttributeBody = String(decBase64(base64Body))
-            try {
-                return Klaxon().parse<AttributeInfo>(decodedAttributeBody)
-            } catch(e: KlaxonException) {
+            return try {
+                Klaxon().parse<AttributeInfo>(decodedAttributeBody)
+            } catch (e: KlaxonException) {
                 attributeInfoLog.debug("Klaxon error (${e.message}) for attribute body ($base64Body)")
-                return AttributeInfo()
+                AttributeInfo()
             }
         }
     }
@@ -175,10 +175,10 @@ data class OidcAuthenticationRequestUri(
     val request: String
 )
 
-//Old: data class DidAuthRequest(val reponse_type: String, val client_id: String, val scope: String, val nonce: String, val request: String)
+//Old: data class DidAuthRequest(val response_type: String, val client_id: String, val scope: String, val nonce: String, val request: String)
 @Serializable
 data class DidAuthRequest(
-    val reponse_type: String,
+    val response_type: String,
     val client_id: String,
     val scope: String,
     val nonce: String,

@@ -8,8 +8,8 @@ import id.walt.vclib.credentials.VerifiableMandate
 import id.walt.vclib.credentials.VerifiableVaccinationCertificate
 import id.walt.vclib.credentials.gaiax.DataSelfDescription
 import id.walt.vclib.credentials.gaiax.GaiaxCredential
-import id.walt.vclib.credentials.gaiax.n.ParticipantCredential
 import id.walt.vclib.credentials.gaiax.n.LegalPerson
+import id.walt.vclib.credentials.gaiax.n.ParticipantCredential
 import id.walt.vclib.credentials.gaiax.n.ServiceOfferingCredential
 import id.walt.vclib.model.VerifiableCredential
 

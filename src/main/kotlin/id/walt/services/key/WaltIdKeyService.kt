@@ -57,6 +57,7 @@ open class WaltIdKeyService : KeyService() {
 
     override fun toJwk(keyAlias: String, keyType: KeyType, jwkKeyId: String?): JWK {
         return keyStore.load(keyAlias, keyType).let {
+            @Suppress("REDUNDANT_ELSE_IN_WHEN")
             when (it.algorithm) {
                 KeyAlgorithm.EdDSA_Ed25519 -> toEd25519Jwk(it, jwkKeyId)
                 KeyAlgorithm.ECDSA_Secp256k1 -> toSecp256Jwk(it, jwkKeyId)

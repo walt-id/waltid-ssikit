@@ -120,7 +120,7 @@ open class TinkKeyStoreService : KeyStoreService() {
                 )
             }
 
-            // Convert to stdlib ECPublicKey, then to NimbusDS' ECKey.
+            // Convert to stdlib ECPublicKey, then to NimbusDS ECKey.
             val publicKey = EllipticCurves.getEcPublicKey(
                 CurveType.NIST_P256,
                 ecdsaPublicKey.x.toByteArray(),

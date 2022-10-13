@@ -62,7 +62,7 @@ open class WaltIdTimestampService : TimestampService() {
     private val keyService = KeyService.getService()
 
     override fun getByTimestampId(timestampId: String): Timestamp? = runBlocking {
-        val href = TIMESTAMPS + "/$timestampId"
+        val href = "$TIMESTAMPS/$timestampId"
 
 
 

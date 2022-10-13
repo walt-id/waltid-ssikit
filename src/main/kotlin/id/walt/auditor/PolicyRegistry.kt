@@ -7,11 +7,8 @@ import id.walt.auditor.dynamic.DynamicPolicyArg
 import id.walt.common.deepMerge
 import id.walt.common.resolveContent
 import id.walt.model.dif.PresentationDefinition
-import id.walt.model.oidc.VpTokenClaim
 import id.walt.services.context.ContextManager
-import id.walt.services.context.WaltIdContext
 import id.walt.services.hkvstore.HKVKey
-import org.web3j.abi.datatypes.Bool
 import java.io.StringReader
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
@@ -62,7 +59,7 @@ object PolicyRegistry {
             }
             return _policies!!
         }
-    val defaultPolicyId: String
+    val defaultPolicyId: String = SignaturePolicy::class.simpleName!!
 
     fun <P : ParameterizedVerificationPolicy<A>, A: Any> register(policy: KClass<P>, argType: KClass<A>, description: String? = null)
         = policies.put(policy.simpleName!!, PolicyFactory(policy, argType, policy.simpleName!!, description))
@@ -170,7 +167,4 @@ object PolicyRegistry {
         //RegoPolicy(RegoPolicyArg(mapOf(), "")).argument.input
     }
 
-    init {
-        defaultPolicyId = SignaturePolicy::class.simpleName!!
-    }
 }

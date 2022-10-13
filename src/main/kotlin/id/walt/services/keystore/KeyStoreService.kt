@@ -3,7 +3,6 @@ package id.walt.services.keystore
 import id.walt.crypto.Key
 import id.walt.crypto.KeyId
 import id.walt.servicematrix.ServiceProvider
-import id.walt.servicematrix.ServiceRegistry
 import id.walt.services.WaltIdService
 
 enum class KeyType {

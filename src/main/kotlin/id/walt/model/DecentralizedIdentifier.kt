@@ -1,9 +1,6 @@
 package id.walt.model
 
 import com.beust.klaxon.*
-import com.nimbusds.jose.jwk.KeyOperation
-import com.nimbusds.jose.util.Base64
-import com.nimbusds.jose.util.Base64URL
 import id.walt.common.prettyPrint
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -51,6 +48,7 @@ val verificationRelationshipsConverter = object: Converter {
     }
 
     override fun toJson(value: Any): String {
+        @Suppress("UNCHECKED_CAST")
         return (value as List<VerificationMethod>).map { item -> if(item.isReference) {
                 Klaxon().toJsonString(item.id)
             } else {

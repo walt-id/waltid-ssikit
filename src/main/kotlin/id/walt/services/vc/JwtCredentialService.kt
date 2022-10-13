@@ -1,8 +1,6 @@
 package id.walt.services.vc
 
-import id.walt.servicematrix.BaseService
 import id.walt.servicematrix.ServiceProvider
-import id.walt.servicematrix.ServiceRegistry
 import id.walt.services.WaltIdService
 import id.walt.signatory.ProofConfig
 import id.walt.vclib.model.VerifiableCredential

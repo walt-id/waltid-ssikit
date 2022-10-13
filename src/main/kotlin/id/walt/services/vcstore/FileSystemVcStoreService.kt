@@ -21,7 +21,7 @@ open class FileSystemVcStoreService : VcStoreService() {
         }
     }
 
-    override fun getCredential(id: String, group: String): VerifiableCredential? = loadFileString(id, group)?.let { it.toCredential() }
+    override fun getCredential(id: String, group: String): VerifiableCredential? = loadFileString(id, group)?.toCredential()
 
     override fun listCredentials(group: String): List<VerifiableCredential> =
         listCredentialIds(group).map { getCredential(it, group)!! }

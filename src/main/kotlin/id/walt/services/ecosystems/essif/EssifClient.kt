@@ -5,10 +5,10 @@ import id.walt.services.WaltIdServices
 import id.walt.services.context.ContextManager
 import id.walt.services.ecosystems.essif.didebsi.DidEbsiService
 import id.walt.services.ecosystems.essif.enterprisewallet.EnterpriseWalletService
+import id.walt.services.ecosystems.essif.mock.RelyingParty
 import id.walt.services.ecosystems.essif.timestamp.Timestamp
 import id.walt.services.ecosystems.essif.timestamp.WaltIdTimestampService
 import id.walt.services.ecosystems.essif.userwallet.UserWalletService
-import id.walt.services.ecosystems.essif.mock.RelyingParty
 import id.walt.services.hkvstore.HKVKey
 import mu.KotlinLogging
 import java.io.File

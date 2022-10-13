@@ -1,7 +1,6 @@
 package id.walt.services.ecosystems.iota
 
 import id.walt.crypto.KeyAlgorithm
-import id.walt.crypto.toBase64
 import id.walt.model.Did
 import id.walt.model.DidIota
 import id.walt.services.key.KeyService
@@ -20,11 +19,8 @@ object IotaService {
 
     val privKeyBytes = privKey.keyPair?.private?.let {
       (it as EdECPrivateKey).bytes.orElse(null)
-    }
-    if(privKeyBytes == null) {
-      throw Exception("Couldn't get private key bytes")
-    }
-    val ptr = iotaWrapper.create_did(privKeyBytes, privKeyBytes.size.toLong())
+    } ?: throw Exception("Couldn't get private key bytes")
+      val ptr = iotaWrapper.create_did(privKeyBytes, privKeyBytes.size.toLong())
     if(ptr.address() != 0L) {
       val doc = ptr.getString(0)
       iotaWrapper.free_str(ptr)
