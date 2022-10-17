@@ -101,7 +101,7 @@ class OIDC4VCTest : AnnotationSpec() {
         issuanceInitiationReq.op_state shouldBe null
         val issuer = OIDC4CIService.getWithProviderMetadata(OIDCProvider("issuer", issuanceInitiationReq.issuer_url))
         issuer.oidc_provider_metadata.tokenEndpointURI shouldBe testProvider.oidc_provider_metadata.tokenEndpointURI
-        val tokens = OIDC4CIService.getAccessToken(issuer, issuanceInitiationReq.pre_authorized_code!!, redirectUri.toString(), isPreAuthorized = true)
+        val tokens = OIDC4CIService.getAccessToken(issuer, issuanceInitiationReq.pre_authorized_code!!, redirect_uri = null, isPreAuthorized = true)
         tokens.oidcTokens.accessToken.value shouldBe OIDCTestProvider.TEST_ACCESS_TOKEN
     }
 
