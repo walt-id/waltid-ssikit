@@ -132,6 +132,12 @@ class JWKImportImpl(val keyString: String) : KeyImportStrategy {
                 cryptoProvider = CryptoProvider.SUN,
                 keyPair = jwk.toECKey().toKeyPair()
             )
+            "ES256" -> Key(
+                keyId = KeyId(jwk.keyID),
+                algorithm = KeyAlgorithm.ECDSA_Secp256r1,
+                cryptoProvider = CryptoProvider.SUN,
+                keyPair = jwk.toECKey().toKeyPair()
+            )
             "RSA" -> Key(
                 keyId = KeyId(jwk.keyID),
                 algorithm = KeyAlgorithm.RSA,

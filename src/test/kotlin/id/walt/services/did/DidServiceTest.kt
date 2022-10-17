@@ -20,6 +20,7 @@ import io.kotest.data.row
 import io.kotest.matchers.collections.shouldBeOneOf
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.string.shouldStartWith
 import java.io.File
 
 class DidServiceTest : AnnotationSpec() {
@@ -99,6 +100,26 @@ class DidServiceTest : AnnotationSpec() {
         val didUrl = DidUrl.from(did)
         did shouldBe didUrl.did
         "key" shouldBe didUrl.method
+        print(did)
+
+        // Resolve
+        val resolvedDid = ds.resolve(did)
+        val encoded = Klaxon().toJsonString(resolvedDid)
+        println(encoded)
+
+        assertVerificationMethodAliases(resolvedDid)
+    }
+
+    @Test
+    fun createResolveDidKeyP256Test() {
+        val keyId = KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256r1)
+
+        // Create
+        val did = ds.create(DidMethod.key, keyId.id)
+        val didUrl = DidUrl.from(did)
+        did shouldBe didUrl.did
+        "key" shouldBe didUrl.method
+        didUrl.identifier shouldStartWith "zDn"
         print(did)
 
         // Resolve

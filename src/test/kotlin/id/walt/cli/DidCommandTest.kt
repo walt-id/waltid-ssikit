@@ -53,6 +53,10 @@ class DidCommandTest : StringSpec({
         testDidKey(ECDSA_Secp256k1)
     }
 
+    "3a. Create did:key Secp256r1" {
+        testDidKey(ECDSA_Secp256r1)
+    }
+
     "4. Create did:key RSA" {
         testDidKey(RSA)
     }
