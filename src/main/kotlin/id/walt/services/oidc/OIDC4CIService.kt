@@ -227,11 +227,11 @@ object OIDC4CIService {
     return URI.create("${issuer.oidc_provider_metadata.authorizationEndpointURI}?${req.toQueryString()}")
   }
 
-  fun getAccessToken(issuer: OIDCProviderWithMetadata, code: String, redirect_uri: String, isPreAuthorized: Boolean = false, userPin: String? = null, codeVerifier: CodeVerifier? = null): OIDCTokenResponse {
+  fun getAccessToken(issuer: OIDCProviderWithMetadata, code: String, redirect_uri: String?, isPreAuthorized: Boolean = false, userPin: String? = null, codeVerifier: CodeVerifier? = null): OIDCTokenResponse {
     val codeGrant = if(isPreAuthorized) {
-      PreAuthorizedCodeGrant(AuthorizationCode(code), URI.create(redirect_uri), userPin, codeVerifier)
+      PreAuthorizedCodeGrant(AuthorizationCode(code), redirect_uri?.let { URI.create(it) }, userPin, codeVerifier)
     } else {
-      AuthorizationCodeGrant(AuthorizationCode(code), URI.create(redirect_uri), codeVerifier)
+      AuthorizationCodeGrant(AuthorizationCode(code), redirect_uri?.let { URI.create(it) }, codeVerifier)
     }
     val clientAuth = ClientSecretBasic(issuer.client_id?. let { ClientID(it) } ?: ClientID(), issuer.client_secret?.let { Secret(it) } ?: Secret())
     val resp = TokenRequest(issuer.oidc_provider_metadata.tokenEndpointURI, clientAuth, codeGrant).toHTTPRequest().also {

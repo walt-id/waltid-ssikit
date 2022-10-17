@@ -1,9 +1,14 @@
+import com.github.jk1.license.render.ReportRenderer
+import com.github.jk1.license.render.InventoryHtmlReportRenderer
+import com.github.jk1.license.filter.DependencyFilter
+import com.github.jk1.license.filter.LicenseBundleNormalizer
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.7.10"
     kotlin("plugin.serialization") version "1.6.10"
     id("org.owasp.dependencycheck") version "6.5.3"
+    id("com.github.jk1.dependency-license-report") version "2.0"
     application
     `maven-publish`
 }
@@ -44,7 +49,7 @@ dependencies {
     implementation("com.google.guava:guava:31.1-jre")
 
     // VC
-    implementation("id.walt:waltid-ssikit-vclib:1.23.4")
+    implementation("id.walt:waltid-ssikit-vclib:1.24.0")
 
     // JSON
     implementation("org.json:json:20220924")
@@ -195,4 +200,11 @@ publishing {
             }
         }
     }
+}
+
+
+
+licenseReport {
+    renderers = arrayOf<ReportRenderer>(InventoryHtmlReportRenderer("report.html","Backend"))
+    filters = arrayOf<DependencyFilter>(LicenseBundleNormalizer())
 }
