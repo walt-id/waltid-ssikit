@@ -187,7 +187,7 @@ object DidService {
         val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(DEFAULT_KEY_ALGORITHM)
         val key = ContextManager.keyStore.load(keyId.id)
 
-        if (key.algorithm !in setOf(EdDSA_Ed25519, RSA, ECDSA_Secp256k1))
+        if (key.algorithm !in setOf(EdDSA_Ed25519, RSA, ECDSA_Secp256k1, ECDSA_Secp256r1))
             throw IllegalArgumentException("did:key can not be created with an ${key.algorithm} key.")
 
         val identifier = convertRawKeyToMultiBase58Btc(key.getPublicKeyBytes(), getMulticodecKeyCode(key.algorithm))
@@ -269,6 +269,7 @@ object DidService {
         val keyType = when (key.algorithm) {
             EdDSA_Ed25519 -> Ed25519VerificationKey2019
             ECDSA_Secp256k1 -> EcdsaSecp256k1VerificationKey2019
+            ECDSA_Secp256r1 -> EcdsaSecp256r1VerificationKey2019
             RSA -> RsaVerificationKey2018
         }
         log.debug { "Verification method JWK for kid: ${keyService.toJwk(kid)}" }

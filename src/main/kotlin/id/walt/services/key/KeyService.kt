@@ -1,9 +1,6 @@
 package id.walt.services.key
 
-import com.nimbusds.jose.jwk.ECKey
-import com.nimbusds.jose.jwk.JWK
-import com.nimbusds.jose.jwk.OctetKeyPair
-import com.nimbusds.jose.jwk.RSAKey
+import com.nimbusds.jose.jwk.*
 import id.walt.crypto.Key
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyId
@@ -43,7 +40,7 @@ abstract class KeyService : WaltIdService() {
 
     open fun toPem(keyAlias: String, keyType: KeyType): String = implementation.toPem(keyAlias, keyType)
 
-    open fun toSecp256Jwk(key: Key, jwkKeyId: String? = null): ECKey = implementation.toSecp256Jwk(key, jwkKeyId)
+    open fun toSecp256Jwk(key: Key, curve: Curve, jwkKeyId: String? = null): ECKey = implementation.toSecp256Jwk(key, curve, jwkKeyId)
 
     open fun toEd25519Jwk(key: Key, jwkKeyId: String? = null): OctetKeyPair = implementation.toEd25519Jwk(key, jwkKeyId)
 

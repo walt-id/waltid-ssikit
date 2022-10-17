@@ -134,6 +134,22 @@ class LdSigner {
         }
     }
 
+    class EcdsaSecp256R1Signature2019(keyId: KeyId) : JwsLdSignature<EcdsaSecp256k1Signature2019SignatureSuite?>(
+        keyId,
+        SignatureSuites.SIGNATURE_SUITE_ECDSASECP256L1SIGNATURE2019, Canonicalizers.CANONICALIZER_URDNA2015CANONICALIZER
+    ) {
+
+        override fun getJwsAlgorithm(): JWSAlgorithm {
+            return JWSAlgorithm.ES256
+        }
+
+        override fun getJwsSigner(): JWSSigner {
+            val jwsSigner = ECDSASigner(ECPrivateKeyHandle(keyId), Curve.P_256)
+            jwsSigner.jcaContext.provider = WaltIdProvider()
+            return jwsSigner
+        }
+    }
+
     class Ed25519Signature2018(keyId: KeyId) : JwsLdSignature<Ed25519Signature2018SignatureSuite?>(
         keyId,
         SignatureSuites.SIGNATURE_SUITE_ED25519SIGNATURE2018, Canonicalizers.CANONICALIZER_URDNA2015CANONICALIZER
@@ -191,6 +207,7 @@ class LdSigner {
                 KeyAlgorithm.RSA -> JWSAlgorithm.PS256
                 KeyAlgorithm.EdDSA_Ed25519 -> JWSAlgorithm.EdDSA
                 KeyAlgorithm.ECDSA_Secp256k1 -> JWSAlgorithm.ES256K
+                KeyAlgorithm.ECDSA_Secp256r1 -> JWSAlgorithm.ES256
             }
         }
 
@@ -201,6 +218,7 @@ class LdSigner {
                 KeyAlgorithm.RSA -> RsaSignature2018(keyId).getJwsSigner()
                 KeyAlgorithm.EdDSA_Ed25519 -> Ed25519Signature2018(keyId).getJwsSigner()
                 KeyAlgorithm.ECDSA_Secp256k1 -> EcdsaSecp256K1Signature2019(keyId).getJwsSigner()
+                KeyAlgorithm.ECDSA_Secp256r1 -> EcdsaSecp256R1Signature2019(keyId).getJwsSigner()
             }
         }
     }

@@ -2,6 +2,7 @@ package id.walt.services.key
 
 import com.beust.klaxon.Klaxon
 import com.google.crypto.tink.subtle.X25519
+import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.jwk.JWK
 import id.walt.crypto.KeyAlgorithm
 import id.walt.model.Jwk
@@ -120,7 +121,7 @@ class KeyServiceTest : AnnotationSpec() {
         val keyId = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
         val key = keyService.load(keyId.id, KeyType.PRIVATE)
 
-        val jwk = keyService.toSecp256Jwk(key)
+        val jwk = keyService.toSecp256Jwk(key, Curve.SECP256K1)
         println(jwk)
         "ES256K" shouldBe jwk.algorithm.name
         "secp256k1" shouldBe jwk.curve.name
@@ -151,7 +152,7 @@ class KeyServiceTest : AnnotationSpec() {
     fun serizalizeSecp256k1JwkTest() {
         val keyId = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
         val key = keyService.load(keyId.id, KeyType.PRIVATE)
-        val jwk = keyService.toSecp256Jwk(key)
+        val jwk = keyService.toSecp256Jwk(key, Curve.SECP256K1)
 
         val serializedJwk = Klaxon().parse<Jwk>(jwk.toString())!!
         "ES256K" shouldBe serializedJwk.alg
