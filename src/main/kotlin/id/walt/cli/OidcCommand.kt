@@ -205,11 +205,11 @@ class OidcIssuanceTokenCommand :
         "--code",
         help = "Code retrieved through previously executed auth command. Alternatively can be read from redirect-uri if specified"
     )
-    val redirect_uri: String by option(
+    val redirect_uri: String? by option(
         "-r",
         "--redirect-uri",
         help = "Redirect URI, same as in 'oidc issue auth' command, can contain ?code parameter, to read code from"
-    ).default("http://blank")
+    )
     val client_id: String? by option("--client-id", help = "Client ID for authorization at the issuer API")
     val client_secret: String? by option("--client-secret", help = "Client Secret for authorization at the issuer API")
     val isPreAuthorized: Boolean by option(
@@ -237,7 +237,8 @@ class OidcIssuanceTokenCommand :
             println("Error: Code not specified")
         } else {
             val tokenResponse =
-                OIDC4CIService.getAccessToken(issuer, authCode, redirect_uri.substringBeforeLast("?"), isPreAuthorized, userPin)
+                OIDC4CIService.getAccessToken(issuer, authCode,
+                    redirect_uri?.substringBeforeLast("?"), isPreAuthorized, userPin)
             println("Access token response:")
             val jsonObj = tokenResponse.toJSONObject()
             println(jsonObj.prettyPrint())
