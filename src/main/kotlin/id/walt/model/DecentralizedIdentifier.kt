@@ -74,7 +74,8 @@ enum class DidMethod {
     key,
     web,
     ebsi,
-    iota
+    iota,
+    jwk
 }
 @Serializable
 @TypeFor(field = "id", adapter = DidTypeAdapter::class)

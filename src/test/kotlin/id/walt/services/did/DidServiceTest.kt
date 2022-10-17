@@ -131,6 +131,35 @@ class DidServiceTest : AnnotationSpec() {
     }
 
     @Test
+    fun createResolveDidJwkP256Test() {
+        val keyId = KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256r1)
+
+        // Create
+        val did = ds.create(DidMethod.jwk, keyId.id)
+        val didUrl = DidUrl.from(did)
+        did shouldBe didUrl.did
+        "jwk" shouldBe didUrl.method
+        print(did)
+
+        // Resolve
+        val resolvedDid = ds.resolve(did)
+        val encoded = Klaxon().toJsonString(resolvedDid)
+        println(encoded)
+
+        assertVerificationMethodAliases(resolvedDid)
+    }
+
+    @Test
+    fun testResolveDidJwkExamples() {
+        val didDoc = DidService.resolve("did:jwk:eyJjcnYiOiJQLTI1NiIsImt0eSI6IkVDIiwieCI6ImFjYklRaXVNczNpOF91c3pFakoydHBUdFJNNEVVM3l6OTFQSDZDZEgyVjAiLCJ5IjoiX0tjeUxqOXZXTXB0bm1LdG00NkdxRHo4d2Y3NEk1TEtncmwyR3pIM25TRSJ9")
+        didDoc.method shouldBe DidMethod.jwk
+        didDoc.verificationMethod!!.first().publicKeyJwk!!.crv shouldBe "P-256"
+        didDoc.verificationMethod!!.first().publicKeyJwk!!.kty shouldBe "EC"
+        didDoc.verificationMethod!!.first().publicKeyJwk!!.x shouldBe "acbIQiuMs3i8_uszEjJ2tpTtRM4EU3yz91PH6CdH2V0"
+        didDoc.verificationMethod!!.first().publicKeyJwk!!.y shouldBe "_KcyLj9vWMptnmKtm46GqDz8wf74I5LKgrl2GzH3nSE"
+    }
+
+    @Test
     fun createDidEbsiV1Identifier() {
         val didUrl = DidUrl.generateDidEbsiV1DidUrl()
         val did = didUrl.did
