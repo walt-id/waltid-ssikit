@@ -120,6 +120,14 @@ open class WaltIdJwtService : JwtService() {
                 jwt.sign(jwsSigner)
                 jwt
             }
+            KeyAlgorithm.ECDSA_Secp256r1 -> {
+                val jwt = createSignedJwt(JWSAlgorithm.ES256, keyAlias, claimsSet)
+
+                val jwsSigner = ECDSASigner(ECPrivateKeyHandle(issuerKey.keyId), Curve.P_256)
+                jwsSigner.jcaContext.provider = provider
+                jwt.sign(jwsSigner)
+                jwt
+            }
             else -> {
                 log.error { "Algorithm ${issuerKey.algorithm} not supported" }
                 throw Exception("Algorithm ${issuerKey.algorithm} not supported")
@@ -147,6 +155,11 @@ open class WaltIdJwtService : JwtService() {
         val res = when (verifierKey.algorithm) {
             KeyAlgorithm.EdDSA_Ed25519 -> jwt.verify(Ed25519Verifier(keyService.toEd25519Jwk(verifierKey)))
             KeyAlgorithm.ECDSA_Secp256k1 -> {
+                val verifier = ECDSAVerifier(PublicKeyHandle(verifierKey.keyId, verifierKey.getPublicKey() as ECPublicKey))
+                verifier.jcaContext.provider = provider
+                jwt.verify(verifier)
+            }
+            KeyAlgorithm.ECDSA_Secp256r1 -> {
                 val verifier = ECDSAVerifier(PublicKeyHandle(verifierKey.keyId, verifierKey.getPublicKey() as ECPublicKey))
                 verifier.jcaContext.provider = provider
                 jwt.verify(verifier)

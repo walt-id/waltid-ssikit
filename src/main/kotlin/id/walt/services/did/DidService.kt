@@ -1,6 +1,8 @@
 package id.walt.services.did
 
 import com.beust.klaxon.Klaxon
+import com.nimbusds.jose.jwk.JWK
+import com.nimbusds.jose.util.Base64URL
 import id.walt.crypto.*
 import id.walt.crypto.KeyAlgorithm.*
 import id.walt.crypto.LdVerificationKeyType.*
@@ -19,6 +21,7 @@ import io.ipfs.multibase.Multibase
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import io.ktor.util.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
@@ -76,6 +79,7 @@ object DidService {
 
             DidMethod.ebsi -> createDidEbsi(keyAlias, options as? DidEbsiOptions)
             DidMethod.iota -> createDidIota(keyAlias)
+            DidMethod.jwk -> createDidJwk(keyAlias)
             else -> throw Exception("DID method $method not supported")
         }
 
@@ -89,6 +93,7 @@ object DidService {
             DidMethod.web.name -> resolveDidWeb(didUrl)
             DidMethod.ebsi.name -> resolveDidEbsi(didUrl)
             DidMethod.iota.name -> IotaService.resolveDid(didUrl.did) ?: throw Exception("Could not resolve $didUrl")
+            DidMethod.jwk.name -> resolveDidJwk(didUrl)
             else -> TODO("did:${didUrl.method} not implemented yet")
         }
     }
@@ -187,12 +192,38 @@ object DidService {
         val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(DEFAULT_KEY_ALGORITHM)
         val key = ContextManager.keyStore.load(keyId.id)
 
-        if (key.algorithm !in setOf(EdDSA_Ed25519, RSA, ECDSA_Secp256k1))
+        if (key.algorithm !in setOf(EdDSA_Ed25519, RSA, ECDSA_Secp256k1, ECDSA_Secp256r1))
             throw IllegalArgumentException("did:key can not be created with an ${key.algorithm} key.")
 
         val identifier = convertRawKeyToMultiBase58Btc(key.getPublicKeyBytes(), getMulticodecKeyCode(key.algorithm))
 
         val didUrl = "did:key:$identifier"
+
+        runCatching {
+            ContextManager.keyStore.load(keyId.id)
+        }.onSuccess {
+            if (it != null) {
+                log.debug { "A key with the id \"${keyId.id}\" exists." }
+                //throw IllegalArgumentException("A key with the id \"${keyId.id}\" already exists.")
+            }
+        }
+        ContextManager.keyStore.addAlias(keyId, didUrl)
+
+        val didDoc = resolve(didUrl)
+        didDoc.verificationMethod?.forEach { (id) ->
+            ContextManager.keyStore.addAlias(keyId, id)
+        }
+        storeDid(didUrl, didDoc.encodePretty())
+
+        return didUrl
+    }
+
+    private fun createDidJwk(keyAlias: String?): String {
+        val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(DEFAULT_KEY_ALGORITHM)
+
+        val identifier = Base64URL.encode(keyService.toJwk(keyId.id).toString())
+
+        val didUrl = "did:jwk:$identifier"
 
         runCatching {
             ContextManager.keyStore.load(keyId.id)
@@ -269,6 +300,7 @@ object DidService {
         val keyType = when (key.algorithm) {
             EdDSA_Ed25519 -> Ed25519VerificationKey2019
             ECDSA_Secp256k1 -> EcdsaSecp256k1VerificationKey2019
+            ECDSA_Secp256r1 -> EcdsaSecp256r1VerificationKey2019
             RSA -> RsaVerificationKey2018
         }
         log.debug { "Verification method JWK for kid: ${keyService.toJwk(kid)}" }
@@ -348,6 +380,26 @@ object DidService {
         val pubKey = convertMultiBase58BtcToRawKey(didUrl.identifier)
 
         return constructDidKey(didUrl, pubKey, keyAlgorithm)
+    }
+
+    private fun resolveDidJwk(didUrl: DidUrl): Did {
+        return Did(
+            context = listOf("https://www.w3.org/ns/did/v1", "https://w3id.org/security/suites/jws-2020/v1"),
+            id = didUrl.did,
+            verificationMethod = listOf(
+                VerificationMethod(
+                    id = "${didUrl.did}#0",
+                    type = "JsonWebKey2020",
+                    controller = didUrl.did,
+                    publicKeyJwk = Klaxon().parse<Jwk>(Base64URL.from(didUrl.identifier).decodeToString())
+                )
+            ),
+            assertionMethod = listOf(VerificationMethod.Reference("${didUrl.did}#0")),
+            authentication = listOf(VerificationMethod.Reference("${didUrl.did}#0")),
+            capabilityInvocation = listOf(VerificationMethod.Reference("${didUrl.did}#0")),
+            capabilityDelegation = listOf(VerificationMethod.Reference("${didUrl.did}#0")),
+            keyAgreement = listOf(VerificationMethod.Reference("${didUrl.did}#0"))
+        )
     }
 
     private fun ebsiDid(didUrl: DidUrl, pubKey: ByteArray): DidEbsi {

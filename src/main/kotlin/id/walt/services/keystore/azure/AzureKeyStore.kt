@@ -51,6 +51,12 @@ open class AzureKeyStore(configurationPath: String) : KeyStoreService() {
                 CryptoProvider.CUSTOM,
                 key.withCrv(JsonWebKeyCurveName.P_256K).toEC(false, BouncyCastleProvider())
             )
+            JsonWebKeyCurveName("SECP256R1"), JsonWebKeyCurveName.P_256 -> Key(
+                KeyId(keyName),
+                KeyAlgorithm.ECDSA_Secp256r1,
+                CryptoProvider.CUSTOM,
+                key.withCrv(JsonWebKeyCurveName.P_256).toEC(false, BouncyCastleProvider())
+            )
             else -> throw IllegalArgumentException("Curve not supported yet.")
         }
     }

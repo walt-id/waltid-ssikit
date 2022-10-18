@@ -51,6 +51,7 @@ open class TinkKeyStoreService : KeyStoreService() {
         val algorithm = when (keysetHandle.keysetInfo.getKeyInfo(0).typeUrl) {
             "type.googleapis.com/google.crypto.tink.Ed25519PrivateKey" -> KeyAlgorithm.EdDSA_Ed25519
             "type.googleapis.com/google.crypto.tink.EcdsaPrivateKey" -> KeyAlgorithm.ECDSA_Secp256k1
+            "type.googleapis.com/google.crypto.tink.EcdsaPrivateKey" -> KeyAlgorithm.ECDSA_Secp256r1
             else -> throw Exception("Could not determine KeyAlgorithm")
         }
 

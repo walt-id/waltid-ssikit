@@ -26,6 +26,7 @@ open class TinkCryptoService : CryptoService() {
         // https://github.com/google/tink/issues/146
         val keysetHandle = when (algorithm) {
             KeyAlgorithm.ECDSA_Secp256k1 -> KeysetHandle.generateNew(KeyTemplates.get("ECDSA_P256_RAW"))
+            KeyAlgorithm.ECDSA_Secp256r1 -> KeysetHandle.generateNew(KeyTemplates.get("ECDSA_P256_RAW"))
             KeyAlgorithm.EdDSA_Ed25519 -> KeysetHandle.generateNew(KeyTemplates.get("ED25519_RAW"))
             else -> throw IllegalArgumentException("Key algorithm: $algorithm not supported")
         }

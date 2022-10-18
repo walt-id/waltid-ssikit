@@ -60,7 +60,8 @@ open class WaltIdKeyService : KeyService() {
             @Suppress("REDUNDANT_ELSE_IN_WHEN")
             when (it.algorithm) {
                 KeyAlgorithm.EdDSA_Ed25519 -> toEd25519Jwk(it, jwkKeyId)
-                KeyAlgorithm.ECDSA_Secp256k1 -> toSecp256Jwk(it, jwkKeyId)
+                KeyAlgorithm.ECDSA_Secp256k1 -> toSecp256Jwk(it, Curve.SECP256K1, jwkKeyId)
+                KeyAlgorithm.ECDSA_Secp256r1 -> toSecp256Jwk(it, Curve.P_256, jwkKeyId)
                 KeyAlgorithm.RSA -> toRsaJwk(it, jwkKeyId)
                 else -> throw IllegalArgumentException("Algorithm not supported")
             }
@@ -72,11 +73,15 @@ open class WaltIdKeyService : KeyService() {
             (if (keyType == KeyType.PRIVATE) private else public).toPEM()
         }
 
-    override fun toSecp256Jwk(key: Key, jwkKeyId: String?): ECKey {
+    override fun toSecp256Jwk(key: Key, curve: Curve, jwkKeyId: String?): ECKey {
         val builder = ECKey
-            .Builder(Curve.SECP256K1, key.keyPair!!.public as ECPublicKey)
+            .Builder(curve, key.keyPair!!.public as ECPublicKey)
             .keyUse(KeyUse.SIGNATURE)
-            .algorithm(JWSAlgorithm.ES256K)
+            .algorithm(when(curve) {
+                Curve.SECP256K1 -> JWSAlgorithm.ES256K
+                Curve.P_256 -> JWSAlgorithm.ES256
+                else -> throw Exception("Unsupported curve for Secp256Jwk: $curve")
+            })
             .keyID(jwkKeyId ?: key.keyId.id)
 
         key.keyPair!!.private?.let {
@@ -130,7 +135,7 @@ open class WaltIdKeyService : KeyService() {
 
     override fun getEthereumAddress(keyAlias: String): String = keyStore.load(keyAlias).let {
         when (it.algorithm) {
-            KeyAlgorithm.ECDSA_Secp256k1 -> calculateEthereumAddress(toSecp256Jwk(it))
+            KeyAlgorithm.ECDSA_Secp256k1 -> calculateEthereumAddress(toSecp256Jwk(it, Curve.SECP256K1))
             else -> throw IllegalArgumentException("Algorithm not supported")
         }
     }

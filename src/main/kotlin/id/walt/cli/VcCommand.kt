@@ -212,7 +212,7 @@ class VerifyVcCommand : CliktCommand(
 
         val verificationResult = Auditor.getService()
             .verify(
-                src.readText(),
+                src.readText().trim(),
                 usedPolicies.entries.map { PolicyRegistry.getPolicyWithJsonArg(it.key, it.value?.ifEmpty { null }) })
 
         echo("\nResults:\n")
