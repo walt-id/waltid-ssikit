@@ -36,6 +36,7 @@ open class SunCryptoService : CryptoService() {
 
         val generator = when (algorithm) {
             KeyAlgorithm.ECDSA_Secp256k1 -> keyPairGeneratorSecp256k1()
+            KeyAlgorithm.ECDSA_Secp256r1 -> keyPairGeneratorSecp256r1()
             KeyAlgorithm.EdDSA_Ed25519 -> keyPairGeneratorEd25519()
             KeyAlgorithm.RSA -> keyPairGeneratorRsa()
         }
@@ -84,6 +85,7 @@ open class SunCryptoService : CryptoService() {
     private fun getSignature(key: Key): Signature {
         val sig = when (key.algorithm) {
             KeyAlgorithm.ECDSA_Secp256k1 -> Signature.getInstance("SHA256withECDSA")
+            KeyAlgorithm.ECDSA_Secp256r1 -> Signature.getInstance("SHA256withECDSA")
             KeyAlgorithm.EdDSA_Ed25519 -> Signature.getInstance("Ed25519")
             KeyAlgorithm.RSA -> Signature.getInstance("SHA256withRSA")
         }

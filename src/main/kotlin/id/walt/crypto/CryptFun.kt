@@ -20,6 +20,7 @@ import org.bouncycastle.asn1.edec.EdECObjectIdentifiers
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.math.ec.ECPoint
 import org.bouncycastle.util.encoders.Hex
@@ -41,13 +42,15 @@ import java.util.*
 enum class KeyAlgorithm {
     EdDSA_Ed25519,
     ECDSA_Secp256k1,
-    RSA;
+    RSA,
+    ECDSA_Secp256r1;
 
     companion object {
         fun fromString(algorithm: String): KeyAlgorithm = when (algorithm) {
             "EdDSA", "Ed25519", "EdDSA_Ed25519" -> EdDSA_Ed25519
             "ECDSA", "Secp256k1", "ECDSA_Secp256k1" -> ECDSA_Secp256k1
             "RSA" -> RSA
+            "Secp256r1", "ECDSA_Secp256r1" -> ECDSA_Secp256r1
             else -> throw IllegalArgumentException("Algorithm not supported")
         }
     }
@@ -75,6 +78,7 @@ enum class LdVerificationKeyType {
     Ed25519VerificationKey2019,
     Ed25519VerificationKey2020,
     EcdsaSecp256k1VerificationKey2019,
+    EcdsaSecp256r1VerificationKey2019,
     RsaVerificationKey2018,
     JwsVerificationKey2020,
     JcsEd25519Key2020
@@ -162,6 +166,7 @@ fun buildKey(
 ): Key {
     val keyFactory = when (KeyAlgorithm.valueOf(algorithm)) {
         KeyAlgorithm.ECDSA_Secp256k1 -> KeyFactory.getInstance("ECDSA")
+        KeyAlgorithm.ECDSA_Secp256r1 -> KeyFactory.getInstance("ECDSA")
         KeyAlgorithm.EdDSA_Ed25519 -> KeyFactory.getInstance("Ed25519")
         KeyAlgorithm.RSA -> KeyFactory.getInstance("RSA")
     }
@@ -248,6 +253,7 @@ fun getMulticodecKeyCode(algorithm: KeyAlgorithm) = when (algorithm) {
     KeyAlgorithm.EdDSA_Ed25519 -> 0xed01
     KeyAlgorithm.ECDSA_Secp256k1 -> 0xe701
     KeyAlgorithm.RSA -> 0x1205
+    KeyAlgorithm.ECDSA_Secp256r1 -> 0x1200
     else -> throw IllegalArgumentException("No multicodec for algorithm $algorithm")
 }
 
@@ -259,6 +265,7 @@ fun getKeyAlgorithmFromMultibase(mb: String): KeyAlgorithm {
         0xe701 -> KeyAlgorithm.ECDSA_Secp256k1
         0x1205 -> KeyAlgorithm.RSA
         0x8524 -> KeyAlgorithm.RSA
+        0x1200 -> KeyAlgorithm.ECDSA_Secp256r1
         else -> throw IllegalArgumentException("No multicodec algorithm for code $code")
     }
 }
@@ -308,6 +315,12 @@ fun convertPublicKeyEd25519ToCurve25519(ed25519PublicKey: ByteArray): ByteArray 
 fun keyPairGeneratorSecp256k1(): KeyPairGenerator {
     val kg = KeyPairGenerator.getInstance("EC", "BC")
     kg.initialize(ECGenParameterSpec("secp256k1"), SecureRandom())
+    return kg
+}
+
+fun keyPairGeneratorSecp256r1(): KeyPairGenerator {
+    val kg = KeyPairGenerator.getInstance("EC", "BC")
+    kg.initialize(ECGenParameterSpec("secp256r1"), SecureRandom())
     return kg
 }
 

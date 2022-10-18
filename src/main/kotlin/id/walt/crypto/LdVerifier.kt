@@ -30,6 +30,18 @@ class LdVerifier {
         }
     }
 
+    class EcdsaSecp256r1Signature2019(val publicKey: Key) : LdVerifier<EcdsaSecp256k1Signature2019SignatureSuite?>(
+        SignatureSuites.SIGNATURE_SUITE_ECDSASECP256L1SIGNATURE2019, null, Canonicalizers.CANONICALIZER_URDNA2015CANONICALIZER
+    ) {
+
+        override fun verify(signingInput: ByteArray, ldProof: LdProof): Boolean {
+            val detachedJwsObject = JWSObject.parse(ldProof.jws)
+            val jwsSigningInput = JWSUtil.getJwsSigningInput(detachedJwsObject.header, signingInput)
+            val jwsVerifier = ECDSAVerifier(publicKey.getPublicKey() as ECPublicKey)
+            return jwsVerifier.verify(detachedJwsObject.header, jwsSigningInput, detachedJwsObject.signature)
+        }
+    }
+
     class Ed25519Signature2018(val publicKey: Key) : LdVerifier<Ed25519Signature2018SignatureSuite?>(
         SignatureSuites.SIGNATURE_SUITE_ED25519SIGNATURE2018,
         null,
@@ -83,6 +95,7 @@ class LdVerifier {
             return when(publicKey.algorithm) {
                 KeyAlgorithm.RSA -> RsaSignature2018(publicKey).verify(signingInput, ldProof)
                 KeyAlgorithm.ECDSA_Secp256k1 -> EcdsaSecp256k1Signature2019(publicKey).verify(signingInput, ldProof)
+                KeyAlgorithm.ECDSA_Secp256r1 -> EcdsaSecp256r1Signature2019(publicKey).verify(signingInput, ldProof)
                 KeyAlgorithm.EdDSA_Ed25519 -> Ed25519Signature2018(publicKey).verify(signingInput, ldProof)
             }
         }
