@@ -49,7 +49,7 @@ class CreateDidCommand : CliktCommand(
 ) {
     val config: CliConfig by requireObject()
     val method: String by option("-m", "--did-method", help = "Specify DID method [key]")
-        .choice("key", "web", "ebsi", "iota").default("key")
+        .choice("key", "web", "ebsi", "iota", "jwk").default("key")
 
     val keyAlias: String? by option("-k", "--key", help = "Specific key (ID or alias)")
     val didWebDomain: String by option("-d", "--domain", help = "Domain for did:web").default("walt.id")
@@ -72,7 +72,6 @@ class CreateDidCommand : CliktCommand(
         val did = when (didMethod) {
             web -> DidService.create(web, keyId, DidService.DidWebOptions(didWebDomain, didWebPath))
             ebsi -> DidService.create(ebsi, keyId, DidService.DidEbsiOptions(didEbsiVersion))
-            key -> DidService.create(key, keyId)
             else -> DidService.create(didMethod, keyId)
         }
 

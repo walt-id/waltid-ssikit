@@ -119,7 +119,7 @@ class JWKImportImpl(val keyString: String) : KeyImportStrategy {
 
         val key = when (jwk.algorithm?.name) {
             "EdDSA" -> buildKey(
-                keyId = jwk.keyID,
+                keyId = jwk.keyID ?: newKeyId().id,
                 algorithm = KeyAlgorithm.EdDSA_Ed25519.name,
                 provider = CryptoProvider.SUN.name,
                 publicPart = jwk.toOctetKeyPair().x.toString(),
@@ -127,19 +127,19 @@ class JWKImportImpl(val keyString: String) : KeyImportStrategy {
                 format = KeyFormat.BASE64_RAW
             )
             "ES256K" -> Key(
-                keyId = KeyId(jwk.keyID),
+                keyId = KeyId(jwk.keyID ?: newKeyId().id),
                 algorithm = KeyAlgorithm.ECDSA_Secp256k1,
                 cryptoProvider = CryptoProvider.SUN,
                 keyPair = jwk.toECKey().toKeyPair()
             )
             "ES256" -> Key(
-                keyId = KeyId(jwk.keyID),
+                keyId = KeyId(jwk.keyID ?: newKeyId().id),
                 algorithm = KeyAlgorithm.ECDSA_Secp256r1,
                 cryptoProvider = CryptoProvider.SUN,
                 keyPair = jwk.toECKey().toKeyPair()
             )
             "RSA" -> Key(
-                keyId = KeyId(jwk.keyID),
+                keyId = KeyId(jwk.keyID ?: newKeyId().id),
                 algorithm = KeyAlgorithm.RSA,
                 cryptoProvider = CryptoProvider.SUN,
                 keyPair = jwk.toRSAKey().toKeyPair()
