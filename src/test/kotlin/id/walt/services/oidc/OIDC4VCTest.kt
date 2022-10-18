@@ -13,6 +13,7 @@ import id.walt.model.dif.*
 import id.walt.model.oidc.*
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
+import id.walt.services.jwt.JwtService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
@@ -117,6 +118,12 @@ class OIDC4VCTest : AnnotationSpec() {
         issuanceInitiationReq.issuer_url shouldBe "https://ngi-oidc4vci-test.spruceid.xyz"
         issuanceInitiationReq.credential_types shouldContain "OpenBadgeCredential"
         issuanceInitiationReq.pre_authorized_code shouldBe "eyJhbGciOiJFZERTQSJ9.eyJjcmVkZW50aWFsX3R5cGUiOlsiT3BlbkJhZGdlQ3JlZGVudGlhbCJdLCJleHAiOiIyMDIyLTEwLTA1VDExOjQ1OjQxLjk1NzM0MDYxNVoiLCJub25jZSI6IlFZMm15MDVKWHJPczd1Szg4OUVZSk1CSktkaXBnUXp0In0.f_-BNsLrL2LVTNxAjfJzX33pwC2zQDPGBMrY5LK88zdytOSRdyDfceat5Uzdb3MG3JNUEXEvLUoHYkgx95UCDQ"
+    }
+
+    @Test
+    fun testCrosswordCyberSecurityDidProof() {
+        val proof = JwtProof("eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImRpZDpqd2s6ZXlKNUlqb2lNako0Umw5NVRsUjZkVzVSVEU1dmExWXlNMTlwTFhGS2EwOU5NVlptVUdZNFRFeFhOM1JHZDBkcWF5SXNJbU55ZGlJNklsQXRNalUySWl3aWVDSTZJbVJKTmtoMGVrMDJXSEZZUkhCd1MzTkJiR0kzWDNkd1FuWlpjRTVZV0c5UldHcHFjRUpGVURWaE5tOGlMQ0poYkdjaU9pSkZVekkxTmlJc0ltdDBlU0k2SWtWREluMCJ9.eyJleHAiOjE2NjYwMjM0NjYsImp0aSI6IjVVT0xnR29keXZ1R2dZVTZcLzF2Tk9kd0pVUUpkM085VWlCTHg1Z2VSSlpBPSIsImlzcyI6ImRpZDpqd2s6ZXlKNUlqb2lNako0Umw5NVRsUjZkVzVSVEU1dmExWXlNMTlwTFhGS2EwOU5NVlptVUdZNFRFeFhOM1JHZDBkcWF5SXNJbU55ZGlJNklsQXRNalUySWl3aWVDSTZJbVJKTmtoMGVrMDJXSEZZUkhCd1MzTkJiR0kzWDNkd1FuWlpjRTVZV0c5UldHcHFjRUpGVURWaE5tOGlMQ0poYkdjaU9pSkZVekkxTmlJc0ltdDBlU0k2SWtWREluMCIsImF1ZCI6Imh0dHBzOlwvXC9pc3N1ZXIud2FsdC10ZXN0LmNsb3VkXC9pc3N1ZXItYXBpXC9vaWRjXC8iLCJpYXQiOjE2NjYwMjM0MDZ9.oZd5hfs1iLQMiaL3VUvxG93B5CjKsVmH45WPdXGeeSnqBm5QF7eHNlakZ4u8KGlrq0gqXLc5lXP-u0rMzbNZkw")
+        JwtService.getService().verify(proof.jwt) shouldBe true
     }
 
     @Test
