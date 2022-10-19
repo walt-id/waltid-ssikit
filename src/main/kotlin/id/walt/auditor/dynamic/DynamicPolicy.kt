@@ -3,6 +3,9 @@ package id.walt.auditor.dynamic
 import com.jayway.jsonpath.JsonPath
 import id.walt.auditor.ParameterizedVerificationPolicy
 import id.walt.vclib.model.VerifiableCredential
+import mu.KotlinLogging
+
+private val log = KotlinLogging.logger {  }
 
 open class DynamicPolicy(dynPolArg: DynamicPolicyArg) : ParameterizedVerificationPolicy<DynamicPolicyArg>(dynPolArg) {
     override val id: String
@@ -20,7 +23,10 @@ open class DynamicPolicy(dynPolArg: DynamicPolicyArg) : ParameterizedVerificatio
             data = JsonPath.parse(vc.json!!)?.read(argument.dataPath)!!,
             policy = rego,
             query = argument.policyQuery
-        )
+        ).also {
+            log.debug { "DYNAMIC POLICY CHECK: VC ${vc.type} passed $it: $it" }
+            log.debug { "Policy: ${argument.policy}" }
+        }
     }
 
     override val applyToVC: Boolean
