@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-version='1.14.1-SNAPSHOT'
+version='1.13.0-SNAPSHOT'
 
 function header() {
   echo "waltid-ssi-kit wrapper script"
