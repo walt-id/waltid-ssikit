@@ -44,7 +44,7 @@ abstract class VerificationPolicy {
         vc is VerifiablePresentation && applyToVP
                 || vc !is VerifiablePresentation && applyToVC -> doVerify(vc)
         else -> true
-    }
+    }.also { log.debug { "VC ${vc.type} passes policy $id: $it" } }
 }
 
 abstract class SimpleVerificationPolicy : VerificationPolicy()
