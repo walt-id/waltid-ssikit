@@ -3,7 +3,7 @@ package id.walt.crypto
 /**
  * Unsigned variable-length integer
  * https://github.com/multiformats/unsigned-varint
- * Used for multicodec: https://github.com/multiformats/unsigned-varint
+ * Used for multicodec: https://github.com/multiformats/multicodec
  */
 class UVarInt(val value: UInt) {
   val bytes: ByteArray = bytesFromUInt(value)

@@ -250,8 +250,8 @@ fun convertX25519PublicKeyFromMultibase58Btc(mbase58: String): ByteArray {
 
 @Suppress("REDUNDANT_ELSE_IN_WHEN")
 fun getMulticodecKeyCode(algorithm: KeyAlgorithm) = when (algorithm) {
-    KeyAlgorithm.EdDSA_Ed25519 -> 0xedu
-    KeyAlgorithm.ECDSA_Secp256k1 -> 0xe7u
+    KeyAlgorithm.EdDSA_Ed25519 -> 0xEDu
+    KeyAlgorithm.ECDSA_Secp256k1 -> 0xE7u
     KeyAlgorithm.RSA -> 0x1205u
     KeyAlgorithm.ECDSA_Secp256r1 -> 0x1200u
     else -> throw IllegalArgumentException("No multicodec for algorithm $algorithm")
@@ -261,8 +261,8 @@ fun getKeyAlgorithmFromMultibase(mb: String): KeyAlgorithm {
     val decoded = mb.decodeMultiBase58Btc()
     val code = UVarInt.fromBytes(decoded)
     return when (code.value) {
-        0xedu -> KeyAlgorithm.EdDSA_Ed25519
-        0xe7u -> KeyAlgorithm.ECDSA_Secp256k1
+        0xEDu -> KeyAlgorithm.EdDSA_Ed25519
+        0xE7u -> KeyAlgorithm.ECDSA_Secp256k1
         0x1205u -> KeyAlgorithm.RSA
         0x1200u -> KeyAlgorithm.ECDSA_Secp256r1
         else -> throw IllegalArgumentException("No multicodec algorithm for code $code")

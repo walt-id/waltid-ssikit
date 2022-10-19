@@ -79,7 +79,7 @@ class CryptFunTests : AnnotationSpec() {
         decoded shouldBe input
     }
 
-    // https://w3c-ccg.github.io/did-method-key/#rsa -> - examples can not be reconstructed
+    // https://w3c-ccg.github.io/did-method-key/#rsa
     @Test
     fun multibaseRsaKeyTest() {
         val input =
