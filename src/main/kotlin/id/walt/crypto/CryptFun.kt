@@ -250,35 +250,38 @@ fun convertX25519PublicKeyFromMultibase58Btc(mbase58: String): ByteArray {
 
 @Suppress("REDUNDANT_ELSE_IN_WHEN")
 fun getMulticodecKeyCode(algorithm: KeyAlgorithm) = when (algorithm) {
-    KeyAlgorithm.EdDSA_Ed25519 -> 0xed01
-    KeyAlgorithm.ECDSA_Secp256k1 -> 0xe701
-    KeyAlgorithm.RSA -> 0x1205
-    KeyAlgorithm.ECDSA_Secp256r1 -> 0x1200
+    KeyAlgorithm.EdDSA_Ed25519 -> 0xEDu
+    KeyAlgorithm.ECDSA_Secp256k1 -> 0xE7u
+    KeyAlgorithm.RSA -> 0x1205u
+    KeyAlgorithm.ECDSA_Secp256r1 -> 0x1200u
     else -> throw IllegalArgumentException("No multicodec for algorithm $algorithm")
 }
 
 fun getKeyAlgorithmFromMultibase(mb: String): KeyAlgorithm {
     val decoded = mb.decodeMultiBase58Btc()
-
-    return when (val code = (decoded[0].toInt().shl(8) and 0xFFFF) + decoded[1]) {
-        0xed01 -> KeyAlgorithm.EdDSA_Ed25519
-        0xe701 -> KeyAlgorithm.ECDSA_Secp256k1
-        0x1205 -> KeyAlgorithm.RSA
-        0x8524 -> KeyAlgorithm.RSA
-        0x1200 -> KeyAlgorithm.ECDSA_Secp256r1
+    val code = UVarInt.fromBytes(decoded)
+    return when (code.value) {
+        0xEDu -> KeyAlgorithm.EdDSA_Ed25519
+        0xE7u -> KeyAlgorithm.ECDSA_Secp256k1
+        0x1205u -> KeyAlgorithm.RSA
+        0x1200u -> KeyAlgorithm.ECDSA_Secp256r1
         else -> throw IllegalArgumentException("No multicodec algorithm for code $code")
     }
 }
 
-fun convertRawKeyToMultiBase58Btc(key: ByteArray, code: Int): String {
-    val multicodecAndRawKey = ByteArray(key.size + 2)
-    multicodecAndRawKey[0] = (code and 0xFF00).ushr(8).toByte()
-    multicodecAndRawKey[1] = (code and 0x00FF).toByte()
-    key.copyInto(multicodecAndRawKey, 2)
+fun convertRawKeyToMultiBase58Btc(key: ByteArray, code: UInt): String {
+    val codeVarInt = UVarInt(code)
+    val multicodecAndRawKey = ByteArray(key.size + codeVarInt.length)
+    codeVarInt.bytes.copyInto(multicodecAndRawKey)
+    key.copyInto(multicodecAndRawKey, codeVarInt.length)
     return multicodecAndRawKey.encodeMultiBase58Btc()
 }
 
-fun convertMultiBase58BtcToRawKey(mb: String): ByteArray = mb.decodeMultiBase58Btc().drop(2).toByteArray()
+fun convertMultiBase58BtcToRawKey(mb: String): ByteArray {
+    val bytes = mb.decodeMultiBase58Btc()
+    val code = UVarInt.fromBytes(bytes)
+    return bytes.drop(code.length).toByteArray()
+}
 
 fun convertEd25519PublicKeyToMultiBase58Btc(edPublicKey: ByteArray): String {
     val edPublicKeyCryptonym = ByteArray(edPublicKey.size + 2)

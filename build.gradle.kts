@@ -202,9 +202,7 @@ publishing {
     }
 }
 
-
-
 licenseReport {
-    renderers = arrayOf<ReportRenderer>(InventoryHtmlReportRenderer("report.html","Backend"))
+    renderers = arrayOf<ReportRenderer>(InventoryHtmlReportRenderer("ssikit-licenses-report.html","SSI Kit"))
     filters = arrayOf<DependencyFilter>(LicenseBundleNormalizer())
 }
