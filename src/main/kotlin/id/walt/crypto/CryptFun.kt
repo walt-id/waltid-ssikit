@@ -242,19 +242,6 @@ fun convertX25519PublicKeyFromMultibase58Btc(mbase58: String): ByteArray {
     return buffer.copyOfRange(2, buffer.size)
 }
 
-fun encodeUVarInt(code: UInt): ByteArray {
-    val MSB = 0x80u
-    val MSBALL = 0xFFFFFF80u
-    val varInt = mutableListOf<Byte>()
-    var rest = code
-    while((rest and MSBALL) != 0u) {
-        varInt.add(((rest and 0xFFu) or MSB).toByte())
-        rest = rest.shr(7)
-    }
-    varInt.add(rest.toByte())
-    return varInt.toByteArray()
-}
-
 // https://github.com/multiformats/multicodec
 // https://github.com/multiformats/multicodec/blob/master/table.csv
 // 0x1205 rsa-pub
