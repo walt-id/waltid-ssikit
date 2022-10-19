@@ -266,14 +266,16 @@ object OidcService {
 fun main() {
     ServiceMatrix("service-matrix.properties")
 
-    val did = DidService.create(DidMethod.key)
+    //val did = DidService.create(DidMethod.key)
+    val did = "did:key:z6Mki3WhnK7oZYSVDMipPcjxohLnoWYPLATPTLZPrDdHQH3n#z6Mki3WhnK7oZYSVDMipPcjxohLnoWYPLATPTLZPrDdHQH3n"
 
-    val vcId = OidcService.issuance(
+    val vcId = Custodian.getService().listCredentialIds().first()
+    /*val vcId = OidcService.issuance(
         "openid-initiate-issuance://?issuer=https%3A%2F%2Fissuer.walt-test.cloud%2Fissuer-api%2Foidc%2F&credential_type=VerifiableId&pre-authorized_code=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwNjRjOGE5Yi0xMjEzLTQ3OTItYWU0Yy0xYzMyYzJlOGY2N2IiLCJwcmUtYXV0aG9yaXplZCI6dHJ1ZX0.KavupJvOPkBpA7N7AO7BbmwY_yf-QMeKtcSuKuiUze0&user_pin_required=false",
         did
-    )
+    )*/
     OidcService.present(
-        "openid:/?scope=openid&presentation_definition=%7B%22format%22+%3A+null%2C+%22id%22+%3A+%221%22%2C+%22input_descriptors%22+%3A+%5B%7B%22constraints%22+%3A+null%2C+%22format%22+%3A+null%2C+%22group%22+%3A+null%2C+%22id%22+%3A+%221%22%2C+%22name%22+%3A+null%2C+%22purpose%22+%3A+null%2C+%22schema%22+%3A+%7B%22uri%22+%3A+%22https%3A%2F%2Fapi.preprod.ebsi.eu%2Ftrusted-schemas-registry%2Fv1%2Fschemas%2F0xb77f8516a965631b4f197ad54c65a9e2f9936ebfb76bae4906d33744dbcc60ba%22%7D%7D%5D%2C+%22name%22+%3A+null%2C+%22purpose%22+%3A+null%2C+%22submission_requirements%22+%3A+null%7D&response_type=vp_token&redirect_uri=https%3A%2F%2Fverifier.walt-test.cloud%2Fverifier-api%2Fverify&state=c46e2e1b-b8e6-4f9a-80a1-1b093a6919f9&nonce=c46e2e1b-b8e6-4f9a-80a1-1b093a6919f9&client_id=https%3A%2F%2Fverifier.walt-test.cloud%2Fverifier-api%2Fverify&response_mode=post",
+        "http://localhost:8080/sharecredential?scope=openid&presentation_definition=%7B%22format%22+%3A+null%2C+%22id%22+%3A+%221%22%2C+%22input_descriptors%22+%3A+%5B%7B%22constraints%22+%3A+%7B%22fields%22+%3A+%5B%7B%22filter%22+%3A+%7B%22const%22%3A+%22VerifiableId%22%7D%2C+%22id%22+%3A+%221%22%2C+%22path%22+%3A+%5B%22%24.type%22%5D%2C+%22purpose%22+%3A+null%7D%5D%7D%2C+%22format%22+%3A+null%2C+%22group%22+%3A+null%2C+%22id%22+%3A+%221%22%2C+%22name%22+%3A+null%2C+%22purpose%22+%3A+null%2C+%22schema%22+%3A+null%7D%5D%2C+%22name%22+%3A+null%2C+%22purpose%22+%3A+null%2C+%22submission_requirements%22+%3A+null%7D&response_type=vp_token&redirect_uri=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fsiop%2Fverify&state=eyJpZHBTZXNzaW9uSWQiIDogImU3M2U5NmViLTY4YzItNGE1Ny1iNTc5LWIxZjQwMDY2MWU0NiIsICJpZHBUeXBlIiA6ICJPSURDIn0%3D&nonce=e4c97c50-35bd-4ff8-b026-4a7bca71b3cd&client_id=http%3A%2F%2Flocalhost%3A8080%2Fapi%2Fsiop%2Fverify&response_mode=form_post",
         did, listOf(vcId)
     )
 }
