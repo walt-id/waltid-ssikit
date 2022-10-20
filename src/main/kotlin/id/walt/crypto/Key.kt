@@ -6,6 +6,7 @@ import id.walt.services.keystore.TinkKeyStoreService
 import kotlinx.serialization.Serializable
 import org.bouncycastle.asn1.ASN1BitString
 import org.bouncycastle.asn1.ASN1Sequence
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey
 import java.security.KeyPair
 import java.security.PublicKey
 import java.security.interfaces.ECPublicKey

@@ -20,7 +20,6 @@ import org.bouncycastle.asn1.edec.EdECObjectIdentifiers
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
-import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.math.ec.ECPoint
 import org.bouncycastle.util.encoders.Hex
@@ -355,13 +354,13 @@ val mapper: ObjectMapper = JsonMapper.builder()
 fun canonicalize(json: String): String =
     mapper.writeValueAsString(mapper.readTree(json))
 
-fun uncompressSecp256k1(compKey: ByteArray?): ECKey? {
-    val point: ECPoint = ECNamedCurveTable.getParameterSpec(Curve.SECP256K1.name).curve.decodePoint(compKey)
+fun uncompressSecp256k1(compKey: ByteArray?, curve: Curve = Curve.SECP256K1): ECKey? {
+    val point: ECPoint = ECNamedCurveTable.getParameterSpec(curve.name).curve.decodePoint(compKey)
 
     val x: ByteArray = point.xCoord.encoded
     val y: ByteArray = point.yCoord.encoded
 
-    return ECKey.Builder(Curve.SECP256K1, Base64URL.encode(x), Base64URL.encode(y)).build()
+    return ECKey.Builder(curve, Base64URL.encode(x), Base64URL.encode(y)).build()
 }
 
 fun parseEncryptedAke1Payload(encryptedPayload: String): EncryptedAke1Payload {

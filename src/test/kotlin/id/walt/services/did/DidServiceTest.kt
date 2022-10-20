@@ -8,6 +8,7 @@ import id.walt.model.Did
 import id.walt.model.DidEbsi
 import id.walt.model.DidMethod
 import id.walt.model.DidUrl
+import id.walt.model.oidc.klaxon
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
@@ -100,6 +101,7 @@ class DidServiceTest : AnnotationSpec() {
         val didUrl = DidUrl.from(did)
         did shouldBe didUrl.did
         "key" shouldBe didUrl.method
+        didUrl.identifier shouldStartWith "zQ3s"
         print(did)
 
         // Resolve
@@ -108,6 +110,9 @@ class DidServiceTest : AnnotationSpec() {
         println(encoded)
 
         assertVerificationMethodAliases(resolvedDid)
+
+        val originalKeyJwk = KeyService.getService().toJwk(keyId.id, jwkKeyId = resolvedDid.verificationMethod!![0].publicKeyJwk!!.kid)
+        Klaxon().toJsonString(resolvedDid.verificationMethod!![0].publicKeyJwk) shouldMatchJson originalKeyJwk.toJSONString()
     }
 
     @Test
@@ -119,7 +124,7 @@ class DidServiceTest : AnnotationSpec() {
         val didUrl = DidUrl.from(did)
         did shouldBe didUrl.did
         "key" shouldBe didUrl.method
-        // TODO: didUrl.identifier shouldStartWith "zDn"
+        didUrl.identifier shouldStartWith "zDn"
         print(did)
 
         // Resolve
@@ -128,6 +133,9 @@ class DidServiceTest : AnnotationSpec() {
         println(encoded)
 
         assertVerificationMethodAliases(resolvedDid)
+
+        val originalKeyJwk = KeyService.getService().toJwk(keyId.id, jwkKeyId = resolvedDid.verificationMethod!![0].publicKeyJwk!!.kid)
+        Klaxon().toJsonString(resolvedDid.verificationMethod!![0].publicKeyJwk) shouldMatchJson originalKeyJwk.toJSONString()
     }
 
     @Test
