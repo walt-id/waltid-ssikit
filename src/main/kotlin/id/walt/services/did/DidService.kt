@@ -1,6 +1,7 @@
 package id.walt.services.did
 
 import com.beust.klaxon.Klaxon
+import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jose.util.Base64URL
 import id.walt.crypto.*
@@ -28,6 +29,7 @@ import mu.KotlinLogging
 import org.bouncycastle.asn1.edec.EdECObjectIdentifiers
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey
 import java.io.File
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -188,6 +190,13 @@ object DidService {
         return didUrlStr
     }
 
+    private fun getPublicKeyBytesForDidKey(key: Key): ByteArray {
+        return when(key.algorithm) {
+            ECDSA_Secp256k1, ECDSA_Secp256r1 -> (key.getPublicKey() as BCECPublicKey).q.getEncoded(true)
+            RSA, EdDSA_Ed25519 -> key.getPublicKeyBytes()
+        }
+    }
+
     private fun createDidKey(keyAlias: String?): String {
         val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(DEFAULT_KEY_ALGORITHM)
         val key = ContextManager.keyStore.load(keyId.id)
@@ -195,7 +204,7 @@ object DidService {
         if (key.algorithm !in setOf(EdDSA_Ed25519, RSA, ECDSA_Secp256k1, ECDSA_Secp256r1))
             throw IllegalArgumentException("did:key can not be created with an ${key.algorithm} key.")
 
-        val identifier = convertRawKeyToMultiBase58Btc(key.getPublicKeyBytes(), getMulticodecKeyCode(key.algorithm))
+        val identifier = convertRawKeyToMultiBase58Btc(getPublicKeyBytesForDidKey(key), getMulticodecKeyCode(key.algorithm))
 
         val didUrl = "did:key:$identifier"
 
@@ -430,7 +439,8 @@ object DidService {
 
         val (keyAgreementKeys, verificationMethods, keyRef) = when (keyAlgorithm) {
             EdDSA_Ed25519 -> generateEdParams(pubKey, didUrl)
-            else -> generateDidKeyParams(pubKey, didUrl)
+            ECDSA_Secp256r1, ECDSA_Secp256k1 -> generateEcKeyParams(pubKey, didUrl, keyAlgorithm)
+            RSA -> generateRSAKeyParams(pubKey, didUrl)
         }
 
         return Did(
@@ -440,13 +450,13 @@ object DidService {
             authentication = keyRef,
             assertionMethod = keyRef,
             capabilityDelegation = keyRef,
-            capabilityInvocation = verificationMethods,
+            capabilityInvocation = keyRef,
             keyAgreement = keyAgreementKeys,
             serviceEndpoint = null
         )
     }
 
-    private fun generateDidKeyParams(
+    private fun generateRSAKeyParams(
         pubKey: ByteArray, didUrl: DidUrl
     ): Triple<List<VerificationMethod>?, MutableList<VerificationMethod>, List<VerificationMethod>> {
 
@@ -477,6 +487,32 @@ object DidService {
 
         return Triple(
             listOf(VerificationMethod.Reference(dhKeyId)),
+            verificationMethods,
+            listOf(VerificationMethod.Reference(pubKeyId))
+        )
+    }
+
+    private fun generateEcKeyParams(
+        pubKey: ByteArray, didUrl: DidUrl, algorithm: KeyAlgorithm
+    ): Triple<List<VerificationMethod>?, MutableList<VerificationMethod>, List<VerificationMethod>> {
+        val curve = if(algorithm == ECDSA_Secp256k1) Curve.SECP256K1 else Curve.P_256
+        val vmType = if(algorithm == ECDSA_Secp256k1) EcdsaSecp256k1VerificationKey2019.name else EcdsaSecp256r1VerificationKey2019.name
+
+        val uncompressedPubKey = uncompressSecp256k1(pubKey, curve) ?: throw Exception("Error uncompressing public key bytes")
+        val key = Key(newKeyId(), algorithm, CryptoProvider.SUN, KeyPair(uncompressedPubKey.toECPublicKey(), null))
+        val pubKeyId = didUrl.did + "#" + didUrl.identifier
+
+        val verificationMethods = mutableListOf(
+            VerificationMethod(
+                pubKeyId,
+                vmType,
+                didUrl.did,
+                publicKeyJwk = Klaxon().parse<Jwk>(keyService.toSecp256Jwk(key, curve, key.keyId.id).toJSONString())
+            )
+        )
+
+        return Triple(
+            null,
             verificationMethods,
             listOf(VerificationMethod.Reference(pubKeyId))
         )
