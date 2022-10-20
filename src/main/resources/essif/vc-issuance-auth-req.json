@@ -1,4 +1,4 @@
 {
-  "uri": "openid://?response_type=id_token&client_id=https%3A%2F%2Frp.example.com%2Fcb&scope=openid%20did_authn&request=<authentication-request-JWS>",
-  "callback": "https://ti.example.com/callback"
+    "uri": "openid://?response_type=id_token&client_id=https%3A%2F%2Frp.example.com%2Fcb&scope=openid%20did_authn&request=<authentication-request-JWS>",
+    "callback": "https://ti.example.com/callback"
 }

@@ -1,70 +1,70 @@
 {
-  "scope": "openid did_authn",
-  "iss": "did:ebsi:2123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmno",
-  "response_type": "id_token",
-  "client_id": "https://rp.example.com",
-  "nonce": "fdsafdasfdsafasdfasdfa",
-  "registration": {
-    "redirect_uris": [
-      "https://rp.example.com"
-    ],
-    "response_types": "id_token",
-    "id_token_signed_response_alg": [
-      "RS256",
-      "ES256",
-      "ES256K",
-      "EdDSA"
-    ],
-    "request_object_signing_alg": [
-      "RS256",
-      "ES256",
-      "ES256K",
-      "EdDSA"
-    ],
-    "access_token_signing_alg": [
-      "RS256",
-      "ES256",
-      "ES256K",
-      "EdDSA"
-    ],
-    "access_token_encryption_alg_values_supported": [
-      "ECDH-ES"
-    ],
-    "access_token_encryption_enc_values_supported": [
-      "A128GCM",
-      "A256GCM"
-    ],
-    "jwks_uri": "https://api.ebsi.xyz/did/1.0/identifiers/did:ebsi:2123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmno"
-  },
-  "claims": {
-    "id_token": {
-      "verified_claims": [
-        {
-          "verification": {
-            "trust_framework": "EBSI",
-            "evidence": {
-              "type": {
-                "value": "verifiable_credential"
-              },
-              "document": {
-                "type": {
-                  "essential": true,
-                  "value": [
-                    "VerifiableCredential",
-                    "VerifiableID"
-                  ]
-                },
-                "credentialSchema": {
-                  "id": {
-                    "essential": true,
-                    "value": "https://ebsi.xyz/trusted-schemas-registry/verifiable-ID-XXX"
-                  }
+    "scope": "openid did_authn",
+    "iss": "did:ebsi:2123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmno",
+    "response_type": "id_token",
+    "client_id": "https://rp.example.com",
+    "nonce": "fdsafdasfdsafasdfasdfa",
+    "registration": {
+        "redirect_uris": [
+            "https://rp.example.com"
+        ],
+        "response_types": "id_token",
+        "id_token_signed_response_alg": [
+            "RS256",
+            "ES256",
+            "ES256K",
+            "EdDSA"
+        ],
+        "request_object_signing_alg": [
+            "RS256",
+            "ES256",
+            "ES256K",
+            "EdDSA"
+        ],
+        "access_token_signing_alg": [
+            "RS256",
+            "ES256",
+            "ES256K",
+            "EdDSA"
+        ],
+        "access_token_encryption_alg_values_supported": [
+            "ECDH-ES"
+        ],
+        "access_token_encryption_enc_values_supported": [
+            "A128GCM",
+            "A256GCM"
+        ],
+        "jwks_uri": "https://api.ebsi.xyz/did/1.0/identifiers/did:ebsi:2123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmno"
+    },
+    "claims": {
+        "id_token": {
+            "verified_claims": [
+                {
+                    "verification": {
+                        "trust_framework": "EBSI",
+                        "evidence": {
+                            "type": {
+                                "value": "verifiable_credential"
+                            },
+                            "document": {
+                                "type": {
+                                    "essential": true,
+                                    "value": [
+                                        "VerifiableCredential",
+                                        "VerifiableID"
+                                    ]
+                                },
+                                "credentialSchema": {
+                                    "id": {
+                                        "essential": true,
+                                        "value": "https://ebsi.xyz/trusted-schemas-registry/verifiable-ID-XXX"
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
-              }
-            }
-          }
+            ]
         }
-      ]
     }
-  }
 }

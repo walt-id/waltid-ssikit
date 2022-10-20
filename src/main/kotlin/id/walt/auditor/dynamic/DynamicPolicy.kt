@@ -5,7 +5,7 @@ import id.walt.auditor.ParameterizedVerificationPolicy
 import id.walt.vclib.model.VerifiableCredential
 import mu.KotlinLogging
 
-private val log = KotlinLogging.logger {  }
+private val log = KotlinLogging.logger { }
 
 open class DynamicPolicy(dynPolArg: DynamicPolicyArg) : ParameterizedVerificationPolicy<DynamicPolicyArg>(dynPolArg) {
     override val id: String

@@ -106,15 +106,18 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
     @Test
     fun testVerifyVcWithWrongIssuerDid() = credentialService.verifyVc(
         "wrong",
-        credentialService.sign(Europass().encode(), ProofConfig(issuerDid = issuerDid)
+        credentialService.sign(
+            Europass().encode(), ProofConfig(issuerDid = issuerDid)
         )
     ) shouldBe false
 
     @Test
     fun testValidateSchema() {
         val noSchemaVc = VerifiableId().encode()
-        val validVc = Signatory.getService().issue("VerifiableId", ProofConfig(issuerDid = issuerDid, subjectDid = issuerDid, proofType = ProofType.JWT))
-        val invalidDataVc = Signatory.getService().issue("VerifiableId", ProofConfig(issuerDid = issuerDid, proofType = ProofType.JWT))
+        val validVc = Signatory.getService()
+            .issue("VerifiableId", ProofConfig(issuerDid = issuerDid, subjectDid = issuerDid, proofType = ProofType.JWT))
+        val invalidDataVc =
+            Signatory.getService().issue("VerifiableId", ProofConfig(issuerDid = issuerDid, proofType = ProofType.JWT))
         val notParsableVc = ""
 
         credentialService.validateSchemaTsr(noSchemaVc) shouldBe true

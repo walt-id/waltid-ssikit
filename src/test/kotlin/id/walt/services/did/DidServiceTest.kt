@@ -20,7 +20,6 @@ import io.kotest.data.row
 import io.kotest.matchers.collections.shouldBeOneOf
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.kotest.matchers.string.shouldStartWith
 import java.io.File
 
 class DidServiceTest : AnnotationSpec() {
@@ -151,7 +150,8 @@ class DidServiceTest : AnnotationSpec() {
 
     @Test
     fun testResolveDidJwkExamples() {
-        val didDoc = DidService.resolve("did:jwk:eyJjcnYiOiJQLTI1NiIsImt0eSI6IkVDIiwieCI6ImFjYklRaXVNczNpOF91c3pFakoydHBUdFJNNEVVM3l6OTFQSDZDZEgyVjAiLCJ5IjoiX0tjeUxqOXZXTXB0bm1LdG00NkdxRHo4d2Y3NEk1TEtncmwyR3pIM25TRSJ9")
+        val didDoc =
+            DidService.resolve("did:jwk:eyJjcnYiOiJQLTI1NiIsImt0eSI6IkVDIiwieCI6ImFjYklRaXVNczNpOF91c3pFakoydHBUdFJNNEVVM3l6OTFQSDZDZEgyVjAiLCJ5IjoiX0tjeUxqOXZXTXB0bm1LdG00NkdxRHo4d2Y3NEk1TEtncmwyR3pIM25TRSJ9")
         didDoc.method shouldBe DidMethod.jwk
         didDoc.verificationMethod!!.first().publicKeyJwk!!.crv shouldBe "P-256"
         didDoc.verificationMethod!!.first().publicKeyJwk!!.kty shouldBe "EC"
@@ -163,7 +163,7 @@ class DidServiceTest : AnnotationSpec() {
     fun createDidEbsiV1Identifier() {
         val didUrl = DidUrl.generateDidEbsiV1DidUrl()
         val did = didUrl.did
-        did.substring(0, 9) shouldBe  "did:ebsi:"
+        did.substring(0, 9) shouldBe "did:ebsi:"
         didUrl.identifier.length shouldBeOneOf listOf(23, 24)
         didUrl.identifier[0] shouldBe 'z'
         didUrl.identifier.substring(1).decodeBase58()[0] shouldBe 0x01
@@ -178,7 +178,7 @@ class DidServiceTest : AnnotationSpec() {
         val publicKeyJwkThumbprint = publicKeyJwk.computeThumbprint().decode()
         val didUrl = DidUrl.generateDidEbsiV2DidUrl(publicKeyJwkThumbprint)
         val did = didUrl.did
-        did.substring(0, 9) shouldBe  "did:ebsi:"
+        did.substring(0, 9) shouldBe "did:ebsi:"
         didUrl.identifier.length shouldBe 45
         didUrl.identifier[0] shouldBe 'z'
         didUrl.identifier.substring(1).decodeBase58()[0] shouldBe 0x02
@@ -200,7 +200,7 @@ class DidServiceTest : AnnotationSpec() {
         assertVerificationMethodAliases(resolvedDid)
 
         // Update
-        resolvedDid.assertionMethod = listOf(resolvedDid.verificationMethod!!.get(0).toReference())
+        resolvedDid.assertionMethod = listOf(resolvedDid.verificationMethod!![0].toReference())
         ds.updateDidEbsi(resolvedDid)
         val encodedUpd = Klaxon().toJsonString(resolvedDid)
         println(encodedUpd)
@@ -238,28 +238,28 @@ class DidServiceTest : AnnotationSpec() {
     @Test
     fun parseDidWithSingleValueContext() {
         val didDoc = "{\n" +
-            "  \"@context\": \"https://www.w3.org/ns/did/v1\",\n" +
-            "  \"id\": \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k\",\n" +
-            "  \"verificationMethod\": [\n" +
-            "    {\n" +
-            "      \"id\": \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k#keys-1\",\n" +
-            "      \"type\": \"Secp256k1VerificationKey2018\",\n" +
-            "      \"controller\": \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k\",\n" +
-            "      \"publicKeyJwk\": {\n" +
-            "        \"kty\": \"EC\",\n" +
-            "        \"crv\": \"secp256k1\",\n" +
-            "        \"x\": \"Iq579rsuHREntinz8NnlG_e8gDjNNQt4DbChj9mBt7Y\",\n" +
-            "        \"y\": \"V-Tr9B56eA7H_UJN9q6dyMWlYkQkHFvtvDDlE66LXkk\"\n" +
-            "      }\n" +
-            "    }\n" +
-            "  ],\n" +
-            "  \"authentication\": [\n" +
-            "    \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k#keys-1\"\n" +
-            "  ],\n" +
-            "  \"assertionMethod\": [\n" +
-            "    \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k#keys-1\"\n" +
-            "  ]\n" +
-            "}"
+                "  \"@context\": \"https://www.w3.org/ns/did/v1\",\n" +
+                "  \"id\": \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k\",\n" +
+                "  \"verificationMethod\": [\n" +
+                "    {\n" +
+                "      \"id\": \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k#keys-1\",\n" +
+                "      \"type\": \"Secp256k1VerificationKey2018\",\n" +
+                "      \"controller\": \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k\",\n" +
+                "      \"publicKeyJwk\": {\n" +
+                "        \"kty\": \"EC\",\n" +
+                "        \"crv\": \"secp256k1\",\n" +
+                "        \"x\": \"Iq579rsuHREntinz8NnlG_e8gDjNNQt4DbChj9mBt7Y\",\n" +
+                "        \"y\": \"V-Tr9B56eA7H_UJN9q6dyMWlYkQkHFvtvDDlE66LXkk\"\n" +
+                "      }\n" +
+                "    }\n" +
+                "  ],\n" +
+                "  \"authentication\": [\n" +
+                "    \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k#keys-1\"\n" +
+                "  ],\n" +
+                "  \"assertionMethod\": [\n" +
+                "    \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k#keys-1\"\n" +
+                "  ]\n" +
+                "}"
         val did = Did.decode(didDoc)
         did shouldNotBe null
         did?.javaClass shouldBe DidEbsi::class.java
@@ -269,7 +269,8 @@ class DidServiceTest : AnnotationSpec() {
 
     @Test
     fun parseDidWithContextArray() {
-        val didDoc = "{\"authentication\" : [\"did:ebsi:zuffrvD4gvopW2dgTWDYTXv#87d651a26f3a416bba58770de899e8fe\"], \"@context\" : [\"https://www.w3.org/ns/did/v1\", \"https://www.w3.org/ns/did/v2\"], \"id\" : \"did:ebsi:zuffrvD4gvopW2dgTWDYTXv\", \"verificationMethod\" : [{\"controller\" : \"did:ebsi:zuffrvD4gvopW2dgTWDYTXv\", \"id\" : \"did:ebsi:zuffrvD4gvopW2dgTWDYTXv#87d651a26f3a416bba58770de899e8fe\", \"publicKeyJwk\" : {\"alg\" : \"EdDSA\", \"crv\" : \"Ed25519\", \"kid\" : \"87d651a26f3a416bba58770de899e8fe\", \"kty\" : \"OKP\", \"use\" : \"sig\", \"x\" : \"tP7zl2umgGKVMao41TkvjHBgu6EPebcnTmF9MuJqzlc\"}, \"type\" : \"Ed25519VerificationKey2018\"}]}"
+        val didDoc =
+            "{\"authentication\" : [\"did:ebsi:zuffrvD4gvopW2dgTWDYTXv#87d651a26f3a416bba58770de899e8fe\"], \"@context\" : [\"https://www.w3.org/ns/did/v1\", \"https://www.w3.org/ns/did/v2\"], \"id\" : \"did:ebsi:zuffrvD4gvopW2dgTWDYTXv\", \"verificationMethod\" : [{\"controller\" : \"did:ebsi:zuffrvD4gvopW2dgTWDYTXv\", \"id\" : \"did:ebsi:zuffrvD4gvopW2dgTWDYTXv#87d651a26f3a416bba58770de899e8fe\", \"publicKeyJwk\" : {\"alg\" : \"EdDSA\", \"crv\" : \"Ed25519\", \"kid\" : \"87d651a26f3a416bba58770de899e8fe\", \"kty\" : \"OKP\", \"use\" : \"sig\", \"x\" : \"tP7zl2umgGKVMao41TkvjHBgu6EPebcnTmF9MuJqzlc\"}, \"type\" : \"Ed25519VerificationKey2018\"}]}"
         val did = Did.decode(didDoc)
         did shouldNotBe null
         did?.javaClass shouldBe DidEbsi::class.java
@@ -309,36 +310,36 @@ class DidServiceTest : AnnotationSpec() {
     @Test
     fun testParseAndSerializeDidWithMixedVerificationRelationships() {
         val didDoc = "{\n" +
-            "  \"@context\": \"https://www.w3.org/ns/did/v1\",\n" +
-            "  \"id\": \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k\",\n" +
-            "  \"verificationMethod\": [\n" +
-            "    {\n" +
-            "      \"id\": \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k#keys-1\",\n" +
-            "      \"type\": \"Secp256k1VerificationKey2018\",\n" +
-            "      \"controller\": \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k\",\n" +
-            "      \"publicKeyJwk\": {\n" +
-            "        \"kty\": \"EC\",\n" +
-            "        \"crv\": \"secp256k1\",\n" +
-            "        \"x\": \"Iq579rsuHREntinz8NnlG_e8gDjNNQt4DbChj9mBt7Y\",\n" +
-            "        \"y\": \"V-Tr9B56eA7H_UJN9q6dyMWlYkQkHFvtvDDlE66LXkk\"\n" +
-            "      }\n" +
-            "    }\n" +
-            "  ],\n" +
-            "  \"capabilityInvocation\": [\n" +
-            "    \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k#keys-1\",\n" +
-            "    {\n" +
-            "      \"id\": \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k#keys-1\",\n" +
-            "      \"type\": \"Secp256k1VerificationKey2018\",\n" +
-            "      \"controller\": \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k\",\n" +
-            "      \"publicKeyJwk\": {\n" +
-            "        \"kty\": \"EC\",\n" +
-            "        \"crv\": \"secp256k1\",\n" +
-            "        \"x\": \"Iq579rsuHREntinz8NnlG_e8gDjNNQt4DbChj9mBt7Y\",\n" +
-            "        \"y\": \"V-Tr9B56eA7H_UJN9q6dyMWlYkQkHFvtvDDlE66LXkk\"\n" +
-            "      }\n" +
-            "    }\n" +
-            "  ]\n" +
-            "}"
+                "  \"@context\": \"https://www.w3.org/ns/did/v1\",\n" +
+                "  \"id\": \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k\",\n" +
+                "  \"verificationMethod\": [\n" +
+                "    {\n" +
+                "      \"id\": \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k#keys-1\",\n" +
+                "      \"type\": \"Secp256k1VerificationKey2018\",\n" +
+                "      \"controller\": \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k\",\n" +
+                "      \"publicKeyJwk\": {\n" +
+                "        \"kty\": \"EC\",\n" +
+                "        \"crv\": \"secp256k1\",\n" +
+                "        \"x\": \"Iq579rsuHREntinz8NnlG_e8gDjNNQt4DbChj9mBt7Y\",\n" +
+                "        \"y\": \"V-Tr9B56eA7H_UJN9q6dyMWlYkQkHFvtvDDlE66LXkk\"\n" +
+                "      }\n" +
+                "    }\n" +
+                "  ],\n" +
+                "  \"capabilityInvocation\": [\n" +
+                "    \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k#keys-1\",\n" +
+                "    {\n" +
+                "      \"id\": \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k#keys-1\",\n" +
+                "      \"type\": \"Secp256k1VerificationKey2018\",\n" +
+                "      \"controller\": \"did:ebsi:zcGvqgZTHCtkjgtcKRL7H8k\",\n" +
+                "      \"publicKeyJwk\": {\n" +
+                "        \"kty\": \"EC\",\n" +
+                "        \"crv\": \"secp256k1\",\n" +
+                "        \"x\": \"Iq579rsuHREntinz8NnlG_e8gDjNNQt4DbChj9mBt7Y\",\n" +
+                "        \"y\": \"V-Tr9B56eA7H_UJN9q6dyMWlYkQkHFvtvDDlE66LXkk\"\n" +
+                "      }\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}"
 
         val did = Did.decode(didDoc)
         did!!.capabilityInvocation!!.size shouldBe 2

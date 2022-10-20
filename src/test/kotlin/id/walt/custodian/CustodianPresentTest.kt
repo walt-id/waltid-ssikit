@@ -10,7 +10,6 @@ import id.walt.test.RESOURCES_PATH
 import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.model.toCredential
-import io.kotest.core.spec.Spec
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.core.test.TestCase
 import io.kotest.matchers.shouldBe
@@ -29,7 +28,7 @@ class CustodianPresentTest : StringSpec() {
 
         did = DidService.create(DidMethod.key)
         val didDoc = DidService.load(did)
-        val vm = didDoc.assertionMethod!!.first()!!.id
+        val vm = didDoc.assertionMethod!!.first().id
 
         println("Generated: $did")
 

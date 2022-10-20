@@ -1,73 +1,91 @@
 {
-  "@context" : [ "https://www.w3.org/2018/credentials/v1" ],
-  "credentialSchema" : {
-    "id" : "https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0xbf78fc08a7a9f28f5479f58dea269d3657f54f13ca37d380cd4e92237fb691dd",
-    "type" : "JsonSchemaValidator2018"
-  },
-  "credentialStatus" : {
-    "id" : "https://essif.europa.eu/status/education#higherEducation#392ac7f6-399a-437b-a268-4691ead8f176",
-    "type" : "CredentialStatusList2020"
-  },
-  "credentialSubject" : {
-    "awardingOpportunity" : {
-      "awardingBody" : {
-        "eidasLegalIdentifier" : "Unknown",
-        "homepage" : "https://leaston.bcdiploma.com/",
-        "id" : "did:ebsi:zeKk952Yw9Kqgx6ckzQkief",
-        "preferredName" : "Leaston University",
-        "registration" : "0597065J"
-      },
-      "endedAtTime" : "2020-06-26T00:00:00Z",
-      "id" : "https://leaston.bcdiploma.com/law-economics-management#AwardingOpportunity",
-      "identifier" : "https://certificate-demo.bcdiploma.com/check/87ED2F2270E6C41456E94B86B9D9115B4E35BCCAD200A49B846592C14F79C86BV1Fnbllta0NZTnJkR3lDWlRmTDlSRUJEVFZISmNmYzJhUU5sZUJ5Z2FJSHpWbmZZ",
-      "location" : "FRANCE",
-      "startedAtTime" : "2019-09-02T00:00:00Z"
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1"
+    ],
+    "credentialSchema": {
+        "id": "https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0xbf78fc08a7a9f28f5479f58dea269d3657f54f13ca37d380cd4e92237fb691dd",
+        "type": "JsonSchemaValidator2018"
     },
-    "dateOfBirth" : "1993-04-08",
-    "familyName" : "DOE",
-    "givenNames" : "Jane",
-    "gradingScheme" : {
-      "id" : "https://leaston.bcdiploma.com/law-economics-management#GradingScheme",
-      "title" : "Lower Second-Class Honours"
+    "credentialStatus": {
+        "id": "https://essif.europa.eu/status/education#higherEducation#392ac7f6-399a-437b-a268-4691ead8f176",
+        "type": "CredentialStatusList2020"
     },
-    "id" : "did:ebsi:zeKk952Yw9Kqgx6ckzQkief",
-    "identifier" : "0904008084H",
-    "learningAchievement" : {
-      "additionalNote" : [ "DISTRIBUTION MANAGEMENT" ],
-      "description" : "MARKETING AND SALES",
-      "id" : "https://leaston.bcdiploma.com/law-economics-management#LearningAchievment",
-      "title" : "MASTERS LAW, ECONOMICS AND MANAGEMENT"
+    "credentialSubject": {
+        "awardingOpportunity": {
+            "awardingBody": {
+                "eidasLegalIdentifier": "Unknown",
+                "homepage": "https://leaston.bcdiploma.com/",
+                "id": "did:ebsi:zeKk952Yw9Kqgx6ckzQkief",
+                "preferredName": "Leaston University",
+                "registration": "0597065J"
+            },
+            "endedAtTime": "2020-06-26T00:00:00Z",
+            "id": "https://leaston.bcdiploma.com/law-economics-management#AwardingOpportunity",
+            "identifier": "https://certificate-demo.bcdiploma.com/check/87ED2F2270E6C41456E94B86B9D9115B4E35BCCAD200A49B846592C14F79C86BV1Fnbllta0NZTnJkR3lDWlRmTDlSRUJEVFZISmNmYzJhUU5sZUJ5Z2FJSHpWbmZZ",
+            "location": "FRANCE",
+            "startedAtTime": "2019-09-02T00:00:00Z"
+        },
+        "dateOfBirth": "1993-04-08",
+        "familyName": "DOE",
+        "givenNames": "Jane",
+        "gradingScheme": {
+            "id": "https://leaston.bcdiploma.com/law-economics-management#GradingScheme",
+            "title": "Lower Second-Class Honours"
+        },
+        "id": "did:ebsi:zeKk952Yw9Kqgx6ckzQkief",
+        "identifier": "0904008084H",
+        "learningAchievement": {
+            "additionalNote": [
+                "DISTRIBUTION MANAGEMENT"
+            ],
+            "description": "MARKETING AND SALES",
+            "id": "https://leaston.bcdiploma.com/law-economics-management#LearningAchievment",
+            "title": "MASTERS LAW, ECONOMICS AND MANAGEMENT"
+        },
+        "learningSpecification": {
+            "ectsCreditPoints": 120,
+            "eqfLevel": 7,
+            "id": "https://leaston.bcdiploma.com/law-economics-management#LearningSpecification",
+            "iscedfCode": [
+                "7"
+            ],
+            "nqfLevel": [
+                "7"
+            ]
+        }
     },
-    "learningSpecification" : {
-      "ectsCreditPoints" : 120,
-      "eqfLevel" : 7,
-      "id" : "https://leaston.bcdiploma.com/law-economics-management#LearningSpecification",
-      "iscedfCode" : [ "7" ],
-      "nqfLevel" : [ "7" ]
+    "evidence": {
+        "documentPresence": [
+            "Physical"
+        ],
+        "evidenceDocument": [
+            "Passport"
+        ],
+        "id": "https://essif.europa.eu/tsr-va/evidence/f2aeec97-fc0d-42bf-8ca7-0548192d5678",
+        "subjectPresence": "Physical",
+        "type": [
+            "DocumentVerification"
+        ],
+        "verifier": "did:ebsi:2962fb784df61baa267c8132497539f8c674b37c1244a7a"
+    },
+    "id": "urn:uuid:51ca93f8-120c-46d1-8257-0c86ab033a05",
+    "issued": "2022-08-31T09:23:22.311939526Z",
+    "issuer": "did:ebsi:zeKk952Yw9Kqgx6ckzQkief",
+    "validFrom": "2022-08-31T09:23:22.311942693Z",
+    "issuanceDate": "2022-08-31T09:23:22.311942693Z",
+    "type": [
+        "VerifiableCredential",
+        "VerifiableAttestation",
+        "VerifiableDiploma"
+    ],
+    "proof": {
+        "type": "EcdsaSecp256k1Signature2019",
+        "creator": "did:ebsi:zeKk952Yw9Kqgx6ckzQkief",
+        "created": "2022-08-31T09:23:22Z",
+        "domain": "https://api.preprod.ebsi.eu",
+        "nonce": "5e4568ff-c476-470b-8c76-c097e4a7ff0b",
+        "proofPurpose": "assertion",
+        "verificationMethod": "did:ebsi:zeKk952Yw9Kqgx6ckzQkief#cad07615cfb740668fbf27a67aea41f9",
+        "jws": "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFUzI1NksifQ..FEtj-xJcrcdO1a9kJTcdAb1FhyV-2M6PQBUX1oFu5KCGCCeyWkU9RvSmXbkDrJh3NqI7z8aRFHpjmBGbXyc-5w"
     }
-  },
-  "evidence" : {
-    "documentPresence" : [ "Physical" ],
-    "evidenceDocument" : [ "Passport" ],
-    "id" : "https://essif.europa.eu/tsr-va/evidence/f2aeec97-fc0d-42bf-8ca7-0548192d5678",
-    "subjectPresence" : "Physical",
-    "type" : [ "DocumentVerification" ],
-    "verifier" : "did:ebsi:2962fb784df61baa267c8132497539f8c674b37c1244a7a"
-  },
-  "id" : "urn:uuid:51ca93f8-120c-46d1-8257-0c86ab033a05",
-  "issued" : "2022-08-31T09:23:22.311939526Z",
-  "issuer" : "did:ebsi:zeKk952Yw9Kqgx6ckzQkief",
-  "validFrom" : "2022-08-31T09:23:22.311942693Z",
-  "issuanceDate" : "2022-08-31T09:23:22.311942693Z",
-  "type" : [ "VerifiableCredential", "VerifiableAttestation", "VerifiableDiploma" ],
-  "proof" : {
-    "type" : "EcdsaSecp256k1Signature2019",
-    "creator" : "did:ebsi:zeKk952Yw9Kqgx6ckzQkief",
-    "created" : "2022-08-31T09:23:22Z",
-    "domain" : "https://api.preprod.ebsi.eu",
-    "nonce" : "5e4568ff-c476-470b-8c76-c097e4a7ff0b",
-    "proofPurpose" : "assertion",
-    "verificationMethod" : "did:ebsi:zeKk952Yw9Kqgx6ckzQkief#cad07615cfb740668fbf27a67aea41f9",
-    "jws" : "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFUzI1NksifQ..FEtj-xJcrcdO1a9kJTcdAb1FhyV-2M6PQBUX1oFu5KCGCCeyWkU9RvSmXbkDrJh3NqI7z8aRFHpjmBGbXyc-5w"
-  }
 }

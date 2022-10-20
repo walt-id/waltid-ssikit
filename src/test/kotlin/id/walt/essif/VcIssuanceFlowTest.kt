@@ -49,7 +49,7 @@ class VcIssuanceFlowTest : AnnotationSpec() {
         )
         val claims = Claim(
             IdToken(
-                listOf<String>()
+                listOf()
             )
         )
         val authRequestPayload =

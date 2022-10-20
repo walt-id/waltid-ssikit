@@ -70,8 +70,7 @@ open class WaltIdJwtService : JwtService() {
                 .Builder(jwsAlgorithm)
                 .keyID(keyAlias)
                 .type(JOSEObjectType.JWT)
-                .build()
-            ,
+                .build(),
             /* claimsSet = */ claimsSet
         ).also {
             // log.debug { "Created signable JWT object: $it." }
@@ -103,7 +102,6 @@ open class WaltIdJwtService : JwtService() {
         log.debug { "Signing JWT with algorithm: ${issuerKey.algorithm}" }
 
 
-
         val signedJwt = when (issuerKey.algorithm) {
             KeyAlgorithm.EdDSA_Ed25519 -> {
                 val jwt = createSignedJwt(JWSAlgorithm.EdDSA, keyAlias, claimsSet)
@@ -112,6 +110,7 @@ open class WaltIdJwtService : JwtService() {
                 jwt.sign(LdSigner.JwsLtSigner(issuerKey.keyId))
                 jwt
             }
+
             KeyAlgorithm.ECDSA_Secp256k1 -> {
                 val jwt = createSignedJwt(JWSAlgorithm.ES256K, keyAlias, claimsSet)
 
@@ -120,6 +119,7 @@ open class WaltIdJwtService : JwtService() {
                 jwt.sign(jwsSigner)
                 jwt
             }
+
             KeyAlgorithm.ECDSA_Secp256r1 -> {
                 val jwt = createSignedJwt(JWSAlgorithm.ES256, keyAlias, claimsSet)
 
@@ -128,6 +128,7 @@ open class WaltIdJwtService : JwtService() {
                 jwt.sign(jwsSigner)
                 jwt
             }
+
             else -> {
                 log.error { "Algorithm ${issuerKey.algorithm} not supported" }
                 throw Exception("Algorithm ${issuerKey.algorithm} not supported")
@@ -144,8 +145,8 @@ open class WaltIdJwtService : JwtService() {
         val jwt = SignedJWT.parse(token)
         val issuer = jwt.jwtClaimsSet.issuer
         val keyAlias = jwt.header.keyID.orEmpty().ifEmpty { issuer }
-        if(DidUrl.isDidUrl(keyAlias)) { // issuer is a valid DID
-            if(!DidService.importKeys(DidUrl.from(keyAlias).did)) {
+        if (DidUrl.isDidUrl(keyAlias)) { // issuer is a valid DID
+            if (!DidService.importKeys(DidUrl.from(keyAlias).did)) {
                 throw Exception("Could not resolve verification keys")
             }
         }
@@ -159,11 +160,13 @@ open class WaltIdJwtService : JwtService() {
                 verifier.jcaContext.provider = provider
                 jwt.verify(verifier)
             }
+
             KeyAlgorithm.ECDSA_Secp256r1 -> {
                 val verifier = ECDSAVerifier(PublicKeyHandle(verifierKey.keyId, verifierKey.getPublicKey() as ECPublicKey))
                 verifier.jcaContext.provider = provider
                 jwt.verify(verifier)
             }
+
             else -> {
                 log.error { "Algorithm ${verifierKey.algorithm} not supported" }
                 throw Exception("Algorithm ${verifierKey.algorithm} not supported")

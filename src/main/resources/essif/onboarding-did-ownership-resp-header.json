@@ -1,5 +1,5 @@
 {
-  "alg": "ES256K",
-  "typ": "JWT",
-  "jwk": "{Enterprise Wallet-DID Key}"
+    "alg": "ES256K",
+    "typ": "JWT",
+    "jwk": "{Enterprise Wallet-DID Key}"
 }

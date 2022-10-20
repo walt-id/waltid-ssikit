@@ -14,7 +14,7 @@ annotation class ListOrSingleValue
 @Target(AnnotationTarget.FIELD)
 annotation class DidVerificationRelationships
 
-val listOrSingleValueConverter = object: Converter {
+val listOrSingleValueConverter = object : Converter {
     override fun canConvert(cls: Class<*>) = cls == List::class.java
 
     override fun fromJson(jv: JsonValue) =
@@ -24,20 +24,19 @@ val listOrSingleValueConverter = object: Converter {
             jv.array
         }
 
-    override fun toJson(value: Any)
-        = when((value as List<*>).size) {
-            1 -> Klaxon().toJsonString(value.first())
-            else -> Klaxon().toJsonString(value)
-        }
+    override fun toJson(value: Any) = when ((value as List<*>).size) {
+        1 -> Klaxon().toJsonString(value.first())
+        else -> Klaxon().toJsonString(value)
+    }
 }
 
-val verificationRelationshipsConverter = object: Converter {
+val verificationRelationshipsConverter = object : Converter {
     override fun canConvert(cls: Class<*>) = cls == List::class.java
 
     override fun fromJson(jv: JsonValue): Any? {
-        if(jv.array != null) {
+        if (jv.array != null) {
             return jv.array!!.map { item ->
-                when(item) {
+                when (item) {
                     is String -> VerificationMethod.Reference(item)
                     is JsonObject -> Klaxon().parseFromJsonObject<VerificationMethod>(item)
                     else -> throw Exception("Verification relationship must be either String or JsonObject")
@@ -49,19 +48,21 @@ val verificationRelationshipsConverter = object: Converter {
 
     override fun toJson(value: Any): String {
         @Suppress("UNCHECKED_CAST")
-        return (value as List<VerificationMethod>).map { item -> if(item.isReference) {
+        return (value as List<VerificationMethod>).joinToString(",", "[", "]") { item ->
+            if (item.isReference) {
                 Klaxon().toJsonString(item.id)
             } else {
                 Klaxon().toJsonString(item)
             }
-        }.joinToString(",", "[", "]")
+        }
     }
 }
 
-val didSerializer = Klaxon().fieldConverter(ListOrSingleValue::class, listOrSingleValueConverter).fieldConverter(DidVerificationRelationships::class, verificationRelationshipsConverter)
+val didSerializer = Klaxon().fieldConverter(ListOrSingleValue::class, listOrSingleValueConverter)
+    .fieldConverter(DidVerificationRelationships::class, verificationRelationshipsConverter)
 
 class DidTypeAdapter : TypeAdapter<Did> {
-    override fun classFor(type: Any): KClass<out Did> = when(DidUrl.from(type.toString()).method) {
+    override fun classFor(type: Any): KClass<out Did> = when (DidUrl.from(type.toString()).method) {
         DidMethod.key.name -> DidKey::class
         DidMethod.ebsi.name -> DidEbsi::class
         DidMethod.web.name -> DidWeb::class
@@ -77,9 +78,10 @@ enum class DidMethod {
     iota,
     jwk
 }
+
 @Serializable
 @TypeFor(field = "id", adapter = DidTypeAdapter::class)
-open class Did (
+open class Did(
     @SerialName("@context")
     @Json(name = "@context")
     @ListOrSingleValue
@@ -103,12 +105,23 @@ open class Did (
         capabilityInvocation: List<VerificationMethod>? = null,
         keyAgreement: List<VerificationMethod>? = null,
         serviceEndpoint: List<ServiceEndpoint>? = null
-    ) : this(listOf(context), id, verificationMethod, authentication, assertionMethod, capabilityDelegation, capabilityInvocation, keyAgreement, serviceEndpoint) {
-    }
+    ) : this(
+        listOf(context),
+        id,
+        verificationMethod,
+        authentication,
+        assertionMethod,
+        capabilityDelegation,
+        capabilityInvocation,
+        keyAgreement,
+        serviceEndpoint
+    )
 
-    @Json(ignored = true) val url: DidUrl
+    @Json(ignored = true)
+    val url: DidUrl
         get() = DidUrl.from(id)
-    @Json(ignored = true) val method: DidMethod
+    @Json(ignored = true)
+    val method: DidMethod
         get() = DidMethod.valueOf(url.method)
 
     fun encode() = didSerializer.toJsonString(this)
@@ -140,7 +153,7 @@ data class VerificationMethod(
     }
 
     fun toReference(): VerificationMethod {
-        return VerificationMethod.Reference(id)
+        return Reference(id)
     }
 }
 

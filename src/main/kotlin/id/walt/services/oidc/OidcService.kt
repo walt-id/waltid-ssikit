@@ -6,12 +6,10 @@ import com.nimbusds.oauth2.sdk.util.URLUtils
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse
 import id.walt.common.prettyPrint
 import id.walt.custodian.Custodian
-import id.walt.model.DidMethod
 import id.walt.model.oidc.CredentialAuthorizationDetails
 import id.walt.model.oidc.IssuanceInitiationRequest
 import id.walt.model.oidc.OIDCProvider
 import id.walt.servicematrix.ServiceMatrix
-import id.walt.services.did.DidService
 import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.model.toCredential
@@ -56,8 +54,8 @@ object OidcService {
                 println()
                 println("Now get the token using:")
                 println("ssikit oidc ci token -i $issuer_url" +
-                        "${client_id?.let { " --client-id $client_id" } ?: ""}" +
-                        "${client_secret?.let { " --client-secret $client_secret" } ?: ""}" +
+                        (client_id?.let { " --client-id $client_id" } ?: "") +
+                        (client_secret?.let { " --client-secret $client_secret" } ?: "") +
                         " -m ebsi_wct -r \"$redirectUri\"")
             }
 
@@ -74,8 +72,8 @@ object OidcService {
                 println()
                 println("Then paste redirection url from browser to this command to retrieve the access token:")
                 println("ssikit oidc ci token -i $issuer_url" +
-                        "${client_id?.let { " --client-id $client_id" } ?: ""}" +
-                        "${client_secret?.let { " --client-secret $client_secret" } ?: ""}" +
+                        (client_id?.let { " --client-id $client_id" } ?: "") +
+                        (client_secret?.let { " --client-secret $client_secret" } ?: "") +
                         " -r <url from browser>")
 
             }
@@ -93,8 +91,8 @@ object OidcService {
                 println()
                 println("Then paste redirection url from browser to this command to retrieve the access token:")
                 println("ssikit oidc ci token -i $issuer_url" +
-                        "${client_id?.let { " --client-id $client_id" } ?: ""}" +
-                        "${client_secret?.let { " --client-secret $client_secret" } ?: ""}" +
+                        (client_id?.let { " --client-id $client_id" } ?: "") +
+                        (client_secret?.let { " --client-secret $client_secret" } ?: "") +
                         " -r <url from browser>")
             }
         }
@@ -121,18 +119,6 @@ object OidcService {
         ?: throw IllegalArgumentException("Error: Auth code not specified!")
 
         return OIDC4CIService.getAccessToken(issuer, authCode, redirect_uri.substringBeforeLast("?"), isPreAuthorized, userPin)
-
-        println("Access token response:")
-        val jsonObj =
-            OIDC4CIService.getAccessToken(issuer, authCode, redirect_uri.substringBeforeLast("?"), isPreAuthorized, userPin)
-                .toJSONObject()
-        println(jsonObj.prettyPrint())
-        println()
-        println("Now get the credential using:")
-        println(
-            "ssikit oidc ci credential -i $issuer_url -t ${jsonObj.get("access_token") ?: "<token>"} ${
-                jsonObj.get("c_nonce")?.let { "-n $it" } ?: ""
-            } -d <subject did> -s <credential schema id>")
     }
 
     fun credential(

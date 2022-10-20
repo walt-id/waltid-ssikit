@@ -27,7 +27,7 @@ class KeyCommandTest : StringSpec({
         message shouldContain "-a, --algorithm [Ed25519|Secp256k1|RSA|Secp256r1]"
     }
 
-    "2. key generate"{
+    "2. key generate" {
         forAll(
             row("Ed25519"),
             row("Secp256k1"),
@@ -37,25 +37,25 @@ class KeyCommandTest : StringSpec({
         }
     }
 
-    "3. key export"{
+    "3. key export" {
         forAll(
             row(KeyAlgorithm.ECDSA_Secp256k1),
             row(KeyAlgorithm.EdDSA_Ed25519),
             row(KeyAlgorithm.RSA)
-        ){ alg ->
+        ) { alg ->
             val key = KeyService.getService().generate(alg)
             ExportKeyCommand().parse(listOf(key.id))
         }
     }
 
-    "4. key import"{
+    "4. key import" {
         forAll(
 //            Ed25519 priv key JWK
-            row("src/test/resources/cli/privKeyEd25519Jwk.json","45674a4ac169f7f4716804393d20480138a"),
+            row("src/test/resources/cli/privKeyEd25519Jwk.json", "45674a4ac169f7f4716804393d20480138a"),
 //            Ed25519 pub key JWK
-            row("src/test/resources/cli/pubKeyEd25519Jwk.json","12374a4ac169f7f4716804393d20480138a"),
+            row("src/test/resources/cli/pubKeyEd25519Jwk.json", "12374a4ac169f7f4716804393d20480138a"),
 //            RSA key PEM
-            row("src/test/resources/key/rsa.pem",""),
+            row("src/test/resources/key/rsa.pem", ""),
 //            Secp256k1 key PEM
             row("src/test/resources/key/secp256k1.pem", ""),
 //            Ed25519 key PEM
@@ -66,13 +66,13 @@ class KeyCommandTest : StringSpec({
             row("src/test/resources/key/privKeySecp256k1Jwk.json", "ed51ec3a165f4af8bef8298d99b41de7"),
 //             Secp256k1 pub key JWK
             row("src/test/resources/key/pubKeySecp256k1Jwk.json", "c96fe427cef847e6b2b9675cec31a2bb"),
-        ){ key, keyId ->
+        ) { key, keyId ->
             ImportKeyCommand().parse(listOf(key))
             keyService.delete(keyId)
         }
     }
 
-    "5. key delete"{
+    "5. key delete" {
         val kid = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
         DeleteKeyCommand().parse(listOf(kid.id))
         shouldThrow<Exception> { keyService.load(kid.id) }

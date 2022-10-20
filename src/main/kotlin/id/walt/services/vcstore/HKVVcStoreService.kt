@@ -9,7 +9,7 @@ import id.walt.vclib.model.toCredential
 class HKVVcStoreService : VcStoreService() {
 
     private val hkvStore
-        get() =  ContextManager.hkvStore // lazy load!
+        get() = ContextManager.hkvStore // lazy load!
 
     private val vcRoot = "vc"
 

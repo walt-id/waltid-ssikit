@@ -29,7 +29,7 @@ object OIDC4VPService {
 
     fun fetchOIDC4VPRequest(verifier: OIDCProvider): AuthorizationRequest? {
         val resp = HTTPRequest(HTTPRequest.Method.GET, getAuthenticationRequestEndpoint(verifier)).also {
-            log.info("Getting OIDC request params from {}\n {}", it.uri)
+            log.info("Getting OIDC request params from {}", it.uri)
         }.send()
         if (resp.indicatesSuccess()) {
             return AuthorizationRequest.parse(resp.content)
@@ -139,12 +139,12 @@ object OIDC4VPService {
                         ?: OIDCUtils.getVCClaims(authReq).vp_token?.presentation_definition
                         // 3
                         ?: {
-                            val idToken = authReq.requestObject.jwtClaimsSet.getJSONObjectClaim("claims")
-                                .get("id_token") as LinkedTreeMap<*, *>
-                            val vpToken = idToken.get("vp_token") as LinkedTreeMap<*, *>
+                            val idToken =
+                                authReq.requestObject.jwtClaimsSet.getJSONObjectClaim("claims")["id_token"] as LinkedTreeMap<*, *>
+                            val vpToken = idToken["vp_token"] as LinkedTreeMap<*, *>
                             val presDef = vpToken["presentation_definition"] as LinkedTreeMap<*, *>
-                            val presDefJson = id.walt.model.oidc.klaxon.toJsonString(presDef)
-                            val aPresDef = id.walt.model.oidc.klaxon.parse<PresentationDefinition>(presDefJson)
+                            val presDefJson = klaxon.toJsonString(presDef)
+                            val aPresDef = klaxon.parse<PresentationDefinition>(presDefJson)
                             aPresDef
                         }()
                     ) as PresentationDefinition,

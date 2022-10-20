@@ -1,11 +1,11 @@
 {
-  "@context": "https://www.w3.org/ns/did/v1",
-  "id": "did:example:123456789abcdefghi",
-  "controller": "did:example:bcehfew7h32f32h7af3",
-  "service": [
-    {
-      "type": "VerifiableCredentialService",
-      "serviceEndpoint": "https://example.com/vc/"
-    }
-  ]
+    "@context": "https://www.w3.org/ns/did/v1",
+    "id": "did:example:123456789abcdefghi",
+    "controller": "did:example:bcehfew7h32f32h7af3",
+    "service": [
+        {
+            "type": "VerifiableCredentialService",
+            "serviceEndpoint": "https://example.com/vc/"
+        }
+    ]
 }

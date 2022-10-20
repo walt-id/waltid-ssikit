@@ -1,6 +1,6 @@
 package id.walt.auditor.dynamic
 
-data class DynamicPolicyArg (
+data class DynamicPolicyArg(
     val name: String = "DynamicPolicy",
     val description: String? = null,
     val input: Map<String, Any?>,

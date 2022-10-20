@@ -103,7 +103,13 @@ object UserWalletService {
 
         log.debug { "Loading Verifiable Authorization from HKV Store." }
 
-        val verifiableAuthorization = ContextManager.hkvStore.getAsString(HKVKey("ebsi", did.substringAfterLast(":"), EssifClient.verifiableAuthorizationFile))!!
+        val verifiableAuthorization = ContextManager.hkvStore.getAsString(
+            HKVKey(
+                "ebsi",
+                did.substringAfterLast(":"),
+                EssifClient.verifiableAuthorizationFile
+            )
+        )!!
 
         // val verifiableAuthorization = readWhenContent(EssifClient.verifiableAuthorizationFile)
 
@@ -311,12 +317,23 @@ object UserWalletService {
         val encodedVp = Klaxon().toJsonString(vpReq)
         // val vp = credentialService.sign(holderDid, encodedVp, null, null, authKeyId, "assertionMethod")
         val vp =
-            credentialService.sign(encodedVp, ProofConfig(issuerDid = holderDid, subjectDid = holderDid, issuerVerificationMethod = authKeyId, proofPurpose = "assertionMethod"))
+            credentialService.sign(
+                encodedVp,
+                ProofConfig(
+                    issuerDid = holderDid,
+                    subjectDid = holderDid,
+                    issuerVerificationMethod = authKeyId,
+                    proofPurpose = "assertionMethod"
+                )
+            )
 
         log.debug { "Verifiable Presentation generated:\n$vp" }
 
         //verifiablePresentationFile.writeText(vp)
-        ContextManager.hkvStore.put(HKVKey("ebsi", holderDid.substringAfterLast(":"), EssifClient.verifiablePresentationFile), vp)
+        ContextManager.hkvStore.put(
+            HKVKey("ebsi", holderDid.substringAfterLast(":"), EssifClient.verifiablePresentationFile),
+            vp
+        )
 
         val vpCan = canonicalize(vp)
 
@@ -334,6 +351,7 @@ object UserWalletService {
                     "y" to key.y.toString()
                 )
             }
+
             is OctetKeyPair -> {
                 return when (key.curve) {
                     Curve.X25519 -> mapOf(
@@ -341,6 +359,7 @@ object UserWalletService {
                         "crv" to key.curve.name,
                         "x" to key.x.toString()
                     )
+
                     Curve.Ed25519 -> mapOf(
                         "kty" to key.keyType.value,
                         "alg" to key.algorithm.name,
@@ -348,9 +367,11 @@ object UserWalletService {
                         "x" to key.x.toString()
                         //"d" to key.d.toString()
                     )
+
                     else -> throw IllegalArgumentException("Curve not supported")
                 }
             }
+
             else -> {
                 throw IllegalArgumentException("Not supported key")
             }

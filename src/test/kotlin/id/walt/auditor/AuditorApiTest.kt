@@ -70,7 +70,7 @@ class AuditorApiTest : AnnotationSpec() {
             contentType(ContentType.Application.Json)
         }.body<List<VerificationPolicyMetadata>>()
 
-        policies.map { it.id } shouldContainAll  listOf("SignaturePolicy", "JsonSchemaPolicy", "TrustedSchemaRegistryPolicy")
+        policies.map { it.id } shouldContainAll listOf("SignaturePolicy", "JsonSchemaPolicy", "TrustedSchemaRegistryPolicy")
     }
 
     private fun postAndVerify(vcToVerify: String, policyList: String = DEFAULT_POLICIES) {
@@ -80,12 +80,15 @@ class AuditorApiTest : AnnotationSpec() {
             path = "/v1/verify"
             body {
                 json(
-                    VerifiableCredential.klaxon.toJsonString(VerificationRequest(
-                    policies = policyList.split(",").map { p -> PolicyRequest(policy = p.trim()) }.toList(),
-                    credentials = listOf(
-                        vcToVerify.toCredential()
-                    ))
-                ))
+                    VerifiableCredential.klaxon.toJsonString(
+                        VerificationRequest(
+                            policies = policyList.split(",").map { p -> PolicyRequest(policy = p.trim()) }.toList(),
+                            credentials = listOf(
+                                vcToVerify.toCredential()
+                            )
+                        )
+                    )
+                )
             }
         }.asString()!!
 

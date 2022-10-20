@@ -133,6 +133,7 @@ object CustodianController {
 
 
     }
+
     fun listCredentialModelsDocs() = document()
         .operation {
             it.summary("Lists all credential models the custodian knows of").operationId("listCredentialModels")

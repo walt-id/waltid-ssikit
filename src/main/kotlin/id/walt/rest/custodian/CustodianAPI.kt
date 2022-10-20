@@ -130,8 +130,14 @@ object CustodianAPI {
             path("credentials") {
                 get("/", documented(CustodianController.listCredentialsDocs(), CustodianController::listCredentials))
                 path("list/") {
-                    get("credentialIds", documented(CustodianController.listCredentialIdsDocs(), CustodianController::listCredentialIds))
-                    get("credentialModels", documented(CustodianController.listCredentialModelsDocs(), CustodianController::listCredentialModels))
+                    get(
+                        "credentialIds",
+                        documented(CustodianController.listCredentialIdsDocs(), CustodianController::listCredentialIds)
+                    )
+                    get(
+                        "credentialModels",
+                        documented(CustodianController.listCredentialModelsDocs(), CustodianController::listCredentialModels)
+                    )
                 }
                 get("{id}", documented(CustodianController.getCredentialDocs(), CustodianController::getCredential))
                 put("{alias}", documented(CustodianController.storeCredentialsDocs(), CustodianController::storeCredential))

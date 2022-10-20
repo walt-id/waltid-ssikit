@@ -27,7 +27,8 @@ class DummySignatoryDataProvider : SignatoryDataProvider {
         }
         if (template is VerifiableDiploma) {
             DefaultDataProvider.populate(template, proofConfig)
-            template.credentialSubject!!.awardingOpportunity!!.awardingBody.eidasLegalIdentifier = "Dummy test value (waiting for EBSI schema update)"
+            template.credentialSubject!!.awardingOpportunity!!.awardingBody.eidasLegalIdentifier =
+                "Dummy test value (waiting for EBSI schema update)"
             if (proofConfig.proofType == ProofType.JWT) template.proof = Proof(
                 type = "Ed25519Signature2018", // Dummy test value (waiting for EBSI schema update)
                 created = "2021-10-28T16:20:00Z", // Dummy test value (waiting for EBSI schema update)

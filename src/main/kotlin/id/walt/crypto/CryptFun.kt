@@ -20,7 +20,6 @@ import org.bouncycastle.asn1.edec.EdECObjectIdentifiers
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
-import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.math.ec.ECPoint
 import org.bouncycastle.util.encoders.Hex
@@ -93,7 +92,7 @@ fun java.security.Key.toPEM(): String = when (this) {
 }
 
 fun PrivateKey.toPEM(): String =
-            "-----BEGIN PRIVATE KEY-----" +
+    "-----BEGIN PRIVATE KEY-----" +
             System.lineSeparator() +
             String(
                 Base64.getMimeEncoder(64, System.lineSeparator().toByteArray())
@@ -106,7 +105,7 @@ fun PrivateKey.toPEM(): String =
 fun PrivateKey.toBase64(): String = String(Base64.getEncoder().encode(PKCS8EncodedKeySpec(this.encoded).encoded))
 
 fun PublicKey.toPEM(): String =
-            "-----BEGIN PUBLIC KEY-----" +
+    "-----BEGIN PUBLIC KEY-----" +
             System.lineSeparator() +
             String(
                 Base64.getMimeEncoder(64, System.lineSeparator().toByteArray())
@@ -174,9 +173,11 @@ fun buildKey(
         KeyFormat.PEM -> KeyPair(
             decodePubKeyPem(publicPart, keyFactory),
             privatePart?.let { decodePrivKeyPem(privatePart, keyFactory) })
+
         KeyFormat.BASE64_DER -> KeyPair(
             decodePubKeyBase64(publicPart, keyFactory),
             privatePart?.let { decodePrivKeyBase64(privatePart, keyFactory) })
+
         KeyFormat.BASE64_RAW -> KeyPair(
             decodeRawPubKeyBase64(publicPart, keyFactory),
             privatePart?.let { decodeRawPrivKey(privatePart, keyFactory) })

@@ -23,7 +23,18 @@ object OPAPolicyEngine : PolicyEngine {
         val dataFile = File.createTempFile("data", ".json")
         dataFile.writeText(JsonObject(data).toJsonString())
         try {
-            val p = ProcessBuilder("opa", "eval", "-d", regoFile.absolutePath, "-d", dataFile.absolutePath, "-I", "-f", "values", query)
+            val p = ProcessBuilder(
+                "opa",
+                "eval",
+                "-d",
+                regoFile.absolutePath,
+                "-d",
+                dataFile.absolutePath,
+                "-I",
+                "-f",
+                "values",
+                query
+            )
                 .start()
             p.outputStream.writer().use { it.write(JsonObject(input).toJsonString()) }
             val output = p.inputStream.reader().use { it.readText() }
@@ -31,10 +42,10 @@ object OPAPolicyEngine : PolicyEngine {
             log.debug("rego eval output: {}", output)
             return Klaxon().parseArray<Boolean>(output)?.all { it } ?: false
         } finally {
-            if(regoFile.exists() && regoFile.name.startsWith(TEMP_PREFIX)) {
-              regoFile.delete()
+            if (regoFile.exists() && regoFile.name.startsWith(TEMP_PREFIX)) {
+                regoFile.delete()
             }
-            if(dataFile.exists()) {
+            if (dataFile.exists()) {
                 dataFile.delete()
             }
         }

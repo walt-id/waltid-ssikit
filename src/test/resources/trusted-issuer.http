@@ -1,3 +1,2 @@
-
 POST http://localhost:7001/v2/trusted-issuer/generateAuthenticationRequest
 Content-Type: application/json

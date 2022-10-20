@@ -4,7 +4,7 @@ import id.walt.signatory.ProofConfig
 import id.walt.signatory.SignatoryDataProvider
 import id.walt.vclib.model.VerifiableCredential
 
-abstract class AbstractDataProvider<V : VerifiableCredential>: SignatoryDataProvider {
+abstract class AbstractDataProvider<V : VerifiableCredential> : SignatoryDataProvider {
 
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
         val populatedVc = populateCustomData(template as V, proofConfig)
@@ -16,7 +16,8 @@ abstract class AbstractDataProvider<V : VerifiableCredential>: SignatoryDataProv
             subject = proofConfig.subjectDid,
             issued = proofConfig.issueDate,
             validFrom = proofConfig.validDate,
-            expirationDate = proofConfig.expirationDate)
+            expirationDate = proofConfig.expirationDate
+        )
 
         return populatedVc
     }

@@ -50,6 +50,7 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
         when (crd) {
             is VerifiablePresentation -> jwtClaimsSet
                 .claim(JWT_VP_CLAIM, crd.toMap())
+
             else -> jwtClaimsSet
                 .claim(JWT_VC_CLAIM, crd.toMap())
         }

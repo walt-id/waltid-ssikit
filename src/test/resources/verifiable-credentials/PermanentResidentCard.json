@@ -1,24 +1,33 @@
 {
-  "@context" : [ "https://www.w3.org/2018/credentials/v1", "https://w3id.org/citizenship/v1" ],
-  "credentialSubject" : {
-    "birthDate" : "1958-08-17",
-    "givenName" : "JOHN",
-    "id" : "did:ebsi:zkj7imP3niDPWANqWAJ6nLp",
-    "type" : [ "PermanentResident", "Person" ]
-  },
-  "id" : "urn:uuid:e4f467c4-30b5-4cd7-80f5-a6f1a98c01c1",
-  "issued" : "2022-08-30T11:07:12.472240677Z",
-  "issuer" : "did:ebsi:zkj7imP3niDPWANqWAJ6nLp",
-  "validFrom" : "2022-08-30T11:07:12.472244168Z",
-  "issuanceDate" : "2022-08-30T11:07:12.472244168Z",
-  "type" : [ "VerifiableCredential", "PermanentResidentCard" ],
-  "proof" : {
-    "type" : "EcdsaSecp256k1Signature2019",
-    "creator" : "did:ebsi:zkj7imP3niDPWANqWAJ6nLp",
-    "created" : "2022-08-30T11:07:12Z",
-    "domain" : "https://api.preprod.ebsi.eu",
-    "nonce" : "3d90b3e7-9208-4b9a-ad8a-5702efe431b7",
-    "proofPurpose" : "assertion",
-    "jws" : "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFUzI1NksifQ..ltK2qM34oa304C5nJGa1DoyHlXgfaC7iPejjaK4j3Z-1x1s7Yq7asCLH_7TFTqtmYyrUBmY_fjU1qxP3N_dN1Q"
-  }
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        "https://w3id.org/citizenship/v1"
+    ],
+    "credentialSubject": {
+        "birthDate": "1958-08-17",
+        "givenName": "JOHN",
+        "id": "did:ebsi:zkj7imP3niDPWANqWAJ6nLp",
+        "type": [
+            "PermanentResident",
+            "Person"
+        ]
+    },
+    "id": "urn:uuid:e4f467c4-30b5-4cd7-80f5-a6f1a98c01c1",
+    "issued": "2022-08-30T11:07:12.472240677Z",
+    "issuer": "did:ebsi:zkj7imP3niDPWANqWAJ6nLp",
+    "validFrom": "2022-08-30T11:07:12.472244168Z",
+    "issuanceDate": "2022-08-30T11:07:12.472244168Z",
+    "type": [
+        "VerifiableCredential",
+        "PermanentResidentCard"
+    ],
+    "proof": {
+        "type": "EcdsaSecp256k1Signature2019",
+        "creator": "did:ebsi:zkj7imP3niDPWANqWAJ6nLp",
+        "created": "2022-08-30T11:07:12Z",
+        "domain": "https://api.preprod.ebsi.eu",
+        "nonce": "3d90b3e7-9208-4b9a-ad8a-5702efe431b7",
+        "proofPurpose": "assertion",
+        "jws": "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFUzI1NksifQ..ltK2qM34oa304C5nJGa1DoyHlXgfaC7iPejjaK4j3Z-1x1s7Yq7asCLH_7TFTqtmYyrUBmY_fjU1qxP3N_dN1Q"
+    }
 }

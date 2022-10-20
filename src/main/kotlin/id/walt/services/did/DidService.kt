@@ -1,7 +1,6 @@
 package id.walt.services.did
 
 import com.beust.klaxon.Klaxon
-import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jose.util.Base64URL
 import id.walt.crypto.*
 import id.walt.crypto.KeyAlgorithm.*
@@ -546,7 +545,7 @@ object DidService {
             )
             .filter { vm -> !vm.isReference }
             .mapIndexed { idx, vm -> tryImportVerificationKey(didUrl, vm, idx == 0) }
-            .reduce { acc, b -> acc || b } ?: false
+            .reduce { acc, b -> acc || b }
     }
 
     fun deleteDid(didUrl: String) {

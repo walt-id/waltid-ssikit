@@ -1,37 +1,46 @@
 {
-  "@context" : [ "https://www.w3.org/2018/credentials/v1" ],
-  "credentialSchema" : {
-    "id" : "https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableAttestation.json",
-    "type" : "JsonSchemaValidator2018"
-  },
-  "credentialStatus" : {
-    "id" : "https://essif.europa.eu/status/identity#verifiableID#1dee355d-0432-4910-ac9c-70d89e8d674e",
-    "type" : "CredentialStatusList2020"
-  },
-  "credentialSubject" : {
-    "id" : "did:ebsi:zkj7imP3niDPWANqWAJ6nLp"
-  },
-  "evidence" : [ {
-    "documentPresence" : "Physical",
-    "evidenceDocument" : "Passport",
-    "id" : "https://essif.europa.eu/tsr-va/evidence/f2aeec97-fc0d-42bf-8ca7-0548192d5678",
-    "subjectPresence" : "Physical",
-    "type" : [ "DocumentVerification" ],
-    "verifier" : "did:ebsi:2962fb784df61baa267c8132497539f8c674b37c1244a7a"
-  } ],
-  "id" : "urn:uuid:c9c3d41f-c91a-4948-95ed-413d06bf3f32",
-  "issued" : "2022-08-30T11:09:00.946811110Z",
-  "issuer" : "did:ebsi:zkj7imP3niDPWANqWAJ6nLp",
-  "validFrom" : "2022-08-30T11:09:00.946814768Z",
-  "issuanceDate" : "2022-08-30T11:09:00.946814768Z",
-  "type" : [ "VerifiableCredential", "VerifiableAttestation" ],
-  "proof" : {
-    "type" : "EcdsaSecp256k1Signature2019",
-    "creator" : "did:ebsi:zkj7imP3niDPWANqWAJ6nLp",
-    "created" : "2022-08-30T11:09:01Z",
-    "domain" : "https://api.preprod.ebsi.eu",
-    "nonce" : "6c4e544b-f344-4b76-af06-0458928dc99f",
-    "proofPurpose" : "assertion",
-    "jws" : "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFUzI1NksifQ..4CuhH-sKEwMcGnUQFAny1xZS4phyvxT4frmVQRg434LbuiqGp3ol2g2f7ebtixDP57ilVVjZCYii8iijrQ-blA"
-  }
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1"
+    ],
+    "credentialSchema": {
+        "id": "https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableAttestation.json",
+        "type": "JsonSchemaValidator2018"
+    },
+    "credentialStatus": {
+        "id": "https://essif.europa.eu/status/identity#verifiableID#1dee355d-0432-4910-ac9c-70d89e8d674e",
+        "type": "CredentialStatusList2020"
+    },
+    "credentialSubject": {
+        "id": "did:ebsi:zkj7imP3niDPWANqWAJ6nLp"
+    },
+    "evidence": [
+        {
+            "documentPresence": "Physical",
+            "evidenceDocument": "Passport",
+            "id": "https://essif.europa.eu/tsr-va/evidence/f2aeec97-fc0d-42bf-8ca7-0548192d5678",
+            "subjectPresence": "Physical",
+            "type": [
+                "DocumentVerification"
+            ],
+            "verifier": "did:ebsi:2962fb784df61baa267c8132497539f8c674b37c1244a7a"
+        }
+    ],
+    "id": "urn:uuid:c9c3d41f-c91a-4948-95ed-413d06bf3f32",
+    "issued": "2022-08-30T11:09:00.946811110Z",
+    "issuer": "did:ebsi:zkj7imP3niDPWANqWAJ6nLp",
+    "validFrom": "2022-08-30T11:09:00.946814768Z",
+    "issuanceDate": "2022-08-30T11:09:00.946814768Z",
+    "type": [
+        "VerifiableCredential",
+        "VerifiableAttestation"
+    ],
+    "proof": {
+        "type": "EcdsaSecp256k1Signature2019",
+        "creator": "did:ebsi:zkj7imP3niDPWANqWAJ6nLp",
+        "created": "2022-08-30T11:09:01Z",
+        "domain": "https://api.preprod.ebsi.eu",
+        "nonce": "6c4e544b-f344-4b76-af06-0458928dc99f",
+        "proofPurpose": "assertion",
+        "jws": "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFUzI1NksifQ..4CuhH-sKEwMcGnUQFAny1xZS4phyvxT4frmVQRg434LbuiqGp3ol2g2f7ebtixDP57ilVVjZCYii8iijrQ-blA"
+    }
 }

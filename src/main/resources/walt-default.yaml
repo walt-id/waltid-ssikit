@@ -1,12 +1,12 @@
 hikariDataSource:
-  jdbcUrl: jdbc:sqlite:data/walt.db
-  maximumPoolSize: 5
-  autoCommit: false
-  dataSource:
-    journalMode: WAL
-    fullColumnNames: false
+    jdbcUrl: jdbc:sqlite:data/walt.db
+    maximumPoolSize: 5
+    autoCommit: false
+    dataSource:
+        journalMode: WAL
+        fullColumnNames: false
 
 azureKeyVaultConfig:
-  baseURL:
-  id:
-  secret:
+    baseURL:
+    id:
+    secret:

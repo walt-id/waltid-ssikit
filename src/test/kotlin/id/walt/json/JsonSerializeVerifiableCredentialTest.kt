@@ -1,4 +1,4 @@
-package id.walt.services.data
+package id.walt.json
 
 import com.beust.klaxon.Klaxon
 import id.walt.vclib.credentials.Europass
@@ -28,20 +28,20 @@ class JsonSerializeVerifiableCredentialTest : AnnotationSpec() {
 
                 val input = File(it.toURI()).readText().replace("\\s".toRegex(), "")
 
-                val vc = input.toCredential()
-
-                when (vc) {
+                when (val vc = input.toCredential()) {
                     is Europass -> println("\t => Europass serialized")
                     is PermanentResidentCard -> {
                         println("\t => PermanentResidentCard serialized")
                         val enc = Klaxon().toJsonString(vc)
                         input shouldEqualJson enc
                     }
+
                     is VerifiableAttestation -> {
                         println("\t => EbsiVerifiableAttestation serialized")
                         val enc = Klaxon().toJsonString(vc)
                         input shouldEqualJson enc
                     }
+
                     else -> {
                         fail("VC type not supported")
                     }

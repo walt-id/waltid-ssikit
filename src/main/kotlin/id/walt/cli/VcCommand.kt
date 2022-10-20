@@ -237,9 +237,10 @@ class ListVerificationPoliciesCommand : CliktCommand(
 ) {
     val mutablesOnly: Boolean by option("-m", "--mutable", help = "Show only mutable policies").flag(default = false)
     override fun run() {
-        PolicyRegistry.listPolicyInfo().filter { vp -> vp.isMutable || !mutablesOnly }.forEach { (id, description, argumentType, isMutable) ->
-            echo("${if (isMutable) "*" else "-"} ${id}\t ${description ?: "- no description -"},\t Argument: ${argumentType}")
-        }
+        PolicyRegistry.listPolicyInfo().filter { vp -> vp.isMutable || !mutablesOnly }
+            .forEach { (id, description, argumentType, isMutable) ->
+                echo("${if (isMutable) "*" else "-"} ${id}\t ${description ?: "- no description -"},\t Argument: $argumentType")
+            }
         echo()
         echo("(*) ... mutable dynamic policy")
     }

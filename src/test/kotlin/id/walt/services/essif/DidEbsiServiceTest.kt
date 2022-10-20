@@ -29,7 +29,7 @@ class DidEbsiServiceTest : AnnotationSpec() {
 
     private val didEbsiService = DidEbsiService.getService()
     private val keyStore
-        get() =  ContextManager.keyStore
+        get() = ContextManager.keyStore
     private val key = buildKey(
         KEY_ID.id,
         KeyAlgorithm.ECDSA_Secp256k1.name,
@@ -42,7 +42,8 @@ class DidEbsiServiceTest : AnnotationSpec() {
     fun setup() {
         ContextManager.hkvStore.put(
             HKVKey("did", "created", DID),
-            Path.of("src", "test", "resources", "ebsi", DID_FILENAME).toFile().readText())
+            Path.of("src", "test", "resources", "ebsi", DID_FILENAME).toFile().readText()
+        )
         keyStore.store(key)
         keyStore.addAlias(KEY_ID, DID)
         keyStore.addAlias(KEY_ID, "$DID#key-1")

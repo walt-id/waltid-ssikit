@@ -90,7 +90,7 @@ class OidcIssuanceInitiationCommand : CliktCommand(name = "initiation", help = "
             println("Now continue with the authorization step:")
             println(
                 "ssikit oidc ci auth -i ${issuanceInitiationRequest.issuer_url} " +
-                        issuanceInitiationRequest.credential_types.map { "-c $it" }.joinToString(" ") +
+                        issuanceInitiationRequest.credential_types.joinToString(" ") { "-c $it" } +
                         " -r \"<wallet redirectUri>\"" +
                         " --client-id <optional: your_client_id>" +
                         " --client-secret <optional: your_client_secret>" +
@@ -151,8 +151,8 @@ class OidcIssuanceAuthCommand : CliktCommand(name = "auth", help = "OIDC issuanc
                 println()
                 println("Now get the token using:")
                 println("ssikit oidc ci token -i $issuer_url" +
-                        "${client_id?.let { " --client-id $client_id" } ?: ""}" +
-                        "${client_secret?.let { " --client-secret $client_secret" } ?: ""}" +
+                        (client_id?.let { " --client-id $client_id" } ?: "") +
+                        (client_secret?.let { " --client-secret $client_secret" } ?: "") +
                         " -m ebsi_wct -r \"$redirectUri\"")
             }
 
@@ -169,8 +169,8 @@ class OidcIssuanceAuthCommand : CliktCommand(name = "auth", help = "OIDC issuanc
                 println()
                 println("Then paste redirection url from browser to this command to retrieve the access token:")
                 println("ssikit oidc ci token -i $issuer_url" +
-                        "${client_id?.let { " --client-id $client_id" } ?: ""}" +
-                        "${client_secret?.let { " --client-secret $client_secret" } ?: ""}" +
+                        (client_id?.let { " --client-id $client_id" } ?: "") +
+                        (client_secret?.let { " --client-secret $client_secret" } ?: "") +
                         " -r <url from browser>")
 
             }
@@ -188,8 +188,8 @@ class OidcIssuanceAuthCommand : CliktCommand(name = "auth", help = "OIDC issuanc
                 println()
                 println("Then paste redirection url from browser to this command to retrieve the access token:")
                 println("ssikit oidc ci token -i $issuer_url" +
-                        "${client_id?.let { " --client-id $client_id" } ?: ""}" +
-                        "${client_secret?.let { " --client-secret $client_secret" } ?: ""}" +
+                        (client_id?.let { " --client-id $client_id" } ?: "") +
+                        (client_secret?.let { " --client-secret $client_secret" } ?: "") +
                         " -r <url from browser>")
             }
         }
@@ -237,8 +237,10 @@ class OidcIssuanceTokenCommand :
             println("Error: Code not specified")
         } else {
             val tokenResponse =
-                OIDC4CIService.getAccessToken(issuer, authCode,
-                    redirect_uri?.substringBeforeLast("?"), isPreAuthorized, userPin)
+                OIDC4CIService.getAccessToken(
+                    issuer, authCode,
+                    redirect_uri?.substringBeforeLast("?"), isPreAuthorized, userPin
+                )
             println("Access token response:")
             val jsonObj = tokenResponse.toJSONObject()
             println(jsonObj.prettyPrint())

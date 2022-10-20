@@ -1,46 +1,46 @@
 {
-  "issuer": {
-    "preferredName": "Brand Name",
-    "domain": "Education",
-    "did": [
-      "did:ebsi:00003333",
-      "did:ebsi:00005555"
-    ],
-    "eidasCertificate": {
-      "eidasCertificateIssuerNumber": "123456",
-      "eidasCertificateSerialNumber": "123456",
-      "eidasCertificatePem": "<PEM-ENC-CERT>"
-    },
-    "serviceEndpoints": [
-      {
-        "id": "did:example:123456789abcdefghi#openid",
-        "type": "OpenIdConnectVersion1.0Service",
-        "serviceEndpoint": "https://openid.example.com/"
-      },
-      {
-        "id": "did:example:123456789abcdefghi#agent",
-        "type": "AgentService",
-        "serviceEndpoint": "https://agent.example.com/8377464"
-      }
-    ],
-    "organizationInfo": {
-      "legalPersonalIdentifier": "123456789",
-      "legalName": "Example Legal Name",
-      "legalAddress": "Example Street 42, Vienna, Austria",
-      "VATRegistration": "ATU12345678",
-      "taxReference": "123456789",
-      "LEI": "12341212EXAMPLE34512",
-      "EORI": "AT123456789101",
-      "SEED": "AT12345678910",
-      "SIC": "1234",
-      "domainName": "https://example.organization.com"
-    },
-    "proof": {
-      "type": "EidasSeal2021",
-      "created": "2019-06-22T14:11:44Z",
-      "proofPurpose": "assertionMethod",
-      "verificationMethod": "did:ebsi-eth:00003333#1088321447",
-      "jws": "BD21J4fdlnBvBA+y6D...fnC8Y="
+    "issuer": {
+        "preferredName": "Brand Name",
+        "domain": "Education",
+        "did": [
+            "did:ebsi:00003333",
+            "did:ebsi:00005555"
+        ],
+        "eidasCertificate": {
+            "eidasCertificateIssuerNumber": "123456",
+            "eidasCertificateSerialNumber": "123456",
+            "eidasCertificatePem": "<PEM-ENC-CERT>"
+        },
+        "serviceEndpoints": [
+            {
+                "id": "did:example:123456789abcdefghi#openid",
+                "type": "OpenIdConnectVersion1.0Service",
+                "serviceEndpoint": "https://openid.example.com/"
+            },
+            {
+                "id": "did:example:123456789abcdefghi#agent",
+                "type": "AgentService",
+                "serviceEndpoint": "https://agent.example.com/8377464"
+            }
+        ],
+        "organizationInfo": {
+            "legalPersonalIdentifier": "123456789",
+            "legalName": "Example Legal Name",
+            "legalAddress": "Example Street 42, Vienna, Austria",
+            "VATRegistration": "ATU12345678",
+            "taxReference": "123456789",
+            "LEI": "12341212EXAMPLE34512",
+            "EORI": "AT123456789101",
+            "SEED": "AT12345678910",
+            "SIC": "1234",
+            "domainName": "https://example.organization.com"
+        },
+        "proof": {
+            "type": "EidasSeal2021",
+            "created": "2019-06-22T14:11:44Z",
+            "proofPurpose": "assertionMethod",
+            "verificationMethod": "did:ebsi-eth:00003333#1088321447",
+            "jws": "BD21J4fdlnBvBA+y6D...fnC8Y="
+        }
     }
-  }
 }

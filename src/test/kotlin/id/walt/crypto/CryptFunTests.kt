@@ -72,7 +72,8 @@ class CryptFunTests : AnnotationSpec() {
 
     @Test
     fun multibaseEd25519KeyTest() {
-        val input = "AF CE E7 54 B5 D7 5A C9 4F A9 6E 5F E7 37 22 9F 09 CE D6 56 49 8B 88 99 3F A2 69 E2 13 79 B3 07".fromHexString()
+        val input =
+            "AF CE E7 54 B5 D7 5A C9 4F A9 6E 5F E7 37 22 9F 09 CE D6 56 49 8B 88 99 3F A2 69 E2 13 79 B3 07".fromHexString()
         val encoded = convertRawKeyToMultiBase58Btc(input, getMulticodecKeyCode(KeyAlgorithm.EdDSA_Ed25519))
         encoded shouldBe "z6MkrHYNwvaGMF5KcpQFkunDGeZA4ovPvEVXe66jZKjC5DdY"
         val decoded = convertMultiBase58BtcToRawKey(encoded)

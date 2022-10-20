@@ -40,7 +40,8 @@ abstract class KeyService : WaltIdService() {
 
     open fun toPem(keyAlias: String, keyType: KeyType): String = implementation.toPem(keyAlias, keyType)
 
-    open fun toSecp256Jwk(key: Key, curve: Curve, jwkKeyId: String? = null): ECKey = implementation.toSecp256Jwk(key, curve, jwkKeyId)
+    open fun toSecp256Jwk(key: Key, curve: Curve, jwkKeyId: String? = null): ECKey =
+        implementation.toSecp256Jwk(key, curve, jwkKeyId)
 
     open fun toEd25519Jwk(key: Key, jwkKeyId: String? = null): OctetKeyPair = implementation.toEd25519Jwk(key, jwkKeyId)
 

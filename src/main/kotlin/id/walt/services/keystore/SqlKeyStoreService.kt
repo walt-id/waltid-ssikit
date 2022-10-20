@@ -41,6 +41,7 @@ open class SqlKeyStoreService : KeyStoreService() {
                             commit()
                             log.trace { "Key \"${key}\" saved successfully." }
                         }
+
                         else -> {
                             log.error { "Error when saving key \"${key}\". Rolling back transaction." }
                             rollback()

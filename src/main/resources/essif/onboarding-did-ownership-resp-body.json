@@ -1,12 +1,12 @@
 {
-  "nonce": "<request-nonce>",
-  "type": "credential-response",
-  "claims": {
-    "types": [
-      {
-        "id": "https://essif.europa.eu/tsr-vid/verifiableid1.json",
-        "type": "JsonSchemaValidator2018"
-      }
-    ]
-  }
+    "nonce": "<request-nonce>",
+    "type": "credential-response",
+    "claims": {
+        "types": [
+            {
+                "id": "https://essif.europa.eu/tsr-vid/verifiableid1.json",
+                "type": "JsonSchemaValidator2018"
+            }
+        ]
+    }
 }

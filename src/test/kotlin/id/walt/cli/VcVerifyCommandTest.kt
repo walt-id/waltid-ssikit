@@ -37,11 +37,12 @@ class VcVerifyCommandTest : StringSpec({
     "vc verify -p SignaturePolicy path/to/vp.json" {
         val did = DidService.create(DidMethod.key)
         val didDoc = DidService.load(did)
-        val vm = didDoc.assertionMethod!!.first()!!.id
+        val vm = didDoc.assertionMethod!!.first().id
         val vcStr = Signatory.getService().issue(
             "VerifiableDiploma", ProofConfig(issuerDid = did, subjectDid = did, issuerVerificationMethod = vm)
         )
-        val vpStr = JsonLdCredentialService.getService().present(listOf(vcStr), did, "https://api.preprod.ebsi.eu", "d04442d3-661f-411e-a80f-42f19f594c9d", null)
+        val vpStr = JsonLdCredentialService.getService()
+            .present(listOf(vcStr), did, "https://api.preprod.ebsi.eu", "d04442d3-661f-411e-a80f-42f19f594c9d", null)
         val vpFile = File.createTempFile("vpr", ".json")
         try {
             vpFile.writeText(vpStr)
@@ -54,11 +55,12 @@ class VcVerifyCommandTest : StringSpec({
     "vc verify -p SignaturePolicy path/to/vp.jwt" {
         val did = DidService.create(DidMethod.key)
         val didDoc = DidService.load(did)
-        val vm = didDoc.assertionMethod!!.first()!!.id
+        val vm = didDoc.assertionMethod!!.first().id
         val vcJwt = Signatory.getService().issue(
-            "VerifiableDiploma", ProofConfig(issuerDid = did, subjectDid = did, issuerVerificationMethod = vm, proofType = ProofType.JWT)
+            "VerifiableDiploma",
+            ProofConfig(issuerDid = did, subjectDid = did, issuerVerificationMethod = vm, proofType = ProofType.JWT)
         )
-        val vpJwt = Custodian.getService().createPresentation(listOf(vcJwt), did, did, null ,"abcd", null)
+        val vpJwt = Custodian.getService().createPresentation(listOf(vcJwt), did, did, null, "abcd", null)
         val vpFile = File.createTempFile("vpr", ".jwt")
         try {
             vpFile.writeText(vpJwt)
@@ -70,7 +72,14 @@ class VcVerifyCommandTest : StringSpec({
 
     "dynamic policies management CLI" {
         PolicyRegistry.listPolicyInfo().map { it.id } shouldNotContain "TestPolicy"
-        CreateDynamicVerificationPolicyCommand().parse(listOf("-n", "TestPolicy", "-p", "src/test/resources/rego/subject-policy.rego"))
+        CreateDynamicVerificationPolicyCommand().parse(
+            listOf(
+                "-n",
+                "TestPolicy",
+                "-p",
+                "src/test/resources/rego/subject-policy.rego"
+            )
+        )
         PolicyRegistry.listPolicyInfo().map { it.id } shouldContain "TestPolicy"
         RemoveDynamicVerificationPolicyCommand().parse(listOf("-n", "TestPolicy"))
         PolicyRegistry.listPolicyInfo().map { it.id } shouldNotContain "TestPolicy"

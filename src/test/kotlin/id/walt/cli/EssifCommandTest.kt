@@ -22,13 +22,10 @@ import io.kotest.matchers.string.shouldNotBeEmpty
 import io.kotest.mpp.log
 import java.io.File
 import java.util.*
-import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.ExperimentalTime
 
 
-@OptIn(ExperimentalTime::class)
 class EssifCommandTest : StringSpec({
 
     val bearerToken = File("data/ebsi/bearer-token.txt")
@@ -72,7 +69,7 @@ class EssifCommandTest : StringSpec({
     }
 
     "4. did register --did".config(enabled = enableTests) {
-        retry(9, Duration.minutes(2), delay = Duration.seconds(4)) {
+        retry(9, 2.minutes, delay = 4.seconds) {
             println("Registering did")
             shouldNotThrowAny {
                 EssifDidRegisterCommand().parse(listOf("--did", did, "--eth-key", ethKey.id))
@@ -86,9 +83,18 @@ class EssifCommandTest : StringSpec({
             println("Inserting timestamp.")
             shouldNotThrowAny {
 
-                EssifTimestampCreateCommand().parse(listOf("--did", did, "--eth-key", ethKey.id, "${RESOURCES_PATH}/ebsi/test-data.json"))
+                EssifTimestampCreateCommand().parse(
+                    listOf(
+                        "--did",
+                        did,
+                        "--eth-key",
+                        ethKey.id,
+                        "${RESOURCES_PATH}/ebsi/test-data.json"
+                    )
+                )
 
-                transactionHash = WaltIdTimestampService().createTimestamp(did, ethKey.id, "{\"test\": \"${UUID.randomUUID()}\"}")
+                transactionHash =
+                    WaltIdTimestampService().createTimestamp(did, ethKey.id, "{\"test\": \"${UUID.randomUUID()}\"}")
                 log { "ESSIFCOMMANDTEST: $transactionHash" }
                 transactionHash.shouldNotBeEmpty()
                 transactionHash.shouldNotBeBlank()
@@ -96,17 +102,24 @@ class EssifCommandTest : StringSpec({
         }
     }
 
-    "6. Get timestamp transaction hash".config(enabled = enableTests)  {
-        val timestamp = WaltIdTimestampService().getByTransactionHash("0x45680f0a1d2b54d5abe785a93b90e42ee1d37aa0a4c03ff2d07d5ac431232674"/*transactionHash!!*/)
+    "6. Get timestamp transaction hash".config(enabled = enableTests) {
+        val timestamp =
+            WaltIdTimestampService().getByTransactionHash("0x45680f0a1d2b54d5abe785a93b90e42ee1d37aa0a4c03ff2d07d5ac431232674"/*transactionHash!!*/)
         validateTimestamp(timestamp)
 
         WaltIdTimestampService().getByTransactionHash("do not exist") shouldBe null
 
-        EssifTimestampGetCommand().parse(listOf("--timestamp-txhash", "0x45680f0a1d2b54d5abe785a93b90e42ee1d37aa0a4c03ff2d07d5ac431232674"))
+        EssifTimestampGetCommand().parse(
+            listOf(
+                "--timestamp-txhash",
+                "0x45680f0a1d2b54d5abe785a93b90e42ee1d37aa0a4c03ff2d07d5ac431232674"
+            )
+        )
     }
 
-    "7. Get by timestamp Id".config(enabled = enableTests)  {
-        val timestamp = WaltIdTimestampService().getByTimestampId("uEiCHMUGYdJ6Lu8ugrCaEymIUAq6kUJHq10clWEcDvUwHLQ"/*timestampId!!*/)
+    "7. Get by timestamp Id".config(enabled = enableTests) {
+        val timestamp =
+            WaltIdTimestampService().getByTimestampId("uEiCHMUGYdJ6Lu8ugrCaEymIUAq6kUJHq10clWEcDvUwHLQ"/*timestampId!!*/)
         validateTimestamp(timestamp)
         EssifTimestampGetCommand().parse(listOf("--timestamp-id", "uEiCHMUGYdJ6Lu8ugrCaEymIUAq6kUJHq10clWEcDvUwHLQ"))
     }
@@ -127,7 +140,7 @@ private fun validateTimestamp(timestamp: Timestamp?) {
 
     timestamp shouldNotBe null
     timestamp!!.timestampId shouldBe "uEiCHMUGYdJ6Lu8ugrCaEymIUAq6kUJHq10clWEcDvUwHLQ"
-    timestamp!!.hash shouldBe "mEiACz5o3HeOXrLZnpzc1vJSuaYO31XV1PqaESJObOqdFBw"
-    timestamp!!.transactionHash shouldBe "0x45680f0a1d2b54d5abe785a93b90e42ee1d37aa0a4c03ff2d07d5ac431232674"
-    timestamp!!.timestampedBy shouldBe "0xD39F93C93E0B9153d4b09B8263A3e553eaf6d2e0"
+    timestamp.hash shouldBe "mEiACz5o3HeOXrLZnpzc1vJSuaYO31XV1PqaESJObOqdFBw"
+    timestamp.transactionHash shouldBe "0x45680f0a1d2b54d5abe785a93b90e42ee1d37aa0a4c03ff2d07d5ac431232674"
+    timestamp.timestampedBy shouldBe "0xD39F93C93E0B9153d4b09B8263A3e553eaf6d2e0"
 }

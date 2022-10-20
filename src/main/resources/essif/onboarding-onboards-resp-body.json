@@ -1,6 +1,6 @@
 {
-  "id": "<random-id>",
-  "iss": "did:ebsi:2123456789AB...fghijkmno",
-  "callback": "<callback-url>",
-  "nonce": "<random-nonce>"
+    "id": "<random-id>",
+    "iss": "did:ebsi:2123456789AB...fghijkmno",
+    "callback": "<callback-url>",
+    "nonce": "<random-nonce>"
 }

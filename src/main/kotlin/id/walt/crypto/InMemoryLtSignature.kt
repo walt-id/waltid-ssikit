@@ -11,5 +11,5 @@ open class InMemoryLtSignature(algorithm: String) : LtSignature(algorithm) {
     class SHA384withECDSA : InMemoryLtSignature("SHA384withECDSAS")
     class SHA512withECDSA : InMemoryLtSignature("SHA512withECDSA")
 
-    override val cryptoService = SunCryptoService().let { it.setKeyStore(InMemoryKeyStoreService()) ; it }
+    override val cryptoService = SunCryptoService().let { it.setKeyStore(InMemoryKeyStoreService()); it }
 }

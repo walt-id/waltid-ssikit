@@ -21,7 +21,7 @@ open class SunCryptoService : CryptoService() {
 
     private var _customKeyStore: KeyStoreService? = null
     private val keyStore: KeyStoreService
-        get() = when(_customKeyStore) {
+        get() = when (_customKeyStore) {
             null -> ContextManager.keyStore
             else -> _customKeyStore!!
         }
