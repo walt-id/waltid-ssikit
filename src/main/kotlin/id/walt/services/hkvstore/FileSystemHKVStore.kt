@@ -97,6 +97,7 @@ class FileSystemHKVStore(configPath: String) : HKVStoreService() {
 
                     HKVKey.fromPath(dataDirRelativePath(mapping))
                 }?.toSet()
+
                 true -> pathFileList?.flatMap {
                     var mapping = it.toPath()
                     if (mapping.name.length > MAX_KEY_SIZE) {

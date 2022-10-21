@@ -49,7 +49,7 @@ public class PreAuthorizedCodeGrant extends AuthorizationGrant {
 
     @Override
     public Map<String, List<String>> toParameters() {
-        Map<String,List<String>> params = new LinkedHashMap<>();
+        Map<String, List<String>> params = new LinkedHashMap<>();
         params.put("grant_type", Collections.singletonList(GRANT_TYPE.getValue()));
         params.put("pre-authorized_code", Collections.singletonList(code.getValue()));
 
@@ -65,7 +65,7 @@ public class PreAuthorizedCodeGrant extends AuthorizationGrant {
         return params;
     }
 
-    public static PreAuthorizedCodeGrant parse(final Map<String,List<String>> params)
+    public static PreAuthorizedCodeGrant parse(final Map<String, List<String>> params)
             throws ParseException {
 
         GrantType.ensure(GRANT_TYPE, params);
@@ -97,7 +97,7 @@ public class PreAuthorizedCodeGrant extends AuthorizationGrant {
         var userPin = MultivaluedMapUtils.getFirstValue(params, "user_pin");
 
         // Parse optional code verifier
-        String codeVerifierString = MultivaluedMapUtils.getFirstValue(params,"code_verifier");
+        String codeVerifierString = MultivaluedMapUtils.getFirstValue(params, "code_verifier");
 
         CodeVerifier codeVerifier = null;
 

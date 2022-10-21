@@ -1,17 +1,17 @@
 {
-  "@context": [
-    "https://w3.org/ns/did/v1"
-  ],
-  "id": "did:ebsi:26wnek36z4djq1fdCgTZLTuRCe9gMf5Cr6FG8chyuaEBR4fT",
-  "verificationMethod": [
-    {
-      "id": "did:ebsi:26wnek36z4djq1fdCgTZLTuRCe9gMf5Cr6FG8chyuaEBR4fT#key-1",
-      "type": "Secp256k1VerificationKey2018",
-      "controller": "did:ebsi:26wnek36z4djq1fdCgTZLTuRCe9gMf5Cr6FG8chyuaEBR4fT",
-      "publicKeyPem": "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAECyb12xp1x7LfaulXdDkDovXXiAJtR4xP\njGQiH9B6lcyc1X5EWQt4V587l0zaU7Jth5uvyoUKLeCt1Xt9NBMqCg==\n-----END PUBLIC KEY-----"
-    }
-  ],
-  "authentication": [
-    "did:ebsi:26wnek36z4djq1fdCgTZLTuRCe9gMf5Cr6FG8chyuaEBR4fT#keys-1"
-  ]
+    "@context": [
+        "https://w3.org/ns/did/v1"
+    ],
+    "id": "did:ebsi:26wnek36z4djq1fdCgTZLTuRCe9gMf5Cr6FG8chyuaEBR4fT",
+    "verificationMethod": [
+        {
+            "id": "did:ebsi:26wnek36z4djq1fdCgTZLTuRCe9gMf5Cr6FG8chyuaEBR4fT#key-1",
+            "type": "Secp256k1VerificationKey2018",
+            "controller": "did:ebsi:26wnek36z4djq1fdCgTZLTuRCe9gMf5Cr6FG8chyuaEBR4fT",
+            "publicKeyPem": "-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAECyb12xp1x7LfaulXdDkDovXXiAJtR4xP\njGQiH9B6lcyc1X5EWQt4V587l0zaU7Jth5uvyoUKLeCt1Xt9NBMqCg==\n-----END PUBLIC KEY-----"
+        }
+    ],
+    "authentication": [
+        "did:ebsi:26wnek36z4djq1fdCgTZLTuRCe9gMf5Cr6FG8chyuaEBR4fT#keys-1"
+    ]
 }

@@ -8,7 +8,7 @@ open class InMemoryHKVStore : HKVStoreService() {
 
     override fun getAsByteArray(key: HKVKey): ByteArray? = store[key]
 
-    private fun withParentKeys(key: HKVKey): Set<HKVKey> = when(key.parent) {
+    private fun withParentKeys(key: HKVKey): Set<HKVKey> = when (key.parent) {
         null -> setOf(key)
         else -> setOf(key).plus(withParentKeys(key.parent!!))
     }

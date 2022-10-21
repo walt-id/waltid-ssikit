@@ -36,8 +36,7 @@ abstract class Custodian : WaltIdService() {
         holderDid: String,
         verifierDid: String? = null,
         domain: String? = null,
-        challenge: String? = null
-        , expirationDate: Instant?
+        challenge: String? = null, expirationDate: Instant?
     ): String = implementation.createPresentation(vcs, holderDid, verifierDid, domain, challenge, expirationDate)
 
     companion object : ServiceProvider {
@@ -78,8 +77,22 @@ open class WaltIdCustodian : Custodian() {
         challenge: String?,
         expirationDate: Instant?
     ) = when {
-        vcs.stream().allMatch { VerifiableCredential.isJWT(it) } -> jwtCredentialService.present(vcs, holderDid, verifierDid, challenge, expirationDate)
-        vcs.stream().noneMatch { VerifiableCredential.isJWT(it) } -> jsonLdCredentialService.present(vcs, holderDid, domain, challenge, expirationDate)
+        vcs.stream().allMatch { VerifiableCredential.isJWT(it) } -> jwtCredentialService.present(
+            vcs,
+            holderDid,
+            verifierDid,
+            challenge,
+            expirationDate
+        )
+
+        vcs.stream().noneMatch { VerifiableCredential.isJWT(it) } -> jsonLdCredentialService.present(
+            vcs,
+            holderDid,
+            domain,
+            challenge,
+            expirationDate
+        )
+
         else -> throw IllegalStateException("All verifiable credentials must be of the same proof type.")
     }
 }

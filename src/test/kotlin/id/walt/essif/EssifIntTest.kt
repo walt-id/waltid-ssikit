@@ -29,14 +29,14 @@ import java.io.File
 import java.nio.file.Path
 import java.sql.Timestamp
 import java.time.LocalDateTime
-import java.util.stream.Collectors
+import java.util.stream.*
 import kotlin.io.path.Path
 import kotlin.io.path.copyTo
 import kotlin.io.path.exists
 import kotlin.io.path.readText
 
 @Ignored
-class EssifIntTest() : StringSpec({
+class EssifIntTest : StringSpec({
 
     val bearerTokenFile = "data/bearer-token.txt"
 
@@ -96,7 +96,7 @@ class EssifIntTest() : StringSpec({
         println("done")
     }
 
-    "3.3 Writing to ledger (signing of ETH transaction):"  {
+    "3.3 Writing to ledger (signing of ETH transaction):" {
         shouldNotThrowAny {
             EssifClient.registerDid(issuerDid, issuerDid)
         }
@@ -248,4 +248,6 @@ private fun verifyCredential(src: File) {
 }
 
 private fun privateKeyExists(keyAlias: String) =
-    runCatching { KeyService.getService().export(keyAlias, exportKeyType = KeyType.PRIVATE).contains("\"d\":") }.getOrElse { false }
+    runCatching {
+        KeyService.getService().export(keyAlias, exportKeyType = KeyType.PRIVATE).contains("\"d\":")
+    }.getOrElse { false }

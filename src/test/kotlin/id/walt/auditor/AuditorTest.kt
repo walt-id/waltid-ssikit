@@ -37,7 +37,7 @@ class AuditorCommandTest : StringSpec() {
 
         did = DidService.create(DidMethod.key)
         val didDoc = DidService.load(did)
-        val vm = didDoc.assertionMethod!!.first()!!.id
+        val vm = didDoc.assertionMethod!!.first().id
 
         println("Generated: $did")
         vcStr = signatory.issue(
@@ -171,32 +171,44 @@ class AuditorCommandTest : StringSpec() {
             // Successful testcase
             val query = mapOf("user" to did)
             println("Testing query: $query")
-            val verificationResult = Auditor.getService().verify(vcStr,
+            val verificationResult = Auditor.getService().verify(
+                vcStr,
                 listOf(
                     DynamicPolicy(
-                    DynamicPolicyArg(
-                        input = query,
-                        policy = "src/test/resources/rego/subject-policy.rego"
+                        DynamicPolicyArg(
+                            input = query,
+                            policy = "src/test/resources/rego/subject-policy.rego"
+                        )
                     )
                 )
-                ))
+            )
             verificationResult.valid shouldBe true
 
             // Successful testcase with Rego Policy Arg str
-            val verificationResultStr =Auditor.getService().verify(vcStr,listOf(PolicyRegistry.getPolicyWithJsonArg("DynamicPolicy", "{\"dataPath\" : \"\$.credentialSubject\", \"input\" : {\"user\": \"$did\" }, \"policy\" : \"src/test/resources/rego/subject-policy.rego\"}"))).valid
+            val verificationResultStr = Auditor.getService().verify(
+                vcStr,
+                listOf(
+                    PolicyRegistry.getPolicyWithJsonArg(
+                        "DynamicPolicy",
+                        "{\"dataPath\" : \"\$.credentialSubject\", \"input\" : {\"user\": \"$did\" }, \"policy\" : \"src/test/resources/rego/subject-policy.rego\"}"
+                    )
+                )
+            ).valid
             verificationResultStr shouldBe true
 
             // Unsuccessful testcase
             val negQuery = mapOf("user" to "did:key:1234")
-            val negResult = Auditor.getService().verify(vcStr,
+            val negResult = Auditor.getService().verify(
+                vcStr,
                 listOf(
                     DynamicPolicy(
-                    DynamicPolicyArg(
-                        input = negQuery,
-                        policy = "src/test/resources/rego/subject-policy.rego"
+                        DynamicPolicyArg(
+                            input = negQuery,
+                            policy = "src/test/resources/rego/subject-policy.rego"
+                        )
                     )
                 )
-                ))
+            )
             negResult.valid shouldBe false
         }
     }

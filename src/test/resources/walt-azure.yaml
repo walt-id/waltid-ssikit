@@ -1,31 +1,30 @@
-
 cryptoProvider: AZURE_KEY_VAULT
 
 keystore:
-  type: AZURE_KEY_VAULT
+    type: AZURE_KEY_VAULT
 
 azureKeyVaultConfig:
-  baseURL:
-  id:
-  secret:
+    baseURL:
+    id:
+    secret:
 
 essif:
-  essifApiBaseUrl: "https://api.ebsi.xyz"
-  authorizationApi: "/authorization/v1"
-  ledgerAPI: "/ledger/v1"
-  trustedIssuerRegistryApi: "/tir/v2"
-  trustedAccreditationOrganizationRegistryApi: "/taor/v1"
-  revocationRegistry: "/revocation/v1"
-  schemaRegistry: "/revocation/v1"
+    essifApiBaseUrl: "https://api.ebsi.xyz"
+    authorizationApi: "/authorization/v1"
+    ledgerAPI: "/ledger/v1"
+    trustedIssuerRegistryApi: "/tir/v2"
+    trustedAccreditationOrganizationRegistryApi: "/taor/v1"
+    revocationRegistry: "/revocation/v1"
+    schemaRegistry: "/revocation/v1"
 
 server:
-  host: 0.0.0.0
-  port: 8080
+    host: 0.0.0.0
+    port: 8080
 
 hikariDataSource:
-  jdbcUrl: jdbc:sqlite:data/walt.db
-  maximumPoolSize: 5
-  autoCommit: false
-  dataSource:
-    journalMode: WAL
-    fullColumnNames: false
+    jdbcUrl: jdbc:sqlite:data/walt.db
+    maximumPoolSize: 5
+    autoCommit: false
+    dataSource:
+        journalMode: WAL
+        fullColumnNames: false

@@ -126,24 +126,28 @@ class JWKImportImpl(val keyString: String) : KeyImportStrategy {
                 privatePart = jwk.toOctetKeyPair().d?.let { jwk.toOctetKeyPair().d.toString() },
                 format = KeyFormat.BASE64_RAW
             )
+
             "ES256K" -> Key(
                 keyId = KeyId(jwk.keyID ?: newKeyId().id),
                 algorithm = KeyAlgorithm.ECDSA_Secp256k1,
                 cryptoProvider = CryptoProvider.SUN,
                 keyPair = jwk.toECKey().toKeyPair()
             )
+
             "ES256" -> Key(
                 keyId = KeyId(jwk.keyID ?: newKeyId().id),
                 algorithm = KeyAlgorithm.ECDSA_Secp256r1,
                 cryptoProvider = CryptoProvider.SUN,
                 keyPair = jwk.toECKey().toKeyPair()
             )
+
             "RSA" -> Key(
                 keyId = KeyId(jwk.keyID ?: newKeyId().id),
                 algorithm = KeyAlgorithm.RSA,
                 cryptoProvider = CryptoProvider.SUN,
                 keyPair = jwk.toRSAKey().toKeyPair()
             )
+
             else -> {
                 when (jwk.keyType?.value) {
                     "RSA" -> Key(
@@ -152,6 +156,7 @@ class JWKImportImpl(val keyString: String) : KeyImportStrategy {
                         cryptoProvider = CryptoProvider.SUN,
                         keyPair = jwk.toRSAKey().toKeyPair()
                     )
+
                     else -> throw IllegalArgumentException("KeyType ${jwk.keyType} / Algorithm ${jwk.algorithm} not supported")
                 }
             }

@@ -22,8 +22,8 @@ class VcIssueCommandTest : StringSpec({
     ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
 
     val key = KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1)
-    var didIssuer = DidService.create(DidMethod.ebsi, keyAlias = key.id)
-    var didSubject = DidService.create(DidMethod.key)
+    val didIssuer = DidService.create(DidMethod.ebsi, keyAlias = key.id)
+    val didSubject = DidService.create(DidMethod.key)
 
     DataProviderRegistry.register(VerifiableAttestation::class, object : SignatoryDataProvider {
         override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableAttestation =
@@ -57,7 +57,20 @@ class VcIssueCommandTest : StringSpec({
 
     "vc issue VerifiableDiploma LD_PROOF incl. issuerVerificationMethod " {
         val issuerVerificationMethod = DidService.load(didIssuer).verificationMethod?.get(0)?.id!!
-        VcIssueCommand().parse(listOf("-i", didIssuer, "-s", didSubject, "-t", "VerifiableDiploma", "-p", "LD_PROOF", "-v", issuerVerificationMethod))
+        VcIssueCommand().parse(
+            listOf(
+                "-i",
+                didIssuer,
+                "-s",
+                didSubject,
+                "-t",
+                "VerifiableDiploma",
+                "-p",
+                "LD_PROOF",
+                "-v",
+                issuerVerificationMethod
+            )
+        )
     }
 
     "vc issue VerifiableAttestation LD_PROOF" {

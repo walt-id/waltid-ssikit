@@ -28,12 +28,14 @@ class SchemaValidatorTest : StringSpec({
     "Validates 2019-09 schema with recursive refs" {
         mockkObject(DataProviderRegistry)
         every { DataProviderRegistry.getProvider(Europass::class) } returns RecursiveCredentialSchema201909DataProvider()
-        val vc = Signatory.getService().issue("Europass", ProofConfig(
-            issuerDid = did,
-            subjectDid = did,
-            proofType = ProofType.JWT,
-            credentialId = "urn:uuid:${UUID.randomUUID()}"
-        ))
+        val vc = Signatory.getService().issue(
+            "Europass", ProofConfig(
+                issuerDid = did,
+                subjectDid = did,
+                proofType = ProofType.JWT,
+                credentialId = "urn:uuid:${UUID.randomUUID()}"
+            )
+        )
         Auditor.getService().verify(vc, listOf(TrustedSchemaRegistryPolicy())).valid shouldBe true
         unmockkAll()
     }
@@ -41,12 +43,14 @@ class SchemaValidatorTest : StringSpec({
     "Does not validate 2020-12 schema with recursive refs" {
         mockkObject(DataProviderRegistry)
         every { DataProviderRegistry.getProvider(Europass::class) } returns RecursiveCredentialSchema202012DataProvider()
-        val vc = Signatory.getService().issue("Europass", ProofConfig(
-            issuerDid = did,
-            subjectDid = did,
-            proofType = ProofType.JWT,
-            credentialId = "urn:uuid:${UUID.randomUUID()}"
-        ))
+        val vc = Signatory.getService().issue(
+            "Europass", ProofConfig(
+                issuerDid = did,
+                subjectDid = did,
+                proofType = ProofType.JWT,
+                credentialId = "urn:uuid:${UUID.randomUUID()}"
+            )
+        )
         Auditor.getService().verify(vc, listOf(TrustedSchemaRegistryPolicy())).valid shouldBe false
         unmockkAll()
     }
@@ -54,19 +58,21 @@ class SchemaValidatorTest : StringSpec({
     "Validates 2020-12 schema without recursive refs" {
         mockkObject(DataProviderRegistry)
         every { DataProviderRegistry.getProvider(VerifiableDiploma::class) } returns NotRecursiveCredentialSchema202012DataProvider()
-        val vc = Signatory.getService().issue("VerifiableDiploma", ProofConfig(
-            issuerDid = did,
-            subjectDid = did,
-            proofType = ProofType.JWT,
-            credentialId = "urn:uuid:${UUID.randomUUID()}"
-        ))
+        val vc = Signatory.getService().issue(
+            "VerifiableDiploma", ProofConfig(
+                issuerDid = did,
+                subjectDid = did,
+                proofType = ProofType.JWT,
+                credentialId = "urn:uuid:${UUID.randomUUID()}"
+            )
+        )
         Auditor.getService().verify(vc, listOf(TrustedSchemaRegistryPolicy())).valid shouldBe true
         unmockkAll()
     }
 
 })
 
-class RecursiveCredentialSchema201909DataProvider() : SignatoryDataProvider {
+class RecursiveCredentialSchema201909DataProvider : SignatoryDataProvider {
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
         DefaultDataProvider.populate(template, proofConfig)
         return populateValidEuropass(
@@ -76,7 +82,7 @@ class RecursiveCredentialSchema201909DataProvider() : SignatoryDataProvider {
     }
 }
 
-class RecursiveCredentialSchema202012DataProvider() : SignatoryDataProvider {
+class RecursiveCredentialSchema202012DataProvider : SignatoryDataProvider {
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
         DefaultDataProvider.populate(template, proofConfig)
         return populateValidEuropass(
@@ -98,7 +104,7 @@ fun populateValidEuropass(europass: Europass, schema: Path) = europass.also {
     }
 }
 
-class NotRecursiveCredentialSchema202012DataProvider() : SignatoryDataProvider {
+class NotRecursiveCredentialSchema202012DataProvider : SignatoryDataProvider {
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
         DefaultDataProvider.populate(template, proofConfig)
         return template.also {

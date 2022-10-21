@@ -1,24 +1,29 @@
 {
-  "@context" : [ "https://www.w3.org/2018/credentials/v1" ],
-  "credentialSubject" : {
-    "id" : "did:ebsi:zkj7imP3niDPWANqWAJ6nLp",
-    "naturalPerson" : {
-      "did" : "did:example:00001111"
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1"
+    ],
+    "credentialSubject": {
+        "id": "did:ebsi:zkj7imP3niDPWANqWAJ6nLp",
+        "naturalPerson": {
+            "did": "did:example:00001111"
+        }
+    },
+    "id": "urn:uuid:39204226-d48c-4715-9331-b1bc7b71c1b5",
+    "issued": "2022-08-30T11:09:34.390674245Z",
+    "issuer": "did:ebsi:zkj7imP3niDPWANqWAJ6nLp",
+    "validFrom": "2022-08-30T11:09:34.390677685Z",
+    "issuanceDate": "2022-08-30T11:09:34.390677685Z",
+    "type": [
+        "VerifiableCredential",
+        "VerifiableAuthorization"
+    ],
+    "proof": {
+        "type": "EcdsaSecp256k1Signature2019",
+        "creator": "did:ebsi:zkj7imP3niDPWANqWAJ6nLp",
+        "created": "2022-08-30T11:09:34Z",
+        "domain": "https://api.preprod.ebsi.eu",
+        "nonce": "9dafc141-961b-4437-b3f3-9f4457d0d0da",
+        "proofPurpose": "assertion",
+        "jws": "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFUzI1NksifQ..EaEQJH-dbB_41D-aIvRh_HygGg0bwKJPTN5P9dbUBOmbqYRe5p5fNKilD1h1_o7iFtcLpEdiFJENqSp1bjRKLA"
     }
-  },
-  "id" : "urn:uuid:39204226-d48c-4715-9331-b1bc7b71c1b5",
-  "issued" : "2022-08-30T11:09:34.390674245Z",
-  "issuer" : "did:ebsi:zkj7imP3niDPWANqWAJ6nLp",
-  "validFrom" : "2022-08-30T11:09:34.390677685Z",
-  "issuanceDate" : "2022-08-30T11:09:34.390677685Z",
-  "type" : [ "VerifiableCredential", "VerifiableAuthorization" ],
-  "proof" : {
-    "type" : "EcdsaSecp256k1Signature2019",
-    "creator" : "did:ebsi:zkj7imP3niDPWANqWAJ6nLp",
-    "created" : "2022-08-30T11:09:34Z",
-    "domain" : "https://api.preprod.ebsi.eu",
-    "nonce" : "9dafc141-961b-4437-b3f3-9f4457d0d0da",
-    "proofPurpose" : "assertion",
-    "jws" : "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFUzI1NksifQ..EaEQJH-dbB_41D-aIvRh_HygGg0bwKJPTN5P9dbUBOmbqYRe5p5fNKilD1h1_o7iFtcLpEdiFJENqSp1bjRKLA"
-  }
 }

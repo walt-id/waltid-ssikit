@@ -72,20 +72,21 @@ class CryptFunTests : AnnotationSpec() {
 
     @Test
     fun multibaseEd25519KeyTest() {
-        val input = "AF CE E7 54 B5 D7 5A C9 4F A9 6E 5F E7 37 22 9F 09 CE D6 56 49 8B 88 99 3F A2 69 E2 13 79 B3 07".fromHexString()
-        val encoded = convertRawKeyToMultiBase58Btc(input, 0xed01)
+        val input =
+            "AF CE E7 54 B5 D7 5A C9 4F A9 6E 5F E7 37 22 9F 09 CE D6 56 49 8B 88 99 3F A2 69 E2 13 79 B3 07".fromHexString()
+        val encoded = convertRawKeyToMultiBase58Btc(input, getMulticodecKeyCode(KeyAlgorithm.EdDSA_Ed25519))
         encoded shouldBe "z6MkrHYNwvaGMF5KcpQFkunDGeZA4ovPvEVXe66jZKjC5DdY"
         val decoded = convertMultiBase58BtcToRawKey(encoded)
         decoded shouldBe input
     }
 
-    // https://w3c-ccg.github.io/did-method-key/#rsa -> - examples can not be reconstructed
+    // https://w3c-ccg.github.io/did-method-key/#rsa
     @Test
     fun multibaseRsaKeyTest() {
         val input =
             "30 82 01 0A 02 82 01 01 00 E7 F6 D4 31 48 B2 59 80 32 27 A9 22 01 51 CA C1 B8 F9 88 8A B3 84 3D FE 70 4C 9E F9 7E D0 31 ED 40 89 F6 28 A4 45 A0 E4 FF 21 19 B3 45 5F EA D4 1D 3B 61 81 ED E5 CF 1F 2F CB AA 55 26 22 11 93 23 30 D1 B5 60 07 02 D0 7F 4A F3 78 AF 9D 43 89 31 9B 5E BA 7C 4A A2 B7 46 40 8F 29 4D AB 00 EC 52 07 B3 E4 38 BA D9 E8 76 D8 62 31 EF 24 47 6F 83 77 52 05 D2 A7 70 2F 6F 47 D8 CB 1C F2 A5 64 08 A9 15 0D BF 1E 69 A7 EC 83 78 5A 84 EC 7D 1B 5D 31 CB 09 6B 6F 3E E6 6F BB 1C 2A 6E 72 B7 F3 E5 1E B1 60 7A 86 C1 27 C3 B1 E6 B4 FE 0A 2F 80 EF 2C 5D AE 6E AB 1D 34 F2 D2 D0 AE 62 74 23 9B AD 06 D6 B6 72 3C 97 60 4E 70 76 DE 1A 17 11 0F 10 E9 8B 4D EA EF C1 B4 ED 47 FB 1A 58 57 51 73 55 8D 45 25 F3 62 B8 BB E8 05 79 F7 BF 8E CE 88 6E 98 FD DF EF B0 C6 40 57 91 7B 80 11 DE A8 CD 02 03 01 00 01".fromHexString()
-        val encoded = convertRawKeyToMultiBase58Btc(input, 0x1205)
-        encoded shouldBe "zTL5kCGeFa3dV3BGayzCg5ztAibu2sQYGSWxX6hd5dkB8c147A6WBF9p8n8jDXHvKD9oB9ECYEdA93WUjFWF8YQjYWAc2tfocC3BeWr9bbXeW2qk5CaRAjx6Zk8npq23R6jP69fJEtWur6qEhbMihN1otmac51YycPFcY5nsokfsQyA5wWkdcFgjmzS6USXbFvXufeqP8F7nxyyv3DpZgs6FqL2FfqeVT6kEoz9byxuZ9UUvLyZtDMefK9bMygdbnVxJdXoNF1fbKxm8zwfUSWATV8dQ8f26nV6i7XphYoHi7LrwyXkadPQTxM9SJ9WQVvyKbURHkDiB6hQzfKM996qdELvHgEPvJc131DgWPaia4PiEKETA"
+        val encoded = convertRawKeyToMultiBase58Btc(input, getMulticodecKeyCode(KeyAlgorithm.RSA))
+        encoded shouldBe "z4MXj1wBzi9jUstyQbrdGy3KjQ7LwP8KRzQy1tvHyU8yhTDGYjK7PWPQW4U3bscyq1po8DnuSr9nNcCkBqQZmkEEeFKjdX54u9sf8cVVQcWmq5jhkyPrErVyjpQ6t8s5km91evQjKNH1j3JwUjJ7FdP5qbB2wCU9R5bV3Z1f2rbBRcnRnkGo2gAj8Qz72PLE2jGWZeNaq3XXfz3y4ojemRv3RvmeqVMLcJBbLaXSs6J4pCoey9ownLCD7hx8csxwW9x5QbGmgYN8sxB8bB4QMkghyLpMAHGYAyjsUp8pttCogu9oitEjFoK4X8WjNPj3N3VDEou66dqZ8rDgH8F2uTgbnBMohHuY3kwJGJNoNQgqZnprqWry6"
         val decoded = convertMultiBase58BtcToRawKey(encoded)
         decoded shouldBe input
     }

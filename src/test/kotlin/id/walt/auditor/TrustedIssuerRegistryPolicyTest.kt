@@ -21,7 +21,8 @@ class TrustedIssuerRegistryPolicyTest : AnnotationSpec() {
 
     private val testedPolicy = TrustedIssuerRegistryPolicy()
     private val mockedHash = "mockHash"
-    private val validAttrInfoJson = "{\"@context\":\"https://ebsi.eu\",\"type\":\"attribute\",\"name\":\"issuer\",\"data\":\"5d50b3fa18dde32b384d8c6d096869de\"}"
+    private val validAttrInfoJson =
+        "{\"@context\":\"https://ebsi.eu\",\"type\":\"attribute\",\"name\":\"issuer\",\"data\":\"5d50b3fa18dde32b384d8c6d096869de\"}"
     private lateinit var did: String
     private lateinit var verifiableCredential: VerifiableCredential
 
@@ -32,7 +33,7 @@ class TrustedIssuerRegistryPolicyTest : AnnotationSpec() {
 
         did = DidService.create(DidMethod.key)
         val didDoc = DidService.load(did)
-        val vm = didDoc.assertionMethod!!.first()!!.id
+        val vm = didDoc.assertionMethod!!.first().id
 
         println("Generated: $did")
 

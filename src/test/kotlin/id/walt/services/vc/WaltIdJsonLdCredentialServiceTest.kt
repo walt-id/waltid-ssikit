@@ -83,7 +83,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
 
         template.issuer = issuerKeyDid
         template.credentialSubject!!.id = issuerKeyDid // self signed
-        template.credentialSubject!!.achieved!![0]!!.title = "Some Europass specific title"
+        template.credentialSubject!!.achieved!![0].title = "Some Europass specific title"
 
         val credOffer = Klaxon().toJsonString(template)
 
@@ -124,7 +124,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
         template.issuer = issuerEbsiDid
         template.credentialSubject!!.id = subjectKeyDid
 
-        val vc = credentialService.sign(template.encode() , ProofConfig(issuerDid = issuerEbsiDid))
+        val vc = credentialService.sign(template.encode(), ProofConfig(issuerDid = issuerEbsiDid))
 
         println("Signed vc: $vc")
         val vcSigned = vc.toCredential()
@@ -177,7 +177,8 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
         val domain = "example.com"
         val nonce: String? = null
         val proof = ProofConfig(subjectDid = issuerKeyDid, issuerDid = issuerKeyDid, nonce = nonce, domain = domain)
-        val credOffer = DefaultDataProvider.populate(readCredOffer("VerifiableAttestation-Europass").toCredential(), proof).encode()
+        val credOffer =
+            DefaultDataProvider.populate(readCredOffer("VerifiableAttestation-Europass").toCredential(), proof).encode()
 
         val vc = credentialService.sign(credOffer, proof)
         vc shouldNotBe null
@@ -190,17 +191,23 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
     @Test
     fun testValidateSchemaTsr() {
         val issuerKeyDidDoc = DidService.load(issuerKeyDid)
-        val issuerKeyDidVM = issuerKeyDidDoc.assertionMethod!!.first()!!.id
+        val issuerKeyDidVM = issuerKeyDidDoc.assertionMethod!!.first().id
         val noSchemaVc = VerifiableId().encode()
-        val validVc = Signatory.getService().issue("VerifiableId", ProofConfig(
-            issuerDid = issuerKeyDid,
-            subjectDid = subjectKeyDid,
-            proofPurpose = "assertionMethod",
-            issuerVerificationMethod = issuerKeyDidVM,
-            proofType = ProofType.LD_PROOF))
-        val invalidDataVc = Signatory.getService().issue("VerifiableId", ProofConfig(
-            issuerDid = issuerKeyDid,
-            proofType = ProofType.LD_PROOF))
+        val validVc = Signatory.getService().issue(
+            "VerifiableId", ProofConfig(
+                issuerDid = issuerKeyDid,
+                subjectDid = subjectKeyDid,
+                proofPurpose = "assertionMethod",
+                issuerVerificationMethod = issuerKeyDidVM,
+                proofType = ProofType.LD_PROOF
+            )
+        )
+        val invalidDataVc = Signatory.getService().issue(
+            "VerifiableId", ProofConfig(
+                issuerDid = issuerKeyDid,
+                proofType = ProofType.LD_PROOF
+            )
+        )
         val notParsableVc = ""
 
         credentialService.validateSchemaTsr(noSchemaVc) shouldBe false
@@ -209,112 +216,112 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
         credentialService.validateSchemaTsr(notParsableVc) shouldBe false
     }
 
-/*@Test
-fun signCredentialInvalidDataTest() {
+    /*@Test
+    fun signCredentialInvalidDataTest() {
 
-    val credOffer = readCredOffer("vc-offer-simple-example")
-    val issuerDid = DidService.create(DidMethod.key)
+        val credOffer = readCredOffer("vc-offer-simple-example")
+        val issuerDid = DidService.create(DidMethod.key)
 
-    val vcStr = credentialService.sign(issuerDid, credOffer)
-    println("Credential generated: $vcStr")
-    val vcInvalid = VerifiableCredential.fromString(vcStr)
-    vcInvalid.id = "INVALID ID"
-    val vcInvalidStr = vcInvalid.encode()
-    println("Credential generated: ${vcInvalidStr}")
+        val vcStr = credentialService.sign(issuerDid, credOffer)
+        println("Credential generated: $vcStr")
+        val vcInvalid = VerifiableCredential.fromString(vcStr)
+        vcInvalid.id = "INVALID ID"
+        val vcInvalidStr = vcInvalid.encode()
+        println("Credential generated: ${vcInvalidStr}")
 
-    val vcVerified = credentialService.verifyVc(issuerDid, vcInvalidStr)
-    vcVerified shouldBe false
-}*/
+        val vcVerified = credentialService.verifyVc(issuerDid, vcInvalidStr)
+        vcVerified shouldBe false
+    }*/
 
 // TODO @Test
-/*fun presentValidCredentialTest() {
+    /*fun presentValidCredentialTest() {
 
-    val credOffer = Klaxon().parse<VerifiableCredential>(readCredOffer("vc-offer-simple-example"))
-    val issuerDid = DidService.create(DidMethod.web)
-    val subjectDid = DidService.create(DidMethod.key)
+        val credOffer = Klaxon().parse<VerifiableCredential>(readCredOffer("vc-offer-simple-example"))
+        val issuerDid = DidService.create(DidMethod.web)
+        val subjectDid = DidService.create(DidMethod.key)
 
-    credOffer.id = Timestamp.valueOf(LocalDateTime.now()).time.toString()
-    credOffer.issuer = issuerDid
-    credOffer.credentialSubject.id = subjectDid
+        credOffer.id = Timestamp.valueOf(LocalDateTime.now()).time.toString()
+        credOffer.issuer = issuerDid
+        credOffer.credentialSubject.id = subjectDid
 
-    credOffer.issuanceDate = LocalDateTime.now()
+        credOffer.issuanceDate = LocalDateTime.now()
 
-    val vcReqEnc = Klaxon().toJsonString(credOffer)
+        val vcReqEnc = Klaxon().toJsonString(credOffer)
 
-    println("Credential request:\n$vcReqEnc")
+        println("Credential request:\n$vcReqEnc")
 
-    val vcStr = credentialService.sign(issuerDid, vcReqEnc)
-    val vc = Klaxon().parse<VerifiableCredential>(vcStr)
-    println("Credential generated: ${vc.encodePretty()}")
+        val vcStr = credentialService.sign(issuerDid, vcReqEnc)
+        val vc = Klaxon().parse<VerifiableCredential>(vcStr)
+        println("Credential generated: ${vc.encodePretty()}")
 
-    val vpIn = VerifiablePresentation(
-        listOf("https://www.w3.org/2018/credentials/v1"),
-        "id",
-        listOf("VerifiablePresentation"),
-        listOf(vc),
-        null
-    )
-    val vpInputStr = Klaxon().toJsonString(vpIn)
+        val vpIn = VerifiablePresentation(
+            listOf("https://www.w3.org/2018/credentials/v1"),
+            "id",
+            listOf("VerifiablePresentation"),
+            listOf(vc),
+            null
+        )
+        val vpInputStr = Klaxon().toJsonString(vpIn)
 
-    val domain = "example.com"
-    val nonce: String? = "asdf"
-    val vp = credentialService.sign(issuerDid, vpInputStr, domain, nonce)
-    vp shouldNotBe null
-    println("Verifiable Presentation generated: $vp")
+        val domain = "example.com"
+        val nonce: String? = "asdf"
+        val vp = credentialService.sign(issuerDid, vpInputStr, domain, nonce)
+        vp shouldNotBe null
+        println("Verifiable Presentation generated: $vp")
 
-    var ret = credentialService.verifyVp(vp)
-    assertTrue { ret }
-}
+        var ret = credentialService.verifyVp(vp)
+        assertTrue { ret }
+    }
 
-//TODO @Test
-fun presentInvalidCredentialTest() {
-    val issuerDid = DidService.create(DidMethod.web)
-    val subjectDid = DidService.create(DidMethod.key)
+    //TODO @Test
+    fun presentInvalidCredentialTest() {
+        val issuerDid = DidService.create(DidMethod.web)
+        val subjectDid = DidService.create(DidMethod.key)
 
-    val credOffer = Klaxon().parse<VerifiableCredential>(readCredOffer("vc-offer-simple-example"))
-    //      credOffer.id = Timestamp.valueOf(LocalDateTime.now()).time.toString() // This line is causing LD-Signatures to fail (will produces a valid signature, although the data is invalidated below)
-    credOffer.issuer = issuerDid
-    credOffer.credentialSubject.id = subjectDid
+        val credOffer = Klaxon().parse<VerifiableCredential>(readCredOffer("vc-offer-simple-example"))
+        //      credOffer.id = Timestamp.valueOf(LocalDateTime.now()).time.toString() // This line is causing LD-Signatures to fail (will produces a valid signature, although the data is invalidated below)
+        credOffer.issuer = issuerDid
+        credOffer.credentialSubject.id = subjectDid
 
-    credOffer.issuanceDate = LocalDateTime.now()
+        credOffer.issuanceDate = LocalDateTime.now()
 
-    //val vcReqEnc = readCredOffer("vc-offer-simple-example") -> produces false-signature for invalid credential
-    val vcReqEnc = Json {
-        prettyPrint = true
-    }.encodeToString(credOffer) // FIXME does not produce false-signature for invalid credential
+        //val vcReqEnc = readCredOffer("vc-offer-simple-example") -> produces false-signature for invalid credential
+        val vcReqEnc = Json {
+            prettyPrint = true
+        }.encodeToString(credOffer) // FIXME does not produce false-signature for invalid credential
 
-    println("Credential request:\n$vcReqEnc")
+        println("Credential request:\n$vcReqEnc")
 
-    val vcStr = credentialService.sign(issuerDid, vcReqEnc)
-    println("Credential generated: $vcStr")
-    val vcInvalid = Klaxon().parse<VerifiableCredential>(vcStr)
-    vcInvalid.credentialSubject.id = "INVALID ID"
-    val vcInvalidStr = vcInvalid.encodePretty()
-    println("Credential generated: ${vcInvalidStr}")
+        val vcStr = credentialService.sign(issuerDid, vcReqEnc)
+        println("Credential generated: $vcStr")
+        val vcInvalid = Klaxon().parse<VerifiableCredential>(vcStr)
+        vcInvalid.credentialSubject.id = "INVALID ID"
+        val vcInvalidStr = vcInvalid.encodePretty()
+        println("Credential generated: ${vcInvalidStr}")
 
-    val vcValid = credentialService.verifyVc(issuerDid, vcInvalidStr)
-    vcValid shouldBe false
+        val vcValid = credentialService.verifyVc(issuerDid, vcInvalidStr)
+        vcValid shouldBe false
 
-    val vcVerified = credentialService.verifyVc(issuerDid, vcInvalidStr)
+        val vcVerified = credentialService.verifyVc(issuerDid, vcInvalidStr)
 
-    val vpIn = VerifiablePresentation(
-        listOf("https://www.w3.org/2018/credentials/v1"),
-        "id",
-        listOf("VerifiablePresentation"),
-        listOf(vcInvalid),
-        null
-    )
-    val vpInputStr = Klaxon().toJsonString(vpIn)
+        val vpIn = VerifiablePresentation(
+            listOf("https://www.w3.org/2018/credentials/v1"),
+            "id",
+            listOf("VerifiablePresentation"),
+            listOf(vcInvalid),
+            null
+        )
+        val vpInputStr = Klaxon().toJsonString(vpIn)
 
-    print(vpInputStr)
+        print(vpInputStr)
 
-    val domain = "example.com"
-    val nonce: String? = "asdf"
-    val vp = credentialService.sign(issuerDid, vpInputStr, domain, nonce)
-    vp shouldNotBe null
-    println("Verifiable Presentation generated: $vp")
+        val domain = "example.com"
+        val nonce: String? = "asdf"
+        val vp = credentialService.sign(issuerDid, vpInputStr, domain, nonce)
+        vp shouldNotBe null
+        println("Verifiable Presentation generated: $vp")
 
-    var ret = credentialService.verifyVp(vp)
-    ret shouldBe false
-}*/
+        var ret = credentialService.verifyVp(vp)
+        ret shouldBe false
+    }*/
 }

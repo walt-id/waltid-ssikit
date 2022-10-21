@@ -26,7 +26,8 @@ open class AzureKeyStore(configurationPath: String) : KeyStoreService() {
         File(KEY_DIR_PATH).mkdirs()
     }
 
-    override fun getKeyId(alias: String): String? = runCatching { File("$KEY_DIR_PATH/Alias-${alias.split(":").joinToString("-")}").readText() }.getOrNull()
+    override fun getKeyId(alias: String): String? =
+        runCatching { File("$KEY_DIR_PATH/Alias-${alias.split(":").joinToString("-")}").readText() }.getOrNull()
 
     override fun listKeys(): List<Key> =
         TODO("Not yet implemented")
@@ -51,12 +52,14 @@ open class AzureKeyStore(configurationPath: String) : KeyStoreService() {
                 CryptoProvider.CUSTOM,
                 key.withCrv(JsonWebKeyCurveName.P_256K).toEC(false, BouncyCastleProvider())
             )
+
             JsonWebKeyCurveName("SECP256R1"), JsonWebKeyCurveName.P_256 -> Key(
                 KeyId(keyName),
                 KeyAlgorithm.ECDSA_Secp256r1,
                 CryptoProvider.CUSTOM,
                 key.withCrv(JsonWebKeyCurveName.P_256).toEC(false, BouncyCastleProvider())
             )
+
             else -> throw IllegalArgumentException("Curve not supported yet.")
         }
     }

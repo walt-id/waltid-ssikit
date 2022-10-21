@@ -1,15 +1,15 @@
 {
-  "id": "<random-id>",
-  "type": "credential-request",
-  "iss": "did:ebsi:2123456789AB...fghijkmno",
-  "callback": "<callback-url>",
-  "nonce": "<random-nonce>",
-  "claims": {
-    "types": [
-      {
-        "id": "https://essif.europa.eu/tsr-vid/verifiableid1.json",
-        "type": "JsonSchemaValidator2018"
-      }
-    ]
-  }
+    "id": "<random-id>",
+    "type": "credential-request",
+    "iss": "did:ebsi:2123456789AB...fghijkmno",
+    "callback": "<callback-url>",
+    "nonce": "<random-nonce>",
+    "claims": {
+        "types": [
+            {
+                "id": "https://essif.europa.eu/tsr-vid/verifiableid1.json",
+                "type": "JsonSchemaValidator2018"
+            }
+        ]
+    }
 }

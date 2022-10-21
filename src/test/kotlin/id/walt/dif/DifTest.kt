@@ -6,11 +6,11 @@ import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 
-class DifTest: AnnotationSpec() {
+class DifTest : AnnotationSpec() {
 
-  @Test
-  fun testParsePresentationDefinition() {
-    val pd = """{
+    @Test
+    fun testParsePresentationDefinition() {
+        val pd = """{
             "id": "vp token example",
             "input_descriptors": [
                 {
@@ -39,18 +39,18 @@ class DifTest: AnnotationSpec() {
             ]
         }"""
 
-    val parsedPD = klaxon.parse<PresentationDefinition>(pd)
-    parsedPD shouldNotBe null
-    parsedPD!!.id shouldBe "vp token example"
-    parsedPD!!.input_descriptors shouldNotBe null
-    parsedPD!!.input_descriptors!!.size shouldBe 1
-    parsedPD!!.input_descriptors[0].id shouldBe "id card credential"
-    parsedPD!!.input_descriptors[0].format shouldNotBe null
-  }
+        val parsedPD = klaxon.parse<PresentationDefinition>(pd)
+        parsedPD shouldNotBe null
+        parsedPD!!.id shouldBe "vp token example"
+        parsedPD.input_descriptors shouldNotBe null
+        parsedPD.input_descriptors.size shouldBe 1
+        parsedPD.input_descriptors[0].id shouldBe "id card credential"
+        parsedPD.input_descriptors[0].format shouldNotBe null
+    }
 
-  @Test
-  fun testParsePresentationDefinitionWithSubmissionRequirements() {
-    val pd = """{
+    @Test
+    fun testParsePresentationDefinitionWithSubmissionRequirements() {
+        val pd = """{
     "id": "32f54163-7166-48f1-93d8-ff217bdb0653",
     "submission_requirements": [
       {
@@ -294,7 +294,7 @@ class DifTest: AnnotationSpec() {
     ]
   }"""
 
-    val parsedPD = klaxon.parse<PresentationDefinition>(pd)
-    parsedPD shouldNotBe null
-  }
+        val parsedPD = klaxon.parse<PresentationDefinition>(pd)
+        parsedPD shouldNotBe null
+    }
 }

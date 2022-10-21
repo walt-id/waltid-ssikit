@@ -20,7 +20,6 @@ import org.bouncycastle.asn1.edec.EdECObjectIdentifiers
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
-import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.math.ec.ECPoint
 import org.bouncycastle.util.encoders.Hex
@@ -93,7 +92,7 @@ fun java.security.Key.toPEM(): String = when (this) {
 }
 
 fun PrivateKey.toPEM(): String =
-            "-----BEGIN PRIVATE KEY-----" +
+    "-----BEGIN PRIVATE KEY-----" +
             System.lineSeparator() +
             String(
                 Base64.getMimeEncoder(64, System.lineSeparator().toByteArray())
@@ -106,7 +105,7 @@ fun PrivateKey.toPEM(): String =
 fun PrivateKey.toBase64(): String = String(Base64.getEncoder().encode(PKCS8EncodedKeySpec(this.encoded).encoded))
 
 fun PublicKey.toPEM(): String =
-            "-----BEGIN PUBLIC KEY-----" +
+    "-----BEGIN PUBLIC KEY-----" +
             System.lineSeparator() +
             String(
                 Base64.getMimeEncoder(64, System.lineSeparator().toByteArray())
@@ -174,9 +173,11 @@ fun buildKey(
         KeyFormat.PEM -> KeyPair(
             decodePubKeyPem(publicPart, keyFactory),
             privatePart?.let { decodePrivKeyPem(privatePart, keyFactory) })
+
         KeyFormat.BASE64_DER -> KeyPair(
             decodePubKeyBase64(publicPart, keyFactory),
             privatePart?.let { decodePrivKeyBase64(privatePart, keyFactory) })
+
         KeyFormat.BASE64_RAW -> KeyPair(
             decodeRawPubKeyBase64(publicPart, keyFactory),
             privatePart?.let { decodeRawPrivKey(privatePart, keyFactory) })
@@ -250,35 +251,38 @@ fun convertX25519PublicKeyFromMultibase58Btc(mbase58: String): ByteArray {
 
 @Suppress("REDUNDANT_ELSE_IN_WHEN")
 fun getMulticodecKeyCode(algorithm: KeyAlgorithm) = when (algorithm) {
-    KeyAlgorithm.EdDSA_Ed25519 -> 0xed01
-    KeyAlgorithm.ECDSA_Secp256k1 -> 0xe701
-    KeyAlgorithm.RSA -> 0x1205
-    KeyAlgorithm.ECDSA_Secp256r1 -> 0x1200
+    KeyAlgorithm.EdDSA_Ed25519 -> 0xEDu
+    KeyAlgorithm.ECDSA_Secp256k1 -> 0xE7u
+    KeyAlgorithm.RSA -> 0x1205u
+    KeyAlgorithm.ECDSA_Secp256r1 -> 0x1200u
     else -> throw IllegalArgumentException("No multicodec for algorithm $algorithm")
 }
 
 fun getKeyAlgorithmFromMultibase(mb: String): KeyAlgorithm {
     val decoded = mb.decodeMultiBase58Btc()
-
-    return when (val code = (decoded[0].toInt().shl(8) and 0xFFFF) + decoded[1]) {
-        0xed01 -> KeyAlgorithm.EdDSA_Ed25519
-        0xe701 -> KeyAlgorithm.ECDSA_Secp256k1
-        0x1205 -> KeyAlgorithm.RSA
-        0x8524 -> KeyAlgorithm.RSA
-        0x1200 -> KeyAlgorithm.ECDSA_Secp256r1
+    val code = UVarInt.fromBytes(decoded)
+    return when (code.value) {
+        0xEDu -> KeyAlgorithm.EdDSA_Ed25519
+        0xE7u -> KeyAlgorithm.ECDSA_Secp256k1
+        0x1205u -> KeyAlgorithm.RSA
+        0x1200u -> KeyAlgorithm.ECDSA_Secp256r1
         else -> throw IllegalArgumentException("No multicodec algorithm for code $code")
     }
 }
 
-fun convertRawKeyToMultiBase58Btc(key: ByteArray, code: Int): String {
-    val multicodecAndRawKey = ByteArray(key.size + 2)
-    multicodecAndRawKey[0] = (code and 0xFF00).ushr(8).toByte()
-    multicodecAndRawKey[1] = (code and 0x00FF).toByte()
-    key.copyInto(multicodecAndRawKey, 2)
+fun convertRawKeyToMultiBase58Btc(key: ByteArray, code: UInt): String {
+    val codeVarInt = UVarInt(code)
+    val multicodecAndRawKey = ByteArray(key.size + codeVarInt.length)
+    codeVarInt.bytes.copyInto(multicodecAndRawKey)
+    key.copyInto(multicodecAndRawKey, codeVarInt.length)
     return multicodecAndRawKey.encodeMultiBase58Btc()
 }
 
-fun convertMultiBase58BtcToRawKey(mb: String): ByteArray = mb.decodeMultiBase58Btc().drop(2).toByteArray()
+fun convertMultiBase58BtcToRawKey(mb: String): ByteArray {
+    val bytes = mb.decodeMultiBase58Btc()
+    val code = UVarInt.fromBytes(bytes)
+    return bytes.drop(code.length).toByteArray()
+}
 
 fun convertEd25519PublicKeyToMultiBase58Btc(edPublicKey: ByteArray): String {
     val edPublicKeyCryptonym = ByteArray(edPublicKey.size + 2)
@@ -352,13 +356,13 @@ val mapper: ObjectMapper = JsonMapper.builder()
 fun canonicalize(json: String): String =
     mapper.writeValueAsString(mapper.readTree(json))
 
-fun uncompressSecp256k1(compKey: ByteArray?): ECKey? {
-    val point: ECPoint = ECNamedCurveTable.getParameterSpec(Curve.SECP256K1.name).curve.decodePoint(compKey)
+fun uncompressSecp256k1(compKey: ByteArray?, curve: Curve = Curve.SECP256K1): ECKey? {
+    val point: ECPoint = ECNamedCurveTable.getParameterSpec(curve.name).curve.decodePoint(compKey)
 
     val x: ByteArray = point.xCoord.encoded
     val y: ByteArray = point.yCoord.encoded
 
-    return ECKey.Builder(Curve.SECP256K1, Base64URL.encode(x), Base64URL.encode(y)).build()
+    return ECKey.Builder(curve, Base64URL.encode(x), Base64URL.encode(y)).build()
 }
 
 fun parseEncryptedAke1Payload(encryptedPayload: String): EncryptedAke1Payload {

@@ -18,11 +18,11 @@ import com.github.ajalt.clikt.parameters.types.path
 import id.walt.common.prettyPrint
 import id.walt.crypto.KeyAlgorithm
 import id.walt.model.DidMethod
-import id.walt.model.DidMethod.*
+import id.walt.model.DidMethod.ebsi
+import id.walt.model.DidMethod.web
 import id.walt.model.DidUrl
 import id.walt.services.crypto.CryptoService
 import id.walt.services.did.DidService
-
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString

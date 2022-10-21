@@ -88,11 +88,11 @@ class LdVerifier {
         }
     }
 
-    class JsonWebSignature2020(val publicKey: Key): LdVerifier<JsonWebSignature2020SignatureSuite?>(
+    class JsonWebSignature2020(val publicKey: Key) : LdVerifier<JsonWebSignature2020SignatureSuite?>(
         SignatureSuites.SIGNATURE_SUITE_JSONWEBSIGNATURE2020, null, Canonicalizers.CANONICALIZER_URDNA2015CANONICALIZER
     ) {
         override fun verify(signingInput: ByteArray, ldProof: LdProof): Boolean {
-            return when(publicKey.algorithm) {
+            return when (publicKey.algorithm) {
                 KeyAlgorithm.RSA -> RsaSignature2018(publicKey).verify(signingInput, ldProof)
                 KeyAlgorithm.ECDSA_Secp256k1 -> EcdsaSecp256k1Signature2019(publicKey).verify(signingInput, ldProof)
                 KeyAlgorithm.ECDSA_Secp256r1 -> EcdsaSecp256r1Signature2019(publicKey).verify(signingInput, ldProof)
@@ -101,7 +101,7 @@ class LdVerifier {
         }
     }
 
-    class JcsEd25519Signature2020(val publicKey: Key): LdVerifier<JcsEd25519Signature2020SignatureSuite?>(
+    class JcsEd25519Signature2020(val publicKey: Key) : LdVerifier<JcsEd25519Signature2020SignatureSuite?>(
         SignatureSuites.SIGNATURE_SUITE_JCSED25519SIGNATURE2020, null, Canonicalizers.CANONICALIZER_JCSCANONICALIZER
     ) {
 

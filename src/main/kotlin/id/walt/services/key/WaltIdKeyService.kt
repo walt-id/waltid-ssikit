@@ -77,11 +77,13 @@ open class WaltIdKeyService : KeyService() {
         val builder = ECKey
             .Builder(curve, key.keyPair!!.public as ECPublicKey)
             .keyUse(KeyUse.SIGNATURE)
-            .algorithm(when(curve) {
-                Curve.SECP256K1 -> JWSAlgorithm.ES256K
-                Curve.P_256 -> JWSAlgorithm.ES256
-                else -> throw Exception("Unsupported curve for Secp256Jwk: $curve")
-            })
+            .algorithm(
+                when (curve) {
+                    Curve.SECP256K1 -> JWSAlgorithm.ES256K
+                    Curve.P_256 -> JWSAlgorithm.ES256
+                    else -> throw Exception("Unsupported curve for Secp256Jwk: $curve")
+                }
+            )
             .keyID(jwkKeyId ?: key.keyId.id)
 
         key.keyPair!!.private?.let {

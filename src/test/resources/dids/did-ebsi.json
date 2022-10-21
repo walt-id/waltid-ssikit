@@ -1,43 +1,43 @@
 {
-  "@context": [
-    "https://w3.org/ns/did/v1",
-    "https://ebsi.org/ns/did/v1"
-  ],
-  "id": "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d472afcff8",
-  "verificationMethod": [
-    {
-      "id": "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d472a#key-1",
-      "type": "Ed25519VerificationKey2018",
-      "controller": "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d472afcff8",
-      "publicKeyBase58": "5F5Q1qJbbvcyhnStAmkjF5rUBKe1XnHJHt2Tj49tTDpW"
-    },
-    {
-      "id": "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d473b#key-2",
-      "type": "X25519KeyAgreementKey2019",
-      "controller": "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d472afcff8",
-      "publicKeyBase58": "GnxxE5rAFYoRS6af7XArmzh7gNS68XTAKjhNDRsfhrFJ"
-    },
-    {
-      "id": "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d474c#key-3",
-      "type": "EidasVerificationKey2021",
-      "controller": "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d472afcff8",
-      "publicKeyPem": "-----BEGIN.."
+    "@context": [
+        "https://w3.org/ns/did/v1",
+        "https://ebsi.org/ns/did/v1"
+    ],
+    "id": "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d472afcff8",
+    "verificationMethod": [
+        {
+            "id": "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d472a#key-1",
+            "type": "Ed25519VerificationKey2018",
+            "controller": "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d472afcff8",
+            "publicKeyBase58": "5F5Q1qJbbvcyhnStAmkjF5rUBKe1XnHJHt2Tj49tTDpW"
+        },
+        {
+            "id": "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d473b#key-2",
+            "type": "X25519KeyAgreementKey2019",
+            "controller": "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d472afcff8",
+            "publicKeyBase58": "GnxxE5rAFYoRS6af7XArmzh7gNS68XTAKjhNDRsfhrFJ"
+        },
+        {
+            "id": "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d474c#key-3",
+            "type": "EidasVerificationKey2021",
+            "controller": "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d472afcff8",
+            "publicKeyPem": "-----BEGIN.."
+        }
+    ],
+    "authentication": [
+        "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d474c#key-3"
+    ],
+    "assertionMethod": [
+        "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d472a#key-1"
+    ],
+    "keyAgreement": [
+        "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d473b#key-2"
+    ],
+    "proof": {
+        "type": "Ed25519Signature2018",
+        "created": "2019-06-22T14:11:44Z",
+        "proofPurpose": "assertionMethod",
+        "verificationMethod": "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d472a#key-1",
+        "jws": "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk"
     }
-  ],
-  "authentication": [
-    "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d474c#key-3"
-  ],
-  "assertionMethod": [
-    "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d472a#key-1"
-  ],
-  "keyAgreement": [
-    "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d473b#key-2"
-  ],
-  "proof": {
-    "type": "Ed25519Signature2018",
-    "created": "2019-06-22T14:11:44Z",
-    "proofPurpose": "assertionMethod",
-    "verificationMethod": "did:ebsi:2b6a1ee5881158edf133421d63d4b9e5f3ac26d472a#key-1",
-    "jws": "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk"
-  }
 }

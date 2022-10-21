@@ -1,24 +1,24 @@
 {
-  "@context": [
-    "https://www.w3.org/2018/credentials/v1"
-  ],
-  "id": "did:ebsi-eth:00000001/credentials/1872",
-  "type": [
-    "VerifiableCredential",
-    "VerifiableAuthorization"
-  ],
-  "issuer": "did:ebsi:000001234",
-  "issuanceDate": "2020-08-24T14:13:44Z",
-  "expirationDate": "2020-08-25T14:13:44Z",
-  "credentialSubject": {
-    "id": "did:key:z6MksTeZpzyCdeRHuvk6kAAfQQCas3NPTRtxnB5a68mDrps5",
-    "hash": "e96e3fecdbdf2126ea62e7c6...04de0f177e5971c27dedd0d17bc649a626ac"
-  },
-  "proof": {
-    "type": "EcdsaSecp256k1Signature2019",
-    "created": "2020-08-24T14:13:44Z",
-    "proofPurpose": "assertionMethod",
-    "verificationMethod": "did:ebsi-eth:000001234#key-1",
-    "jws": "eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..TCYt5X"
-  }
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1"
+    ],
+    "id": "did:ebsi-eth:00000001/credentials/1872",
+    "type": [
+        "VerifiableCredential",
+        "VerifiableAuthorization"
+    ],
+    "issuer": "did:ebsi:000001234",
+    "issuanceDate": "2020-08-24T14:13:44Z",
+    "expirationDate": "2020-08-25T14:13:44Z",
+    "credentialSubject": {
+        "id": "did:key:z6MksTeZpzyCdeRHuvk6kAAfQQCas3NPTRtxnB5a68mDrps5",
+        "hash": "e96e3fecdbdf2126ea62e7c6...04de0f177e5971c27dedd0d17bc649a626ac"
+    },
+    "proof": {
+        "type": "EcdsaSecp256k1Signature2019",
+        "created": "2020-08-24T14:13:44Z",
+        "proofPurpose": "assertionMethod",
+        "verificationMethod": "did:ebsi-eth:000001234#key-1",
+        "jws": "eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..TCYt5X"
+    }
 }

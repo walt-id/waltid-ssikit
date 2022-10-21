@@ -14,37 +14,48 @@ import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.primaryConstructor
 
-open class PolicyFactory<P : VerificationPolicy, A: Any>(val policyType: KClass<P>, val argType: KClass<A>?, val name: String, val description: String? = null) {
+open class PolicyFactory<P : VerificationPolicy, A : Any>(
+    val policyType: KClass<P>,
+    val argType: KClass<A>?,
+    val name: String,
+    val description: String? = null
+) {
     open fun create(argument: Any? = null): P {
         return argType?.let {
             policyType.primaryConstructor!!.call(argument)
         }
-        ?: policyType.createInstance()
+            ?: policyType.createInstance()
     }
 
 
-    val requiredArgumentType = when(argType) {
+    val requiredArgumentType = when (argType) {
         null -> "None"
         else -> argType.simpleName!!
     }
 }
 
-class DynamicPolicyFactory(val dynamicPolicyArg: DynamicPolicyArg, val immutable: Boolean = false, name: String, description: String?) : PolicyFactory<DynamicPolicy, JsonObject>(
-    DynamicPolicy::class, JsonObject::class, name, description) {
+class DynamicPolicyFactory(
+    val dynamicPolicyArg: DynamicPolicyArg,
+    val immutable: Boolean = false,
+    name: String,
+    description: String?
+) : PolicyFactory<DynamicPolicy, JsonObject>(
+    DynamicPolicy::class, JsonObject::class, name, description
+) {
     override fun create(argument: Any?): DynamicPolicy {
-        val mergedInput = if(argument != null) {
+        val mergedInput = if (argument != null) {
             JsonObject(dynamicPolicyArg.input).deepMerge(argument as JsonObject)
         } else {
             dynamicPolicyArg.input
         }
         return super.create(
             DynamicPolicyArg(
-            input = mergedInput,
-            policy = dynamicPolicyArg.policy,
-            dataPath = dynamicPolicyArg.dataPath,
-            policyQuery = dynamicPolicyArg.policyQuery,
-            name = name
-        )
+                input = mergedInput,
+                policy = dynamicPolicyArg.policy,
+                dataPath = dynamicPolicyArg.dataPath,
+                policyQuery = dynamicPolicyArg.policyQuery,
+                name = name
+            )
         )
     }
 }
@@ -54,34 +65,46 @@ object PolicyRegistry {
     private var _policies: LinkedHashMap<String, PolicyFactory<*, *>>? = null
     private val policies: LinkedHashMap<String, PolicyFactory<*, *>>
         get() {
-            if(_policies == null) {
+            if (_policies == null) {
                 initPolicies()
             }
             return _policies!!
         }
     val defaultPolicyId: String = SignaturePolicy::class.simpleName!!
 
-    fun <P : ParameterizedVerificationPolicy<A>, A: Any> register(policy: KClass<P>, argType: KClass<A>, description: String? = null)
-        = policies.put(policy.simpleName!!, PolicyFactory(policy, argType, policy.simpleName!!, description))
+    fun <P : ParameterizedVerificationPolicy<A>, A : Any> register(
+        policy: KClass<P>,
+        argType: KClass<A>,
+        description: String? = null
+    ) = policies.put(policy.simpleName!!, PolicyFactory(policy, argType, policy.simpleName!!, description))
 
-    fun <P : SimpleVerificationPolicy> register(policy: KClass<P>, description: String? = null)
-        = policies.put(policy.simpleName!!, PolicyFactory<P, Unit>(policy, null, policy.simpleName!!, description))
+    fun <P : SimpleVerificationPolicy> register(policy: KClass<P>, description: String? = null) =
+        policies.put(policy.simpleName!!, PolicyFactory<P, Unit>(policy, null, policy.simpleName!!, description))
 
-    fun registerSavedPolicy(name: String, dynamicPolicyArg: DynamicPolicyArg, immutable: Boolean = false)
-        = policies.put(name, DynamicPolicyFactory(dynamicPolicyArg, immutable, name = name, description = dynamicPolicyArg.description))
+    fun registerSavedPolicy(name: String, dynamicPolicyArg: DynamicPolicyArg, immutable: Boolean = false) = policies.put(
+        name,
+        DynamicPolicyFactory(dynamicPolicyArg, immutable, name = name, description = dynamicPolicyArg.description)
+    )
 
-    fun <A: Any> getPolicy(id: String, argument: A? = null) = policies[id]!!.create(argument)
+    fun <A : Any> getPolicy(id: String, argument: A? = null) = policies[id]!!.create(argument)
     fun getPolicy(id: String) = getPolicy(id, null)
     fun contains(id: String) = policies.containsKey(id)
     fun listPolicies() = policies.keys
-    fun listPolicyInfo() = policies.values.map{ p -> VerificationPolicyMetadata(p.name, p.description, p.requiredArgumentType, isMutable(p.name)) }
+    fun listPolicyInfo() = policies.values.map { p ->
+        VerificationPolicyMetadata(
+            p.name,
+            p.description,
+            p.requiredArgumentType,
+            isMutable(p.name)
+        )
+    }
 
     fun getPolicyWithJsonArg(id: String, argumentJson: JsonObject?): VerificationPolicy {
         val policyFactory = policies[id]!!
         val argument =
             policyFactory.argType?.let {
                 argumentJson?.let {
-                    if(policyFactory.argType == JsonObject::class) {
+                    if (policyFactory.argType == JsonObject::class) {
                         argumentJson
                     } else {
                         Klaxon().fromJsonObject(
@@ -106,12 +129,22 @@ object PolicyRegistry {
     }
 
     fun createSavedPolicy(name: String, dynPolArg: DynamicPolicyArg, override: Boolean, download: Boolean): Boolean {
-        if(!contains(name) || (isMutable(name) && override)) {
-            val policyContent = when(download) {
+        if (!contains(name) || (isMutable(name) && override)) {
+            val policyContent = when (download) {
                 true -> resolveContent(dynPolArg.policy)
                 false -> dynPolArg.policy
             }
-            val dynPolArgMod = DynamicPolicyArg(name, dynPolArg.description, dynPolArg.input, policyContent, dynPolArg.dataPath, dynPolArg.policyQuery, dynPolArg.policyEngine, dynPolArg.applyToVC, dynPolArg.applyToVP)
+            val dynPolArgMod = DynamicPolicyArg(
+                name,
+                dynPolArg.description,
+                dynPolArg.input,
+                policyContent,
+                dynPolArg.dataPath,
+                dynPolArg.policyQuery,
+                dynPolArg.policyEngine,
+                dynPolArg.applyToVC,
+                dynPolArg.applyToVP
+            )
             ContextManager.hkvStore.put(HKVKey(SAVED_POLICY_ROOT_KEY, name), Klaxon().toJsonString(dynPolArgMod))
             registerSavedPolicy(name, dynPolArgMod)
             return true
@@ -120,7 +153,7 @@ object PolicyRegistry {
     }
 
     fun deleteSavedPolicy(name: String): Boolean {
-        if(isMutable(name)) {
+        if (isMutable(name)) {
             ContextManager.hkvStore.delete(HKVKey(SAVED_POLICY_ROOT_KEY, name))
             policies.remove(name)
             return true
@@ -148,16 +181,22 @@ object PolicyRegistry {
         register(GaiaxTrustedPolicy::class, "Verify Gaiax trusted fields")
         register(GaiaxSDPolicy::class, "Verify Gaiax SD fields")
         register(ChallengePolicy::class, ChallengePolicyArg::class, "Verify challenge")
-        register(PresentationDefinitionPolicy::class, PresentationDefinition::class, "Verify that verifiable presentation complies with presentation definition")
+        register(
+            PresentationDefinitionPolicy::class,
+            PresentationDefinition::class,
+            "Verify that verifiable presentation complies with presentation definition"
+        )
         register(CredentialStatusPolicy::class, "Verify by credential status")
         register(DynamicPolicy::class, DynamicPolicyArg::class, "Verify credential by rego policy")
 
         // predefined, hardcoded rego policy specializations
         // VerifiableMandate policy as specialized rego policy
-        registerSavedPolicy("VerifiableMandatePolicy", DynamicPolicyArg(
-            "VerifiableMandatePolicy", "Predefined policy for verifiable mandates",
-            JsonObject(), "$.credentialSubject.policySchemaURI",
-            "$.credentialSubject.holder", "data.system.main" ),
+        registerSavedPolicy(
+            "VerifiableMandatePolicy", DynamicPolicyArg(
+                "VerifiableMandatePolicy", "Predefined policy for verifiable mandates",
+                JsonObject(), "$.credentialSubject.policySchemaURI",
+                "$.credentialSubject.holder", "data.system.main"
+            ),
             immutable = true
         )
 

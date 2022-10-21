@@ -7,7 +7,7 @@ import id.walt.services.keystore.InMemoryKeyStoreService
 class InMemoryKeyService : WaltIdKeyService() {
 
     override val keyStore = InMemoryKeyStoreService()
-    override val cryptoService = SunCryptoService().let { it.setKeyStore(keyStore) ; it }
+    override val cryptoService = SunCryptoService().let { it.setKeyStore(keyStore); it }
 
     companion object : ServiceProvider {
         val implementation = InMemoryKeyService()

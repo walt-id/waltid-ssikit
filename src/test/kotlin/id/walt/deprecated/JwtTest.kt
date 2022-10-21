@@ -166,7 +166,7 @@ class JwtTest : AnnotationSpec() {
 
         println(jweString)
 
-        var jwe2 = JWEObject.parse(jweString)
+        val jwe2 = JWEObject.parse(jweString)
 
         jwe2.decrypt(ECDHDecrypter(recipientPublicJWK))
 
@@ -196,7 +196,7 @@ class JwtTest : AnnotationSpec() {
             .issuer("https://test.com")
             .build()
 
-        var signedJWT = SignedJWT(
+        val signedJWT = SignedJWT(
             JWSHeader.Builder(JWSAlgorithm.EdDSA).keyID(senderJWK.keyID).build(),
             claimsSet
         )
@@ -225,7 +225,7 @@ class JwtTest : AnnotationSpec() {
 
         println(jweString)
 
-        var jwe2 = JWEObject.parse(jweString)
+        val jwe2 = JWEObject.parse(jweString)
 
         jwe2.decrypt(X25519Decrypter(recipientJWK))
 

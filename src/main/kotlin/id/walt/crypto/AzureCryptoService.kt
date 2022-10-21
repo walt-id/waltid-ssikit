@@ -13,7 +13,7 @@ import org.web3j.crypto.ECDSASignature
 import org.web3j.crypto.Hash
 import java.math.BigInteger
 
-data class AzureKeyVaultConfig(val baseURL: String, val id: String, val secret: String): ServiceConfiguration
+data class AzureKeyVaultConfig(val baseURL: String, val id: String, val secret: String) : ServiceConfiguration
 
 open class AzureCryptoService(configurationPath: String) : CryptoService() {
 

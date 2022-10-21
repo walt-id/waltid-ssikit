@@ -9,7 +9,6 @@ import id.walt.services.key.KeyService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.dataproviders.DefaultDataProvider
-
 import id.walt.vclib.credentials.PermanentResidentCard
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.templates.VcTemplateManager
@@ -23,7 +22,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import org.apache.commons.codec.binary.Hex
 import org.bouncycastle.jce.provider.BouncyCastleProvider
-import org.json.JSONObject
 import java.io.File
 import java.net.URI
 import java.security.Security

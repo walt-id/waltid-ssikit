@@ -64,8 +64,8 @@ public abstract class AuthorizationGrant {
     /**
      * Creates a new authorisation grant.
      *
-     * @param type               The authorisation grant type. Must not be
-     *                           {@code null}.
+     * @param type The authorisation grant type. Must not be
+     *             {@code null}.
      */
     protected AuthorizationGrant(final GrantType type) {
 
@@ -92,7 +92,7 @@ public abstract class AuthorizationGrant {
      *
      * @return The parameters.
      */
-    public abstract Map<String,List<String>> toParameters();
+    public abstract Map<String, List<String>> toParameters();
 
 
     /**
@@ -100,13 +100,11 @@ public abstract class AuthorizationGrant {
      * parameters.
      *
      * @param params The request body parameters. Must not be {@code null}.
-     *
      * @return The authorisation grant.
-     *
      * @throws ParseException If parsing failed or the grant type is not
      *                        supported.
      */
-    public static AuthorizationGrant parse(final Map<String,List<String>> params)
+    public static AuthorizationGrant parse(final Map<String, List<String>> params)
             throws ParseException {
 
         // Parse grant type

@@ -138,7 +138,10 @@ class SignatoryServiceTest : StringSpec({
     "merging data provider" {
         val templ = VcTemplateManager.loadTemplate("VerifiableId")
         val data = mapOf(Pair("credentialSubject", mapOf(Pair("firstName", "Yves"))))
-        val populated = MergingDataProvider(data).populate(templ, ProofConfig(subjectDid = did, issuerDid = did, proofType = ProofType.LD_PROOF))
+        val populated = MergingDataProvider(data).populate(
+            templ,
+            ProofConfig(subjectDid = did, issuerDid = did, proofType = ProofType.LD_PROOF)
+        )
 
         populated.javaClass shouldBe VerifiableId::class.java
 

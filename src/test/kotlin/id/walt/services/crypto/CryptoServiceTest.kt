@@ -91,7 +91,7 @@ class CryptoServiceTest : AnnotationSpec() {
 
         for (p in providers) {
             val info: String = p.info
-            println(p.toString() + " - " + info)
+            println("$p - $info")
 
             if (p.toString().contains("Walt", true)) {
                 waltIdProviderFound = true
@@ -99,7 +99,7 @@ class CryptoServiceTest : AnnotationSpec() {
 
             p.services.forEach { s ->
                 if (s.toString().contains("Walt", true)) {
-                    println("\t -> " + s)
+                    println("\t -> $s")
                 }
             }
         }

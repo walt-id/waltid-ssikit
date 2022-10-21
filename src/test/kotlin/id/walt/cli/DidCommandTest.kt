@@ -85,17 +85,17 @@ class DidCommandTest : StringSpec({
     "6. Create RSA did:key" {
         CreateDidCommand().parse(listOf("-m", "key", "-k", rsaKeyId!!.id, "test-dest.json"))
         didKeyRsa = Path.of("test-dest.json")
-             .readLines()
-             .first { it.trim().startsWith("\"did:key:") }
-             .trim()
-             .trim { it == '\"' }
+            .readLines()
+            .first { it.trim().startsWith("\"did:key:") }
+            .trim()
+            .trim { it == '\"' }
     }
     "7. Resolve RSA did:key" {
         println(didKeyRsa!!)
         ResolveDidCommand().parse(listOf("-d", didKeyRsa!!))
     }
 
-    "8. delete did"{
+    "8. delete did" {
         forAll(
             row(DidMethod.key, null),
             row(DidMethod.web, null),
@@ -109,7 +109,7 @@ class DidCommandTest : StringSpec({
             row(DidMethod.ebsi, KeyService.getService().generate(ECDSA_Secp256k1).id),
             row(DidMethod.ebsi, KeyService.getService().generate(EdDSA_Ed25519).id),
             row(DidMethod.ebsi, KeyService.getService().generate(RSA).id),
-        ){ method, key ->
+        ) { method, key ->
             val did = DidService.create(method, key)
 //            val ids = DidService.load(did).verificationMethod?.map { it.id }
             // delete

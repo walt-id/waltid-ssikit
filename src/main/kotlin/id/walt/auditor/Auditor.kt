@@ -45,6 +45,7 @@ class WaltIdAuditor : Auditor() {
                         log.debug { "Verifying ${cred.type.last()} in VP with ${policy.id}..." }
                         policy.verify(cred)
                     }
+
                     else -> true
                 }
             }

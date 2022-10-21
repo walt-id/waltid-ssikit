@@ -10,15 +10,12 @@ import id.walt.model.DidWeb
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.key.KeyService
 import id.walt.test.RESOURCES_PATH
-import io.kotest.core.spec.Spec
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.core.test.TestCase
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import kotlin.time.ExperimentalTime
 
 
-@OptIn(ExperimentalTime::class)
 class DidWebTest : StringSpec({
 
     "create did:web RSA" {
@@ -65,7 +62,7 @@ class DidWebTest : StringSpec({
         println("hey Secp256k1")
     }
 
-    "resolve did:web Ed25519".config(enabled = false)  {
+    "resolve did:web Ed25519".config(enabled = false) {
         println("hey Ed25519")
     }
 

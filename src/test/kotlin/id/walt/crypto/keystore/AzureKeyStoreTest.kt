@@ -28,7 +28,7 @@ class AzureKeyStoreTest : AnnotationSpec() {
 
     private lateinit var did: String
     private val keyStore
-        get() =  ContextManager.keyStore
+        get() = ContextManager.keyStore
 
     private val keyPair = KeyPairGenerator.getInstance("EC", BouncyCastleProvider()).let {
         it.initialize(ECGenParameterSpec("secp256k1"), SecureRandom())

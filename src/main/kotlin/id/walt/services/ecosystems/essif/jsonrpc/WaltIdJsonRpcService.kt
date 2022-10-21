@@ -37,7 +37,8 @@ class WaltIdJsonRpcService : JsonRpcService() {
         // val token = readWhenContent(EssifClient.ebsiAccessTokenFile)
         val token = ContextManager.hkvStore.getAsString(
             HKVKey("ebsi", did.substringAfterLast(":"), EssifClient.ebsiAccessTokenFile)
-        ) ?: throw Exception("Could not load EBSI access token. Make sure that the ESSIF onboarding flow is performed correctly.")
+        )
+            ?: throw Exception("Could not load EBSI access token. Make sure that the ESSIF onboarding flow is performed correctly.")
 
         val unsignedTx = post<UnsignedTransactionResponse>(token, urlString, method, unsignedTransactionParams).result
         log.debug { "Unsigned transaction: $unsignedTx" }

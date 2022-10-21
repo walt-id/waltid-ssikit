@@ -30,7 +30,12 @@ private val dateFormatter =
     SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").also { it.timeZone = TimeZone.getTimeZone("UTC") }
 
 @Serializable
-data class VerificationPolicyMetadata(val id: String, val description: String?, val argumentType: String, val isMutable: Boolean)
+data class VerificationPolicyMetadata(
+    val id: String,
+    val description: String?,
+    val argumentType: String,
+    val isMutable: Boolean
+)
 
 abstract class VerificationPolicy {
     open val id: String
@@ -43,13 +48,14 @@ abstract class VerificationPolicy {
     fun verify(vc: VerifiableCredential) = when {
         vc is VerifiablePresentation && applyToVP
                 || vc !is VerifiablePresentation && applyToVC -> doVerify(vc)
+
         else -> true
-    }
+    }.also { log.debug { "VC ${vc.type} passes policy $id: $it" } }
 }
 
 abstract class SimpleVerificationPolicy : VerificationPolicy()
 
-abstract class ParameterizedVerificationPolicy<T>(val argument: T): VerificationPolicy()
+abstract class ParameterizedVerificationPolicy<T>(val argument: T) : VerificationPolicy()
 
 class SignaturePolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by signature"
@@ -193,6 +199,7 @@ class CredentialStatusPolicy : SimpleVerificationPolicy() {
 
                 return !result.isRevoked
             }
+
             else -> {
                 throw IllegalArgumentException("CredentialStatus type \"\"")
             }
@@ -202,8 +209,14 @@ class CredentialStatusPolicy : SimpleVerificationPolicy() {
 
 data class ChallengePolicyArg(val challenges: Set<String>, val applyToVC: Boolean = true, val applyToVP: Boolean = true)
 
-class ChallengePolicy(challengeArg: ChallengePolicyArg): ParameterizedVerificationPolicy<ChallengePolicyArg>(challengeArg) {
-    constructor(challenge: String, applyToVC: Boolean = true, applyToVP: Boolean = true) : this(ChallengePolicyArg(setOf(challenge), applyToVC, applyToVP)) { }
+class ChallengePolicy(challengeArg: ChallengePolicyArg) : ParameterizedVerificationPolicy<ChallengePolicyArg>(challengeArg) {
+    constructor(challenge: String, applyToVC: Boolean = true, applyToVP: Boolean = true) : this(
+        ChallengePolicyArg(
+            setOf(
+                challenge
+            ), applyToVC, applyToVP
+        )
+    )
 
     override val description: String = "Verify challenge"
     override fun doVerify(vc: VerifiableCredential): Boolean {
@@ -217,7 +230,8 @@ class ChallengePolicy(challengeArg: ChallengePolicyArg): ParameterizedVerificati
         get() = argument.applyToVP
 }
 
-class PresentationDefinitionPolicy(presentationDefinition: PresentationDefinition) : ParameterizedVerificationPolicy<PresentationDefinition>(presentationDefinition) {
+class PresentationDefinitionPolicy(presentationDefinition: PresentationDefinition) :
+    ParameterizedVerificationPolicy<PresentationDefinition>(presentationDefinition) {
     override val description: String = "Verify that verifiable presentation complies with presentation definition"
     override fun doVerify(vc: VerifiableCredential): Boolean {
         if (vc is VerifiablePresentation) {

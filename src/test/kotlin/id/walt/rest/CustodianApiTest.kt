@@ -48,7 +48,7 @@ class CustodianApiTest : StringSpec({
     println("${CustodianAPI.DEFAULT_BIND_ADDRESS}/${CustodianAPI.DEFAULT_Custodian_API_PORT}")
 
     beforeTest {
-        KeyService.getService().listKeys().forEach{
+        KeyService.getService().listKeys().forEach {
             KeyService.getService().delete(it.keyId.id)
         }
         CustodianAPI.start()
@@ -93,7 +93,7 @@ class CustodianApiTest : StringSpec({
     "Check Custodian Presentation generation JWT" {
         val did = DidService.create(DidMethod.key)
         val didDoc = DidService.load(did)
-        val vm = didDoc.assertionMethod!!.first()!!.id
+        val vm = didDoc.assertionMethod!!.first().id
 
         // Issuance is Signatory stuff, we're just testing the Custodian here
         val vcJwt = Signatory.getService().issue(
@@ -165,32 +165,51 @@ class CustodianApiTest : StringSpec({
         }
     }
 
-    "Test import key JWK"{
+    "Test import key JWK" {
         forAll(
 //            Ed25519 Private
-            row(readWhenContent(File("src/test/resources/cli/privKeyEd25519Jwk.json")).replace(Regex("(\r\n|\r|\n| )"), ""), KeyType.PRIVATE),
+            row(
+                readWhenContent(File("src/test/resources/cli/privKeyEd25519Jwk.json")).replace(Regex("(\r\n|\r|\n| )"), ""),
+                KeyType.PRIVATE
+            ),
 //            Ed25519 Public
-            row(readWhenContent(File("src/test/resources/cli/pubKeyEd25519Jwk.json")).replace(Regex("(\r\n|\r|\n| )"), ""), KeyType.PUBLIC),
+            row(
+                readWhenContent(File("src/test/resources/cli/pubKeyEd25519Jwk.json")).replace(Regex("(\r\n|\r|\n| )"), ""),
+                KeyType.PUBLIC
+            ),
 //            Secp256k1 Private
-            row(readWhenContent(File("src/test/resources/key/privKeySecp256k1Jwk.json")).replace(Regex("(\r\n|\r|\n| )"), ""), KeyType.PRIVATE),
+            row(
+                readWhenContent(File("src/test/resources/key/privKeySecp256k1Jwk.json")).replace(Regex("(\r\n|\r|\n| )"), ""),
+                KeyType.PRIVATE
+            ),
 //            Secp256k1 Public
-            row(readWhenContent(File("src/test/resources/key/pubKeySecp256k1Jwk.json")).replace(Regex("(\r\n|\r|\n| )"), ""), KeyType.PUBLIC),
+            row(
+                readWhenContent(File("src/test/resources/key/pubKeySecp256k1Jwk.json")).replace(Regex("(\r\n|\r|\n| )"), ""),
+                KeyType.PUBLIC
+            ),
 //            RSA Private
-            row(readWhenContent(File("src/test/resources/key/privkey.jwk")).replace(Regex("(\r\n|\r|\n| )"), ""), KeyType.PRIVATE),
+            row(
+                readWhenContent(File("src/test/resources/key/privkey.jwk")).replace(Regex("(\r\n|\r|\n| )"), ""),
+                KeyType.PRIVATE
+            ),
 //            RSA Public
-            row(readWhenContent(File("src/test/resources/key/pubkey.jwk")).replace(Regex("(\r\n|\r|\n| )"), ""), KeyType.PUBLIC),
-        ){ keyStr, type ->
+            row(
+                readWhenContent(File("src/test/resources/key/pubkey.jwk")).replace(Regex("(\r\n|\r|\n| )"), ""),
+                KeyType.PUBLIC
+            ),
+        ) { keyStr, type ->
             runBlocking {
-                val response = client.post("http://${CustodianAPI.DEFAULT_BIND_ADDRESS}:${CustodianAPI.DEFAULT_Custodian_API_PORT}/keys/import") {
-                    setBody(keyStr)
-                }
+                val response =
+                    client.post("http://${CustodianAPI.DEFAULT_BIND_ADDRESS}:${CustodianAPI.DEFAULT_Custodian_API_PORT}/keys/import") {
+                        setBody(keyStr)
+                    }
                 val export = KeyService.getService().export(response.body<KeyId>().id, KeyFormat.JWK, type)
                 export shouldBe keyStr
             }
         }
     }
 
-    "Test import key PEM"{
+    "Test import key PEM" {
         forAll(
 //            RSA PEM
             row(readWhenContent(File("src/test/resources/key/rsa.pem"))),
@@ -200,9 +219,10 @@ class CustodianApiTest : StringSpec({
             row(readWhenContent(File("src/test/resources/key/secp256k1.pem"))),
         ) { keyStr ->
             runBlocking {
-                val response = client.post("http://${CustodianAPI.DEFAULT_BIND_ADDRESS}:${CustodianAPI.DEFAULT_Custodian_API_PORT}/keys/import") {
-                    setBody(keyStr)
-                }
+                val response =
+                    client.post("http://${CustodianAPI.DEFAULT_BIND_ADDRESS}:${CustodianAPI.DEFAULT_Custodian_API_PORT}/keys/import") {
+                        setBody(keyStr)
+                    }
                 val priv = KeyService.getService().export(response.body<KeyId>().id, KeyFormat.PEM, KeyType.PRIVATE)
                 val pub = KeyService.getService().export(response.body<KeyId>().id, KeyFormat.PEM, KeyType.PUBLIC)
                 priv.plus(System.lineSeparator()).plus(pub) shouldBe keyStr

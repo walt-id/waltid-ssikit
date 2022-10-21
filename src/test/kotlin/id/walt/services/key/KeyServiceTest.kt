@@ -64,6 +64,7 @@ class KeyServiceTest : AnnotationSpec() {
                 "secp256k1" -> {
                     secp256k1 = true
                 }
+
                 "P-521" -> {
                     p521 = true
                 }
@@ -230,21 +231,33 @@ class KeyServiceTest : AnnotationSpec() {
     }
 
     @Test
-    fun testImportJWKKey(){
+    fun testImportJWKKey() {
         forAll(
 //            Ed25519 Private
-            row(File("src/test/resources/cli/privKeyEd25519Jwk.json").readText().replace(Regex("(\r\n|\r|\n| )"), ""), KeyType.PRIVATE),
+            row(
+                File("src/test/resources/cli/privKeyEd25519Jwk.json").readText().replace(Regex("(\r\n|\r|\n| )"), ""),
+                KeyType.PRIVATE
+            ),
 //            Ed25519 Public
-            row(File("src/test/resources/cli/pubKeyEd25519Jwk.json").readText().replace(Regex("(\r\n|\r|\n| )"), ""), KeyType.PUBLIC),
+            row(
+                File("src/test/resources/cli/pubKeyEd25519Jwk.json").readText().replace(Regex("(\r\n|\r|\n| )"), ""),
+                KeyType.PUBLIC
+            ),
 //            Secp256k1 Private
-            row(File("src/test/resources/key/privKeySecp256k1Jwk.json").readText().replace(Regex("(\r\n|\r|\n| )"), ""), KeyType.PRIVATE),
+            row(
+                File("src/test/resources/key/privKeySecp256k1Jwk.json").readText().replace(Regex("(\r\n|\r|\n| )"), ""),
+                KeyType.PRIVATE
+            ),
 //            Secp256k1 Public
-            row(File("src/test/resources/key/pubKeySecp256k1Jwk.json").readText().replace(Regex("(\r\n|\r|\n| )"), ""), KeyType.PUBLIC),
+            row(
+                File("src/test/resources/key/pubKeySecp256k1Jwk.json").readText().replace(Regex("(\r\n|\r|\n| )"), ""),
+                KeyType.PUBLIC
+            ),
 //            RSA Private
             row(File("src/test/resources/key/privkey.jwk").readText().replace(Regex("(\r\n|\r|\n| )"), ""), KeyType.PRIVATE),
 //            RSA Public
             row(File("src/test/resources/key/pubkey.jwk").readText().replace(Regex("(\r\n|\r|\n| )"), ""), KeyType.PUBLIC),
-        ){ keyStr, type ->
+        ) { keyStr, type ->
             val kid = keyService.importKey(keyStr)
             val export = keyService.export(kid.id, KeyFormat.JWK, type)
             print(export)
@@ -253,7 +266,7 @@ class KeyServiceTest : AnnotationSpec() {
     }
 
     @Test
-    fun testImportPEMKey(){
+    fun testImportPEMKey() {
         forAll(
 //            RSA PEM
             row(File("src/test/resources/key/rsa.pem").readText()),
@@ -261,7 +274,7 @@ class KeyServiceTest : AnnotationSpec() {
             row(File("src/test/resources/key/ed25519.pem").readText()),
 //            Secp256k1 PEM
             row(File("src/test/resources/key/secp256k1.pem").readText()),
-        ){ keyStr ->
+        ) { keyStr ->
             val kid = keyService.importKey(keyStr)
             val privKey = keyService.export(kid.id, KeyFormat.PEM, KeyType.PRIVATE)
             val pubKey = keyService.export(kid.id, KeyFormat.PEM, KeyType.PUBLIC)
