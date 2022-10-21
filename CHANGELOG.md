@@ -4,6 +4,18 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
 
 ## [Unreleased]
 
+-   Roadmap
+    -   IOTA ecosystem https://github.com/orgs/walt-id/projects/10/views/4
+-   Features
+    - OIDC4VP spec update https://github.com/walt-id/waltid-ssikit/issues/165
+    - OIDC4VCI spec update https://github.com/walt-id/waltid-ssikit/issues/172
+    - Definition of Verification Methods when issuing VCs https://github.com/walt-id/waltid-ssikit/issues/162
+    - Implement Gaia-X Self-Description https://github.com/walt-id/waltid-ssikit/issues/163
+    - Support for JsonWebKey2020 https://github.com/walt-id/waltid-ssikit/issues/159  
+    - JCS Ed25519 Signature https://github.com/walt-id/waltid-ssikit/issues/160
+-   Fixes
+    - did:key with ECDSA keys broken  https://github.com/walt-id/waltid-ssikit/issues/179
+    
 ## [1.12.0] - 2022-07-19
 
 -   Roadmap
