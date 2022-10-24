@@ -7,18 +7,13 @@
 
 package io.velocitycareerlabs.api
 
-import android.content.Context
-import android.os.Build
-import io.velocitycareerlabs.BuildConfig
 import io.velocitycareerlabs.api.entities.*
 import io.velocitycareerlabs.impl.GlobalConfig
 import io.velocitycareerlabs.impl.utils.VCLLog
 import org.json.JSONObject
-import java.lang.Exception
 
 interface VCL {
     fun initialize(
-        context: Context,
         environment: VCLEnvironment = VCLEnvironment.PROD,
         successHandler: () -> Unit,
         errorHandler: (VCLError) -> Unit
@@ -105,7 +100,7 @@ interface VCL {
     )
 }
 
-fun VCL.printVersion(context: Context) {
+fun VCL.printVersion() {
     VCLLog.d("VCL", "Version: ${GlobalConfig.VersionName}")
     VCLLog.d("VCL", "Build: ${GlobalConfig.VersionCode}")
 }

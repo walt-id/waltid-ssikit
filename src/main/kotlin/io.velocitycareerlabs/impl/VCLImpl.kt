@@ -7,15 +7,12 @@
 
 package io.velocitycareerlabs.impl
 
-import android.content.Context
-import io.velocitycareerlabs.api.VCLEnvironment
 import io.velocitycareerlabs.api.VCL
+import io.velocitycareerlabs.api.VCLEnvironment
 import io.velocitycareerlabs.api.entities.*
-import io.velocitycareerlabs.impl.domain.models.CredentialTypeSchemasModel
-import io.velocitycareerlabs.api.entities.handleResult
 import io.velocitycareerlabs.api.printVersion
-import io.velocitycareerlabs.impl.data.infrastructure.network.Request
 import io.velocitycareerlabs.impl.domain.models.CountriesModel
+import io.velocitycareerlabs.impl.domain.models.CredentialTypeSchemasModel
 import io.velocitycareerlabs.impl.domain.models.CredentialTypesModel
 import io.velocitycareerlabs.impl.utils.InitializationWatcher
 import io.velocitycareerlabs.impl.utils.VCLLog
@@ -48,7 +45,6 @@ internal class VCLImpl: VCL {
     private var initializationWatcher = InitializationWatcher(ModelsToInitilizeAmount)
 
     override fun initialize(
-        context: Context,
         environment: VCLEnvironment,
         successHandler: () -> Unit,
         errorHandler: (VCLError) -> Unit
@@ -57,10 +53,10 @@ internal class VCLImpl: VCL {
 
         initGlobalConfigurations(environment)
 
-        printVersion(context)
+        printVersion()
 
-        credentialTypesModel = VclBlocksProvider.provideCredentialTypesModel(context)
-        countriesModel = VclBlocksProvider.provideCountryCodesModel(context)
+        credentialTypesModel = VclBlocksProvider.provideCredentialTypesModel()
+        countriesModel = VclBlocksProvider.provideCountryCodesModel()
         val completionHandler = {
             initializationWatcher.firstError()?.let { errorHandler(it) }
                 ?: successHandler()
@@ -85,10 +81,7 @@ internal class VCLImpl: VCL {
                         if (credentialTypesModel?.data != null) {
                             credentialTypesModel?.data?.let { credentialTypes ->
                                 credentialTypeSchemasModel =
-                                    VclBlocksProvider.provideCredentialTypeSchemasModel(
-                                        context,
-                                        credentialTypes
-                                    )
+                                    VclBlocksProvider.provideCredentialTypeSchemasModel(credentialTypes)
                                 credentialTypeSchemasModel?.initialize { result ->
                                     result.handleResult(
                                         {

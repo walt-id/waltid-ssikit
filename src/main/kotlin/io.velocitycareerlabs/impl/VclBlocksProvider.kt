@@ -7,51 +7,53 @@
 
 package io.velocitycareerlabs.impl
 
-import android.content.Context
 import io.velocitycareerlabs.api.entities.VCLCredentialTypes
 import io.velocitycareerlabs.impl.data.infrastructure.db.CacheServiceImpl
+import io.velocitycareerlabs.impl.data.infrastructure.executors.ExecutorImpl
 import io.velocitycareerlabs.impl.data.infrastructure.jwt.JwtServiceImpl
 import io.velocitycareerlabs.impl.data.infrastructure.network.NetworkServiceImpl
-import io.velocitycareerlabs.impl.data.infrastructure.executors.ExecutorImpl
-import io.velocitycareerlabs.impl.data.models.*
+import io.velocitycareerlabs.impl.data.models.CountriesModelImpl
+import io.velocitycareerlabs.impl.data.models.CredentialTypeSchemasModelImpl
+import io.velocitycareerlabs.impl.data.models.CredentialTypesModelImpl
 import io.velocitycareerlabs.impl.data.repositories.*
 import io.velocitycareerlabs.impl.data.usecases.*
-import io.velocitycareerlabs.impl.domain.models.*
+import io.velocitycareerlabs.impl.domain.models.CountriesModel
+import io.velocitycareerlabs.impl.domain.models.CredentialTypeSchemasModel
+import io.velocitycareerlabs.impl.domain.models.CredentialTypesModel
 import io.velocitycareerlabs.impl.domain.usecases.*
 
 internal object VclBlocksProvider {
         fun provideCredentialTypeSchemasModel(
-                context: Context,
                 credentialTypes: VCLCredentialTypes
         ): CredentialTypeSchemasModel =
                 CredentialTypeSchemasModelImpl(
                         CredentialTypeSchemasUseCaseImpl(
                                 CredentialTypeSchemaRepositoryImpl(
                                         NetworkServiceImpl(),
-                                        CacheServiceImpl(context)
+                                        CacheServiceImpl()
                                 ),
                                 credentialTypes,
                                 ExecutorImpl()
                         )
                 )
 
-        fun provideCredentialTypesModel(context: Context): CredentialTypesModel =
+        fun provideCredentialTypesModel(): CredentialTypesModel =
                 CredentialTypesModelImpl(
                         CredentialTypesUseCaseImpl(
                                 CredentialTypesRepositoryImpl(
                                         NetworkServiceImpl(),
-                                        CacheServiceImpl(context)
+                                        CacheServiceImpl()
                                 ),
                                 ExecutorImpl()
                         )
                 )
 
-        fun provideCountryCodesModel(context: Context): CountriesModel =
+        fun provideCountryCodesModel(): CountriesModel =
                 CountriesModelImpl(
                         CountriesUseCaseImpl(
                                 CountriesRepositoryImpl(
                                         NetworkServiceImpl(),
-                                        CacheServiceImpl(context)
+                                        CacheServiceImpl()
                                 ),
                                 ExecutorImpl()
                         )
