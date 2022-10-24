@@ -7,7 +7,6 @@
 
 package io.velocitycareerlabs.impl.extensions
 
-import android.util.Base64
 import org.json.JSONObject
 import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
@@ -15,7 +14,7 @@ import java.net.URLEncoder
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.regex.Pattern
+import java.util.regex.*
 
 internal fun String.decode(): String = URLDecoder.decode(this, "UTF-8")
 
@@ -36,14 +35,14 @@ internal fun String.getUrlQueryParams(): Map<String, String>? {
     return map
 }
 
-internal fun String.decodeBase64() = String(Base64.decode(this, 0))
+internal fun String.decodeBase64() = String(Base64.getDecoder().decode(this))
 internal fun String.encodeBase64(): String {
     var data: ByteArray? = null
     try {
         data = toByteArray(Charsets.UTF_8)
     } catch (e: UnsupportedEncodingException)
     { }
-    return Base64.encodeToString(data, Base64.DEFAULT)
+    return Base64.getEncoder().encodeToString(data)
 }
 
 internal fun String.toDate(): Date? {
