@@ -115,8 +115,21 @@ object DidService {
         return@runBlocking didDoc
     }
 
-    fun resolveDidEbsi(did: String): DidEbsi = resolveDidEbsi(DidUrl.from(did))
-    fun resolveDidEbsi(didUrl: DidUrl): DidEbsi = runBlocking {
+    fun resolveDidEbsi(did: String): DidEbsi {
+        val didUrl = DidUrl.from(did)
+        return resolveDidEbsi(didUrl)
+    }
+
+    fun resolveDidEbsi(didUrl: DidUrl): DidEbsi {
+        val version = Multibase.decode(didUrl.identifier).first().toInt()
+        return when(version) {
+            1 -> resolveDidEbsiV1(didUrl)
+            2 -> resolveDidEbsiV2(didUrl)
+            else -> throw Exception("did:ebsi must have version 1 or 2")
+        }
+    }
+
+    fun resolveDidEbsiV1(didUrl: DidUrl): DidEbsi = runBlocking {
 
         log.debug { "Resolving DID ${didUrl.did}..." }
 
@@ -140,33 +153,46 @@ object DidService {
         throw lastEx ?: Exception("Could not resolve did ebsi!")
     }
 
+    fun resolveDidEbsiV2(didUrl: DidUrl): DidEbsi {
+        val jwk = keyService.toJwk(didUrl.did)
+        val vmId = "${didUrl.did}#${jwk.computeThumbprint()}"
+        if(DidUrl.generateDidEbsiV2DidUrl(jwk.computeThumbprint().decode()).identifier != didUrl.identifier) {
+            throw Exception("Public key doesn't match with DID identifier")
+        }
+        return DidEbsi(
+            context = listOf("https://w3id.org/did/v1"),
+            id = didUrl.did,
+            verificationMethod = listOf(VerificationMethod(
+                id = vmId,
+                type = "JsonWebKey2020",
+                controller = didUrl.did,
+                publicKeyJwk = Klaxon().parse<Jwk>(jwk.toJSONString())
+            )),
+            authentication = listOf(VerificationMethod.Reference(vmId)),
+            assertionMethod = listOf(VerificationMethod.Reference(vmId))
+        )
+    }
+
     fun loadDidEbsi(did: String): DidEbsi = loadDidEbsi(DidUrl.from(did))
     fun loadDidEbsi(didUrl: DidUrl): DidEbsi = Did.decode(loadDid(didUrl.did)!!)!! as DidEbsi
 
     fun updateDidEbsi(did: DidEbsi) = storeDid(did.id, did.encode())
 
     private fun createDidEbsi(keyAlias: String?, didEbsiOptions: DidEbsiOptions?): String {
+        val version = didEbsiOptions?.version ?: 1
+        return when(version) {
+            1 -> createDidEbsiV1(keyAlias)
+            2 -> createDidEbsiV2(keyAlias)
+            else -> throw Exception("Did ebsi version must be 1 or 2")
+        }
+    }
+
+    private fun createDidEbsiV1(keyAlias: String?): String {
         val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(DEFAULT_KEY_ALGORITHM)
         val key = ContextManager.keyStore.load(keyId.id)
 
         // Created identifier
-        val didUrlStr: String = didEbsiOptions?.let {
-            when (it.version) {
-                1 -> {
-                    DidUrl.generateDidEbsiV1DidUrl().did
-                }
-
-                2 -> {
-                    val publicKeyJwk = keyService.toJwk(keyId.id, KeyType.PUBLIC)
-                    val publicKeyJwkThumbprint = publicKeyJwk.computeThumbprint().decode()
-                    DidUrl.generateDidEbsiV2DidUrl(publicKeyJwkThumbprint).did
-                }
-
-                else -> null
-            }
-        } ?: let {
-            DidUrl.generateDidEbsiV1DidUrl().did
-        }
+        val didUrlStr = DidUrl.generateDidEbsiV1DidUrl().did
 
         ContextManager.keyStore.addAlias(keyId, didUrlStr)
 
@@ -187,6 +213,19 @@ object DidService {
         // Store DID
         storeDid(didUrlStr, ebsiDid)
 
+        return didUrlStr
+    }
+
+    private fun createDidEbsiV2(keyAlias: String?): String {
+        val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(DEFAULT_KEY_ALGORITHM)
+        val publicKeyJwk = keyService.toJwk(keyId.id, KeyType.PUBLIC)
+        val publicKeyThumbprint = publicKeyJwk.computeThumbprint()
+        val didUrlStr = DidUrl.generateDidEbsiV2DidUrl(publicKeyThumbprint.decode()).did
+        val vmId = "$didUrlStr#$publicKeyThumbprint"
+        ContextManager.keyStore.addAlias(keyId, didUrlStr)
+        ContextManager.keyStore.addAlias(keyId, vmId)
+        val didDoc = resolveDidEbsi(didUrlStr)
+        storeDid(didUrlStr, didDoc.encode())
         return didUrlStr
     }
 
@@ -662,6 +701,30 @@ object DidService {
         log.debug { "Importing key: ${vm.id}" }
         val keyId = KeyService.getService().importKey(Klaxon().toJsonString(vm.publicKeyJwk))
         return keyId
+    }
+
+    fun importKeyForDidEbsiV2(did: String, key: JWK) {
+        if(!isDidEbsiV2(did)) {
+            throw Exception("Specified DID is not did:ebsi version 2")
+        }
+        val thumbprint = key.computeThumbprint()
+        val generatedDid = DidUrl.generateDidEbsiV2DidUrl(thumbprint.decode())
+        if(generatedDid.did != did) {
+            throw Exception("did doesn't match specified key")
+        }
+        val vmId = "$did#$thumbprint"
+        if(!keyService.hasKey(vmId)) {
+            val keyId = keyService.importKey(key.toJSONString())
+            keyService.addAlias(keyId, did)
+            keyService.addAlias(keyId, "$did#$thumbprint")
+        }
+    }
+
+    fun isDidEbsiV2(did: String): Boolean {
+        return DidUrl.isDidUrl(did) &&
+                DidUrl.from(did).let { didUrl ->
+                    didUrl.method == DidMethod.ebsi.name && Multibase.decode(didUrl.identifier).first().toInt() == 2
+                }
     }
 
     // TODO: consider the methods below. They might be deprecated!

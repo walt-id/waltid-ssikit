@@ -1,17 +1,23 @@
 package id.walt.services.vc
 
+import com.nimbusds.jwt.SignedJWT
+import id.walt.auditor.Auditor
+import id.walt.auditor.SignaturePolicy
 import id.walt.crypto.KeyAlgorithm
+import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
 import id.walt.services.jwt.JwtService
 import id.walt.services.key.KeyService
+import id.walt.signatory.Ecosystem
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.test.RESOURCES_PATH
 import id.walt.vclib.credentials.Europass
 import id.walt.vclib.credentials.VerifiableId
+import id.walt.vclib.model.VerifiableCredential
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.maps.shouldContainKey
@@ -124,5 +130,31 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
         credentialService.validateSchemaTsr(validVc) shouldBe true
         credentialService.validateSchemaTsr(invalidDataVc) shouldBe false
         credentialService.validateSchemaTsr(notParsableVc) shouldBe false
+    }
+
+    @Test
+    fun testJwtWithDidEbsiV2() {
+        val didV2 = DidService.create(DidMethod.ebsi, options = DidService.DidEbsiOptions(version = 2))
+        // issue credential using did ebsi v2
+        val vc = Signatory.getService().issue("VerifiableId", ProofConfig(didV2, didV2, proofType = ProofType.JWT, ecosystem = Ecosystem.ESSIF))
+        VerifiableCredential.isJWT(vc) shouldBe true
+        val signedVcJwt = SignedJWT.parse(vc)
+        // verify jwk header is set
+        signedVcJwt.header.jwk shouldNotBe null
+        // create presentation using did ebsi v2
+        val presentation = Custodian.getService().createPresentation(listOf(vc), didV2, expirationDate = null)
+        VerifiableCredential.isJWT(presentation) shouldBe true
+
+        val signedPresentationJwt = SignedJWT.parse(presentation)
+        // verify jwk header is set
+        signedPresentationJwt.header.jwk shouldNotBe null
+        // remove key, to test key resolution from jwk header
+        KeyService.getService().delete(didV2)
+        KeyService.getService().hasKey(didV2) shouldBe false
+        // verify presentation JWT
+        val verificationResult = Auditor.getService().verify(presentation, listOf(SignaturePolicy()))
+        verificationResult.valid shouldBe true
+        // verify key has been resolved
+        KeyService.getService().hasKey(didV2) shouldBe true
     }
 }
