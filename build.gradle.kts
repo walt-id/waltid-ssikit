@@ -14,13 +14,12 @@ plugins {
 }
 
 group = "id.walt"
-version = "1.13.0"
+version = "1.13.0-SNAPSHOT"
 
 repositories {
     mavenCentral()
     //jcenter()
     maven("https://jitpack.io")
-    maven("https://repo.danubetech.com/repository/maven-public/")
     maven("https://maven.walt.id/repository/waltid/")
     maven("https://maven.walt.id/repository/waltid-ssi-kit/")
     mavenLocal()
@@ -29,14 +28,14 @@ repositories {
 dependencies {
     // Crypto
     api("com.google.crypto.tink:tink:1.7.0")
-    api("info.weboftrust:ld-signatures-java:1.0.0")
+    api("info.weboftrust:ld-signatures-java:1.2-SNAPSHOT")
     api("decentralized-identity:jsonld-common-java:1.1.0")
     implementation("com.goterl:lazysodium-java:5.1.1")
     implementation("net.java.dev.jna:jna:5.12.1")
     implementation("com.github.multiformats:java-multibase:v1.1.0")
     implementation("com.microsoft.azure:azure-keyvault:1.2.6")
     implementation("com.microsoft.azure:azure-client-authentication:1.7.14")
-    implementation("com.nimbusds:nimbus-jose-jwt:9.25.4")
+    implementation("com.nimbusds:nimbus-jose-jwt:9.25.6")
     implementation("com.nimbusds:oauth2-oidc-sdk:9.43.1")
 
     implementation("org.bouncycastle:bcprov-jdk15to18:1.72")
@@ -89,7 +88,7 @@ dependencies {
     implementation("org.slf4j:slf4j-api:2.0.3")
     implementation("org.slf4j:slf4j-simple:2.0.3")
 
-    implementation("io.github.microutils:kotlin-logging-jvm:3.0.0")
+    implementation("io.github.microutils:kotlin-logging-jvm:3.0.2")
 
     // Config
     implementation("com.sksamuel.hoplite:hoplite-core:2.6.4")
@@ -109,9 +108,9 @@ dependencies {
     //testImplementation(kotlin("test-junit"))
     testImplementation("io.mockk:mockk:1.13.2")
 
-    testImplementation("io.kotest:kotest-runner-junit5:5.5.0")
-    testImplementation("io.kotest:kotest-assertions-core:5.5.0")
-    testImplementation("io.kotest:kotest-assertions-json:5.5.0")
+    testImplementation("io.kotest:kotest-runner-junit5:5.5.1")
+    testImplementation("io.kotest:kotest-assertions-core:5.5.1")
+    testImplementation("io.kotest:kotest-assertions-json:5.5.1")
 }
 
 tasks.withType<Test> {
