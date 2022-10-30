@@ -10,6 +10,6 @@ package io.velocitycareerlabs.impl.domain.models
 import io.velocitycareerlabs.api.entities.*
 
 internal interface IdentificationModel: Model<VCLToken> {
-    fun submit(identificationSubmission: VCLIdentificationSubmission,
+    suspend fun submit(identificationSubmission: VCLIdentificationSubmission,
                completionBlock: (VCLResult<VCLIdentificationSubmissionResult>) -> Unit)
 }

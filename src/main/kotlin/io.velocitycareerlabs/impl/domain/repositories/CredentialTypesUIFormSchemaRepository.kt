@@ -13,7 +13,7 @@ import io.velocitycareerlabs.api.entities.VCLResult
 import io.velocitycareerlabs.api.entities.VCLCredentialTypesUIFormSchemaDescriptor
 
 internal interface CredentialTypesUIFormSchemaRepository {
-    fun getCredentialTypesUIFormSchema(
+    suspend fun getCredentialTypesUIFormSchema(
         credentialTypesUIFormSchemaDescriptor: VCLCredentialTypesUIFormSchemaDescriptor,
         countries: VCLCountries,
         completionBlock: (VCLResult<VCLCredentialTypesUIFormSchema>) -> Unit

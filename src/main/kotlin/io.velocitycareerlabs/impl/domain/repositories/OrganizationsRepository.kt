@@ -12,6 +12,6 @@ import io.velocitycareerlabs.api.entities.VCLOrganizationsSearchDescriptor
 import io.velocitycareerlabs.api.entities.VCLResult
 
 internal interface OrganizationsRepository {
-    fun searchForOrganizations(organizationsSearchDescriptor: VCLOrganizationsSearchDescriptor,
+    suspend fun searchForOrganizations(organizationsSearchDescriptor: VCLOrganizationsSearchDescriptor,
                                completionBlock: (VCLResult<VCLOrganizations>) -> Unit)
 }

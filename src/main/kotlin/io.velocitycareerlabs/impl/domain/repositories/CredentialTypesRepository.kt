@@ -11,5 +11,5 @@ import io.velocitycareerlabs.api.entities.VCLCredentialTypes
 import io.velocitycareerlabs.api.entities.VCLResult
 
 internal interface CredentialTypesRepository {
-    fun getCredentialTypes(completionBlock: (VCLResult<VCLCredentialTypes>) -> Unit)
+    suspend fun getCredentialTypes(completionBlock: (VCLResult<VCLCredentialTypes>) -> Unit)
 }

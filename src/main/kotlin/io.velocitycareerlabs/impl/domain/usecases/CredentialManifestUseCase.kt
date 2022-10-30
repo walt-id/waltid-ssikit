@@ -16,6 +16,6 @@ import io.velocitycareerlabs.api.entities.VCLCredentialManifestDescriptor
  * Inside the manifest are issuer details, credential schemas and a presentation definition
  */
 internal interface CredentialManifestUseCase {
-    fun getCredentialManifest(credentialManifestDescriptor: VCLCredentialManifestDescriptor,
+    suspend fun getCredentialManifest(credentialManifestDescriptor: VCLCredentialManifestDescriptor,
                               completionBlock:(VCLResult<VCLCredentialManifest>) -> Unit)
 }

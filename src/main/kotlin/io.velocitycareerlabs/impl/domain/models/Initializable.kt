@@ -10,5 +10,5 @@ package io.velocitycareerlabs.impl.domain.models
 import io.velocitycareerlabs.api.entities.VCLResult
 
 internal interface Initializable<T> {
-    fun initialize(completionBlock: (VCLResult<T>) -> Unit)
+    suspend fun initialize(completionBlock: (VCLResult<T>) -> Unit)
 }

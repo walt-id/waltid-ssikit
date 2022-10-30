@@ -23,76 +23,76 @@ interface VCL {
     val credentialTypes: VCLCredentialTypes?
     val credentialTypeSchemas: VCLCredentialTypeSchemas?
 
-    fun getPresentationRequest(
+    suspend fun getPresentationRequest(
         deepLink: VCLDeepLink,
         successHandler: (VCLPresentationRequest) -> Unit,
         errorHandler: (VCLError) -> Unit
     )
 
-    fun submitPresentation(
+    suspend fun submitPresentation(
         presentationSubmission: VCLPresentationSubmission,
         successHandler: (VCLPresentationSubmissionResult) -> Unit,
         errorHandler: (VCLError) -> Unit
     )
 
-    fun getExchangeProgress(
+    suspend fun getExchangeProgress(
         exchangeDescriptor: VCLExchangeDescriptor,
         successHandler: (VCLExchange) -> Unit,
         errorHandler: (VCLError) -> Unit
     )
 
-    fun searchForOrganizations(
+    suspend fun searchForOrganizations(
         organizationsSearchDescriptor: VCLOrganizationsSearchDescriptor,
         successHandler: (VCLOrganizations) -> Unit,
         errorHandler: (VCLError) -> Unit
     )
 
-    fun getCredentialManifest(
+    suspend fun getCredentialManifest(
         credentialManifestDescriptor: VCLCredentialManifestDescriptor,
         successHandler: (VCLCredentialManifest) -> Unit,
         errorHandler: (VCLError) -> Unit
     )
 
-    fun generateOffers(
+    suspend fun generateOffers(
         generateOffersDescriptor: VCLGenerateOffersDescriptor,
         successHandler: (VCLOffers) -> Unit,
         errorHandler: (VCLError) -> Unit
     )
 
-    fun checkForOffers(
+    suspend fun checkForOffers(
         generateOffersDescriptor: VCLGenerateOffersDescriptor,
         token: VCLToken,
         successHandler: (VCLOffers) -> Unit,
         errorHandler: (VCLError) -> Unit
     )
 
-    fun finalizeOffers(
+    suspend fun finalizeOffers(
         finalizeOffersDescriptor: VCLFinalizeOffersDescriptor,
         token: VCLToken,
         successHandler: (VCLJwtVerifiableCredentials) -> Unit,
         errorHandler: (VCLError) -> Unit
     )
 
-    fun getCredentialTypesUIFormSchema(
+    suspend fun getCredentialTypesUIFormSchema(
         credentialTypesUIFormSchemaDescriptor: VCLCredentialTypesUIFormSchemaDescriptor,
         successHandler: (VCLCredentialTypesUIFormSchema) -> Unit,
         errorHandler: (VCLError) -> Unit
     )
 
-    fun getVerifiedProfile(
+    suspend fun getVerifiedProfile(
         verifiedProfileDescriptor: VCLVerifiedProfileDescriptor,
         successHandler: (VCLVerifiedProfile) -> Unit,
         errorHandler: (VCLError) -> Unit
     )
 
-    fun verifyJwt(
+    suspend fun verifyJwt(
         jwt: VCLJWT,
         publicKey: VCLPublicKey,
         successHandler: (Boolean) -> Unit,
         errorHandler: (VCLError) -> Unit
     )
 
-    fun generateSignedJwt(
+    suspend fun generateSignedJwt(
         payload: JSONObject,
         iss: String,
         successHandler: (VCLJWT) -> Unit,

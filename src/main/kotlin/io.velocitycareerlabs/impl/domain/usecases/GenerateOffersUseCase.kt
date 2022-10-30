@@ -10,7 +10,7 @@ package io.velocitycareerlabs.impl.domain.usecases
 import io.velocitycareerlabs.api.entities.*
 
 internal interface GenerateOffersUseCase {
-    fun generateOffers(token: VCLToken,
+    suspend fun generateOffers(token: VCLToken,
                        generateOffersDescriptor: VCLGenerateOffersDescriptor,
                        completionBlock: (VCLResult<VCLOffers>) -> Unit)
 }

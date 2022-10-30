@@ -11,5 +11,5 @@ import io.velocitycareerlabs.api.entities.VCLPublicKey
 import io.velocitycareerlabs.api.entities.VCLResult
 
 internal interface ResolveKidRepository {
-    fun getPublicKey(keyID: String, completionBlock: (VCLResult<VCLPublicKey>) -> Unit)
+    suspend fun getPublicKey(keyID: String, completionBlock: (VCLResult<VCLPublicKey>) -> Unit)
 }

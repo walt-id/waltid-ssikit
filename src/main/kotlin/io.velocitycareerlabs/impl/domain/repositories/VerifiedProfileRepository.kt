@@ -12,7 +12,7 @@ import io.velocitycareerlabs.api.entities.VCLResult
 import io.velocitycareerlabs.api.entities.VCLVerifiedProfile
 
 internal interface VerifiedProfileRepository {
-    fun getVerifiedProfile(
+    suspend fun getVerifiedProfile(
         verifiedProfileDescriptor: VCLVerifiedProfileDescriptor,
         completionBlock: (VCLResult<VCLVerifiedProfile>) -> Unit
     )

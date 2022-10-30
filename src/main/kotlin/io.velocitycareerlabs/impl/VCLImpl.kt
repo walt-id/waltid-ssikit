@@ -16,6 +16,7 @@ import io.velocitycareerlabs.impl.domain.models.CredentialTypeSchemasModel
 import io.velocitycareerlabs.impl.domain.models.CredentialTypesModel
 import io.velocitycareerlabs.impl.utils.InitializationWatcher
 import io.velocitycareerlabs.impl.utils.VCLLog
+import kotlinx.coroutines.runBlocking
 import org.json.JSONObject
 
 internal class VCLImpl: VCL {
@@ -118,7 +119,7 @@ internal class VCLImpl: VCL {
     override val credentialTypes: VCLCredentialTypes? get() = credentialTypesModel?.data
     override val credentialTypeSchemas: VCLCredentialTypeSchemas? get() = credentialTypeSchemasModel?.data
 
-    override fun getPresentationRequest(
+    override suspend fun getPresentationRequest(
         deepLink: VCLDeepLink,
         successHandler: (VCLPresentationRequest) -> Unit,
         errorHandler: (VCLError) -> Unit
@@ -136,7 +137,7 @@ internal class VCLImpl: VCL {
         }
     }
 
-    override fun submitPresentation(
+    override suspend fun submitPresentation(
         presentationSubmission: VCLPresentationSubmission,
         successHandler: (VCLPresentationSubmissionResult) -> Unit,
         errorHandler: (VCLError) -> Unit
@@ -154,7 +155,7 @@ internal class VCLImpl: VCL {
         }
     }
 
-    override fun getExchangeProgress(
+    override suspend fun getExchangeProgress(
         exchangeDescriptor: VCLExchangeDescriptor,
         successHandler: (VCLExchange) -> Unit,
         errorHandler: (VCLError) -> Unit
@@ -172,7 +173,7 @@ internal class VCLImpl: VCL {
         }
     }
 
-    override fun searchForOrganizations(
+    override suspend fun searchForOrganizations(
         organizationsSearchDescriptor: VCLOrganizationsSearchDescriptor,
         successHandler: (VCLOrganizations) -> Unit,
         errorHandler: (VCLError) -> Unit
@@ -190,7 +191,7 @@ internal class VCLImpl: VCL {
         }
     }
 
-    override fun getCredentialManifest(
+    override suspend fun getCredentialManifest(
         credentialManifestDescriptor: VCLCredentialManifestDescriptor,
         successHandler: (VCLCredentialManifest) -> Unit,
         errorHandler: (VCLError) -> Unit
@@ -208,7 +209,7 @@ internal class VCLImpl: VCL {
         }
     }
 
-    override fun generateOffers(
+    override suspend fun generateOffers(
         generateOffersDescriptor: VCLGenerateOffersDescriptor,
         successHandler: (VCLOffers) -> Unit,
         errorHandler: (VCLError) -> Unit
@@ -220,12 +221,14 @@ internal class VCLImpl: VCL {
         identificationUseCase.submit(identificationSubmission) { identificationSubmissionResult ->
             identificationSubmissionResult.handleResult(
                 { identificationSubmission ->
-                    invokeGenerateOffersUseCase(
-                        generateOffersDescriptor = generateOffersDescriptor,
-                        token = identificationSubmission.token,
-                        successHandler = successHandler,
-                        errorHandler = errorHandler
-                    )
+                    runBlocking {
+                        invokeGenerateOffersUseCase(
+                            generateOffersDescriptor = generateOffersDescriptor,
+                            token = identificationSubmission.token,
+                            successHandler = successHandler,
+                            errorHandler = errorHandler
+                        )
+                    }
                 },
                 {
                     logError("submit identification", it)
@@ -235,7 +238,7 @@ internal class VCLImpl: VCL {
         }
     }
 
-    override fun checkForOffers(
+    override suspend fun checkForOffers(
         generateOffersDescriptor: VCLGenerateOffersDescriptor,
         token: VCLToken,
         successHandler: (VCLOffers) -> Unit,
@@ -249,7 +252,7 @@ internal class VCLImpl: VCL {
         )
     }
 
-    private fun invokeGenerateOffersUseCase(
+    private suspend fun invokeGenerateOffersUseCase(
         generateOffersDescriptor: VCLGenerateOffersDescriptor,
         token: VCLToken,
         successHandler: (VCLOffers) -> Unit,
@@ -271,7 +274,7 @@ internal class VCLImpl: VCL {
         }
     }
 
-    override fun finalizeOffers(
+    override suspend fun finalizeOffers(
         finalizeOffersDescriptor: VCLFinalizeOffersDescriptor,
         token: VCLToken,
         successHandler: (VCLJwtVerifiableCredentials) -> Unit,
@@ -293,7 +296,7 @@ internal class VCLImpl: VCL {
         }
     }
 
-    override fun getCredentialTypesUIFormSchema(
+    override suspend fun getCredentialTypesUIFormSchema(
         credentialTypesUIFormSchemaDescriptor: VCLCredentialTypesUIFormSchemaDescriptor,
         successHandler: (VCLCredentialTypesUIFormSchema) -> Unit,
         errorHandler: (VCLError) -> Unit
@@ -320,7 +323,7 @@ internal class VCLImpl: VCL {
         }
     }
 
-    override fun getVerifiedProfile(
+    override suspend fun getVerifiedProfile(
         verifiedProfileDescriptor: VCLVerifiedProfileDescriptor,
         successHandler: (VCLVerifiedProfile) -> Unit,
         errorHandler: (VCLError) -> Unit
@@ -339,7 +342,7 @@ internal class VCLImpl: VCL {
         }
     }
 
-    override fun verifyJwt(
+    override suspend fun verifyJwt(
         jwt: VCLJWT,
         publicKey: VCLPublicKey,
         successHandler: (Boolean) -> Unit,
@@ -358,7 +361,7 @@ internal class VCLImpl: VCL {
         }
     }
 
-    override fun generateSignedJwt(
+    override suspend fun generateSignedJwt(
         payload: JSONObject,
         iss: String,
         successHandler: (VCLJWT) -> Unit,

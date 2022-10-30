@@ -11,5 +11,5 @@ import io.velocitycareerlabs.api.entities.VCLCountries
 import io.velocitycareerlabs.api.entities.VCLResult
 
 internal interface CountriesUseCase {
-    fun getCountries(completionBlock: (VCLResult<VCLCountries>) -> Unit)
+    suspend fun getCountries(completionBlock: (VCLResult<VCLCountries>) -> Unit)
 }

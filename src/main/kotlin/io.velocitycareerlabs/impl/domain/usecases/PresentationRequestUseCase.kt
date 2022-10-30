@@ -12,5 +12,5 @@ import io.velocitycareerlabs.api.entities.VCLPresentationRequest
 import io.velocitycareerlabs.api.entities.VCLResult
 
 internal interface PresentationRequestUseCase {
-    fun getPresentationRequest(deepLink: VCLDeepLink, completionBlock: (VCLResult<VCLPresentationRequest>) -> Unit)
+    suspend fun getPresentationRequest(deepLink: VCLDeepLink, completionBlock: (VCLResult<VCLPresentationRequest>) -> Unit)
 }

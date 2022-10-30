@@ -9,7 +9,6 @@ package io.velocitycareerlabs.impl
 
 import io.velocitycareerlabs.api.entities.VCLCredentialTypes
 import io.velocitycareerlabs.impl.data.infrastructure.db.CacheServiceImpl
-import io.velocitycareerlabs.impl.data.infrastructure.executors.ExecutorImpl
 import io.velocitycareerlabs.impl.data.infrastructure.jwt.JwtServiceImpl
 import io.velocitycareerlabs.impl.data.infrastructure.network.NetworkServiceImpl
 import io.velocitycareerlabs.impl.data.models.CountriesModelImpl
@@ -32,8 +31,7 @@ internal object VclBlocksProvider {
                                         NetworkServiceImpl(),
                                         CacheServiceImpl()
                                 ),
-                                credentialTypes,
-                                ExecutorImpl()
+                                credentialTypes
                         )
                 )
 
@@ -43,8 +41,7 @@ internal object VclBlocksProvider {
                                 CredentialTypesRepositoryImpl(
                                         NetworkServiceImpl(),
                                         CacheServiceImpl()
-                                ),
-                                ExecutorImpl()
+                                )
                         )
                 )
 
@@ -54,8 +51,7 @@ internal object VclBlocksProvider {
                                 CountriesRepositoryImpl(
                                         NetworkServiceImpl(),
                                         CacheServiceImpl()
-                                ),
-                                ExecutorImpl()
+                                )
                         )
                 )
 
@@ -69,8 +65,7 @@ internal object VclBlocksProvider {
                         ),
                         JwtServiceRepositoryImpl(
                                 JwtServiceImpl()
-                        ),
-                        ExecutorImpl()
+                        )
                 )
 
         fun providePresentationSubmissionUseCase(): PresentationSubmissionUseCase =
@@ -80,16 +75,14 @@ internal object VclBlocksProvider {
                         ),
                         JwtServiceRepositoryImpl(
                                 JwtServiceImpl()
-                        ),
-                        ExecutorImpl()
+                        )
                 )
 
         fun provideOrganizationsUseCase(): OrganizationsUseCase =
                 OrganizationsUseCaseImpl(
                         OrganizationsRepositoryImpl(
                                 NetworkServiceImpl()
-                        ),
-                        ExecutorImpl()
+                        )
                 )
 
         fun provideCredentialManifestUseCase(): CredentialManifestUseCase =
@@ -102,8 +95,7 @@ internal object VclBlocksProvider {
                         ),
                         JwtServiceRepositoryImpl(
                                 JwtServiceImpl()
-                        ),
-                        ExecutorImpl()
+                        )
                 )
 
 //        fun provideIdentificationModel(): IdentificationModel =
@@ -114,8 +106,7 @@ internal object VclBlocksProvider {
 //                                ),
 //                                JwtServiceRepositoryImpl(
 //                                        JwtServiceImpl()
-//                                ),
-//                                ExecutorImpl()
+//                                )
 //                        )
 //                )
 
@@ -126,24 +117,21 @@ internal object VclBlocksProvider {
                         ),
                         JwtServiceRepositoryImpl(
                                 JwtServiceImpl()
-                        ),
-                        ExecutorImpl()
+                        )
                 )
 
         fun provideExchangeProgressUseCase(): ExchangeProgressUseCase =
                 ExchangeProgressUseCaseImpl(
                         ExchangeProgressRepositoryImpl(
                                 NetworkServiceImpl()
-                        ),
-                        ExecutorImpl()
+                        )
                 )
 
         fun provideGenerateOffersUseCase(): GenerateOffersUseCase =
                 GenerateOffersUseCaseImpl(
                         GenerateOffersRepositoryImpl(
                                 NetworkServiceImpl()
-                        ),
-                        ExecutorImpl()
+                        )
                 )
 
         fun provideFinalizeOffersUseCase(): FinalizeOffersUseCase =
@@ -153,31 +141,27 @@ internal object VclBlocksProvider {
                         ),
                         JwtServiceRepositoryImpl(
                                 JwtServiceImpl()
-                        ),
-                        ExecutorImpl()
+                        )
                 )
 
         fun provideCredentialTypesUIFormSchemaUseCase(): CredentialTypesUIFormSchemaUseCase =
                 CredentialTypesUIFormSchemaUseCaseImpl(
                         CredentialTypesUIFormSchemaRepositoryImpl(
                                 NetworkServiceImpl()
-                        ),
-                        ExecutorImpl()
+                        )
                 )
 
         fun provideVerifiedProfileUseCase(): VerifiedProfileUseCase =
                 VerifiedProfileUseCaseImpl(
                         VerifiedProfileRepositoryImpl(
                                 NetworkServiceImpl()
-                        ),
-                        ExecutorImpl()
+                        )
                 )
 
         fun provideJwtServiceUseCase(): JwtServiceUseCase =
                 JwtServiceUseCaseImpl(
                         JwtServiceRepositoryImpl(
                                 JwtServiceImpl()
-                        ),
-                        ExecutorImpl()
+                        )
                 )
 }

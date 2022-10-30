@@ -10,7 +10,7 @@ package io.velocitycareerlabs.impl.domain.repositories
 import io.velocitycareerlabs.api.entities.*
 
 internal interface SubmissionRepository {
-    fun submit(submission: VCLSubmission,
+    suspend fun submit(submission: VCLSubmission,
                jwt: VCLJWT,
                completionBlock: (VCLResult<VCLSubmissionResult>) -> Unit)
 }

@@ -11,6 +11,6 @@ import io.velocitycareerlabs.api.entities.VCLResult
 import io.velocitycareerlabs.api.entities.VCLCredentialManifestDescriptor
 
 internal interface CredentialManifestRepository {
-    fun getCredentialManifest(credentialManifestDescriptor: VCLCredentialManifestDescriptor,
+    suspend fun getCredentialManifest(credentialManifestDescriptor: VCLCredentialManifestDescriptor,
                               completionBlock:(VCLResult<String>) -> Unit)
 }

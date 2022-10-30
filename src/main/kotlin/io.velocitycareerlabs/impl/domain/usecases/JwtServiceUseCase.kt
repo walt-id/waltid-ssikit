@@ -13,6 +13,6 @@ import io.velocitycareerlabs.api.entities.VCLResult
 import org.json.JSONObject
 
 internal interface JwtServiceUseCase {
-    fun verifyJwt(jwt: VCLJWT, publicKey: VCLPublicKey, completionBlock: (VCLResult<Boolean>) -> Unit)
-    fun generateSignedJwt(payload: JSONObject, iss: String, completionBlock: (VCLResult<VCLJWT>) -> Unit)
+    suspend fun verifyJwt(jwt: VCLJWT, publicKey: VCLPublicKey, completionBlock: (VCLResult<Boolean>) -> Unit)
+    suspend fun generateSignedJwt(payload: JSONObject, iss: String, completionBlock: (VCLResult<VCLJWT>) -> Unit)
 }
