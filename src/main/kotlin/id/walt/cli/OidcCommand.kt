@@ -1,5 +1,6 @@
 package id.walt.cli
 
+import com.beust.klaxon.JsonObject
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.*
 import com.github.ajalt.clikt.parameters.types.enum
@@ -370,7 +371,7 @@ class OidcVerificationGenUrlCommand :
                         InputDescriptor(
                             "1",
                             constraints = InputDescriptorConstraints(
-                                listOf(InputDescriptorField(listOf("$.type"), "1", filter = mapOf("const" to credType)))
+                                listOf(InputDescriptorField(listOf("$.type"), "1", filter = JsonObject(mapOf("const" to credType))))
                             )
                         )
                     } ?: listOf())
@@ -391,6 +392,7 @@ class OidcVerificationParseCommand : CliktCommand(name = "parse", help = "Parse 
         "--url",
         help = "Authentication request URL from verifier portal, or get-url / gen-url subcommands"
     )
+    val listCredentials: Boolean by option("-l", "--list-credentials", help = "List available credentials, matching presentation request").flag(default = false)
 
     override fun run() {
         val req = OIDC4VPService.parseOIDC4VPRequestUri(URI.create(authUrl))
@@ -400,6 +402,14 @@ class OidcVerificationParseCommand : CliktCommand(name = "parse", help = "Parse 
             val presentationDefinition = OIDC4VPService.getPresentationDefinition(req)
             println("Presentation requirements:")
             println(klaxon.toJsonString(presentationDefinition).prettyPrint())
+            if(listCredentials) {
+                println("----------------------------")
+                println("Matching credentials by input descriptor id:")
+                val credentialMap = OIDCUtils.findCredentialsFor(OIDC4VPService.getPresentationDefinition(req))
+                credentialMap.keys.forEach { inputDescriptor ->
+                    println("$inputDescriptor: ${credentialMap[inputDescriptor]?.joinToString(", ") ?: "<none>"}")
+                }
+            }
         }
     }
 }

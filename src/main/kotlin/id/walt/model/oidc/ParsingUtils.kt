@@ -12,6 +12,9 @@ annotation class ListOrSingleVC
 @Target(AnnotationTarget.FIELD)
 annotation class SingleVC
 
+@Target(AnnotationTarget.FIELD)
+annotation class JsonObjectField
+
 val listOrSingleVCConverter = object : Converter {
     override fun canConvert(cls: Class<*>) = cls == List::class.java
 
@@ -47,5 +50,20 @@ val singleVCConverter = object : Converter {
     }
 }
 
+val jsonObjectFieldConverter = object : Converter {
+    override fun canConvert(cls: Class<*>): Boolean {
+        return cls == JsonObject::class.java
+    }
+
+    override fun fromJson(jv: JsonValue): Any? {
+        return jv.obj
+    }
+
+    override fun toJson(value: Any): String {
+        return (value as JsonObject).toJsonString()
+    }
+}
+
 val klaxon = Klaxon().fieldConverter(ListOrSingleValue::class, listOrSingleValueConverter)
     .fieldConverter(ListOrSingleVC::class, listOrSingleVCConverter).fieldConverter(SingleVC::class, singleVCConverter)
+    .fieldConverter(JsonObjectField::class, jsonObjectFieldConverter)

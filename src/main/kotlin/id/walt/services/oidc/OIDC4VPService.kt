@@ -126,7 +126,7 @@ object OIDC4VPService {
             response_type = authReq.requestObject?.jwtClaimsSet?.claims?.get("response_type")
                 ?.let { ResponseType(it.toString()) } ?: authReq.responseType,
             response_mode = authReq.requestObject?.jwtClaimsSet?.claims?.get("response_mode")
-                ?.let { ResponseMode(it.toString()) } ?: authReq.responseMode,
+                ?.let { ResponseMode(it.toString()) } ?: authReq.responseMode ?: ResponseMode.FORM_POST,
             scope = authReq.scope,
             presentation_definition = (
                     // 1
