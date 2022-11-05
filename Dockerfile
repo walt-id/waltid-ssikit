@@ -17,9 +17,16 @@ VOLUME /home/gradle/.gradle
 WORKDIR /opt
 
 RUN apt-get update && apt-get upgrade --yes
+RUN apt-get install -y dos2unix
 
 FROM openjdk-gradle AS walt-build
 COPY ./ /opt
+
+# When running docker build on Windows, make sure these have
+# the right line endings
+
+RUN dos2unix ./gradlew src/test/resources/key/*.pem
+
 RUN ./gradlew clean build
 RUN tar xf /opt/build/distributions/waltid-ssi-kit-*.tar -C /opt
 
