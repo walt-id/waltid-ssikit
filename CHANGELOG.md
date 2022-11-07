@@ -15,6 +15,7 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
     - JCS Ed25519 Signature https://github.com/walt-id/waltid-ssikit/issues/160
 -   Fixes
     - did:key with ECDSA keys broken  https://github.com/walt-id/waltid-ssikit/issues/179
+    - JWK key import depending on optional alg field https://github.com/walt-id/waltid-ssikit/issues/190
     
 ## [1.12.0] - 2022-07-19
 
