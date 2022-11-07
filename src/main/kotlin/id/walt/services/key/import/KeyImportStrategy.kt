@@ -1,7 +1,6 @@
 package id.walt.services.key.import
 
 import com.nimbusds.jose.jwk.Curve
-import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jose.jwk.KeyType
 import id.walt.crypto.*
