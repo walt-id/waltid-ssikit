@@ -14,6 +14,7 @@ import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
 import id.walt.test.RESOURCES_PATH
 import io.kotest.assertions.json.shouldMatchJson
+import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.data.blocking.forAll
@@ -357,5 +358,23 @@ class DidServiceTest : AnnotationSpec() {
 
         val reEncodedDid = did.encode()
         reEncodedDid shouldMatchJson didDoc
+    }
+
+    @Test
+    fun testDidImportFromMauro() {
+        val did =
+            "did:jwk:eyJrdHkiOiJFQyIsIngiOiJuSkpwZzgzY084R0sxZmZ6dmtoaXFabjk4eEczS3ctbEJGX1llZ1hpVzNzIiwieSI6ImhtUU1OVU5Ta3lycGlydmoxanhzbTZBbENCd2lmdWdhQ1NYLWpVaDNXZkkiLCJjcnYiOiJQLTI1NiJ9"
+        shouldNotThrowAny {
+            DidService.importDidAndKeys(did)
+        }
+    }
+
+    @Test
+    fun testDidImportFromBram() {
+        val did =
+            "did:jwk:eyJ1c2UiOiJzaWciLCJrdHkiOiJFQyIsImNydiI6IlAtMjU2IiwieCI6Ik1WeUxseS1WcDNZbF9DQlVBQTdQR1dZemZMSVhsYzlINzNfMmItWXJUeEEiLCJ5IjoiM3UwR2JFaWw1RU41NnJta1d3R2tmVENOdERXZ3JCb1BhV2FVVFRZTU9yayJ9"
+        shouldNotThrowAny {
+            DidService.importDidAndKeys(did)
+        }
     }
 }
