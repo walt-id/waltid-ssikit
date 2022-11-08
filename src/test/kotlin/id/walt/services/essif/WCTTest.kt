@@ -1,5 +1,6 @@
 package id.walt.services.essif
 
+import com.beust.klaxon.Klaxon
 import com.nimbusds.oauth2.sdk.AuthorizationRequest
 import com.nimbusds.oauth2.sdk.http.HTTPRequest
 import com.nimbusds.oauth2.sdk.util.URLUtils
@@ -45,6 +46,11 @@ import java.io.File
 import java.net.URI
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
+import java.nio.file.Files
+import java.time.Duration
+import java.time.Instant
+import java.time.temporal.Temporal
+import java.time.temporal.TemporalAmount
 import kotlin.reflect.KClass
 
 val EBSI_BEARER_TOKEN_FILE = "wct_bearer_token"
@@ -61,19 +67,16 @@ Start mitm dump using:
 
  */
 
-//@EnabledIf(WCTEnabled::class)
+@EnabledIf(WCTEnabled::class)
 class WCTTest : AnnotationSpec() {
     val REAL_EBSI_WCT_URL = "https://api.conformance.intebsi.xyz"
     // WCT Conformance header: bbfdeea3-ee51-47db-b7c6-d286bbeafd51
     val EBSI_WCT_ENV = "http://localhost:8080"
-    val SCHEMA_ID =
-        "https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0x14b05b9213dbe7d343ec1fe1d3c8c739a3f3dc5a59bae55eb38fa0c295124f49#"
     val REDIRECT_URI = "http://blank"
-    val STATE = "teststate"
-    val NONCE = "testnonce"
+    var issuedVC: VerifiableCredential? = null
 
     lateinit var did: String
-    //lateinit var ebsiBearerToken: String
+    lateinit var ebsiBearerToken: String
 
     @BeforeAll
     fun init() {
@@ -82,7 +85,7 @@ class WCTTest : AnnotationSpec() {
         val key = KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1)
         did = DidService.create(DidMethod.ebsi, key.id, DidService.DidEbsiOptions(2))
 
-        //ebsiBearerToken = File(EBSI_BEARER_TOKEN_FILE).readText().trim()
+        ebsiBearerToken = File(EBSI_BEARER_TOKEN_FILE).readText().trim()
     }
 
     //@Test
@@ -124,41 +127,35 @@ class WCTTest : AnnotationSpec() {
 
         val tokens = OIDC4CIService.getAccessToken(issuer, code!!, REDIRECT_URI)
 
-        val vc = OIDC4CIService.getCredential(issuer, tokens.oidcTokens.accessToken, initiationRequest.credential_types.first(),
+        issuedVC = OIDC4CIService.getCredential(issuer, tokens.oidcTokens.accessToken, initiationRequest.credential_types.first(),
             OIDC4CIService.generateDidProof(OIDCProvider(REAL_EBSI_WCT_URL, "$REAL_EBSI_WCT_URL/conformance/v2"), did, tokens.customParameters["c_nonce"].toString()), "jwt_vc")
 
-        vc shouldNotBe null
+        issuedVC shouldNotBe null
     }
 
     @Test
     fun testVerificationFlow() {
-        val vcJwt = Signatory.getService().issue("VerifiableAttestation", ProofConfig(
-            issuerDid = did, subjectDid = did, proofType = ProofType.JWT, ecosystem = Ecosystem.ESSIF
-        ), dataProvider = object : SignatoryDataProvider {
-            override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
-                val populatedVc = DefaultDataProvider.populate(template, proofConfig)
-                return MergingDataProvider(mapOf("credentialSchema" to mapOf("id" to "https://api.conformance.intebsi.xyz/trusted-schemas-registry/v2/schemas/z3kRpVjUFj4Bq8qHRENUHiZrVF5VgMBUe7biEafp1wf2J"))).populate(populatedVc, proofConfig)
-            }
+        issuedVC shouldNotBe null
 
-        })
-        val vc = vcJwt.toCredential()
-        Custodian.getService().storeCredential(vc.id!!, vc)
+        Custodian.getService().storeCredential(issuedVC!!.id!!, issuedVC!!)
 
-        val oidcUrl = "openid://?scope=openid&response_type=id_token&client_id=https%3A%2F%2Fapi.conformance.intebsi.xyz%2Fconformance%2Fv2%2Fverifier-mock%2Fauthentication-responses&redirect_uri=https%3A%2F%2Fapi.conformance.intebsi.xyz%2Fconformance%2Fv2%2Fverifier-mock%2Fauthentication-responses&claims=%7B%22id_token%22%3A%7B%22email%22%3Anull%7D%2C%22vp_token%22%3A%7B%22presentation_definition%22%3A%7B%22id%22%3A%22conformance_mock_vp_request%22%2C%22input_descriptors%22%3A%5B%7B%22id%22%3A%22conformance_mock_vp%22%2C%22name%22%3A%22Conformance%20Mock%20VP%22%2C%22purpose%22%3A%22Only%20accept%20a%20VP%20containing%20a%20Conformance%20Mock%20VA%22%2C%22constraints%22%3A%7B%22fields%22%3A%5B%7B%22path%22%3A%5B%22%24.vc.credentialSchema%22%5D%2C%22filter%22%3A%7B%22allOf%22%3A%5B%7B%22type%22%3A%22array%22%2C%22contains%22%3A%7B%22type%22%3A%22object%22%2C%22properties%22%3A%7B%22id%22%3A%7B%22type%22%3A%22string%22%2C%22pattern%22%3A%22https%3A%2F%2Fapi.conformance.intebsi.xyz%2Ftrusted-schemas-registry%2Fv2%2Fschemas%2Fz3kRpVjUFj4Bq8qHRENUHiZrVF5VgMBUe7biEafp1wf2J%22%7D%7D%2C%22required%22%3A%5B%22id%22%5D%7D%7D%5D%7D%7D%5D%7D%7D%5D%2C%22format%22%3A%7B%22jwt_vp%22%3A%7B%22alg%22%3A%5B%22ES256K%22%5D%7D%7D%7D%7D%7D&nonce=3cbb22d1-69c9-4d0f-94ef-759c7870b19c&conformance=bbfdeea3-ee51-47db-b7c6-d286bbeafd51"
+        val oidcUrl = "openid://?scope=openid&response_type=id_token&client_id=https%3A%2F%2Fapi.conformance.intebsi.xyz%2Fconformance%2Fv2%2Fverifier-mock%2Fauthentication-responses&redirect_uri=${URLEncoder.encode(
+            EBSI_WCT_ENV, StandardCharsets.UTF_8)}%2Fconformance%2Fv2%2Fverifier-mock%2Fauthentication-responses&claims=%7B%22id_token%22%3A%7B%22email%22%3Anull%7D%2C%22vp_token%22%3A%7B%22presentation_definition%22%3A%7B%22id%22%3A%22conformance_mock_vp_request%22%2C%22input_descriptors%22%3A%5B%7B%22id%22%3A%22conformance_mock_vp%22%2C%22name%22%3A%22Conformance%20Mock%20VP%22%2C%22purpose%22%3A%22Only%20accept%20a%20VP%20containing%20a%20Conformance%20Mock%20VA%22%2C%22constraints%22%3A%7B%22fields%22%3A%5B%7B%22path%22%3A%5B%22%24.vc.credentialSchema%22%5D%2C%22filter%22%3A%7B%22allOf%22%3A%5B%7B%22type%22%3A%22array%22%2C%22contains%22%3A%7B%22type%22%3A%22object%22%2C%22properties%22%3A%7B%22id%22%3A%7B%22type%22%3A%22string%22%2C%22pattern%22%3A%22https%3A%2F%2Fapi.conformance.intebsi.xyz%2Ftrusted-schemas-registry%2Fv2%2Fschemas%2Fz3kRpVjUFj4Bq8qHRENUHiZrVF5VgMBUe7biEafp1wf2J%22%7D%7D%2C%22required%22%3A%5B%22id%22%5D%7D%7D%5D%7D%7D%5D%7D%7D%5D%2C%22format%22%3A%7B%22jwt_vp%22%3A%7B%22alg%22%3A%5B%22ES256K%22%5D%7D%7D%7D%7D%7D&nonce=3cbb22d1-69c9-4d0f-94ef-759c7870b19c&conformance=bbfdeea3-ee51-47db-b7c6-d286bbeafd51"
 
         val authReq = OIDC4VPService.parseOIDC4VPRequestUri(URI.create(oidcUrl))
         val presentationDefinition = OIDC4VPService.getPresentationDefinition(authReq)
         val matchingVcs = OIDCUtils.findCredentialsFor(presentationDefinition)
 
-        matchingVcs.values.flatten() shouldContain vc.id
+        //matchingVcs.values.flatten() shouldContain issuedVC!!.id
 
         val nonce = authReq.getCustomParameter("nonce").firstOrNull()
         nonce shouldBe "3cbb22d1-69c9-4d0f-94ef-759c7870b19c"
 
-        val vp = Custodian.getService().createPresentation(listOf(vcJwt), did, challenge = nonce, expirationDate = null).toCredential() as VerifiablePresentation
+        val vp = Custodian.getService().createPresentation(listOf(issuedVC!!.jwt!!), did,issuedVC!!.issuer, challenge = nonce, expirationDate = Instant.now().plus(Duration.ofDays(365))).toCredential() as VerifiablePresentation
         val resp = OIDC4VPService.getSIOPResponseFor(authReq, did, listOf(vp))
-        val uri = OIDC4VPService.postSIOPResponse(authReq, resp)
-        println(uri)
+        val result = OIDC4VPService.postSIOPResponse(authReq, resp)
+        println(result)
+        Klaxon().parse<Map<String, Any?>>(result)?.get("result")?.toString() shouldBe "true"
     }
 
 }

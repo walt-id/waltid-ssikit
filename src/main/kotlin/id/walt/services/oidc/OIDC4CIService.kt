@@ -360,7 +360,7 @@ object OIDC4CIService {
         return JwtProof(
             jwt = JwtService.getService().sign(
                 vm,
-                JWTClaimsSet.Builder().issuer(issuer.client_id).audience(issuer.url).issueTime(Date()).claim("nonce", nonce)
+                JWTClaimsSet.Builder().issuer(issuer.client_id ?: did).audience(issuer.url).issueTime(Date()).claim("nonce", nonce)
                     .build().toString()
             ),
         )

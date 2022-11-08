@@ -104,7 +104,7 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
             expirationDate = expirationDate,
             issuerVerificationMethod = DidService.getAuthenticationMethods(holderDid)!!.first().id
         )
-        val vpReqStr = VerifiablePresentation(holder = holderDid, verifiableCredential = vcs.map { it.toCredential() }).encode()
+        val vpReqStr = VerifiablePresentation(id = id, holder = holderDid, verifiableCredential = vcs.map { it.toCredential() }).encode()
 
         log.trace { "VP request: $vpReqStr" }
         log.trace { "Proof config: $$config" }
