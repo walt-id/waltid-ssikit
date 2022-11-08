@@ -172,6 +172,12 @@ publishing {
                     """.trimIndent()
                 )
                 url.set("https://walt.id")
+                licenses {
+                    license {
+                        name.set("Apache 2")
+                        url.set("https://raw.githubusercontent.com/walt-id/waltid-ssikit/master/LICENSE")
+                    }
+                }
             }
             from(components["java"])
         }
