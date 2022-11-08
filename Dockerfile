@@ -34,8 +34,7 @@ RUN ldconfig
 RUN mkdir /app
 COPY --from=walt-build /opt/waltid-ssi-kit-* /app/
 COPY --from=walt-build /opt/service-matrix.properties /app/
-COPY --from=walt-build /opt/signatory.conf /app/
-COPY --from=walt-build /opt/fsStore.conf /app/
+COPY --from=walt-build /opt/config /app/config
 
 WORKDIR /app
 

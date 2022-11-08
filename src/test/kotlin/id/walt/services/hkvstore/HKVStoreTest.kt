@@ -33,7 +33,7 @@ class HKVStoreTest : StringSpec({
         hkvTest()
     }
     "FileSystemStore test" {
-        ServiceRegistry.registerService<HKVStoreService>(FileSystemHKVStore("./fsStore.conf"))
+        ServiceRegistry.registerService<HKVStoreService>(FileSystemHKVStore("./config/fsStore.conf"))
         hkvTest()
     }
 })

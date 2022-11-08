@@ -4,6 +4,7 @@ import id.walt.crypto.encBase64Str
 import id.walt.model.Attribute
 import id.walt.model.DidMethod
 import id.walt.model.TrustedIssuer
+import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
 import id.walt.services.ecosystems.essif.TrustedIssuerClient
 import id.walt.signatory.ProofConfig
@@ -28,6 +29,8 @@ class TrustedIssuerRegistryPolicyTest : AnnotationSpec() {
 
     override suspend fun beforeTest(testCase: TestCase) {
         super.beforeTest(testCase)
+
+        ServiceMatrix("service-matrix.properties")
 
         val signatory = Signatory.getService()
 
