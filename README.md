@@ -29,7 +29,7 @@
 - [Maven/Gradle Dependency](https://docs.walt.id/v/ssikit/getting-started/dependency-jvm) - Use the functions of the SSI Kit directly in a Kotlin/Java project.
 - [Example Projects](https://github.com/walt-id/waltid-ssikit-examples) - Demonstrate how to use the SSI Kit in any Kotlin/Java app
 
-Checkout the [Official Documentation](https://docs.walt.id/v/ssikit), to dive deeper into the architecture and configuration options available.
+Check out the **[Official Documentation](https://docs.walt.id/v/ssikit)**, to dive deeper into the architecture and configuration options available.
 
 
 ## What is the SSI Kit?
@@ -55,30 +55,36 @@ A **library** written in Kotlin/Java **to manage Keys, DIDs and VCs**. Functions
 - Issuing/verifying W3C Verifiable Credentials in JSON_LD and JWT format
 
 ```kotlin
-    fun main() {
+fun main() {
+    // Load services
+    ServiceMatrix("service-matrix.properties")
 
-        ServiceMatrix("service-matrix.properties")
-    
-        val issuerDid = DidService.create(DidMethod.ebsi)
-        val holderDid = DidService.create(DidMethod.key)
-    
-        // Issue VC in JSON-LD and JWT format (for show-casing both formats)
-        val vcJson = Signatory.getService().issue("VerifiableId", ProofConfig(issuerDid = issuerDid, subjectDid = holderDid, proofType = ProofType.LD_PROOF))
-        val vcJwt = Signatory.getService().issue("VerifiableId", ProofConfig(issuerDid = issuerDid, subjectDid = holderDid, proofType = ProofType.JWT))
-    
-        // Present VC in JSON-LD and JWT format (for show-casing both formats)
-        val vpJson = Custodian.getService().createPresentation(listOf(vcJson), holderDid)
-        val vpJwt = Custodian.getService().createPresentation(listOf(vcJwt), holderDid)
-    
-        // Verify VPs, using Signature, JsonSchema and a custom policy
-        val resJson = Auditor.getService().verify(vpJson, listOf(SignaturePolicy(), JsonSchemaPolicy()))
-        val resJwt = Auditor.getService().verify(vpJwt, listOf(SignaturePolicy(), JsonSchemaPolicy()))
-    
-        println("JSON verification result: ${resJson.overallStatus}")
-        println("JWT verification result: ${resJwt.overallStatus}")
-    }
-    
- ```
+    // Create DIDs
+    val issuerDid = DidService.create(DidMethod.ebsi)
+    val holderDid = DidService.create(DidMethod.key)
+
+    // Issue VC in JSON-LD and JWT format (for show-casing both formats)
+    val vcJson = Signatory.getService().issue(
+        templateId = "VerifiableId",
+        config = ProofConfig(issuerDid = issuerDid, subjectDid = holderDid, proofType = ProofType.LD_PROOF)
+    )
+    val vcJwt = Signatory.getService().issue(
+        templateId = "Europass",
+        config = ProofConfig(issuerDid = issuerDid, subjectDid = holderDid, proofType = ProofType.JWT)
+    )
+
+    // Present VC in JSON-LD and JWT format (for show-casing both formats)
+    val vpJson = Custodian.getService().createPresentation(listOf(vcJson), holderDid)
+    val vpJwt = Custodian.getService().createPresentation(listOf(vcJwt), holderDid)
+
+    // Verify VPs, using Signature, JsonSchema and a custom policy
+    val resJson = Auditor.getService().verify(vpJson, listOf(SignaturePolicy(), JsonSchemaPolicy()))
+    val resJwt = Auditor.getService().verify(vpJwt, listOf(SignaturePolicy(), JsonSchemaPolicy()))
+
+    println("JSON verification result: ${resJson.policyResults}")
+    println("JWT verification result:  ${resJwt.policyResults}")
+}
+```
 
 ## Join the community
 
@@ -99,8 +105,8 @@ A **library** written in Kotlin/Java **to manage Keys, DIDs and VCs**. Functions
 
 ## License
 
-Licensed under the [Apache License, Version 2.0](https://github.com/walt-id/waltid-ssikit/blob/master/LICENSE)
+**Licensed under the [Apache License, Version 2.0](https://github.com/walt-id/waltid-ssikit/blob/master/LICENSE).**
 
 ## Funded & supported by
 
-<a href="https://essif-lab.eu/" target="_blank"><img src="logos-supporter.png"></a>
+<a href="https://essif-lab.eu/" target="_blank"><img src="assets/logos-supporter.png"></a>
