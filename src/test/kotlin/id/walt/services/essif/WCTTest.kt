@@ -63,9 +63,9 @@ Start mitm dump using:
 
 //@EnabledIf(WCTEnabled::class)
 class WCTTest : AnnotationSpec() {
+    val REAL_EBSI_WCT_URL = "https://api.conformance.intebsi.xyz"
     // WCT Conformance header: bbfdeea3-ee51-47db-b7c6-d286bbeafd51
     val EBSI_WCT_ENV = "http://localhost:8080"
-    val REAL_EBSI_WCT_URL = "https://api.conformance.intebsi.xyz"
     val SCHEMA_ID =
         "https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0x14b05b9213dbe7d343ec1fe1d3c8c739a3f3dc5a59bae55eb38fa0c295124f49#"
     val REDIRECT_URI = "http://blank"
@@ -144,7 +144,7 @@ class WCTTest : AnnotationSpec() {
         val vc = vcJwt.toCredential()
         Custodian.getService().storeCredential(vc.id!!, vc)
 
-        val oidcUrl = "openid://?scope=openid&response_type=id_token&client_id=https%3A%2F%2Fapi.conformance.intebsi.xyz%2Fconformance%2Fv2%2Fverifier-mock%2Fauthentication-responses&redirect_uri=https%3A%2F%2Fapi.conformance.intebsi.xyz%2Fconformance%2Fv2%2Fverifier-mock%2Fauthentication-responses&claims=%7B%22id_token%22%3A%7B%22email%22%3Anull%7D%2C%22vp_token%22%3A%7B%22presentation_definition%22%3A%7B%22id%22%3A%22conformance_mock_vp_request%22%2C%22input_descriptors%22%3A%5B%7B%22id%22%3A%22conformance_mock_vp%22%2C%22name%22%3A%22Conformance%20Mock%20VP%22%2C%22purpose%22%3A%22Only%20accept%20a%20VP%20containing%20a%20Conformance%20Mock%20VA%22%2C%22constraints%22%3A%7B%22fields%22%3A%5B%7B%22path%22%3A%5B%22%24.vc.credentialSchema%22%5D%2C%22filter%22%3A%7B%22allOf%22%3A%5B%7B%22type%22%3A%22array%22%2C%22contains%22%3A%7B%22type%22%3A%22object%22%2C%22properties%22%3A%7B%22id%22%3A%7B%22type%22%3A%22string%22%2C%22pattern%22%3A%22https%3A%2F%2Fapi.conformance.intebsi.xyz%2Ftrusted-schemas-registry%2Fv2%2Fschemas%2Fz3kRpVjUFj4Bq8qHRENUHiZrVF5VgMBUe7biEafp1wf2J%22%7D%7D%2C%22required%22%3A%5B%22id%22%5D%7D%7D%5D%7D%7D%5D%7D%7D%5D%2C%22format%22%3A%7B%22jwt_vp%22%3A%7B%22alg%22%3A%5B%22ES256K%22%5D%7D%7D%7D%7D%7D&nonce=14607f23-3339-470e-ad89-21d8b60c3d93&conformance=bbfdeea3-ee51-47db-b7c6-d286bbeafd51"
+        val oidcUrl = "openid://?scope=openid&response_type=id_token&client_id=https%3A%2F%2Fapi.conformance.intebsi.xyz%2Fconformance%2Fv2%2Fverifier-mock%2Fauthentication-responses&redirect_uri=https%3A%2F%2Fapi.conformance.intebsi.xyz%2Fconformance%2Fv2%2Fverifier-mock%2Fauthentication-responses&claims=%7B%22id_token%22%3A%7B%22email%22%3Anull%7D%2C%22vp_token%22%3A%7B%22presentation_definition%22%3A%7B%22id%22%3A%22conformance_mock_vp_request%22%2C%22input_descriptors%22%3A%5B%7B%22id%22%3A%22conformance_mock_vp%22%2C%22name%22%3A%22Conformance%20Mock%20VP%22%2C%22purpose%22%3A%22Only%20accept%20a%20VP%20containing%20a%20Conformance%20Mock%20VA%22%2C%22constraints%22%3A%7B%22fields%22%3A%5B%7B%22path%22%3A%5B%22%24.vc.credentialSchema%22%5D%2C%22filter%22%3A%7B%22allOf%22%3A%5B%7B%22type%22%3A%22array%22%2C%22contains%22%3A%7B%22type%22%3A%22object%22%2C%22properties%22%3A%7B%22id%22%3A%7B%22type%22%3A%22string%22%2C%22pattern%22%3A%22https%3A%2F%2Fapi.conformance.intebsi.xyz%2Ftrusted-schemas-registry%2Fv2%2Fschemas%2Fz3kRpVjUFj4Bq8qHRENUHiZrVF5VgMBUe7biEafp1wf2J%22%7D%7D%2C%22required%22%3A%5B%22id%22%5D%7D%7D%5D%7D%7D%5D%7D%7D%5D%2C%22format%22%3A%7B%22jwt_vp%22%3A%7B%22alg%22%3A%5B%22ES256K%22%5D%7D%7D%7D%7D%7D&nonce=3cbb22d1-69c9-4d0f-94ef-759c7870b19c&conformance=bbfdeea3-ee51-47db-b7c6-d286bbeafd51"
 
         val authReq = OIDC4VPService.parseOIDC4VPRequestUri(URI.create(oidcUrl))
         val presentationDefinition = OIDC4VPService.getPresentationDefinition(authReq)
@@ -153,7 +153,7 @@ class WCTTest : AnnotationSpec() {
         matchingVcs.values.flatten() shouldContain vc.id
 
         val nonce = authReq.getCustomParameter("nonce").firstOrNull()
-        nonce shouldBe "14607f23-3339-470e-ad89-21d8b60c3d93"
+        nonce shouldBe "3cbb22d1-69c9-4d0f-94ef-759c7870b19c"
 
         val vp = Custodian.getService().createPresentation(listOf(vcJwt), did, challenge = nonce, expirationDate = null).toCredential() as VerifiablePresentation
         val resp = OIDC4VPService.getSIOPResponseFor(authReq, did, listOf(vp))

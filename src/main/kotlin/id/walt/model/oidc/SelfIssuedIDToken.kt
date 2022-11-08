@@ -13,7 +13,9 @@ data class SelfIssuedIDToken(
     val client_id: String?,
     val nonce: String?,
     val expiration: Instant?,
-    val issueDate: Instant? = Instant.now()
+    val issueDate: Instant? = Instant.now(),
+    // legacy OIDC4VP spec, including presentation submission in _vp_token JWT claim of id_token (used by EBSI conformance v2)
+    val _vp_token: VpTokenRef? = null
 ) {
     fun sign(): String {
         val builder = JWTClaimsSet.Builder().subject(subject).issuer(subject)
@@ -21,6 +23,7 @@ data class SelfIssuedIDToken(
         nonce?.let { builder.claim("nonce", it) }
         expiration?.let { builder.expirationTime(Date.from(expiration)) }
         issueDate?.let { builder.issueTime(Date.from(issueDate)) }
+        _vp_token?.let { builder.claim("_vp_token", it) }
 
         return JwtService.getService().sign(
             subject,
