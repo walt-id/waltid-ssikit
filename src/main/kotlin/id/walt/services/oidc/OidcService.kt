@@ -218,7 +218,6 @@ object OidcService {
             credentialIds.map { Custodian.getService().getCredential(it)!!.encode() },
             did,
             challenge = nonce,
-            expirationDate = null
         ).toCredential() as VerifiablePresentation
         val resp = OIDC4VPService.getSIOPResponseFor(req, did, listOf(vp))
         println("Presentation response:")

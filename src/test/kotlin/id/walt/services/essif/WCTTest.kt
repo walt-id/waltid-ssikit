@@ -127,7 +127,7 @@ class WCTTest : AnnotationSpec() {
             state = siopReq.state
         )
 
-        val presentation = Custodian.getService().createPresentation(listOf(vc!!.encode()), did, expirationDate = null)
+        val presentation = Custodian.getService().createPresentation(listOf(vc!!.encode()), did)
             .toCredential() as VerifiablePresentation
 
         val siopResponse = OIDC4VPService.getSIOPResponseFor(siopReqMod, did, listOf(presentation))
