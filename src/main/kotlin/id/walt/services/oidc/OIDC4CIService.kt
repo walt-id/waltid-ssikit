@@ -46,10 +46,48 @@ object OIDC4CIService {
         }
     }
 
+    fun getEbsiConformanceIssuerMetadata(issuer: OIDCProvider, force: Boolean = false): OIDCProviderMetadata? {
+        if(issuer.url.startsWith("https://api.conformance.intebsi.xyz") || force) {
+            return OIDCProviderMetadata(
+                Issuer(issuer.url),
+                listOf(SubjectType.PAIRWISE, SubjectType.PUBLIC),
+                URI.create("")
+            ).apply {
+                authorizationEndpointURI = URI.create("${issuer.url}/issuer-mock/authorize")
+                pushedAuthorizationRequestEndpointURI = URI.create("${issuer.url}/issuer-mock/par")
+                tokenEndpointURI = URI.create("${issuer.url}/issuer-mock/token")
+                setCustomParameter("credential_endpoint", "${issuer.url}/issuer-mock/credential")
+                setCustomParameter("credential_issuer", CredentialIssuer(listOf(CredentialIssuerDisplay("EBSI Conformance Issuer"))))
+                setCustomParameter("credentials_supported", mapOf(
+                    "https://api.conformance.intebsi.xyz/trusted-schemas-registry/v2/schemas/zCfNxx5dMBdf4yVcsWzj1anWRuXcxrXj1aogyfN1xSu8t" to CredentialMetadata(
+                        formats = mapOf(
+                            "jwt_vc" to CredentialFormat(
+                                types = listOf("VerifiableCredential", "VerifiableAttestation", "VerifiableId"),
+                                cryptographic_binding_methods_supported = listOf("did"),
+                                cryptographic_suites_supported = listOf(
+                                    JWSAlgorithm.ES256K,
+                                    JWSAlgorithm.EdDSA,
+                                    JWSAlgorithm.RS256,
+                                    JWSAlgorithm.PS256
+                                ).map { it.name }
+                            )
+                        ),
+                        display = listOf(
+                            CredentialDisplay(
+                                name = "Verifiable ID"
+                            )
+                        )
+                    )
+                ))
+            }
+        }
+        return null
+    }
+
     fun getWithProviderMetadata(issuer: OIDCProvider): OIDCProviderWithMetadata {
         return OIDCProviderWithMetadata(
             issuer.id, issuer.url, issuer.description, issuer.client_id, issuer.client_secret,
-            getMetadata(issuer) ?: OIDCProviderMetadata(
+            getMetadata(issuer) ?: getEbsiConformanceIssuerMetadata(issuer) ?: OIDCProviderMetadata(
                 Issuer(issuer.url),
                 listOf(SubjectType.PAIRWISE, SubjectType.PUBLIC),
                 URI.create("http://blank")
@@ -322,7 +360,7 @@ object OIDC4CIService {
         return JwtProof(
             jwt = JwtService.getService().sign(
                 vm,
-                JWTClaimsSet.Builder().issuer(issuer.client_id).audience(issuer.url).issueTime(Date()).claim("nonce", nonce)
+                JWTClaimsSet.Builder().issuer(issuer.client_id ?: did).audience(issuer.url).issueTime(Date()).claim("nonce", nonce)
                     .build().toString()
             ),
         )

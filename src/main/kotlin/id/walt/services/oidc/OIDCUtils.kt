@@ -1,7 +1,10 @@
 package id.walt.services.oidc
 
+import com.beust.klaxon.JsonArray
 import com.beust.klaxon.JsonBase
+import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
+import com.github.fge.jsonschema.main.JsonSchema
 import com.nimbusds.oauth2.sdk.AuthorizationRequest
 import id.walt.custodian.Custodian
 import id.walt.model.dif.InputDescriptor
@@ -67,6 +70,16 @@ object OIDCUtils {
         }
     }
 
+    fun matchSingleJsonField(fieldValue: Any?, fieldFilter: Map<String, Any?>?): Boolean {
+        return if (fieldFilter?.containsKey("pattern") == true) {
+            Regex(fieldFilter["pattern"].toString()).matches(fieldValue.toString())
+        } else if (fieldFilter?.containsKey("const") == true) {
+            fieldFilter["const"] == fieldValue
+        } else {
+            false
+        }
+    }
+
     fun matchesInputDescriptor(credential: VerifiableCredential, inputDescriptor: InputDescriptor): Boolean {
         // for now: support
         // * schema.uri from presentation exchange 1.0
@@ -78,19 +91,33 @@ object OIDCUtils {
             return inputDescriptor.schema.uri == credential.credentialSchema?.id
         } else { // PEX 2.0
             return inputDescriptor.constraints?.fields?.any { fld ->
-                val fldVal = if (fld.path.contains("\$.type")) {
+                var isSingleFieldValue = false
+                val fldVal = if (fld.path.any { it.matches(Regex("\\\$(\\.vc)?\\.type")) }) {
+                    isSingleFieldValue = true
                     credential.type.last()
-                } else if (fld.path.contains("\$.credentialSchema.id")) {
+                } else if (fld.path.any{ it.matches(Regex("\\\$(\\.vc)?\\.credentialSchema.id"))}) {
+                    isSingleFieldValue = true
                     credential.credentialSchema?.id
+                } else if (fld.path.any{ it.matches(Regex("\\\$(\\.vc)?\\.credentialSchema"))}) {
+                    VerifiableCredential.klaxon.parse<Map<String, Any?>>(credential.json!!)!!["credentialSchema"]
                 } else {
                     null
                 }
                 return fldVal?.let {
-                    return if (fld.filter?.containsKey("pattern") == true) {
-                        Regex(fld.filter["pattern"].toString()).matches(fldVal)
-                    } else if (fld.filter?.containsKey("const") == true) {
-                        fld.filter["const"] == fldVal
-                    } else {
+                    return if (isSingleFieldValue) {
+                        matchSingleJsonField(fldVal, fld.filter)
+                    } else if (fld.filter?.containsKey("allOf") == true) {
+                        (fld.filter["allOf"] as JsonArray<JsonObject>).any { allOf ->
+                            allOf.containsKey("contains") && (allOf["contains"] as JsonObject).let {contains ->
+                                contains.containsKey("properties") && (contains["properties"] as JsonObject).let {properties ->
+                                    properties.keys.all { key ->
+                                        matchSingleJsonField((fldVal as JsonObject)[key], properties[key] as Map<String, Any?>?)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else {
                         false
                     }
                 } ?: false

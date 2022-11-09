@@ -14,10 +14,7 @@ import com.nimbusds.openid.connect.sdk.OIDCScopeValue
 import id.walt.model.dif.DescriptorMapping
 import id.walt.model.dif.PresentationDefinition
 import id.walt.model.dif.PresentationSubmission
-import id.walt.model.oidc.OIDCProvider
-import id.walt.model.oidc.SIOPv2Response
-import id.walt.model.oidc.SelfIssuedIDToken
-import id.walt.model.oidc.klaxon
+import id.walt.model.oidc.*
 import id.walt.vclib.credentials.VerifiablePresentation
 import io.javalin.http.Context
 import mu.KotlinLogging
@@ -25,6 +22,8 @@ import java.net.URI
 
 object OIDC4VPService {
     private val log = KotlinLogging.logger {}
+
+    const val LEGACY_OIDC4VP_FLAG = "legacy_oidc4vp"
     private fun getAuthenticationRequestEndpoint(verifier: OIDCProvider) = URI.create("${verifier.url}/authentication-requests")
 
     fun fetchOIDC4VPRequest(verifier: OIDCProvider): AuthorizationRequest? {
@@ -117,6 +116,7 @@ object OIDC4VPService {
     }
 
     private fun authRequest2OIDC4VPRequest(authReq: AuthorizationRequest): AuthorizationRequest {
+        val customParameters = authReq.customParameters.toMutableMap()
         return createOIDC4VPRequest(
             authReq.requestURI ?: URI.create("openid:///"),
             redirect_uri = authReq.requestObject?.jwtClaimsSet?.claims?.get("redirect_uri")?.let { URI.create(it.toString()) }
@@ -126,7 +126,7 @@ object OIDC4VPService {
             response_type = authReq.requestObject?.jwtClaimsSet?.claims?.get("response_type")
                 ?.let { ResponseType(it.toString()) } ?: authReq.responseType,
             response_mode = authReq.requestObject?.jwtClaimsSet?.claims?.get("response_mode")
-                ?.let { ResponseMode(it.toString()) } ?: authReq.responseMode,
+                ?.let { ResponseMode(it.toString()) } ?: authReq.responseMode ?: ResponseMode.FORM_POST,
             scope = authReq.scope,
             presentation_definition = (
                     // 1
@@ -136,7 +136,9 @@ object OIDC4VPService {
                             klaxon.parse<PresentationDefinition>(it)
                         }
                     // 2
-                        ?: OIDCUtils.getVCClaims(authReq).vp_token?.presentation_definition
+                        ?: OIDCUtils.getVCClaims(authReq).vp_token?.presentation_definition?.also {
+                            customParameters.put(LEGACY_OIDC4VP_FLAG, listOf("true"))
+                        }
                         // 3
                         ?: {
                             val idToken =
@@ -151,7 +153,7 @@ object OIDC4VPService {
             presentation_definition_uri = (authReq.requestObject?.jwtClaimsSet?.claims?.get("presentation_definition_uri")
                 ?: authReq.customParameters["presentation_definition_uri"]?.firstOrNull())?.toString()?.let { URI.create(it) },
             state = authReq.requestObject?.jwtClaimsSet?.claims?.get("state")?.toString()?.let { State(it) } ?: authReq.state,
-            customParameters = authReq.customParameters
+            customParameters = customParameters
         )
     }
 
@@ -167,19 +169,26 @@ object OIDC4VPService {
 
     fun getSIOPResponseFor(req: AuthorizationRequest, subjectDid: String, vps: List<VerifiablePresentation>): SIOPv2Response {
         val presentationDefinition = getPresentationDefinition(req)
+        val presentationSubmission = PresentationSubmission(
+            descriptor_map = DescriptorMapping.fromVPs(vps),
+            definition_id = presentationDefinition.id,
+            id = "1"
+        )
+        val legacyVpTokenRef = if(req.customParameters[LEGACY_OIDC4VP_FLAG]?.any { it == "true" } == true) {
+            VpTokenRef(presentationSubmission)
+        } else {
+            null
+        }
         return SIOPv2Response(
             vp_token = vps,
-            presentation_submission = PresentationSubmission(
-                descriptor_map = DescriptorMapping.fromVPs(vps),
-                definition_id = presentationDefinition.id,
-                id = "1"
-            ),
+            presentation_submission = presentationSubmission,
             id_token = if (req.responseType.contains(OIDCResponseTypeValue.ID_TOKEN)) {
                 SelfIssuedIDToken(
                     subject = subjectDid,
                     client_id = req.clientID.toString(),
                     nonce = req.customParameters["nonce"]?.firstOrNull(),
-                    expiration = null
+                    expiration = null,
+                    _vp_token = legacyVpTokenRef
                 ).sign()
             } else {
                 null

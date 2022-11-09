@@ -1,5 +1,6 @@
 package id.walt.services.oidc
 
+import com.beust.klaxon.JsonObject
 import com.nimbusds.oauth2.sdk.AuthorizationRequest
 import com.nimbusds.oauth2.sdk.id.ClientID
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken
@@ -386,7 +387,7 @@ class OIDC4VCTest : AnnotationSpec() {
                         listOf(
                             InputDescriptorField(
                                 path = listOf("\$.type"),
-                                filter = mapOf("pattern" to "VerifiableId|VerifiableFOO")
+                                filter = JsonObject(mapOf("pattern" to "VerifiableId|VerifiableFOO"))
                             )
                         )
                     )
@@ -397,7 +398,7 @@ class OIDC4VCTest : AnnotationSpec() {
                         listOf(
                             InputDescriptorField(
                                 path = listOf("\$.credentialSchema.id"),
-                                filter = mapOf("const" to credential.credentialSchema!!.id)
+                                filter = JsonObject(mapOf("const" to credential.credentialSchema!!.id))
                             )
                         )
                     )
