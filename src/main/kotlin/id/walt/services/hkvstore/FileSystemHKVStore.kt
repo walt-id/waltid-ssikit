@@ -24,7 +24,7 @@ class FileSystemHKVStore(configPath: String) : HKVStoreService() {
         configuration = config
     }
 
-    private val logger = KotlinLogging.logger("FileSystemHKVStore")
+    private val logger = KotlinLogging.logger { }
 
     init {
         if (configPath.isNotEmpty()) configuration = fromConfiguration(configPath)

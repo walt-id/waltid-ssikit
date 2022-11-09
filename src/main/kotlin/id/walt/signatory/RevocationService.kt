@@ -14,7 +14,7 @@ import kotlin.io.path.writeText
 object RevocationService {
 
     private val klaxon = Klaxon()
-    private val revokedPath = Path("revoked.json").apply {
+    private val revokedPath = Path("data/revoked.json").apply {
         if (!exists())
             writeText(klaxon.toJsonString(RevocationList(emptyList())))
     }

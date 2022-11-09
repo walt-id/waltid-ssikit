@@ -142,7 +142,7 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
         // verify jwk header is set
         signedVcJwt.header.jwk shouldNotBe null
         // create presentation using did ebsi v2
-        val presentation = Custodian.getService().createPresentation(listOf(vc), didV2, expirationDate = null)
+        val presentation = Custodian.getService().createPresentation(listOf(vc), didV2)
         VerifiableCredential.isJWT(presentation) shouldBe true
 
         val signedPresentationJwt = SignedJWT.parse(presentation)

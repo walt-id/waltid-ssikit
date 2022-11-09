@@ -295,9 +295,9 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
                     id = "https://essif.europa.eu/tsr-va/evidence/f2aeec97-fc0d-42bf-8ca7-0548192d5678",
                     type = listOf("DocumentVerification"),
                     verifier = "did:ebsi:2962fb784df61baa267c8132497539f8c674b37c1244a7a",
-                    evidenceDocument = listOf("Passport"),
+                    evidenceDocument = "Passport",
                     subjectPresence = "Physical",
-                    documentPresence = listOf("Physical")
+                    documentPresence = "Physical"
                 )
             ),
             proof = Proof(

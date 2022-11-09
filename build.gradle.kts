@@ -30,7 +30,8 @@ dependencies {
     api("com.google.crypto.tink:tink:1.7.0")
     api("info.weboftrust:ld-signatures-java:1.2-SNAPSHOT")
     api("decentralized-identity:jsonld-common-java:1.1.0")
-    implementation("com.goterl:lazysodium-java:5.1.1")
+    //implementation("com.goterl:lazysodium-java:5.1.2")
+    implementation("com.github.terl:lazysodium-java:5.1.2")
     implementation("net.java.dev.jna:jna:5.12.1")
     implementation("com.github.multiformats:java-multibase:v1.1.0")
     implementation("com.microsoft.azure:azure-keyvault:1.2.6")
@@ -48,7 +49,7 @@ dependencies {
     implementation("com.google.guava:guava:31.1-jre")
 
     // VC
-    implementation("id.walt:waltid-ssikit-vclib:1.24.3")
+    implementation("id.walt:waltid-ssikit-vclib:1.24.2")
 
     // JSON
     implementation("org.json:json:20220924")
@@ -171,6 +172,12 @@ publishing {
                     """.trimIndent()
                 )
                 url.set("https://walt.id")
+                licenses {
+                    license {
+                        name.set("Apache 2")
+                        url.set("https://raw.githubusercontent.com/walt-id/waltid-ssikit/master/LICENSE")
+                    }
+                }
             }
             from(components["java"])
         }

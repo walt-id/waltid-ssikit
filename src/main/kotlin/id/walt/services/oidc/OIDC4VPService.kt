@@ -212,7 +212,9 @@ object OIDC4VPService {
             followRedirects = false
         }.also {
             log.info("Sending SIOP response to {}\n {}", it.uri, it.query)
-        }.send()
+        }.send().also {
+            log.info { "SIOP RESPONSE SENT: received ${it.statusCode}" }
+        }
         if (!result.indicatesSuccess() && result.statusCode != 302) {
             log.error("Got error response from SIOP endpoint: {}: {}", result.statusCode, result.content)
         }

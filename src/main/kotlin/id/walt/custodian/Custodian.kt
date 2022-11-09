@@ -36,7 +36,8 @@ abstract class Custodian : WaltIdService() {
         holderDid: String,
         verifierDid: String? = null,
         domain: String? = null,
-        challenge: String? = null, expirationDate: Instant?
+        challenge: String? = null,
+        expirationDate: Instant? = null
     ): String = implementation.createPresentation(vcs, holderDid, verifierDid, domain, challenge, expirationDate)
 
     companion object : ServiceProvider {

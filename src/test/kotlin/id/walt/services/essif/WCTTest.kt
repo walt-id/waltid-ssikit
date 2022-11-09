@@ -4,7 +4,6 @@ import com.beust.klaxon.Klaxon
 import com.nimbusds.oauth2.sdk.AuthorizationRequest
 import com.nimbusds.oauth2.sdk.http.HTTPRequest
 import com.nimbusds.oauth2.sdk.util.URLUtils
-import com.nimbusds.openid.connect.sdk.Nonce
 import id.walt.crypto.KeyAlgorithm
 import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
@@ -14,20 +13,13 @@ import id.walt.model.oidc.OIDCProvider
 import id.walt.model.oidc.OIDCProviderWithMetadata
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
-import id.walt.services.ecosystems.essif.EssifClient
-import id.walt.services.ecosystems.essif.didebsi.DidEbsiService
 import id.walt.services.ecosystems.essif.didebsi.EBSI_ENV_URL
 import id.walt.services.key.KeyService
-import id.walt.services.oidc.CompatibilityMode
 import id.walt.services.oidc.OIDC4CIService
 import id.walt.services.oidc.OIDC4VPService
 import id.walt.services.oidc.OIDCUtils
-import id.walt.signatory.*
-import id.walt.signatory.dataproviders.DefaultDataProvider
-import id.walt.signatory.dataproviders.MergingDataProvider
 import id.walt.test.RESOURCES_PATH
 import id.walt.vclib.credentials.VerifiablePresentation
-import id.walt.vclib.model.CredentialSchema
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.model.toCredential
 import io.kotest.assertions.throwables.shouldNotThrowAny
@@ -35,29 +27,21 @@ import io.kotest.core.annotation.EnabledCondition
 import io.kotest.core.annotation.EnabledIf
 import io.kotest.core.spec.Spec
 import io.kotest.core.spec.style.AnnotationSpec
-import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.kotest.matchers.string.match
 import io.ktor.http.*
-import net.minidev.json.JSONObject
-import net.minidev.json.parser.JSONParser
-import java.io.File
 import java.net.URI
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
-import java.nio.file.Files
 import java.time.Duration
 import java.time.Instant
-import java.time.temporal.Temporal
-import java.time.temporal.TemporalAmount
 import kotlin.reflect.KClass
 
 val EBSI_BEARER_TOKEN_FILE = "wct_bearer_token"
 
 class WCTEnabled : EnabledCondition {
     override fun enabled(kclass: KClass<out Spec>): Boolean {
-        return File(EBSI_BEARER_TOKEN_FILE).exists()
+        return false//File(EBSI_BEARER_TOKEN_FILE).exists()
     }
 }
 
@@ -76,7 +60,7 @@ class WCTTest : AnnotationSpec() {
     var issuedVC: VerifiableCredential? = null
 
     lateinit var did: String
-    lateinit var ebsiBearerToken: String
+    //lateinit var ebsiBearerToken: String
 
     @BeforeAll
     fun init() {
@@ -85,7 +69,7 @@ class WCTTest : AnnotationSpec() {
         val key = KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1)
         did = DidService.create(DidMethod.ebsi, key.id, DidService.DidEbsiOptions(2))
 
-        ebsiBearerToken = File(EBSI_BEARER_TOKEN_FILE).readText().trim()
+        //ebsiBearerToken = File(EBSI_BEARER_TOKEN_FILE).readText().trim()
     }
 
     //@Test

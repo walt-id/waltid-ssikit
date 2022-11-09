@@ -16,11 +16,11 @@ VOLUME /home/gradle/.gradle
 
 WORKDIR /opt
 
-RUN apt-get update && apt-get upgrade --yes
+#RUN apt-get update && apt-get upgrade --yes
 
 FROM openjdk-gradle AS walt-build
 COPY ./ /opt
-RUN ./gradlew clean build
+RUN ./gradlew clean build # -x test
 RUN tar xf /opt/build/distributions/waltid-ssi-kit-*.tar -C /opt
 
 FROM waltid/waltid_iota_identity_wrapper:latest as iota_wrapper
@@ -34,8 +34,7 @@ RUN ldconfig
 RUN mkdir /app
 COPY --from=walt-build /opt/waltid-ssi-kit-* /app/
 COPY --from=walt-build /opt/service-matrix.properties /app/
-COPY --from=walt-build /opt/signatory.conf /app/
-COPY --from=walt-build /opt/fsStore.conf /app/
+COPY --from=walt-build /opt/config /app/config
 
 WORKDIR /app
 

@@ -435,10 +435,9 @@ class OidcVerificationRespondCommand :
         val req = OIDC4VPService.parseOIDC4VPRequestUri(URI.create(authUrl))
         val nonce = req.getCustomParameter("nonce")?.firstOrNull()
         val vp = Custodian.getService().createPresentation(
-            credentialIds.map { Custodian.getService().getCredential(it)!!.encode() },
-            did,
+            vcs = credentialIds.map { Custodian.getService().getCredential(it)!!.encode() },
+            holderDid = did,
             challenge = nonce,
-            expirationDate = null
         ).toCredential() as VerifiablePresentation
         val resp = OIDC4VPService.getSIOPResponseFor(req, did, listOf(vp))
         println("Presentation response:")

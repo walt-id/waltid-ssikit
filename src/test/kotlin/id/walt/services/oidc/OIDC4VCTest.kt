@@ -179,7 +179,7 @@ class OIDC4VCTest : AnnotationSpec() {
     @Test
     fun testVerifyPresentation() {
         val credential = Signatory.getService().issue("VerifiableId", ProofConfig(OIDCTestProvider.ISSUER_DID, SUBJECT_DID))
-        val presentation = Custodian.getService().createPresentation(listOf(credential), SUBJECT_DID, expirationDate = null)
+        val presentation = Custodian.getService().createPresentation(listOf(credential), SUBJECT_DID)
             .toCredential() as VerifiablePresentation
         val req = OIDC4VPService.createOIDC4VPRequest(
             URI("openid:///"),
@@ -203,7 +203,7 @@ class OIDC4VCTest : AnnotationSpec() {
     fun testVerifyJWTPresentation() {
         val credential = Signatory.getService()
             .issue("VerifiableId", ProofConfig(OIDCTestProvider.ISSUER_DID, SUBJECT_DID, proofType = ProofType.JWT))
-        val presentation = Custodian.getService().createPresentation(listOf(credential), SUBJECT_DID, expirationDate = null)
+        val presentation = Custodian.getService().createPresentation(listOf(credential), SUBJECT_DID)
             .toCredential() as VerifiablePresentation
         val req = OIDC4VPService.createOIDC4VPRequest(
             URI.create("openid:///"),
@@ -226,7 +226,7 @@ class OIDC4VCTest : AnnotationSpec() {
     @Test
     fun testVerifyMultiplePresentations() {
         val credential = Signatory.getService().issue("VerifiableId", ProofConfig(OIDCTestProvider.ISSUER_DID, SUBJECT_DID))
-        val presentation = Custodian.getService().createPresentation(listOf(credential), SUBJECT_DID, expirationDate = null)
+        val presentation = Custodian.getService().createPresentation(listOf(credential), SUBJECT_DID)
             .toCredential() as VerifiablePresentation
         val req = OIDC4VPService.createOIDC4VPRequest(
             URI.create("openid:///"),
@@ -255,7 +255,7 @@ class OIDC4VCTest : AnnotationSpec() {
     fun testVerifyMultipleJWTPresentations() {
         val credential = Signatory.getService()
             .issue("VerifiableId", ProofConfig(OIDCTestProvider.ISSUER_DID, SUBJECT_DID, proofType = ProofType.JWT))
-        val presentation = Custodian.getService().createPresentation(listOf(credential), SUBJECT_DID, expirationDate = null)
+        val presentation = Custodian.getService().createPresentation(listOf(credential), SUBJECT_DID)
             .toCredential() as VerifiablePresentation
         val req = OIDC4VPService.createOIDC4VPRequest(
             URI.create("openid:///"),
@@ -306,7 +306,7 @@ class OIDC4VCTest : AnnotationSpec() {
         val credentialJWT = Signatory.getService()
             .issue("VerifiableId", ProofConfig(OIDCTestProvider.ISSUER_DID, SUBJECT_DID, proofType = ProofType.JWT))
         val presentationJWT =
-            Custodian.getService().createPresentation(listOf(credentialJWT), SUBJECT_DID, expirationDate = null)
+            Custodian.getService().createPresentation(listOf(credentialJWT), SUBJECT_DID)
                 .toCredential() as VerifiablePresentation
 
         val vp_token_JWT = OIDCUtils.toVpToken(listOf(presentationJWT))
@@ -322,7 +322,7 @@ class OIDC4VCTest : AnnotationSpec() {
 
         val credentialLD = Signatory.getService()
             .issue("VerifiableId", ProofConfig(OIDCTestProvider.ISSUER_DID, SUBJECT_DID, proofType = ProofType.LD_PROOF))
-        val presentationLD = Custodian.getService().createPresentation(listOf(credentialLD), SUBJECT_DID, expirationDate = null)
+        val presentationLD = Custodian.getService().createPresentation(listOf(credentialLD), SUBJECT_DID)
             .toCredential() as VerifiablePresentation
 
         val vp_token_LD = OIDCUtils.toVpToken(listOf(presentationLD))
