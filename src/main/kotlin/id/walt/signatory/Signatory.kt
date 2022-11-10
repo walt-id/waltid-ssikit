@@ -15,6 +15,8 @@ import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.model.toCredential
 import id.walt.vclib.templates.VcTemplateManager
 import mu.KotlinLogging
+import java.nio.file.Files
+import java.nio.file.Path
 import java.time.Instant
 import java.util.*
 
@@ -99,7 +101,11 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
         // TODO: load proof-conf from signatory.conf and optionally substitute values on request basis
 
         val vcTemplate = kotlin.runCatching {
-            VcTemplateManager.loadTemplate(templateId)
+            if(Files.exists(Path.of(templateId))) {
+                Files.readString(Path.of(templateId)).toCredential()
+            } else {
+                VcTemplateManager.loadTemplate(templateId)
+            }
         }.getOrElse { throw Exception("Could not load template: $templateId") }
 
         val configDP = ProofConfig(
