@@ -13,7 +13,7 @@ object OidcAPI {
     @Serializable
     data class VpRequest(val uri: String, val did: String, val credentialIds: List<String>)
 
-    internal const val DEFAULT_OIDC_API_PORT = 7004
+    internal const val DEFAULT_OIDC_API_PORT = 7010
     internal const val DEFAULT_BIND_ADDRESS = "127.0.0.1"
 
 
@@ -51,6 +51,6 @@ object OidcAPI {
 
                 it.result(res)
             }
-        }.start(7010)
+        }.start(bindAddress, port)
     }
 }
