@@ -97,6 +97,10 @@ function execute() {
   fi
 }
 
+function clean() {
+    ./gradlew clean
+}
+
 function help() {
   echo "Usage: $0 {build|build-st|build-docker|build-podman|extract|--verbose|execute (default)}"
   echo
@@ -129,6 +133,10 @@ else
   extract)
     header
     extract
+    ;;
+  clean)
+    header
+    clean
     ;;
   help)
     header
