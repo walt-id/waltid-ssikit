@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e
 
-version='1.13.0-SNAPSHOT'
-
 function header() {
   echo "waltid-ssi-kit wrapper script"
   echo
@@ -11,15 +9,13 @@ function header() {
 function build() {
   echo "Building walt.id build files..."
 
-  if ./gradlew clean build; then
+  if ./gradlew clean build installDist; then
     echo
     echo "Build was successful."
-    echo "Continuing with build file extraction..."
     echo
-    extract
   else
     echo
-    echo "Build was unsuccessful. Will not extract the build files."
+    echo "Build was unsuccessful."
     exit
     echo
   fi
@@ -28,22 +24,20 @@ function build() {
 function build_skip_tests() {
   echo "Building walt.id build files..."
 
-  if ./gradlew clean build -x test; then
+  if ./gradlew clean installDist -x test; then
     echo
     echo "Build was successful."
-    echo "Continuing with build file extraction..."
     echo
-    extract
   else
     echo
-    echo "Build was unsuccessful. Will not extract the build files."
+    echo "Build was unsuccessful."
     exit
     echo
   fi
 }
 
 function build_docker() {
-  if docker build -t ssikit .; then
+  if docker build -t waltid/ssikit .; then
     echo
     echo "Docker container build was successful."
     echo
@@ -56,7 +50,7 @@ function build_docker() {
 }
 
 function build_podman() {
-  if podman build -t ssikit .; then
+  if podman build -t waltid/ssikit .; then
     echo
     echo "Podman container build was successful."
     echo
@@ -68,50 +62,18 @@ function build_podman() {
   fi
 }
 
-function extract() {
-  echo "Extracting walt.id build files..."
-
-  echo
-
-  if [[ ! -d build/distributions ]]; then
-    echo "The directory ./build/distributions does not exist."
-    echo "Have you run \"./ssikit.sh build\" yet?"
-    echo
-    exit
-  fi
-
-  if [[ ! -f build/distributions/waltid-ssi-kit-$version.tar ]]; then
-    echo "The build files do not exist (directory ./build/distributions)."
-    echo "Have you run \"./ssikit.sh build\" yet?"
-    echo
-    exit
-  fi
-
-  (
-    cd build/distributions
-    if tar xf waltid-ssi-kit-$version.tar; then
-      echo "Extraction successful."
-    else
-      echo "Extracting was unsuccessful."
-      echo
-      exit
-    fi
-    echo
-  )
-}
-
 function build_runscript_question() {
   header
   echo "Cannot run walt.id: Runscript does not exist."
-  echo "Have you built and extracted the buildfiles? ($0 build)"
+  echo "Have you run 'build' yet? ($0 build)"
   echo
   echo -n "Do you want to build ($0 build)? [y/n]: "
   read -r ans
 }
 
 function execute_debug() {
-  if [[ -f build/distributions/waltid-ssi-kit-$version/bin/waltid-ssi-kit ]]; then
-    JAVA_OPTS="-Dorg.slf4j.simpleLogger.defaultLogLevel=DEBUG" build/distributions/waltid-ssi-kit-$version/bin/waltid-ssi-kit "$@"
+  if [[ -f build/install/waltid-ssi-kit/bin/waltid-ssi-kit ]]; then
+    JAVA_OPTS="-Dorg.slf4j.simpleLogger.defaultLogLevel=DEBUG" build/install/waltid-ssi-kit/bin/waltid-ssi-kit "$@"
   else
     build_runscript_question
 
@@ -123,8 +85,8 @@ function execute_debug() {
 }
 
 function execute() {
-  if [[ -f build/distributions/waltid-ssi-kit-$version/bin/waltid-ssi-kit ]]; then
-    build/distributions/waltid-ssi-kit-$version/bin/waltid-ssi-kit "$@"
+  if [[ -f build/install/waltid-ssi-kit/bin/waltid-ssi-kit ]]; then
+    build/install/waltid-ssi-kit/bin/waltid-ssi-kit "$@"
   else
     build_runscript_question
 
