@@ -60,7 +60,11 @@ val jsonObjectFieldConverter = object : Converter {
     }
 
     override fun toJson(value: Any): String {
-        return (value as JsonObject).toJsonString()
+        return when (value) {
+            is Map<*, *> -> Klaxon().toJsonString(value)
+            else -> runCatching { (value as JsonObject).toJsonString() }
+                .getOrElse { throw IllegalStateException("Could not convert value to JSON, value: $value", it) }
+        }
     }
 }
 
