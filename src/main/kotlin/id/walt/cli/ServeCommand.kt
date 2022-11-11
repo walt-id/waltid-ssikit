@@ -61,8 +61,8 @@ class ServeCommand : CliktCommand(
         EssifAPI.DEFAULT_ESSIF_API_PORT
     )
     private val oidcPort: Int by option(
-        help = "Essif API port [${OidcAPI.DEFAULT_OIDC_API_PORT}]",
-        names = arrayOf("-e", "--essif-port")
+        help = "OIDC API port [${OidcAPI.DEFAULT_OIDC_API_PORT}]",
+        names = arrayOf("-o", "--oidc-port")
     ).int().default(
         OidcAPI.DEFAULT_OIDC_API_PORT
     )
