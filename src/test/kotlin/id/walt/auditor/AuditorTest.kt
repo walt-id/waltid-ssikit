@@ -13,12 +13,13 @@ import id.walt.signatory.Signatory
 import id.walt.signatory.dataproviders.MergingDataProvider
 import id.walt.test.DummySignatoryDataProvider
 import id.walt.test.RESOURCES_PATH
+import io.kotest.core.annotation.Ignored
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.core.test.TestCase
 import io.kotest.matchers.collections.shouldBeSameSizeAs
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
-
+@Ignored // TODO: Ignored test since ebsi dids are currently not resolving
 class AuditorCommandTest : StringSpec() {
     private lateinit var did: String
     private lateinit var vcStr: String

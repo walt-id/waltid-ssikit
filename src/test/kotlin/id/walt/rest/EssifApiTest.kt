@@ -3,6 +3,7 @@ package id.walt.rest
 import id.walt.rest.essif.EbsiTimestampRequest
 import id.walt.rest.essif.EssifAPI
 import id.walt.servicematrix.ServiceMatrix
+import io.kotest.core.annotation.Ignored
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldStartWith
@@ -15,6 +16,7 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.runBlocking
 
+@Ignored
 class EssifApiTest : AnnotationSpec() {
 
     val ESSIF_API_URL = "http://localhost:7012"
