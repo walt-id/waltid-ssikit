@@ -30,7 +30,9 @@ object CheqdService {
 
         log.debug { "Decoded response from CHEQD resolver: $resp" }
 
-        resp.didResolutionMetadata.error ?: throw IllegalArgumentException("Could not resolve did:cheqd, resolver responded: ${resp.didResolutionMetadata.error}")
+        if (resp.didResolutionMetadata.error != null)
+            throw IllegalArgumentException("Could not resolve did:cheqd, resolver responded: ${resp.didResolutionMetadata.error}")
+
         resp.didDocument ?: throw IllegalArgumentException("Response for did:cheqd did not contain a DID document!")
 
         log.debug { "Found DID document in CHEQD resolver response: ${resp.didDocument}" }
