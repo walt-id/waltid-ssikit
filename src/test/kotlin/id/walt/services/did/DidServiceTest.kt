@@ -5,10 +5,9 @@ import id.walt.common.prettyPrint
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.decodeBase58
 import id.walt.model.Did
-import id.walt.model.DidEbsi
+import id.walt.model.did.DidEbsi
 import id.walt.model.DidMethod
 import id.walt.model.DidUrl
-import id.walt.model.oidc.klaxon
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType

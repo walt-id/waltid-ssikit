@@ -1,6 +1,9 @@
-package id.walt.model
+package id.walt.model.did
 
 import com.beust.klaxon.Json
+import id.walt.model.Did
+import id.walt.model.ServiceEndpoint
+import id.walt.model.VerificationMethod
 import id.walt.vclib.model.Proof
 
 class DidEbsi(
@@ -15,15 +18,15 @@ class DidEbsi(
     serviceEndpoint: List<ServiceEndpoint>? = null,
     @Json(serializeNull = false) var proof: Proof? = null
 ) : Did(
-    context,
-    id,
-    verificationMethod,
-    authentication,
-    assertionMethod,
-    capabilityDelegation,
-    capabilityInvocation,
-    keyAgreement,
-    serviceEndpoint
+    context = context,
+    id = id,
+    verificationMethod = verificationMethod,
+    authentication = authentication,
+    assertionMethod = assertionMethod,
+    capabilityDelegation = capabilityDelegation,
+    capabilityInvocation = capabilityInvocation,
+    keyAgreement = keyAgreement,
+    serviceEndpoint = serviceEndpoint
 ) {
     constructor(
         context: String,
@@ -37,15 +40,15 @@ class DidEbsi(
         serviceEndpoint: List<ServiceEndpoint>? = null,
         proof: Proof? = null
     ) : this(
-        listOf(context),
-        id,
-        verificationMethod,
-        authentication,
-        assertionMethod,
-        capabilityDelegation,
-        capabilityInvocation,
-        keyAgreement,
-        serviceEndpoint,
-        proof
+        context = listOf(context),
+        id = id,
+        verificationMethod = verificationMethod,
+        authentication = authentication,
+        assertionMethod = assertionMethod,
+        capabilityDelegation = capabilityDelegation,
+        capabilityInvocation = capabilityInvocation,
+        keyAgreement = keyAgreement,
+        serviceEndpoint = serviceEndpoint,
+        proof = proof
     )
 }
