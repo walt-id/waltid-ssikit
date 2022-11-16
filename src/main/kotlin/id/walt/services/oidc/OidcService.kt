@@ -6,17 +6,22 @@ import com.nimbusds.oauth2.sdk.util.URLUtils
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse
 import id.walt.common.prettyPrint
 import id.walt.custodian.Custodian
+import id.walt.model.DidMethod
 import id.walt.model.oidc.CredentialAuthorizationDetails
 import id.walt.model.oidc.IssuanceInitiationRequest
 import id.walt.model.oidc.OIDCProvider
 import id.walt.servicematrix.ServiceMatrix
+import id.walt.services.did.DidService
 import id.walt.vclib.credentials.VerifiablePresentation
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.model.toCredential
+import mu.KotlinLogging
 import java.net.URI
 import java.util.*
 
 object OidcService {
+
+    private val log = KotlinLogging.logger {  }
 
     fun authorization(
         issuanceInitiationRequest: IssuanceInitiationRequest,
@@ -153,13 +158,19 @@ object OidcService {
         var nonce: String? = null
         val format = "ldp_vc" // or jwt_vc
 
+        log.debug { "Parsing issuance initiation request..." }
         val issuanceInitiationRequest =
             IssuanceInitiationRequest.fromQueryParams(URLUtils.parseParameters(URI.create(uri).query))
         val issuer_url = issuanceInitiationRequest.issuer_url
+
+        log.debug { "Issuer url: $issuer_url" }
         val isPreAuthorized = issuanceInitiationRequest.isPreAuthorized
+        log.debug { "Preauthroized: $isPreAuthorized" }
 
         val tokenResponse = if (!isPreAuthorized) {
+            log.debug { "Not pre-authorized, authorizing..." }
             authorization(issuanceInitiationRequest, client_id, client_secret, nonce, format)
+            log.debug { "Getting token..." }
             token(
                 issuer_url = issuer_url,
                 client_id = client_id,
@@ -171,6 +182,7 @@ object OidcService {
             )
         } else {
             val userPin = null
+            log.debug { "Pre-authorized, can continue fetching token..." }
             token(
                 issuer_url = issuer_url,
                 client_id = client_id,
@@ -181,28 +193,40 @@ object OidcService {
                 userPin = userPin
             )
         }
+        log.debug { "Received token!" }
 
+        log.debug { "Parsing token..." }
         val tokenJson = tokenResponse.toJSONObject()
         val token = tokenJson["access_token"] as? String ?: "<token>"
         nonce = tokenJson["c_nonce"]?.let { "-n $it" } ?: ""
+        val schemaId = issuanceInitiationRequest.credential_types.joinToString(", ")
 
+        log.debug { "Credential request = issuer: $issuer_url, clientId: $client_id, clientSecret: $client_secret, nonce: $nonce"}
+        log.debug { "Credential request DID: $did" }
+        log.debug { "Credential request token: $token" }
+        log.debug { "Credential request schema: $schemaId, format: $format" }
 
+        log.debug { "Requesting credential with token..." }
         val vc = credential(
-            issuer_url,
-            client_id,
-            client_secret,
-            did,
-            token,
-            nonce,
-            issuanceInitiationRequest.credential_types.joinToString(", "),
-            format
+            issuer_url = issuer_url,
+            client_id = client_id,
+            client_secret = client_secret,
+            did = did,
+            token = token,
+            nonce = nonce,
+            schemaId = schemaId,
+            format = format
         )
+        log.debug { "Received credential!" }
 
         vc.id = vc.id ?: UUID.randomUUID().toString()
+
+        log.debug { "Storing credential \"${vc.id}\" in Custodian..." }
         Custodian.getService().storeCredential(vc.id!!, vc)
 
-        return vc.id!!
+        log.debug { "Credential received." }
 
+        return vc.id!!
     }
 
     /*fun vpParse() {
@@ -251,16 +275,19 @@ object OidcService {
 fun main() {
     ServiceMatrix("service-matrix.properties")
 
-    //val did = DidService.create(DidMethod.key)
-    val did = "did:iota:DVF9yjZBtSAPGzYj8x5rfHPS5XCNJ5dvvpKVmKRNYsd9#ca7d7e0205a14763a4f063a9acffb5d1"
+    val did = DidService.create(DidMethod.key)
+    //val did = "did:iota:DVF9yjZBtSAPGzYj8x5rfHPS5XCNJ5dvvpKVmKRNYsd9#ca7d7e0205a14763a4f063a9acffb5d1"
 
-    val vcId = Custodian.getService().listCredentialIds().first()
-    /*val vcId = OidcService.issuance(
-        "openid-initiate-issuance://?issuer=https%3A%2F%2Fissuer.walt-test.cloud%2Fissuer-api%2Foidc%2F&credential_type=VerifiableId&pre-authorized_code=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwNjRjOGE5Yi0xMjEzLTQ3OTItYWU0Yy0xYzMyYzJlOGY2N2IiLCJwcmUtYXV0aG9yaXplZCI6dHJ1ZX0.KavupJvOPkBpA7N7AO7BbmwY_yf-QMeKtcSuKuiUze0&user_pin_required=false",
+    println("Issuance:")
+    val vcId = OidcService.issuance(
+        "openid-initiate-issuance://?issuer=https%3A%2F%2Fissuer.walt-test.cloud%2Fissuer-api%2Foidc%2F&credential_type=VerifiableId&pre-authorized_code=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhOGU1MzQ0YS0yYTAzLTRkNWEtYjY5Mi01ZWNkNTBhMzJjNjMiLCJwcmUtYXV0aG9yaXplZCI6dHJ1ZX0.8f6-AgiKMciZ0KEo-xLobAxAma1iZvAcRhWq3iwfUb4&user_pin_required=false",
         did
-    )*/
-    OidcService.present(
+    )
+
+    //val vcId = Custodian.getService().listCredentialIds().first()
+    /*OidcService.present(
         "http://localhost:8080/sharecredential?scope=openid&presentation_definition=%7B%22format%22+%3A+null%2C+%22id%22+%3A+%221%22%2C+%22input_descriptors%22+%3A+%5B%7B%22constraints%22+%3A+%7B%22fields%22+%3A+%5B%7B%22filter%22+%3A+%7B%22const%22%3A+%22VerifiableId%22%7D%2C+%22id%22+%3A+%221%22%2C+%22path%22+%3A+%5B%22%24.type%22%5D%2C+%22purpose%22+%3A+null%7D%5D%7D%2C+%22format%22+%3A+null%2C+%22group%22+%3A+%5B%22A%22%5D%2C+%22id%22+%3A+%220%22%2C+%22name%22+%3A+null%2C+%22purpose%22+%3A+null%2C+%22schema%22+%3A+null%7D%5D%2C+%22name%22+%3A+null%2C+%22purpose%22+%3A+null%2C+%22submission_requirements%22+%3A+%5B%7B%22count%22+%3A+null%2C+%22from%22+%3A+%22A%22%2C+%22from_nested%22+%3A+null%2C+%22max%22+%3A+null%2C+%22min%22+%3A+null%2C+%22name%22+%3A+null%2C+%22purpose%22+%3A+null%2C+%22rule%22+%3A+%22all%22%7D%5D%7D&response_type=vp_token&redirect_uri=http%3A%2F%2Flocalhost%3A4000%2Fapi%2Fsiop%2Fverify&state=eyJpZHBTZXNzaW9uSWQiIDogIjI0ZjFmYWJiLWEzNGMtNDUwOS05ZDk2LTc1YTc3ZThkN2UxYyIsICJpZHBUeXBlIiA6ICJPSURDIn0%3D&nonce=3db82a1e-5aed-4bf5-87bb-95cff04c19f3&client_id=http%3A%2F%2Flocalhost%3A3000%2Fapi%2Fsiop%2Fverify&response_mode=form_post",
         did, listOf(vcId)
-    )
+    )*/
+    println("VC ID: $vcId")
 }
