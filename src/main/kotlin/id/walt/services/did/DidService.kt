@@ -410,7 +410,7 @@ object DidService {
         ContextManager.keyStore.addAlias(key.keyId, did)
 
         val kid = did + "#" + key.keyId
-        ContextManager.keyStore.addAlias(keyId, kid)
+        ContextManager.keyStore.addAlias(key.keyId, kid)
     }
 
     private fun signDid(issuerDid: String, verificationMethod: String, edDidStr: String): String {
