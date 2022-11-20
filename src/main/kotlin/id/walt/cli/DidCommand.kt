@@ -167,7 +167,6 @@ class ImportDidCommand : CliktCommand(
             true -> didOrDoc.also {
                 DidService.importDid(didOrDoc)
             }
-
             else -> DidService.importDidFromFile(File(didOrDoc))
         }
 

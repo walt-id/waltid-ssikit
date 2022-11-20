@@ -408,6 +408,7 @@ object DidService {
         log.debug { "Loaded key: $keyId" }
 
         ContextManager.keyStore.addAlias(key.keyId, did)
+        ContextManager.keyStore.addAlias(key.keyId, did + "#" + key.keyId)
     }
 
     private fun signDid(issuerDid: String, verificationMethod: String, edDidStr: String): String {
