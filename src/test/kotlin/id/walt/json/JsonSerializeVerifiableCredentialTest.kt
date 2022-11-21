@@ -7,8 +7,12 @@ import id.walt.vclib.credentials.VerifiableAttestation
 import id.walt.vclib.model.*
 import io.kotest.assertions.fail
 import io.kotest.assertions.json.shouldEqualJson
+import io.kotest.assertions.json.shouldMatchJson
 import io.kotest.core.spec.style.AnnotationSpec
+import io.kotest.matchers.equality.shouldBeEqualToComparingFields
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.instanceOf
+import io.kotest.matchers.types.shouldBeSameInstanceAs
 import java.io.File
 import java.time.LocalDateTime
 
@@ -78,15 +82,6 @@ class JsonSerializeVerifiableCredentialTest : AnnotationSpec() {
     @Test
     fun vcConstructTest() {
 
-        val proof =
-            Proof(
-                type = "EidasSeal2019",
-                created = LocalDateTime.now().withNano(0).toString(),
-                creator = "did:creator",
-                proofPurpose = "assertionMethod",
-                verificationMethod = "EidasCertificate2019",//VerificationMethodCert("EidasCertificate2019", "1088321447"),
-                jws = "BD21J4fdlnBvBA+y6D...fnC8Y="
-            )
         val vc = VerifiableAttestation(
             context = listOf(
                 "https://www.w3.org/2018/credentials/v1",
@@ -132,8 +127,8 @@ class JsonSerializeVerifiableCredentialTest : AnnotationSpec() {
         // println(encoded)
         val obj = Klaxon().parse<VerifiableCredential>(encoded)
         // println(obj)
-
-        vc shouldBe obj
+        obj shouldBe instanceOf<VerifiableAttestation>()
+        encoded shouldMatchJson obj!!.encode()
     }
 
     @Test

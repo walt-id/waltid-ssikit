@@ -1,6 +1,7 @@
 package id.walt.signatory
 
 import com.beust.klaxon.Json
+import id.walt.credentials.w3c.W3CIssuer
 import id.walt.crypto.LdSignatureType
 import id.walt.model.DidMethod
 import id.walt.model.DidUrl
@@ -11,6 +12,7 @@ import id.walt.services.context.ContextManager
 import id.walt.services.did.DidService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
+import id.walt.credentials.w3c.builder.AbstractW3CCredentialBuilder
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.model.toCredential
 import id.walt.vclib.templates.VcTemplateManager
@@ -66,6 +68,8 @@ abstract class Signatory : WaltIdService() {
     open fun issue(templateId: String, config: ProofConfig, dataProvider: SignatoryDataProvider? = null): String =
         implementation.issue(templateId, config, dataProvider)
 
+    open fun issue(credentialBuilder: AbstractW3CCredentialBuilder<*, *>, config: ProofConfig, issuer: W3CIssuer? = null): String = implementation.issue(credentialBuilder, config, issuer)
+
     open fun listTemplates(): List<String> = implementation.listTemplates()
     open fun loadTemplate(templateId: String): VerifiableCredential = implementation.loadTemplate(templateId)
 }
@@ -96,19 +100,8 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
         }?.id ?: config.issuerVerificationMethod
     }
 
-    override fun issue(templateId: String, config: ProofConfig, dataProvider: SignatoryDataProvider?): String {
-
-        // TODO: load proof-conf from signatory.conf and optionally substitute values on request basis
-
-        val vcTemplate = kotlin.runCatching {
-            if(Files.exists(Path.of(templateId))) {
-                Files.readString(Path.of(templateId)).toCredential()
-            } else {
-                VcTemplateManager.loadTemplate(templateId)
-            }
-        }.getOrElse { throw Exception("Could not load template: $templateId") }
-
-        val configDP = ProofConfig(
+    private fun fillProofConfig(config: ProofConfig): ProofConfig {
+        return ProofConfig(
             issuerDid = config.issuerDid,
             subjectDid = config.subjectDid,
             null,
@@ -125,6 +118,21 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
             ldSignatureType = config.ldSignatureType ?: defaultLdSignatureByDidMethod(config.issuerDid),
             creator = config.creator
         )
+    }
+
+    override fun issue(templateId: String, config: ProofConfig, dataProvider: SignatoryDataProvider?): String {
+
+        // TODO: load proof-conf from signatory.conf and optionally substitute values on request basis
+
+        val vcTemplate = kotlin.runCatching {
+            if(Files.exists(Path.of(templateId))) {
+                Files.readString(Path.of(templateId)).toCredential()
+            } else {
+                VcTemplateManager.loadTemplate(templateId)
+            }
+        }.getOrElse { throw Exception("Could not load template: $templateId") }
+
+        val configDP = fillProofConfig(config)
 
         val selectedDataProvider = dataProvider ?: DataProviderRegistry.getProvider(vcTemplate::class)
         val vcRequest = selectedDataProvider.populate(vcTemplate, configDP)
@@ -137,6 +145,30 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
         }
         log.debug { "Signed VC is: $signedVc" }
         ContextManager.vcStore.storeCredential(configDP.credentialId!!, signedVc.toCredential(), VC_GROUP)
+        return signedVc
+    }
+
+    override fun issue(credentialBuilder: AbstractW3CCredentialBuilder<*, *>, config: ProofConfig, issuer: W3CIssuer?): String {
+        val fullProofConfig = fillProofConfig(config)
+        val vcRequest = credentialBuilder.apply {
+            issuer?.let { setIssuer(it) }
+            setIssuerId(fullProofConfig.issuerDid)
+            setIssuanceDate(fullProofConfig.issueDate ?: Instant.now())
+            fullProofConfig.subjectDid?.let { setSubjectId(it) }
+            setId(fullProofConfig.credentialId.orEmpty().ifEmpty { "urn:uuid:${UUID.randomUUID()}" })
+            setIssuanceDate(fullProofConfig.issueDate ?: Instant.now())
+            setValidFrom(fullProofConfig.validDate ?: Instant.now())
+            fullProofConfig.expirationDate?.let { setExpirationDate(it) }
+        }.build()
+
+        log.info { "Signing credential with proof using ${fullProofConfig.proofType.name}..." }
+        log.debug { "Signing credential with proof using ${fullProofConfig.proofType.name}, credential is: $vcRequest" }
+        val signedVc = when (fullProofConfig.proofType) {
+            ProofType.LD_PROOF -> JsonLdCredentialService.getService().sign(vcRequest.toJson(), fullProofConfig)
+            ProofType.JWT -> JwtCredentialService.getService().sign(vcRequest.toJson(), fullProofConfig)
+        }
+        log.debug { "Signed VC is: $signedVc" }
+        ContextManager.vcStore.storeCredential(fullProofConfig.credentialId!!, signedVc.toCredential(), VC_GROUP)
         return signedVc
     }
 

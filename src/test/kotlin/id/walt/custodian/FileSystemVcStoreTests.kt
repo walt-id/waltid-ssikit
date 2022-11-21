@@ -39,7 +39,7 @@ class FileSystemVcStoreTests : StringSpec({
     }
 
     "3: List credentials" {
-        custodian.listCredentials().contains(vc) shouldBe true
+        custodian.listCredentials().map { it.id }.contains(vc.id) shouldBe true
     }
 
     "4: Delete credentials" {

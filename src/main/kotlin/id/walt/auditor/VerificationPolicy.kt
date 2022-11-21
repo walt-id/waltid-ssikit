@@ -62,8 +62,8 @@ class SignaturePolicy : SimpleVerificationPolicy() {
     override fun doVerify(vc: VerifiableCredential) = runCatching {
         log.debug { "is jwt: ${vc.jwt != null}" }
         when (vc.jwt) {
-            null -> jsonLdCredentialService.verify(vc.json!!).verified
-            else -> jwtCredentialService.verify(vc.jwt!!).verified
+            null -> jsonLdCredentialService.verify(vc.encode()).verified
+            else -> jwtCredentialService.verify(vc.encode()).verified
         }
     }.onFailure {
         log.error(it.localizedMessage)

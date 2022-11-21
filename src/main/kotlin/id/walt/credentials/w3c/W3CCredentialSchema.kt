@@ -1,0 +1,38 @@
+package id.walt.credentials.w3c
+
+import id.walt.vclib.model.CredentialSchema
+import kotlinx.serialization.json.*
+
+class W3CCredentialSchema(
+    id: String,
+    type: String,
+    override val properties: Map<String, Any?> = mapOf()
+): CredentialSchema(id, type), ICredentialElement {
+    fun toJsonObject() = buildJsonObject {
+        id.let { put("id", it) }
+        type.let { put("type", it) }
+        properties?.let { props ->
+            props.keys.forEach { key ->
+                put(key, JsonConverter.toJsonElement(props[key]))
+            }
+        }
+    }
+
+    fun toJson() = toJsonObject().toString()
+
+    companion object {
+        val PREDEFINED_PROPERTY_KEYS = setOf(
+            "id", "type"
+        )
+
+        fun fromJsonObject(jsonObject: JsonObject): W3CCredentialSchema {
+            return W3CCredentialSchema(
+                id = jsonObject["id"]?.jsonPrimitive?.content ?: throw Exception("Missing id property in CredentialSchema"),
+                type = jsonObject["type"]?.jsonPrimitive?.content ?: throw Exception("Missing id property in CredentialSchema"),
+                properties = jsonObject.filterKeys { k -> !W3CProof.PREDEFINED_PROPERTY_KEYS.contains(k) }.mapValues { entry -> JsonConverter.fromJsonElement(entry.value) }
+            )
+        }
+
+        fun fromJson(json: String) = fromJsonObject(kotlinx.serialization.json.Json.parseToJsonElement(json).jsonObject)
+    }
+}

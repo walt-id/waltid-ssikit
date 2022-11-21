@@ -59,7 +59,7 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:2.1.2")
     implementation("com.jayway.jsonpath:json-path:2.7.0")
 
-    //implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
 
     // DB
     implementation("org.xerial:sqlite-jdbc:3.39.3.0")
