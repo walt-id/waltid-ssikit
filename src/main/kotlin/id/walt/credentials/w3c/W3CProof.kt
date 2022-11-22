@@ -4,21 +4,16 @@ import id.walt.vclib.model.Proof
 import kotlinx.serialization.json.*
 
 class W3CProof(
-    type: String? = null,
-    creator: String? = null,
-    created: String? = null,
-    domain: String? = null,
-    proofPurpose: String? = null,
-    verificationMethod: String? = null,
-    jws: String? = null,
-    nonce: String? = null,
+    var type: String? = null,
+    var creator: String? = null,
+    var created: String? = null,
+    var domain: String? = null,
+    var proofPurpose: String? = null,
+    var verificationMethod: String? = null,
+    var jws: String? = null,
+    var nonce: String? = null,
     override val properties: Map<String, Any?> = mapOf()
-) : Proof(type, creator, created, domain, proofPurpose, verificationMethod, jws, nonce), ICredentialElement {
-
-    constructor(proof: Proof):
-            this(proof.type, proof.creator, proof.created,
-                 proof.domain, proof.proofPurpose,
-                 proof.verificationMethod, proof.jws, proof.nonce)
+) : ICredentialElement {
 
     fun toJsonObject() = buildJsonObject {
         type?.let { put("type", it) }
@@ -29,7 +24,7 @@ class W3CProof(
         verificationMethod?.let { put("verificationMethod", it) }
         jws?.let { put("jws", it) }
         nonce?.let { put("nonce", it) }
-        properties?.let { props ->
+        properties.let { props ->
             props.keys.forEach { key ->
                 put(key, JsonConverter.toJsonElement(props[key]))
             }

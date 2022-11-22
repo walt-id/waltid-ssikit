@@ -1,25 +1,24 @@
 package id.walt.credentials.w3c
 
+import com.nimbusds.jwt.SignedJWT
 import id.walt.credentials.w3c.builder.CredentialFactory
-import id.walt.vclib.model.CredentialSchema
-import id.walt.vclib.model.Proof
-import id.walt.vclib.model.VerifiableCredential
 import kotlinx.serialization.json.*
 
-open class W3CCredential internal constructor (
-    override var type: List<String> = listOf("VerifiableCredential"),
+open class VerifiableCredential internal constructor (
+    var type: List<String> = listOf("VerifiableCredential"),
     var context: List<W3CContext> = listOf(W3CContext("https://www.w3.org/2018/credentials/v1", false)),
-    override var id: String? = null,
-    var w3cIssuer: W3CIssuer? = null,
-    override var issuanceDate: String? = null,
-    override var issued: String? = null,
-    override var validFrom: String? = null,
-    override var expirationDate: String? = null,
-    var w3cProof: W3CProof? = null,
-    var w3cCredentialSchema: W3CCredentialSchema? = null,
+    var id: String? = null,
+    var issuer: W3CIssuer? = null,
+    var issuanceDate: String? = null,
+    var issued: String? = null,
+    var validFrom: String? = null,
+    var expirationDate: String? = null,
+    var proof: W3CProof? = null,
+    var jwt: String? = null,
+    var credentialSchema: W3CCredentialSchema? = null,
     var credentialSubject: W3CCredentialSubject? = null,
     override val properties: Map<String, Any?> = mapOf()
-): VerifiableCredential(), ICredentialElement {
+): ICredentialElement {
 
     internal constructor(jsonObject: JsonObject) : this(
         type = jsonObject["type"]?.jsonArray?.map { it.jsonPrimitive.content }?.toList() ?: listOf("VerifiableCredential"),
@@ -30,43 +29,28 @@ open class W3CCredential internal constructor (
             }
         } ?: listOf(W3CContext("https://www.w3.org/2018/credentials/v1", false)),
         id = jsonObject["id"]?.jsonPrimitive?.contentOrNull,
-        w3cIssuer = jsonObject["issuer"]?.let { W3CIssuer.fromJsonElement(it) },
+        issuer = jsonObject["issuer"]?.let { W3CIssuer.fromJsonElement(it) },
         issuanceDate = jsonObject["issuanceDate"]?.jsonPrimitive?.contentOrNull,
         issued = jsonObject["issued"]?.jsonPrimitive?.contentOrNull,
         validFrom = jsonObject["validFrom"]?.jsonPrimitive?.contentOrNull,
         expirationDate = jsonObject["expirationDate"]?.jsonPrimitive?.contentOrNull,
-        w3cProof = jsonObject["proof"]?.let { it as? JsonObject }?.let { W3CProof.fromJsonObject(it) },
-        w3cCredentialSchema = jsonObject["credentialSchema"]?.let { it as? JsonObject }?.let { W3CCredentialSchema.fromJsonObject(it) },
+        proof = jsonObject["proof"]?.let { it as? JsonObject }?.let { W3CProof.fromJsonObject(it) },
+        credentialSchema = jsonObject["credentialSchema"]?.let { it as? JsonObject }?.let { W3CCredentialSchema.fromJsonObject(it) },
         credentialSubject = jsonObject["credentialSubject"]?.let { it as? JsonObject }?.let { W3CCredentialSubject.fromJsonObject(it) },
         properties = jsonObject.filterKeys { k -> !PREDEFINED_PROPERTY_KEYS.contains(k) }.mapValues { entry -> JsonConverter.fromJsonElement(entry.value) }
     )
 
-    override var issuer: String?
-        get() = w3cIssuer?.id
-        set(value) {
-            w3cIssuer = value?.let { v -> w3cIssuer?.apply { id = v } ?: W3CIssuer(v) }
-        }
+    val issuerId: String?
+        get() = issuer?.id
 
-    override var subject: String?
+    val subjectId: String?
         get() = credentialSubject?.id
-        set(value) {
-            credentialSubject = value?.let { v -> credentialSubject?.apply { id = v } ?: W3CCredentialSubject(v) }
+
+    val challenge
+        get() = when (this.jwt) {
+            null -> this.proof?.nonce
+            else -> SignedJWT.parse(this.jwt).jwtClaimsSet.getStringClaim("nonce")
         }
-
-    override var proof: Proof?
-        get() = w3cProof
-        set(value) {
-            if(value is W3CProof) {
-                w3cProof = value
-            } else {
-                w3cProof = value?.let { W3CProof(it) }
-            }
-        }
-
-    override val credentialSchema: CredentialSchema?
-        get() = w3cCredentialSchema
-
-    override fun newId(id: String) = "${type.last()}#${id}"
 
     fun toJsonObject() = buildJsonObject {
         put("type", JsonConverter.toJsonElement(type))
@@ -74,13 +58,13 @@ open class W3CCredential internal constructor (
             context.forEach { add(it.toJsonElement()) }
         })
         id?.let { put("id", JsonConverter.toJsonElement(it)) }
-        w3cIssuer?.let { put("issuer", it.toJsonElement()) }
+        issuer?.let { put("issuer", it.toJsonElement()) }
         issuanceDate?.let { put("issuanceDate", JsonConverter.toJsonElement(it)) }
         issued?.let { put("issued", JsonConverter.toJsonElement(it)) }
         validFrom?.let { put("validFrom", JsonConverter.toJsonElement(it)) }
         expirationDate?.let { put("expirationDate", JsonConverter.toJsonElement(it)) }
-        w3cProof?.let { put("proof", it.toJsonObject()) }
-        w3cCredentialSchema?.let { put("credentialSchema", it.toJsonObject()) }
+        proof?.let { put("proof", it.toJsonObject()) }
+        credentialSchema?.let { put("credentialSchema", it.toJsonObject()) }
         credentialSubject?.let { put("credentialSubject", it.toJsonObject()) }
         properties.keys.forEach { key ->
             put(key, JsonConverter.toJsonElement(properties[key]))
@@ -89,7 +73,14 @@ open class W3CCredential internal constructor (
 
     fun toJson() = toJsonObject().toString()
 
-    companion object : CredentialFactory<W3CCredential> {
+    fun toJsonElement() = jwt?.let { JsonPrimitive(it) } ?: toJsonObject()
+    override fun toString(): String {
+        return jwt ?: toJson()
+    }
+
+    fun encode() = toString()
+
+    companion object : CredentialFactory<VerifiableCredential> {
         val PREDEFINED_PROPERTY_KEYS = setOf(
             "type",
             "@context",
@@ -104,8 +95,38 @@ open class W3CCredential internal constructor (
             "credentialSubject"
         )
 
-        override fun fromJsonObject(jsonObject: JsonObject): W3CCredential {
-            return W3CCredential(jsonObject)
+        override fun fromJsonObject(jsonObject: JsonObject): VerifiableCredential {
+            return VerifiableCredential(jsonObject)
+        }
+
+        private const val JWT_PATTERN = "(^[A-Za-z0-9-_]*\\.[A-Za-z0-9-_]*\\.[A-Za-z0-9-_]*\$)"
+        private const val JWT_VC_CLAIM = "vc"
+        private const val JWT_VP_CLAIM = "vp"
+
+        private fun isJWT(data: String): Boolean {
+            return Regex(JWT_PATTERN).matches(data)
+        }
+
+        private val possibleClaimKeys = listOf(JWT_VP_CLAIM, JWT_VC_CLAIM)
+
+        private fun fromJwt(jwt: String): VerifiableCredential {
+            val claims = SignedJWT.parse(jwt).jwtClaimsSet.claims
+
+            val claimKey = possibleClaimKeys.first { it in claims }
+
+            val claim = claims[claimKey]
+            return fromJsonObject(JsonConverter.toJsonElement(claim).jsonObject).apply {
+                this.jwt = jwt
+            }
+        }
+
+        fun fromString(data: String): VerifiableCredential {
+            return when {
+                isJWT(data) -> fromJwt(data)
+                else -> fromJson(data)
+            }
         }
     }
 }
+
+fun String.toVerifiableCredential() = VerifiableCredential.fromString(this)

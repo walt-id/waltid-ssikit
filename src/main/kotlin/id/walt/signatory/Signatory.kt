@@ -13,6 +13,7 @@ import id.walt.services.did.DidService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
 import id.walt.credentials.w3c.builder.AbstractW3CCredentialBuilder
+import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.vclib.model.VerifiableCredential
 import id.walt.vclib.model.toCredential
 import id.walt.vclib.templates.VcTemplateManager
@@ -168,7 +169,7 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
             ProofType.JWT -> JwtCredentialService.getService().sign(vcRequest.toJson(), fullProofConfig)
         }
         log.debug { "Signed VC is: $signedVc" }
-        ContextManager.vcStore.storeCredential(fullProofConfig.credentialId!!, signedVc.toCredential(), VC_GROUP)
+        ContextManager.vcStore.storeCredential(fullProofConfig.credentialId!!, signedVc.toVerifiableCredential(), VC_GROUP)
         return signedVc
     }
 

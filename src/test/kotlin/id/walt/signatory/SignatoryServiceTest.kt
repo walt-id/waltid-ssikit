@@ -3,7 +3,7 @@ package id.walt.signatory
 import com.nimbusds.jwt.SignedJWT
 import id.walt.auditor.Auditor
 import id.walt.auditor.SignaturePolicy
-import id.walt.credentials.w3c.W3CCredential
+import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.W3CIssuer
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
@@ -181,9 +181,9 @@ class SignatoryServiceTest : StringSpec({
 
         println(signedVC)
 
-        val parsedVC = W3CCredential.fromJson(signedVC)
-        parsedVC.issuer shouldBe did
-        parsedVC.subject shouldBe did
+        val parsedVC = VerifiableCredential.fromJson(signedVC)
+        parsedVC.issuerId shouldBe did
+        parsedVC.subjectId shouldBe did
         parsedVC.proof shouldNotBe null
         parsedVC.credentialSubject?.properties?.get("firstName") shouldBe "Inco"
         parsedVC.credentialSubject?.properties?.get("familyName") shouldBe "GNITO"
@@ -205,13 +205,13 @@ class SignatoryServiceTest : StringSpec({
 
         println(signedVC)
 
-        val parsedVC = W3CCredential.fromJson(signedVC)
-        parsedVC.issuer shouldBe did
-        parsedVC.subject shouldBe did
+        val parsedVC = VerifiableCredential.fromJson(signedVC)
+        parsedVC.issuerId shouldBe did
+        parsedVC.subjectId shouldBe did
         parsedVC.proof shouldNotBe null
         parsedVC.credentialSubject?.properties?.get("firstName") shouldBe "Inco"
         parsedVC.credentialSubject?.properties?.get("familyName") shouldBe "GNITO"
-        parsedVC.w3cIssuer?.customProperties?.get("name") shouldBe "Test Issuer"
+        parsedVC.issuer?.properties?.get("name") shouldBe "Test Issuer"
 
         signedVC shouldMatchJson parsedVC.toJson()
         Auditor.getService().verify(parsedVC, listOf(SignaturePolicy())).valid shouldBe true

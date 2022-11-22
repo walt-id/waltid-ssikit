@@ -6,14 +6,14 @@ import java.time.Instant
 import java.time.format.DateTimeFormatterBuilder
 
 class W3CCredentialBuilder(type: List<String> = listOf("VerifiableCredential")):
-  AbstractW3CCredentialBuilder<W3CCredential, W3CCredentialBuilder>(type, W3CCredential) {
+  AbstractW3CCredentialBuilder<VerifiableCredential, W3CCredentialBuilder>(type, VerifiableCredential) {
     companion object {
-      fun fromPartial(partialCredential: W3CCredential) = W3CCredentialBuilder(listOf()).setFromJsonObject(partialCredential.toJsonObject())
-      fun fromPartial(partialJson: String) = fromPartial(W3CCredential.fromJson(partialJson))
+      fun fromPartial(partialCredential: VerifiableCredential) = W3CCredentialBuilder(listOf()).setFromJsonObject(partialCredential.toJsonObject())
+      fun fromPartial(partialJson: String) = fromPartial(VerifiableCredential.fromJson(partialJson))
     }
   }
 
-abstract class AbstractW3CCredentialBuilder<C: W3CCredential, B: AbstractW3CCredentialBuilder<C, B>>(
+abstract class AbstractW3CCredentialBuilder<C: VerifiableCredential, B: AbstractW3CCredentialBuilder<C, B>>(
   type: List<String>,
   val credentialFactory: CredentialFactory<C>
 )

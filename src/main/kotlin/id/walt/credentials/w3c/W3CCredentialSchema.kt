@@ -4,14 +4,14 @@ import id.walt.vclib.model.CredentialSchema
 import kotlinx.serialization.json.*
 
 class W3CCredentialSchema(
-    id: String,
-    type: String,
+    var id: String,
+    var type: String,
     override val properties: Map<String, Any?> = mapOf()
-): CredentialSchema(id, type), ICredentialElement {
+): ICredentialElement {
     fun toJsonObject() = buildJsonObject {
         id.let { put("id", it) }
         type.let { put("type", it) }
-        properties?.let { props ->
+        properties.let { props ->
             props.keys.forEach { key ->
                 put(key, JsonConverter.toJsonElement(props[key]))
             }
