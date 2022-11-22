@@ -1,41 +1,58 @@
-FROM docker.io/openjdk:17-slim-buster AS openjdk-gradle
+### Configuration
 
-ENV GRADLE_HOME /opt/gradle
+# set --build-args SKIP_TESTS=true to use
+ARG SKIP_TESTS
 
-RUN set -o errexit -o nounset \
-    && echo "Adding gradle user and group" \
-    && groupadd --system --gid 1000 gradle \
-    && useradd --system --gid gradle --uid 1000 --shell /bin/bash --create-home gradle \
-    && mkdir /home/gradle/.gradle \
-    && chown --recursive gradle:gradle /home/gradle \
-    \
-    && echo "Symlinking root Gradle cache to gradle Gradle cache" \
-    && ln -s /home/gradle/.gradle /root/.gradle
+# --- dos2unix-env    # convert line endings from Windows machines
+FROM docker.io/rkimf1/dos2unix@sha256:60f78cd8bf42641afdeae3f947190f98ae293994c0443741a2b3f3034998a6ed as dos2unix-env
+WORKDIR /convert
+COPY gradlew .
+COPY src/test/resources/key/*.pem ./
+RUN dos2unix ./gradlew *.pem
 
+# --- build-env       # build the SSI Kit
+FROM docker.io/gradle:7.5-jdk as build-env
+
+ARG SKIP_TESTS
+
+WORKDIR /appbuild
+
+COPY . /appbuild
+
+# copy converted Windows line endings files
+COPY --from=dos2unix-env /convert/gradlew .
+COPY --from=dos2unix-env /convert/*.pem src/test/resources/key/
+
+# cache Gradle dependencies
 VOLUME /home/gradle/.gradle
 
-WORKDIR /opt
+RUN if [ -z "$SKIP_TESTS" ]; \
+    then echo "* Running full build" && gradle -i clean build installDist; \
+    else echo "* Building but skipping tests" && gradle -i clean installDist -x test; \
+    fi
 
-#RUN apt-get update && apt-get upgrade --yes
+# --- opa-env
+FROM docker.io/openpolicyagent/opa:0.46.1-static as opa-env
 
-FROM openjdk-gradle AS walt-build
-COPY ./ /opt
-RUN ./gradlew clean build # -x test
-RUN tar xf /opt/build/distributions/waltid-ssi-kit-*.tar -C /opt
+# --- iota-env
+FROM docker.io/waltid/waltid_iota_identity_wrapper:latest as iota-env
 
-FROM waltid/waltid_iota_identity_wrapper:latest as iota_wrapper
-FROM openjdk:17-slim-buster
-
-ADD https://openpolicyagent.org/downloads/v0.41.0/opa_linux_amd64_static /usr/local/bin/opa
-RUN chmod 755 /usr/local/bin/opa
-
-COPY --from=iota_wrapper /usr/local/lib/libwaltid_iota_identity_wrapper.so /usr/local/lib/libwaltid_iota_identity_wrapper.so
-RUN ldconfig
-RUN mkdir /app
-COPY --from=walt-build /opt/waltid-ssi-kit-* /app/
-COPY --from=walt-build /opt/service-matrix.properties /app/
-COPY --from=walt-build /opt/config /app/config
+# --- app-env
+FROM docker.io/eclipse-temurin:19 AS app-env
 
 WORKDIR /app
+
+COPY --from=opa-env /opa /usr/local/bin/opa
+
+COPY --from=iota-env /usr/local/lib/libwaltid_iota_identity_wrapper.so /usr/local/lib/libwaltid_iota_identity_wrapper.so
+RUN ldconfig
+
+COPY --from=build-env /appbuild/build/install/waltid-ssi-kit /app/
+COPY --from=build-env /appbuild/service-matrix.properties /app/
+COPY --from=build-env /appbuild/config /app/config
+
+
+### Execution
+EXPOSE 7000 7001 7002 7003 7004 7010
 
 ENTRYPOINT ["/app/bin/waltid-ssi-kit"]

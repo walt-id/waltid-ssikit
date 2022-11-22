@@ -60,6 +60,12 @@ class ServeCommand : CliktCommand(
     ).int().default(
         EssifAPI.DEFAULT_ESSIF_API_PORT
     )
+    private val oidcPort: Int by option(
+        help = "OIDC API port [${OidcAPI.DEFAULT_OIDC_API_PORT}]",
+        names = arrayOf("-o", "--oidc-port")
+    ).int().default(
+        OidcAPI.DEFAULT_OIDC_API_PORT
+    )
     private val bindAddress: String by option(
         help = "Bind address for API service [127.0.0.1]",
         names = arrayOf("-b", "--bind-address")
@@ -75,14 +81,13 @@ class ServeCommand : CliktCommand(
         CustodianAPI.start(custodianPort, bindAddress, apiTargetUrls)
         AuditorRestAPI.start(auditorPort, bindAddress, apiTargetUrls)
         EssifAPI.start(essifPort, bindAddress, apiTargetUrls)
-
-        OidcAPI.start(7010, bindAddress, apiTargetUrls)
+        OidcAPI.start(oidcPort, bindAddress, apiTargetUrls)
 
         echo(" walt.id Core API:      http://${bindAddress}:${apiPort}")
         echo(" walt.id Signatory API: http://${bindAddress}:${signatoryPort}")
         echo(" walt.id Custodian API: http://${bindAddress}:${custodianPort}")
         echo(" walt.id Auditor API:   http://${bindAddress}:${auditorPort}")
         echo(" walt.id ESSIF API:     http://${bindAddress}:${essifPort}")
-        echo(" walt.id OIDC API:      http://${bindAddress}:${7010}")
+        echo(" walt.id OIDC API:      http://${bindAddress}:${oidcPort}")
     }
 }

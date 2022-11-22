@@ -1,8 +1,8 @@
 package id.walt.json
 
 import com.beust.klaxon.Klaxon
-import id.walt.model.DidEbsi
-import id.walt.model.DidWeb
+import id.walt.model.did.DidEbsi
+import id.walt.model.did.DidWeb
 import id.walt.test.readDid
 import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.AnnotationSpec

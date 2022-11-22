@@ -2,6 +2,7 @@ package id.walt.model
 
 import com.beust.klaxon.*
 import id.walt.common.prettyPrint
+import id.walt.model.did.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.reflect.KClass
@@ -18,11 +19,7 @@ val listOrSingleValueConverter = object : Converter {
     override fun canConvert(cls: Class<*>) = cls == List::class.java
 
     override fun fromJson(jv: JsonValue) =
-        if (jv.array == null) {
-            listOf(jv.inside)
-        } else {
-            jv.array
-        }
+        jv.array ?: listOf(jv.inside)
 
     override fun toJson(value: Any) = when ((value as List<*>).size) {
         1 -> Klaxon().toJsonString(value.first())
@@ -34,26 +31,25 @@ val verificationRelationshipsConverter = object : Converter {
     override fun canConvert(cls: Class<*>) = cls == List::class.java
 
     override fun fromJson(jv: JsonValue): Any? {
-        if (jv.array != null) {
-            return jv.array!!.map { item ->
-                when (item) {
-                    is String -> VerificationMethod.Reference(item)
-                    is JsonObject -> Klaxon().parseFromJsonObject<VerificationMethod>(item)
-                    else -> throw Exception("Verification relationship must be either String or JsonObject")
-                }
+        jv.array ?: return null
+        return jv.array!!.map { item ->
+            when (item) {
+                is String -> VerificationMethod.Reference(item)
+                is JsonObject -> Klaxon().parseFromJsonObject<VerificationMethod>(item)
+                else -> throw Exception("Verification relationship must be either String or JsonObject")
             }
         }
-        return null
     }
 
     override fun toJson(value: Any): String {
         @Suppress("UNCHECKED_CAST")
         return (value as List<VerificationMethod>).joinToString(",", "[", "]") { item ->
-            if (item.isReference) {
-                Klaxon().toJsonString(item.id)
-            } else {
-                Klaxon().toJsonString(item)
-            }
+            Klaxon().toJsonString(
+                when {
+                    item.isReference -> item.id
+                    else -> item
+                }
+            )
         }
     }
 }
@@ -62,21 +58,20 @@ val didSerializer = Klaxon().fieldConverter(ListOrSingleValue::class, listOrSing
     .fieldConverter(DidVerificationRelationships::class, verificationRelationshipsConverter)
 
 class DidTypeAdapter : TypeAdapter<Did> {
-    override fun classFor(type: Any): KClass<out Did> = when (DidUrl.from(type.toString()).method) {
-        DidMethod.key.name -> DidKey::class
-        DidMethod.ebsi.name -> DidEbsi::class
-        DidMethod.web.name -> DidWeb::class
-        DidMethod.iota.name -> DidIota::class
-        else -> Did::class
-    }
+    override fun classFor(type: Any): KClass<out Did> =
+        DidMethod.values()
+            .firstOrNull { it.name == DidUrl.from(type.toString()).method.lowercase() }?.didClass
+            ?: Did::class
 }
 
-enum class DidMethod {
-    key,
-    web,
-    ebsi,
-    iota,
-    jwk
+enum class DidMethod(val didClass: KClass<out Did>) {
+    key(DidKey::class),
+    web(DidWeb::class),
+    ebsi(DidEbsi::class),
+    iota(DidIota::class),
+
+    jwk(Did::class),
+    cheqd(Did::class)
 }
 
 @Serializable
@@ -88,7 +83,7 @@ open class Did(
     val context: List<String>,
     val id: String,
     @Json(serializeNull = false) var verificationMethod: List<VerificationMethod>? = null,
-    @Json(serializeNull = false) @DidVerificationRelationships var authentication: List<VerificationMethod>? = null,
+    @Json(serializeNull = false) @DidVerificationRelationships open var authentication: List<VerificationMethod>? = null,
     @Json(serializeNull = false) @DidVerificationRelationships var assertionMethod: List<VerificationMethod>? = null,
     @Json(serializeNull = false) @DidVerificationRelationships var capabilityDelegation: List<VerificationMethod>? = null,
     @Json(serializeNull = false) @DidVerificationRelationships var capabilityInvocation: List<VerificationMethod>? = null,
@@ -106,20 +101,21 @@ open class Did(
         keyAgreement: List<VerificationMethod>? = null,
         serviceEndpoint: List<ServiceEndpoint>? = null
     ) : this(
-        listOf(context),
-        id,
-        verificationMethod,
-        authentication,
-        assertionMethod,
-        capabilityDelegation,
-        capabilityInvocation,
-        keyAgreement,
-        serviceEndpoint
+        context = listOf(context),
+        id = id,
+        verificationMethod = verificationMethod,
+        authentication = authentication,
+        assertionMethod = assertionMethod,
+        capabilityDelegation = capabilityDelegation,
+        capabilityInvocation = capabilityInvocation,
+        keyAgreement = keyAgreement,
+        serviceEndpoint = serviceEndpoint
     )
 
     @Json(ignored = true)
     val url: DidUrl
         get() = DidUrl.from(id)
+
     @Json(ignored = true)
     val method: DidMethod
         get() = DidMethod.valueOf(url.method)
@@ -128,9 +124,7 @@ open class Did(
     fun encodePretty() = didSerializer.toJsonString(this).prettyPrint()
 
     companion object {
-        fun decode(didDoc: String): Did? {
-            return didSerializer.parse<Did>(didDoc)
-        }
+        fun decode(didDoc: String): Did? = didSerializer.parse<Did>(didDoc)
     }
 }
 
@@ -147,14 +141,10 @@ data class VerificationMethod(
     @Json(ignored = true) val isReference: Boolean = false,
 ) {
     companion object {
-        fun Reference(id: String): VerificationMethod {
-            return VerificationMethod(id, "", "", isReference = true)
-        }
+        fun Reference(id: String) = VerificationMethod(id, "", "", isReference = true)
     }
 
-    fun toReference(): VerificationMethod {
-        return Reference(id)
-    }
+    fun toReference(): VerificationMethod = Reference(id)
 }
 
 @Serializable

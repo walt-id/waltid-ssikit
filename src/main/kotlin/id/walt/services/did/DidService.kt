@@ -8,10 +8,13 @@ import id.walt.crypto.*
 import id.walt.crypto.KeyAlgorithm.*
 import id.walt.crypto.LdVerificationKeyType.*
 import id.walt.model.*
+import id.walt.model.did.DidEbsi
+import id.walt.model.did.DidWeb
 import id.walt.services.CryptoProvider
 import id.walt.services.WaltIdServices
 import id.walt.services.context.ContextManager
 import id.walt.services.crypto.CryptoService
+import id.walt.services.ecosystems.cheqd.CheqdService
 import id.walt.services.ecosystems.iota.IotaService
 import id.walt.services.hkvstore.HKVKey
 import id.walt.services.key.KeyService
@@ -78,14 +81,18 @@ object DidService {
             DidMethod.key -> createDidKey(keyAlias)
             DidMethod.web -> createDidWeb(keyAlias,
                 options?.let { it as DidWebOptions } ?: DidWebOptions("walt.id", UUID.randomUUID().toString()))
-
             DidMethod.ebsi -> createDidEbsi(keyAlias, options as? DidEbsiOptions)
             DidMethod.iota -> createDidIota(keyAlias)
             DidMethod.jwk -> createDidJwk(keyAlias)
+            DidMethod.cheqd -> createDidCheqd(keyAlias)
             else -> throw Exception("DID method $method not supported")
         }
 
         return didUrl
+    }
+
+    private fun createDidCheqd(keyAlias: String?): String {
+        TODO("Not yet implemented")
     }
 
     fun resolve(did: String): Did = resolve(DidUrl.from(did))
@@ -94,8 +101,9 @@ object DidService {
             DidMethod.key.name -> resolveDidKey(didUrl)
             DidMethod.web.name -> resolveDidWeb(didUrl)
             DidMethod.ebsi.name -> resolveDidEbsi(didUrl)
-            DidMethod.iota.name -> IotaService.resolveDid(didUrl.did) ?: throw Exception("Could not resolve $didUrl")
             DidMethod.jwk.name -> resolveDidJwk(didUrl)
+            DidMethod.iota.name -> IotaService.resolveDid(didUrl.did) ?: throw Exception("Could not resolve $didUrl")
+            DidMethod.cheqd.name -> CheqdService.resolveDid(didUrl.did)
             else -> TODO("did:${didUrl.method} not implemented yet")
         }
     }

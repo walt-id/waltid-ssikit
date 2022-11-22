@@ -1,10 +1,11 @@
-package id.walt.model
+package id.walt.model.did
 
-import com.beust.klaxon.Json
-import id.walt.vclib.model.Proof
+import id.walt.model.Did
+import id.walt.model.ServiceEndpoint
+import id.walt.model.VerificationMethod
 
-class DidIota(
-    context: List<String> = listOf("https://www.w3.org/ns/did/v1"),
+class DidKey(
+    context: List<String>,
     id: String,
     verificationMethod: List<VerificationMethod>? = null,
     authentication: List<VerificationMethod>? = null,
@@ -12,8 +13,7 @@ class DidIota(
     capabilityDelegation: List<VerificationMethod>? = null,
     capabilityInvocation: List<VerificationMethod>? = null,
     keyAgreement: List<VerificationMethod>? = null,
-    serviceEndpoint: List<ServiceEndpoint>? = null,
-    @Json(serializeNull = false) var proof: Proof? = null
+    serviceEndpoint: List<ServiceEndpoint>? = null
 ) : Did(
     context,
     id,
@@ -34,8 +34,7 @@ class DidIota(
         capabilityDelegation: List<VerificationMethod>? = null,
         capabilityInvocation: List<VerificationMethod>? = null,
         keyAgreement: List<VerificationMethod>? = null,
-        serviceEndpoint: List<ServiceEndpoint>? = null,
-        proof: Proof? = null
+        serviceEndpoint: List<ServiceEndpoint>? = null
     ) : this(
         listOf(context),
         id,
@@ -45,7 +44,6 @@ class DidIota(
         capabilityDelegation,
         capabilityInvocation,
         keyAgreement,
-        serviceEndpoint,
-        proof
+        serviceEndpoint
     )
 }

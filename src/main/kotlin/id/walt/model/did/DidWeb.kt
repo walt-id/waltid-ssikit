@@ -1,5 +1,9 @@
-package id.walt.model
+package id.walt.model.did
 
+import id.walt.model.Did
+import id.walt.model.DidUrl
+import id.walt.model.ServiceEndpoint
+import id.walt.model.VerificationMethod
 import java.net.URI
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets

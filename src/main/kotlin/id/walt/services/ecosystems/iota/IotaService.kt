@@ -2,7 +2,7 @@ package id.walt.services.ecosystems.iota
 
 import id.walt.crypto.KeyAlgorithm
 import id.walt.model.Did
-import id.walt.model.DidIota
+import id.walt.model.did.DidIota
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
 import java.security.interfaces.EdECPrivateKey

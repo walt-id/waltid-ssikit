@@ -6,7 +6,7 @@ import id.walt.crypto.LdVerificationKeyType.*
 import id.walt.model.Did
 import id.walt.model.DidMethod
 import id.walt.model.DidUrl
-import id.walt.model.DidWeb
+import id.walt.model.did.DidWeb
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.key.KeyService
 import id.walt.test.RESOURCES_PATH

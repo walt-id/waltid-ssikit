@@ -14,7 +14,7 @@ plugins {
 }
 
 group = "id.walt"
-version = "1.13.0-SNAPSHOT"
+version = "1.13.0-SNAPSHOT2"
 
 repositories {
     mavenCentral()
@@ -37,7 +37,7 @@ dependencies {
     implementation("com.microsoft.azure:azure-keyvault:1.2.6")
     implementation("com.microsoft.azure:azure-client-authentication:1.7.14")
     implementation("com.nimbusds:nimbus-jose-jwt:9.25.6")
-    implementation("com.nimbusds:oauth2-oidc-sdk:9.43.1")
+    implementation("com.nimbusds:oauth2-oidc-sdk:10.1")
 
     implementation("org.bouncycastle:bcprov-jdk15to18:1.72")
     implementation("org.bouncycastle:bcpkix-jdk15to18:1.72")
@@ -54,9 +54,9 @@ dependencies {
     // JSON
     implementation("org.json:json:20220924")
     implementation("com.beust:klaxon:5.6")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.4")
-    implementation("io.ktor:ktor-client-jackson:2.1.2")
-    implementation("io.ktor:ktor-client-content-negotiation:2.1.2")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.0")
+    implementation("io.ktor:ktor-client-jackson:2.1.3")
+    implementation("io.ktor:ktor-client-content-negotiation:2.1.3")
     implementation("com.jayway.jsonpath:json-path:2.7.0")
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
@@ -74,27 +74,27 @@ dependencies {
     implementation("io.minio:minio:8.4.5")
 
     // HTTP
-    implementation("io.ktor:ktor-client-core:2.1.2")
-    implementation("io.ktor:ktor-client-cio:2.1.2")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:2.1.2")
-    implementation("io.ktor:ktor-client-logging:2.1.2")
+    implementation("io.ktor:ktor-client-core:2.1.3")
+    implementation("io.ktor:ktor-client-cio:2.1.3")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.1.3")
+    implementation("io.ktor:ktor-client-logging:2.1.3")
     implementation("io.github.rybalkinsd:kohttp:0.12.0")
 
     // REST
-    implementation("io.javalin:javalin:4.6.6")
-    implementation("io.javalin:javalin-openapi:4.6.6")
+    implementation("io.javalin:javalin:4.6.7")
+    implementation("io.javalin:javalin-openapi:4.6.7")
     // implementation("io.javalin:javalin-test-tools:4.5.0")
 
     // Logging
     implementation("org.slf4j:slf4j-api:2.0.3")
     implementation("org.slf4j:slf4j-simple:2.0.3")
 
-    implementation("io.github.microutils:kotlin-logging-jvm:3.0.2")
+    implementation("io.github.microutils:kotlin-logging-jvm:3.0.4")
 
     // Config
-    implementation("com.sksamuel.hoplite:hoplite-core:2.6.4")
-    implementation("com.sksamuel.hoplite:hoplite-yaml:2.6.4")
-    implementation("com.sksamuel.hoplite:hoplite-hikaricp:2.6.4")
+    implementation("com.sksamuel.hoplite:hoplite-core:2.6.5")
+    implementation("com.sksamuel.hoplite:hoplite-yaml:2.6.5")
+    implementation("com.sksamuel.hoplite:hoplite-hikaricp:2.6.5")
 
     // Service-Matrix
     implementation("id.walt.servicematrix:WaltID-ServiceMatrix:1.1.2")
@@ -109,9 +109,9 @@ dependencies {
     //testImplementation(kotlin("test-junit"))
     testImplementation("io.mockk:mockk:1.13.2")
 
-    testImplementation("io.kotest:kotest-runner-junit5:5.5.1")
-    testImplementation("io.kotest:kotest-assertions-core:5.5.1")
-    testImplementation("io.kotest:kotest-assertions-json:5.5.1")
+    testImplementation("io.kotest:kotest-runner-junit5:5.5.4")
+    testImplementation("io.kotest:kotest-assertions-core:5.5.4")
+    testImplementation("io.kotest:kotest-assertions-json:5.5.4")
 }
 
 tasks.withType<Test> {
@@ -126,7 +126,7 @@ tasks.withType<Test> {
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(16))
+        languageVersion.set(JavaLanguageVersion.of(17))
     }
 }
 
