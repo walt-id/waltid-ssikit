@@ -11,7 +11,9 @@ import com.nimbusds.oauth2.sdk.id.State
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken
 import com.nimbusds.oauth2.sdk.util.URLUtils
 import com.nimbusds.openid.connect.sdk.Nonce
+import id.walt.common.klaxonWithConverters
 import id.walt.common.prettyPrint
+import id.walt.credentials.w3c.toVerifiablePresentation
 import id.walt.custodian.Custodian
 import id.walt.model.dif.InputDescriptor
 import id.walt.model.dif.InputDescriptorConstraints
@@ -20,13 +22,10 @@ import id.walt.model.dif.PresentationDefinition
 import id.walt.model.oidc.CredentialAuthorizationDetails
 import id.walt.model.oidc.IssuanceInitiationRequest
 import id.walt.model.oidc.OIDCProvider
-import id.walt.model.oidc.klaxon
 import id.walt.services.oidc.CompatibilityMode
 import id.walt.services.oidc.OIDC4CIService
 import id.walt.services.oidc.OIDC4VPService
 import id.walt.services.oidc.OIDCUtils
-import id.walt.vclib.credentials.VerifiablePresentation
-import id.walt.vclib.model.toCredential
 import java.net.URI
 import java.util.*
 
@@ -401,7 +400,7 @@ class OidcVerificationParseCommand : CliktCommand(name = "parse", help = "Parse 
         } else {
             val presentationDefinition = OIDC4VPService.getPresentationDefinition(req)
             println("Presentation requirements:")
-            println(klaxon.toJsonString(presentationDefinition).prettyPrint())
+            println(klaxonWithConverters.toJsonString(presentationDefinition).prettyPrint())
             if(listCredentials) {
                 println("----------------------------")
                 println("Matching credentials by input descriptor id:")
@@ -438,7 +437,7 @@ class OidcVerificationRespondCommand :
             vcs = credentialIds.map { Custodian.getService().getCredential(it)!!.encode() },
             holderDid = did,
             challenge = nonce,
-        ).toCredential() as VerifiablePresentation
+        ).toVerifiablePresentation()
         val resp = OIDC4VPService.getSIOPResponseFor(req, did, listOf(vp))
         println("Presentation response:")
         println(resp.toFormParams().prettyPrint())

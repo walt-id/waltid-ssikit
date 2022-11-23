@@ -3,6 +3,8 @@ package id.walt.rest
 import com.beust.klaxon.Klaxon
 import com.nimbusds.jose.jwk.JWK
 import id.walt.common.readWhenContent
+import id.walt.credentials.w3c.VerifiableCredential
+import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyId
 import id.walt.crypto.localTimeSecondsUtc
@@ -337,8 +339,8 @@ class CoreApiTest : AnnotationSpec() {
         }.bodyAsText()
         val input = File("templates/vc-template-default.json").readText().replace("\\s".toRegex(), "")
 
-        val vc = input.toCredential()
-        val enc = Klaxon().toJsonString(vc as VerifiableAttestation)
+        val vc = input.toVerifiableCredential()
+        val enc = vc.toJson()
         input shouldEqualJson enc
 
     }

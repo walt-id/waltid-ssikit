@@ -5,14 +5,13 @@ import com.nimbusds.oauth2.sdk.token.BearerAccessToken
 import com.nimbusds.oauth2.sdk.util.URLUtils
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse
 import id.walt.common.prettyPrint
+import id.walt.credentials.w3c.VerifiableCredential
+import id.walt.credentials.w3c.toVerifiablePresentation
 import id.walt.custodian.Custodian
 import id.walt.model.oidc.CredentialAuthorizationDetails
 import id.walt.model.oidc.IssuanceInitiationRequest
 import id.walt.model.oidc.OIDCProvider
 import id.walt.servicematrix.ServiceMatrix
-import id.walt.vclib.credentials.VerifiablePresentation
-import id.walt.vclib.model.VerifiableCredential
-import id.walt.vclib.model.toCredential
 import java.net.URI
 import java.util.*
 
@@ -218,7 +217,7 @@ object OidcService {
             credentialIds.map { Custodian.getService().getCredential(it)!!.encode() },
             did,
             challenge = nonce,
-        ).toCredential() as VerifiablePresentation
+        ).toVerifiablePresentation()
         val resp = OIDC4VPService.getSIOPResponseFor(req, did, listOf(vp))
         println("Presentation response:")
         println(resp.toFormParams().prettyPrint())

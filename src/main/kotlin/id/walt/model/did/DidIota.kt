@@ -1,10 +1,10 @@
 package id.walt.model.did
 
 import com.beust.klaxon.Json
+import id.walt.credentials.w3c.W3CProof
 import id.walt.model.Did
 import id.walt.model.ServiceEndpoint
 import id.walt.model.VerificationMethod
-import id.walt.vclib.model.Proof
 
 class DidIota(
     context: List<String> = listOf("https://www.w3.org/ns/did/v1"),
@@ -16,7 +16,7 @@ class DidIota(
     capabilityInvocation: List<VerificationMethod>? = null,
     keyAgreement: List<VerificationMethod>? = null,
     serviceEndpoint: List<ServiceEndpoint>? = null,
-    @Json(serializeNull = false) var proof: Proof? = null
+    @Json(serializeNull = false) var proof: W3CProof? = null
 ) : Did(
     context = context,
     id = id,
@@ -38,7 +38,7 @@ class DidIota(
         capabilityInvocation: List<VerificationMethod>? = null,
         keyAgreement: List<VerificationMethod>? = null,
         serviceEndpoint: List<ServiceEndpoint>? = null,
-        proof: Proof? = null
+        proof: W3CProof? = null
     ) : this(
         context = listOf(context),
         id = id,

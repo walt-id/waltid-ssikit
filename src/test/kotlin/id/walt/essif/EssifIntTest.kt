@@ -4,6 +4,7 @@ import id.walt.auditor.Auditor
 import id.walt.auditor.PolicyRegistry
 import id.walt.cli.resolveDidHelper
 import id.walt.common.SqlDbManager
+import id.walt.credentials.w3c.toVPOrVC
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyId
 import id.walt.custodian.Custodian
@@ -17,7 +18,6 @@ import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.signatory.dataproviders.CLIDataProvider
-import id.walt.vclib.model.toCredential
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.annotation.Ignored
 import io.kotest.core.spec.style.StringSpec
@@ -167,7 +167,7 @@ class EssifIntTest : StringSpec({
 
         println("Creating a verifiable presentation for DID \"$holderDid\"...")
         println("Using ${src.size} ${if (src.size > 1) "VCs" else "VC"}:")
-        src.forEachIndexed { index, vc -> println("- ${index + 1}. $vc (${vc.readText().toCredential().type.last()})") }
+        src.forEachIndexed { index, vc -> println("- ${index + 1}. $vc (${vc.readText().toVPOrVC().type.last()})") }
 
         val vcStrList = src.stream().map { vc -> vc.readText() }.collect(Collectors.toList())
 

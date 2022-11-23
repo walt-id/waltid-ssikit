@@ -1,6 +1,6 @@
 package id.walt.model
 
-import id.walt.vclib.model.VerifiableCredential
+import id.walt.credentials.w3c.VerifiableCredential
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -14,8 +14,8 @@ data class VerifiableCredentialModel(
     constructor(verifiableCredential: VerifiableCredential) : this(
         verifiableCredential.type,
         verifiableCredential.id.toString(),
-        verifiableCredential.issuer.toString(),
-        verifiableCredential.subject.toString(),
+        verifiableCredential.issuerId.toString(),
+        verifiableCredential.subjectId.toString(),
         verifiableCredential.issued.toString()
     )
 }

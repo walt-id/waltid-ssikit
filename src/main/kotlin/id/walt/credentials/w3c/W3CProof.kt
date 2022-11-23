@@ -1,6 +1,5 @@
 package id.walt.credentials.w3c
 
-import id.walt.vclib.model.Proof
 import kotlinx.serialization.json.*
 
 class W3CProof(

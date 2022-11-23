@@ -1,0 +1,43 @@
+{
+  "@context": ["https://www.w3.org/2018/credentials/v1"],
+  "holder": "did:ebsi:00000004321",
+  "id": "id",
+  "type": ["VerifiablePresentation"],
+  "verifiableCredential": [{
+    "@context": ["https://www.w3.org/2018/credentials/v1"],
+    "credentialSubject": {
+      "id": "did:ebsi:00000004321",
+      "naturalPerson": {
+        "did": "did:example:00001111"
+      }
+    },
+    "id": "did:ebsi-eth:00000001/credentials/1872",
+    "issued": "2020-08-24T14:13:44Z",
+    "issuer": "did:ebsi:000001234",
+    "proof": {
+      "created": "assertionMethod",
+      "creator": "2020-08-24T14:13:44Z",
+      "domain": "did:ebsi-eth:000001234#key-1",
+      "proofPurpose": "eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19.",
+      "type": "EcdsaSecp256k1Signature2019"
+    },
+    "type": ["VerifiableCredential", "VerifiableAuthorization"]
+  }, {
+    "@context": ["https://www.w3.org/2018/credentials/v1", "https://w3id.org/citizenship/v1"],
+    "credentialSubject": {
+      "birthDate": "1958-08-17",
+      "givenName": "JOHN",
+      "id": "did:example:123",
+      "type": ["PermanentResident", "Person"]
+    },
+    "issuer": "did:example:456",
+    "proof": {
+      "created": "assertionMethod",
+      "creator": "2020-04-22T10:37:22Z",
+      "domain": "did:example:456#key-1",
+      "proofPurpose": "eyJjcml0IjpbImI2NCJdLCJiNjQiOmZhbHNlLCJhbGciOiJFZERTQSJ9..BhWew0x-txcroGjgdtK-yBCqoetg9DD9SgV4245TmXJi-PmqFzux6Cwaph0r-mbqzlE17yLebjfqbRT275U1AA",
+      "type": "Ed25519Signature2018"
+    },
+    "type": ["VerifiableCredential", "PermanentResidentCard"]
+  }]
+}

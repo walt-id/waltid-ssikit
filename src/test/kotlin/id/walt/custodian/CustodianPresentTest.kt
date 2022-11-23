@@ -1,5 +1,8 @@
 package id.walt.custodian
 
+import id.walt.credentials.w3c.VerifiableCredential
+import id.walt.credentials.w3c.VerifiablePresentation
+import id.walt.credentials.w3c.toVPOrVC
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
@@ -7,13 +10,11 @@ import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.test.RESOURCES_PATH
-import id.walt.vclib.credentials.VerifiablePresentation
-import id.walt.vclib.model.VerifiableCredential
-import id.walt.vclib.model.toCredential
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.core.test.TestCase
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.types.instanceOf
 import org.junit.jupiter.api.assertThrows
 
 class CustodianPresentTest : StringSpec() {
@@ -54,9 +55,9 @@ class CustodianPresentTest : StringSpec() {
             val presStr = Custodian.getService().createPresentation(listOf(vcJsonLd), did, did, null, null, null)
             println("Created VP: $presStr")
 
-            val pres = presStr.toCredential()
+            val pres = presStr.toVPOrVC()
 
-            VerifiablePresentation::class.java.isAssignableFrom(pres::class.java) shouldBe true
+            pres shouldBe instanceOf<VerifiablePresentation>()
         }
 
         "Jwt presentation" {
@@ -96,9 +97,9 @@ class CustodianPresentTest : StringSpec() {
     private fun checkVerifiablePresentation(presStr: String) {
         VerifiableCredential.isJWT(presStr) shouldBe true
 
-        val pres = presStr.toCredential()
+        val pres = presStr.toVPOrVC()
 
-        VerifiablePresentation::class.java.isAssignableFrom(pres::class.java) shouldBe true
+        pres shouldBe instanceOf<VerifiablePresentation>()
         pres.jwt shouldNotBe null
         pres.jwt shouldBe presStr
     }

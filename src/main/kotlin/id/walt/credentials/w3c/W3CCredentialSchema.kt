@@ -1,6 +1,5 @@
 package id.walt.credentials.w3c
 
-import id.walt.vclib.model.CredentialSchema
 import kotlinx.serialization.json.*
 
 class W3CCredentialSchema(
@@ -33,6 +32,6 @@ class W3CCredentialSchema(
             )
         }
 
-        fun fromJson(json: String) = fromJsonObject(kotlinx.serialization.json.Json.parseToJsonElement(json).jsonObject)
+        fun fromJson(json: String) = fromJsonObject(Json.parseToJsonElement(json).jsonObject)
     }
 }

@@ -1,7 +1,7 @@
 package id.walt.services.ecosystems.essif
 
 import com.beust.klaxon.Json
-import id.walt.vclib.model.Proof
+import id.walt.credentials.w3c.W3CProof
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 data class EbsiVAWrapper(
     val verifiableCredential: EbsiVa,
     @Json(serializeNull = false)
-    val proof: Proof? = null
+    val proof: W3CProof? = null
 )
 
 data class EbsiVa(
@@ -25,7 +25,7 @@ data class EbsiVa(
     val credentialSubject: CredentialSubject?,
     // val credentialStatus: CredentialStatus?,
     val credentialSchema: CredentialSchema?,
-    @Json(serializeNull = false) val proof: Proof? = null
+    @Json(serializeNull = false) val proof: W3CProof? = null
 ) {
 
 
@@ -72,7 +72,7 @@ data class EbsiVaVp(
     @Json(serializeNull = false) val id: String? = null,
     @Json(serializeNull = false) val verifiableCredential: List<EbsiVa>?,
     val holder: String,  // "holder": "did:ebsi:yMe3d2JDquN27rMPqoYjFVZhs8BcwVWbpgY1qHZy8zG",
-    @Json(serializeNull = false) val proof: Proof? = null
+    @Json(serializeNull = false) val proof: W3CProof? = null
 ) // TODO replace with : VerifiablePresentation()
 
 //fun EbsiVaVp.encode() = Klaxon().toJsonString(this)

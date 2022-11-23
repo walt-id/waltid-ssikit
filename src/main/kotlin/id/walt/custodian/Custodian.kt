@@ -1,5 +1,6 @@
 package id.walt.custodian
 
+import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.crypto.Key
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyId
@@ -11,7 +12,6 @@ import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
-import id.walt.vclib.model.VerifiableCredential
 import java.time.Instant
 
 abstract class Custodian : WaltIdService() {

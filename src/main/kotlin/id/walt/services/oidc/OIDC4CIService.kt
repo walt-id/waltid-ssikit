@@ -14,13 +14,12 @@ import com.nimbusds.oauth2.sdk.token.AccessToken
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils
 import com.nimbusds.openid.connect.sdk.*
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata
+import id.walt.common.klaxonWithConverters
+import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.crypto.LdSignatureType
 import id.walt.model.oidc.*
 import id.walt.services.did.DidService
 import id.walt.services.jwt.JwtService
-import id.walt.vclib.model.AbstractVerifiableCredential
-import id.walt.vclib.model.VerifiableCredential
-import id.walt.vclib.registry.VcTypeRegistry
 import mu.KotlinLogging
 import java.io.StringReader
 import java.net.URI
@@ -105,55 +104,46 @@ object OIDC4CIService {
                             )
                         )
                     )
-                    setCustomParameter("credentials_supported", VcTypeRegistry.getTypesWithTemplate().values
-                        .filter {
-                            it.isPrimary &&
-                                    AbstractVerifiableCredential::class.java.isAssignableFrom(it.vc.java) &&
-                                    !it.metadata.template?.invoke()?.credentialSchema?.id.isNullOrEmpty()
-                        }
-                        .map { cred ->
-                            mapOf(
-                                cred.metadata.type.last() to CredentialMetadata(
-                                    formats = mapOf(
-                                        "ldp_vc" to CredentialFormat(
-                                            types = cred.metadata.type,
-                                            cryptographic_binding_methods_supported = listOf("did"),
-                                            cryptographic_suites_supported = LdSignatureType.values().map { it.name }
-                                        ),
-                                        "jwt_vc" to CredentialFormat(
-                                            types = cred.metadata.type,
-                                            cryptographic_binding_methods_supported = listOf("did"),
-                                            cryptographic_suites_supported = listOf(
-                                                JWSAlgorithm.ES256K,
-                                                JWSAlgorithm.EdDSA,
-                                                JWSAlgorithm.RS256,
-                                                JWSAlgorithm.PS256
-                                            ).map { it.name }
-                                        )
-                                    ),
-                                    display = listOf(
-                                        CredentialDisplay(
-                                            name = cred.metadata.type.last()
-                                        )
-                                    )
+                    setCustomParameter("credentials_supported", mapOf(
+                        "VerifiableCredential" to CredentialMetadata(
+                            formats = mapOf(
+                                "ldp_vc" to CredentialFormat(
+                                    types = listOf("VerifiableCredential"),
+                                    cryptographic_binding_methods_supported = listOf("did"),
+                                    cryptographic_suites_supported = LdSignatureType.values().map { it.name }
+                                ),
+                                "jwt_vc" to CredentialFormat(
+                                    types = listOf("VerifiableCredential"),
+                                    cryptographic_binding_methods_supported = listOf("did"),
+                                    cryptographic_suites_supported = listOf(
+                                        JWSAlgorithm.ES256K,
+                                        JWSAlgorithm.EdDSA,
+                                        JWSAlgorithm.RS256,
+                                        JWSAlgorithm.PS256
+                                    ).map { it.name }
+                                )
+                            ),
+                            display = listOf(
+                                CredentialDisplay(
+                                    name = "Verifiable Credential"
                                 )
                             )
-                        }
-                    )
+                        )
+                    ))
                 }
         )
     }
 
     fun getIssuerInfo(issuer: OIDCProviderWithMetadata): CredentialIssuer? {
         return issuer.oidc_provider_metadata.customParameters["credential_issuer"]?.let {
-            klaxon.parse(it.toString())
+            klaxonWithConverters.parse(it.toString())
         }
     }
 
     fun getSupportedCredentials(issuer: OIDCProviderWithMetadata): Map<String, CredentialMetadata> {
         return (issuer.oidc_provider_metadata.customParameters["credentials_supported"]?.let {
-            val jsonObj = klaxon.parseJsonObject(StringReader(it.toString()))
-            jsonObj.keys.associateBy({ it }) { jsonObj.obj(it)?.toJsonString()?.let { klaxon.parse<CredentialMetadata>(it) } }
+            val jsonObj = klaxonWithConverters.parseJsonObject(StringReader(it.toString()))
+            jsonObj.keys.associateBy({ it }) { jsonObj.obj(it)?.toJsonString()?.let { klaxonWithConverters.parse<CredentialMetadata>(it) } }
         }?.filterValues { v -> v != null } as Map<String, CredentialMetadata>?) ?: mapOf()
     }
 
@@ -179,7 +169,7 @@ object OIDC4CIService {
         )
             .state(state?.let { State(it) } ?: State())
             .nonce(nonce?.let { Nonce(it) } ?: Nonce())
-            .customParameter("authorization_details", klaxon.toJsonString(credentialDetails))
+            .customParameter("authorization_details", klaxonWithConverters.toJsonString(credentialDetails))
             .endpointURI(if (pushedAuthorization) issuer.oidc_provider_metadata.pushedAuthorizationRequestEndpointURI else issuer.oidc_provider_metadata.authorizationEndpointURI)
 
         wallet_issuer?.let { builder.customParameter("wallet_issuer", it) }
@@ -340,13 +330,13 @@ object OIDC4CIService {
         ).apply {
             authorization = accessToken.toAuthorizationHeader()
             setHeader("Content-Type", "application/json")
-            query = klaxon.toJsonString(CredentialRequest(type, format, jwtProof))
+            query = klaxonWithConverters.toJsonString(CredentialRequest(type, format, jwtProof))
         }.also {
             log.info("Sending credential request to {}\n {}", it.uri, it.query)
         }.send()
         if (resp.indicatesSuccess()) {
             log.info("Credential received: {}", resp.content)
-            val credResp = klaxon.parse<CredentialResponse>(resp.content)
+            val credResp = klaxonWithConverters.parse<CredentialResponse>(resp.content)
             return credResp?.credential
         } else {
             log.error("Got error response from credential endpoint: {}: {}", resp.statusCode, resp.content)
@@ -368,7 +358,7 @@ object OIDC4CIService {
 
     fun getCredentialAuthorizationDetails(request: AuthorizationRequest): List<CredentialAuthorizationDetails> {
         return request.customParameters["authorization_details"]?.flatMap {
-            klaxon.parseArray<AuthorizationDetails>(it) ?: listOf()
+            klaxonWithConverters.parseArray<AuthorizationDetails>(it) ?: listOf()
         }?.filterIsInstance<CredentialAuthorizationDetails>()?.toList() ?: listOf()
     }
 }

@@ -1,0 +1,16 @@
+{
+  "@context": ["https://www.w3.org/2018/credentials/v1", "https://www.w3.org/2018/credentials/examples/v1"],
+  "credentialSubject": {
+    "degree": {
+      "name": "Bachelor of Science and Arts",
+      "type": "BachelorDegree"
+    },
+    "id": "did:example:123"
+  },
+  "id": "http://example.gov/credentials/3732",
+  "issued": "2020-03-10T04:24:12.164Z",
+  "issuer": {
+    "id": "did:example:456"
+  },
+  "type": ["VerifiableCredential", "UniversityDegreeCredential"]
+}

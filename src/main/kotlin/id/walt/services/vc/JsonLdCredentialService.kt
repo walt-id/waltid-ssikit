@@ -1,9 +1,9 @@
 package id.walt.services.vc
 
+import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
 import id.walt.signatory.ProofConfig
-import id.walt.vclib.model.VerifiableCredential
 import info.weboftrust.ldsignatures.LdProof
 import kotlinx.serialization.Serializable
 import java.time.Instant
@@ -33,8 +33,6 @@ abstract class JsonLdCredentialService : WaltIdService() {
         implementation.present(vcs, holderDid, domain, challenge, expirationDate)
 
     open fun listVCs(): List<String> = implementation.listVCs()
-
-    open fun defaultVcTemplate(): VerifiableCredential = implementation.defaultVcTemplate()
 
     open fun addProof(credMap: Map<String, String>, ldProof: LdProof): String = implementation.addProof(credMap, ldProof)
 

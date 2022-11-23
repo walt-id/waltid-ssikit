@@ -14,13 +14,13 @@ class W3CCredentialBuilder(type: List<String> = listOf("VerifiableCredential")):
   }
 
 abstract class AbstractW3CCredentialBuilder<C: VerifiableCredential, B: AbstractW3CCredentialBuilder<C, B>>(
-  type: List<String>,
+  initialType: List<String>,
   val credentialFactory: CredentialFactory<C>
 )
     : BasicBuilder<C, B>() {
 
   init {
-    setProperty("type", type)
+    setProperty("type", initialType)
     setProperty("@context", listOf("https://www.w3.org/2018/credentials/v1"))
   }
   protected val dateFormat = DateTimeFormatterBuilder()
@@ -29,6 +29,9 @@ abstract class AbstractW3CCredentialBuilder<C: VerifiableCredential, B: Abstract
     .toFormatter()
 
   protected val subjectBuilder = SubjectBuilder()
+
+  val type: List<String>
+      get() = properties["type"]?.let { (JsonConverter.fromJsonElement(it) as List<*>).map { it.toString() } } ?: listOf()
 
   fun addContext(contextItem: W3CContext): B {
     setProperty("@context", properties["@context"]!!.jsonArray.plus(contextItem.toJsonElement()))
@@ -42,6 +45,7 @@ abstract class AbstractW3CCredentialBuilder<C: VerifiableCredential, B: Abstract
       id = issuerId
     } } ?: W3CIssuer(issuerId))
   fun setIssuanceDate(date: Instant) = setProperty("issuanceDate", dateFormat.format(date))
+  fun setIssued(date: Instant) = setProperty("issued", dateFormat.format(date))
   fun setValidFrom(date: Instant) = setProperty("validFrom", dateFormat.format(date))
   fun setExpirationDate(date: Instant) = setProperty("expirationDate", dateFormat.format(date))
   fun setCredentialSchema(schema: W3CCredentialSchema) = setProperty("credentialSchema", schema.toJsonObject() as JsonElement)

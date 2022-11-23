@@ -18,12 +18,29 @@ class VerifiablePresentation internal constructor(jsonObject: JsonObject): Verif
                 }
             }
 
+    override val issuerId: String?
+        get() = holder
+    override val subjectId: String?
+        get() = holder
+
     companion object: CredentialFactory<VerifiablePresentation> {
         override fun fromJsonObject(jsonObject: JsonObject) = VerifiablePresentation(jsonObject)
+
+        fun fromString(data: String) = VerifiablePresentation(data.toVerifiableCredential().toJsonObject())
     }
 }
 
 class VerifiablePresentationBuilder: AbstractW3CCredentialBuilder<VerifiablePresentation, VerifiablePresentationBuilder>(listOf("VerifiablePresentation"), VerifiablePresentation) {
     fun setHolder(holder: String) = setProperty("holder", holder)
     fun setVerifiableCredentials(verifiableCredentials: List<VerifiableCredential>) = setProperty("verifiableCredential", verifiableCredentials.map { it.toJsonElement() }.toList())
+}
+
+fun String.toVerifiablePresentation() = VerifiablePresentation.fromString(this)
+fun String.toVPOrVC(): VerifiableCredential {
+    val vc = this.toVerifiableCredential()
+    return if(vc.type.contains("VerifiablePresentation")) {
+        VerifiablePresentation(vc.toJsonObject())
+    } else {
+        return vc
+    }
 }

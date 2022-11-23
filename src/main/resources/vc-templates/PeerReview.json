@@ -1,0 +1,32 @@
+{
+  "@context": ["https://www.w3.org/2018/credentials/v1"],
+  "credentialSchema": {
+    "id": "https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/serialized/PeerReview.json",
+    "type": "JsonSchemaValidator2018"
+  },
+  "credentialSubject": {
+    "completedDate": "2021-08-31T00:00:00Z",
+    "groupingKey": "c4235de3-e35b-4a53-ac46-f62c2b222441",
+    "id": "identity#verifiableID",
+    "measurements": [{
+      "indicators": [{
+        "category": "SKILL",
+        "name": "Coaching",
+        "type": "People Skills"
+      }],
+      "name": "Coaching",
+      "numberValue": 87,
+      "scale": "PERCENTAGE",
+      "type": "People Skills"
+    }],
+    "name": "WorkPi Peer Review",
+    "providerName": "WorkPi",
+    "type": "Assessment"
+  },
+  "id": "identity#PeerReview#3add94f4-28ec-42a1-8704-4e4aa51006b4",
+  "issued": "2021-08-31T00:00:00Z",
+  "issuer": "did:example:456",
+  "validFrom": "2021-08-31T00:00:00Z",
+  "issuanceDate": "2021-08-31T00:00:00Z",
+  "type": ["VerifiableCredential", "PeerReview"]
+}

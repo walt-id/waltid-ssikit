@@ -40,13 +40,13 @@ open class VerifiableCredential internal constructor (
         properties = jsonObject.filterKeys { k -> !PREDEFINED_PROPERTY_KEYS.contains(k) }.mapValues { entry -> JsonConverter.fromJsonElement(entry.value) }
     )
 
-    val issuerId: String?
+    open val issuerId: String?
         get() = issuer?.id
 
-    val subjectId: String?
+    open val subjectId: String?
         get() = credentialSubject?.id
 
-    val challenge
+    open val challenge
         get() = when (this.jwt) {
             null -> this.proof?.nonce
             else -> SignedJWT.parse(this.jwt).jwtClaimsSet.getStringClaim("nonce")
@@ -103,7 +103,7 @@ open class VerifiableCredential internal constructor (
         private const val JWT_VC_CLAIM = "vc"
         private const val JWT_VP_CLAIM = "vp"
 
-        private fun isJWT(data: String): Boolean {
+        fun isJWT(data: String): Boolean {
             return Regex(JWT_PATTERN).matches(data)
         }
 

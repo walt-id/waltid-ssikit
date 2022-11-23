@@ -1,6 +1,5 @@
 package id.walt.credentials.w3c
 
-import id.walt.vclib.model.CredentialSubject
 import kotlinx.serialization.json.*
 
 open class W3CCredentialSubject(var id: String? = null, override val properties: Map<String, Any?> = mapOf())

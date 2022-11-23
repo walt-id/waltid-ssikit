@@ -1,5 +1,8 @@
 package id.walt.auditor
 
+import id.walt.credentials.w3c.VerifiableCredential
+import id.walt.credentials.w3c.toVPOrVC
+import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.encBase64Str
 import id.walt.model.Attribute
 import id.walt.model.DidMethod
@@ -10,8 +13,6 @@ import id.walt.services.ecosystems.essif.TrustedIssuerClient
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
-import id.walt.vclib.model.VerifiableCredential
-import id.walt.vclib.model.toCredential
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.core.test.TestCase
 import io.kotest.matchers.shouldBe
@@ -50,7 +51,7 @@ class TrustedIssuerRegistryPolicyTest : AnnotationSpec() {
             )
         )
 
-        verifiableCredential = vcStr.toCredential()
+        verifiableCredential = vcStr.toVPOrVC()
     }
 
     @Test

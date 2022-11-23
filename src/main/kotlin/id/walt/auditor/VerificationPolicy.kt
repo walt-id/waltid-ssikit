@@ -3,6 +3,7 @@ package id.walt.auditor
 import com.beust.klaxon.Klaxon
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.VerifiablePresentation
+import id.walt.credentials.w3c.schema.SchemaValidatorFactory
 import id.walt.model.AttributeInfo
 import id.walt.model.TrustedIssuer
 import id.walt.model.dif.PresentationDefinition
@@ -15,6 +16,7 @@ import id.walt.signatory.RevocationClientService
 import io.ktor.client.plugins.*
 import kotlinx.serialization.Serializable
 import mu.KotlinLogging
+import java.net.URI
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -67,20 +69,17 @@ class SignaturePolicy : SimpleVerificationPolicy() {
     }.getOrDefault(false)
 }
 
-/*
 class JsonSchemaPolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by JSON schema"
-    override fun doVerify(vc: VerifiableCredential): Boolean = SchemaService.validateSchema(vc.json!!).run {
-        return if (valid)
-            true
-        else {
-            log.error { "Credential not valid according the json-schema of type ${vc.type}. The validation errors are:" }
-            errors?.forEach { error -> log.error { error } }
-            false
-        }
+    override fun doVerify(vc: VerifiableCredential): Boolean {
+        return vc.credentialSchema?.id?.let { URI.create(it) }?.let {
+          SchemaValidatorFactory.get(it).validate(vc.toJson())
+        } ?: false
     }
+
+  override val applyToVP: Boolean
+    get() = false
 }
-*/
 
 class TrustedSchemaRegistryPolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by EBSI Trusted Schema Registry"

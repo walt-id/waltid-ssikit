@@ -16,6 +16,7 @@ import id.walt.auditor.PolicyRegistry
 import id.walt.auditor.dynamic.DynamicPolicyArg
 import id.walt.auditor.dynamic.PolicyEngineType
 import id.walt.common.prettyPrint
+import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.LdSignatureType
 import id.walt.custodian.Custodian
 import id.walt.signatory.Ecosystem
@@ -23,7 +24,6 @@ import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.signatory.dataproviders.CLIDataProvider
-import id.walt.vclib.model.toCredential
 import io.ktor.util.date.*
 import mu.KotlinLogging
 import java.io.File
@@ -132,7 +132,7 @@ class VcImportCommand : CliktCommand(
 
     override fun run() {
         if (src.exists()) {
-            val cred = src.readText().toCredential()
+            val cred = src.readText().toVerifiableCredential()
             val storeId = cred.id ?: "custodian#${UUID.randomUUID()}"
             Custodian.getService().storeCredential(storeId, cred)
             println("Credential stored as $storeId")
@@ -158,7 +158,7 @@ class PresentVcCommand : CliktCommand(
         val vcSources: Map<Path, String> = src.associateWith { it.readText() }
 
         src.forEachIndexed { index, vcPath ->
-            echo("- ${index + 1}. $vcPath (${vcSources[vcPath]!!.toCredential().type.last()})")
+            echo("- ${index + 1}. $vcPath (${vcSources[vcPath]!!.toVerifiableCredential().type.last()})")
         }
 
         val vcStrList = vcSources.values.toList()

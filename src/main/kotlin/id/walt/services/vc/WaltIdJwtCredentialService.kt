@@ -2,14 +2,12 @@ package id.walt.services.vc
 
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
+import id.walt.credentials.w3c.*
+import id.walt.credentials.w3c.schema.SchemaValidatorFactory
 import id.walt.services.did.DidService
 import id.walt.services.jwt.JwtService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
-import id.walt.vclib.credentials.VerifiablePresentation
-import id.walt.vclib.model.VerifiableCredential
-import id.walt.vclib.model.toCredential
-import id.walt.vclib.schema.SchemaService
 import info.weboftrust.ldsignatures.LdProof
 import mu.KotlinLogging
 import java.net.URI
@@ -30,7 +28,7 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
     override fun sign(jsonCred: String, config: ProofConfig): String {
         log.debug { "Signing JWT object with config: $config" }
 
-        val crd = jsonCred.toCredential()
+        val crd = jsonCred.toVPOrVC()
         val issuerDid = config.issuerDid
         val issueDate = config.issueDate ?: Instant.now()
         val validDate = config.validDate ?: Instant.now()
@@ -49,10 +47,10 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
 
         when (crd) {
             is VerifiablePresentation -> jwtClaimsSet
-                .claim(JWT_VP_CLAIM, crd.toMap())
+                .claim(JWT_VP_CLAIM, crd.toJsonObject())
 
             else -> jwtClaimsSet
-                .claim(JWT_VC_CLAIM, crd.toMap())
+                .claim(JWT_VC_CLAIM, crd.toJsonObject())
         }
 
         val payload = jwtClaimsSet.build().toString()
@@ -71,7 +69,7 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
         TODO("Not implemented yet.")
 
     override fun verify(vcOrVp: String): VerificationResult =
-        when (VerifiableCredential.fromString(vcOrVp)) {
+        when (vcOrVp.toVPOrVC()) {
             is VerifiablePresentation -> VerificationResult(verifyVp(vcOrVp), VerificationType.VERIFIABLE_PRESENTATION)
             else -> VerificationResult(verifyVc(vcOrVp), VerificationType.VERIFIABLE_CREDENTIAL)
         }
@@ -104,7 +102,8 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
             expirationDate = expirationDate,
             issuerVerificationMethod = DidService.getAuthenticationMethods(holderDid)!!.first().id
         )
-        val vpReqStr = VerifiablePresentation(id = id, holder = holderDid, verifiableCredential = vcs.map { it.toCredential() }).encode()
+        val vpReqStr = VerifiablePresentationBuilder().setId(id).setHolder(holderDid)
+            .setVerifiableCredentials(vcs.map { it.toVerifiableCredential() }).build().toJson()
 
         log.trace { "VP request: $vpReqStr" }
         log.trace { "Proof config: $$config" }
@@ -121,16 +120,13 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
             .filter { it.toString().endsWith(".json") }
             .map { it.fileName.toString() }.toList()
 
-    override fun defaultVcTemplate(): VerifiableCredential =
-        TODO("Not implemented yet.")
-
-    override fun validateSchema(vc: VerifiableCredential, schema: String): Boolean = TODO("Not implemented yet.")
+    override fun validateSchema(vc: VerifiableCredential, schema: String): Boolean = SchemaValidatorFactory.get(schema).validate(vc.toJson())
 
     override fun validateSchemaTsr(vc: String) = try {
-        vc.toCredential().let {
+        vc.toVPOrVC().let {
             if (it is VerifiablePresentation) return true
             val credentialSchema = it.credentialSchema ?: return true
-            return SchemaService.validateSchema(it.json!!, URI(credentialSchema.id).toURL().readText()).valid
+            return validateSchema(it, URI(credentialSchema.id).toURL().readText())
         }
     } catch (e: Exception) {
         e.printStackTrace()

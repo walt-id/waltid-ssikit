@@ -1,9 +1,9 @@
 package id.walt.services.vcstore
 
+import id.walt.credentials.w3c.VerifiableCredential
+import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.services.context.ContextManager
 import id.walt.services.hkvstore.HKVKey
-import id.walt.vclib.model.VerifiableCredential
-import id.walt.vclib.model.toCredential
 
 
 class HKVVcStoreService : VcStoreService() {
@@ -19,10 +19,10 @@ class HKVVcStoreService : VcStoreService() {
         HKVKey(vcRoot, group, id)
 
     override fun getCredential(id: String, group: String): VerifiableCredential? =
-        hkvStore.getAsString(getStoreKeyFor(id, group))?.toCredential()
+        hkvStore.getAsString(getStoreKeyFor(id, group))?.toVerifiableCredential()
 
     override fun listCredentials(group: String): List<VerifiableCredential> =
-        listCredentialIds(group).map { hkvStore.getAsString(getStoreKeyFor(it, group))!!.toCredential() }
+        listCredentialIds(group).map { hkvStore.getAsString(getStoreKeyFor(it, group))!!.toVerifiableCredential() }
 
     override fun listCredentialIds(group: String): List<String> =
         hkvStore.listChildKeys(getGroupRoot(group)).map { it.name }

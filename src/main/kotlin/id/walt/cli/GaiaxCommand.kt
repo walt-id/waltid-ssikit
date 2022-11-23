@@ -4,13 +4,15 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.path
+import id.walt.common.klaxonWithConverters
+import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyId
+import id.walt.model.Did
 import id.walt.model.DidMethod
 import id.walt.model.did.DidWeb
 import id.walt.model.gaiax.GaiaxCredentialGroup
 import id.walt.model.gaiax.ParticipantVerificationResult
-import id.walt.model.oidc.klaxon
 import id.walt.services.did.DidService
 import id.walt.services.ecosystems.gaiax.GaiaxService
 import id.walt.services.key.KeyService
@@ -19,9 +21,6 @@ import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.signatory.dataproviders.CLIDataProvider
-import id.walt.vclib.credentials.gaiax.n.LegalPerson
-import id.walt.vclib.credentials.gaiax.n.ParticipantCredential
-import id.walt.vclib.model.toCredential
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -95,13 +94,13 @@ class GaiaxOnboardingCommand : CliktCommand(
         // x5u
         val x5u = prompt(">>> You can optionally add a certificate chain URL (x5u)")
         if (x5u != null) {
-            val didWeb = klaxon.parse<DidWeb>(encodedDid)!!
+            val didWeb = Did.decode(encodedDid)!!
             didWeb.verificationMethod = didWeb.verificationMethod!!.apply {
                 for (vm in this) {
                     vm.publicKeyJwk = vm.publicKeyJwk!!.copy(x5u = x5u)
                 }
             }
-            encodedDid = klaxon.toJsonString(didWeb)
+            encodedDid = didWeb.encode()
 
             echo(">>> Make sure to have a valid certificate chain at: $x5u")
         }
@@ -115,7 +114,7 @@ class GaiaxOnboardingCommand : CliktCommand(
         echo(">> VC generation")
         val vcStr: String = runCatching {
             signatory.issue(
-                templateId = "LegalPerson",
+                templateIdOrFilename = "LegalPerson",
                 config = ProofConfig(
                     issuerDid = did,
                     subjectDid = did,
@@ -195,8 +194,8 @@ class GaiaxVerifyCredentialGroupCommand : CliktCommand(
     override fun run() {
         echo("Creating Credential Group...")
         val credentialGroup = GaiaxCredentialGroup(
-            complianceCredential = selfDescriptionPath.readText().toCredential() as ParticipantCredential,
-            selfDescriptionCredential = participantCredentialPath.readText().toCredential() as LegalPerson
+            complianceCredential = selfDescriptionPath.readText().toVerifiableCredential(),
+            selfDescriptionCredential = participantCredentialPath.readText().toVerifiableCredential()
         )
 
         val verificationResult = runBlocking {
