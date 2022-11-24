@@ -28,7 +28,7 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
     override fun sign(jsonCred: String, config: ProofConfig): String {
         log.debug { "Signing JWT object with config: $config" }
 
-        val crd = jsonCred.toVPOrVC()
+        val crd = jsonCred.toVerifiableCredential()
         val issuerDid = config.issuerDid
         val issueDate = config.issueDate ?: Instant.now()
         val validDate = config.validDate ?: Instant.now()
@@ -47,10 +47,10 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
 
         when (crd) {
             is VerifiablePresentation -> jwtClaimsSet
-                .claim(JWT_VP_CLAIM, crd.toJsonObject())
+                .claim(JWT_VP_CLAIM, JsonConverter.fromJsonElement(crd.toJsonObject()))
 
             else -> jwtClaimsSet
-                .claim(JWT_VC_CLAIM, crd.toJsonObject())
+                .claim(JWT_VC_CLAIM, JsonConverter.fromJsonElement(crd.toJsonObject()))
         }
 
         val payload = jwtClaimsSet.build().toString()
@@ -69,7 +69,7 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
         TODO("Not implemented yet.")
 
     override fun verify(vcOrVp: String): VerificationResult =
-        when (vcOrVp.toVPOrVC()) {
+        when (vcOrVp.toVerifiableCredential()) {
             is VerifiablePresentation -> VerificationResult(verifyVp(vcOrVp), VerificationType.VERIFIABLE_PRESENTATION)
             else -> VerificationResult(verifyVc(vcOrVp), VerificationType.VERIFIABLE_CREDENTIAL)
         }
@@ -123,7 +123,7 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
     override fun validateSchema(vc: VerifiableCredential, schema: String): Boolean = SchemaValidatorFactory.get(schema).validate(vc.toJson())
 
     override fun validateSchemaTsr(vc: String) = try {
-        vc.toVPOrVC().let {
+        vc.toVerifiableCredential().let {
             if (it is VerifiablePresentation) return true
             val credentialSchema = it.credentialSchema ?: return true
             return validateSchema(it, URI(credentialSchema.id).toURL().readText())

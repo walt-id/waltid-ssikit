@@ -4,6 +4,7 @@ import com.beust.klaxon.Klaxon
 import com.nimbusds.jose.jwk.JWK
 import id.walt.common.readWhenContent
 import id.walt.credentials.w3c.VerifiableCredential
+import id.walt.credentials.w3c.W3CIssuer
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyId
@@ -22,10 +23,6 @@ import id.walt.signatory.ProofConfig
 import id.walt.test.RESOURCES_PATH
 import id.walt.test.getTemplate
 import id.walt.test.readCredOffer
-import id.walt.vclib.credentials.Europass
-import id.walt.vclib.credentials.VerifiableAttestation
-import id.walt.vclib.model.VerifiableCredential
-import id.walt.vclib.model.toCredential
 import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.AnnotationSpec
@@ -396,23 +393,23 @@ class CoreApiTest : AnnotationSpec() {
 
     @Test
     fun testPresentVerifyVC() = runBlocking {
-        val credOffer = getTemplate("europass") as Europass
+        val credOffer = getTemplate("europass")
         val issuerDid = DidService.create(DidMethod.web, options = DidService.DidWebOptions("example.com"))
         val subjectDid = DidService.create(DidMethod.key)
 
         credOffer.id = Timestamp.valueOf(LocalDateTime.now()).time.toString()
-        credOffer.issuer = issuerDid
+        credOffer.issuer = W3CIssuer(issuerDid)
         credOffer.credentialSubject!!.id = subjectDid
 
         credOffer.issued = localTimeSecondsUtc()
 
-        val vcReqEnc = Klaxon().toJsonString(credOffer)
+        val vcReqEnc = credOffer.toJson()
 
         println("Credential request:\n$vcReqEnc")
 
         val vcStr = credentialService.sign(vcReqEnc, ProofConfig(issuerDid = issuerDid))
         println("OUR VC STR: $vcStr")
-        val vc = vcStr.toCredential()
+        val vc = vcStr.toVerifiableCredential()
 
         println("Credential generated: $vc")
 

@@ -4,6 +4,8 @@ import com.beust.klaxon.Klaxon
 import com.nimbusds.oauth2.sdk.AuthorizationRequest
 import com.nimbusds.oauth2.sdk.http.HTTPRequest
 import com.nimbusds.oauth2.sdk.util.URLUtils
+import id.walt.credentials.w3c.VerifiableCredential
+import id.walt.credentials.w3c.toVerifiablePresentation
 import id.walt.crypto.KeyAlgorithm
 import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
@@ -19,9 +21,6 @@ import id.walt.services.oidc.OIDC4CIService
 import id.walt.services.oidc.OIDC4VPService
 import id.walt.services.oidc.OIDCUtils
 import id.walt.test.RESOURCES_PATH
-import id.walt.vclib.credentials.VerifiablePresentation
-import id.walt.vclib.model.VerifiableCredential
-import id.walt.vclib.model.toCredential
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.annotation.EnabledCondition
 import io.kotest.core.annotation.EnabledIf
@@ -135,7 +134,7 @@ class WCTTest : AnnotationSpec() {
         val nonce = authReq.getCustomParameter("nonce").firstOrNull()
         nonce shouldBe "3cbb22d1-69c9-4d0f-94ef-759c7870b19c"
 
-        val vp = Custodian.getService().createPresentation(listOf(issuedVC!!.jwt!!), did,issuedVC!!.issuer, challenge = nonce, expirationDate = Instant.now().plus(Duration.ofDays(365))).toCredential() as VerifiablePresentation
+        val vp = Custodian.getService().createPresentation(listOf(issuedVC!!.jwt!!), did,issuedVC!!.issuerId, challenge = nonce, expirationDate = Instant.now().plus(Duration.ofDays(365))).toVerifiablePresentation()
         val resp = OIDC4VPService.getSIOPResponseFor(authReq, did, listOf(vp))
         val result = OIDC4VPService.postSIOPResponse(authReq, resp)
         println(result)

@@ -12,8 +12,8 @@ class VerifiablePresentation internal constructor(jsonObject: JsonObject): Verif
             ?.map { JsonConverter.toJsonElement(it) }
             ?.map {
                 when(it) {
-                    is JsonPrimitive -> fromString(it.content)
-                    is JsonObject -> fromJsonObject(it)
+                    is JsonPrimitive -> VerifiableCredential.fromString(it.content)
+                    is JsonObject -> VerifiableCredential.fromJsonObject(it)
                     else -> throw Exception("Invalid type of verifiableCredential item")
                 }
             }
@@ -25,8 +25,10 @@ class VerifiablePresentation internal constructor(jsonObject: JsonObject): Verif
 
     companion object: CredentialFactory<VerifiablePresentation> {
         override fun fromJsonObject(jsonObject: JsonObject) = VerifiablePresentation(jsonObject)
-
-        fun fromString(data: String) = VerifiablePresentation(data.toVerifiableCredential().toJsonObject())
+        fun fromVerifiableCredential(verifiableCredential: VerifiableCredential) = VerifiablePresentation(verifiableCredential.toJsonObject()).apply {
+          this.jwt = verifiableCredential.jwt
+        }
+        fun fromString(data: String) = fromVerifiableCredential(data.toVerifiableCredential())
     }
 }
 
@@ -36,11 +38,3 @@ class VerifiablePresentationBuilder: AbstractW3CCredentialBuilder<VerifiablePres
 }
 
 fun String.toVerifiablePresentation() = VerifiablePresentation.fromString(this)
-fun String.toVPOrVC(): VerifiableCredential {
-    val vc = this.toVerifiableCredential()
-    return if(vc.type.contains("VerifiablePresentation")) {
-        VerifiablePresentation(vc.toJsonObject())
-    } else {
-        return vc
-    }
-}

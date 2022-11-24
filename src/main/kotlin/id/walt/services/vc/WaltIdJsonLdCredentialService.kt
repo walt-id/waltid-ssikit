@@ -126,7 +126,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
         signer.created = Date() // Use the current date
         signer.domain = config.domain
         signer.nonce = config.nonce
-        config.issuerVerificationMethod?.let { signer.verificationMethod = URI.create(config.issuerVerificationMethod) }
+        signer.verificationMethod = URI.create(config.issuerVerificationMethod ?: vm)
         signer.proofPurpose = config.proofPurpose
 
 
@@ -168,7 +168,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
     }
 
     override fun verify(vcOrVp: String): VerificationResult {
-        val vcObj = vcOrVp.toVPOrVC()
+        val vcObj = vcOrVp.toVerifiableCredential()
         val issuer = vcObj.issuerId ?: throw Exception("No issuer DID found for VC or VP")
         val vm = vcObj.proof?.verificationMethod ?: issuer
 
@@ -274,7 +274,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
 
     override fun validateSchemaTsr(vc: String) = try {
 
-        vc.toVPOrVC().let {
+        vc.toVerifiableCredential().let {
 
             if (it is VerifiablePresentation) return true
 

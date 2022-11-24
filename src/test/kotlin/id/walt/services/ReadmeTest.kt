@@ -24,11 +24,11 @@ class ReadmeTest : StringSpec({
 
             // Issue VC in JSON-LD and JWT format (for show-casing both formats)
             val vcJson = Signatory.getService().issue(
-                templateId = "VerifiableId",
+                templateIdOrFilename = "VerifiableId",
                 config = ProofConfig(issuerDid = issuerDid, subjectDid = holderDid, proofType = ProofType.LD_PROOF)
             )
             val vcJwt = Signatory.getService().issue(
-                templateId = "Europass",
+                templateIdOrFilename = "Europass",
                 config = ProofConfig(issuerDid = issuerDid, subjectDid = holderDid, proofType = ProofType.JWT)
             )
 

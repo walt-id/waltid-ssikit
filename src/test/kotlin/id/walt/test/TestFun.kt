@@ -1,6 +1,6 @@
 package id.walt.test
 
-import id.walt.vclib.model.VerifiableCredential
+import id.walt.credentials.w3c.VerifiableCredential
 import java.io.File
 
 val RESOURCES_PATH: String = "src/test/resources"

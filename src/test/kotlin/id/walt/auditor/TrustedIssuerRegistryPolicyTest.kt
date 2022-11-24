@@ -1,7 +1,7 @@
 package id.walt.auditor
 
 import id.walt.credentials.w3c.VerifiableCredential
-import id.walt.credentials.w3c.toVPOrVC
+import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.encBase64Str
 import id.walt.model.Attribute
@@ -51,7 +51,7 @@ class TrustedIssuerRegistryPolicyTest : AnnotationSpec() {
             )
         )
 
-        verifiableCredential = vcStr.toVPOrVC()
+        verifiableCredential = vcStr.toVerifiableCredential()
     }
 
     @Test

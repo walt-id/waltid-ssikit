@@ -5,6 +5,8 @@ import id.walt.auditor.Auditor
 import id.walt.auditor.SignaturePolicy
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.W3CIssuer
+import id.walt.credentials.w3c.builder.W3CCredentialBuilder
+import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.context.ContextManager
@@ -13,18 +15,12 @@ import id.walt.services.jwt.JwtService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.dataproviders.MergingDataProvider
 import id.walt.test.RESOURCES_PATH
-import id.walt.vclib.credentials.VerifiableDiploma
-import id.walt.vclib.credentials.VerifiableId
-import id.walt.credentials.w3c.builder.W3CCredentialBuilder
-import id.walt.vclib.model.toCredential
-import id.walt.vclib.templates.VcTemplateManager
 import io.kotest.assertions.json.shouldMatchJson
 import io.kotest.core.spec.style.StringSpec
-import io.kotest.matchers.should
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
-import io.kotest.matchers.types.beInstanceOf
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
@@ -54,7 +50,7 @@ class SignatoryServiceTest : StringSpec({
         vc shouldContain "VerifiableId"
         vc shouldContain "0904008084H"
         vc shouldContain "Jane DOE"
-        (vc.toCredential() as VerifiableId).issued shouldBe "2020-11-03T00:00:00Z"
+        vc.toVerifiableCredential().issued shouldBe "2020-11-03T00:00:00Z"
 
         JsonLdCredentialService.getService().verify(vc).verified shouldBe true
     }
@@ -104,7 +100,7 @@ class SignatoryServiceTest : StringSpec({
         vc shouldContain "VerifiableDiploma"
         vc shouldContain "Leaston University"
         vc shouldContain "MASTERS LAW, ECONOMICS AND MANAGEMENT"
-        (vc.toCredential() as VerifiableDiploma).issued shouldBe "2020-11-03T00:00:00Z"
+        vc.toVerifiableCredential().issued shouldBe "2020-11-03T00:00:00Z"
 
         JsonLdCredentialService.getService().verify(vc).verified shouldBe true
     }
@@ -134,27 +130,22 @@ class SignatoryServiceTest : StringSpec({
 
     "vc storage test" {
         val vc = signatory.issue("VerifiableId", ProofConfig(subjectDid = did, issuerDid = did, proofType = ProofType.LD_PROOF))
-        val vcObj = vc.toCredential()
-        vcObj should beInstanceOf<VerifiableId>()
-        (vcObj as VerifiableId).id.isNullOrBlank() shouldBe false
+        val vcObj = vc.toVerifiableCredential()
+        vcObj.type shouldContain "VerifiableId"
+        vcObj.id.isNullOrBlank() shouldBe false
         val cred = ContextManager.vcStore.getCredential(vcObj.id!!, "signatory")
-        cred should beInstanceOf<VerifiableId>()
-        (cred as VerifiableId).id shouldBe vcObj.id
+        cred?.id shouldBe vcObj.id
     }
 
     "merging data provider" {
-        val templ = VcTemplateManager.loadTemplate("VerifiableId")
+        val builder = W3CCredentialBuilder()
         val data = mapOf(Pair("credentialSubject", mapOf(Pair("firstName", "Yves"))))
         val populated = MergingDataProvider(data).populate(
-            templ,
+            builder,
             ProofConfig(subjectDid = did, issuerDid = did, proofType = ProofType.LD_PROOF)
-        )
+        ).build()
 
-        populated.javaClass shouldBe VerifiableId::class.java
-
-        (populated as VerifiableId).credentialSubject?.firstName shouldBe "Yves"
-        populated.credentialSubject?.id shouldBe did
-        populated.issuer shouldBe did
+        populated.credentialSubject?.properties?.get("firstName") shouldBe "Yves"
     }
 
     "sign any credential from template with user data from json" {

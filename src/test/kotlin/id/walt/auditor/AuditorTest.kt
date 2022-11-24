@@ -11,7 +11,6 @@ import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.signatory.dataproviders.MergingDataProvider
-import id.walt.test.DummySignatoryDataProvider
 import id.walt.test.RESOURCES_PATH
 import io.kotest.core.annotation.Ignored
 import io.kotest.core.spec.style.StringSpec
@@ -60,9 +59,7 @@ class AuditorCommandTest : StringSpec() {
         vcJwt = signatory.issue(
             "VerifiableDiploma", ProofConfig(
                 issuerDid = did, subjectDid = did, issuerVerificationMethod = vm, proofType = ProofType.JWT
-            ),
-            // Required at the moment because EBSI did not upgrade V_ID schema with necessary changes.
-            DummySignatoryDataProvider()
+            )
         )
 
         vpJwt = custodian.createPresentation(listOf(vcJwt), did, did, null, "abcd", null)

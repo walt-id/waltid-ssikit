@@ -4,7 +4,7 @@ import id.walt.auditor.Auditor
 import id.walt.auditor.PolicyRegistry
 import id.walt.cli.resolveDidHelper
 import id.walt.common.SqlDbManager
-import id.walt.credentials.w3c.toVPOrVC
+import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyId
 import id.walt.custodian.Custodian
@@ -167,7 +167,7 @@ class EssifIntTest : StringSpec({
 
         println("Creating a verifiable presentation for DID \"$holderDid\"...")
         println("Using ${src.size} ${if (src.size > 1) "VCs" else "VC"}:")
-        src.forEachIndexed { index, vc -> println("- ${index + 1}. $vc (${vc.readText().toVPOrVC().type.last()})") }
+        src.forEachIndexed { index, vc -> println("- ${index + 1}. $vc (${vc.readText().toVerifiableCredential().type.last()})") }
 
         val vcStrList = src.stream().map { vc -> vc.readText() }.collect(Collectors.toList())
 

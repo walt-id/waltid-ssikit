@@ -137,6 +137,7 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
             issuer?.let { setIssuer(it) }
             setIssuerId(fullProofConfig.issuerDid)
             setIssuanceDate(fullProofConfig.issueDate ?: Instant.now())
+            setIssued(fullProofConfig.issueDate ?: Instant.now())
             fullProofConfig.subjectDid?.let { setSubjectId(it) }
             setId(fullProofConfig.credentialId.orEmpty().ifEmpty { "urn:uuid:${UUID.randomUUID()}" })
             setIssuanceDate(fullProofConfig.issueDate ?: Instant.now())

@@ -1,21 +1,20 @@
 package id.walt.signatory
 
 import com.beust.klaxon.Klaxon
+import id.walt.credentials.w3c.templates.VcTemplateManager
+import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
 import id.walt.signatory.rest.IssueCredentialRequest
 import id.walt.signatory.rest.SignatoryRestAPI
 import id.walt.test.RESOURCES_PATH
-import id.walt.vclib.credentials.*
-import id.walt.vclib.model.toCredential
-import id.walt.vclib.templates.VcTemplateManager
 import io.github.rybalkinsd.kohttp.dsl.httpPost
 import io.github.rybalkinsd.kohttp.ext.asString
-import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldStartWith
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -66,7 +65,7 @@ class SignatoryApiTest : AnnotationSpec() {
             contentType(ContentType.Application.Json)
         }.body<List<String>>()
 
-        VcTemplateManager.getTemplateList().forEach { templateName -> templates shouldContain templateName }
+        VcTemplateManager.listTemplates().forEach { templateName -> templates shouldContain templateName }
 
         templates shouldContain "Europass"
         templates shouldContain "VerifiablePresentation"
@@ -76,7 +75,7 @@ class SignatoryApiTest : AnnotationSpec() {
     @Test
     fun testLoadVcTemplates() = runBlocking {
 
-        VcTemplateManager.getTemplateList().forEach { templateName ->
+        VcTemplateManager.listTemplates().forEach { templateName ->
 
             val templateJson = client.get("$SIGNATORY_API_URL/v1/templates/$templateName") {
                 contentType(ContentType.Application.Json)
@@ -95,7 +94,7 @@ class SignatoryApiTest : AnnotationSpec() {
             contentType(ContentType.Application.Json)
         }.bodyAsText()
 
-        europassJson shouldEqualJson Europass.template!!.invoke().encode()
+        europassJson.toVerifiableCredential().type shouldContain "Europass"
     }
 
     @Test
@@ -126,9 +125,10 @@ class SignatoryApiTest : AnnotationSpec() {
             }
         }.asString()
 
-        println(vc)
-        val cred = vc?.toCredential() as VerifiableDiploma
-        cred.issuer shouldBe did
+        vc shouldNotBe null
+        println(vc!!)
+        val cred = vc.toVerifiableCredential()
+        cred.issuerId shouldBe did
         cred.credentialSubject?.id shouldBe did
         cred.proof?.verificationMethod shouldBe vm
     }
@@ -193,9 +193,10 @@ class SignatoryApiTest : AnnotationSpec() {
             }
         }.also { it.code shouldBe 200 }.asString()
 
-        println(vc)
-        val cred = vc?.toCredential() as Europass
-        cred.issuer shouldBe did
+        vc shouldNotBe null
+        println(vc!!)
+        val cred = vc.toVerifiableCredential()
+        cred.issuerId shouldBe did
         cred.credentialSubject?.id shouldBe did
         cred.proof?.verificationMethod shouldBe vm
     }
@@ -228,9 +229,10 @@ class SignatoryApiTest : AnnotationSpec() {
             }
         }.asString()
 
-        println(vc)
-        val cred = vc?.toCredential() as PermanentResidentCard
-        cred.issuer shouldBe did
+        vc shouldNotBe null
+        println(vc!!)
+        val cred = vc.toVerifiableCredential()
+        cred.issuerId shouldBe did
         cred.credentialSubject?.id shouldBe did
         cred.proof?.verificationMethod shouldBe vm
     }
@@ -263,9 +265,10 @@ class SignatoryApiTest : AnnotationSpec() {
             }
         }.asString()
 
-        println(vc)
-        val cred = vc?.toCredential() as VerifiableAuthorization
-        cred.issuer shouldBe did
+        vc shouldNotBe null
+        println(vc!!)
+        val cred = vc.toVerifiableCredential()
+        cred.issuerId shouldBe did
         cred.credentialSubject?.id shouldBe did
         cred.proof?.verificationMethod shouldBe vm
     }
@@ -298,8 +301,9 @@ class SignatoryApiTest : AnnotationSpec() {
             }
         }.asString()
 
-        println(vc)
-        val cred = vc?.toCredential() as VerifiableAttestation
+        vc shouldNotBe null
+        println(vc!!)
+        val cred = vc.toVerifiableCredential()
         // cred.issuer shouldBe did // "NEW ISSUER" set by Command test
         // cred.credentialSubject?.id shouldBe did // "id123" set by Command test
         cred.proof?.verificationMethod shouldBe vm

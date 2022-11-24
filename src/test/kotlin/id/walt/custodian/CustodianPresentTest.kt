@@ -2,7 +2,7 @@ package id.walt.custodian
 
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.VerifiablePresentation
-import id.walt.credentials.w3c.toVPOrVC
+import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
@@ -55,7 +55,7 @@ class CustodianPresentTest : StringSpec() {
             val presStr = Custodian.getService().createPresentation(listOf(vcJsonLd), did, did, null, null, null)
             println("Created VP: $presStr")
 
-            val pres = presStr.toVPOrVC()
+            val pres = presStr.toVerifiableCredential()
 
             pres shouldBe instanceOf<VerifiablePresentation>()
         }
@@ -97,7 +97,7 @@ class CustodianPresentTest : StringSpec() {
     private fun checkVerifiablePresentation(presStr: String) {
         VerifiableCredential.isJWT(presStr) shouldBe true
 
-        val pres = presStr.toVPOrVC()
+        val pres = presStr.toVerifiableCredential()
 
         pres shouldBe instanceOf<VerifiablePresentation>()
         pres.jwt shouldNotBe null

@@ -129,4 +129,11 @@ open class VerifiableCredential internal constructor (
     }
 }
 
-fun String.toVerifiableCredential() = VerifiableCredential.fromString(this)
+fun String.toVerifiableCredential(): VerifiableCredential {
+  val vc = VerifiableCredential.fromString(this)
+  return if(vc.type.contains("VerifiablePresentation")) {
+    VerifiablePresentation.fromVerifiableCredential(vc)
+  } else {
+    return vc
+  }
+}

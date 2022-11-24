@@ -2,20 +2,10 @@ package id.walt.json
 
 import com.beust.klaxon.Klaxon
 import id.walt.credentials.w3c.toVerifiableCredential
-import id.walt.vclib.credentials.Europass
-import id.walt.vclib.credentials.PermanentResidentCard
-import id.walt.vclib.credentials.VerifiableAttestation
-import id.walt.vclib.model.*
-import io.kotest.assertions.fail
 import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.assertions.json.shouldMatchJson
 import io.kotest.core.spec.style.AnnotationSpec
-import io.kotest.matchers.equality.shouldBeEqualToComparingFields
-import io.kotest.matchers.shouldBe
-import io.kotest.matchers.types.instanceOf
-import io.kotest.matchers.types.shouldBeSameInstanceAs
 import java.io.File
-import java.time.LocalDateTime
 
 
 class JsonSerializeVerifiableCredentialTest : AnnotationSpec() {
