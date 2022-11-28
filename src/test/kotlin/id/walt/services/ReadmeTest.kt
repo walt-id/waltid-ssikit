@@ -3,6 +3,8 @@ package id.walt.services
 import id.walt.auditor.Auditor
 import id.walt.auditor.JsonSchemaPolicy
 import id.walt.auditor.SignaturePolicy
+import id.walt.credentials.w3c.schema.SchemaValidator
+import id.walt.credentials.w3c.schema.SchemaValidatorFactory
 import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
@@ -10,7 +12,12 @@ import id.walt.services.did.DidService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
+import io.javalin.plugin.openapi.dsl.anyOf
+import io.kotest.core.spec.Spec
 import io.kotest.core.spec.style.StringSpec
+import io.mockk.every
+import io.mockk.mockkObject
+import java.net.URI
 
 class ReadmeTest : StringSpec({
     "Check README.md example code" {
@@ -45,4 +52,14 @@ class ReadmeTest : StringSpec({
         }
         main()
     }
-})
+}) {
+  override suspend fun beforeSpec(spec: Spec) {
+    mockkObject(SchemaValidatorFactory)
+    every { SchemaValidatorFactory.get(any<URI>()) }.returns(object: SchemaValidator {
+      override fun validate(json: String): Boolean {
+        return true
+      }
+
+    })
+  }
+}

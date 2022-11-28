@@ -270,7 +270,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
             .filter { it.toString().endsWith(".json") }.map { it.fileName.toString() }.toList()
     }
 
-    override fun validateSchema(vc: VerifiableCredential, schema: String) = SchemaValidatorFactory.get(schema).validate(vc.toJson())
+    override fun validateSchema(vc: VerifiableCredential, schemaURI: URI) = SchemaValidatorFactory.get(schemaURI).validate(vc.toJson())
 
     override fun validateSchemaTsr(vc: String) = try {
 
@@ -285,17 +285,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
                 return false
             }
 
-            val loadedSchema = try {
-                URL(credentialSchemaUrl).readText()
-            } catch (e: Exception) {
-                if (log.isDebugEnabled) {
-                    log.debug { "Could not load schema from ${credentialSchemaUrl}" }
-                    e.printStackTrace()
-                }
-                return false
-            }
-
-            return validateSchema(it, loadedSchema)
+            return validateSchema(it, URI.create(credentialSchemaUrl))
         }
     } catch (e: Exception) {
         if (log.isDebugEnabled) {

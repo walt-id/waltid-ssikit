@@ -120,13 +120,13 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
             .filter { it.toString().endsWith(".json") }
             .map { it.fileName.toString() }.toList()
 
-    override fun validateSchema(vc: VerifiableCredential, schema: String): Boolean = SchemaValidatorFactory.get(schema).validate(vc.toJson())
+    override fun validateSchema(vc: VerifiableCredential, schemaURI: URI): Boolean = SchemaValidatorFactory.get(schemaURI).validate(vc.toJson())
 
     override fun validateSchemaTsr(vc: String) = try {
         vc.toVerifiableCredential().let {
             if (it is VerifiablePresentation) return true
             val credentialSchema = it.credentialSchema ?: return true
-            return validateSchema(it, URI(credentialSchema.id).toURL().readText())
+            return validateSchema(it, URI.create(credentialSchema.id))
         }
     } catch (e: Exception) {
         e.printStackTrace()

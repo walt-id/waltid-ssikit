@@ -4,6 +4,8 @@ import com.beust.klaxon.Klaxon
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.W3CIssuer
 import id.walt.credentials.w3c.builder.W3CCredentialBuilder
+import id.walt.credentials.w3c.schema.SchemaValidator
+import id.walt.credentials.w3c.schema.SchemaValidatorFactory
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.credentials.w3c.toVerifiablePresentation
 import id.walt.model.DidMethod
@@ -18,7 +20,10 @@ import id.walt.test.readCredOffer
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.mockk.every
+import io.mockk.mockkObject
 import java.io.File
+import java.net.URI
 
 class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
 
@@ -34,6 +39,14 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
     private val issuerEbsiDid = DidService.create(DidMethod.ebsi)
 
     val VC_PATH = "src/test/resources/verifiable-credentials"
+
+    @BeforeAll
+    fun setup() {
+      mockkObject(SchemaValidatorFactory)
+      every { SchemaValidatorFactory.get(URI.create("https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0xb77f8516a965631b4f197ad54c65a9e2f9936ebfb76bae4906d33744dbcc60ba"))}.returns(
+        SchemaValidatorFactory.get(URI.create("https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableId.json").toURL().readText())
+      )
+    }
 
     fun genericSignVerify(issuerDid: String, credOffer: String) {
 
@@ -214,12 +227,11 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
                 proofType = ProofType.LD_PROOF
             )
         )
-        val invalidDataVc = Signatory.getService().issue(
-            "VerifiableId", ProofConfig(
-                issuerDid = issuerKeyDid,
-                proofType = ProofType.LD_PROOF
-            )
-        )
+        val invalidDataVc = Signatory.getService().issue(W3CCredentialBuilder().setCredentialSchema(validVc.toVerifiableCredential().credentialSchema!!)
+          .buildSubject { setProperty("foo", "bar") }, ProofConfig(
+          issuerDid = issuerKeyDid,
+          proofType = ProofType.LD_PROOF
+        ))
         val notParsableVc = ""
 
         credentialService.validateSchemaTsr(noSchemaVc) shouldBe false
