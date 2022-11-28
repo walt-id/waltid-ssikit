@@ -16,6 +16,8 @@ import id.walt.auditor.PolicyRegistry
 import id.walt.auditor.dynamic.DynamicPolicyArg
 import id.walt.auditor.dynamic.PolicyEngineType
 import id.walt.common.prettyPrint
+import id.walt.credentials.w3c.VerifiableCredential
+import id.walt.credentials.w3c.templates.VcTemplateManager
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.LdSignatureType
 import id.walt.custodian.Custodian
@@ -375,7 +377,11 @@ class VcTemplatesListCommand : CliktCommand(
 
         echo("\nResults:\n")
 
-        Signatory.getService().listTemplates().sorted().forEachIndexed { index, vc -> echo("- ${index + 1}: $vc") }
+        VcTemplateManager.getAllTemplates().sortedBy { it.name }.forEach { tmpl ->
+          echo("${if(tmpl.mutable) "*" else "-" } ${tmpl.name}")
+        }
+      echo()
+      echo("(*) ... custom template")
     }
 }
 
@@ -396,4 +402,21 @@ class VcTemplatesExportCommand : CliktCommand(
         echo(template)
         File("vc-template-$templateName-${getTimeMillis()}.json").writeText(template)
     }
+}
+
+class VcTemplatesImportCommand : CliktCommand(
+  name = "import", help = """Import VC Template.
+
+        """
+) {
+
+  val templateName: String by option("-n", "--name", help = "Name of the template").required()
+  val templateFile: String by argument("template-file", "File of template to import")
+
+  override fun run() {
+    echo("\nImporting VC template ...")
+    val template = File(templateFile).readText()
+    val vc = VerifiableCredential.fromJson(template)
+    VcTemplateManager.register(templateName, vc.toJson())
+  }
 }

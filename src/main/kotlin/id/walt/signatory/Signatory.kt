@@ -125,7 +125,7 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
 
         val credentialBuilder = when(Files.exists(Path.of(templateIdOrFilename))) {
             true -> Files.readString(Path.of(templateIdOrFilename))
-            else -> VcTemplateManager.getTemplate(templateIdOrFilename)
+            else -> VcTemplateManager.getTemplate(templateIdOrFilename).template
         }.let { W3CCredentialBuilder.fromPartial(it) }
 
         return issue(dataProvider?.populate(credentialBuilder, config) ?: credentialBuilder, config, issuer)
