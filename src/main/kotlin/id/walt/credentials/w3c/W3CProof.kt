@@ -1,17 +1,18 @@
 package id.walt.credentials.w3c
 
+import com.beust.klaxon.Json
 import kotlinx.serialization.json.*
 
 class W3CProof(
-    var type: String? = null,
-    var creator: String? = null,
-    var created: String? = null,
-    var domain: String? = null,
-    var proofPurpose: String? = null,
-    var verificationMethod: String? = null,
-    var jws: String? = null,
-    var nonce: String? = null,
-    override val properties: Map<String, Any?> = mapOf()
+  @Json(serializeNull = false) var type: String? = null,
+  @Json(serializeNull = false) var creator: String? = null,
+  @Json(serializeNull = false) var created: String? = null,
+  @Json(serializeNull = false) var domain: String? = null,
+  @Json(serializeNull = false) var proofPurpose: String? = null,
+  @Json(serializeNull = false) var verificationMethod: String? = null,
+  @Json(serializeNull = false) var jws: String? = null,
+  @Json(serializeNull = false) var nonce: String? = null,
+  @Json(ignored = true) override val properties: Map<String, Any?> = mapOf()
 ) : ICredentialElement {
 
     fun toJsonObject() = buildJsonObject {
