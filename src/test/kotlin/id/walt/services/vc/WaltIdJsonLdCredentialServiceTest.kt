@@ -1,22 +1,29 @@
 package id.walt.services.vc
 
 import com.beust.klaxon.Klaxon
+import id.walt.credentials.w3c.VerifiableCredential
+import id.walt.credentials.w3c.W3CIssuer
+import id.walt.credentials.w3c.builder.W3CCredentialBuilder
+import id.walt.credentials.w3c.schema.SchemaValidator
+import id.walt.credentials.w3c.schema.SchemaValidatorFactory
+import id.walt.credentials.w3c.toVerifiableCredential
+import id.walt.credentials.w3c.toVerifiablePresentation
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
-import id.walt.signatory.dataproviders.DefaultDataProvider
 import id.walt.test.RESOURCES_PATH
 import id.walt.test.getTemplate
 import id.walt.test.readCredOffer
-import id.walt.vclib.credentials.*
-import id.walt.vclib.model.toCredential
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.mockk.every
+import io.mockk.mockkObject
 import java.io.File
+import java.net.URI
 
 class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
 
@@ -33,12 +40,20 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
 
     val VC_PATH = "src/test/resources/verifiable-credentials"
 
+    @BeforeAll
+    fun setup() {
+      mockkObject(SchemaValidatorFactory)
+      every { SchemaValidatorFactory.get(URI.create("https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0xb77f8516a965631b4f197ad54c65a9e2f9936ebfb76bae4906d33744dbcc60ba"))}.returns(
+        SchemaValidatorFactory.get(URI.create("https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableId.json").toURL().readText())
+      )
+    }
+
     fun genericSignVerify(issuerDid: String, credOffer: String) {
 
         val vcStr = credentialService.sign(credOffer, ProofConfig(issuerDid = issuerDid))
         println("Credential generated: $vcStr")
 
-        val vc = vcStr.toCredential()
+        val vc = vcStr.toVerifiableCredential()
         println("Credential decoded: $vc")
 
         println("Verifying...")
@@ -49,11 +64,11 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
 
         vcVerified.verificationType shouldBe VerificationType.VERIFIABLE_CREDENTIAL
 
-        val holderDid = vc.subject!!
+        val holderDid = vc.subjectId!!
         val vpStr = credentialService.present(listOf(vcStr), holderDid, "domain.com", "nonce", null)
         println("Presentation generated: $vpStr")
 
-        val vp = vpStr.toCredential() as VerifiablePresentation
+        val vp = vpStr.toVerifiablePresentation()
         println(vpStr)
         vp.proof?.domain shouldBe "domain.com"
         vp.proof?.nonce shouldBe "nonce"
@@ -67,25 +82,31 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
 
     @Test
     fun signEbsiVerifiableAttestation() {
-        val template = getTemplate("ebsi-attestation") as VerifiableAttestation
+        val template = getTemplate("ebsi-attestation")
 
-        template.issuer = issuerWebDid
+        template.issuer = W3CIssuer(issuerWebDid)
         template.credentialSubject!!.id = issuerWebDid // self signed
 
-        val credOffer = Klaxon().toJsonString(template)
+        val credOffer = template.toJson()
 
         genericSignVerify(issuerWebDid, credOffer)
     }
 
     @Test
     fun signEuropass() {
-        val template = getTemplate("europass") as Europass
+        val template = getTemplate("europass")
+        val builder = W3CCredentialBuilder.fromPartial(template)
+          .setIssuerId(issuerKeyDid)
+          .buildSubject {
+            setId(issuerKeyDid) // self signed
+            setProperty("achieved", listOf(
+              buildMap {
+                put("title", "Some Europass specific title")
+              }
+            ))
+          }
 
-        template.issuer = issuerKeyDid
-        template.credentialSubject!!.id = issuerKeyDid // self signed
-        template.credentialSubject!!.achieved!![0].title = "Some Europass specific title"
-
-        val credOffer = Klaxon().toJsonString(template)
+        val credOffer = builder.build().toJson()
 
         println("GENERIC SIGN VERIFY")
         genericSignVerify(issuerKeyDid, credOffer)
@@ -93,13 +114,14 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
 
     @Test
     fun signPermanentResidentCard() {
-        val template = getTemplate("permanent-resident-card") as PermanentResidentCard
+        val builder = W3CCredentialBuilder.fromPartial(getTemplate("permanent-resident-card"))
+          .setIssuerId(issuerKeyDid)
+          .buildSubject {
+            setId(issuerKeyDid)
+            setProperty("givenName",  "Given Name")
+          }
 
-        template.issuer = issuerKeyDid
-        template.credentialSubject!!.id = issuerKeyDid // self signed
-        template.credentialSubject!!.givenName = "Given Name"
-
-        val credOffer = Klaxon().toJsonString(template)
+        val credOffer = builder.build().toJson()
 
         genericSignVerify(issuerKeyDid, credOffer)
     }
@@ -108,7 +130,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
     fun presentVa() {
         val vaStr = File("$VC_PATH/vc-ebsi-verifiable-authorisation.json").readText()
 
-        val vp = credentialService.present(listOf(vaStr), vaStr.toCredential().subject!!, null, null, null)
+        val vp = credentialService.present(listOf(vaStr), vaStr.toVerifiableCredential().subjectId!!, null, null, null)
 
         println(vp)
     }
@@ -119,18 +141,17 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
         val domain = "example.com"
         val challenge = "asdf"
 
-        val template = Europass.template!!.invoke() as Europass
+        val builder = W3CCredentialBuilder.fromPartial(getTemplate("europass"))
+          .setIssuerId(issuerEbsiDid)
+          .buildSubject { setId(subjectKeyDid) }
 
-        template.issuer = issuerEbsiDid
-        template.credentialSubject!!.id = subjectKeyDid
-
-        val vc = credentialService.sign(template.encode(), ProofConfig(issuerDid = issuerEbsiDid))
+        val vc = credentialService.sign(builder.build().encode(), ProofConfig(issuerDid = issuerEbsiDid))
 
         println("Signed vc: $vc")
-        val vcSigned = vc.toCredential()
+        val vcSigned = vc.toVerifiableCredential()
         println(vcSigned.toString())
 
-        val vp = credentialService.present(listOf(vc), vcSigned.subject!!, domain, challenge, null)
+        val vp = credentialService.present(listOf(vc), vcSigned.subjectId!!, domain, challenge, null)
         println("Presentation generated: $vp")
 
         val vpVerified = credentialService.verify(vp)
@@ -145,7 +166,9 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
         val domain = "example.com"
         val nonce: String? = null
         val proof = ProofConfig(subjectDid = issuerWebDid, issuerDid = issuerWebDid, nonce = nonce, domain = domain)
-        val credOffer = DefaultDataProvider.populate(readCredOffer("WorkHistory").toCredential(), proof).encode()
+        val credOffer = W3CCredentialBuilder.fromPartial(readCredOffer("WorkHistory"))
+          .setIssuerId(issuerWebDid)
+          .build().encode()
 
         val vc = credentialService.sign(credOffer, proof)
         vc shouldNotBe null
@@ -161,7 +184,8 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
         val nonce: String? = null
 
         val proof = ProofConfig(subjectDid = issuerKeyDid, issuerDid = issuerKeyDid, nonce = nonce, domain = domain)
-        val credOffer = DefaultDataProvider.populate(readCredOffer("WorkHistory").toCredential(), proof).encode()
+        val credOffer = W3CCredentialBuilder.fromPartial(readCredOffer("WorkHistory"))
+          .setIssuerId(issuerKeyDid).build().encode()
 
         val vc = credentialService.sign(credOffer, proof)
         vc shouldNotBe null
@@ -178,7 +202,8 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
         val nonce: String? = null
         val proof = ProofConfig(subjectDid = issuerKeyDid, issuerDid = issuerKeyDid, nonce = nonce, domain = domain)
         val credOffer =
-            DefaultDataProvider.populate(readCredOffer("VerifiableAttestation-Europass").toCredential(), proof).encode()
+            W3CCredentialBuilder.fromPartial(readCredOffer("VerifiableAttestation-Europass"))
+              .setIssuerId(issuerKeyDid).build().encode()
 
         val vc = credentialService.sign(credOffer, proof)
         vc shouldNotBe null
@@ -192,7 +217,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
     fun testValidateSchemaTsr() {
         val issuerKeyDidDoc = DidService.load(issuerKeyDid)
         val issuerKeyDidVM = issuerKeyDidDoc.assertionMethod!!.first().id
-        val noSchemaVc = VerifiableId().encode()
+        val noSchemaVc = VerifiableCredential().encode()
         val validVc = Signatory.getService().issue(
             "VerifiableId", ProofConfig(
                 issuerDid = issuerKeyDid,
@@ -202,12 +227,11 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
                 proofType = ProofType.LD_PROOF
             )
         )
-        val invalidDataVc = Signatory.getService().issue(
-            "VerifiableId", ProofConfig(
-                issuerDid = issuerKeyDid,
-                proofType = ProofType.LD_PROOF
-            )
-        )
+        val invalidDataVc = Signatory.getService().issue(W3CCredentialBuilder().setCredentialSchema(validVc.toVerifiableCredential().credentialSchema!!)
+          .buildSubject { setProperty("foo", "bar") }, ProofConfig(
+          issuerDid = issuerKeyDid,
+          proofType = ProofType.LD_PROOF
+        ))
         val notParsableVc = ""
 
         credentialService.validateSchemaTsr(noSchemaVc) shouldBe false

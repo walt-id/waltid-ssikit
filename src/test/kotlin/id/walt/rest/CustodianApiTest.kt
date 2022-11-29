@@ -3,6 +3,8 @@ package id.walt.rest
 import id.walt.auditor.Auditor
 import id.walt.auditor.SignaturePolicy
 import id.walt.common.readWhenContent
+import id.walt.credentials.w3c.VerifiablePresentation
+import id.walt.credentials.w3c.toVerifiablePresentation
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyId
 import id.walt.model.DidMethod
@@ -17,14 +19,13 @@ import id.walt.services.keystore.KeyType
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
-import id.walt.vclib.credentials.VerifiablePresentation
-import id.walt.vclib.model.toCredential
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.common.runBlocking
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.data.blocking.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.instanceOf
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -81,9 +82,9 @@ class CustodianApiTest : StringSpec({
                 setBody(PresentCredentialsRequest(listOf(vcJwt), did))
             }.bodyAsText()
 
-        val vp = response.toCredential() as VerifiablePresentation
+        val vp = response.toVerifiablePresentation()
 
-        vp.type shouldBe VerifiablePresentation.type
+        vp shouldBe instanceOf<VerifiablePresentation>()
 
         println("VP Response: $response")
 

@@ -7,6 +7,9 @@ import com.nimbusds.oauth2.sdk.token.BearerAccessToken
 import com.nimbusds.oauth2.sdk.util.URLUtils
 import com.nimbusds.openid.connect.sdk.Nonce
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata
+import id.walt.credentials.w3c.VerifiablePresentation
+import id.walt.credentials.w3c.toVerifiableCredential
+import id.walt.credentials.w3c.toVerifiablePresentation
 import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
 import id.walt.model.dif.*
@@ -18,8 +21,6 @@ import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.test.RESOURCES_PATH
-import id.walt.vclib.credentials.VerifiablePresentation
-import id.walt.vclib.model.toCredential
 import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.spec.style.AnnotationSpec
@@ -172,15 +173,15 @@ class OIDC4VCTest : AnnotationSpec() {
         )
         credential shouldNotBe null
         credential!!.type.last() shouldBe OIDCTestProvider.TEST_CREDENTIAL_ID
-        credential.subject shouldBe SUBJECT_DID
-        credential.issuer shouldBe OIDCTestProvider.ISSUER_DID
+        credential.subjectId shouldBe SUBJECT_DID
+        credential.issuerId shouldBe OIDCTestProvider.ISSUER_DID
     }
 
     @Test
     fun testVerifyPresentation() {
         val credential = Signatory.getService().issue("VerifiableId", ProofConfig(OIDCTestProvider.ISSUER_DID, SUBJECT_DID))
         val presentation = Custodian.getService().createPresentation(listOf(credential), SUBJECT_DID)
-            .toCredential() as VerifiablePresentation
+            .toVerifiablePresentation()
         val req = OIDC4VPService.createOIDC4VPRequest(
             URI("openid:///"),
             redirect_uri = URI.create("${testProvider.url}/present"),
@@ -204,7 +205,7 @@ class OIDC4VCTest : AnnotationSpec() {
         val credential = Signatory.getService()
             .issue("VerifiableId", ProofConfig(OIDCTestProvider.ISSUER_DID, SUBJECT_DID, proofType = ProofType.JWT))
         val presentation = Custodian.getService().createPresentation(listOf(credential), SUBJECT_DID)
-            .toCredential() as VerifiablePresentation
+            .toVerifiablePresentation()
         val req = OIDC4VPService.createOIDC4VPRequest(
             URI.create("openid:///"),
             redirect_uri = URI.create("${testProvider.url}/present"),
@@ -227,7 +228,7 @@ class OIDC4VCTest : AnnotationSpec() {
     fun testVerifyMultiplePresentations() {
         val credential = Signatory.getService().issue("VerifiableId", ProofConfig(OIDCTestProvider.ISSUER_DID, SUBJECT_DID))
         val presentation = Custodian.getService().createPresentation(listOf(credential), SUBJECT_DID)
-            .toCredential() as VerifiablePresentation
+            .toVerifiablePresentation()
         val req = OIDC4VPService.createOIDC4VPRequest(
             URI.create("openid:///"),
             redirect_uri = URI.create("${testProvider.url}/present"),
@@ -256,7 +257,7 @@ class OIDC4VCTest : AnnotationSpec() {
         val credential = Signatory.getService()
             .issue("VerifiableId", ProofConfig(OIDCTestProvider.ISSUER_DID, SUBJECT_DID, proofType = ProofType.JWT))
         val presentation = Custodian.getService().createPresentation(listOf(credential), SUBJECT_DID)
-            .toCredential() as VerifiablePresentation
+            .toVerifiablePresentation()
         val req = OIDC4VPService.createOIDC4VPRequest(
             URI.create("openid:///"),
             redirect_uri = URI.create("${testProvider.url}/present"),
@@ -307,7 +308,7 @@ class OIDC4VCTest : AnnotationSpec() {
             .issue("VerifiableId", ProofConfig(OIDCTestProvider.ISSUER_DID, SUBJECT_DID, proofType = ProofType.JWT))
         val presentationJWT =
             Custodian.getService().createPresentation(listOf(credentialJWT), SUBJECT_DID)
-                .toCredential() as VerifiablePresentation
+                .toVerifiablePresentation()
 
         val vp_token_JWT = OIDCUtils.toVpToken(listOf(presentationJWT))
         val vp_token_JWT_multi = OIDCUtils.toVpToken(listOf(presentationJWT, presentationJWT))
@@ -323,7 +324,7 @@ class OIDC4VCTest : AnnotationSpec() {
         val credentialLD = Signatory.getService()
             .issue("VerifiableId", ProofConfig(OIDCTestProvider.ISSUER_DID, SUBJECT_DID, proofType = ProofType.LD_PROOF))
         val presentationLD = Custodian.getService().createPresentation(listOf(credentialLD), SUBJECT_DID)
-            .toCredential() as VerifiablePresentation
+            .toVerifiablePresentation()
 
         val vp_token_LD = OIDCUtils.toVpToken(listOf(presentationLD))
         val vp_token_LD_multi = OIDCUtils.toVpToken(listOf(presentationLD, presentationLD))
@@ -371,7 +372,7 @@ class OIDC4VCTest : AnnotationSpec() {
     fun testInputDescriptorMatching() {
         val credential = Signatory.getService()
             .issue("VerifiableId", ProofConfig(OIDCTestProvider.ISSUER_DID, SUBJECT_DID, proofType = ProofType.JWT))
-            .toCredential()
+            .toVerifiableCredential()
         Custodian.getService().storeCredential(credential.id!!, credential)
 
         val pd = PresentationDefinition(

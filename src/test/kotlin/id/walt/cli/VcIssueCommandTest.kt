@@ -6,12 +6,9 @@ import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
 import id.walt.services.key.KeyService
-import id.walt.signatory.DataProviderRegistry
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.SignatoryDataProvider
 import id.walt.test.RESOURCES_PATH
-import id.walt.vclib.credentials.VerifiableAttestation
-import id.walt.vclib.model.VerifiableCredential
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.string.shouldContain
@@ -24,14 +21,6 @@ class VcIssueCommandTest : StringSpec({
     val key = KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1)
     val didIssuer = DidService.create(DidMethod.ebsi, keyAlias = key.id)
     val didSubject = DidService.create(DidMethod.key)
-
-    DataProviderRegistry.register(VerifiableAttestation::class, object : SignatoryDataProvider {
-        override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableAttestation =
-            (template as VerifiableAttestation).apply {
-                issuer = "NEW ISSUER"
-                id = proofConfig.credentialId ?: ""
-            }
-    })
 
     "vc issue --help" {
         val e = shouldThrow<PrintHelpMessage> {

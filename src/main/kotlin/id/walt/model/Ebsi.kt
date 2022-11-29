@@ -7,8 +7,8 @@ import com.beust.klaxon.Klaxon
 import com.beust.klaxon.KlaxonException
 import com.nimbusds.jose.jwk.ECKey
 import id.walt.common.prettyPrint
+import id.walt.credentials.w3c.W3CProof
 import id.walt.crypto.decBase64
-import id.walt.vclib.model.Proof
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -24,7 +24,7 @@ data class TrustedIssuerRegistry(
 data class TrustedAccreditationOrganizationRegistry(
     val accreditationOrganization: AccreditationOrganization,
     val accreditationAuthorization: List<AccreditationAuthorization>,
-    val proof: Proof
+    val proof: W3CProof
 )
 
 @Serializable
@@ -79,7 +79,7 @@ data class Issuer(
     val eidasCertificate: EidasCertificate,
     val serviceEndpoints: List<ServiceEndpoint>,
     val organizationInfo: OrganizationInfo,
-    val proof: Proof
+    val proof: W3CProof
 )
 
 @Serializable

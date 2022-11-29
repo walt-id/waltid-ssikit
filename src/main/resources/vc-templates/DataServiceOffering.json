@@ -1,0 +1,37 @@
+{
+  "billing": {
+    "paymentModel": {
+      "frequenceOfPayment": "daily",
+      "unit": "EUR",
+      "value": "0.0"
+    },
+    "price": "0.0",
+    "unit": "EUR"
+  },
+  "@context": ["https://www.w3.org/2018/credentials/v1"],
+  "credentialSubject": {
+    "dependsOn": ["Pilot004DataService"],
+    "description": "AIS demonstrates machine learning application use case.",
+    "hasCertifications": ["ISO_27001", "GDPR_Compliance"],
+    "hasMarketingImage": "https://www.data-infrastructure.eu/Data/Redaktion/EN/Bilder/UseCases/ai-marketplace-for-product-development.jpg?__blob=normal",
+    "hasName": "AIS",
+    "hasVersion": "0.1.0",
+    "id": "Pilot004AIService",
+    "providedBy": "GAIA-X",
+    "type": "Service",
+    "utilizes": ["ExampleKubernetesService"]
+  },
+  "description": "he data contains the basic information to build a transaction graph for later analysis by the safeFBDC algorithm. Is is one of multiple data sources to be analyzed.",
+  "id": "did:ebsi-eth:00000001/credentials/1872",
+  "issued": "2020-08-24T14:13:44Z",
+  "issuer": "did:example:456",
+  "keywords": ["Analytics", "AML", "safeFBDC", "finance", "dataset", "graph"],
+  "modified": "2020-12-02T23:00:00+01:00",
+  "providedBy": "did:key:z6Mktqg13w3KRBdcqhyjU99ZhHF8FR6tRJACuQzmVcXNiH25",
+  "provisionType": "E.g., Hybrid",
+  "serviceModel": "E.g., DaaS",
+  "serviceTitle": "safeFBDC - Dataset A for safeFBDC AML analysis",
+  "version": "0.1",
+  "webAddress": "https://safefbdc.portal.minimal-gaia-x.eu/asset/did:op:348e1a938dB25221031Ed6b465782efCAcBB214E",
+  "type": ["VerifiableCredential", "DataServiceOffering"]
+}

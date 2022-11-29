@@ -1,6 +1,9 @@
 package id.walt.auditor
 
 import com.beust.klaxon.Klaxon
+import id.walt.credentials.w3c.VerifiableCredential
+import id.walt.credentials.w3c.VerifiablePresentation
+import id.walt.credentials.w3c.schema.SchemaValidatorFactory
 import id.walt.model.AttributeInfo
 import id.walt.model.TrustedIssuer
 import id.walt.model.dif.PresentationDefinition
@@ -10,14 +13,10 @@ import id.walt.services.oidc.OIDCUtils
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
 import id.walt.signatory.RevocationClientService
-import id.walt.vclib.credentials.CredentialStatusCredential
-import id.walt.vclib.credentials.VerifiablePresentation
-import id.walt.vclib.credentials.gaiax.GaiaxCredential
-import id.walt.vclib.model.VerifiableCredential
-import id.walt.vclib.schema.SchemaService
 import io.ktor.client.plugins.*
 import kotlinx.serialization.Serializable
 import mu.KotlinLogging
+import java.net.URI
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -62,8 +61,8 @@ class SignaturePolicy : SimpleVerificationPolicy() {
     override fun doVerify(vc: VerifiableCredential) = runCatching {
         log.debug { "is jwt: ${vc.jwt != null}" }
         when (vc.jwt) {
-            null -> jsonLdCredentialService.verify(vc.json!!).verified
-            else -> jwtCredentialService.verify(vc.jwt!!).verified
+            null -> jsonLdCredentialService.verify(vc.encode()).verified
+            else -> jwtCredentialService.verify(vc.encode()).verified
         }
     }.onFailure {
         log.error(it.localizedMessage)
@@ -72,15 +71,14 @@ class SignaturePolicy : SimpleVerificationPolicy() {
 
 class JsonSchemaPolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by JSON schema"
-    override fun doVerify(vc: VerifiableCredential): Boolean = SchemaService.validateSchema(vc.json!!).run {
-        return if (valid)
-            true
-        else {
-            log.error { "Credential not valid according the json-schema of type ${vc.type}. The validation errors are:" }
-            errors?.forEach { error -> log.error { error } }
-            false
-        }
+    override fun doVerify(vc: VerifiableCredential): Boolean {
+        return vc.credentialSchema?.id?.let { URI.create(it) }?.let {
+          SchemaValidatorFactory.get(it).validate(vc.toJson())
+        } ?: false
     }
+
+  override val applyToVP: Boolean
+    get() = false
 }
 
 class TrustedSchemaRegistryPolicy : SimpleVerificationPolicy() {
@@ -95,7 +93,7 @@ class TrustedIssuerDidPolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by trusted issuer did"
     override fun doVerify(vc: VerifiableCredential): Boolean {
         return try {
-            DidService.loadOrResolveAnyDid(vc.issuer!!) != null
+            DidService.loadOrResolveAnyDid(vc.issuerId!!) != null
         } catch (e: ClientRequestException) {
             if (!e.message.contains("did must be a valid DID") && !e.message.contains("Identifier Not Found")) throw e
             false
@@ -111,7 +109,7 @@ class TrustedIssuerRegistryPolicy : SimpleVerificationPolicy() {
         if (vc is VerifiablePresentation)
             return true
 
-        val issuerDid = vc.issuer!!
+        val issuerDid = vc.issuerId!!
 
         val resolvedIssuerDid = DidService.loadOrResolveAnyDid(issuerDid)
             ?: throw Exception("Could not resolve issuer DID $issuerDid")
@@ -144,7 +142,7 @@ class TrustedIssuerRegistryPolicy : SimpleVerificationPolicy() {
 class TrustedSubjectDidPolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by trusted subject did"
     override fun doVerify(vc: VerifiableCredential): Boolean {
-        return vc.subject?.let {
+        return vc.subjectId?.let {
             if (it.isEmpty()) true
             else try {
                 DidService.loadOrResolveAnyDid(it) != null
@@ -186,7 +184,7 @@ class ExpirationDateAfterPolicy : SimpleVerificationPolicy() {
     }
 }
 
-class CredentialStatusPolicy : SimpleVerificationPolicy() {
+/*class CredentialStatusPolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by credential status"
     override fun doVerify(vc: VerifiableCredential): Boolean {
         val cs = Klaxon().parse<CredentialStatusCredential>(vc.json!!)!!.credentialStatus!!
@@ -205,7 +203,7 @@ class CredentialStatusPolicy : SimpleVerificationPolicy() {
             }
         }
     }
-}
+}*/
 
 data class ChallengePolicyArg(val challenges: Set<String>, val applyToVC: Boolean = true, val applyToVP: Boolean = true)
 
@@ -236,7 +234,7 @@ class PresentationDefinitionPolicy(presentationDefinition: PresentationDefinitio
     override fun doVerify(vc: VerifiableCredential): Boolean {
         if (vc is VerifiablePresentation) {
             return argument.input_descriptors.all { desc ->
-                vc.verifiableCredential.any { cred -> OIDCUtils.matchesInputDescriptor(cred, desc) }
+                vc.verifiableCredential?.any { cred -> OIDCUtils.matchesInputDescriptor(cred, desc) } ?: false
             }
         }
         // else: nothing to check
@@ -246,7 +244,7 @@ class PresentationDefinitionPolicy(presentationDefinition: PresentationDefinitio
     override var applyToVC: Boolean = false
 }
 
-class GaiaxTrustedPolicy : SimpleVerificationPolicy() {
+/*class GaiaxTrustedPolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify Gaiax trusted fields"
     override fun doVerify(vc: VerifiableCredential): Boolean {
         // VPs are not considered
@@ -271,7 +269,7 @@ class GaiaxTrustedPolicy : SimpleVerificationPolicy() {
 
         return true
     }
-}
+}*/
 
 class GaiaxSDPolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify Gaiax SD fields"

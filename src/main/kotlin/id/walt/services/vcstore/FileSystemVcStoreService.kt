@@ -1,8 +1,8 @@
 package id.walt.services.vcstore
 
 
-import id.walt.vclib.model.VerifiableCredential
-import id.walt.vclib.model.toCredential
+import id.walt.credentials.w3c.VerifiableCredential
+import id.walt.credentials.w3c.toVerifiableCredential
 import java.io.File
 import java.net.URLDecoder
 import java.net.URLEncoder
@@ -23,7 +23,7 @@ open class FileSystemVcStoreService : VcStoreService() {
         }
     }
 
-    override fun getCredential(id: String, group: String): VerifiableCredential? = loadFileString(id, group)?.toCredential()
+    override fun getCredential(id: String, group: String): VerifiableCredential? = loadFileString(id, group)?.toVerifiableCredential()
 
     override fun listCredentials(group: String): List<VerifiableCredential> =
         listCredentialIds(group).map { getCredential(it, group)!! }

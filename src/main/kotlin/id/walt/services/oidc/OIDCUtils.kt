@@ -1,22 +1,22 @@
 package id.walt.services.oidc
 
 import com.beust.klaxon.JsonArray
-import com.beust.klaxon.JsonBase
 import com.beust.klaxon.JsonObject
-import com.beust.klaxon.Klaxon
-import com.github.fge.jsonschema.main.JsonSchema
 import com.nimbusds.oauth2.sdk.AuthorizationRequest
+import id.walt.common.klaxonWithConverters
+import id.walt.credentials.w3c.VerifiableCredential
+import id.walt.credentials.w3c.VerifiablePresentation
+import id.walt.credentials.w3c.toVerifiablePresentation
 import id.walt.custodian.Custodian
 import id.walt.model.dif.InputDescriptor
 import id.walt.model.dif.PresentationDefinition
 import id.walt.model.oidc.VCClaims
-import id.walt.model.oidc.klaxon
-import id.walt.vclib.credentials.VerifiablePresentation
-import id.walt.vclib.model.VerifiableCredential
-import id.walt.vclib.model.toCredential
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import net.minidev.json.JSONObject
 import net.minidev.json.parser.JSONParser
-import java.io.StringReader
 import java.net.URI
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
@@ -34,7 +34,7 @@ object OIDCUtils {
                         else -> it["id_token"]?.toString() // EBSI WCT: vp_token is wrongly (?) contained inside id_token object
                     }
                 }
-                ?.let { klaxon.parse<VCClaims>(it) } ?: VCClaims()
+                ?.let { klaxonWithConverters.parse<VCClaims>(it) } ?: VCClaims()
         return claims
     }
 
@@ -59,14 +59,14 @@ object OIDCUtils {
 
     fun fromVpToken(vp_token: String): List<VerifiablePresentation> {
         if (vp_token.trim().startsWith('[')) {
-            return Klaxon().parseJsonArray(StringReader(vp_token)).map {
+            return Json.parseToJsonElement(vp_token).jsonArray.map {
                 when (it) {
-                    is JsonBase -> it.toJsonString()
-                    else -> it.toString()
+                    is kotlinx.serialization.json.JsonObject -> it.jsonObject.toString()
+                    else -> it.jsonPrimitive.content
                 }
-            }.map { it.toCredential() as VerifiablePresentation }
+            }.map { it.toVerifiablePresentation() }
         } else {
-            return listOf(vp_token.toCredential() as VerifiablePresentation)
+            return listOf(vp_token.toVerifiablePresentation())
         }
     }
 
@@ -99,7 +99,7 @@ object OIDCUtils {
                     isSingleFieldValue = true
                     credential.credentialSchema?.id
                 } else if (fld.path.any{ it.matches(Regex("\\\$(\\.vc)?\\.credentialSchema"))}) {
-                    VerifiableCredential.klaxon.parse<Map<String, Any?>>(credential.json!!)!!["credentialSchema"]
+                    credential.credentialSchema?.toJsonObject()
                 } else {
                     null
                 }
@@ -111,7 +111,7 @@ object OIDCUtils {
                             allOf.containsKey("contains") && (allOf["contains"] as JsonObject).let {contains ->
                                 contains.containsKey("properties") && (contains["properties"] as JsonObject).let {properties ->
                                     properties.keys.all { key ->
-                                        matchSingleJsonField((fldVal as JsonObject)[key], properties[key] as Map<String, Any?>?)
+                                        matchSingleJsonField((fldVal as kotlinx.serialization.json.JsonObject)[key], properties[key] as Map<String, Any?>?)
                                     }
                                 }
                             }
@@ -135,7 +135,7 @@ object OIDCUtils {
         return presentationDefinition.input_descriptors.associate { indesc ->
             Pair(indesc.id, myCredentials.filter { c ->
                 matchesInputDescriptor(c, indesc) &&
-                        (subject == null || subject == c.subject)
+                        (subject == null || subject == c.subjectId)
             }.map { c -> c.id!! }.toSet())
         }
     }

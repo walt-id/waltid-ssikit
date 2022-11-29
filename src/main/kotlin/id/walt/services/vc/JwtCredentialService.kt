@@ -1,10 +1,11 @@
 package id.walt.services.vc
 
+import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
 import id.walt.signatory.ProofConfig
-import id.walt.vclib.model.VerifiableCredential
 import info.weboftrust.ldsignatures.LdProof
+import java.net.URI
 import java.time.Instant
 
 
@@ -32,7 +33,7 @@ abstract class JwtCredentialService : WaltIdService() {
 
     open fun addProof(credMap: Map<String, String>, ldProof: LdProof): String = implementation.addProof(credMap, ldProof)
 
-    open fun validateSchema(vc: VerifiableCredential, schema: String): Boolean = implementation.validateSchema(vc, schema)
+    open fun validateSchema(vc: VerifiableCredential, schemaURI: URI): Boolean = implementation.validateSchema(vc, schemaURI)
     open fun validateSchemaTsr(vc: String): Boolean = implementation.validateSchemaTsr(vc)
 
     companion object : ServiceProvider {

@@ -3,6 +3,11 @@ package id.walt.services.vc
 import com.nimbusds.jwt.SignedJWT
 import id.walt.auditor.Auditor
 import id.walt.auditor.SignaturePolicy
+import id.walt.credentials.w3c.VerifiableCredential
+import id.walt.credentials.w3c.builder.W3CCredentialBuilder
+import id.walt.credentials.w3c.schema.SchemaValidator
+import id.walt.credentials.w3c.schema.SchemaValidatorFactory
+import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.KeyAlgorithm
 import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
@@ -15,14 +20,14 @@ import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.test.RESOURCES_PATH
-import id.walt.vclib.credentials.Europass
-import id.walt.vclib.credentials.VerifiableId
-import id.walt.vclib.model.VerifiableCredential
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.maps.shouldContainKey
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import io.mockk.every
+import io.mockk.mockkObject
+import java.net.URI
 import java.time.Duration
 import java.time.Instant
 import java.util.*
@@ -44,6 +49,14 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
     private val validDate = issueDate.minus(Duration.ofDays(1))
     private val expirationDate = issueDate.plus(Duration.ofDays(1))
 
+    @BeforeAll
+    fun setup() {
+      mockkObject(SchemaValidatorFactory)
+      every { SchemaValidatorFactory.get(URI.create("https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0xb77f8516a965631b4f197ad54c65a9e2f9936ebfb76bae4906d33744dbcc60ba"))}.returns(
+        SchemaValidatorFactory.get(URI.create("https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableId.json").toURL().readText())
+      )
+    }
+
     @AfterAll
     fun tearDown() {
         // Only required if file-key store is used
@@ -55,7 +68,7 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
     @Test
     fun testSignedVcAttributes() {
         val credential = credentialService.sign(
-            Europass().encode(),
+            VerifiableCredential().encode(),
             ProofConfig(
                 credentialId = id,
                 issuerDid = issuerDid,
@@ -79,14 +92,14 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
             it.keys.size shouldBe 2
             it.keys.forEach { listOf("@context", "type") shouldContain it }
             it["@context"] shouldBe listOf("https://www.w3.org/2018/credentials/v1")
-            it["type"] shouldBe listOf("VerifiableCredential", "VerifiableAttestation", "Europass")
+            it["type"] shouldBe listOf("VerifiableCredential")
         }
     }
 
     @Test
     fun testOptionalConfigsAreNull() {
         val claims = jwtService.parseClaims(
-            credentialService.sign(Europass().encode(), ProofConfig(issuerDid = issuerDid))
+            credentialService.sign(VerifiableCredential().encode(), ProofConfig(issuerDid = issuerDid))
         )!!
         claims["jti"] shouldBe null
         claims["iss"] shouldBe issuerDid
@@ -100,30 +113,32 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
 
     @Test
     fun testVerifyVc() = credentialService.verifyVc(
-        credentialService.sign(Europass().encode(), ProofConfig(issuerDid = issuerDid))
+        credentialService.sign(VerifiableCredential().encode(), ProofConfig(issuerDid = issuerDid))
     ) shouldBe true
 
     @Test
     fun testVerifyVcWithIssuerDid() = credentialService.verifyVc(
         issuerDid,
-        credentialService.sign(Europass().encode(), ProofConfig(issuerDid = issuerDid))
+        credentialService.sign(VerifiableCredential().encode(), ProofConfig(issuerDid = issuerDid))
     ) shouldBe true
 
     @Test
     fun testVerifyVcWithWrongIssuerDid() = credentialService.verifyVc(
         "wrong",
         credentialService.sign(
-            Europass().encode(), ProofConfig(issuerDid = issuerDid)
+            VerifiableCredential().encode(), ProofConfig(issuerDid = issuerDid)
         )
     ) shouldBe false
 
     @Test
     fun testValidateSchema() {
-        val noSchemaVc = VerifiableId().encode()
+        val noSchemaVc = VerifiableCredential().encode()
         val validVc = Signatory.getService()
             .issue("VerifiableId", ProofConfig(issuerDid = issuerDid, subjectDid = issuerDid, proofType = ProofType.JWT))
         val invalidDataVc =
-            Signatory.getService().issue("VerifiableId", ProofConfig(issuerDid = issuerDid, proofType = ProofType.JWT))
+            Signatory.getService().issue(
+              W3CCredentialBuilder().setCredentialSchema(validVc.toVerifiableCredential().credentialSchema!!)
+              .buildSubject { setProperty("foo", "bar") }, ProofConfig(issuerDid = issuerDid, proofType = ProofType.JWT))
         val notParsableVc = ""
 
         credentialService.validateSchemaTsr(noSchemaVc) shouldBe true

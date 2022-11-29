@@ -6,6 +6,8 @@ import com.danubetech.keyformats.crypto.provider.impl.TinkEd25519Provider
 import foundation.identity.jsonld.ConfigurableDocumentLoader
 import foundation.identity.jsonld.JsonLDException
 import foundation.identity.jsonld.JsonLDObject
+import id.walt.credentials.w3c.*
+import id.walt.credentials.w3c.schema.SchemaValidatorFactory
 import id.walt.crypto.Key
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.LdSignatureType
@@ -15,10 +17,6 @@ import id.walt.services.did.DidService
 import id.walt.services.keystore.KeyStoreService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
-import id.walt.vclib.credentials.VerifiableAttestation
-import id.walt.vclib.credentials.VerifiablePresentation
-import id.walt.vclib.model.*
-import id.walt.vclib.schema.SchemaService
 import info.weboftrust.ldsignatures.LdProof
 import info.weboftrust.ldsignatures.jsonld.LDSecurityContexts
 import info.weboftrust.ldsignatures.verifier.LdVerifier
@@ -128,7 +126,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
         signer.created = Date() // Use the current date
         signer.domain = config.domain
         signer.nonce = config.nonce
-        config.issuerVerificationMethod?.let { signer.verificationMethod = URI.create(config.issuerVerificationMethod) }
+        signer.verificationMethod = URI.create(config.issuerVerificationMethod ?: vm)
         signer.proofPurpose = config.proofPurpose
 
 
@@ -170,8 +168,8 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
     }
 
     override fun verify(vcOrVp: String): VerificationResult {
-        val vcObj = vcOrVp.toCredential()
-        val issuer = vcObj.issuer ?: throw Exception("No issuer DID found for VC or VP")
+        val vcObj = vcOrVp.toVerifiableCredential()
+        val issuer = vcObj.issuerId ?: throw Exception("No issuer DID found for VC or VP")
         val vm = vcObj.proof?.verificationMethod ?: issuer
 
         if (!DidService.importKeys(issuer)) {
@@ -252,8 +250,11 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
             credentialId = id,
             expirationDate = expirationDate
         )
-        val vpReqStr =
-            VerifiablePresentation(id = id, holder = holderDid, verifiableCredential = vcs.map { it.toCredential() }).encode()
+        val vpReqStr = VerifiablePresentationBuilder()
+            .setId(id)
+            .setHolder(holderDid)
+            .setVerifiableCredentials(vcs.map { it.toVerifiableCredential() })
+            .build().toJson()
 
         log.trace { "VP request: $vpReqStr" }
         log.trace { "Proof config: $$config" }
@@ -269,80 +270,22 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
             .filter { it.toString().endsWith(".json") }.map { it.fileName.toString() }.toList()
     }
 
-    override fun defaultVcTemplate(): VerifiableCredential {
-        return VerifiableAttestation(
-            context = listOf(
-                "https://www.w3.org/2018/credentials/v1",
-                //                "https://essif.europa.eu/schemas/v-a/2020/v1",
-                //                "https://essif.europa.eu/schemas/eidas/2020/v1"
-            ),
-            id = "education#higherEducation#3fea53a4-0432-4910-ac9c-69ah8da3c37f",
-            issuer = "did:ebsi:2757945549477fc571663bee12042873fe555b674bd294a3",
-            issued = "2019-06-22T14:11:44Z",
-            validFrom = "2019-06-22T14:11:44Z",
-            credentialSubject = VerifiableAttestation.VerifiableAttestationSubject(
-                id = "id123"
-            ),
-            credentialStatus = CredentialStatus(
-                id = "https://essif.europa.eu/status/identity#verifiableID#1dee355d-0432-4910-ac9c-70d89e8d674e",
-                type = "CredentialStatusList2020"
-            ),
-            credentialSchema = CredentialSchema(
-                id = "https://essif.europa.eu/tsr-vid/verifiableid1.json", type = "JsonSchemaValidator2018"
-            ),
-            evidence = listOf(
-                VerifiableAttestation.Evidence(
-                    id = "https://essif.europa.eu/tsr-va/evidence/f2aeec97-fc0d-42bf-8ca7-0548192d5678",
-                    type = listOf("DocumentVerification"),
-                    verifier = "did:ebsi:2962fb784df61baa267c8132497539f8c674b37c1244a7a",
-                    evidenceDocument = "Passport",
-                    subjectPresence = "Physical",
-                    documentPresence = "Physical"
-                )
-            ),
-            proof = Proof(
-                type = "EidasSeal2021",
-                created = "2019-06-22T14:11:44Z",
-                proofPurpose = "assertionMethod",
-                verificationMethod = "did:ebsi:2757945549477fc571663bee12042873fe555b674bd294a3#2368332668",
-                jws = "HG21J4fdlnBvBA+y6D...amP7O="
-            )
-        )
-    }
-
-    override fun validateSchema(vc: VerifiableCredential, schema: String): Boolean {
-        val results = SchemaService.validateSchema(vc.json!!, schema)
-        if (!results.valid) {
-            log.debug { "Could not validate vc against schema . The validation errors are:" }
-            results.errors?.forEach { log.debug { it } }
-        }
-        return results.valid
-    }
+    override fun validateSchema(vc: VerifiableCredential, schemaURI: URI) = SchemaValidatorFactory.get(schemaURI).validate(vc.toJson())
 
     override fun validateSchemaTsr(vc: String) = try {
 
-        vc.toCredential().let {
+        vc.toVerifiableCredential().let {
 
             if (it is VerifiablePresentation) return true
 
-            val credentialSchemaUrl = it.credentialSchema
+            val credentialSchemaUrl = it.credentialSchema?.id
 
             if (credentialSchemaUrl == null) {
                 log.debug { "Credential has no associated credentialSchema property" }
                 return false
             }
 
-            val loadedSchema = try {
-                URL(credentialSchemaUrl.id).readText()
-            } catch (e: Exception) {
-                if (log.isDebugEnabled) {
-                    log.debug { "Could not load schema from ${credentialSchemaUrl.id}" }
-                    e.printStackTrace()
-                }
-                return false
-            }
-
-            return validateSchema(it, loadedSchema)
+            return validateSchema(it, URI.create(credentialSchemaUrl))
         }
     } catch (e: Exception) {
         if (log.isDebugEnabled) {

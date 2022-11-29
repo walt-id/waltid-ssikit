@@ -1,11 +1,13 @@
 package id.walt.custodian
 
+import id.walt.credentials.w3c.VerifiableCredential
+import id.walt.credentials.w3c.W3CCredentialSchema
+import id.walt.credentials.w3c.builder.W3CCredentialBuilder
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.servicematrix.ServiceRegistry
 import id.walt.services.vcstore.FileSystemVcStoreService
 import id.walt.services.vcstore.VcStoreService
 import id.walt.test.RESOURCES_PATH
-import id.walt.vclib.credentials.Europass
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.ints.shouldBeGreaterThanOrEqual
 import io.kotest.matchers.shouldBe
@@ -17,7 +19,7 @@ class FileSystemVcStoreTests : StringSpec({
     val custodian = Custodian.getService()
     ServiceRegistry.registerService<VcStoreService>(FileSystemVcStoreService())
 
-    val vc = Europass.template!!.invoke()
+    val vc = W3CCredentialBuilder().setCredentialSchema(W3CCredentialSchema("europass", "")).build()
 
     "1: Store credential" {
         custodian.storeCredential("my-test-europass", vc)
@@ -35,11 +37,11 @@ class FileSystemVcStoreTests : StringSpec({
         val retrievedVc = custodian.getCredential("my-test-europass")
         println(retrievedVc)
         retrievedVc shouldNotBe null
-        println((retrievedVc!! as Europass).credentialSchema!!.id)
+        println(retrievedVc!!.credentialSchema!!.id)
     }
 
     "3: List credentials" {
-        custodian.listCredentials().contains(vc) shouldBe true
+        custodian.listCredentials().map { it.id }.contains(vc.id) shouldBe true
     }
 
     "4: Delete credentials" {

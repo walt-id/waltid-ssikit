@@ -1,0 +1,11 @@
+{
+  "context": ["https://www.w3.org/2018/credentials/v1"],
+  "credentialStatus": {
+    "id": "https://credentialstatus.velocitycareerlabs.io",
+    "type": "VelocityRevocationRegistry"
+  },
+  "credentialSubject": {
+    "email": "adam.smith@example.com"
+  },
+  "type": ["VerifiableCredential", "Email"]
+}

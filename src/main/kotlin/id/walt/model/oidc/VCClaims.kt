@@ -2,9 +2,11 @@ package id.walt.model.oidc
 
 import com.beust.klaxon.Json
 import com.nimbusds.openid.connect.sdk.OIDCClaimsRequest
+import id.walt.common.ListOrSingleVC
+import id.walt.common.klaxonWithConverters
+import id.walt.credentials.w3c.VerifiablePresentation
 import id.walt.model.dif.PresentationDefinition
 import id.walt.model.dif.PresentationSubmission
-import id.walt.vclib.credentials.VerifiablePresentation
 import net.minidev.json.JSONObject
 import net.minidev.json.parser.JSONParser
 
@@ -36,10 +38,10 @@ class VCClaims(
     override fun toJSONObject(): JSONObject {
         val o = super.toJSONObject()
         if (credentials != null) {
-            o["credentials"] = JSONParser(JSONParser.MODE_PERMISSIVE).parse(klaxon.toJsonString(credentials))
+            o["credentials"] = JSONParser(JSONParser.MODE_PERMISSIVE).parse(klaxonWithConverters.toJsonString(credentials))
         }
         if (vp_token != null) {
-            o["vp_token"] = JSONParser().parse(klaxon.toJsonString(vp_token))
+            o["vp_token"] = JSONParser().parse(klaxonWithConverters.toJsonString(vp_token))
         }
         return o
     }

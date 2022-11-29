@@ -170,7 +170,7 @@ object PolicyRegistry {
     private fun initPolicies() {
         _policies = linkedMapOf()
         register(SignaturePolicy::class, "Verify by signature")
-        register(JsonSchemaPolicy::class, "Verify by JSON schema")
+        //register(JsonSchemaPolicy::class, "Verify by JSON schema")
         register(TrustedSchemaRegistryPolicy::class, "Verify by EBSI Trusted Schema Registry")
         register(TrustedIssuerDidPolicy::class, "Verify by trusted issuer did")
         register(TrustedIssuerRegistryPolicy::class, "Verify by trusted EBSI Trusted Issuer Registry record")
@@ -178,7 +178,7 @@ object PolicyRegistry {
         register(IssuedDateBeforePolicy::class, "Verify by issuance date")
         register(ValidFromBeforePolicy::class, "Verify by valid from")
         register(ExpirationDateAfterPolicy::class, "Verify by expiration date")
-        register(GaiaxTrustedPolicy::class, "Verify Gaiax trusted fields")
+        //register(GaiaxTrustedPolicy::class, "Verify Gaiax trusted fields")
         register(GaiaxSDPolicy::class, "Verify Gaiax SD fields")
         register(ChallengePolicy::class, ChallengePolicyArg::class, "Verify challenge")
         register(
@@ -186,7 +186,7 @@ object PolicyRegistry {
             PresentationDefinition::class,
             "Verify that verifiable presentation complies with presentation definition"
         )
-        register(CredentialStatusPolicy::class, "Verify by credential status")
+        //register(CredentialStatusPolicy::class, "Verify by credential status")
         register(DynamicPolicy::class, DynamicPolicyArg::class, "Verify credential by rego policy")
 
         // predefined, hardcoded rego policy specializations
