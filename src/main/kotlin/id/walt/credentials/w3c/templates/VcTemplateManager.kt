@@ -1,5 +1,6 @@
 package id.walt.credentials.w3c.templates
 
+import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.services.context.ContextManager
 import id.walt.services.hkvstore.FileSystemHKVStore
@@ -19,14 +20,18 @@ import kotlin.streams.toList
 object VcTemplateManager {
   const val SAVED_VC_TEMPLATES_KEY = "vc-templates"
 
-  fun register(name: String, template: String): VcTemplate {
-    ContextManager.hkvStore.put(HKVKey(SAVED_VC_TEMPLATES_KEY, name), template)
+  fun register(name: String, template: VerifiableCredential): VcTemplate {
+    template.proof = null
+    template.issuer = null
+    template.credentialSubject?.id = null
+    template.id = null
+    ContextManager.hkvStore.put(HKVKey(SAVED_VC_TEMPLATES_KEY, name), template.toJson())
     return VcTemplate(name, template, true)
   }
 
-  fun getTemplate(name: String): VcTemplate {
-    return ContextManager.hkvStore.getAsString(HKVKey(SAVED_VC_TEMPLATES_KEY, name))?.let { VcTemplate(name, it, true) }
-      ?: object {}.javaClass.getResource("/vc-templates/$name.json")?.readText()?.let { VcTemplate(name, it, false) }
+  fun getTemplate(name: String, loadTemplate: Boolean = true): VcTemplate {
+    return ContextManager.hkvStore.getAsString(HKVKey(SAVED_VC_TEMPLATES_KEY, name))?.let { VcTemplate(name, if(loadTemplate) it.toVerifiableCredential() else null, true) }
+      ?: object {}.javaClass.getResource("/vc-templates/$name.json")?.readText()?.let { VcTemplate(name, if(loadTemplate) it.toVerifiableCredential() else null, false) }
       ?: throw Exception("No template found, with name $name")
   }
 
@@ -43,17 +48,11 @@ object VcTemplateManager {
     }
   }
 
-  fun listTemplates(): List<String> {
+  fun listTemplates(): List<VcTemplate> {
     return listResources("/vc-templates").plus(
       ContextManager.hkvStore.listChildKeys(HKVKey(SAVED_VC_TEMPLATES_KEY), false).map { it.name }
-    ).toSet().toList()
+    ).toSet().map { getTemplate(it, false) }.toList()
   }
-
-  fun getAllTemplates(): List<VcTemplate> {
-    return listTemplates().map { getTemplate(it) }
-  }
-
-  fun loadTemplate(name: String) = getTemplate(name).template.toVerifiableCredential()
 
   fun unregisterTemplate(name: String) {
     ContextManager.hkvStore.delete(HKVKey(SAVED_VC_TEMPLATES_KEY, name))

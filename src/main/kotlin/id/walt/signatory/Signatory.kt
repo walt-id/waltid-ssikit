@@ -5,6 +5,7 @@ import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.W3CIssuer
 import id.walt.credentials.w3c.builder.AbstractW3CCredentialBuilder
 import id.walt.credentials.w3c.builder.W3CCredentialBuilder
+import id.walt.credentials.w3c.templates.VcTemplate
 import id.walt.credentials.w3c.templates.VcTemplateManager
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.LdSignatureType
@@ -71,8 +72,12 @@ abstract class Signatory : WaltIdService() {
 
     open fun issue(credentialBuilder: AbstractW3CCredentialBuilder<*, *>, config: ProofConfig, issuer: W3CIssuer? = null): String = implementation.issue(credentialBuilder, config, issuer)
 
-    open fun listTemplates(): List<String> = implementation.listTemplates()
+    open fun listTemplates(): List<VcTemplate> = implementation.listTemplates()
+    open fun listTemplateIds(): List<String> = implementation.listTemplateIds()
     open fun loadTemplate(templateId: String): VerifiableCredential = implementation.loadTemplate(templateId)
+
+    open fun importTemplate(templateId: String, template: String): Unit = implementation.importTemplate(templateId, template)
+    open fun removeTemplate(templateId: String): Unit = implementation.removeTemplate(templateId)
 }
 
 class WaltIdSignatory(configurationPath: String) : Signatory() {
@@ -124,9 +129,9 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
     override fun issue(templateIdOrFilename: String, config: ProofConfig, dataProvider: SignatoryDataProvider?, issuer: W3CIssuer?): String {
 
         val credentialBuilder = when(Files.exists(Path.of(templateIdOrFilename))) {
-            true -> Files.readString(Path.of(templateIdOrFilename))
+            true -> Files.readString(Path.of(templateIdOrFilename)).toVerifiableCredential()
             else -> VcTemplateManager.getTemplate(templateIdOrFilename).template
-        }.let { W3CCredentialBuilder.fromPartial(it) }
+        }?.let { W3CCredentialBuilder.fromPartial(it) } ?: throw Exception("Template not found")
 
         return issue(dataProvider?.populate(credentialBuilder, config) ?: credentialBuilder, config, issuer)
     }
@@ -156,8 +161,23 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
         return signedVc
     }
 
-    override fun listTemplates(): List<String> = VcTemplateManager.listTemplates()
+    override fun listTemplates(): List<VcTemplate> = VcTemplateManager.listTemplates()
+    override fun listTemplateIds() = VcTemplateManager.listTemplates().map { it.name }
+    override fun loadTemplate(templateId: String): VerifiableCredential = VcTemplateManager.getTemplate(templateId, true).template!!
 
-    override fun loadTemplate(templateId: String): VerifiableCredential = VcTemplateManager.loadTemplate(templateId)
+    override fun importTemplate(templateId: String, template: String) {
+      val vc = VerifiableCredential.fromJson(template)
+      // serialize parsed credential template and save
+      VcTemplateManager.register(templateId, vc)
+    }
+
+    override fun removeTemplate(templateId: String) {
+      val template = VcTemplateManager.getTemplate(templateId)
+      if (template.mutable) {
+        VcTemplateManager.unregisterTemplate(templateId)
+      } else {
+        throw Exception("Template is immutable and cannot be removed. Use import to override existing templates.")
+      }
+    }
 
 }

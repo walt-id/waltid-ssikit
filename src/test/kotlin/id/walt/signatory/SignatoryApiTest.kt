@@ -1,6 +1,8 @@
 package id.walt.signatory
 
 import com.beust.klaxon.Klaxon
+import id.walt.common.klaxonWithConverters
+import id.walt.credentials.w3c.templates.VcTemplate
 import id.walt.credentials.w3c.templates.VcTemplateManager
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.model.DidMethod
@@ -61,30 +63,28 @@ class SignatoryApiTest : AnnotationSpec() {
 
     @Test
     fun testListVcTemplates() = runBlocking {
-        val templates = client.get("$SIGNATORY_API_URL/v1/templates") {
-            contentType(ContentType.Application.Json)
-        }.body<List<String>>()
+        val templates = client.get("$SIGNATORY_API_URL/v1/templates").bodyAsText().let { klaxonWithConverters.parseArray<VcTemplate>(it) }!!.map { it.name }
 
-        VcTemplateManager.listTemplates().forEach { templateName -> templates shouldContain templateName }
+        VcTemplateManager.listTemplates().map { it.name }.forEach { templateName -> templates shouldContain templateName }
 
-        templates shouldContain "Europass"
-        templates shouldContain "VerifiablePresentation"
+        templates.map { it } shouldContain "Europass"
+        templates.map { it } shouldContain "VerifiablePresentation"
     }
 
 
     @Test
     fun testLoadVcTemplates() = runBlocking {
 
-        VcTemplateManager.listTemplates().forEach { templateName ->
+        VcTemplateManager.listTemplates().forEach { template ->
 
-            val templateJson = client.get("$SIGNATORY_API_URL/v1/templates/$templateName") {
+            val templateJson = client.get("$SIGNATORY_API_URL/v1/templates/${template.name}") {
                 contentType(ContentType.Application.Json)
             }.bodyAsText()
 
             println(templateJson)
-            println("should contain $templateName")
+            println("should contain ${template.name}")
 
-            (templateJson.contains(templateName) || templateJson.contains("Experimental")) shouldBe true
+            (templateJson.contains(template.name) || templateJson.contains("Experimental")) shouldBe true
         }
     }
 

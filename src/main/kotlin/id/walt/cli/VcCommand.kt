@@ -17,6 +17,7 @@ import id.walt.auditor.dynamic.DynamicPolicyArg
 import id.walt.auditor.dynamic.PolicyEngineType
 import id.walt.common.prettyPrint
 import id.walt.credentials.w3c.VerifiableCredential
+import id.walt.credentials.w3c.templates.VcTemplate
 import id.walt.credentials.w3c.templates.VcTemplateManager
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.LdSignatureType
@@ -377,7 +378,7 @@ class VcTemplatesListCommand : CliktCommand(
 
         echo("\nResults:\n")
 
-        VcTemplateManager.getAllTemplates().sortedBy { it.name }.forEach { tmpl ->
+        Signatory.getService().listTemplates().sortedBy { it.name }.forEach { tmpl ->
           echo("${if(tmpl.mutable) "*" else "-" } ${tmpl.name}")
         }
       echo()
@@ -391,10 +392,7 @@ class VcTemplatesExportCommand : CliktCommand(
         """
 ) {
 
-    val templateName: String by argument(
-        "template-name",
-        "Name of the template",
-    )
+    val templateName: String by option("-n", "--name", help = "Name of the template").required()
 
     override fun run() {
         echo("\nExporting VC template ...")
@@ -415,8 +413,37 @@ class VcTemplatesImportCommand : CliktCommand(
 
   override fun run() {
     echo("\nImporting VC template ...")
-    val template = File(templateFile).readText()
-    val vc = VerifiableCredential.fromJson(template)
-    VcTemplateManager.register(templateName, vc.toJson())
+    val file = File(templateFile)
+    if(!file.exists() || !file.isFile) {
+      echo("Template file not found")
+    } else {
+      val template = File(templateFile).readText()
+      try {
+        // try to parse
+        Signatory.getService().importTemplate(templateName, template)
+        echo("Template saved as $templateName")
+      } catch (exc: Exception) {
+        echo("Error parsing credential template: ${exc.message}")
+      }
+    }
+  }
+}
+
+class VcTemplatesRemoveCommand : CliktCommand(
+  name = "remove", help = """Remove VC Template.
+
+        """
+) {
+
+  val templateName: String by option("-n", "--name", help = "Name of the template").required()
+
+  override fun run() {
+    echo("\nRemoving VC template ...")
+    try {
+      Signatory.getService().removeTemplate(templateName)
+      echo("Template removed.")
+    } catch (exc: Exception) {
+      echo("Error removing template: ${exc.message}")
+    }
   }
 }
