@@ -3,6 +3,7 @@ package id.walt.rest.custodian
 import com.beust.klaxon.Klaxon
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.VerifiablePresentation
+import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.Key
 import id.walt.crypto.KeyAlgorithm
 import id.walt.custodian.Custodian
@@ -158,7 +159,7 @@ object CustodianController {
 
     fun storeCredentialsDocs() = document()
         .operation { it.summary("Stores a credential").operationId("storeCredential").addTagsItem("Credentials") }
-        .body<VerifiableCredential> {
+        .body<Map<String, Any>> {
             it.description(
                 "The body should contain, the VC you want to store. If you don't want to adjust anything in the VC." +
                         "You can simply paste the response you've got from the create VC endpoint and ignore the described parameters."
@@ -167,7 +168,7 @@ object CustodianController {
         .json<Int>("201") { it.description("Http OK") }
 
     fun storeCredential(ctx: Context) {
-        val vc = Klaxon().parse<VerifiableCredential>(ctx.body())!!
+        val vc = ctx.body().toVerifiableCredential()
 
         custodian.storeCredential(ctx.pathParam("alias"), vc)
     }
@@ -189,7 +190,7 @@ object CustodianController {
                 .addTagsItem("Credentials")
         }
         .body<PresentCredentialsRequest>()
-        .json<VerifiablePresentation>("200") { it.description("The newly created VerifiablePresentation") }
+        .json<Map<String, Any>>("200") { it.description("The newly created VerifiablePresentation") }
 
 
     fun presentCredentials(ctx: Context) {
@@ -213,7 +214,7 @@ object CustodianController {
                 .addTagsItem("Credentials")
         }
         .body<PresentCredentialIdsRequest>()
-        .json<VerifiablePresentation>("200") { it.description("The newly created VerifiablePresentation") }
+        .json<Map<String, Any>>("200") { it.description("The newly created VerifiablePresentation") }
 
 
     fun presentCredentialIds(ctx: Context) {
