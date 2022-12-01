@@ -55,10 +55,10 @@ dependencies {
     implementation("io.ktor:ktor-client-jackson:2.1.3")
     implementation("io.ktor:ktor-client-content-negotiation:2.1.3")
     implementation("com.jayway.jsonpath:json-path:2.7.0")
-    implementation("com.networknt:json-schema-validator:1.0.72")
-    implementation("net.pwall.json:json-kotlin-schema:0.36")
+    implementation("com.networknt:json-schema-validator:1.0.73")
+    implementation("net.pwall.json:json-kotlin-schema:0.39")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
 
     // DB
     implementation("org.xerial:sqlite-jdbc:3.39.4.1")
