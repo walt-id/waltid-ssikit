@@ -21,8 +21,6 @@ import java.security.PublicKey
 import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
 
-private val log = KotlinLogging.logger {}
-
 interface KeyImportStrategy {
     fun import(keyStore: KeyStoreService): KeyId
 }
@@ -40,6 +38,8 @@ abstract class KeyImportFactory {
 
 class PEMImportImpl(val keyString: String) : KeyImportStrategy {
 
+    private val log = KotlinLogging.logger {}
+
     override fun import(keyStore: KeyStoreService) = importPem(keyString, keyStore)
 
     /**
@@ -52,28 +52,37 @@ class PEMImportImpl(val keyString: String) : KeyImportStrategy {
      */
     private fun importPem(keyStr: String, keyStore: KeyStoreService): KeyId {
         val parser = PEMParser(StringReader(keyStr))
-        val pemObjs = mutableListOf<Any>()
+        val parsedPemObject = mutableListOf<Any>()
         try {
-            var pemObj: Any?
+            var currentPEMObject: Any?
             do {
-                pemObj = parser.readObject()
-                pemObj?.run { pemObjs.add(this) }
-            } while (pemObj != null)
+                currentPEMObject = parser.readObject()
+                log.debug { "PEM parser next object: $currentPEMObject" }
+                if (currentPEMObject != null) {
+                    parsedPemObject.add(currentPEMObject)
+                }
+            } while (currentPEMObject != null)
         } catch (e: Exception) {
-            log.debug { "Importing key ${e.message}" }
+            log.error(e) { "Error while importing PEM key!" }
         }
+
         val kid = newKeyId()
-        val keyPair = getKeyPair(*pemObjs.map { it }.toTypedArray())
+        val keyPair = getKeyPair(parsedPemObject)
         keyStore.store(Key(kid, KeyAlgorithm.fromString(keyPair.public.algorithm), CryptoProvider.SUN, keyPair))
+
         return kid
     }
 
     /**
      * Parses a keypair out of a one or multiple objects
      */
-    private fun getKeyPair(vararg objs: Any): KeyPair {
+    private fun getKeyPair(objs: List<Any>): KeyPair {
         lateinit var pubKey: PublicKey
         lateinit var privKey: PrivateKey
+
+        objs.toList()
+
+        log.debug { "Searching key pair in: $objs" }
         for (obj in objs) {
             if (obj is SubjectPublicKeyInfo) {
                 pubKey = getPublicKey(obj)
@@ -126,8 +135,9 @@ class JWKImportImpl(val keyString: String) : KeyImportStrategy {
                 cryptoProvider = CryptoProvider.SUN,
                 keyPair = jwk.toRSAKey().toKeyPair()
             )
+
             KeyType.EC -> {
-                val alg = when(jwk.toECKey().curve) {
+                val alg = when (jwk.toECKey().curve) {
                     Curve.P_256 -> KeyAlgorithm.ECDSA_Secp256r1
                     Curve.SECP256K1 -> KeyAlgorithm.ECDSA_Secp256k1
                     else -> throw IllegalArgumentException("EC key with curve ${jwk.toECKey().curve} not suppoerted")
@@ -139,8 +149,9 @@ class JWKImportImpl(val keyString: String) : KeyImportStrategy {
                     keyPair = jwk.toECKey().toKeyPair()
                 )
             }
+
             KeyType.OKP -> {
-                val alg = when(jwk.toOctetKeyPair().curve) {
+                val alg = when (jwk.toOctetKeyPair().curve) {
                     Curve.Ed25519 -> KeyAlgorithm.EdDSA_Ed25519
                     else -> throw IllegalArgumentException("OKP key with curve ${jwk.toOctetKeyPair().curve} not supported")
                 }
@@ -153,6 +164,7 @@ class JWKImportImpl(val keyString: String) : KeyImportStrategy {
                     format = KeyFormat.BASE64_RAW
                 )
             }
+
             else -> throw IllegalArgumentException("KeyType ${jwk.keyType} / Algorithm ${jwk.algorithm} not supported")
         }
         return key

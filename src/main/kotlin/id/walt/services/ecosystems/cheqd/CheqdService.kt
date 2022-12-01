@@ -43,5 +43,5 @@ object CheqdService {
 }
 
 fun main() {
-    CheqdService.resolveDid("did:cheqd:mainnet:zF7rhDBfUt9d1gJPjx7s1JXfUY7oVWkY")
+    println(CheqdService.resolveDid("did:cheqd:mainnet:zF7rhDBfUt9d1gJPjx7s1JXfUY7oVWkY"))
 }

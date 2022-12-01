@@ -26,6 +26,7 @@ import mu.KotlinLogging
 import org.json.JSONObject
 import java.net.URI
 import java.net.URL
+import java.net.UnknownHostException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.Instant
@@ -334,6 +335,10 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
 
             val loadedSchema = try {
                 URL(credentialSchemaUrl.id).readText()
+            } catch (e: UnknownHostException) {
+                log.error { "EBSI is down again..." }
+                println("EBSI is down again...")
+                return false
             } catch (e: Exception) {
                 if (log.isDebugEnabled) {
                     log.debug { "Could not load schema from ${credentialSchemaUrl.id}" }

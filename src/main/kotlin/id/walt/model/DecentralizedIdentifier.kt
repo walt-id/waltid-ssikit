@@ -69,9 +69,9 @@ enum class DidMethod(val didClass: KClass<out Did>) {
     web(DidWeb::class),
     ebsi(DidEbsi::class),
     iota(DidIota::class),
+    cheqd(DidCheqd::class),
 
-    jwk(Did::class),
-    cheqd(Did::class)
+    jwk(Did::class)
 }
 
 @Serializable

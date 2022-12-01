@@ -1,0 +1,18 @@
+{
+    "@context": "https://w3id.org/did-resolution/v1",
+    "id": "did:cheqd:testnet:z3XffJBaKvAqi2RL",
+    "controller": [
+        "did:cheqd:testnet:z3XffJBaKvAqi2RL"
+    ],
+    "authentication": [
+        "did:cheqd:testnet:z3XffJBaKvAqi2RL#key-1"
+    ],
+    "verificationMethod": [
+        {
+            "id": "did:cheqd:testnet:z3XffJBaKvAqi2RL#key-1",
+            "type": "Ed25519VerificationKey2020",
+            "controller": "did:cheqd:testnet:z3XffJBaKvAqi2RL",
+            "publicKeyMultibase": "z3XffJBaKvAqi2RLLroggoq1MJW3Dy7NP4DYJuFqFjdyF"
+        }
+    ]
+}

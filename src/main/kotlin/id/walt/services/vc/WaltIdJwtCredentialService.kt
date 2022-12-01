@@ -13,6 +13,8 @@ import id.walt.vclib.schema.SchemaService
 import info.weboftrust.ldsignatures.LdProof
 import mu.KotlinLogging
 import java.net.URI
+import java.net.URL
+import java.net.UnknownHostException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.Instant
@@ -130,7 +132,22 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
         vc.toCredential().let {
             if (it is VerifiablePresentation) return true
             val credentialSchema = it.credentialSchema ?: return true
-            return SchemaService.validateSchema(it.json!!, URI(credentialSchema.id).toURL().readText()).valid
+
+            val loadedSchema = try {
+                URI(credentialSchema.id).toURL().readText()
+            } catch (e: UnknownHostException) {
+                log.error { "EBSI is down again..." }
+                println("EBSI is down again...")
+                return false
+            } catch (e: Exception) {
+                if (log.isDebugEnabled) {
+                    log.debug { "Could not load schema from ${credentialSchema.id}" }
+                    e.printStackTrace()
+                }
+                return false
+            }
+
+            return SchemaService.validateSchema(it.json!!, loadedSchema).valid
         }
     } catch (e: Exception) {
         e.printStackTrace()
