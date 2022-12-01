@@ -7,12 +7,16 @@ import id.walt.model.VerificationMethod
 
 @Target(AnnotationTarget.FIELD)
 annotation class VCList
-
+@Target(AnnotationTarget.FIELD)
+annotation class VCObjectList
 @Target(AnnotationTarget.FIELD)
 annotation class ListOrSingleVC
-
+@Target(AnnotationTarget.FIELD)
+annotation class ListOrSingleVCObject
 @Target(AnnotationTarget.FIELD)
 annotation class SingleVC
+@Target(AnnotationTarget.FIELD)
+annotation class SingleVCObject
 
 @Target(AnnotationTarget.FIELD)
 annotation class JsonObjectField
@@ -23,64 +27,46 @@ annotation class ListOrSingleValue
 @Target(AnnotationTarget.FIELD)
 annotation class DidVerificationRelationships
 
-object vcListConverter : Converter {
+class VcConverter(private val singleVC: Boolean, private val singleIfOne: Boolean, private val toVcObject: Boolean): Converter {
+  override fun canConvert(cls: Class<*>)
+    = singleVC && cls == VerifiableCredential::class.java || cls == List::class.java
 
-    override fun canConvert(cls: Class<*>): Boolean {
-        return cls.isAssignableFrom(List::class.java)
+  override fun fromJson(jv: JsonValue): Any? {
+    return if(singleVC) {
+      (jv.string ?: jv.obj?.toJsonString())?.toVerifiableCredential()
+    } else {
+      (jv.array ?: listOf(jv.inside)).map {
+        when (it) {
+          is JsonBase -> it.toJsonString()
+          else -> it.toString()
+        }.toVerifiableCredential()
+      }
     }
+  }
 
-    override fun fromJson(jv: JsonValue): Any? {
-        if(jv.array != null) {
-            val arr = jv.array
-            return arr!!.map {
-                when(it) {
-                    is JsonObject -> it.toJsonString()
-                    else -> it.toString()
-                }.toVerifiableCredential()
-            }.toList()
-        } else {
-            throw KlaxonException("Couldn't parse verifiable credentials list")
+  private fun toVcJsonString(vc: VerifiableCredential): String {
+    return if(toVcObject) {
+      vc.toJson()
+    } else {
+      vc.toJsonElement().toString()
+    }
+  }
+
+  override fun toJson(value: Any): String {
+    return if(singleVC) {
+      toVcJsonString(value as VerifiableCredential)
+    } else {
+      if((value as List<*>).size == 1 && singleIfOne) {
+        toVcJsonString(value.first() as VerifiableCredential)
+      }
+      else {
+        value.joinToString(",", "[", "]") { c ->
+          toVcJsonString(c as VerifiableCredential)
         }
+      }
     }
+  }
 
-    override fun toJson(value: Any): String {
-        if(value is List<*> && (value.isEmpty() || value.first() is VerifiableCredential)) {
-            return value.joinToString(",", "[", "]") {
-                (it as VerifiableCredential).toJsonElement().toString()
-            }
-        } else {
-            throw KlaxonException("Couldn't convert verifiable credentials list to Json")
-        }
-    }
-}
-
-val listOrSingleVCConverter = object : Converter {
-    override fun canConvert(cls: Class<*>) = cls == List::class.java
-
-    override fun fromJson(jv: JsonValue) =
-        (jv.array ?: listOf(jv.inside)).map {
-            when (it) {
-                is JsonBase -> it.toJsonString()
-                else -> it.toString()
-            }.toVerifiableCredential()
-        }
-
-    override fun toJson(value: Any) = when ((value as List<*>).size) {
-        1 -> (value.first() as VerifiableCredential).toJsonElement().toString()
-        else -> value.joinToString(",", "[", "]") { c ->
-            (c as VerifiableCredential).toJsonElement().toString()
-        }
-    }
-}
-
-val singleVCConverter = object : Converter {
-    override fun canConvert(cls: Class<*>) = cls == VerifiableCredential::class.java
-
-    override fun fromJson(jv: JsonValue) = (jv.string ?: jv.obj?.toJsonString())?.toVerifiableCredential()
-
-    override fun toJson(value: Any): String {
-        return (value as VerifiableCredential).toJsonElement().toString()
-    }
 }
 
 val jsonObjectFieldConverter = object : Converter {
@@ -137,9 +123,12 @@ val didVerificationRelationshipsConverter = object : Converter {
 }
 
 val klaxonWithConverters = Klaxon()
-    .fieldConverter(VCList::class, vcListConverter)
+    .fieldConverter(VCList::class, VcConverter(singleVC = false, singleIfOne = false, toVcObject = false))
+    .fieldConverter(VCObjectList::class, VcConverter(singleVC = false, singleIfOne = false, toVcObject = true))
+    .fieldConverter(ListOrSingleVC::class, VcConverter(singleVC = false, singleIfOne = true, toVcObject = false))
+    .fieldConverter(ListOrSingleVCObject::class, VcConverter(singleVC = false, singleIfOne = true, toVcObject = true))
+    .fieldConverter(SingleVC::class, VcConverter(singleVC = true, singleIfOne = false, toVcObject = false))
+    .fieldConverter(SingleVCObject::class, VcConverter(singleVC = true, singleIfOne = false, toVcObject = true))
     .fieldConverter(ListOrSingleValue::class, listOrSingleValueConverter)
-    .fieldConverter(ListOrSingleVC::class, listOrSingleVCConverter)
-    .fieldConverter(SingleVC::class, singleVCConverter)
     .fieldConverter(JsonObjectField::class, jsonObjectFieldConverter)
     .fieldConverter(DidVerificationRelationships::class, didVerificationRelationshipsConverter)
