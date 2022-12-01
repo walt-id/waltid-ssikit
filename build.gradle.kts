@@ -62,7 +62,7 @@ dependencies {
     //implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
 
     // DB
-    implementation("org.xerial:sqlite-jdbc:3.39.3.0")
+    implementation("org.xerial:sqlite-jdbc:3.39.4.1")
     implementation("com.zaxxer:HikariCP:5.0.1")
 
     // CLI
@@ -71,7 +71,7 @@ dependencies {
 
     // Misc
     implementation("commons-io:commons-io:2.11.0")
-    implementation("io.minio:minio:8.4.5")
+    implementation("io.minio:minio:8.4.6")
 
     // HTTP
     implementation("io.ktor:ktor-client-core:2.1.3")
@@ -86,8 +86,8 @@ dependencies {
     // implementation("io.javalin:javalin-test-tools:4.5.0")
 
     // Logging
-    implementation("org.slf4j:slf4j-api:2.0.3")
-    implementation("org.slf4j:slf4j-simple:2.0.3")
+    implementation("org.slf4j:slf4j-api:2.0.4")
+    implementation("org.slf4j:slf4j-simple:2.0.4")
 
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.4")
 
@@ -103,7 +103,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.7.20")
 
     // JNR-FFI
-    implementation("com.github.jnr:jnr-ffi:2.2.12")
+    implementation("com.github.jnr:jnr-ffi:2.2.13")
 
     // Testing
     //testImplementation(kotlin("test-junit"))
