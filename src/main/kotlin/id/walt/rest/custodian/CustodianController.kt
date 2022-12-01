@@ -1,6 +1,8 @@
 package id.walt.rest.custodian
 
 import com.beust.klaxon.Klaxon
+import id.walt.common.VCObjectList
+import id.walt.common.klaxonWithConverters
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.VerifiablePresentation
 import id.walt.credentials.w3c.toVerifiableCredential
@@ -10,6 +12,7 @@ import id.walt.custodian.Custodian
 import id.walt.model.VerifiableCredentialModel
 import id.walt.services.key.KeyFormat
 import id.walt.services.keystore.KeyType
+import io.javalin.http.ContentType
 import io.javalin.http.Context
 import io.javalin.plugin.openapi.dsl.document
 import kotlinx.serialization.Serializable
@@ -96,7 +99,7 @@ object CustodianController {
 
     /* Credentials */
 
-    data class ListCredentialsResponse(val list: List<VerifiableCredential>)
+    data class ListCredentialsResponse(@VCObjectList val list: List<VerifiableCredential>)
     data class ListCredentialIdsResponse(val list: List<String>)
 
     fun getCredentialDocs() = document()
@@ -124,15 +127,10 @@ object CustodianController {
 
     fun listCredentials(ctx: Context) {
         val ids = ctx.queryParams("id").toSet()
-        if (ids.isEmpty())
-            ctx.json(ListCredentialsResponse(custodian.listCredentials()))
-        else
-            ctx.json(
-                ListCredentialsResponse(
-                    custodian.listCredentials().filter { it.id != null && ids.contains(it.id!!) })
-            )
-
-
+        ctx.contentType(ContentType.APPLICATION_JSON).result(
+          custodian.listCredentials().filter { ids.isEmpty() || (it.id != null && ids.contains(it.id!!)) }
+            .let { klaxonWithConverters.toJsonString(ListCredentialsResponse(it)) }
+        )
     }
 
     fun listCredentialModelsDocs() = document()

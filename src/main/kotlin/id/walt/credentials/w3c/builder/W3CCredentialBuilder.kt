@@ -63,7 +63,10 @@ abstract class AbstractW3CCredentialBuilder<C: VerifiableCredential, B: Abstract
   }
 
   override fun build(): C {
-    setProperty("credentialSubject", subjectBuilder.build().toJsonObject() as JsonElement)
+    val subject = subjectBuilder.build().toJsonObject()
+    if(subject.isNotEmpty()) {
+      setProperty("credentialSubject", subject as JsonElement)
+    }
     return credentialFactory.fromJsonObject(JsonObject(properties))
   }
 }
