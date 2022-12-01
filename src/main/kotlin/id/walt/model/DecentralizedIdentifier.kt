@@ -1,6 +1,9 @@
 package id.walt.model
 
 import com.beust.klaxon.*
+import id.walt.common.DidVerificationRelationships
+import id.walt.common.ListOrSingleValue
+import id.walt.common.klaxonWithConverters
 import id.walt.common.prettyPrint
 import id.walt.model.did.*
 import kotlinx.serialization.SerialName
@@ -8,54 +11,6 @@ import kotlinx.serialization.Serializable
 import kotlin.reflect.KClass
 
 const val DID_CONTEXT_URL: String = "https://www.w3.org/ns/did/v1"
-
-@Target(AnnotationTarget.FIELD)
-annotation class ListOrSingleValue
-
-@Target(AnnotationTarget.FIELD)
-annotation class DidVerificationRelationships
-
-val listOrSingleValueConverter = object : Converter {
-    override fun canConvert(cls: Class<*>) = cls == List::class.java
-
-    override fun fromJson(jv: JsonValue) =
-        jv.array ?: listOf(jv.inside)
-
-    override fun toJson(value: Any) = when ((value as List<*>).size) {
-        1 -> Klaxon().toJsonString(value.first())
-        else -> Klaxon().toJsonString(value)
-    }
-}
-
-val verificationRelationshipsConverter = object : Converter {
-    override fun canConvert(cls: Class<*>) = cls == List::class.java
-
-    override fun fromJson(jv: JsonValue): Any? {
-        jv.array ?: return null
-        return jv.array!!.map { item ->
-            when (item) {
-                is String -> VerificationMethod.Reference(item)
-                is JsonObject -> Klaxon().parseFromJsonObject<VerificationMethod>(item)
-                else -> throw Exception("Verification relationship must be either String or JsonObject")
-            }
-        }
-    }
-
-    override fun toJson(value: Any): String {
-        @Suppress("UNCHECKED_CAST")
-        return (value as List<VerificationMethod>).joinToString(",", "[", "]") { item ->
-            Klaxon().toJsonString(
-                when {
-                    item.isReference -> item.id
-                    else -> item
-                }
-            )
-        }
-    }
-}
-
-val didSerializer = Klaxon().fieldConverter(ListOrSingleValue::class, listOrSingleValueConverter)
-    .fieldConverter(DidVerificationRelationships::class, verificationRelationshipsConverter)
 
 class DidTypeAdapter : TypeAdapter<Did> {
     override fun classFor(type: Any): KClass<out Did> =
@@ -120,11 +75,11 @@ open class Did(
     val method: DidMethod
         get() = DidMethod.valueOf(url.method)
 
-    fun encode() = didSerializer.toJsonString(this)
-    fun encodePretty() = didSerializer.toJsonString(this).prettyPrint()
+    fun encode() = klaxonWithConverters.toJsonString(this)
+    fun encodePretty() = klaxonWithConverters.toJsonString(this).prettyPrint()
 
     companion object {
-        fun decode(didDoc: String): Did? = didSerializer.parse<Did>(didDoc)
+        fun decode(didDoc: String): Did? = klaxonWithConverters.parse<Did>(didDoc)
     }
 }
 

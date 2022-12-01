@@ -1,6 +1,8 @@
 package id.walt.auditor
 
 import com.beust.klaxon.Klaxon
+import id.walt.common.klaxonWithConverters
+import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
@@ -9,8 +11,6 @@ import id.walt.signatory.Signatory
 import id.walt.test.RESOURCES_PATH
 import id.walt.test.readVerifiableCredential
 import id.walt.test.readVerifiablePresentation
-import id.walt.vclib.model.VerifiableCredential
-import id.walt.vclib.model.toCredential
 import io.github.rybalkinsd.kohttp.dsl.httpPost
 import io.github.rybalkinsd.kohttp.ext.asString
 import io.kotest.core.annotation.Ignored
@@ -83,11 +83,11 @@ class AuditorApiTest : AnnotationSpec() {
             path = "/v1/verify"
             body {
                 json(
-                    VerifiableCredential.klaxon.toJsonString(
+                    klaxonWithConverters.toJsonString(
                         VerificationRequest(
                             policies = policyList.split(",").map { p -> PolicyRequest(policy = p.trim()) }.toList(),
                             credentials = listOf(
-                                vcToVerify.toCredential()
+                                vcToVerify.toVerifiableCredential()
                             )
                         )
                     )

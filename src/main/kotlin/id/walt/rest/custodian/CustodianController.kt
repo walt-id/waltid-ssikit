@@ -1,14 +1,14 @@
 package id.walt.rest.custodian
 
 import com.beust.klaxon.Klaxon
+import id.walt.credentials.w3c.VerifiableCredential
+import id.walt.credentials.w3c.VerifiablePresentation
 import id.walt.crypto.Key
 import id.walt.crypto.KeyAlgorithm
 import id.walt.custodian.Custodian
 import id.walt.model.VerifiableCredentialModel
 import id.walt.services.key.KeyFormat
 import id.walt.services.keystore.KeyType
-import id.walt.vclib.credentials.VerifiablePresentation
-import id.walt.vclib.model.VerifiableCredential
 import io.javalin.http.Context
 import io.javalin.plugin.openapi.dsl.document
 import kotlinx.serialization.Serializable

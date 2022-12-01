@@ -1,6 +1,6 @@
 package id.walt.services.vcstore
 
-import id.walt.vclib.model.VerifiableCredential
+import id.walt.credentials.w3c.VerifiableCredential
 import java.nio.file.Path
 
 open class InMemoryVcStoreService : VcStoreService() {

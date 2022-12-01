@@ -121,10 +121,14 @@ object SignatoryRestAPI {
             path("v1") {
                 path("credentials") {
                     post("issue", documented(SignatoryController.issueCredentialDocs(), SignatoryController::issueCredential))
+                    post("issueFromJson", documented(SignatoryController.issueCredentialFromJsonDocs(), SignatoryController::issueCredentialFromJson))
                 }
                 path("templates") {
                     get("", documented(SignatoryController.listTemplatesDocs(), SignatoryController::listTemplates))
                     get("{id}", documented(SignatoryController.loadTemplateDocs(), SignatoryController::loadTemplate))
+                    post("{id}", documented(SignatoryController.importTemplateDocs(), SignatoryController::importTemplate))
+                    delete("{id}", documented(SignatoryController.removeTemplateDocs(), SignatoryController::removeTemplate))
+
                 }
                 path("revocations") {
                     get("{id}", documented(SignatoryController.checkRevokedDocs(), SignatoryController::checkRevoked))

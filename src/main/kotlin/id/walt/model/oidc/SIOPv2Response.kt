@@ -1,10 +1,11 @@
 package id.walt.model.oidc
 
 import com.nimbusds.jwt.JWTClaimsSet
+import id.walt.common.klaxonWithConverters
+import id.walt.credentials.w3c.VerifiablePresentation
 import id.walt.model.dif.PresentationSubmission
 import id.walt.services.jwt.JwtService
 import id.walt.services.oidc.OIDCUtils
-import id.walt.vclib.credentials.VerifiablePresentation
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.util.*
@@ -22,7 +23,7 @@ data class SIOPv2Response(
         val vpTokenString = OIDCUtils.toVpToken(vp_token)
         return buildMap {
             put("vp_token", vpTokenString)
-            put("presentation_submission", klaxon.toJsonString(presentation_submission))
+            put("presentation_submission", klaxonWithConverters.toJsonString(presentation_submission))
             id_token?.let { put("id_token", it) }
             state?.let { put("state", it) }
         }
@@ -34,8 +35,8 @@ data class SIOPv2Response(
 
     fun toEBSIWctJson(): String {
         val idToken = SelfIssuedIDToken.parse(id_token!!)
-        return klaxon.toJsonString(
-            mapOf("id_token" to id_token, "vp_token" to vp_token.flatMap { vp -> vp.verifiableCredential }.map { vc ->
+        return klaxonWithConverters.toJsonString(
+            mapOf("id_token" to id_token, "vp_token" to vp_token.flatMap { vp -> vp.verifiableCredential ?: listOf() }.map { vc ->
                 mapOf(
                     "format" to "jwt_vp", "presentation" to JwtService.getService().sign(
                         idToken!!.subject,
@@ -54,7 +55,7 @@ data class SIOPv2Response(
                 params["presentation_submission"] ?: throw Exception("presentation_submission parameter must be set")
             return SIOPv2Response(
                 vp_token = OIDCUtils.fromVpToken(vpTokenStr),
-                presentation_submission = klaxon.parse<PresentationSubmission>(presentationSubmissionStr)
+                presentation_submission = klaxonWithConverters.parse<PresentationSubmission>(presentationSubmissionStr)
                     ?: throw Exception("Could not parse presentation_submission parameter"),
                 id_token = params["id_token"],
                 state = params["state"]

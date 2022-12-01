@@ -1,7 +1,7 @@
 package id.walt.auditor
 
-import id.walt.vclib.NestedVCs
-import id.walt.vclib.model.VerifiableCredential
+import id.walt.common.VCList
+import id.walt.credentials.w3c.VerifiableCredential
 
 data class PolicyRequest(
     val policy: String,
@@ -10,7 +10,7 @@ data class PolicyRequest(
 
 data class VerificationRequest(
     val policies: List<PolicyRequest>,
-    @NestedVCs val credentials: List<VerifiableCredential>
+    @VCList val credentials: List<VerifiableCredential>
 )
 
 data class VerificationResponse(

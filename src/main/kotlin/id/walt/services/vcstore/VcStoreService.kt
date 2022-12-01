@@ -1,8 +1,8 @@
 package id.walt.services.vcstore
 
+import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
-import id.walt.vclib.model.VerifiableCredential
 
 abstract class VcStoreService : WaltIdService() {
     override val implementation get() = serviceImplementation<VcStoreService>()

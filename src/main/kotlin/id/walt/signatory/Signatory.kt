@@ -1,6 +1,13 @@
 package id.walt.signatory
 
 import com.beust.klaxon.Json
+import id.walt.credentials.w3c.VerifiableCredential
+import id.walt.credentials.w3c.W3CIssuer
+import id.walt.credentials.w3c.builder.AbstractW3CCredentialBuilder
+import id.walt.credentials.w3c.builder.W3CCredentialBuilder
+import id.walt.credentials.w3c.templates.VcTemplate
+import id.walt.credentials.w3c.templates.VcTemplateManager
+import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.LdSignatureType
 import id.walt.model.DidMethod
 import id.walt.model.DidUrl
@@ -11,10 +18,9 @@ import id.walt.services.context.ContextManager
 import id.walt.services.did.DidService
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
-import id.walt.vclib.model.VerifiableCredential
-import id.walt.vclib.model.toCredential
-import id.walt.vclib.templates.VcTemplateManager
 import mu.KotlinLogging
+import java.nio.file.Files
+import java.nio.file.Path
 import java.time.Instant
 import java.util.*
 
@@ -61,11 +67,17 @@ abstract class Signatory : WaltIdService() {
         override fun getService() = object : Signatory() {}
     }
 
-    open fun issue(templateId: String, config: ProofConfig, dataProvider: SignatoryDataProvider? = null): String =
-        implementation.issue(templateId, config, dataProvider)
+    open fun issue(templateIdOrFilename: String, config: ProofConfig, dataProvider: SignatoryDataProvider? = null, issuer: W3CIssuer? = null): String =
+        implementation.issue(templateIdOrFilename, config, dataProvider, issuer)
 
-    open fun listTemplates(): List<String> = implementation.listTemplates()
+    open fun issue(credentialBuilder: AbstractW3CCredentialBuilder<*, *>, config: ProofConfig, issuer: W3CIssuer? = null): String = implementation.issue(credentialBuilder, config, issuer)
+
+    open fun listTemplates(): List<VcTemplate> = implementation.listTemplates()
+    open fun listTemplateIds(): List<String> = implementation.listTemplateIds()
     open fun loadTemplate(templateId: String): VerifiableCredential = implementation.loadTemplate(templateId)
+
+    open fun importTemplate(templateId: String, template: String): Unit = implementation.importTemplate(templateId, template)
+    open fun removeTemplate(templateId: String): Unit = implementation.removeTemplate(templateId)
 }
 
 class WaltIdSignatory(configurationPath: String) : Signatory() {
@@ -94,15 +106,8 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
         }?.id ?: config.issuerVerificationMethod
     }
 
-    override fun issue(templateId: String, config: ProofConfig, dataProvider: SignatoryDataProvider?): String {
-
-        // TODO: load proof-conf from signatory.conf and optionally substitute values on request basis
-
-        val vcTemplate = kotlin.runCatching {
-            VcTemplateManager.loadTemplate(templateId)
-        }.getOrElse { throw Exception("Could not load template: $templateId") }
-
-        val configDP = ProofConfig(
+    private fun fillProofConfig(config: ProofConfig): ProofConfig {
+        return ProofConfig(
             issuerDid = config.issuerDid,
             subjectDid = config.subjectDid,
             null,
@@ -119,23 +124,60 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
             ldSignatureType = config.ldSignatureType ?: defaultLdSignatureByDidMethod(config.issuerDid),
             creator = config.creator
         )
+    }
 
-        val selectedDataProvider = dataProvider ?: DataProviderRegistry.getProvider(vcTemplate::class)
-        val vcRequest = selectedDataProvider.populate(vcTemplate, configDP)
+    override fun issue(templateIdOrFilename: String, config: ProofConfig, dataProvider: SignatoryDataProvider?, issuer: W3CIssuer?): String {
 
-        log.info { "Signing credential with proof using ${configDP.proofType.name}..." }
-        log.debug { "Signing credential with proof using ${configDP.proofType.name}, credential is: $vcRequest" }
-        val signedVc = when (configDP.proofType) {
-            ProofType.LD_PROOF -> JsonLdCredentialService.getService().sign(vcRequest.encode(), configDP)
-            ProofType.JWT -> JwtCredentialService.getService().sign(vcRequest.encode(), configDP)
+        val credentialBuilder = when(Files.exists(Path.of(templateIdOrFilename))) {
+            true -> Files.readString(Path.of(templateIdOrFilename)).toVerifiableCredential()
+            else -> VcTemplateManager.getTemplate(templateIdOrFilename).template
+        }?.let { W3CCredentialBuilder.fromPartial(it) } ?: throw Exception("Template not found")
+
+        return issue(dataProvider?.populate(credentialBuilder, config) ?: credentialBuilder, config, issuer)
+    }
+
+    override fun issue(credentialBuilder: AbstractW3CCredentialBuilder<*, *>, config: ProofConfig, issuer: W3CIssuer?): String {
+        val fullProofConfig = fillProofConfig(config)
+        val vcRequest = credentialBuilder.apply {
+            issuer?.let { setIssuer(it) }
+            setIssuerId(fullProofConfig.issuerDid)
+            setIssuanceDate(fullProofConfig.issueDate ?: Instant.now())
+            setIssued(fullProofConfig.issueDate ?: Instant.now())
+            fullProofConfig.subjectDid?.let { setSubjectId(it) }
+            setId(fullProofConfig.credentialId.orEmpty().ifEmpty { "urn:uuid:${UUID.randomUUID()}" })
+            setIssuanceDate(fullProofConfig.issueDate ?: Instant.now())
+            setValidFrom(fullProofConfig.validDate ?: Instant.now())
+            fullProofConfig.expirationDate?.let { setExpirationDate(it) }
+        }.build()
+
+        log.info { "Signing credential with proof using ${fullProofConfig.proofType.name}..." }
+        log.debug { "Signing credential with proof using ${fullProofConfig.proofType.name}, credential is: $vcRequest" }
+        val signedVc = when (fullProofConfig.proofType) {
+            ProofType.LD_PROOF -> JsonLdCredentialService.getService().sign(vcRequest.toJson(), fullProofConfig)
+            ProofType.JWT -> JwtCredentialService.getService().sign(vcRequest.toJson(), fullProofConfig)
         }
         log.debug { "Signed VC is: $signedVc" }
-        ContextManager.vcStore.storeCredential(configDP.credentialId!!, signedVc.toCredential(), VC_GROUP)
+        ContextManager.vcStore.storeCredential(fullProofConfig.credentialId!!, signedVc.toVerifiableCredential(), VC_GROUP)
         return signedVc
     }
 
-    override fun listTemplates(): List<String> = VcTemplateManager.getTemplateList()
+    override fun listTemplates(): List<VcTemplate> = VcTemplateManager.listTemplates()
+    override fun listTemplateIds() = VcTemplateManager.listTemplates().map { it.name }
+    override fun loadTemplate(templateId: String): VerifiableCredential = VcTemplateManager.getTemplate(templateId, true).template!!
 
-    override fun loadTemplate(templateId: String): VerifiableCredential = VcTemplateManager.loadTemplate(templateId)
+    override fun importTemplate(templateId: String, template: String) {
+      val vc = VerifiableCredential.fromJson(template)
+      // serialize parsed credential template and save
+      VcTemplateManager.register(templateId, vc)
+    }
+
+    override fun removeTemplate(templateId: String) {
+      val template = VcTemplateManager.getTemplate(templateId)
+      if (template.mutable) {
+        VcTemplateManager.unregisterTemplate(templateId)
+      } else {
+        throw Exception("Template is immutable and cannot be removed. Use import to override existing templates.")
+      }
+    }
 
 }

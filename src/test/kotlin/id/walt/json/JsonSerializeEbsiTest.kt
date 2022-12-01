@@ -1,9 +1,9 @@
 package id.walt.json
 
 import com.beust.klaxon.Klaxon
+import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.model.*
-import id.walt.vclib.model.Proof
-import id.walt.vclib.model.VerifiableCredential
+import io.kotest.assertions.json.shouldMatchJson
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import java.io.File
@@ -21,11 +21,11 @@ class JsonSerializeEbsiTest : AnnotationSpec() {
     private fun validateVC(fileName: String) {
         val expected = File("src/test/resources/ebsi/${fileName}").readText()
         // println(expected)
-        val obj = format.parse<VerifiableCredential>(expected)
+        val obj = expected.toVerifiableCredential()
         // println(obj)
-        val encoded = format.toJsonString(obj)
+        val encoded = obj.toJson()
         // println(encoded)
-        expected.replace("\\s".toRegex(), "") shouldBe Klaxon().toJsonString(obj)
+        expected shouldMatchJson encoded
     }
 
 //    //@Test
@@ -56,53 +56,6 @@ class JsonSerializeEbsiTest : AnnotationSpec() {
         val obj = Klaxon().parse<List<CredentialStatusListEntry>>(expected)
         println(obj)
         expected.replace("\\s".toRegex(), "") shouldBe Klaxon().toJsonString(obj)
-    }
-
-    ////@Test
-    fun trustedIssuerRegistryObjTest() {
-
-        val did = listOf("did:ebsi:00003333", "did:ebsi:00005555")
-        val organizationInfo =
-            OrganizationInfo(
-                "123456789",
-                "Example Legal Name",
-                "Example Street 42, Vienna, Austria",
-                "https://great.company.be",
-                "123456789",
-                "12341212EXAMPLE34512",
-                "AT123456789101",
-                "AT12345678910",
-                "1234",
-                "https://example.organization.com"
-            )
-        val proof = Proof(
-            type = "EidasSeal2019",
-            created = LocalDateTime.now().withNano(0).toString(),
-            creator = "did:creator",
-            proofPurpose = "assertionMethod",
-            verificationMethod = "EidasCertificate2019",//VerificationMethodCert("EidasCertificate2019", "1088321447"),
-            jws = "BD21J4fdlnBvBA+y6D...fnC8Y="
-        )
-        val serviceEndpoints = listOf(
-            ServiceEndpoint(
-                id = "did:example:123456789abcdefghi#agent",
-                type = "AgentService",
-                serviceEndpoint = "https://agent.example.com/8377464"
-            )
-        )
-        val eidasCertificate = EidasCertificate("123456", "123456", "blob")
-        val issuer =
-            Issuer("Brand Name", "www.domain.com", did, eidasCertificate, serviceEndpoints, organizationInfo, proof)
-
-        val tir = TrustedIssuerRegistry(issuer) // accreditationCredentials
-
-        val string = format.toJsonString(tir)
-        println(string)
-
-        val obj = format.parse<TrustedIssuerRegistry>(string)
-        println(obj)
-
-        tir shouldBe obj
     }
 
     //@Test

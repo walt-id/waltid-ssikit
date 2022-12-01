@@ -107,7 +107,9 @@ object WaltCLI {
                         ),
                         VcTemplatesCommand().subcommands(
                             VcTemplatesListCommand(),
-                            VcTemplatesExportCommand()
+                            VcTemplatesExportCommand(),
+                            VcTemplatesImportCommand(),
+                            VcTemplatesRemoveCommand()
                         ),
                         VcImportCommand()
                     ),

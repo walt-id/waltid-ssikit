@@ -4,7 +4,7 @@ import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
 import id.walt.auditor.*
 import id.walt.auditor.dynamic.DynamicPolicyArg
-import id.walt.vclib.model.VerifiableCredential
+import id.walt.common.klaxonWithConverters
 import io.javalin.http.BadRequestResponse
 import io.javalin.http.Context
 import io.javalin.http.HttpCode
@@ -21,7 +21,7 @@ object AuditorRestController {
     }.json<Array<VerificationPolicy>>("200")
 
     fun verifyVP(ctx: Context) {
-        val verificationRequest = VerifiableCredential.klaxon.parse<VerificationRequest>(ctx.body())
+        val verificationRequest = klaxonWithConverters.parse<VerificationRequest>(ctx.body())
             ?: throw BadRequestResponse("Could not parse verification request object")
 
         val policies = verificationRequest.policies.map { (policy, argument) ->

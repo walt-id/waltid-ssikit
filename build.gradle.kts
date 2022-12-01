@@ -48,9 +48,6 @@ dependencies {
 
     implementation("com.google.guava:guava:31.1-jre")
 
-    // VC
-    implementation("id.walt:waltid-ssikit-vclib:1.24.2")
-
     // JSON
     implementation("org.json:json:20220924")
     implementation("com.beust:klaxon:5.6")
@@ -58,8 +55,10 @@ dependencies {
     implementation("io.ktor:ktor-client-jackson:2.1.3")
     implementation("io.ktor:ktor-client-content-negotiation:2.1.3")
     implementation("com.jayway.jsonpath:json-path:2.7.0")
+    implementation("com.networknt:json-schema-validator:1.0.72")
+    implementation("net.pwall.json:json-kotlin-schema:0.36")
 
-    //implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
 
     // DB
     implementation("org.xerial:sqlite-jdbc:3.39.4.1")

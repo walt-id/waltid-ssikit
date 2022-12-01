@@ -2,7 +2,7 @@ package id.walt.auditor.dynamic
 
 import com.jayway.jsonpath.JsonPath
 import id.walt.auditor.ParameterizedVerificationPolicy
-import id.walt.vclib.model.VerifiableCredential
+import id.walt.credentials.w3c.VerifiableCredential
 import mu.KotlinLogging
 
 private val log = KotlinLogging.logger { }
@@ -12,15 +12,16 @@ open class DynamicPolicy(dynPolArg: DynamicPolicyArg) : ParameterizedVerificatio
         get() = argument.name
     override val description = "Verify credential by rego policy"
     override fun doVerify(vc: VerifiableCredential): Boolean {
+        val json = vc.toJson()
         // params: rego (string, URL, file, credential property), input (json string), data jsonpath (default: $.credentialSubject)
         val rego = if (argument.policy.startsWith("$")) {
-            JsonPath.parse(vc.json!!).read(argument.policy)
+            JsonPath.parse(json).read(argument.policy)
         } else {
             argument.policy
         }
         return PolicyEngine.get(argument.policyEngine).validate(
             input = argument.input,
-            data = JsonPath.parse(vc.json!!)?.read(argument.dataPath)!!,
+            data = JsonPath.parse(json)?.read(argument.dataPath)!!,
             policy = rego,
             query = argument.policyQuery
         ).also {

@@ -10,18 +10,22 @@ import com.nimbusds.openid.connect.sdk.OIDCTokenResponse
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens
 import id.walt.auditor.Auditor
 import id.walt.auditor.SignaturePolicy
+import id.walt.common.klaxonWithConverters
+import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.model.DidMethod
 import id.walt.model.DidUrl
 import id.walt.model.dif.InputDescriptor
+import id.walt.model.dif.InputDescriptorConstraints
+import id.walt.model.dif.InputDescriptorField
 import id.walt.model.dif.PresentationDefinition
-import id.walt.model.dif.VCSchema
-import id.walt.model.oidc.*
+import id.walt.model.oidc.CredentialRequest
+import id.walt.model.oidc.CredentialResponse
+import id.walt.model.oidc.NonceResponse
+import id.walt.model.oidc.SIOPv2Response
 import id.walt.services.did.DidService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
-import id.walt.vclib.model.toCredential
-import id.walt.vclib.templates.VcTemplateManager
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.post
 import io.javalin.http.Context
@@ -42,7 +46,11 @@ object OIDCTestProvider {
         listOf(
             InputDescriptor(
                 "1",
-                schema = VCSchema(uri = VcTemplateManager.loadTemplate("VerifiableId").credentialSchema!!.id)
+                constraints = InputDescriptorConstraints(
+                  listOf(InputDescriptorField(listOf("$.type"), filter = mapOf(
+                    "const" to "VerifiableId"
+                  )))
+                )
             )
         )
     )
@@ -91,7 +99,7 @@ object OIDCTestProvider {
 
     fun testCredential(ctx: Context) {
         ctx.contentType() shouldBe "application/json"
-        val credentialReq = klaxon.parse<CredentialRequest>(ctx.body())
+        val credentialReq = klaxonWithConverters.parse<CredentialRequest>(ctx.body())
         credentialReq shouldNotBe null
         credentialReq!!.format shouldBe TEST_CREDENTIAL_FORMAT
         credentialReq.type shouldBe TEST_CREDENTIAL_ID
@@ -108,7 +116,7 @@ object OIDCTestProvider {
                 proofType = if (credentialReq.format == "jwt_vc") ProofType.JWT else ProofType.LD_PROOF
             )
         )
-        ctx.json(klaxon.toJsonString(CredentialResponse(credentialReq.format, credential.toCredential())))
+        ctx.json(klaxonWithConverters.toJsonString(CredentialResponse(credentialReq.format, credential.toVerifiableCredential())))
     }
 
     fun testPresent(ctx: Context) {
@@ -124,7 +132,7 @@ object OIDCTestProvider {
     }
 
     fun testNonce(ctx: Context) {
-        ctx.json(klaxon.toJsonString(NonceResponse(TEST_NONCE, "300")))
+        ctx.json(klaxonWithConverters.toJsonString(NonceResponse(TEST_NONCE, "300")))
     }
 
     fun start(port: Int = 8000) {

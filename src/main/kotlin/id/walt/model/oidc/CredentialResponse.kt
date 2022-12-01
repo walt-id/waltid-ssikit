@@ -1,6 +1,7 @@
 package id.walt.model.oidc
 
-import id.walt.vclib.model.VerifiableCredential
+import id.walt.common.SingleVC
+import id.walt.credentials.w3c.VerifiableCredential
 
 data class CredentialResponse(
     val format: String?,

@@ -1,10 +1,10 @@
 package id.walt.auditor
 
+import id.walt.credentials.w3c.VerifiableCredential
+import id.walt.credentials.w3c.VerifiablePresentation
+import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
-import id.walt.vclib.credentials.VerifiablePresentation
-import id.walt.vclib.model.VerifiableCredential
-import id.walt.vclib.model.toCredential
 import mu.KotlinLogging
 
 
@@ -30,7 +30,7 @@ abstract class Auditor : WaltIdService() {
 
 class WaltIdAuditor : Auditor() {
     override fun verify(vcJson: String, policies: List<VerificationPolicy>): VerificationResult {
-        val vc = vcJson.toCredential()
+        val vc = vcJson.toVerifiableCredential()
         return verify(vc, policies)
     }
 
@@ -41,10 +41,10 @@ class WaltIdAuditor : Auditor() {
                 log.debug { "Verifying vc with ${policy.id} ..." }
 
                 policy.verify(vc) && when (vc) {
-                    is VerifiablePresentation -> vc.verifiableCredential.all { cred ->
+                    is VerifiablePresentation -> vc.verifiableCredential?.all { cred ->
                         log.debug { "Verifying ${cred.type.last()} in VP with ${policy.id}..." }
                         policy.verify(cred)
-                    }
+                    } ?: true
 
                     else -> true
                 }

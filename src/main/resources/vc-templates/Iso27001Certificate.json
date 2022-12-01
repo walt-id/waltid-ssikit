@@ -1,0 +1,30 @@
+{
+  "@context": ["https://www.w3.org/2018/credentials/v1"],
+  "credentialSubject": {
+    "brandName": "deltaDAO",
+    "corporateEmailAddress": "contact@delta-dao.com",
+    "id": "did:key:dummy",
+    "individualContactLegal": "legal@delta-dao.com",
+    "individualContactTechnical": "support@delta-dao.com",
+    "jurisdiction": "Germany",
+    "legalForm": "Stock Company",
+    "legalRegistrationNumber": "HRB 170364",
+    "legallyBindingAddress": {
+      "countryName": "Germany",
+      "locality": "Hamburg",
+      "postalCode": "22303",
+      "streetAddress": "Geibelstr. 46B"
+    },
+    "legallyBindingName": "deltaDAO AG",
+    "webAddress": "https://www.delta-dao.com/"
+  },
+  "id": "did:ebsi-eth:00000001/credentials/1872",
+  "iso2700Criteria": {
+    "certifcateName": "IOS/IEC 27001:2022",
+    "certificateNr": "123",
+    "scope": ["consulting service", "software development", "IT operations"]
+  },
+  "issued": "2020-08-24T14:13:44Z",
+  "issuer": "did:example:456",
+  "type": ["VerifiableCredential", "VerifiableAttestation", "Iso27001Certificate"]
+}

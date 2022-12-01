@@ -1,0 +1,13 @@
+{
+  "@context": ["https://www.w3.org/2018/credentials/v1"],
+  "credentialSubject": {
+    "id": "did:ebsi:00000004321",
+    "naturalPerson": {
+      "did": "did:example:00001111"
+    }
+  },
+  "id": "did:ebsi-eth:00000001/credentials/1872",
+  "issued": "2020-08-24T14:13:44Z",
+  "issuer": "did:ebsi:000001234",
+  "type": ["VerifiableCredential", "VerifiableAuthorization"]
+}

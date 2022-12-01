@@ -1,20 +1,11 @@
 package id.walt.signatory.dataproviders
 
+import id.walt.credentials.w3c.builder.W3CCredentialBuilder
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.SignatoryDataProvider
-import id.walt.vclib.credentials.VerifiableDiploma
-import id.walt.vclib.credentials.VerifiableId
-import id.walt.vclib.credentials.VerifiableMandate
-import id.walt.vclib.credentials.VerifiableVaccinationCertificate
-import id.walt.vclib.credentials.gaiax.DataSelfDescription
-import id.walt.vclib.credentials.gaiax.GaiaxCredential
-import id.walt.vclib.credentials.gaiax.n.LegalPerson
-import id.walt.vclib.credentials.gaiax.n.ParticipantCredential
-import id.walt.vclib.credentials.gaiax.n.ServiceOfferingCredential
-import id.walt.vclib.model.VerifiableCredential
 
-fun prompt(prompt: String, default: String?): String? {
-    print("$prompt [$default]: ")
+fun prompt(prompt: String, default: String? = null): String? {
+    print("$prompt${default?.let { " [$default]" } ?: ""}: ")
     val input = readLine()
     return when (input.isNullOrBlank()) {
         true -> default
@@ -22,110 +13,105 @@ fun prompt(prompt: String, default: String?): String? {
     }
 }
 
-fun promptInt(prompt: String, default: Int?): Int {
-    val str = prompt(prompt, default.let { it.toString() })
-    return str.let { Integer.parseInt(it) }
+fun promptInt(prompt: String, default: Int? = null): Int? {
+    val str = prompt(prompt, default?.toString())
+    return str?.let { Integer.parseInt(it) }
 }
 
 object CLIDataProvider : SignatoryDataProvider {
-    override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
-        return when (template) {
-            is VerifiableDiploma -> VerifiableDiplomaCliDataProvider
-            is VerifiableId -> VerifiableIdCliDataProvider
-            is GaiaxCredential -> GaiaxCliDataProvider
-            is DataSelfDescription -> GaiaxSDProvider
-            is VerifiableVaccinationCertificate -> VerifiableVaccinationCertificateCliDataProvider
-            is VerifiableMandate -> VerifiableMandateCliDataProvider
-            is LegalPerson -> LegalPersonCredentialCliDataProvider
-            is ServiceOfferingCredential -> ServiceOfferingCredentialCliDataProvider
-            is ParticipantCredential -> ParticipantCredentialCliDataProvider
-            else -> {
-                println("No CLI data provider defined for the given credential type. Only default meta data will be populated.")
-                DefaultDataProvider
-            }
-        }.populate(template, proofConfig)
+    override fun populate(credentialBuilder: W3CCredentialBuilder, proofConfig: ProofConfig): W3CCredentialBuilder {
+        return when (credentialBuilder.type.last()) {
+            "VerifiableDiploma" -> VerifiableDiplomaCliDataProvider
+            "VerifiableId" -> VerifiableIdCliDataProvider
+            /*"GaiaxCredential" -> GaiaxCliDataProvider
+            "DataSelfDescription" -> GaiaxSDProvider
+            "VerifiableVaccinationCertificate" -> VerifiableVaccinationCertificateCliDataProvider
+            "VerifiableMandate" -> VerifiableMandateCliDataProvider
+            "LegalPerson" -> LegalPersonCredentialCliDataProvider
+            "ServiceOfferingCredential" -> ServiceOfferingCredentialCliDataProvider
+            "ParticipantCredential" -> ParticipantCredentialCliDataProvider*/
+            else -> null
+        }?.populate(credentialBuilder, proofConfig) ?: credentialBuilder
     }
 }
 
-object VerifiableDiplomaCliDataProvider : AbstractDataProvider<VerifiableDiploma>() {
-    override fun populateCustomData(template: VerifiableDiploma, proofConfig: ProofConfig): VerifiableDiploma {
-        template.apply {
+object VerifiableDiplomaCliDataProvider : SignatoryDataProvider {
+  override fun populate(credentialBuilder: W3CCredentialBuilder, proofConfig: ProofConfig): W3CCredentialBuilder {
+        return credentialBuilder.apply {
 
-            credentialSubject!!.apply {
+            buildSubject {
                 println()
                 println("Subject personal data, ID: ${proofConfig.subjectDid}")
                 println("----------------------")
-                identifier = prompt("Identifier", identifier)
-                familyName = prompt("Family name", familyName)
-                givenNames = prompt("Given names", givenNames)
-                dateOfBirth = prompt("Date of birth", dateOfBirth)
+                prompt("Identifier")?.let { setProperty("identifier", it) }
+                prompt("Family name")?.let { setProperty("familyName", it) }
+                prompt("Given names")?.let { setProperty("givenNames", it) }
+                prompt("Date of birth")?.let { setProperty("dateOfBirth", it) }
 
                 println()
                 println("Awarding Opportunity")
                 println("----------------------")
-                awardingOpportunity!!.apply {
-                    id = prompt("Opportunity ID", id) ?: ""
-                    identifier = prompt("Identifier", identifier) ?: ""
-                    location = prompt("Location", location) ?: ""
-                    startedAtTime = prompt("Started at", startedAtTime) ?: ""
-                    endedAtTime = prompt("Ended at", endedAtTime) ?: ""
+                setProperty("awardingOpportunity", buildMap {
+                    prompt("Opportunity ID")?.let { put("id", it) }
+                    prompt("Identifier")?.let { put("identifier", it) }
+                    prompt("Location")?.let { put("location", it) }
+                    prompt("Started at")?.let { put("startedAtTime", it) }
+                    prompt("Ended at")?.let { put("endedAtTime", it) }
 
                     println()
                     println("Awarding Body, ID: ${proofConfig.issuerDid}")
-                    awardingBody.apply {
-                        preferredName = prompt("Preferred name", preferredName) ?: ""
-                        homepage = prompt("Homepage", homepage) ?: ""
-                        registration = prompt("Registration", registration) ?: ""
-                        eidasLegalIdentifier = prompt("EIDAS Legal Identifier", eidasLegalIdentifier) ?: ""
-                    }
-                }
+                    put("awardingBody", buildMap {
+                        prompt("Preferred name")?.let { put("preferredName", it) }
+                        prompt("Homepage")?.let { put("homepage", it) }
+                        prompt("Registration")?.let { put("registration", it) }
+                        prompt("EIDAS Legal Identifier")?.let { put("eidasLegalIdentifier", it) }
+                    })
+                })
 
                 println()
                 println("Grading scheme")
                 println("----------------------")
-                gradingScheme?.apply {
-                    id = prompt("Grading Scheme ID", id) ?: ""
-                    title = prompt("Title", title) ?: ""
-                    description = prompt("Description", description) ?: ""
-                }
+                setProperty("gradingScheme", buildMap {
+                    prompt("Grading Scheme ID")?.let { put("id", it) }
+                    prompt("Title")?.let { put("title", it) }
+                    prompt("Description")?.let { put("description", it) }
+                })
 
                 println()
                 println("Learning Achievement")
                 println("----------------------")
-                learningAchievement?.apply {
-                    id = prompt("Learning achievement ID", id) ?: ""
-                    title = prompt("Title", title) ?: ""
-                    description = prompt("Description", description) ?: ""
-                    additionalNote = listOf(prompt("Additional note", additionalNote?.get(0)) ?: "")
-                }
+                setProperty("learningAchievement", buildMap {
+                    prompt("Learning achievement ID")?.let { put("id", it) }
+                    prompt("Title")?.let { put("title", it) }
+                    prompt("Description")?.let { put("description", it) }
+                    prompt("Additional note")?.let { listOf(it) }?.let { put("additionalNote", it) }
+                })
 
                 println()
                 println("Learning Specification")
                 println("----------------------")
-                learningSpecification?.apply {
-                    id = prompt("Learning specification ID", id) ?: ""
-                    ectsCreditPoints = promptInt("ECTS credit points", ectsCreditPoints)
-                    eqfLevel = promptInt("EQF Level", eqfLevel)
-                    iscedfCode = listOf(prompt("ISCEDF Code", iscedfCode[0]) ?: "")
-                    nqfLevel = listOf(prompt("NQF Level", nqfLevel[0]) ?: "")
-                }
+                setProperty("learningSpecification", buildMap {
+                    prompt("Learning specification ID")?.let{ put("id", it) }
+                    promptInt("ECTS credit points")?.let { put("ectsCreditPoints", it) }
+                    promptInt("EQF Level")?.let { put("eqfLevel", it) }
+                    prompt("ISCEDF Code")?.let { listOf(it) }?.let { put("iscedfCode", it) }
+                    prompt("NQF Level")?.let{ listOf(it) }?.let{ put("nqfLevel",it) }
+                })
             }
 
-            evidence?.apply {
-                id = prompt("Evidence ID", id) ?: ""
-                type = listOf(prompt("Evidence type", type?.get(0)) ?: "")
-                verifier = prompt("Verifier", verifier) ?: ""
-                evidenceDocument = listOf(prompt("Evidence document", evidenceDocument?.get(0)) ?: "")
-                subjectPresence = prompt("Subject presence", subjectPresence) ?: ""
-                documentPresence = listOf(prompt("Document presence", documentPresence?.get(0)) ?: "")
-            }
+            setProperty("evidence", buildMap {
+                prompt("Evidence ID")?.let { put("id", it) }
+                prompt("Evidence type")?.let { listOf(it) }?.let { put("type", it) }
+                prompt("Verifier")?.let { put("verifier", it) }
+                prompt("Evidence document")?.let { listOf(it) }?.let { put("evidenceDocument", it) }
+                prompt("Subject presence")?.let { put("subjectPresence", it) }
+                prompt("Document presence")?.let { listOf(it) }?.let { put("documentPresence", it) }
+            })
         }
-
-        return template
     }
 }
 
-object VerifiableVaccinationCertificateCliDataProvider : AbstractDataProvider<VerifiableVaccinationCertificate>() {
+/*object VerifiableVaccinationCertificateCliDataProvider : AbstractDataProvider<VerifiableVaccinationCertificate>() {
     override fun populateCustomData(
         template: VerifiableVaccinationCertificate,
         proofConfig: ProofConfig
@@ -156,9 +142,9 @@ object VerifiableVaccinationCertificateCliDataProvider : AbstractDataProvider<Ve
 
         return template
     }
-}
+}*/
 
-object GaiaxCliDataProvider : AbstractDataProvider<GaiaxCredential>() {
+/*object GaiaxCliDataProvider : AbstractDataProvider<GaiaxCredential>() {
     override fun populateCustomData(template: GaiaxCredential, proofConfig: ProofConfig): GaiaxCredential {
         template.apply {
             println()
@@ -219,9 +205,9 @@ object GaiaxCliDataProvider : AbstractDataProvider<GaiaxCredential>() {
 
         return template
     }
-}
+}*/
 
-object GaiaxSDProvider : AbstractDataProvider<DataSelfDescription>() {
+/*object GaiaxSDProvider : AbstractDataProvider<DataSelfDescription>() {
     override fun populateCustomData(template: DataSelfDescription, proofConfig: ProofConfig): DataSelfDescription {
         template.apply {
             println()
@@ -247,23 +233,22 @@ object GaiaxSDProvider : AbstractDataProvider<DataSelfDescription>() {
 
         return template
     }
-}
+}*/
 
-object VerifiableIdCliDataProvider : AbstractDataProvider<VerifiableId>() {
-    override fun populateCustomData(template: VerifiableId, proofConfig: ProofConfig): VerifiableId {
-        println()
-        println("Subject personal data, ID: ${proofConfig.subjectDid}")
-        println("----------------------")
-        template.credentialSubject!!.firstName = prompt("First name", template.credentialSubject!!.firstName)
-        template.credentialSubject!!.familyName = prompt("Family name", template.credentialSubject!!.familyName)
-        template.credentialSubject!!.dateOfBirth = prompt("Date of birth", template.credentialSubject!!.dateOfBirth)
-        template.credentialSubject!!.gender = prompt("Gender", template.credentialSubject!!.gender)
-        template.credentialSubject!!.placeOfBirth = prompt("Place of birth", template.credentialSubject!!.placeOfBirth)
-        template.credentialSubject!!.currentAddress =
-            prompt("Current address", template.credentialSubject!!.currentAddress!![0])?.let { listOf(it) }
-
-        return template
+object VerifiableIdCliDataProvider : SignatoryDataProvider {
+  override fun populate(credentialBuilder: W3CCredentialBuilder, proofConfig: ProofConfig): W3CCredentialBuilder {
+    println()
+    println("Subject personal data, ID: ${proofConfig.subjectDid}")
+    println("----------------------")
+    return credentialBuilder.buildSubject {
+      prompt("First name")?.let { setProperty("firstName", it) }
+      prompt("Family name")?.let { setProperty("familyName", it) }
+      prompt("Date of birth")?.let { setProperty("dateOfBirth", it) }
+      prompt("Gender")?.let { setProperty("gender", it) }
+      prompt("Place of birth")?.let { setProperty("placeOfBirth", it) }
+      prompt("Current address")?.let { listOf(it) }?.let { setProperty("currentAddress", it) }
     }
+  }
 }
 
 /*
@@ -291,7 +276,7 @@ object ParticipantCredentialProvider : AbstractDataProvider<ParticipantCredentia
 }
  */
 
-object VerifiableMandateCliDataProvider : AbstractDataProvider<VerifiableMandate>() {
+/*object VerifiableMandateCliDataProvider : AbstractDataProvider<VerifiableMandate>() {
     override fun populateCustomData(template: VerifiableMandate, proofConfig: ProofConfig): VerifiableMandate {
         println()
         template.apply {
@@ -307,9 +292,9 @@ object VerifiableMandateCliDataProvider : AbstractDataProvider<VerifiableMandate
         }
         return template
     }
-}
+}*/
 
-object LegalPersonCredentialCliDataProvider : SignatoryDataProvider {
+/*object LegalPersonCredentialCliDataProvider : SignatoryDataProvider {
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
         return (template as LegalPerson).apply {
             id = prompt("Id", "https://delta-dao.com/.well-known/participant.json")
@@ -356,9 +341,9 @@ object LegalPersonCredentialCliDataProvider : SignatoryDataProvider {
             }
         }
     }
-}
+}*/
 
-object ServiceOfferingCredentialCliDataProvider : AbstractDataProvider<ServiceOfferingCredential>() {
+/*object ServiceOfferingCredentialCliDataProvider : AbstractDataProvider<ServiceOfferingCredential>() {
     override fun populateCustomData(template: ServiceOfferingCredential, proofConfig: ProofConfig): ServiceOfferingCredential {
         return template.apply {
             id = prompt("Id", "https://compliance.gaia-x.eu/.well-known/serviceComplianceService.json")
@@ -425,9 +410,9 @@ object ServiceOfferingCredentialCliDataProvider : AbstractDataProvider<ServiceOf
             }
         }
     }
-}
+}*/
 
-object ParticipantCredentialCliDataProvider : AbstractDataProvider<ParticipantCredential>() {
+/*object ParticipantCredentialCliDataProvider : AbstractDataProvider<ParticipantCredential>() {
     override fun populateCustomData(
         template: ParticipantCredential,
         proofConfig: ProofConfig
@@ -445,4 +430,4 @@ object ParticipantCredentialCliDataProvider : AbstractDataProvider<ParticipantCr
             }
         }
     }
-}
+}*/

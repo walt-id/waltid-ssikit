@@ -1,25 +1,11 @@
 package id.walt.json
 
-import id.walt.auditor.Auditor
-import id.walt.auditor.TrustedSchemaRegistryPolicy
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
-import id.walt.signatory.*
-import id.walt.signatory.dataproviders.DefaultDataProvider
 import id.walt.test.RESOURCES_PATH
-import id.walt.vclib.credentials.Europass
-import id.walt.vclib.credentials.VerifiableDiploma
-import id.walt.vclib.model.Proof
-import id.walt.vclib.model.VerifiableCredential
 import io.kotest.core.annotation.Ignored
 import io.kotest.core.spec.style.StringSpec
-import io.kotest.matchers.shouldBe
-import io.mockk.every
-import io.mockk.mockkObject
-import io.mockk.unmockkAll
-import java.nio.file.Path
-import java.util.*
 
 @Ignored // TODO: Ignored test since ebsi dids are currently not resolving
 class SchemaValidatorTest : StringSpec({
@@ -27,7 +13,7 @@ class SchemaValidatorTest : StringSpec({
     ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
     val did = DidService.create(DidMethod.key)
 
-    "Validates 2019-09 schema with recursive refs" {
+    /*"Validates 2019-09 schema with recursive refs" {
         mockkObject(DataProviderRegistry)
         every { DataProviderRegistry.getProvider(Europass::class) } returns RecursiveCredentialSchema201909DataProvider()
         val vc = Signatory.getService().issue(
@@ -70,11 +56,11 @@ class SchemaValidatorTest : StringSpec({
         )
         Auditor.getService().verify(vc, listOf(TrustedSchemaRegistryPolicy())).valid shouldBe true
         unmockkAll()
-    }
+    }*/
 
 })
 
-class RecursiveCredentialSchema201909DataProvider : SignatoryDataProvider {
+/*class RecursiveCredentialSchema201909DataProvider : SignatoryDataProvider {
     override fun populate(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
         DefaultDataProvider.populate(template, proofConfig)
         return populateValidEuropass(
@@ -123,4 +109,4 @@ class NotRecursiveCredentialSchema202012DataProvider : SignatoryDataProvider {
                     .toString()
         }
     }
-}
+}*/

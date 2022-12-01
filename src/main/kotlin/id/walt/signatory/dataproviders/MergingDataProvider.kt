@@ -1,19 +1,15 @@
 package id.walt.signatory.dataproviders
 
-import com.beust.klaxon.JsonObject
-import com.beust.klaxon.Klaxon
-import id.walt.common.deepMerge
+import id.walt.credentials.w3c.JsonConverter
+import id.walt.credentials.w3c.builder.W3CCredentialBuilder
 import id.walt.signatory.ProofConfig
-import id.walt.vclib.model.VerifiableCredential
-import id.walt.vclib.model.toCredential
-import java.io.StringReader
+import id.walt.signatory.SignatoryDataProvider
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonObject
 
-class MergingDataProvider(val partial: Map<String, Any>) : AbstractDataProvider<VerifiableCredential>() {
+class MergingDataProvider(val partial: Map<String, Any>) : SignatoryDataProvider {
 
-    override fun populateCustomData(template: VerifiableCredential, proofConfig: ProofConfig): VerifiableCredential {
-        val populatedJson = JsonObject(template.toMap())
-        val partialJson = Klaxon().parseJsonObject(StringReader(Klaxon().toJsonString(partial)))
-        populatedJson.deepMerge(partialJson)
-        return populatedJson.toJsonString().toCredential()
+    override fun populate(credentialBuilder: W3CCredentialBuilder, proofConfig: ProofConfig): W3CCredentialBuilder {
+        return credentialBuilder.setFromJsonObject(JsonObject(JsonConverter.toJsonElement(partial).jsonObject))
     }
 }
