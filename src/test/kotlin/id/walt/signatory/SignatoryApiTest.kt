@@ -308,4 +308,36 @@ class SignatoryApiTest : AnnotationSpec() {
         // cred.credentialSubject?.id shouldBe did // "id123" set by Command test
         cred.proof?.verificationMethod shouldBe vm
     }
+
+    @Test
+    fun testIssueFromJson() {
+        val did = DidService.create(DidMethod.key)
+        val json = """
+            {
+                "type": [ "VerifiableCredential", "CustomCred" ],
+                "credentialSubject": {
+                    "foo": "bar"
+                }
+            }
+        """.trimIndent()
+        val vc = httpPost {
+            host = SIGNATORY_API_HOST
+            port = SIGNATORY_API_PORT
+            path = "/v1/credentials/issueFromJson"
+            param {
+                "issuerId" to did
+                "subjectId" to did
+            }
+            body {
+                json(json)
+            }
+        }.asString()
+
+        vc shouldNotBe null
+        val vcParsed = vc!!.toVerifiableCredential()
+        vcParsed.type shouldBe listOf("VerifiableCredential", "CustomCred")
+        vcParsed.issuerId shouldBe did
+        vcParsed.subjectId shouldBe did
+        vcParsed.credentialSubject!!.properties["foo"] shouldBe "bar"
+    }
 }
