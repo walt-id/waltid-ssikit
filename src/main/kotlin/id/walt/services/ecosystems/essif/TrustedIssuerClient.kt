@@ -80,11 +80,11 @@ object TrustedIssuerClient {
         }.bodyAsText()
     }
 
-    fun siopSession(idToken: String): String = runBlocking {
+    fun siopSession(idToken: String, vpToken: String): String = runBlocking {
         return@runBlocking WaltIdServices.http.post("$authorisation/siop-sessions") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
-            setBody(mapOf("id_token" to idToken))
+            setBody(mapOf("id_token" to idToken, "vp_token" to vpToken))
         }.bodyAsText()
     }
 

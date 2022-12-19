@@ -9,13 +9,14 @@ import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jose.jwk.OctetKeyPair
 import com.nimbusds.jwt.JWTClaimsSet
+import id.walt.common.klaxonWithConverters
 import id.walt.common.toParamMap
+import id.walt.credentials.w3c.VerifiablePresentationBuilder
 import id.walt.crypto.*
 import id.walt.model.*
 import id.walt.services.context.ContextManager
 import id.walt.services.did.DidService
 import id.walt.services.ecosystems.essif.EbsiVAWrapper
-import id.walt.services.ecosystems.essif.EbsiVaVp
 import id.walt.services.ecosystems.essif.EssifClient
 import id.walt.services.ecosystems.essif.LegalEntityClient
 import id.walt.services.ecosystems.essif.enterprisewallet.EnterpriseWalletService
@@ -24,8 +25,9 @@ import id.walt.services.hkvstore.HKVKey
 import id.walt.services.jwt.InMemoryJwtService
 import id.walt.services.key.InMemoryKeyService
 import id.walt.services.keystore.KeyType
-import id.walt.services.vc.JsonLdCredentialService
+import id.walt.services.vc.JwtCredentialService
 import id.walt.signatory.ProofConfig
+import id.walt.signatory.ProofType
 import mu.KotlinLogging
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.MessageDigest
@@ -43,7 +45,7 @@ object UserWalletService {
 //        DidService.create(DidMethod.web)
 //    }
 
-    private val credentialService = JsonLdCredentialService.getService()
+    private val credentialService = JwtCredentialService.getService()
     private val enterpriseWalletService = EnterpriseWalletService.getService()
     private val jwtService = InMemoryJwtService.getService()
     private val keyService = InMemoryKeyService.getService()
@@ -214,7 +216,7 @@ object UserWalletService {
         ///////////////////////////////////////////////////////////////////////////
 
         // Create Verifiable Presentation with VA
-        val verifiedClaims = createVerifiedClaims(did, va)
+        val vpToken = createVpToken(did, va)
 
         // Build SIOP response token
         val nonce = UUID.randomUUID().toString()
@@ -222,10 +224,10 @@ object UserWalletService {
         // Generate an emphemeral key-pair for encryption and signing the JWT
         val emphKeyId = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
 
-        val idToken = constructSiopResponseJwt(emphKeyId, verifiedClaims, nonce)
+        val idToken = constructSiopResponseJwt(emphKeyId, did, nonce)
 
         //val siopResponse = LegalEntityClient.eos.siopSession(idToken, readEssifBearerToken())
-        val siopResponse = LegalEntityClient.eos.siopSession(idToken)
+        val siopResponse = LegalEntityClient.eos.siopSession(idToken, vpToken)
 
         log.debug { "Writing SIOP response (AKE1 encrypted token) to HKV store." }
 
@@ -299,22 +301,18 @@ object UserWalletService {
 //    }
 
 
-    private fun createVerifiedClaims(holderDid: String, va: String): String {
+    private fun createVpToken(holderDid: String, va: String): String {
 
-        val vaWrapper = Klaxon().parse<EbsiVAWrapper>(va)!!
+        val vaWrapper = klaxonWithConverters.parse<EbsiVAWrapper>(va)!!
 
-        val vpReq = EbsiVaVp(
-            listOf("https://www.w3.org/2018/credentials/v1"),
-            listOf("VerifiablePresentation"),
-            null,
-            listOf(vaWrapper.verifiableCredential),
-            holderDid,
-            null
-        )
+        val vpReq = VerifiablePresentationBuilder()
+            .setHolder(holderDid)
+            .setVerifiableCredentials(listOf(vaWrapper.verifiableCredential))
+            .build()
 
         val authKeyId = DidService.load(holderDid).authentication!![0].id
 
-        val encodedVp = Klaxon().toJsonString(vpReq)
+        val encodedVp = vpReq.toJson()
         // val vp = credentialService.sign(holderDid, encodedVp, null, null, authKeyId, "assertionMethod")
         val vp =
             credentialService.sign(
@@ -323,7 +321,8 @@ object UserWalletService {
                     issuerDid = holderDid,
                     subjectDid = holderDid,
                     issuerVerificationMethod = authKeyId,
-                    proofPurpose = "assertionMethod"
+                    proofPurpose = "assertionMethod",
+                    proofType = ProofType.JWT
                 )
             )
 
@@ -335,9 +334,7 @@ object UserWalletService {
             vp
         )
 
-        val vpCan = canonicalize(vp)
-
-        return encBase64Str(vpCan)
+        return vp
     }
 
     fun embedPublicEncryptionKey(key: JWK): Map<String, String> {
@@ -379,13 +376,13 @@ object UserWalletService {
     }
 
     // TODO replace with OidcUtil
-    fun constructSiopResponseJwt(emphKeyId: KeyId, verifiedClaims: String, nonce: String): String {
+    fun constructSiopResponseJwt(emphKeyId: KeyId, did: String, nonce: String): String {
 
         //val kid = DidService.load(did).authentication!![0]
 
-        val emphPrivKey = keyService.toJwk(emphKeyId.id, KeyType.PRIVATE)
+        val emphPubKey = keyService.toJwk(emphKeyId.id, KeyType.PUBLIC)
 
-        val thumbprint = emphPrivKey.computeThumbprint().toString()
+        val thumbprint = emphPubKey.computeThumbprint().toString()
 
         val payload = JWTClaimsSet.Builder()
             .issuer("https://self-issued.me")
@@ -394,12 +391,12 @@ object UserWalletService {
             .issueTime(Date.from(Instant.now()))
             .expirationTime(Date.from(Instant.now().plusSeconds(300)))
             .claim("nonce", nonce)
-            .claim("sub_jwk", emphPrivKey.toJSONObject())
+            .claim("sub_jwk", emphPubKey.toJSONObject())
+            .claim("did", did)
             .claim(
                 "claims",
                 mapOf(
-                    "verified_claims" to verifiedClaims,
-                    "encryption_key" to embedPublicEncryptionKey(emphPrivKey)
+                    "encryption_key" to embedPublicEncryptionKey(emphPubKey)
                 )
             )
             .build().toString()
