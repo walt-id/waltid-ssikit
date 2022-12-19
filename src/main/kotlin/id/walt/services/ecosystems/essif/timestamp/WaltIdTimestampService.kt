@@ -52,9 +52,9 @@ open class WaltIdTimestampService : TimestampService() {
 
     companion object {
         private const val TIMESTAMP_JSONRPC =
-            "https://api.preprod.ebsi.eu/timestamp/v2/jsonrpc" // TODO: make url configurable
+            "https://api-pilot.ebsi.eu/timestamp/v2/jsonrpc" // TODO: make url configurable
         private const val TIMESTAMPS =
-            "https://api.preprod.ebsi.eu/timestamp/v2/timestamps" // TODO: make url configurable
+            "https://api-pilot.ebsi.eu/timestamp/v2/timestamps" // TODO: make url configurable
     }
 
     private val log = KotlinLogging.logger {}

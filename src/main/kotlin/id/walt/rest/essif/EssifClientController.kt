@@ -30,7 +30,7 @@ object EssifClientController {
             .operationId("onboard")
             .addTagsItem("ESSIF Client")
     }
-        .body<EbsiOnboardRequest> { it.description("DID to be registered on the EBSI Blockchain; Bearer token to be used to authenticate the user. Get it from here https://app.preprod.ebsi.eu/users-onboarding") }
+        .body<EbsiOnboardRequest> { it.description("DID to be registered on the EBSI Blockchain; Bearer token to be used to authenticate the user. Get it from here https://app-pilot.ebsi.eu/users-onboarding") }
         .json<String>("200") { it.description("Onboarding flow completed successfully") }
 
     fun authApi(ctx: Context) {

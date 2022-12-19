@@ -35,7 +35,7 @@ class EssifOnboardingCommand : CliktCommand(
         Onboards a new DID to the EBSI/ESSIF eco system. 
         
         For gaining access to the EBSI service, a bearer token from 
-        https://app.preprod.ebsi.eu/users-onboarding must be present."""
+        https://app-pilot.ebsi.eu/users-onboarding must be present."""
 ) {
     val bearerTokenFile: File by argument("BEARER-TOKEN-FILE", help = "File containing the bearer token from EOS").file()
     val did: String by option("-d", "--did", help = "DID to be onboarded").required()

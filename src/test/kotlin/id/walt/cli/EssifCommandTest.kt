@@ -51,10 +51,10 @@ class EssifCommandTest : StringSpec({
 
     /**
      * Before running the following tests a valid bearer token needs to be place in file data/ebsi/bearer-token.txt.
-     * The token can be retrieved from https://app.preprod.ebsi.eu/users-onboarding/
+     * The token can be retrieved from https://app-pilot.ebsi.eu/users-onboarding/
      */
     "2. onboard --did".config(enabled = enableTests) {
-        if (!bearerToken.exists()) throw Exception("Bearer Token from https://app.preprod.ebsi.eu/users-onboarding/ should be placed in file data/ebsi/bearer-token.txt")
+        if (!bearerToken.exists()) throw Exception("Bearer Token from https://app-pilot.ebsi.eu/users-onboarding/ should be placed in file data/ebsi/bearer-token.txt")
 
         println("Generating verifiable authorization...")
         EssifOnboardingCommand().parse(listOf("--did", did, File("data/ebsi/bearer-token.txt").absolutePath))
