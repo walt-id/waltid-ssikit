@@ -17,7 +17,7 @@ open class WaltIdDidEbsiService : DidEbsiService() {
 
     companion object {
         private val DID_REGISTRY_JSONRPC =
-            "$EBSI_ENV_URL/did-registry/v2/jsonrpc" // TODO: make url configurable
+            "$EBSI_ENV_URL/did-registry/v3/jsonrpc" // TODO: make url configurable
     }
 
     private val log = KotlinLogging.logger {}
