@@ -122,6 +122,17 @@ val didVerificationRelationshipsConverter = object : Converter {
     }
 }
 
+fun KlaxonWithConverters() = Klaxon()
+    .fieldConverter(VCList::class, VcConverter(singleVC = false, singleIfOne = false, toVcObject = false))
+    .fieldConverter(VCObjectList::class, VcConverter(singleVC = false, singleIfOne = false, toVcObject = true))
+    .fieldConverter(ListOrSingleVC::class, VcConverter(singleVC = false, singleIfOne = true, toVcObject = false))
+    .fieldConverter(ListOrSingleVCObject::class, VcConverter(singleVC = false, singleIfOne = true, toVcObject = true))
+    .fieldConverter(SingleVC::class, VcConverter(singleVC = true, singleIfOne = false, toVcObject = false))
+    .fieldConverter(SingleVCObject::class, VcConverter(singleVC = true, singleIfOne = false, toVcObject = true))
+    .fieldConverter(ListOrSingleValue::class, listOrSingleValueConverter)
+    .fieldConverter(JsonObjectField::class, jsonObjectFieldConverter)
+    .fieldConverter(DidVerificationRelationships::class, didVerificationRelationshipsConverter)
+
 val klaxonWithConverters = Klaxon()
     .fieldConverter(VCList::class, VcConverter(singleVC = false, singleIfOne = false, toVcObject = false))
     .fieldConverter(VCObjectList::class, VcConverter(singleVC = false, singleIfOne = false, toVcObject = true))

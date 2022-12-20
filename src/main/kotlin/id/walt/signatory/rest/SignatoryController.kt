@@ -73,9 +73,9 @@ object SignatoryController {
 
         ctx.result(
             if(req.templateId != null) {
-              signatory.issue(req.templateId, req.config, req.credentialData?.let { MergingDataProvider(req.credentialData) })
+              signatory.issue(req.templateId, req.config, req.credentialData?.let { MergingDataProvider(req.credentialData) }, null, false)
             } else {
-              signatory.issue(W3CCredentialBuilder.fromPartial(VerifiableCredential.fromJsonObject(JsonConverter.toJsonElement(req.credentialData).jsonObject)), req.config)
+              signatory.issue(W3CCredentialBuilder.fromPartial(VerifiableCredential.fromJsonObject(JsonConverter.toJsonElement(req.credentialData).jsonObject)), req.config, null, false)
             }
         )
     }

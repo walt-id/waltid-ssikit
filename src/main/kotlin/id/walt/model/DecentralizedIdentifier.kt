@@ -1,10 +1,7 @@
 package id.walt.model
 
 import com.beust.klaxon.*
-import id.walt.common.DidVerificationRelationships
-import id.walt.common.ListOrSingleValue
-import id.walt.common.klaxonWithConverters
-import id.walt.common.prettyPrint
+import id.walt.common.*
 import id.walt.model.did.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -79,7 +76,7 @@ open class Did(
     fun encodePretty() = klaxonWithConverters.toJsonString(this).prettyPrint()
 
     companion object {
-        fun decode(didDoc: String): Did? = klaxonWithConverters.parse<Did>(didDoc)
+        fun decode(didDoc: String): Did? = KlaxonWithConverters().parse<Did>(didDoc)
     }
 }
 
