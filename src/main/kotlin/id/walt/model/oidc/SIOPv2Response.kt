@@ -36,15 +36,18 @@ data class SIOPv2Response(
     fun toEBSIWctJson(): String {
         val idToken = SelfIssuedIDToken.parse(id_token!!)
         return klaxonWithConverters.toJsonString(
-            mapOf("id_token" to id_token, "vp_token" to vp_token.flatMap { vp -> vp.verifiableCredential ?: listOf() }.map { vc ->
-                mapOf(
-                    "format" to "jwt_vp", "presentation" to JwtService.getService().sign(
-                        idToken!!.subject,
-                        JWTClaimsSet.Builder().subject(idToken.subject).issuer(idToken.subject).issueTime(Date())
-                            .claim("nonce", vp_token.first().challenge).jwtID(vc.id).claim("vc", vc.encode()).build().toString()
+            mapOf(
+                "id_token" to id_token,
+                "vp_token" to vp_token.flatMap { vp -> vp.verifiableCredential ?: listOf() }.map { vc ->
+                    mapOf(
+                        "format" to "jwt_vp", "presentation" to JwtService.getService().sign(
+                            idToken!!.subject,
+                            JWTClaimsSet.Builder().subject(idToken.subject).issuer(idToken.subject).issueTime(Date())
+                                .claim("nonce", vp_token.first().challenge).jwtID(vc.id).claim("vc", vc.encode()).build()
+                                .toString()
+                        )
                     )
-                )
-            })
+                })
         )
     }
 

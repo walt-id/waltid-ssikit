@@ -6,7 +6,7 @@ import id.walt.signatory.SignatoryDataProvider
 
 fun prompt(prompt: String, default: String? = null): String? {
     print("$prompt${default?.let { " [$default]" } ?: ""}: ")
-    val input = readLine()
+    val input = readlnOrNull()
     return when (input.isNullOrBlank()) {
         true -> default
         else -> input
@@ -36,7 +36,7 @@ object CLIDataProvider : SignatoryDataProvider {
 }
 
 object VerifiableDiplomaCliDataProvider : SignatoryDataProvider {
-  override fun populate(credentialBuilder: W3CCredentialBuilder, proofConfig: ProofConfig): W3CCredentialBuilder {
+    override fun populate(credentialBuilder: W3CCredentialBuilder, proofConfig: ProofConfig): W3CCredentialBuilder {
         return credentialBuilder.apply {
 
             buildSubject {
@@ -91,11 +91,11 @@ object VerifiableDiplomaCliDataProvider : SignatoryDataProvider {
                 println("Learning Specification")
                 println("----------------------")
                 setProperty("learningSpecification", buildMap {
-                    prompt("Learning specification ID")?.let{ put("id", it) }
+                    prompt("Learning specification ID")?.let { put("id", it) }
                     promptInt("ECTS credit points")?.let { put("ectsCreditPoints", it) }
                     promptInt("EQF Level")?.let { put("eqfLevel", it) }
                     prompt("ISCEDF Code")?.let { listOf(it) }?.let { put("iscedfCode", it) }
-                    prompt("NQF Level")?.let{ listOf(it) }?.let{ put("nqfLevel",it) }
+                    prompt("NQF Level")?.let { listOf(it) }?.let { put("nqfLevel", it) }
                 })
             }
 
@@ -236,19 +236,19 @@ object VerifiableDiplomaCliDataProvider : SignatoryDataProvider {
 }*/
 
 object VerifiableIdCliDataProvider : SignatoryDataProvider {
-  override fun populate(credentialBuilder: W3CCredentialBuilder, proofConfig: ProofConfig): W3CCredentialBuilder {
-    println()
-    println("Subject personal data, ID: ${proofConfig.subjectDid}")
-    println("----------------------")
-    return credentialBuilder.buildSubject {
-      prompt("First name")?.let { setProperty("firstName", it) }
-      prompt("Family name")?.let { setProperty("familyName", it) }
-      prompt("Date of birth")?.let { setProperty("dateOfBirth", it) }
-      prompt("Gender")?.let { setProperty("gender", it) }
-      prompt("Place of birth")?.let { setProperty("placeOfBirth", it) }
-      prompt("Current address")?.let { listOf(it) }?.let { setProperty("currentAddress", it) }
+    override fun populate(credentialBuilder: W3CCredentialBuilder, proofConfig: ProofConfig): W3CCredentialBuilder {
+        println()
+        println("Subject personal data, ID: ${proofConfig.subjectDid}")
+        println("----------------------")
+        return credentialBuilder.buildSubject {
+            prompt("First name")?.let { setProperty("firstName", it) }
+            prompt("Family name")?.let { setProperty("familyName", it) }
+            prompt("Date of birth")?.let { setProperty("dateOfBirth", it) }
+            prompt("Gender")?.let { setProperty("gender", it) }
+            prompt("Place of birth")?.let { setProperty("placeOfBirth", it) }
+            prompt("Current address")?.let { listOf(it) }?.let { setProperty("currentAddress", it) }
+        }
     }
-  }
 }
 
 /*

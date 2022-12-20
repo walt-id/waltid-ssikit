@@ -20,7 +20,7 @@ import java.util.*
 
 object OidcService {
 
-    private val log = KotlinLogging.logger {  }
+    private val log = KotlinLogging.logger { }
 
     fun authorization(
         issuanceInitiationRequest: IssuanceInitiationRequest,
@@ -200,7 +200,7 @@ object OidcService {
         nonce = tokenJson["c_nonce"]?.let { "-n $it" } ?: ""
         val schemaId = issuanceInitiationRequest.credential_types.joinToString(", ")
 
-        log.debug { "Credential request = issuer: $issuer_url, clientId: $client_id, clientSecret: $client_secret, nonce: $nonce"}
+        log.debug { "Credential request = issuer: $issuer_url, clientId: $client_id, clientSecret: $client_secret, nonce: $nonce" }
         log.debug { "Credential request DID: $did" }
         log.debug { "Credential request token: $token" }
         log.debug { "Credential request schema: $schemaId, format: $format" }

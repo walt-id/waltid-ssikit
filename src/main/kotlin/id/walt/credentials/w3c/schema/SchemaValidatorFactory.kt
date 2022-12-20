@@ -10,7 +10,7 @@ object SchemaValidatorFactory {
 
     fun get(schema: URI): SchemaValidator = get(schema.toURL().readText())
 
-    fun get(schema: String): SchemaValidator = with (mapper.readTree(schema).get("\$schema").asText()) {
+    fun get(schema: String): SchemaValidator = with(mapper.readTree(schema).get("\$schema").asText()) {
         return when {
             contains("2019-09") -> NetworkntSchemaValidator(V201909, schema)
             contains("draft-07") -> NetworkntSchemaValidator(V7, schema)

@@ -167,7 +167,13 @@ class EssifIntTest : StringSpec({
 
         println("Creating a verifiable presentation for DID \"$holderDid\"...")
         println("Using ${src.size} ${if (src.size > 1) "VCs" else "VC"}:")
-        src.forEachIndexed { index, vc -> println("- ${index + 1}. $vc (${vc.readText().toVerifiableCredential().type.last()})") }
+        src.forEachIndexed { index, vc ->
+            println(
+                "- ${index + 1}. $vc (${
+                    vc.readText().toVerifiableCredential().type.last()
+                })"
+            )
+        }
 
         val vcStrList = src.stream().map { vc -> vc.readText() }.collect(Collectors.toList())
 

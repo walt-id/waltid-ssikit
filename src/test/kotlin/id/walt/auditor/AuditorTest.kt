@@ -18,6 +18,7 @@ import io.kotest.core.test.TestCase
 import io.kotest.matchers.collections.shouldBeSameSizeAs
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
+
 @Ignored // TODO: Ignored test since ebsi dids are currently not resolving
 class AuditorCommandTest : StringSpec() {
     private lateinit var did: String

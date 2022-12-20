@@ -14,7 +14,11 @@ import io.javalin.http.Context
 import io.javalin.plugin.openapi.dsl.document
 import kotlinx.serialization.json.jsonObject
 
-data class IssueCredentialRequest(val templateId: String?, val config: ProofConfig, val credentialData: Map<String, Any>? = null)
+data class IssueCredentialRequest(
+    val templateId: String?,
+    val config: ProofConfig,
+    val credentialData: Map<String, Any>? = null
+)
 
 object SignatoryController {
     val signatory = Signatory.getService()
@@ -36,30 +40,30 @@ object SignatoryController {
     }.pathParam<String>("id") { it.description("Retrieves a single VC template form the data store") }.json<String>("200")
 
     fun importTemplate(ctx: Context) {
-      val templateId = ctx.pathParam("id")
-      val template = ctx.body()
-      try {
-        Signatory.getService().importTemplate(templateId, template)
-      } catch (exc: Exception) {
-        throw BadRequestResponse("Error importing vc template: ${exc.message}")
-      }
+        val templateId = ctx.pathParam("id")
+        val template = ctx.body()
+        try {
+            Signatory.getService().importTemplate(templateId, template)
+        } catch (exc: Exception) {
+            throw BadRequestResponse("Error importing vc template: ${exc.message}")
+        }
     }
 
     fun importTemplateDocs() = document().operation {
-      it.summary("Import a VC template").operationId("importTemplate").addTagsItem("Verifiable Credentials")
+        it.summary("Import a VC template").operationId("importTemplate").addTagsItem("Verifiable Credentials")
     }.pathParam<String>("id").body<String>(contentType = ContentType.JSON).result<String>("200")
 
     fun removeTemplate(ctx: Context) {
-      val templateId = ctx.pathParam("id")
-      try {
-        Signatory.getService().removeTemplate(templateId)
-      } catch (exc: Exception) {
-        throw BadRequestResponse("Error removing template: ${exc.message}")
-      }
+        val templateId = ctx.pathParam("id")
+        try {
+            Signatory.getService().removeTemplate(templateId)
+        } catch (exc: Exception) {
+            throw BadRequestResponse("Error removing template: ${exc.message}")
+        }
     }
 
     fun removeTemplateDocs() = document().operation {
-      it.summary("Remove VC template").operationId("removeTemplate").addTagsItem("Verifiable Credentials")
+        it.summary("Remove VC template").operationId("removeTemplate").addTagsItem("Verifiable Credentials")
     }.pathParam<String>("id").result<String>("200")
 
     fun issueCredential(ctx: Context) {
@@ -67,15 +71,29 @@ object SignatoryController {
         if (req.templateId != null && !signatory.listTemplateIds().contains(req.templateId)) {
             throw BadRequestResponse("Template with supplied id does not exist.")
         }
-        if(req.templateId == null && req.credentialData == null) {
-          throw BadRequestResponse("At least templateId or credentialData (or both) must be provided")
+        if (req.templateId == null && req.credentialData == null) {
+            throw BadRequestResponse("At least templateId or credentialData (or both) must be provided")
         }
 
         ctx.result(
-            if(req.templateId != null) {
-              signatory.issue(req.templateId, req.config, req.credentialData?.let { MergingDataProvider(req.credentialData) }, null, false)
+            if (req.templateId != null) {
+                signatory.issue(
+                    req.templateId,
+                    req.config,
+                    req.credentialData?.let { MergingDataProvider(req.credentialData) },
+                    null,
+                    false
+                )
             } else {
-              signatory.issue(W3CCredentialBuilder.fromPartial(VerifiableCredential.fromJsonObject(JsonConverter.toJsonElement(req.credentialData).jsonObject)), req.config, null, false)
+                signatory.issue(
+                    W3CCredentialBuilder.fromPartial(
+                        VerifiableCredential.fromJsonObject(
+                            JsonConverter.toJsonElement(
+                                req.credentialData
+                            ).jsonObject
+                        )
+                    ), req.config, null, false
+                )
             }
         )
     }
@@ -87,23 +105,27 @@ object SignatoryController {
     }.body<IssueCredentialRequest>().json<String>("200")
 
     fun issueCredentialFromJson(ctx: Context) {
-      val credentialJson = ctx.body()
-      val issuerId = ctx.queryParam("issuerId") ?: throw BadRequestResponse("issuerId must be specified")
-      val subjectId = ctx.queryParam("subjectId") ?: throw BadRequestResponse("subjectId must be specified")
-      val proofType = ctx.queryParam("proofType")?.let { ProofType.valueOf(it) } ?: ProofType.LD_PROOF
-      ctx.result(
-        signatory.issue(W3CCredentialBuilder.fromPartial(credentialJson), ProofConfig(issuerId, subjectId, proofType = proofType))
-      )
+        val credentialJson = ctx.body()
+        val issuerId = ctx.queryParam("issuerId") ?: throw BadRequestResponse("issuerId must be specified")
+        val subjectId = ctx.queryParam("subjectId") ?: throw BadRequestResponse("subjectId must be specified")
+        val proofType = ctx.queryParam("proofType")?.let { ProofType.valueOf(it) } ?: ProofType.LD_PROOF
+        ctx.result(
+            signatory.issue(
+                W3CCredentialBuilder.fromPartial(credentialJson),
+                ProofConfig(issuerId, subjectId, proofType = proofType)
+            )
+        )
     }
 
     fun issueCredentialFromJsonDocs() = document().operation {
-      it.summary("Issue a credential from JSON data").operationId("issueCredentialFromJson").addTagsItem("Credentials").description(
-        "Based on JSON data, this call creates a W3C Verifiable Credential. Note that the '<b>issuerDid</b>, and the <b>subjectDid</b>, are mandatory parameters. All other parameters are optional."
-      )
+        it.summary("Issue a credential from JSON data").operationId("issueCredentialFromJson").addTagsItem("Credentials")
+            .description(
+                "Based on JSON data, this call creates a W3C Verifiable Credential. Note that the '<b>issuerDid</b>, and the <b>subjectDid</b>, are mandatory parameters. All other parameters are optional."
+            )
     }.queryParam<String>("issuerId")
-      .queryParam<String>("subjectId")
-      .queryParam<ProofType>("proofType")
-      .body<String>().json<String>("200")
+        .queryParam<String>("subjectId")
+        .queryParam<ProofType>("proofType")
+        .body<String>().json<String>("200")
 
     fun checkRevokedDocs() = document().operation {
         it.summary("Check if credential is revoked").operationId("checkRevoked").addTagsItem("Revocations")

@@ -47,9 +47,13 @@ object OIDCTestProvider {
             InputDescriptor(
                 "1",
                 constraints = InputDescriptorConstraints(
-                  listOf(InputDescriptorField(listOf("$.type"), filter = mapOf(
-                    "const" to "VerifiableId"
-                  )))
+                    listOf(
+                        InputDescriptorField(
+                            listOf("$.type"), filter = mapOf(
+                                "const" to "VerifiableId"
+                            )
+                        )
+                    )
                 )
             )
         )
@@ -116,7 +120,14 @@ object OIDCTestProvider {
                 proofType = if (credentialReq.format == "jwt_vc") ProofType.JWT else ProofType.LD_PROOF
             )
         )
-        ctx.json(klaxonWithConverters.toJsonString(CredentialResponse(credentialReq.format, credential.toVerifiableCredential())))
+        ctx.json(
+            klaxonWithConverters.toJsonString(
+                CredentialResponse(
+                    credentialReq.format,
+                    credential.toVerifiableCredential()
+                )
+            )
+        )
     }
 
     fun testPresent(ctx: Context) {

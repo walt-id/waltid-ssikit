@@ -1,6 +1,5 @@
 package id.walt.auditor
 
-import com.beust.klaxon.Klaxon
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.VerifiablePresentation
 import id.walt.credentials.w3c.schema.SchemaValidatorFactory
@@ -12,7 +11,6 @@ import id.walt.services.ecosystems.essif.TrustedIssuerClient
 import id.walt.services.oidc.OIDCUtils
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
-import id.walt.signatory.RevocationClientService
 import io.ktor.client.plugins.*
 import kotlinx.serialization.Serializable
 import mu.KotlinLogging
@@ -73,12 +71,12 @@ class JsonSchemaPolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by JSON schema"
     override fun doVerify(vc: VerifiableCredential): Boolean {
         return vc.credentialSchema?.id?.let { URI.create(it) }?.let {
-          SchemaValidatorFactory.get(it).validate(vc.toJson())
+            SchemaValidatorFactory.get(it).validate(vc.toJson())
         } ?: false
     }
 
-  override val applyToVP: Boolean
-    get() = false
+    override val applyToVP: Boolean
+        get() = false
 }
 
 class TrustedSchemaRegistryPolicy : SimpleVerificationPolicy() {

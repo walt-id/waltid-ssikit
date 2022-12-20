@@ -2,8 +2,8 @@ package id.walt.credentials.w3c
 
 import kotlinx.serialization.json.*
 
-open class W3CCredentialSubject(var id: String? = null, override val properties: Map<String, Any?> = mapOf())
-    : ICredentialElement {
+open class W3CCredentialSubject(var id: String? = null, override val properties: Map<String, Any?> = mapOf()) :
+    ICredentialElement {
 
     fun toJsonObject() = buildJsonObject {
         id?.let { put("id", it) }

@@ -4,7 +4,7 @@ import com.nimbusds.jwt.SignedJWT
 import id.walt.credentials.w3c.builder.CredentialFactory
 import kotlinx.serialization.json.*
 
-open class VerifiableCredential internal constructor (
+open class VerifiableCredential internal constructor(
     var type: List<String> = listOf("VerifiableCredential"),
     var context: List<W3CContext> = listOf(W3CContext("https://www.w3.org/2018/credentials/v1", false)),
     var id: String? = null,
@@ -18,12 +18,12 @@ open class VerifiableCredential internal constructor (
     var credentialSchema: W3CCredentialSchema? = null,
     var credentialSubject: W3CCredentialSubject? = null,
     override val properties: Map<String, Any?> = mapOf()
-): ICredentialElement {
+) : ICredentialElement {
 
     internal constructor(jsonObject: JsonObject) : this(
         type = jsonObject["type"]?.jsonArray?.map { it.jsonPrimitive.content }?.toList() ?: listOf("VerifiableCredential"),
         context = jsonObject["@context"]?.let { ctx ->
-            when(ctx) {
+            when (ctx) {
                 is JsonArray -> ctx.map { W3CContext.fromJsonElement(it) }.toList()
                 else -> listOf(W3CContext.fromJsonElement(ctx))
             }
@@ -35,9 +35,12 @@ open class VerifiableCredential internal constructor (
         validFrom = jsonObject["validFrom"]?.jsonPrimitive?.contentOrNull,
         expirationDate = jsonObject["expirationDate"]?.jsonPrimitive?.contentOrNull,
         proof = jsonObject["proof"]?.let { it as? JsonObject }?.let { W3CProof.fromJsonObject(it) },
-        credentialSchema = jsonObject["credentialSchema"]?.let { it as? JsonObject }?.let { W3CCredentialSchema.fromJsonObject(it) },
-        credentialSubject = jsonObject["credentialSubject"]?.let { it as? JsonObject }?.let { W3CCredentialSubject.fromJsonObject(it) },
-        properties = jsonObject.filterKeys { k -> !PREDEFINED_PROPERTY_KEYS.contains(k) }.mapValues { entry -> JsonConverter.fromJsonElement(entry.value) }
+        credentialSchema = jsonObject["credentialSchema"]?.let { it as? JsonObject }
+            ?.let { W3CCredentialSchema.fromJsonObject(it) },
+        credentialSubject = jsonObject["credentialSubject"]?.let { it as? JsonObject }
+            ?.let { W3CCredentialSubject.fromJsonObject(it) },
+        properties = jsonObject.filterKeys { k -> !PREDEFINED_PROPERTY_KEYS.contains(k) }
+            .mapValues { entry -> JsonConverter.fromJsonElement(entry.value) }
     )
 
     open val issuerId: String?
@@ -54,7 +57,7 @@ open class VerifiableCredential internal constructor (
 
     fun toJsonObject() = buildJsonObject {
         put("type", JsonConverter.toJsonElement(type))
-        put("@context",buildJsonArray {
+        put("@context", buildJsonArray {
             context.forEach { add(it.toJsonElement()) }
         })
         id?.let { put("id", JsonConverter.toJsonElement(it)) }
@@ -130,10 +133,10 @@ open class VerifiableCredential internal constructor (
 }
 
 fun String.toVerifiableCredential(): VerifiableCredential {
-  val vc = VerifiableCredential.fromString(this)
-  return if(vc.type.contains("VerifiablePresentation")) {
-    VerifiablePresentation.fromVerifiableCredential(vc)
-  } else {
-    return vc
-  }
+    val vc = VerifiableCredential.fromString(this)
+    return if (vc.type.contains("VerifiablePresentation")) {
+        VerifiablePresentation.fromVerifiableCredential(vc)
+    } else {
+        return vc
+    }
 }

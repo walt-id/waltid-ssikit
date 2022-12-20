@@ -4,16 +4,9 @@ import id.walt.credentials.w3c.W3CIssuer
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
-import id.walt.services.vc.JsonLdCredentialService
-import id.walt.services.vc.JwtCredentialService
-import id.walt.services.vc.WaltIdJwtCredentialService
-import id.walt.signatory.ProofConfig
-import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.test.getTemplate
 import io.kotest.core.spec.style.StringSpec
-import kotlinx.coroutines.*
-import kotlin.system.measureTimeMillis
 
 
 class Performance : StringSpec({

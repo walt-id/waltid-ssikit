@@ -1,10 +1,8 @@
 package id.walt.rest.custodian
 
-import com.beust.klaxon.Klaxon
 import id.walt.common.VCObjectList
 import id.walt.common.klaxonWithConverters
 import id.walt.credentials.w3c.VerifiableCredential
-import id.walt.credentials.w3c.VerifiablePresentation
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.Key
 import id.walt.crypto.KeyAlgorithm
@@ -128,8 +126,8 @@ object CustodianController {
     fun listCredentials(ctx: Context) {
         val ids = ctx.queryParams("id").toSet()
         ctx.contentType(ContentType.APPLICATION_JSON).result(
-          custodian.listCredentials().filter { ids.isEmpty() || (it.id != null && ids.contains(it.id!!)) }
-            .let { klaxonWithConverters.toJsonString(ListCredentialsResponse(it)) }
+            custodian.listCredentials().filter { ids.isEmpty() || (it.id != null && ids.contains(it.id!!)) }
+                .let { klaxonWithConverters.toJsonString(ListCredentialsResponse(it)) }
         )
     }
 

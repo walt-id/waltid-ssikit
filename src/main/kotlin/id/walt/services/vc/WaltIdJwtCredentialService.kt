@@ -11,8 +11,6 @@ import id.walt.signatory.ProofType
 import info.weboftrust.ldsignatures.LdProof
 import mu.KotlinLogging
 import java.net.URI
-import java.net.URL
-import java.net.UnknownHostException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.Instant
@@ -122,7 +120,8 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
             .filter { it.toString().endsWith(".json") }
             .map { it.fileName.toString() }.toList()
 
-    override fun validateSchema(vc: VerifiableCredential, schemaURI: URI): Boolean = SchemaValidatorFactory.get(schemaURI).validate(vc.toJson())
+    override fun validateSchema(vc: VerifiableCredential, schemaURI: URI): Boolean =
+        SchemaValidatorFactory.get(schemaURI).validate(vc.toJson())
 
     override fun validateSchemaTsr(vc: String) = try {
         vc.toVerifiableCredential().let {

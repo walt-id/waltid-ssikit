@@ -12,7 +12,6 @@ import id.walt.services.did.DidService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
-import io.javalin.plugin.openapi.dsl.anyOf
 import io.kotest.core.spec.Spec
 import io.kotest.core.spec.style.StringSpec
 import io.mockk.every
@@ -53,13 +52,13 @@ class ReadmeTest : StringSpec({
         main()
     }
 }) {
-  override suspend fun beforeSpec(spec: Spec) {
-    mockkObject(SchemaValidatorFactory)
-    every { SchemaValidatorFactory.get(any<URI>()) }.returns(object: SchemaValidator {
-      override fun validate(json: String): Boolean {
-        return true
-      }
+    override suspend fun beforeSpec(spec: Spec) {
+        mockkObject(SchemaValidatorFactory)
+        every { SchemaValidatorFactory.get(any<URI>()) }.returns(object : SchemaValidator {
+            override fun validate(json: String): Boolean {
+                return true
+            }
 
-    })
-  }
+        })
+    }
 }

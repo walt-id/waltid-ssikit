@@ -19,7 +19,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldStartWith
 import io.ktor.client.*
-import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
@@ -63,7 +62,9 @@ class SignatoryApiTest : AnnotationSpec() {
 
     @Test
     fun testListVcTemplates() = runBlocking {
-        val templates = client.get("$SIGNATORY_API_URL/v1/templates").bodyAsText().let { klaxonWithConverters.parseArray<VcTemplate>(it) }!!.map { it.name }
+        val templates =
+            client.get("$SIGNATORY_API_URL/v1/templates").bodyAsText().let { klaxonWithConverters.parseArray<VcTemplate>(it) }!!
+                .map { it.name }
 
         VcTemplateManager.listTemplates().map { it.name }.forEach { templateName -> templates shouldContain templateName }
 
