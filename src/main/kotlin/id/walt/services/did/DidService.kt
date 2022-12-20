@@ -116,7 +116,7 @@ object DidService {
     fun resolveDidEbsiRaw(did: String): String = runBlocking {
         log.debug { "Resolving DID $did" }
 
-        val didDoc = WaltIdServices.http.get("https://api-pilot.ebsi.eu/did-registry/v2/identifiers/$did").bodyAsText()
+        val didDoc = WaltIdServices.http.get("https://api-pilot.ebsi.eu/did-registry/v3/identifiers/$did").bodyAsText()
 
         log.debug { didDoc }
 
@@ -146,8 +146,8 @@ object DidService {
 
         for (i in 1..5) {
             try {
-                log.debug { "Resolving did:ebsi at: https://api-pilot.ebsi.eu/did-registry/v2/identifiers/${didUrl.did}" }
-                didDoc = WaltIdServices.http.get("https://api-pilot.ebsi.eu/did-registry/v2/identifiers/${didUrl.did}")
+                log.debug { "Resolving did:ebsi at: https://api-pilot.ebsi.eu/did-registry/v3/identifiers/${didUrl.did}" }
+                didDoc = WaltIdServices.http.get("https://api-pilot.ebsi.eu/did-registry/v3/identifiers/${didUrl.did}")
                     .bodyAsText()
                 log.debug { "Result: $didDoc" }
                 return@runBlocking Did.decode(didDoc)!! as DidEbsi

@@ -33,7 +33,7 @@ class WaltIdJsonRpcService : JsonRpcService() {
         unsignedTransactionParams: List<JsonRpcParams>
     ): SignedTransactionResponse {
         //TODO run auth-flow, if file is not present
-        //TODO re-run auth-flow, if token is expired -> io.ktor.client.features.ClientRequestException: Client request(https://api-pilot.ebsi.eu/did-registry/v2/jsonrpc) invalid: 401 Unauthorized. Text: "{"title":"Unauthorized","status":401,"type":"about:blank","detail":"Invalid JWT: JWT has expired: exp: 1623244001 < now: 1623245358"}"
+        //TODO re-run auth-flow, if token is expired -> io.ktor.client.features.ClientRequestException: Client request(https://api-pilot.ebsi.eu/did-registry/v3/jsonrpc) invalid: 401 Unauthorized. Text: "{"title":"Unauthorized","status":401,"type":"about:blank","detail":"Invalid JWT: JWT has expired: exp: 1623244001 < now: 1623245358"}"
         // val token = readWhenContent(EssifClient.ebsiAccessTokenFile)
         val token = ContextManager.hkvStore.getAsString(
             HKVKey("ebsi", did.substringAfterLast(":"), EssifClient.ebsiAccessTokenFile)
