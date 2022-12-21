@@ -8,6 +8,7 @@ import id.walt.services.hkvstore.HKVKey
 import id.walt.services.key.KeyService
 import io.ktor.client.call.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import mu.KotlinLogging
 import org.web3j.crypto.RawTransaction
@@ -125,5 +126,7 @@ class WaltIdJsonRpcService : JsonRpcService() {
         }
         //TODO: consider ID value. is random the generation ok?
         setBody(JsonRpcRequest("2.0", method, params, (0..999).random()))
+    }.also {
+        log.debug("$urlString, Response: \n${it.bodyAsText()}")
     }.body()
 }

@@ -104,7 +104,7 @@ class EssifCommandTest : StringSpec({
 
     "6. Get timestamp transaction hash".config(enabled = enableTests) {
         val timestamp =
-            WaltIdTimestampService().getByTransactionHash("0x45680f0a1d2b54d5abe785a93b90e42ee1d37aa0a4c03ff2d07d5ac431232674"/*transactionHash!!*/)
+            WaltIdTimestampService().getByTransactionHash("0xc6411b4fa8a86d21443db963649efd1a32d794147f21e7d98fda4519086f9f3a"/*transactionHash!!*/)
         validateTimestamp(timestamp)
 
         WaltIdTimestampService().getByTransactionHash("do not exist") shouldBe null
@@ -112,16 +112,16 @@ class EssifCommandTest : StringSpec({
         EssifTimestampGetCommand().parse(
             listOf(
                 "--timestamp-txhash",
-                "0x45680f0a1d2b54d5abe785a93b90e42ee1d37aa0a4c03ff2d07d5ac431232674"
+                "0xc6411b4fa8a86d21443db963649efd1a32d794147f21e7d98fda4519086f9f3a"
             )
         )
     }
 
     "7. Get by timestamp Id".config(enabled = enableTests) {
         val timestamp =
-            WaltIdTimestampService().getByTimestampId("uEiCHMUGYdJ6Lu8ugrCaEymIUAq6kUJHq10clWEcDvUwHLQ"/*timestampId!!*/)
+            WaltIdTimestampService().getByTimestampId("uEiBrUuxV-ybYtSQ4oiczDhFkmUR7Wk6QtF26SXaD9h9RTg"/*timestampId!!*/)
         validateTimestamp(timestamp)
-        EssifTimestampGetCommand().parse(listOf("--timestamp-id", "uEiCHMUGYdJ6Lu8ugrCaEymIUAq6kUJHq10clWEcDvUwHLQ"))
+        EssifTimestampGetCommand().parse(listOf("--timestamp-id", "uEiBrUuxV-ybYtSQ4oiczDhFkmUR7Wk6QtF26SXaD9h9RTg"))
     }
 
     // TODO: ESSIF backend issue
@@ -139,8 +139,8 @@ private fun validateTimestamp(timestamp: Timestamp?) {
     println("Validating timestamp: $timestamp")
 
     timestamp shouldNotBe null
-    timestamp!!.timestampId shouldBe "uEiCHMUGYdJ6Lu8ugrCaEymIUAq6kUJHq10clWEcDvUwHLQ"
-    timestamp.hash shouldBe "mEiACz5o3HeOXrLZnpzc1vJSuaYO31XV1PqaESJObOqdFBw"
-    timestamp.transactionHash shouldBe "0x45680f0a1d2b54d5abe785a93b90e42ee1d37aa0a4c03ff2d07d5ac431232674"
-    timestamp.timestampedBy shouldBe "0xD39F93C93E0B9153d4b09B8263A3e553eaf6d2e0"
+    timestamp!!.timestampId shouldBe "uEiBrUuxV-ybYtSQ4oiczDhFkmUR7Wk6QtF26SXaD9h9RTg"
+    timestamp.hash shouldBe "mEiDF2GjIksERie3tGpV4JHS1VPhNwRWjJA45NLCwlw9ZIA"
+    timestamp.transactionHash shouldBe "0xc6411b4fa8a86d21443db963649efd1a32d794147f21e7d98fda4519086f9f3a"
+    timestamp.timestampedBy shouldBe "0x69e48d89bf5e09588E858D757323b4abBBB3f814"
 }
