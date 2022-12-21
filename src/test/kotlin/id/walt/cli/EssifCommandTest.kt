@@ -78,12 +78,25 @@ class EssifCommandTest : StringSpec({
     }
 
     var transactionHash: String? = null
+    var timestamp: Timestamp? = null
+
+    fun validateTimestamp(timestampToCheck: Timestamp?) {
+        println("Validating timestamp: $timestampToCheck")
+
+        timestamp shouldNotBe null
+        timestampToCheck shouldNotBe null
+        timestampToCheck!!.transactionHash shouldBe transactionHash
+        timestampToCheck.timestampId shouldBe timestamp!!.timestampId
+        timestampToCheck.hash shouldBe timestamp!!.hash
+        timestampToCheck.timestampedBy shouldBe timestamp!!.timestampedBy
+    }
+
     "5. Insert timestamp".config(enabled = enableTests) {
         retry(9, 2.minutes, delay = 4.seconds) {
             println("Inserting timestamp.")
             shouldNotThrowAny {
 
-                EssifTimestampCreateCommand().parse(
+                /*EssifTimestampCreateCommand().parse(
                     listOf(
                         "--did",
                         did,
@@ -91,20 +104,21 @@ class EssifCommandTest : StringSpec({
                         ethKey.id,
                         "${RESOURCES_PATH}/ebsi/test-data.json"
                     )
-                )
+                )*/
 
                 transactionHash =
                     WaltIdTimestampService().createTimestamp(did, ethKey.id, "{\"test\": \"${UUID.randomUUID()}\"}")
                 log { "ESSIFCOMMANDTEST: $transactionHash" }
                 transactionHash.shouldNotBeEmpty()
                 transactionHash.shouldNotBeBlank()
+                Thread.sleep(5000) // wait for timestamp to be public
             }
         }
     }
 
     "6. Get timestamp transaction hash".config(enabled = enableTests) {
-        val timestamp =
-            WaltIdTimestampService().getByTransactionHash("0xc6411b4fa8a86d21443db963649efd1a32d794147f21e7d98fda4519086f9f3a"/*transactionHash!!*/)
+        timestamp =
+            WaltIdTimestampService().getByTransactionHash(transactionHash!!)
         validateTimestamp(timestamp)
 
         WaltIdTimestampService().getByTransactionHash("do not exist") shouldBe null
@@ -112,16 +126,16 @@ class EssifCommandTest : StringSpec({
         EssifTimestampGetCommand().parse(
             listOf(
                 "--timestamp-txhash",
-                "0xc6411b4fa8a86d21443db963649efd1a32d794147f21e7d98fda4519086f9f3a"
+                transactionHash!!
             )
         )
     }
 
     "7. Get by timestamp Id".config(enabled = enableTests) {
-        val timestamp =
-            WaltIdTimestampService().getByTimestampId("uEiBrUuxV-ybYtSQ4oiczDhFkmUR7Wk6QtF26SXaD9h9RTg"/*timestampId!!*/)
-        validateTimestamp(timestamp)
-        EssifTimestampGetCommand().parse(listOf("--timestamp-id", "uEiBrUuxV-ybYtSQ4oiczDhFkmUR7Wk6QtF26SXaD9h9RTg"))
+        val timestampReceived =
+            WaltIdTimestampService().getByTimestampId(timestamp!!.timestampId!!)
+        validateTimestamp(timestampReceived)
+        EssifTimestampGetCommand().parse(listOf("--timestamp-id", timestamp!!.timestampId!!))
     }
 
     // TODO: ESSIF backend issue
@@ -134,13 +148,3 @@ class EssifCommandTest : StringSpec({
         EssifTirGetIssuerCommand().parse(listOf("--did", "did:ebsi:224AEY73SGS1gpTvbt5TNTTPdNj8GU6NAq2AVBFmasQbntCt", "-t"))
     }
 })
-
-private fun validateTimestamp(timestamp: Timestamp?) {
-    println("Validating timestamp: $timestamp")
-
-    timestamp shouldNotBe null
-    timestamp!!.timestampId shouldBe "uEiBrUuxV-ybYtSQ4oiczDhFkmUR7Wk6QtF26SXaD9h9RTg"
-    timestamp.hash shouldBe "mEiDF2GjIksERie3tGpV4JHS1VPhNwRWjJA45NLCwlw9ZIA"
-    timestamp.transactionHash shouldBe "0xc6411b4fa8a86d21443db963649efd1a32d794147f21e7d98fda4519086f9f3a"
-    timestamp.timestampedBy shouldBe "0x69e48d89bf5e09588E858D757323b4abBBB3f814"
-}
