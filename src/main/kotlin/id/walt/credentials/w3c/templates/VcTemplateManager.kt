@@ -2,12 +2,8 @@ package id.walt.credentials.w3c.templates
 
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.toVerifiableCredential
-import id.walt.crypto.AzureKeyVaultConfig
-import id.walt.servicematrix.ServiceConfiguration
 import id.walt.services.context.ContextManager
 import id.walt.services.hkvstore.HKVKey
-import io.javalin.core.util.JavalinLogger.enabled
-import jdk.jfr.Enabled
 import mu.KotlinLogging
 import java.io.File
 import java.nio.file.FileSystems
