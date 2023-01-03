@@ -57,7 +57,8 @@ data class ProofConfig(
 )
 
 data class SignatoryConfig(
-    val proofConfig: ProofConfig
+    val proofConfig: ProofConfig,
+    val templatesFolder: String = "/runtime-templates"
 ) : ServiceConfiguration
 
 abstract class Signatory : WaltIdService() {
@@ -147,7 +148,7 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
 
         val credentialBuilder = when (Files.exists(Path.of(templateIdOrFilename))) {
             true -> Files.readString(Path.of(templateIdOrFilename)).toVerifiableCredential()
-            else -> VcTemplateManager.getTemplate(templateIdOrFilename).template
+            else -> VcTemplateManager.getTemplate(templateIdOrFilename, true, configuration.templatesFolder).template
         }?.let { W3CCredentialBuilder.fromPartial(it) } ?: throw Exception("Template not found")
 
         return issue(dataProvider?.populate(credentialBuilder, config) ?: credentialBuilder, config, issuer, storeCredential)
@@ -187,10 +188,10 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
         return signedVc
     }
 
-    override fun listTemplates(): List<VcTemplate> = VcTemplateManager.listTemplates()
-    override fun listTemplateIds() = VcTemplateManager.listTemplates().map { it.name }
+    override fun listTemplates(): List<VcTemplate> = VcTemplateManager.listTemplates(configuration.templatesFolder)
+    override fun listTemplateIds() = VcTemplateManager.listTemplates(configuration.templatesFolder).map { it.name }
     override fun loadTemplate(templateId: String): VerifiableCredential =
-        VcTemplateManager.getTemplate(templateId, true).template!!
+        VcTemplateManager.getTemplate(templateId, true, configuration.templatesFolder).template!!
 
     override fun importTemplate(templateId: String, template: String) {
         val vc = VerifiableCredential.fromJson(template)
@@ -199,7 +200,7 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
     }
 
     override fun removeTemplate(templateId: String) {
-        val template = VcTemplateManager.getTemplate(templateId)
+        val template = VcTemplateManager.getTemplate(templateId,true, configuration.templatesFolder)
         if (template.mutable) {
             VcTemplateManager.unregisterTemplate(templateId)
         } else {

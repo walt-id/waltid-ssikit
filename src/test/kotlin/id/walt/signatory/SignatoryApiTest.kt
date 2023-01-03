@@ -30,7 +30,7 @@ import kotlinx.coroutines.runBlocking
 class SignatoryApiTest : AnnotationSpec() {
 
     init {
-        ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
+       ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
     }
 
     val SIGNATORY_API_HOST = "localhost"
@@ -97,6 +97,17 @@ class SignatoryApiTest : AnnotationSpec() {
 
         europassJson.toVerifiableCredential().type shouldContain "Europass"
     }
+
+
+    @Test
+    fun testLoadPacketDeliveryService() = runBlocking {
+        val pdsJson = client.get("$SIGNATORY_API_URL/v1/templates/PacketDeliveryService") {
+            contentType(ContentType.Application.Json)
+        }.bodyAsText()
+
+        pdsJson.toVerifiableCredential().type shouldContain "PacketDeliveryService"
+    }
+
 
     @Test
     fun testIssueVerifiableDiplomaJsonLd() = runBlocking {
