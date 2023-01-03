@@ -18,7 +18,7 @@ object VcTemplateManager {
     fun register(name: String, template: VerifiableCredential): VcTemplate {
         template.proof = null
         template.issuer = null
-        template.credentialSubject?.id =  null
+        template.credentialSubject?.id = null
         template.id = null
         ContextManager.hkvStore.put(HKVKey(SAVED_VC_TEMPLATES_KEY, name), template.toJson())
         return VcTemplate(name, template, true)
