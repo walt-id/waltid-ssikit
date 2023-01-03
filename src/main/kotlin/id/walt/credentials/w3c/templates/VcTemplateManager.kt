@@ -56,7 +56,7 @@ object VcTemplateManager {
         return if (templatesFolder.isDirectory) {
             templatesFolder.walk().filter { it.isFile }.map { it.nameWithoutExtension }.toList()
         } else {
-            log.warn { "Requested runtime templates folder$folderPath is not a folder." }
+            log.warn { "Requested runtime templates folder $folderPath is not a folder." }
             listOf()
         }
     }
