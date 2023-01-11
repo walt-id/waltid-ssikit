@@ -18,4 +18,4 @@ fun readDid(fileName: String) =
     File("$RESOURCES_PATH/dids/${fileName}.json").readText(Charsets.UTF_8)
 
 fun getTemplate(name: String): VerifiableCredential =
-    VerifiableCredential.fromString(File("templates/vc-template-$name.json").readText(Charsets.UTF_8))
+    VerifiableCredential.fromString(File("$RESOURCES_PATH/verifiable-credentials/vc-template-default.json").readText(Charsets.UTF_8))
