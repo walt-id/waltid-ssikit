@@ -68,7 +68,7 @@ object VcTemplateManager {
     }
 
     fun listTemplates(runtimeTemplateFolder: String = "/vc-templates-runtime"): List<VcTemplate> {
-        return listResources("/vc-templates")
+        return listResources()
             .plus(ContextManager.hkvStore.listChildKeys(HKVKey(SAVED_VC_TEMPLATES_KEY), false).map { it.name })
             .plus(listRuntimeTemplates(runtimeTemplateFolder))
             .toSet().map { getTemplate(it, false, runtimeTemplateFolder) }.toList()

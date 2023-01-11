@@ -14,7 +14,7 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
     - Support for JsonWebKey2020 https://github.com/walt-id/waltid-ssikit/issues/159  
     - JCS Ed25519 Signature https://github.com/walt-id/waltid-ssikit/issues/160
     - EBSI wallet conformance v2 https://github.com/walt-id/waltid-internal-issues/issues/158
-    - Added runtime-import folder from VC templates https://github.com/walt-id/waltid-ssikit/pulls
+    - Added folder from importing VC templates at runtime https://github.com/walt-id/waltid-ssikit/pulls
 -   Fixes
     - did:key with ECDSA keys broken  https://github.com/walt-id/waltid-ssikit/issues/179
     - JWK key import depending on optional alg field https://github.com/walt-id/waltid-ssikit/issues/190
