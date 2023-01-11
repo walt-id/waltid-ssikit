@@ -1,5 +1,7 @@
 package id.walt.auditor
 
+import com.beust.klaxon.Json
+import com.beust.klaxon.Klaxon
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.VerifiablePresentation
 import id.walt.credentials.w3c.schema.SchemaValidatorFactory
@@ -11,6 +13,7 @@ import id.walt.services.ecosystems.essif.TrustedIssuerClient
 import id.walt.services.oidc.OIDCUtils
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
+import id.walt.signatory.RevocationClientService
 import io.ktor.client.plugins.*
 import kotlinx.serialization.Serializable
 import mu.KotlinLogging
@@ -182,10 +185,22 @@ class ExpirationDateAfterPolicy : SimpleVerificationPolicy() {
     }
 }
 
-/*class CredentialStatusPolicy : SimpleVerificationPolicy() {
+class CredentialStatusPolicy : SimpleVerificationPolicy() {
+
+    @Serializable
+    data class CredentialStatus(
+        val id: String,
+        var type: String
+    )
+
+    @Serializable
+    data class CredentialStatusCredential(
+        @Json(serializeNull = false) var credentialStatus: CredentialStatus? = null
+    )
+
     override val description: String = "Verify by credential status"
     override fun doVerify(vc: VerifiableCredential): Boolean {
-        val cs = Klaxon().parse<CredentialStatusCredential>(vc.json!!)!!.credentialStatus!!
+        val cs = Klaxon().parse<CredentialStatusCredential>(vc.toJson())!!.credentialStatus!!
 
         when (cs.type) {
             "SimpleCredentialStatus2022" -> {
@@ -201,7 +216,7 @@ class ExpirationDateAfterPolicy : SimpleVerificationPolicy() {
             }
         }
     }
-}*/
+}
 
 data class ChallengePolicyArg(val challenges: Set<String>, val applyToVC: Boolean = true, val applyToVP: Boolean = true)
 

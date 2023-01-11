@@ -35,7 +35,7 @@ object VcTemplateManager {
                 ?.let { VcTemplate(name, if (loadTemplate) it.toVerifiableCredential() else null, false) }
             ?: File("$runtimeTemplateFolder/$name.json")?.readText()
                 ?.let { VcTemplate(name, if (loadTemplate) it.toVerifiableCredential() else null, false) }
-            ?: throw Exception("No template found, with name $name")
+            ?: throw IllegalArgumentException("No template found, with name $name")
     }
 
     private fun listResources(resourcePath: String): List<String> {
