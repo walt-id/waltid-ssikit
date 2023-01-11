@@ -38,18 +38,24 @@ object VcTemplateManager {
             ?: throw IllegalArgumentException("No template found, with name $name")
     }
 
-    private fun listResources(resourcePath: String): List<String> {
-        val resource = object {}.javaClass.getResource(resourcePath)
-        return if (File(resource.file).isDirectory) {
-            File(resource.file).walk().filter { it.isFile }.map { it.nameWithoutExtension }.toList()
-        } else {
-            FileSystems.newFileSystem(resource.toURI(), emptyMap<String, String>()).use { fs ->
-                Files.walk(fs.getPath(resourcePath))
-                    .filter { it.isRegularFile() }
-                    .map { it.nameWithoutExtension }.toList()
+    private val resourceWalk = lazy {
+
+        val resource = object {}.javaClass.getResource("/vc-templates")!!
+        when {
+            File(resource.file).isDirectory ->
+                File(resource.file).walk().filter { it.isFile }.map { it.nameWithoutExtension }.toList()
+            else -> {
+                FileSystems.newFileSystem(resource.toURI(), emptyMap<String, String>()).use { fs ->
+                    Files.walk(fs.getPath("/vc-templates"))
+                        .filter { it.isRegularFile() }
+                        .map { it.nameWithoutExtension }.toList()
+                }
             }
         }
     }
+
+    private fun listResources(): List<String> = resourceWalk.value
+
 
     private fun listRuntimeTemplates(folderPath: String): List<String> {
         val templatesFolder = File(folderPath)
