@@ -14,7 +14,7 @@ plugins {
 }
 
 group = "id.walt"
-version = "1.13.0-SNAPSHOT4"
+version = "1.13.0-SNAPSHOT6"
 
 repositories {
     mavenCentral()
@@ -96,7 +96,7 @@ dependencies {
     implementation("com.sksamuel.hoplite:hoplite-hikaricp:2.6.5")
 
     // Service-Matrix
-    implementation("id.walt.servicematrix:WaltID-ServiceMatrix:1.1.2")
+    implementation("id.walt.servicematrix:WaltID-ServiceMatrix:1.1.3")
 
     // Kotlin
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.7.20")

@@ -14,8 +14,7 @@ data class CreateDidRequest(
     val keyAlias: String? = null,
     val didWebDomain: String? = null,
     val didWebPath: String? = null,
-
-    )
+)
 
 @Serializable
 data class ResolveDidRequest(
@@ -92,7 +91,16 @@ object DidController {
         .json<String>("200") { it.description("DID document of the resolved DID") }
 
     fun import(ctx: Context) {
-        DidService.importDidAndKeys(ctx.body())
+        val did = ctx.body()
+        DidService.importDid(did)
+
+        val keyId = ctx.queryParam("keyId")
+
+        when {
+            !keyId.isNullOrEmpty() -> DidService.setKeyIdForDid(did, keyId)
+            else -> DidService.importKeys(did)
+        }
+
         ctx.status(201)
     }
 
@@ -100,5 +108,6 @@ object DidController {
         it.summary("Import DID").operationId("importDid").addTagsItem("Decentralized Identifiers")
     }
         .body<String> { it.description("Resolves and imports a DID (e.g. did:key:z6MkiFniw3DEmvQ1AmF818vtFirrY1eJeYxtSoGCaGeqP5Mu) to the underlying data store") }
+        .queryParam<String>("keyId") { it.allowEmptyValue(true) }
         .json<String>("201")
 }

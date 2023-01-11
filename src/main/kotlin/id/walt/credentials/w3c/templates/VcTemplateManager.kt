@@ -30,21 +30,27 @@ object VcTemplateManager {
             ?: throw IllegalArgumentException("No template found, with name $name")
     }
 
-    private fun listResources(resourcePath: String): List<String> {
-        val resource = object {}.javaClass.getResource(resourcePath)
-        return if (File(resource.file).isDirectory) {
-            File(resource.file).walk().filter { it.isFile }.map { it.nameWithoutExtension }.toList()
-        } else {
-            FileSystems.newFileSystem(resource.toURI(), emptyMap<String, String>()).use { fs ->
-                Files.walk(fs.getPath(resourcePath))
-                    .filter { it.isRegularFile() }
-                    .map { it.nameWithoutExtension }.toList()
+    private val resourceWalk = lazy {
+
+        val resource = object {}.javaClass.getResource("/vc-templates")!!
+        when {
+            File(resource.file).isDirectory ->
+                File(resource.file).walk().filter { it.isFile }.map { it.nameWithoutExtension }.toList()
+            else -> {
+                FileSystems.newFileSystem(resource.toURI(), emptyMap<String, String>()).use { fs ->
+                    Files.walk(fs.getPath("/vc-templates"))
+                        .filter { it.isRegularFile() }
+                        .map { it.nameWithoutExtension }.toList()
+                }
             }
         }
     }
 
+    private fun listResources(): List<String> = resourceWalk.value
+
+
     fun listTemplates(): List<VcTemplate> {
-        return listResources("/vc-templates").plus(
+        return listResources(/*"/vc-templates"*/).plus(
             ContextManager.hkvStore.listChildKeys(HKVKey(SAVED_VC_TEMPLATES_KEY), false).map { it.name }
         ).toSet().map { getTemplate(it, false) }.toList()
     }

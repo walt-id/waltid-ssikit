@@ -40,17 +40,18 @@ abstract class ContextManager : BaseService() {
 
 open class WaltIdContextManager : ContextManager() {
 
-    val threadContexts: HashMap<Long, Context> = HashMap()
+    val threadContexts: HashMap<String, Context> = HashMap()
+    private fun getCurrentThreadId(): String = Thread.currentThread().run { name + id }
 
     val currentContext
-        get() = threadContexts[Thread.currentThread().id] ?: WaltIdContext
+        get() = threadContexts[getCurrentThreadId()] ?: WaltIdContext
 
     fun setCurrentContext(context: Context) {
-        threadContexts[Thread.currentThread().id] = context
+        threadContexts[getCurrentThreadId()] = context
     }
 
     fun resetCurrentContext() {
-        threadContexts.remove(Thread.currentThread().id)
+        threadContexts.remove(getCurrentThreadId())
     }
 
     override fun <R> runWith(context: Context, action: () -> R): R {
