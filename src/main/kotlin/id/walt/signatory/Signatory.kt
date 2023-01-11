@@ -58,7 +58,7 @@ data class ProofConfig(
 
 data class SignatoryConfig(
     val proofConfig: ProofConfig,
-    val templatesFolder: String = "/runtime-templates"
+    val templatesFolder: String = "/vc-templates-runtime"
 ) : ServiceConfiguration
 
 abstract class Signatory : WaltIdService() {

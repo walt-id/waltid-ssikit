@@ -27,7 +27,7 @@ object VcTemplateManager {
     fun getTemplate(
         name: String,
         loadTemplate: Boolean = true,
-        runtimeTemplateFolder: String = "/runtime-templates"
+        runtimeTemplateFolder: String = "/vc-templates-runtime"
     ): VcTemplate {
         return ContextManager.hkvStore.getAsString(HKVKey(SAVED_VC_TEMPLATES_KEY, name))
             ?.let { VcTemplate(name, if (loadTemplate) it.toVerifiableCredential() else null, true) }
@@ -61,7 +61,7 @@ object VcTemplateManager {
         }
     }
 
-    fun listTemplates(runtimeTemplateFolder: String = "/runtime-templates"): List<VcTemplate> {
+    fun listTemplates(runtimeTemplateFolder: String = "/vc-templates-runtime"): List<VcTemplate> {
         return listResources("/vc-templates")
             .plus(ContextManager.hkvStore.listChildKeys(HKVKey(SAVED_VC_TEMPLATES_KEY), false).map { it.name })
             .plus(listRuntimeTemplates(runtimeTemplateFolder))
