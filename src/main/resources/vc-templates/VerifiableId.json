@@ -1,7 +1,7 @@
 {
   "@context": ["https://www.w3.org/2018/credentials/v1"],
   "credentialSchema": {
-    "id": "https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0xb77f8516a965631b4f197ad54c65a9e2f9936ebfb76bae4906d33744dbcc60ba",
+    "id": "https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableId.json",
     "type": "FullJsonSchemaValidator2021"
   },
   "credentialSubject": {
