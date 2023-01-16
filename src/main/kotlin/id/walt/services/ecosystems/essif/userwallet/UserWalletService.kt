@@ -9,13 +9,14 @@ import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jose.jwk.OctetKeyPair
 import com.nimbusds.jwt.JWTClaimsSet
+import id.walt.common.klaxonWithConverters
 import id.walt.common.toParamMap
+import id.walt.credentials.w3c.VerifiablePresentationBuilder
 import id.walt.crypto.*
 import id.walt.model.*
 import id.walt.services.context.ContextManager
 import id.walt.services.did.DidService
 import id.walt.services.ecosystems.essif.EbsiVAWrapper
-import id.walt.services.ecosystems.essif.EbsiVaVp
 import id.walt.services.ecosystems.essif.EssifClient
 import id.walt.services.ecosystems.essif.LegalEntityClient
 import id.walt.services.ecosystems.essif.enterprisewallet.EnterpriseWalletService
@@ -24,8 +25,9 @@ import id.walt.services.hkvstore.HKVKey
 import id.walt.services.jwt.InMemoryJwtService
 import id.walt.services.key.InMemoryKeyService
 import id.walt.services.keystore.KeyType
-import id.walt.services.vc.JsonLdCredentialService
+import id.walt.services.vc.JwtCredentialService
 import id.walt.signatory.ProofConfig
+import id.walt.signatory.ProofType
 import mu.KotlinLogging
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.MessageDigest
@@ -43,7 +45,7 @@ object UserWalletService {
 //        DidService.create(DidMethod.web)
 //    }
 
-    private val credentialService = JsonLdCredentialService.getService()
+    private val credentialService = JwtCredentialService.getService()
     private val enterpriseWalletService = EnterpriseWalletService.getService()
     private val jwtService = InMemoryJwtService.getService()
     private val keyService = InMemoryKeyService.getService()
@@ -131,7 +133,7 @@ object UserWalletService {
         //","encryption_key":{"crv":"secp256k1","kyt":"EC","x":"Cyb12xp1x7LfaulXdDkDovXXiAJtR4xPjGQiH9B6lcw","y":"nNV-RFkLeFefO5dM2lOybYebr8qFCi3grdV7fTQTKgo","alg":"ES256K"}},"sub_jwk":{"kty":"EC","use":"sig","crv":"secp256k1","kid":"did:ebsi:26wnek36z4djq1fdCgTZLTuRCe9gMf5Cr6FG8chyuaEBR4fT#key-1","x":"Cyb12xp1x7LfaulXdDkDovXXiAJtR4xPjGQiH9B6lcw","y":"nNV-RFkLeFefO5dM2lOybYebr8qFCi3grdV7fTQTKgo","alg":"ES256K"},"exp":1623156746,"iat":1623156446,"nonce":"8f444370-cf7b-4029-8027-2c1d9ac30778"}
 
         // SIOP REQUEST
-        // POST https://api.preprod.ebsi.eu/authorisation/v1/siop-sessions
+        // POST https://api-pilot.ebsi.eu/authorisation/v1/siop-sessions
         //Data:
         //{
         //    "id_token": "eyJhbGciOiJFUzI1NksiLCJ0eXAiOiJKV1QiLCJraWQiOiJkaWQ6ZWJzaTp5TWUzZDJKRHF1TjI3ck1QcW9ZakZWWmhzOEJjd1ZXYnBnWTFxSFp5OHpHI2tleS0xIn0.eyJpYXQiOjE2MjMxNTY5MjMsImV4cCI6MTYyMzE1NzIyMywiaXNzIjoiaHR0cHM6Ly9zZWxmLWlzc3VlZC5tZSIsInN1YiI6InNYZEg2eHhqMEVMeU1QMnM4Y1N4UUVSYzJKSkZMLTVhbkdFejJrX1QzSFUiLCJhdWQiOiIvc2lvcC1zZXNzaW9ucyIsIm5vbmNlIjoiNDFmMGNiZGQtODg2Yy00OTE1LTkxOWMtNTQ5ZDI3NzU4NzNlIiwic3ViX2p3ayI6eyJraWQiOiJkaWQ6ZWJzaTp5TWUzZDJKRHF1TjI3ck1QcW9ZakZWWmhzOEJjd1ZXYnBnWTFxSFp5OHpHI2tleS0xIiwia3R5IjoiRUMiLCJjcnYiOiJzZWNwMjU2azEiLCJ4IjoiRG1QS0VQZFRPTGZpcFNuUm9xTlFZSnlQM183RUZ6QmdaVi1DTjhOZDBWYyIsInkiOiJmRWg0enFQLTJncHNCMF9jbDJtdHBpT1NUX3hBaEhhV18tNFN1eGpoLW9FIn0sImNsYWltcyI6eyJ2ZXJpZmllZF9jbGFpbXMiOiJleUpBWTI5dWRHVjRkQ0k2V3lKb2RIUndjem92TDNkM2R5NTNNeTV2Y21jdk1qQXhPQzlqY21Wa1pXNTBhV0ZzY3k5Mk1TSmRMQ0pvYjJ4a1pYSWlPaUprYVdRNlpXSnphVHA1VFdVelpESktSSEYxVGpJM2NrMVFjVzlaYWtaV1dtaHpPRUpqZDFaWFluQm5XVEZ4U0ZwNU9IcEhJaXdpY0hKdmIyWWlPbnNpWTNKbFlYUmxaQ0k2SWpJd01qRXRNRFl0TURoVU1USTZOVFU2TWpCYUlpd2lhbmR6SWpvaVpYbEthR0pIWTJsUGFVcEdWWHBKTVU1cmMybE1RMG93WlZoQmFVOXBTa3RXTVZGcFRFTktjbUZYVVdsUGFVcHZaRWhTZDJONmIzWk1Na1ozWVZNMWQyTnRWbmRqYlRsclRHMVdhV015YTNWYVdGVjJXa2RzYTB4WVNteGFNbXg2WkVoS05Vd3pXWGxNTW14cldsYzFNR0ZYV25CYVdFcDZUREpTY0ZwRWNHeFpiazV3VDI1c1RscFVUbXROYTNCRlkxaFdUMDFxWkhsVVZrSjRZakZzY1ZKc1dtRmhTRTAwVVcxT00xWnNaR2xqUjJSYVRWaEdTVmR1YXpSbGEyTnFZVEpXTldONU1IaEpiakF1TG5nMGNsOHhaamQ1V25SQ1FrdFBSMGx2T1RWSVRGUmlRVFJRZGxkeWRGcDFSVE53VFV4bGRtaGljVXBhVTJ0ME4xSmlUUzFQWlZGUlpsOXJabXhoVVMxNlpURkRVVmQ1Vm1RMlVsUnNNVWRETlROVWMzRm5JaXdpY0hKdmIyWlFkWEp3YjNObElqb2lZWE56WlhKMGFXOXVUV1YwYUc5a0lpd2lkSGx3WlNJNklrVmpaSE5oVTJWamNESTFObXN4VTJsbmJtRjBkWEpsTWpBeE9TSXNJblpsY21sbWFXTmhkR2x2YmsxbGRHaHZaQ0k2SW1ScFpEcGxZbk5wT25sTlpUTmtNa3BFY1hWT01qZHlUVkJ4YjFscVJsWmFhSE00UW1OM1ZsZGljR2RaTVhGSVduazRla2NqYTJWNWN5MHhJbjBzSW5SNWNHVWlPaUpXWlhKcFptbGhZbXhsVUhKbGMyVnVkR0YwYVc5dUlpd2lkbVZ5YVdacFlXSnNaVU55WldSbGJuUnBZV3dpT2x0N0lrQmpiMjUwWlhoMElqcGJJbWgwZEhCek9pOHZkM2QzTG5jekxtOXlaeTh5TURFNEwyTnlaV1JsYm5ScFlXeHpMM1l4SWl3aWFIUjBjSE02THk5M2QzY3Vkek11YjNKbkx6SXdNVGd2WTNKbFpHVnVkR2xoYkhNdlpYaGhiWEJzWlhNdmRqRWlMQ0pvZEhSd2N6b3ZMM2N6WXkxalkyY3VaMmwwYUhWaUxtbHZMMnhrY3kxcWQzTXlNREl3TDJOdmJuUmxlSFJ6TDJ4a2N5MXFkM015TURJd0xYWXhMbXB6YjI0aVhTd2lZM0psWkdWdWRHbGhiRk5qYUdWdFlTSTZleUpwWkNJNkltaDBkSEJ6T2k4dllYQnBMbkJ5WlhCeWIyUXVaV0p6YVM1bGRTOTBjblZ6ZEdWa0xYTmphR1Z0WVhNdGNtVm5hWE4wY25rdmRqRXZjMk5vWlcxaGN5OHdlRE14TW1Vek16SmxNell5WlRNeE1tVXpOREpsTXpFeVpUTXhNell6TmpNME1tVXpNVE13TW1Vek1UTTRNemN5WlRNeE1tVXpNakpsTXpJeVpUTXpNek1pTENKMGVYQmxJam9pVDBsRUluMHNJbU55WldSbGJuUnBZV3hUZFdKcVpXTjBJanA3SW1sa0lqb2laR2xrT21WaWMyazZlVTFsTTJReVNrUnhkVTR5TjNKTlVIRnZXV3BHVmxwb2N6aENZM2RXVjJKd1oxa3hjVWhhZVRoNlJ5SjlMQ0psZUhCcGNtRjBhVzl1UkdGMFpTSTZJakl3TWpFdE1USXRNRGRVTVRJNk5UVTZNVGxhSWl3aWFXUWlPaUoyWXpwbFluTnBPbUYxZEdobGJuUnBZMkYwYVc5dUl6TmpOelE1TjJaakxXUXpOV1F0TkRVeE1pMDVNbUU1TFdZNE16ZGpZelpqT1RkbE1pSXNJbWx6YzNWaGJtTmxSR0YwWlNJNklqSXdNakV0TURZdE1EaFVNVEk2TlRVNk1UbGFJaXdpYVhOemRXVnlJam9pWkdsa09tVmljMms2TkdwUWVHTnBaM1ptYVdaYWVWWjNlVzAxZW1wNFlVdFlSMHBVZERkWmQwWjBjR2MyUVZoMGMxSTBaRFVpTENKd2NtOXZaaUk2ZXlKamNtVmhkR1ZrSWpvaU1qQXlNUzB3Tmkwd09GUXhNam8xTlRveE9Wb2lMQ0pxZDNNaU9pSmxlVXBvWWtkamFVOXBTa1pWZWtreFRtdHphVXhEU2pCbFdFRnBUMmxLUzFZeFVXbG1VUzR1VHpGSFYyTmZNRzF2ZUZsUE1FOTZNSFJFY2pWSGNHUkNWRGxIYUVneE1rd3RhRkpDU25VelIyNVJTSGhMVTFnellUVjNWRkZCZUhKRGRuaEZUbnAyWVU5VlIwczVXV1JsTkhkblkwcE1TMXBJVkhaUVMxRWlMQ0p3Y205dlpsQjFjbkJ2YzJVaU9pSmhjM05sY25ScGIyNU5aWFJvYjJRaUxDSjBlWEJsSWpvaVJXTmtjMkZUWldOd01qVTJhekZUYVdkdVlYUjFjbVV5TURFNUlpd2lkbVZ5YVdacFkyRjBhVzl1VFdWMGFHOWtJam9pWkdsa09tVmljMms2TkdwUWVHTnBaM1ptYVdaYWVWWjNlVzAxZW1wNFlVdFlSMHBVZERkWmQwWjBjR2MyUVZoMGMxSTBaRFVqYTJWNWN5MHhJbjBzSW5SNWNHVWlPbHNpVm1WeWFXWnBZV0pzWlVOeVpXUmxiblJwWVd3aUxDSldaWEpwWm1saFlteGxRWFYwYUc5eWFYTmhkR2x2YmlKZExDSjJZV3hwWkVaeWIyMGlPaUl5TURJeExUQTJMVEE0VkRFeU9qVTFPakU1V2lKOVhYMCIsImVuY3J5cHRpb25fa2V5Ijp7Imt0eSI6IkVDIiwiY3J2Ijoic2VjcDI1NmsxIiwieCI6IkRtUEtFUGRUT0xmaXBTblJvcU5RWUp5UDNfN0VGekJnWlYtQ044TmQwVmMiLCJ5IjoiZkVoNHpxUC0yZ3BzQjBfY2wybXRwaU9TVF94QWhIYVdfLTRTdXhqaC1vRSJ9fX0.Zmm136Rwb7PLD4CogjSsA-O9Eh_VdjYZ36btqIHwDdxZLUt23Op4shtsGrgf7GY5BsxSsLsV9UsqGG8JPaZugw"
@@ -151,7 +153,7 @@ object UserWalletService {
 //        {
 //            "typ": "JWT",
 //            "alg": "ES256K",
-//            "kid": "https://api.preprod.ebsi.eu/trusted-apps-registry/v2/apps/0x08c25856fbcbdd076c9c39512abef6309749910a110d9d1a9c9a7d2b277b6d20"
+//            "kid": "https://api-pilot.ebsi.eu/trusted-apps-registry/v2/apps/0x08c25856fbcbdd076c9c39512abef6309749910a110d9d1a9c9a7d2b277b6d20"
 //        }
 
 //        {
@@ -167,7 +169,7 @@ object UserWalletService {
         // {
         //     "typ": "JWT",
         //    "alg": "ES256K",
-        //    "kid": "https://api.preprod.ebsi.eu/trusted-apps-registry/v2/apps/0x08c25856fbcbdd076c9c39512abef6309749910a110d9d1a9c9a7d2b277b6d20"
+        //    "kid": "https://api-pilot.ebsi.eu/trusted-apps-registry/v2/apps/0x08c25856fbcbdd076c9c39512abef6309749910a110d9d1a9c9a7d2b277b6d20"
         // }
 
         // {
@@ -214,7 +216,7 @@ object UserWalletService {
         ///////////////////////////////////////////////////////////////////////////
 
         // Create Verifiable Presentation with VA
-        val verifiedClaims = createVerifiedClaims(did, va)
+        val vpToken = createVpToken(did, va)
 
         // Build SIOP response token
         val nonce = UUID.randomUUID().toString()
@@ -222,10 +224,10 @@ object UserWalletService {
         // Generate an emphemeral key-pair for encryption and signing the JWT
         val emphKeyId = keyService.generate(KeyAlgorithm.ECDSA_Secp256k1)
 
-        val idToken = constructSiopResponseJwt(emphKeyId, verifiedClaims, nonce)
+        val idToken = constructSiopResponseJwt(emphKeyId, did, nonce)
 
         //val siopResponse = LegalEntityClient.eos.siopSession(idToken, readEssifBearerToken())
-        val siopResponse = LegalEntityClient.eos.siopSession(idToken)
+        val siopResponse = LegalEntityClient.eos.siopSession(idToken, vpToken)
 
         log.debug { "Writing SIOP response (AKE1 encrypted token) to HKV store." }
 
@@ -299,22 +301,18 @@ object UserWalletService {
 //    }
 
 
-    private fun createVerifiedClaims(holderDid: String, va: String): String {
+    private fun createVpToken(holderDid: String, va: String): String {
 
-        val vaWrapper = Klaxon().parse<EbsiVAWrapper>(va)!!
+        val vaWrapper = klaxonWithConverters.parse<EbsiVAWrapper>(va)!!
 
-        val vpReq = EbsiVaVp(
-            listOf("https://www.w3.org/2018/credentials/v1"),
-            listOf("VerifiablePresentation"),
-            null,
-            listOf(vaWrapper.verifiableCredential),
-            holderDid,
-            null
-        )
+        val vpReq = VerifiablePresentationBuilder()
+            .setHolder(holderDid)
+            .setVerifiableCredentials(listOf(vaWrapper.verifiableCredential))
+            .build()
 
         val authKeyId = DidService.load(holderDid).authentication!![0].id
 
-        val encodedVp = Klaxon().toJsonString(vpReq)
+        val encodedVp = vpReq.toJson()
         // val vp = credentialService.sign(holderDid, encodedVp, null, null, authKeyId, "assertionMethod")
         val vp =
             credentialService.sign(
@@ -323,7 +321,8 @@ object UserWalletService {
                     issuerDid = holderDid,
                     subjectDid = holderDid,
                     issuerVerificationMethod = authKeyId,
-                    proofPurpose = "assertionMethod"
+                    proofPurpose = "assertionMethod",
+                    proofType = ProofType.JWT
                 )
             )
 
@@ -335,9 +334,7 @@ object UserWalletService {
             vp
         )
 
-        val vpCan = canonicalize(vp)
-
-        return encBase64Str(vpCan)
+        return vp
     }
 
     fun embedPublicEncryptionKey(key: JWK): Map<String, String> {
@@ -379,13 +376,13 @@ object UserWalletService {
     }
 
     // TODO replace with OidcUtil
-    fun constructSiopResponseJwt(emphKeyId: KeyId, verifiedClaims: String, nonce: String): String {
+    fun constructSiopResponseJwt(emphKeyId: KeyId, did: String, nonce: String): String {
 
         //val kid = DidService.load(did).authentication!![0]
 
-        val emphPrivKey = keyService.toJwk(emphKeyId.id, KeyType.PRIVATE)
+        val emphPubKey = keyService.toJwk(emphKeyId.id, KeyType.PUBLIC)
 
-        val thumbprint = emphPrivKey.computeThumbprint().toString()
+        val thumbprint = emphPubKey.computeThumbprint().toString()
 
         val payload = JWTClaimsSet.Builder()
             .issuer("https://self-issued.me")
@@ -394,12 +391,12 @@ object UserWalletService {
             .issueTime(Date.from(Instant.now()))
             .expirationTime(Date.from(Instant.now().plusSeconds(300)))
             .claim("nonce", nonce)
-            .claim("sub_jwk", emphPrivKey.toJSONObject())
+            .claim("sub_jwk", emphPubKey.toJSONObject())
+            .claim("did", did)
             .claim(
                 "claims",
                 mapOf(
-                    "verified_claims" to verifiedClaims,
-                    "encryption_key" to embedPublicEncryptionKey(emphPrivKey)
+                    "encryption_key" to embedPublicEncryptionKey(emphPubKey)
                 )
             )
             .build().toString()

@@ -20,5 +20,5 @@ fun readWhenContent(file: Path, errorMessage: String? = null) = when {
 
 fun readEssifBearerToken(): String = readWhenContent(
     EssifClient.bearerTokenFile,
-    "The bearer token must be placed in file ${EssifClient.bearerTokenFile.absolutePath}. Visit https://app.preprod.ebsi.eu/users-onboarding for requesting a token."
+    "The bearer token must be placed in file ${EssifClient.bearerTokenFile.absolutePath}. Visit https://app-pilot.ebsi.eu/users-onboarding for requesting a token."
 ).replace("\n", "")

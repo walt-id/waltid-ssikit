@@ -42,7 +42,7 @@ class VcVerifyCommandTest : StringSpec({
             "VerifiableDiploma", ProofConfig(issuerDid = did, subjectDid = did, issuerVerificationMethod = vm)
         )
         val vpStr = JsonLdCredentialService.getService()
-            .present(listOf(vcStr), did, "https://api.preprod.ebsi.eu", "d04442d3-661f-411e-a80f-42f19f594c9d", null)
+            .present(listOf(vcStr), did, "https://api-pilot.ebsi.eu", "d04442d3-661f-411e-a80f-42f19f594c9d", null)
         val vpFile = File.createTempFile("vpr", ".json")
         try {
             vpFile.writeText(vpStr)

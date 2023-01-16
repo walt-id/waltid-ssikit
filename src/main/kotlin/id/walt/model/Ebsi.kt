@@ -202,8 +202,9 @@ data class AuthenticationResponseJwt(
 @Serializable
 data class DecryptedAccessTokenResponse(
     val access_token: String,
-    val did: String,
-    val nonce: String
+    val nonce: String,
+    val did: String? = null,
+    val kid: String? = null
 )
 
 @Serializable
@@ -320,7 +321,8 @@ data class AccessTokenResponse(
     val ake1_enc_payload: String,
     val ake1_sig_payload: AkeSigPayload,
     val ake1_jws_detached: String,
-    val did: String
+    val did: String? = null,
+    val kid: String? = null
 )
 
 

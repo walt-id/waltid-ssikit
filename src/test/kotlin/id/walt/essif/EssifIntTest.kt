@@ -53,7 +53,7 @@ class EssifIntTest : StringSpec({
         println("Checking for bearer token...")
         if (!Path(bearerTokenFile).exists()) {
             if (!Path("bearer-token.txt").exists()) {
-                throw Exception("Place token from https://app.preprod.ebsi.eu/users-onboarding in file bearer-token.txt")
+                throw Exception("Place token from https://app-pilot.ebsi.eu/users-onboarding in file bearer-token.txt")
             }
             Path("bearer-token.txt").copyTo(Path(bearerTokenFile))
         }
@@ -111,7 +111,7 @@ class EssifIntTest : StringSpec({
         }
         println(res)
         res shouldContain "{"
-        println("Also try https://api.preprod.ebsi.eu/docs/?urls.primaryName=DID%20Registry%20API#/DID%20Registry/get-did-registry-v2-identifier")
+        println("Also try https://api-pilot.ebsi.eu/docs/?urls.primaryName=DID%20Registry%20API#/DID%20Registry/get-did-registry-v2-identifier")
     }
 
     lateinit var holderDid: String

@@ -23,8 +23,8 @@ object TrustedIssuerClient {
     val domain = EBSI_ENV_URL
     //val domain = "https://api.test.intebsi.xyz"
 
-    val authorisation = "$domain/authorisation/v1"
-    val onboarding = "$domain/users-onboarding/v1"
+    val authorisation = "$domain/authorisation/v2"
+    val onboarding = "$domain/users-onboarding/v2"
     val trustedIssuerUrl = "http://localhost:7001/v2/trusted-issuer"
 
     private val enterpriseWalletService = EnterpriseWalletService.getService()
@@ -80,11 +80,11 @@ object TrustedIssuerClient {
         }.bodyAsText()
     }
 
-    fun siopSession(idToken: String): String = runBlocking {
+    fun siopSession(idToken: String, vpToken: String): String = runBlocking {
         return@runBlocking WaltIdServices.http.post("$authorisation/siop-sessions") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
-            setBody(mapOf("id_token" to idToken))
+            setBody(mapOf("id_token" to idToken, "vp_token" to vpToken))
         }.bodyAsText()
     }
 
@@ -105,7 +105,7 @@ object TrustedIssuerClient {
         log.debug { "Getting trusted issuer with DID $did" }
 
         val trustedIssuer: String =
-            WaltIdServices.http.get("https://api.preprod.ebsi.eu/trusted-issuers-registry/v2/issuers/$did").bodyAsText()
+            WaltIdServices.http.get("https://api-pilot.ebsi.eu/trusted-issuers-registry/v2/issuers/$did").bodyAsText()
 
         log.debug { trustedIssuer }
 
@@ -116,7 +116,7 @@ object TrustedIssuerClient {
         log.debug { "Getting trusted issuer with DID $did" }
 
         val trustedIssuer: String =
-            WaltIdServices.http.get("https://api.preprod.ebsi.eu/trusted-issuers-registry/v2/issuers/$did").bodyAsText()
+            WaltIdServices.http.get("https://api-pilot.ebsi.eu/trusted-issuers-registry/v2/issuers/$did").bodyAsText()
 
         log.debug { trustedIssuer }
 

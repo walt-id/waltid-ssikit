@@ -7,6 +7,7 @@ import id.walt.services.ecosystems.essif.jsonrpc.TimestampHashesParams
 import id.walt.services.key.KeyService
 import io.ktor.client.call.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import mu.KotlinLogging
@@ -52,9 +53,9 @@ open class WaltIdTimestampService : TimestampService() {
 
     companion object {
         private const val TIMESTAMP_JSONRPC =
-            "https://api.preprod.ebsi.eu/timestamp/v2/jsonrpc" // TODO: make url configurable
+            "https://api-pilot.ebsi.eu/timestamp/v3/jsonrpc" // TODO: make url configurable
         private const val TIMESTAMPS =
-            "https://api.preprod.ebsi.eu/timestamp/v2/timestamps" // TODO: make url configurable
+            "https://api-pilot.ebsi.eu/timestamp/v3/timestamps" // TODO: make url configurable
     }
 
     private val log = KotlinLogging.logger {}
@@ -76,11 +77,10 @@ open class WaltIdTimestampService : TimestampService() {
     }
 
     override fun getByTransactionHash(transactionHash: String): Timestamp? = runBlocking {
-        var timestamps = WaltIdServices.http.get(
-            WaltIdServices.http.get(TIMESTAMPS).body<Timestamps>().links.last
-        ).body<Timestamps>()
-
-        while (timestamps.self != timestamps.links.prev) {
+        var nextPage = WaltIdServices.http.get(TIMESTAMPS).body<Timestamps>().links.last
+        var timestamps: Timestamps? = null
+         do {
+            timestamps = WaltIdServices.http.get(nextPage).body()!!
             val timestampsIterator = timestamps.items.listIterator(timestamps.items.size)
             while (timestampsIterator.hasPrevious()) {
                 val timestampItem = timestampsIterator.previous()
@@ -91,8 +91,8 @@ open class WaltIdTimestampService : TimestampService() {
                     return@runBlocking timestamp
                 }
             }
-            timestamps = WaltIdServices.http.get(timestamps.links.prev).body()
-        }
+            nextPage = timestamps.links.prev
+        } while (timestamps != null && timestamps.self != nextPage)
 
         return@runBlocking null
     }

@@ -40,13 +40,10 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
 
     @BeforeAll
     fun setup() {
-        mockkObject(SchemaValidatorFactory)
-        every { SchemaValidatorFactory.get(URI.create("https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0xb77f8516a965631b4f197ad54c65a9e2f9936ebfb76bae4906d33744dbcc60ba")) }.returns(
-            SchemaValidatorFactory.get(
-                URI.create("https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableId.json")
-                    .toURL().readText()
-            )
-        )
+      mockkObject(SchemaValidatorFactory)
+      every { SchemaValidatorFactory.get(URI.create("https://api-pilot.ebsi.eu/trusted-schemas-registry/v1/schemas/0xb77f8516a965631b4f197ad54c65a9e2f9936ebfb76bae4906d33744dbcc60ba"))}.returns(
+        SchemaValidatorFactory.get(URI.create("https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableId.json").toURL().readText())
+      )
     }
 
     fun genericSignVerify(issuerDid: String, credOffer: String) {
