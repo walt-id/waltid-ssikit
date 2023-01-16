@@ -16,7 +16,7 @@ class JsonSerializeVerifiableCredentialTest : AnnotationSpec() {
 
     @Test
     fun vcTemplatesTest() {
-        File("templates/").walkTopDown()
+        File("$VC_PATH/").walkTopDown()
             .filter { it.toString().endsWith(".json") }
             .forEach {
                 println("serializing: $it")
@@ -44,7 +44,7 @@ class JsonSerializeVerifiableCredentialTest : AnnotationSpec() {
 
     @Test
     fun vcSerialization() {
-        val input = File("templates/vc-template-default.json").readText().replace("\\s".toRegex(), "")
+        val input = File("$VC_PATH/vc-template-default.json").readText().replace("\\s".toRegex(), "")
         val vc = input.toVerifiableCredential()
         println(vc)
         val enc = vc.toJson()

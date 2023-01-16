@@ -129,7 +129,11 @@ class SignatoryServiceTest : StringSpec({
     }
 
     "vc storage test" {
-        val vc = signatory.issue("VerifiableId", ProofConfig(subjectDid = did, issuerDid = did, proofType = ProofType.LD_PROOF))
+        val vc = signatory.issue(
+            "VerifiableId",
+            ProofConfig(subjectDid = did, issuerDid = did, proofType = ProofType.LD_PROOF),
+            storeCredential = true
+        )
         val vcObj = vc.toVerifiableCredential()
         vcObj.type shouldContain "VerifiableId"
         vcObj.id.isNullOrBlank() shouldBe false

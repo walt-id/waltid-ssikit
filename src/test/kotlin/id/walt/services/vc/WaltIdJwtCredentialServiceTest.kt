@@ -5,7 +5,6 @@ import id.walt.auditor.Auditor
 import id.walt.auditor.SignaturePolicy
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.builder.W3CCredentialBuilder
-import id.walt.credentials.w3c.schema.SchemaValidator
 import id.walt.credentials.w3c.schema.SchemaValidatorFactory
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.KeyAlgorithm
@@ -137,8 +136,9 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
             .issue("VerifiableId", ProofConfig(issuerDid = issuerDid, subjectDid = issuerDid, proofType = ProofType.JWT))
         val invalidDataVc =
             Signatory.getService().issue(
-              W3CCredentialBuilder().setCredentialSchema(validVc.toVerifiableCredential().credentialSchema!!)
-              .buildSubject { setProperty("foo", "bar") }, ProofConfig(issuerDid = issuerDid, proofType = ProofType.JWT))
+                W3CCredentialBuilder().setCredentialSchema(validVc.toVerifiableCredential().credentialSchema!!)
+                    .buildSubject { setProperty("foo", "bar") }, ProofConfig(issuerDid = issuerDid, proofType = ProofType.JWT)
+            )
         val notParsableVc = ""
 
         credentialService.validateSchemaTsr(noSchemaVc) shouldBe true
@@ -151,7 +151,8 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
     fun testJwtWithDidEbsiV2() {
         val didV2 = DidService.create(DidMethod.ebsi, options = DidService.DidEbsiOptions(version = 2))
         // issue credential using did ebsi v2
-        val vc = Signatory.getService().issue("VerifiableId", ProofConfig(didV2, didV2, proofType = ProofType.JWT, ecosystem = Ecosystem.ESSIF))
+        val vc = Signatory.getService()
+            .issue("VerifiableId", ProofConfig(didV2, didV2, proofType = ProofType.JWT, ecosystem = Ecosystem.ESSIF))
         VerifiableCredential.isJWT(vc) shouldBe true
         val signedVcJwt = SignedJWT.parse(vc)
         // verify jwk header is set

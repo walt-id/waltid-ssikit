@@ -57,7 +57,8 @@ data class ProofConfig(
 )
 
 data class SignatoryConfig(
-    val proofConfig: ProofConfig
+    val proofConfig: ProofConfig,
+    val templatesFolder: String = "/vc-templates-runtime"
 ) : ServiceConfiguration
 
 abstract class Signatory : WaltIdService() {
@@ -67,10 +68,21 @@ abstract class Signatory : WaltIdService() {
         override fun getService() = object : Signatory() {}
     }
 
-    open fun issue(templateIdOrFilename: String, config: ProofConfig, dataProvider: SignatoryDataProvider? = null, issuer: W3CIssuer? = null): String =
-        implementation.issue(templateIdOrFilename, config, dataProvider, issuer)
+    open fun issue(
+        templateIdOrFilename: String,
+        config: ProofConfig,
+        dataProvider: SignatoryDataProvider? = null,
+        issuer: W3CIssuer? = null,
+        storeCredential: Boolean = false
+    ): String =
+        implementation.issue(templateIdOrFilename, config, dataProvider, issuer, storeCredential)
 
-    open fun issue(credentialBuilder: AbstractW3CCredentialBuilder<*, *>, config: ProofConfig, issuer: W3CIssuer? = null): String = implementation.issue(credentialBuilder, config, issuer)
+    open fun issue(
+        credentialBuilder: AbstractW3CCredentialBuilder<*, *>,
+        config: ProofConfig,
+        issuer: W3CIssuer? = null,
+        storeCredential: Boolean = false
+    ): String = implementation.issue(credentialBuilder, config, issuer)
 
     open fun listTemplates(): List<VcTemplate> = implementation.listTemplates()
     open fun listTemplateIds(): List<String> = implementation.listTemplateIds()
@@ -126,17 +138,28 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
         )
     }
 
-    override fun issue(templateIdOrFilename: String, config: ProofConfig, dataProvider: SignatoryDataProvider?, issuer: W3CIssuer?): String {
+    override fun issue(
+        templateIdOrFilename: String,
+        config: ProofConfig,
+        dataProvider: SignatoryDataProvider?,
+        issuer: W3CIssuer?,
+        storeCredential: Boolean
+    ): String {
 
-        val credentialBuilder = when(Files.exists(Path.of(templateIdOrFilename))) {
+        val credentialBuilder = when (Files.exists(Path.of(templateIdOrFilename))) {
             true -> Files.readString(Path.of(templateIdOrFilename)).toVerifiableCredential()
-            else -> VcTemplateManager.getTemplate(templateIdOrFilename).template
+            else -> VcTemplateManager.getTemplate(templateIdOrFilename, true, configuration.templatesFolder).template
         }?.let { W3CCredentialBuilder.fromPartial(it) } ?: throw Exception("Template not found")
 
-        return issue(dataProvider?.populate(credentialBuilder, config) ?: credentialBuilder, config, issuer)
+        return issue(dataProvider?.populate(credentialBuilder, config) ?: credentialBuilder, config, issuer, storeCredential)
     }
 
-    override fun issue(credentialBuilder: AbstractW3CCredentialBuilder<*, *>, config: ProofConfig, issuer: W3CIssuer?): String {
+    override fun issue(
+        credentialBuilder: AbstractW3CCredentialBuilder<*, *>,
+        config: ProofConfig,
+        issuer: W3CIssuer?,
+        storeCredential: Boolean
+    ): String {
         val fullProofConfig = fillProofConfig(config)
         val vcRequest = credentialBuilder.apply {
             issuer?.let { setIssuer(it) }
@@ -157,27 +180,32 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
             ProofType.JWT -> JwtCredentialService.getService().sign(vcRequest.toJson(), fullProofConfig)
         }
         log.debug { "Signed VC is: $signedVc" }
-        ContextManager.vcStore.storeCredential(fullProofConfig.credentialId!!, signedVc.toVerifiableCredential(), VC_GROUP)
+
+        if (storeCredential) {
+            ContextManager.vcStore.storeCredential(fullProofConfig.credentialId!!, signedVc.toVerifiableCredential(), VC_GROUP)
+        }
+
         return signedVc
     }
 
-    override fun listTemplates(): List<VcTemplate> = VcTemplateManager.listTemplates()
-    override fun listTemplateIds() = VcTemplateManager.listTemplates().map { it.name }
-    override fun loadTemplate(templateId: String): VerifiableCredential = VcTemplateManager.getTemplate(templateId, true).template!!
+    override fun listTemplates(): List<VcTemplate> = VcTemplateManager.listTemplates(configuration.templatesFolder)
+    override fun listTemplateIds() = VcTemplateManager.listTemplates(configuration.templatesFolder).map { it.name }
+    override fun loadTemplate(templateId: String): VerifiableCredential =
+        VcTemplateManager.getTemplate(templateId, true, configuration.templatesFolder).template!!
 
     override fun importTemplate(templateId: String, template: String) {
-      val vc = VerifiableCredential.fromJson(template)
-      // serialize parsed credential template and save
-      VcTemplateManager.register(templateId, vc)
+        val vc = VerifiableCredential.fromJson(template)
+        // serialize parsed credential template and save
+        VcTemplateManager.register(templateId, vc)
     }
 
     override fun removeTemplate(templateId: String) {
-      val template = VcTemplateManager.getTemplate(templateId)
-      if (template.mutable) {
-        VcTemplateManager.unregisterTemplate(templateId)
-      } else {
-        throw Exception("Template is immutable and cannot be removed. Use import to override existing templates.")
-      }
+        val template = VcTemplateManager.getTemplate(templateId,true, configuration.templatesFolder)
+        if (template.mutable) {
+            VcTemplateManager.unregisterTemplate(templateId)
+        } else {
+            throw Exception("Template is immutable and cannot be removed. Use import to override existing templates.")
+        }
     }
 
 }

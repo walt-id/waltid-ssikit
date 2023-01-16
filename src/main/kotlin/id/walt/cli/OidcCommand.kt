@@ -370,7 +370,13 @@ class OidcVerificationGenUrlCommand :
                         InputDescriptor(
                             "1",
                             constraints = InputDescriptorConstraints(
-                                listOf(InputDescriptorField(listOf("$.type"), "1", filter = JsonObject(mapOf("const" to credType))))
+                                listOf(
+                                    InputDescriptorField(
+                                        listOf("$.type"),
+                                        "1",
+                                        filter = JsonObject(mapOf("const" to credType))
+                                    )
+                                )
                             )
                         )
                     } ?: listOf())
@@ -391,7 +397,11 @@ class OidcVerificationParseCommand : CliktCommand(name = "parse", help = "Parse 
         "--url",
         help = "Authentication request URL from verifier portal, or get-url / gen-url subcommands"
     )
-    val listCredentials: Boolean by option("-l", "--list-credentials", help = "List available credentials, matching presentation request").flag(default = false)
+    val listCredentials: Boolean by option(
+        "-l",
+        "--list-credentials",
+        help = "List available credentials, matching presentation request"
+    ).flag(default = false)
 
     override fun run() {
         val req = OIDC4VPService.parseOIDC4VPRequestUri(URI.create(authUrl))
@@ -401,7 +411,7 @@ class OidcVerificationParseCommand : CliktCommand(name = "parse", help = "Parse 
             val presentationDefinition = OIDC4VPService.getPresentationDefinition(req)
             println("Presentation requirements:")
             println(klaxonWithConverters.toJsonString(presentationDefinition).prettyPrint())
-            if(listCredentials) {
+            if (listCredentials) {
                 println("----------------------------")
                 println("Matching credentials by input descriptor id:")
                 val credentialMap = OIDCUtils.findCredentialsFor(OIDC4VPService.getPresentationDefinition(req))

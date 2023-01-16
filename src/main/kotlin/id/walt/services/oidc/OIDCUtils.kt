@@ -95,10 +95,10 @@ object OIDCUtils {
                 val fldVal = if (fld.path.any { it.matches(Regex("\\\$(\\.vc)?\\.type")) }) {
                     isSingleFieldValue = true
                     credential.type.last()
-                } else if (fld.path.any{ it.matches(Regex("\\\$(\\.vc)?\\.credentialSchema.id"))}) {
+                } else if (fld.path.any { it.matches(Regex("\\\$(\\.vc)?\\.credentialSchema.id")) }) {
                     isSingleFieldValue = true
                     credential.credentialSchema?.id
-                } else if (fld.path.any{ it.matches(Regex("\\\$(\\.vc)?\\.credentialSchema"))}) {
+                } else if (fld.path.any { it.matches(Regex("\\\$(\\.vc)?\\.credentialSchema")) }) {
                     credential.credentialSchema?.toJsonObject()
                 } else {
                     null
@@ -108,16 +108,18 @@ object OIDCUtils {
                         matchSingleJsonField(fldVal, fld.filter)
                     } else if (fld.filter?.containsKey("allOf") == true) {
                         (fld.filter["allOf"] as JsonArray<JsonObject>).any { allOf ->
-                            allOf.containsKey("contains") && (allOf["contains"] as JsonObject).let {contains ->
-                                contains.containsKey("properties") && (contains["properties"] as JsonObject).let {properties ->
+                            allOf.containsKey("contains") && (allOf["contains"] as JsonObject).let { contains ->
+                                contains.containsKey("properties") && (contains["properties"] as JsonObject).let { properties ->
                                     properties.keys.all { key ->
-                                        matchSingleJsonField((fldVal as kotlinx.serialization.json.JsonObject)[key], properties[key] as Map<String, Any?>?)
+                                        matchSingleJsonField(
+                                            (fldVal as kotlinx.serialization.json.JsonObject)[key],
+                                            properties[key] as Map<String, Any?>?
+                                        )
                                     }
                                 }
                             }
                         }
-                    }
-                    else {
+                    } else {
                         false
                     }
                 } ?: false

@@ -1,5 +1,6 @@
 package id.walt.auditor
 
+import com.beust.klaxon.Json
 import com.beust.klaxon.Klaxon
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.VerifiablePresentation
@@ -73,12 +74,12 @@ class JsonSchemaPolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by JSON schema"
     override fun doVerify(vc: VerifiableCredential): Boolean {
         return vc.credentialSchema?.id?.let { URI.create(it) }?.let {
-          SchemaValidatorFactory.get(it).validate(vc.toJson())
+            SchemaValidatorFactory.get(it).validate(vc.toJson())
         } ?: false
     }
 
-  override val applyToVP: Boolean
-    get() = false
+    override val applyToVP: Boolean
+        get() = false
 }
 
 class TrustedSchemaRegistryPolicy : SimpleVerificationPolicy() {
@@ -184,10 +185,22 @@ class ExpirationDateAfterPolicy : SimpleVerificationPolicy() {
     }
 }
 
-/*class CredentialStatusPolicy : SimpleVerificationPolicy() {
+class CredentialStatusPolicy : SimpleVerificationPolicy() {
+
+    @Serializable
+    data class CredentialStatus(
+        val id: String,
+        var type: String
+    )
+
+    @Serializable
+    data class CredentialStatusCredential(
+        @Json(serializeNull = false) var credentialStatus: CredentialStatus? = null
+    )
+
     override val description: String = "Verify by credential status"
     override fun doVerify(vc: VerifiableCredential): Boolean {
-        val cs = Klaxon().parse<CredentialStatusCredential>(vc.json!!)!!.credentialStatus!!
+        val cs = Klaxon().parse<CredentialStatusCredential>(vc.toJson())!!.credentialStatus!!
 
         when (cs.type) {
             "SimpleCredentialStatus2022" -> {
@@ -203,7 +216,7 @@ class ExpirationDateAfterPolicy : SimpleVerificationPolicy() {
             }
         }
     }
-}*/
+}
 
 data class ChallengePolicyArg(val challenges: Set<String>, val applyToVC: Boolean = true, val applyToVP: Boolean = true)
 

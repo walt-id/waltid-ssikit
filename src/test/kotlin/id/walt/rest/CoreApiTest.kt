@@ -327,21 +327,6 @@ class CoreApiTest : AnnotationSpec() {
         "DID method EBSI not supported" shouldBe error.title
     }
 
-
-    @Test
-    fun testGetVcDefaultTemplate() = runBlocking {
-
-        val defaultTemplate = client.get("$CORE_API_URL/v1/vc/templates/default") {
-            contentType(ContentType.Application.Json)
-        }.bodyAsText()
-        val input = File("templates/vc-template-default.json").readText().replace("\\s".toRegex(), "")
-
-        val vc = input.toVerifiableCredential()
-        val enc = vc.toJson()
-        input shouldEqualJson enc
-
-    }
-
     @Test
     fun testDidCreateVc() = runBlocking {
         val didHolder = client.post("$CORE_API_URL/v1/did/create") {

@@ -1,10 +1,8 @@
 package id.walt.services.vc
 
-import com.beust.klaxon.Klaxon
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.W3CIssuer
 import id.walt.credentials.w3c.builder.W3CCredentialBuilder
-import id.walt.credentials.w3c.schema.SchemaValidator
 import id.walt.credentials.w3c.schema.SchemaValidatorFactory
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.credentials.w3c.toVerifiablePresentation
@@ -96,15 +94,15 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
     fun signEuropass() {
         val template = getTemplate("europass")
         val builder = W3CCredentialBuilder.fromPartial(template)
-          .setIssuerId(issuerKeyDid)
-          .buildSubject {
-            setId(issuerKeyDid) // self signed
-            setProperty("achieved", listOf(
-              buildMap {
-                put("title", "Some Europass specific title")
-              }
-            ))
-          }
+            .setIssuerId(issuerKeyDid)
+            .buildSubject {
+                setId(issuerKeyDid) // self signed
+                setProperty("achieved", listOf(
+                    buildMap {
+                        put("title", "Some Europass specific title")
+                    }
+                ))
+            }
 
         val credOffer = builder.build().toJson()
 
@@ -115,11 +113,11 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
     @Test
     fun signPermanentResidentCard() {
         val builder = W3CCredentialBuilder.fromPartial(getTemplate("permanent-resident-card"))
-          .setIssuerId(issuerKeyDid)
-          .buildSubject {
-            setId(issuerKeyDid)
-            setProperty("givenName",  "Given Name")
-          }
+            .setIssuerId(issuerKeyDid)
+            .buildSubject {
+                setId(issuerKeyDid)
+                setProperty("givenName", "Given Name")
+            }
 
         val credOffer = builder.build().toJson()
 
@@ -142,8 +140,8 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
         val challenge = "asdf"
 
         val builder = W3CCredentialBuilder.fromPartial(getTemplate("europass"))
-          .setIssuerId(issuerEbsiDid)
-          .buildSubject { setId(subjectKeyDid) }
+            .setIssuerId(issuerEbsiDid)
+            .buildSubject { setId(subjectKeyDid) }
 
         val vc = credentialService.sign(builder.build().encode(), ProofConfig(issuerDid = issuerEbsiDid))
 
@@ -167,8 +165,8 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
         val nonce: String? = null
         val proof = ProofConfig(subjectDid = issuerWebDid, issuerDid = issuerWebDid, nonce = nonce, domain = domain)
         val credOffer = W3CCredentialBuilder.fromPartial(readCredOffer("WorkHistory"))
-          .setIssuerId(issuerWebDid)
-          .build().encode()
+            .setIssuerId(issuerWebDid)
+            .build().encode()
 
         val vc = credentialService.sign(credOffer, proof)
         vc shouldNotBe null
@@ -185,7 +183,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
 
         val proof = ProofConfig(subjectDid = issuerKeyDid, issuerDid = issuerKeyDid, nonce = nonce, domain = domain)
         val credOffer = W3CCredentialBuilder.fromPartial(readCredOffer("WorkHistory"))
-          .setIssuerId(issuerKeyDid).build().encode()
+            .setIssuerId(issuerKeyDid).build().encode()
 
         val vc = credentialService.sign(credOffer, proof)
         vc shouldNotBe null
@@ -203,7 +201,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
         val proof = ProofConfig(subjectDid = issuerKeyDid, issuerDid = issuerKeyDid, nonce = nonce, domain = domain)
         val credOffer =
             W3CCredentialBuilder.fromPartial(readCredOffer("VerifiableAttestation-Europass"))
-              .setIssuerId(issuerKeyDid).build().encode()
+                .setIssuerId(issuerKeyDid).build().encode()
 
         val vc = credentialService.sign(credOffer, proof)
         vc shouldNotBe null
@@ -227,11 +225,13 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
                 proofType = ProofType.LD_PROOF
             )
         )
-        val invalidDataVc = Signatory.getService().issue(W3CCredentialBuilder().setCredentialSchema(validVc.toVerifiableCredential().credentialSchema!!)
-          .buildSubject { setProperty("foo", "bar") }, ProofConfig(
-          issuerDid = issuerKeyDid,
-          proofType = ProofType.LD_PROOF
-        ))
+        val invalidDataVc = Signatory.getService().issue(
+            W3CCredentialBuilder().setCredentialSchema(validVc.toVerifiableCredential().credentialSchema!!)
+                .buildSubject { setProperty("foo", "bar") }, ProofConfig(
+                issuerDid = issuerKeyDid,
+                proofType = ProofType.LD_PROOF
+            )
+        )
         val notParsableVc = ""
 
         credentialService.validateSchemaTsr(noSchemaVc) shouldBe false

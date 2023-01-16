@@ -16,7 +16,10 @@ import id.walt.credentials.w3c.VerifiablePresentation
 import id.walt.model.dif.DescriptorMapping
 import id.walt.model.dif.PresentationDefinition
 import id.walt.model.dif.PresentationSubmission
-import id.walt.model.oidc.*
+import id.walt.model.oidc.OIDCProvider
+import id.walt.model.oidc.SIOPv2Response
+import id.walt.model.oidc.SelfIssuedIDToken
+import id.walt.model.oidc.VpTokenRef
 import io.javalin.http.Context
 import mu.KotlinLogging
 import java.net.URI
@@ -69,7 +72,8 @@ object OIDC4VPService {
             val presentationDefinitionKey =
                 presentation_definition?.let { "presentation_definition" } ?: "presentation_definition_uri"
             val presentationDefinitionValue =
-                presentation_definition?.let { klaxonWithConverters.toJsonString(it) } ?: presentation_definition_uri!!.toString()
+                presentation_definition?.let { klaxonWithConverters.toJsonString(it) }
+                    ?: presentation_definition_uri!!.toString()
             customParams[presentationDefinitionKey] = listOf(presentationDefinitionValue)
         }
         customParameters?.let { customParams.putAll(customParameters) }
@@ -92,7 +96,8 @@ object OIDC4VPService {
             null
         }
         val presentationDefinition =
-            authRequest.customParameters["presentation_definition"]?.first()?.let { klaxonWithConverters.parse<PresentationDefinition>(it) }
+            authRequest.customParameters["presentation_definition"]?.first()
+                ?.let { klaxonWithConverters.parse<PresentationDefinition>(it) }
         val presentationDefinitionUri = authRequest.customParameters["presentation_definition_uri"]?.firstOrNull()
         if (listOf(
                 scope,
@@ -175,7 +180,7 @@ object OIDC4VPService {
             definition_id = presentationDefinition.id,
             id = "1"
         )
-        val legacyVpTokenRef = if(req.customParameters[LEGACY_OIDC4VP_FLAG]?.any { it == "true" } == true) {
+        val legacyVpTokenRef = if (req.customParameters[LEGACY_OIDC4VP_FLAG]?.any { it == "true" } == true) {
             VpTokenRef(presentationSubmission)
         } else {
             null

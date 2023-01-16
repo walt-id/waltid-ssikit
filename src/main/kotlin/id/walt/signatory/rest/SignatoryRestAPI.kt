@@ -121,7 +121,13 @@ object SignatoryRestAPI {
             path("v1") {
                 path("credentials") {
                     post("issue", documented(SignatoryController.issueCredentialDocs(), SignatoryController::issueCredential))
-                    post("issueFromJson", documented(SignatoryController.issueCredentialFromJsonDocs(), SignatoryController::issueCredentialFromJson))
+                    post(
+                        "issueFromJson",
+                        documented(
+                            SignatoryController.issueCredentialFromJsonDocs(),
+                            SignatoryController::issueCredentialFromJson
+                        )
+                    )
                 }
                 path("templates") {
                     get("", documented(SignatoryController.listTemplatesDocs(), SignatoryController::listTemplates))

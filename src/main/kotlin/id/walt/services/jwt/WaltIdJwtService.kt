@@ -103,9 +103,11 @@ open class WaltIdJwtService : JwtService() {
         }
 
         log.debug { "Signing JWT with algorithm: ${issuerKey.algorithm}" }
-        val includeJwk: JWK? = if(DidService.isDidEbsiV2(keyAlias)) {
+        val includeJwk: JWK? = if (DidService.isDidEbsiV2(keyAlias)) {
             keyService.toJwk(keyAlias).toPublicJWK()
-        } else { null }
+        } else {
+            null
+        }
 
         val signedJwt = when (issuerKey.algorithm) {
             KeyAlgorithm.EdDSA_Ed25519 -> {
@@ -151,10 +153,9 @@ open class WaltIdJwtService : JwtService() {
         val issuer = jwt.jwtClaimsSet.issuer
         val keyAlias = jwt.header.keyID.orEmpty().ifEmpty { issuer }
         if (DidUrl.isDidUrl(keyAlias)) { // issuer is a valid DID
-            if(DidService.isDidEbsiV2(keyAlias) && jwt.header.jwk != null) {
+            if (DidService.isDidEbsiV2(keyAlias) && jwt.header.jwk != null) {
                 DidService.importKeyForDidEbsiV2(DidUrl.from(keyAlias).did, jwt.header.jwk)
-            }
-            else if (!DidService.importKeys(DidUrl.from(keyAlias).did)) {
+            } else if (!DidService.importKeys(DidUrl.from(keyAlias).did)) {
                 throw Exception("Could not resolve verification keys")
             }
         }

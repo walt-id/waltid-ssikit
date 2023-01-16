@@ -186,7 +186,7 @@ object PolicyRegistry {
             PresentationDefinition::class,
             "Verify that verifiable presentation complies with presentation definition"
         )
-        //register(CredentialStatusPolicy::class, "Verify by credential status")
+        register(CredentialStatusPolicy::class, "Verify by credential status")
         register(DynamicPolicy::class, DynamicPolicyArg::class, "Verify credential by rego policy")
 
         // predefined, hardcoded rego policy specializations

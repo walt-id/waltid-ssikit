@@ -4,7 +4,7 @@ import id.walt.crypto.encodeBase58
 import mu.KotlinLogging
 import kotlin.random.Random
 
-private val log = KotlinLogging.logger {  }
+private val log = KotlinLogging.logger { }
 
 /**
 scheme did:, a method identifier, and a unique, method-specific identifier

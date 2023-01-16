@@ -1,6 +1,5 @@
 package id.walt.custodian
 
-import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.W3CCredentialSchema
 import id.walt.credentials.w3c.builder.W3CCredentialBuilder
 import id.walt.servicematrix.ServiceMatrix

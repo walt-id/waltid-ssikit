@@ -6,8 +6,11 @@ import com.danubetech.keyformats.crypto.provider.impl.TinkEd25519Provider
 import foundation.identity.jsonld.ConfigurableDocumentLoader
 import foundation.identity.jsonld.JsonLDException
 import foundation.identity.jsonld.JsonLDObject
-import id.walt.credentials.w3c.*
+import id.walt.credentials.w3c.VerifiableCredential
+import id.walt.credentials.w3c.VerifiablePresentation
+import id.walt.credentials.w3c.VerifiablePresentationBuilder
 import id.walt.credentials.w3c.schema.SchemaValidatorFactory
+import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.Key
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.LdSignatureType
@@ -23,8 +26,6 @@ import info.weboftrust.ldsignatures.verifier.LdVerifier
 import mu.KotlinLogging
 import org.json.JSONObject
 import java.net.URI
-import java.net.URL
-import java.net.UnknownHostException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.time.Instant
@@ -271,7 +272,8 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
             .filter { it.toString().endsWith(".json") }.map { it.fileName.toString() }.toList()
     }
 
-    override fun validateSchema(vc: VerifiableCredential, schemaURI: URI) = SchemaValidatorFactory.get(schemaURI).validate(vc.toJson())
+    override fun validateSchema(vc: VerifiableCredential, schemaURI: URI) =
+        SchemaValidatorFactory.get(schemaURI).validate(vc.toJson())
 
     override fun validateSchemaTsr(vc: String) = try {
 

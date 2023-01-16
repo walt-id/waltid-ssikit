@@ -11,7 +11,7 @@ import mu.KotlinLogging
 
 object CheqdService {
 
-    private val log = KotlinLogging.logger {  }
+    private val log = KotlinLogging.logger { }
 
     fun createDid(keyId: String): DidCheqd {
         TODO("CHEQD DID creation is not yet implemented")

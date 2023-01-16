@@ -16,9 +16,6 @@ import id.walt.auditor.PolicyRegistry
 import id.walt.auditor.dynamic.DynamicPolicyArg
 import id.walt.auditor.dynamic.PolicyEngineType
 import id.walt.common.prettyPrint
-import id.walt.credentials.w3c.VerifiableCredential
-import id.walt.credentials.w3c.templates.VcTemplate
-import id.walt.credentials.w3c.templates.VcTemplateManager
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.LdSignatureType
 import id.walt.custodian.Custodian
@@ -379,10 +376,10 @@ class VcTemplatesListCommand : CliktCommand(
         echo("\nResults:\n")
 
         Signatory.getService().listTemplates().sortedBy { it.name }.forEach { tmpl ->
-          echo("${if(tmpl.mutable) "*" else "-" } ${tmpl.name}")
+            echo("${if (tmpl.mutable) "*" else "-"} ${tmpl.name}")
         }
-      echo()
-      echo("(*) ... custom template")
+        echo()
+        echo("(*) ... custom template")
     }
 }
 
@@ -403,47 +400,47 @@ class VcTemplatesExportCommand : CliktCommand(
 }
 
 class VcTemplatesImportCommand : CliktCommand(
-  name = "import", help = """Import VC Template.
+    name = "import", help = """Import VC Template.
 
         """
 ) {
 
-  val templateName: String by option("-n", "--name", help = "Name of the template").required()
-  val templateFile: String by argument("template-file", "File of template to import")
+    val templateName: String by option("-n", "--name", help = "Name of the template").required()
+    val templateFile: String by argument("template-file", "File of template to import")
 
-  override fun run() {
-    echo("\nImporting VC template ...")
-    val file = File(templateFile)
-    if(!file.exists() || !file.isFile) {
-      echo("Template file not found")
-    } else {
-      val template = File(templateFile).readText()
-      try {
-        // try to parse
-        Signatory.getService().importTemplate(templateName, template)
-        echo("Template saved as $templateName")
-      } catch (exc: Exception) {
-        echo("Error parsing credential template: ${exc.message}")
-      }
+    override fun run() {
+        echo("\nImporting VC template ...")
+        val file = File(templateFile)
+        if (!file.exists() || !file.isFile) {
+            echo("Template file not found")
+        } else {
+            val template = File(templateFile).readText()
+            try {
+                // try to parse
+                Signatory.getService().importTemplate(templateName, template)
+                echo("Template saved as $templateName")
+            } catch (exc: Exception) {
+                echo("Error parsing credential template: ${exc.message}")
+            }
+        }
     }
-  }
 }
 
 class VcTemplatesRemoveCommand : CliktCommand(
-  name = "remove", help = """Remove VC Template.
+    name = "remove", help = """Remove VC Template.
 
         """
 ) {
 
-  val templateName: String by option("-n", "--name", help = "Name of the template").required()
+    val templateName: String by option("-n", "--name", help = "Name of the template").required()
 
-  override fun run() {
-    echo("\nRemoving VC template ...")
-    try {
-      Signatory.getService().removeTemplate(templateName)
-      echo("Template removed.")
-    } catch (exc: Exception) {
-      echo("Error removing template: ${exc.message}")
+    override fun run() {
+        echo("\nRemoving VC template ...")
+        try {
+            Signatory.getService().removeTemplate(templateName)
+            echo("Template removed.")
+        } catch (exc: Exception) {
+            echo("Error removing template: ${exc.message}")
+        }
     }
-  }
 }

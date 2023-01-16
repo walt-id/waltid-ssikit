@@ -4,15 +4,15 @@ import com.beust.klaxon.Json
 import kotlinx.serialization.json.*
 
 class W3CProof(
-  @Json(serializeNull = false) var type: String? = null,
-  @Json(serializeNull = false) var creator: String? = null,
-  @Json(serializeNull = false) var created: String? = null,
-  @Json(serializeNull = false) var domain: String? = null,
-  @Json(serializeNull = false) var proofPurpose: String? = null,
-  @Json(serializeNull = false) var verificationMethod: String? = null,
-  @Json(serializeNull = false) var jws: String? = null,
-  @Json(serializeNull = false) var nonce: String? = null,
-  @Json(ignored = true) override val properties: Map<String, Any?> = mapOf()
+    @Json(serializeNull = false) var type: String? = null,
+    @Json(serializeNull = false) var creator: String? = null,
+    @Json(serializeNull = false) var created: String? = null,
+    @Json(serializeNull = false) var domain: String? = null,
+    @Json(serializeNull = false) var proofPurpose: String? = null,
+    @Json(serializeNull = false) var verificationMethod: String? = null,
+    @Json(serializeNull = false) var jws: String? = null,
+    @Json(serializeNull = false) var nonce: String? = null,
+    @Json(ignored = true) override val properties: Map<String, Any?> = mapOf()
 ) : ICredentialElement {
 
     fun toJsonObject() = buildJsonObject {
@@ -48,7 +48,8 @@ class W3CProof(
                 verificationMethod = jsonObject["verificationMethod"]?.jsonPrimitive?.contentOrNull,
                 jws = jsonObject["jws"]?.jsonPrimitive?.contentOrNull,
                 nonce = jsonObject["nonce"]?.jsonPrimitive?.contentOrNull,
-                properties = jsonObject.filterKeys { k -> !PREDEFINED_PROPERTY_KEYS.contains(k) }.mapValues { entry -> JsonConverter.fromJsonElement(entry.value) }
+                properties = jsonObject.filterKeys { k -> !PREDEFINED_PROPERTY_KEYS.contains(k) }
+                    .mapValues { entry -> JsonConverter.fromJsonElement(entry.value) }
             )
         }
 

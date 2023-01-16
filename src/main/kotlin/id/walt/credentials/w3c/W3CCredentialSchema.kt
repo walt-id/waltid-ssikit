@@ -6,7 +6,7 @@ class W3CCredentialSchema(
     var id: String,
     var type: String,
     override val properties: Map<String, Any?> = mapOf()
-): ICredentialElement {
+) : ICredentialElement {
     fun toJsonObject() = buildJsonObject {
         id.let { put("id", it) }
         type.let { put("type", it) }
@@ -28,7 +28,8 @@ class W3CCredentialSchema(
             return W3CCredentialSchema(
                 id = jsonObject["id"]?.jsonPrimitive?.content ?: throw Exception("Missing id property in CredentialSchema"),
                 type = jsonObject["type"]?.jsonPrimitive?.content ?: throw Exception("Missing id property in CredentialSchema"),
-                properties = jsonObject.filterKeys { k -> !W3CProof.PREDEFINED_PROPERTY_KEYS.contains(k) }.mapValues { entry -> JsonConverter.fromJsonElement(entry.value) }
+                properties = jsonObject.filterKeys { k -> !W3CProof.PREDEFINED_PROPERTY_KEYS.contains(k) }
+                    .mapValues { entry -> JsonConverter.fromJsonElement(entry.value) }
             )
         }
 

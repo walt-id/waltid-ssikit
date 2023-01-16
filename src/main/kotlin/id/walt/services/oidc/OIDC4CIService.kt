@@ -46,7 +46,7 @@ object OIDC4CIService {
     }
 
     fun getEbsiConformanceIssuerMetadata(issuer: OIDCProvider, force: Boolean = false): OIDCProviderMetadata? {
-        if(issuer.url.startsWith("https://api.conformance.intebsi.xyz") || force) {
+        if (issuer.url.startsWith("https://api.conformance.intebsi.xyz") || force) {
             return OIDCProviderMetadata(
                 Issuer(issuer.url),
                 listOf(SubjectType.PAIRWISE, SubjectType.PUBLIC),
@@ -56,7 +56,10 @@ object OIDC4CIService {
                 pushedAuthorizationRequestEndpointURI = URI.create("${issuer.url}/issuer-mock/par")
                 tokenEndpointURI = URI.create("${issuer.url}/issuer-mock/token")
                 setCustomParameter("credential_endpoint", "${issuer.url}/issuer-mock/credential")
-                setCustomParameter("credential_issuer", CredentialIssuer(listOf(CredentialIssuerDisplay("EBSI Conformance Issuer"))))
+                setCustomParameter(
+                    "credential_issuer",
+                    CredentialIssuer(listOf(CredentialIssuerDisplay("EBSI Conformance Issuer")))
+                )
                 setCustomParameter("credentials_supported", mapOf(
                     "https://api.conformance.intebsi.xyz/trusted-schemas-registry/v2/schemas/zCfNxx5dMBdf4yVcsWzj1anWRuXcxrXj1aogyfN1xSu8t" to CredentialMetadata(
                         formats = mapOf(
@@ -143,7 +146,9 @@ object OIDC4CIService {
     fun getSupportedCredentials(issuer: OIDCProviderWithMetadata): Map<String, CredentialMetadata> {
         return (issuer.oidc_provider_metadata.customParameters["credentials_supported"]?.let {
             val jsonObj = klaxonWithConverters.parseJsonObject(StringReader(it.toString()))
-            jsonObj.keys.associateBy({ it }) { jsonObj.obj(it)?.toJsonString()?.let { klaxonWithConverters.parse<CredentialMetadata>(it) } }
+            jsonObj.keys.associateBy({ it }) {
+                jsonObj.obj(it)?.toJsonString()?.let { klaxonWithConverters.parse<CredentialMetadata>(it) }
+            }
         }?.filterValues { v -> v != null } as Map<String, CredentialMetadata>?) ?: mapOf()
     }
 
@@ -350,7 +355,8 @@ object OIDC4CIService {
         return JwtProof(
             jwt = JwtService.getService().sign(
                 vm,
-                JWTClaimsSet.Builder().issuer(issuer.client_id ?: did).audience(issuer.url).issueTime(Date()).claim("nonce", nonce)
+                JWTClaimsSet.Builder().issuer(issuer.client_id ?: did).audience(issuer.url).issueTime(Date())
+                    .claim("nonce", nonce)
                     .build().toString()
             ),
         )

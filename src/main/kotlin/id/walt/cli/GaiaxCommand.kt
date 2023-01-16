@@ -4,13 +4,11 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.path
-import id.walt.common.klaxonWithConverters
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyId
 import id.walt.model.Did
 import id.walt.model.DidMethod
-import id.walt.model.did.DidWeb
 import id.walt.model.gaiax.GaiaxCredentialGroup
 import id.walt.model.gaiax.ParticipantVerificationResult
 import id.walt.services.did.DidService

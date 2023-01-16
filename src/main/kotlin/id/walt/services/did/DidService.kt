@@ -81,6 +81,7 @@ object DidService {
             DidMethod.key -> createDidKey(keyAlias)
             DidMethod.web -> createDidWeb(keyAlias,
                 options?.let { it as DidWebOptions } ?: DidWebOptions("walt.id", UUID.randomUUID().toString()))
+
             DidMethod.ebsi -> createDidEbsi(keyAlias, options as? DidEbsiOptions)
             DidMethod.iota -> createDidIota(keyAlias)
             DidMethod.jwk -> createDidJwk(keyAlias)
@@ -130,7 +131,7 @@ object DidService {
 
     fun resolveDidEbsi(didUrl: DidUrl): DidEbsi {
         val version = Multibase.decode(didUrl.identifier).first().toInt()
-        return when(version) {
+        return when (version) {
             1 -> resolveDidEbsiV1(didUrl)
             2 -> resolveDidEbsiV2(didUrl)
             else -> throw Exception("did:ebsi must have version 1 or 2")
@@ -164,18 +165,20 @@ object DidService {
     fun resolveDidEbsiV2(didUrl: DidUrl): DidEbsi {
         val jwk = keyService.toJwk(didUrl.did)
         val vmId = "${didUrl.did}#${jwk.computeThumbprint()}"
-        if(DidUrl.generateDidEbsiV2DidUrl(jwk.computeThumbprint().decode()).identifier != didUrl.identifier) {
+        if (DidUrl.generateDidEbsiV2DidUrl(jwk.computeThumbprint().decode()).identifier != didUrl.identifier) {
             throw Exception("Public key doesn't match with DID identifier")
         }
         return DidEbsi(
             context = listOf("https://w3id.org/did/v1"),
             id = didUrl.did,
-            verificationMethod = listOf(VerificationMethod(
-                id = vmId,
-                type = "JsonWebKey2020",
-                controller = didUrl.did,
-                publicKeyJwk = Klaxon().parse<Jwk>(jwk.toJSONString())
-            )),
+            verificationMethod = listOf(
+                VerificationMethod(
+                    id = vmId,
+                    type = "JsonWebKey2020",
+                    controller = didUrl.did,
+                    publicKeyJwk = Klaxon().parse<Jwk>(jwk.toJSONString())
+                )
+            ),
             authentication = listOf(VerificationMethod.Reference(vmId)),
             assertionMethod = listOf(VerificationMethod.Reference(vmId))
         )
@@ -188,7 +191,7 @@ object DidService {
 
     private fun createDidEbsi(keyAlias: String?, didEbsiOptions: DidEbsiOptions?): String {
         val version = didEbsiOptions?.version ?: 1
-        return when(version) {
+        return when (version) {
             1 -> createDidEbsiV1(keyAlias)
             2 -> createDidEbsiV2(keyAlias)
             else -> throw Exception("Did ebsi version must be 1 or 2")
@@ -238,7 +241,7 @@ object DidService {
     }
 
     private fun getPublicKeyBytesForDidKey(key: Key): ByteArray {
-        return when(key.algorithm) {
+        return when (key.algorithm) {
             ECDSA_Secp256k1, ECDSA_Secp256r1 -> (key.getPublicKey() as BCECPublicKey).q.getEncoded(true)
             RSA, EdDSA_Ed25519 -> key.getPublicKeyBytes()
         }
@@ -545,8 +548,9 @@ object DidService {
     private fun generateEcKeyParams(
         pubKey: ByteArray, didUrl: DidUrl, algorithm: KeyAlgorithm
     ): Triple<List<VerificationMethod>?, MutableList<VerificationMethod>, List<VerificationMethod>> {
-        val curve = if(algorithm == ECDSA_Secp256k1) Curve.SECP256K1 else Curve.P_256
-        val vmType = if(algorithm == ECDSA_Secp256k1) EcdsaSecp256k1VerificationKey2019.name else EcdsaSecp256r1VerificationKey2019.name
+        val curve = if (algorithm == ECDSA_Secp256k1) Curve.SECP256K1 else Curve.P_256
+        val vmType =
+            if (algorithm == ECDSA_Secp256k1) EcdsaSecp256k1VerificationKey2019.name else EcdsaSecp256r1VerificationKey2019.name
 
         val uncompressedPubKey = uncompressSecp256k1(pubKey, curve) ?: throw Exception("Error uncompressing public key bytes")
         val key = Key(newKeyId(), algorithm, CryptoProvider.SUN, KeyPair(uncompressedPubKey.toECPublicKey(), null))
@@ -632,7 +636,7 @@ object DidService {
             )
             .filter { vm -> !vm.isReference }
             .mapIndexed { idx, vm -> tryImportVerificationKey(didUrl, vm, idx == 0) }
-            .reduce { acc, b -> acc || b } ?: false
+            .reduce { acc, b -> acc || b }
     }
 
     fun deleteDid(didUrl: String) {
@@ -715,16 +719,16 @@ object DidService {
     }
 
     fun importKeyForDidEbsiV2(did: String, key: JWK) {
-        if(!isDidEbsiV2(did)) {
+        if (!isDidEbsiV2(did)) {
             throw Exception("Specified DID is not did:ebsi version 2")
         }
         val thumbprint = key.computeThumbprint()
         val generatedDid = DidUrl.generateDidEbsiV2DidUrl(thumbprint.decode())
-        if(generatedDid.did != did) {
+        if (generatedDid.did != did) {
             throw Exception("did doesn't match specified key")
         }
         val vmId = "$did#$thumbprint"
-        if(!keyService.hasKey(vmId)) {
+        if (!keyService.hasKey(vmId)) {
             val keyId = keyService.importKey(key.toJSONString())
             keyService.addAlias(keyId, did)
             keyService.addAlias(keyId, "$did#$thumbprint")
