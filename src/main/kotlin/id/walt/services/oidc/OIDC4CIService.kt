@@ -145,7 +145,7 @@ object OIDC4CIService {
 
     fun getSupportedCredentials(issuer: OIDCProviderWithMetadata): Map<String, CredentialMetadata> {
         return (issuer.oidc_provider_metadata.customParameters["credentials_supported"]?.let {
-            log.debug { "OIDC Provider \"${issuer.id}\" metadata - credentials supported: " + StringReader(it.toString()) }
+            log.debug { "OIDC Provider \"${issuer.id}\" metadata - credentials supported: " + it.toString() }
             val jsonObj = klaxonWithConverters.parseJsonObject(StringReader(it.toString()))
             jsonObj.keys.associateBy({ it }) {
                 jsonObj.obj(it)?.toJsonString()?.let { klaxonWithConverters.parse<CredentialMetadata>(it) }
