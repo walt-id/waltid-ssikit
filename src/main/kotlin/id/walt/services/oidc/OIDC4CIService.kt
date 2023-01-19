@@ -144,13 +144,30 @@ object OIDC4CIService {
     }
 
     fun getSupportedCredentials(issuer: OIDCProviderWithMetadata): Map<String, CredentialMetadata> {
-        return (issuer.oidc_provider_metadata.customParameters["credentials_supported"]?.let {
-            log.debug { "OIDC Provider \"${issuer.id}\" metadata - credentials supported: " + it.toString() }
-            val jsonObj = klaxonWithConverters.parseJsonObject(StringReader(it.toString()))
-            jsonObj.keys.associateBy({ it }) {
-                jsonObj.obj(it)?.toJsonString()?.let { klaxonWithConverters.parse<CredentialMetadata>(it) }
+        @Suppress("UNCHECKED_CAST")
+        val supportedCredentials = issuer.oidc_provider_metadata.customParameters["credentials_supported"]
+        println("SSI Kit found supported credentials $supportedCredentials (class ${if (supportedCredentials != null) supportedCredentials::class.java.name else "null"})")
+
+        when (supportedCredentials ){
+            null -> {
+                return emptyMap()
             }
-        }?.filterValues { v -> v != null } as Map<String, CredentialMetadata>?) ?: mapOf()
+            is net.minidev.json.JSONObject -> {
+                return (issuer.oidc_provider_metadata.customParameters["credentials_supported"]?.let {
+                    log.debug { "OIDC Provider \"${issuer.id}\" metadata - credentials supported: " + it.toString() }
+
+                    val jsonObj = klaxonWithConverters.parseJsonObject(StringReader(it.toString()))
+                    jsonObj.keys.associateBy({ it }) {
+                        jsonObj.obj(it)?.toJsonString()?.let { klaxonWithConverters.parse<CredentialMetadata>(it) }
+                    }
+
+                }?.filterValues { v -> v != null } as Map<String, CredentialMetadata>?) ?: mapOf()
+            }
+            is Map<*, *> -> {
+                return supportedCredentials.filter { it.value != null } as? Map<String, CredentialMetadata> ?: mapOf()
+            }
+            else -> return emptyMap()
+        }
     }
 
     private fun createIssuanceAuthRequest(
