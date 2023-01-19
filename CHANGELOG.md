@@ -19,6 +19,7 @@ Notable changes since the last release of the [SSI Kit](https://github.com/walt-
     - did:key with ECDSA keys broken  https://github.com/walt-id/waltid-ssikit/issues/179
     - JWK key import depending on optional alg field https://github.com/walt-id/waltid-ssikit/issues/190
     - Added support for ARM64 in the Docker container (if libsodium wasn't installed)
+    - Fix parsing OIDC4VP requests with presentation definition by reference (https://github.com/walt-id/waltid-ssikit/issues/207)
     
 ## [1.12.0] - 2022-07-19
 
