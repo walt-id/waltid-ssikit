@@ -27,7 +27,9 @@ import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import io.javalin.Javalin
+import io.javalin.apibuilder.ApiBuilder.get
 import io.javalin.apibuilder.ApiBuilder.post
+import io.javalin.http.ContentType
 import io.javalin.http.Context
 import io.javalin.http.HttpCode
 import io.kotest.matchers.collections.beEmpty
@@ -146,6 +148,10 @@ object OIDCTestProvider {
         ctx.json(klaxonWithConverters.toJsonString(NonceResponse(TEST_NONCE, "300")))
     }
 
+    fun testPdByReference(ctx: Context) {
+        ctx.contentType(ContentType.APPLICATION_JSON).result(klaxonWithConverters.toJsonString(TEST_PRESENTATION_DEFINITION))
+    }
+
     fun start(port: Int = 8000) {
         ISSUER_DID = DidService.create(DidMethod.key)
         Javalin.create().routes {
@@ -154,6 +160,7 @@ object OIDCTestProvider {
             post("credential", OIDCTestProvider::testCredential)
             post("present", OIDCTestProvider::testPresent)
             post("nonce", OIDCTestProvider::testNonce)
+            get("pdByReference", OIDCTestProvider::testPdByReference)
         }.start(port)
     }
 }

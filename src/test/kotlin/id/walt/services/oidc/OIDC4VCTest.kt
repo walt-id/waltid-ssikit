@@ -7,6 +7,7 @@ import com.nimbusds.oauth2.sdk.token.BearerAccessToken
 import com.nimbusds.oauth2.sdk.util.URLUtils
 import com.nimbusds.openid.connect.sdk.Nonce
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata
+import id.walt.common.klaxonWithConverters
 import id.walt.credentials.w3c.VerifiablePresentation
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.credentials.w3c.toVerifiablePresentation
@@ -26,6 +27,8 @@ import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.collections.*
+import io.kotest.matchers.maps.shouldContain
+import io.kotest.matchers.maps.shouldContainKey
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNot
 import io.kotest.matchers.shouldNotBe
@@ -416,5 +419,29 @@ class OIDC4VCTest : AnnotationSpec() {
 
         val noMatchesBySubject = OIDCUtils.findCredentialsFor(pd, OIDCTestProvider.ISSUER_DID)
         noMatchesBySubject.values.shouldForAll { set -> set.shouldBeEmpty() }
+    }
+
+    @Test
+    fun testPresentationDefinitionByReference() {
+        val req = OIDC4VPService.createOIDC4VPRequest(
+            URI.create("openid:///"),
+            URI.create("/"),
+            Nonce(),
+            presentation_definition_uri = URI.create("${testProvider.url}/pdByReference")
+        )
+
+        // parse request
+        val parsedReq = shouldNotThrowAny {
+            OIDC4VPService.parseOIDC4VPRequestUri(req.toURI())
+        }
+
+        parsedReq.customParameters shouldContainKey "presentation_definition_uri"
+
+        // try to fetch presentation by reference
+        val presentation = shouldNotThrowAny {
+            OIDC4VPService.getPresentationDefinition(parsedReq)
+        }
+
+        klaxonWithConverters.toJsonString(presentation) shouldEqualJson klaxonWithConverters.toJsonString(OIDCTestProvider.TEST_PRESENTATION_DEFINITION)
     }
 }
