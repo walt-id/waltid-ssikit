@@ -146,7 +146,6 @@ object OIDC4CIService {
     fun getSupportedCredentials(issuer: OIDCProviderWithMetadata): Map<String, CredentialMetadata> {
         @Suppress("UNCHECKED_CAST")
         val supportedCredentials = issuer.oidc_provider_metadata.customParameters["credentials_supported"]
-        println("SSI Kit found supported credentials $supportedCredentials (class ${if (supportedCredentials != null) supportedCredentials::class.java.name else "null"})")
 
         when (supportedCredentials ){
             null -> {
