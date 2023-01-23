@@ -146,16 +146,15 @@ object OIDC4VPService {
                             customParameters.put(LEGACY_OIDC4VP_FLAG, listOf("true"))
                         }
                         // 3
-                        ?: {
-                            val idToken =
-                                authReq.requestObject.jwtClaimsSet.getJSONObjectClaim("claims")["id_token"] as LinkedTreeMap<*, *>
-                            val vpToken = idToken["vp_token"] as LinkedTreeMap<*, *>
-                            val presDef = vpToken["presentation_definition"] as LinkedTreeMap<*, *>
-                            val presDefJson = klaxonWithConverters.toJsonString(presDef)
-                            val aPresDef = klaxonWithConverters.parse<PresentationDefinition>(presDefJson)
-                            aPresDef
-                        }()
-                    ) as PresentationDefinition,
+                        ?: (authReq.requestObject?.jwtClaimsSet?.getJSONObjectClaim("claims")
+                                    ?.get("id_token") as? LinkedTreeMap<*, *>)?.let { idToken ->
+                            (idToken["vp_token"] as? LinkedTreeMap<*, *>)?.let { vpToken ->
+                                (vpToken["presentation_definition"] as? LinkedTreeMap<*, *>)?.let { presDef ->
+                                    klaxonWithConverters.parse<PresentationDefinition>(klaxonWithConverters.toJsonString(presDef))
+                                }
+                            }
+                        }
+                    ),
             presentation_definition_uri = (authReq.requestObject?.jwtClaimsSet?.claims?.get("presentation_definition_uri")
                 ?: authReq.customParameters["presentation_definition_uri"]?.firstOrNull())?.toString()?.let { URI.create(it) },
             state = authReq.requestObject?.jwtClaimsSet?.claims?.get("state")?.toString()?.let { State(it) } ?: authReq.state,
