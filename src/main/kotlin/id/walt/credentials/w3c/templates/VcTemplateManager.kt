@@ -33,8 +33,9 @@ object VcTemplateManager {
             ?.let { VcTemplate(name, if (loadTemplate) it.toVerifiableCredential() else null, true) }
             ?: object {}.javaClass.getResource("/vc-templates/$name.json")?.readText()
                 ?.let { VcTemplate(name, if (loadTemplate) it.toVerifiableCredential() else null, false) }
-            ?: File("$runtimeTemplateFolder/$name.json")?.readText()
-                ?.let { VcTemplate(name, if (loadTemplate) it.toVerifiableCredential() else null, false) }
+            ?: File("$runtimeTemplateFolder/$name.json").let {
+                if (it.exists()) it.readText() else null
+            }?.let { VcTemplate(name, if (loadTemplate) it.toVerifiableCredential() else null, false) }
             ?: throw IllegalArgumentException("No template found, with name $name")
     }
 
