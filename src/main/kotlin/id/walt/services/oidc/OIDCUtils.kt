@@ -3,7 +3,7 @@ package id.walt.services.oidc
 import com.beust.klaxon.JsonArray
 import com.beust.klaxon.JsonObject
 import com.nimbusds.oauth2.sdk.AuthorizationRequest
-import id.walt.common.klaxonWithConverters
+import id.walt.common.KlaxonWithConverters
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.VerifiablePresentation
 import id.walt.credentials.w3c.toVerifiablePresentation
@@ -34,7 +34,7 @@ object OIDCUtils {
                         else -> it["id_token"]?.toString() // EBSI WCT: vp_token is wrongly (?) contained inside id_token object
                     }
                 }
-                ?.let { klaxonWithConverters.parse<VCClaims>(it) } ?: VCClaims()
+                ?.let { KlaxonWithConverters.parse<VCClaims>(it) } ?: VCClaims()
         return claims
     }
 

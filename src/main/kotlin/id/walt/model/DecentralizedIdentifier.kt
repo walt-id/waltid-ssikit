@@ -72,8 +72,8 @@ open class Did(
     val method: DidMethod
         get() = DidMethod.valueOf(url.method)
 
-    fun encode() = klaxonWithConverters.toJsonString(this)
-    fun encodePretty() = klaxonWithConverters.toJsonString(this).prettyPrint()
+    fun encode() = KlaxonWithConverters.toJsonString(this)
+    fun encodePretty() = KlaxonWithConverters.toJsonString(this).prettyPrint()
 
     companion object {
         fun decode(didDoc: String): Did? = KlaxonWithConverters().parse<Did>(didDoc)

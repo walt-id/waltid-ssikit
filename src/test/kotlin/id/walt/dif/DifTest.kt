@@ -1,6 +1,6 @@
 package id.walt.dif
 
-import id.walt.common.klaxonWithConverters
+import id.walt.common.KlaxonWithConverters
 import id.walt.model.dif.PresentationDefinition
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
@@ -39,7 +39,7 @@ class DifTest : AnnotationSpec() {
             ]
         }"""
 
-        val parsedPD = klaxonWithConverters.parse<PresentationDefinition>(pd)
+        val parsedPD = KlaxonWithConverters.parse<PresentationDefinition>(pd)
         parsedPD shouldNotBe null
         parsedPD!!.id shouldBe "vp token example"
         parsedPD.input_descriptors shouldNotBe null
@@ -294,7 +294,7 @@ class DifTest : AnnotationSpec() {
     ]
   }"""
 
-        val parsedPD = klaxonWithConverters.parse<PresentationDefinition>(pd)
+        val parsedPD = KlaxonWithConverters.parse<PresentationDefinition>(pd)
         parsedPD shouldNotBe null
     }
 }

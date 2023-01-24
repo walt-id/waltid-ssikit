@@ -10,7 +10,7 @@ import com.nimbusds.openid.connect.sdk.OIDCTokenResponse
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens
 import id.walt.auditor.Auditor
 import id.walt.auditor.SignaturePolicy
-import id.walt.common.klaxonWithConverters
+import id.walt.common.KlaxonWithConverters
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.model.DidMethod
 import id.walt.model.DidUrl
@@ -105,7 +105,7 @@ object OIDCTestProvider {
 
     fun testCredential(ctx: Context) {
         ctx.contentType() shouldBe "application/json"
-        val credentialReq = klaxonWithConverters.parse<CredentialRequest>(ctx.body())
+        val credentialReq = KlaxonWithConverters.parse<CredentialRequest>(ctx.body())
         credentialReq shouldNotBe null
         credentialReq!!.format shouldBe TEST_CREDENTIAL_FORMAT
         credentialReq.type shouldBe TEST_CREDENTIAL_ID
@@ -123,7 +123,7 @@ object OIDCTestProvider {
             )
         )
         ctx.json(
-            klaxonWithConverters.toJsonString(
+            KlaxonWithConverters.toJsonString(
                 CredentialResponse(
                     credentialReq.format,
                     credential.toVerifiableCredential()
@@ -145,11 +145,11 @@ object OIDCTestProvider {
     }
 
     fun testNonce(ctx: Context) {
-        ctx.json(klaxonWithConverters.toJsonString(NonceResponse(TEST_NONCE, "300")))
+        ctx.json(KlaxonWithConverters.toJsonString(NonceResponse(TEST_NONCE, "300")))
     }
 
     fun testPdByReference(ctx: Context) {
-        ctx.contentType(ContentType.APPLICATION_JSON).result(klaxonWithConverters.toJsonString(TEST_PRESENTATION_DEFINITION))
+        ctx.contentType(ContentType.APPLICATION_JSON).result(KlaxonWithConverters.toJsonString(TEST_PRESENTATION_DEFINITION))
     }
 
     fun start(port: Int = 8000) {

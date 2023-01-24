@@ -14,7 +14,8 @@ import com.nimbusds.oauth2.sdk.token.AccessToken
 import com.nimbusds.oauth2.sdk.util.JSONObjectUtils
 import com.nimbusds.openid.connect.sdk.*
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata
-import id.walt.common.klaxonWithConverters
+import id.walt.common.KlaxonWithConverters
+import id.walt.common.KlaxonWithConverters
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.crypto.LdSignatureType
 import id.walt.model.oidc.*
@@ -139,7 +140,7 @@ object OIDC4CIService {
 
     fun getIssuerInfo(issuer: OIDCProviderWithMetadata): CredentialIssuer? {
         return issuer.oidc_provider_metadata.customParameters["credential_issuer"]?.let {
-            klaxonWithConverters.parse(it.toString())
+            KlaxonWithConverters.parse(it.toString())
         }
     }
 
@@ -155,9 +156,9 @@ object OIDC4CIService {
                 return (issuer.oidc_provider_metadata.customParameters["credentials_supported"]?.let {
                     log.debug { "OIDC Provider \"${issuer.id}\" metadata - credentials supported: " + it.toString() }
 
-                    val jsonObj = klaxonWithConverters.parseJsonObject(StringReader(it.toString()))
+                    val jsonObj = KlaxonWithConverters().parseJsonObject(StringReader(it.toString()))
                     jsonObj.keys.associateBy({ it }) {
-                        jsonObj.obj(it)?.toJsonString()?.let { klaxonWithConverters.parse<CredentialMetadata>(it) }
+                        jsonObj.obj(it)?.toJsonString()?.let { KlaxonWithConverters().parse<CredentialMetadata>(it) }
                     }
 
                 }?.filterValues { v -> v != null } as Map<String, CredentialMetadata>?) ?: mapOf()
@@ -191,7 +192,7 @@ object OIDC4CIService {
         )
             .state(state?.let { State(it) } ?: State())
             .nonce(nonce?.let { Nonce(it) } ?: Nonce())
-            .customParameter("authorization_details", klaxonWithConverters.toJsonString(credentialDetails))
+            .customParameter("authorization_details", KlaxonWithConverters.toJsonString(credentialDetails))
             .endpointURI(if (pushedAuthorization) issuer.oidc_provider_metadata.pushedAuthorizationRequestEndpointURI else issuer.oidc_provider_metadata.authorizationEndpointURI)
 
         wallet_issuer?.let { builder.customParameter("wallet_issuer", it) }
@@ -352,13 +353,13 @@ object OIDC4CIService {
         ).apply {
             authorization = accessToken.toAuthorizationHeader()
             setHeader("Content-Type", "application/json")
-            query = klaxonWithConverters.toJsonString(CredentialRequest(type, format, jwtProof))
+            query = KlaxonWithConverters.toJsonString(CredentialRequest(type, format, jwtProof))
         }.also {
             log.info("Sending credential request to {}\n {}", it.uri, it.query)
         }.send()
         if (resp.indicatesSuccess()) {
             log.info("Credential received: {}", resp.content)
-            val credResp = klaxonWithConverters.parse<CredentialResponse>(resp.content)
+            val credResp = KlaxonWithConverters.parse<CredentialResponse>(resp.content)
             return credResp?.credential
         } else {
             log.error("Got error response from credential endpoint: {}: {}", resp.statusCode, resp.content)
@@ -381,7 +382,7 @@ object OIDC4CIService {
 
     fun getCredentialAuthorizationDetails(request: AuthorizationRequest): List<CredentialAuthorizationDetails> {
         return request.customParameters["authorization_details"]?.flatMap {
-            klaxonWithConverters.parseArray<AuthorizationDetails>(it) ?: listOf()
+            KlaxonWithConverters.parseArray<AuthorizationDetails>(it) ?: listOf()
         }?.filterIsInstance<CredentialAuthorizationDetails>()?.toList() ?: listOf()
     }
 }

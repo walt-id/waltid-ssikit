@@ -7,7 +7,7 @@ import com.nimbusds.oauth2.sdk.token.BearerAccessToken
 import com.nimbusds.oauth2.sdk.util.URLUtils
 import com.nimbusds.openid.connect.sdk.Nonce
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata
-import id.walt.common.klaxonWithConverters
+import id.walt.common.KlaxonWithConverters
 import id.walt.credentials.w3c.VerifiablePresentation
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.credentials.w3c.toVerifiablePresentation
@@ -442,6 +442,6 @@ class OIDC4VCTest : AnnotationSpec() {
             OIDC4VPService.getPresentationDefinition(parsedReq)
         }
 
-        klaxonWithConverters.toJsonString(presentation) shouldEqualJson klaxonWithConverters.toJsonString(OIDCTestProvider.TEST_PRESENTATION_DEFINITION)
+        KlaxonWithConverters.toJsonString(presentation) shouldEqualJson KlaxonWithConverters.toJsonString(OIDCTestProvider.TEST_PRESENTATION_DEFINITION)
     }
 }

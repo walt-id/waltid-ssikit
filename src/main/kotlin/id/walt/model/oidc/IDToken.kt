@@ -3,7 +3,7 @@ package id.walt.model.oidc
 import com.beust.klaxon.Json
 import com.beust.klaxon.Klaxon
 import com.nimbusds.jwt.SignedJWT
-import id.walt.common.klaxonWithConverters
+import id.walt.common.KlaxonWithConverters
 import id.walt.model.dif.PresentationSubmission
 import id.walt.services.did.DidService
 import id.walt.services.jwt.JwtService
@@ -36,7 +36,7 @@ data class IDToken(
 
     companion object {
         fun parse(jwt: String): IDToken? {
-            return SignedJWT.parse(jwt).jwtClaimsSet.toString().let { klaxonWithConverters.parse<IDToken>(it) }?.also {
+            return SignedJWT.parse(jwt).jwtClaimsSet.toString().let { KlaxonWithConverters.parse<IDToken>(it) }?.also {
                 it.jwt = jwt
             }
         }

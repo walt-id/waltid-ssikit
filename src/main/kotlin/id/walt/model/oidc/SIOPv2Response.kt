@@ -1,7 +1,7 @@
 package id.walt.model.oidc
 
 import com.nimbusds.jwt.JWTClaimsSet
-import id.walt.common.klaxonWithConverters
+import id.walt.common.KlaxonWithConverters
 import id.walt.credentials.w3c.VerifiablePresentation
 import id.walt.model.dif.PresentationSubmission
 import id.walt.services.jwt.JwtService
@@ -23,7 +23,7 @@ data class SIOPv2Response(
         val vpTokenString = OIDCUtils.toVpToken(vp_token)
         return buildMap {
             put("vp_token", vpTokenString)
-            put("presentation_submission", klaxonWithConverters.toJsonString(presentation_submission))
+            put("presentation_submission", KlaxonWithConverters.toJsonString(presentation_submission))
             id_token?.let { put("id_token", it) }
             state?.let { put("state", it) }
         }
@@ -35,7 +35,7 @@ data class SIOPv2Response(
 
     fun toEBSIWctJson(): String {
         val idToken = SelfIssuedIDToken.parse(id_token!!)
-        return klaxonWithConverters.toJsonString(
+        return KlaxonWithConverters.toJsonString(
             mapOf(
                 "id_token" to id_token,
                 "vp_token" to vp_token.flatMap { vp -> vp.verifiableCredential ?: listOf() }.map { vc ->
@@ -58,7 +58,7 @@ data class SIOPv2Response(
                 params["presentation_submission"] ?: throw Exception("presentation_submission parameter must be set")
             return SIOPv2Response(
                 vp_token = OIDCUtils.fromVpToken(vpTokenStr),
-                presentation_submission = klaxonWithConverters.parse<PresentationSubmission>(presentationSubmissionStr)
+                presentation_submission = KlaxonWithConverters.parse<PresentationSubmission>(presentationSubmissionStr)
                     ?: throw Exception("Could not parse presentation_submission parameter"),
                 id_token = params["id_token"],
                 state = params["state"]

@@ -9,7 +9,7 @@ import com.nimbusds.jose.jwk.ECKey
 import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jose.jwk.OctetKeyPair
 import com.nimbusds.jwt.JWTClaimsSet
-import id.walt.common.klaxonWithConverters
+import id.walt.common.KlaxonWithConverters
 import id.walt.common.toParamMap
 import id.walt.credentials.w3c.VerifiablePresentationBuilder
 import id.walt.crypto.*
@@ -303,7 +303,7 @@ object UserWalletService {
 
     private fun createVpToken(holderDid: String, va: String): String {
 
-        val vaWrapper = klaxonWithConverters.parse<EbsiVAWrapper>(va)!!
+        val vaWrapper = KlaxonWithConverters.parse<EbsiVAWrapper>(va)!!
 
         val vpReq = VerifiablePresentationBuilder()
             .setHolder(holderDid)

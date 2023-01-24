@@ -11,7 +11,7 @@ import com.nimbusds.oauth2.sdk.id.State
 import com.nimbusds.openid.connect.sdk.Nonce
 import com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue
-import id.walt.common.klaxonWithConverters
+import id.walt.common.KlaxonWithConverters
 import id.walt.credentials.w3c.VerifiablePresentation
 import id.walt.model.dif.DescriptorMapping
 import id.walt.model.dif.PresentationDefinition
@@ -72,7 +72,7 @@ object OIDC4VPService {
             val presentationDefinitionKey =
                 presentation_definition?.let { "presentation_definition" } ?: "presentation_definition_uri"
             val presentationDefinitionValue =
-                presentation_definition?.let { klaxonWithConverters.toJsonString(it) }
+                presentation_definition?.let { KlaxonWithConverters.toJsonString(it) }
                     ?: presentation_definition_uri!!.toString()
             customParams[presentationDefinitionKey] = listOf(presentationDefinitionValue)
         }
@@ -97,7 +97,7 @@ object OIDC4VPService {
         }
         val presentationDefinition =
             authRequest.customParameters["presentation_definition"]?.first()
-                ?.let { klaxonWithConverters.parse<PresentationDefinition>(it) }
+                ?.let { KlaxonWithConverters.parse<PresentationDefinition>(it) }
         val presentationDefinitionUri = authRequest.customParameters["presentation_definition_uri"]?.firstOrNull()
         if (listOf(
                 scope,
@@ -115,7 +115,7 @@ object OIDC4VPService {
         }
         val response = HTTPRequest(HTTPRequest.Method.GET, URI.create(presentationDefinitionUri!!)).send()
         if (response.indicatesSuccess()) {
-            return klaxonWithConverters.parse<PresentationDefinition>(response.content)
+            return KlaxonWithConverters.parse<PresentationDefinition>(response.content)
                 ?: throw Exception("Error parsing presentation_definition_url response as PresentationDefinition object")
         }
         throw Exception("Error fetching presentation definition from presentation_definition_uri")
@@ -139,7 +139,7 @@ object OIDC4VPService {
                     (authReq.requestObject?.jwtClaimsSet?.claims?.get("presentation_definition")?.toString()
                         ?: authReq.getCustomParameter("presentation_definition")?.firstOrNull()
                             )?.let {
-                            klaxonWithConverters.parse<PresentationDefinition>(it)
+                            KlaxonWithConverters.parse<PresentationDefinition>(it)
                         }
                     // 2
                         ?: OIDCUtils.getVCClaims(authReq).vp_token?.presentation_definition?.also {
@@ -150,7 +150,7 @@ object OIDC4VPService {
                                     ?.get("id_token") as? LinkedTreeMap<*, *>)?.let { idToken ->
                             (idToken["vp_token"] as? LinkedTreeMap<*, *>)?.let { vpToken ->
                                 (vpToken["presentation_definition"] as? LinkedTreeMap<*, *>)?.let { presDef ->
-                                    klaxonWithConverters.parse<PresentationDefinition>(klaxonWithConverters.toJsonString(presDef))
+                                    KlaxonWithConverters.parse<PresentationDefinition>(KlaxonWithConverters.toJsonString(presDef))
                                 }
                             }
                         }

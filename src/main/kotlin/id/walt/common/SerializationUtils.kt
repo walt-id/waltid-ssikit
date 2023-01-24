@@ -137,7 +137,7 @@ fun KlaxonWithConverters() = Klaxon()
     .fieldConverter(JsonObjectField::class, jsonObjectFieldConverter)
     .fieldConverter(DidVerificationRelationships::class, didVerificationRelationshipsConverter)
 
-val klaxonWithConverters = Klaxon()
+val KlaxonWithConverters = Klaxon()
     .fieldConverter(VCList::class, VcConverter(singleVC = false, singleIfOne = false, toVcObject = false))
     .fieldConverter(VCObjectList::class, VcConverter(singleVC = false, singleIfOne = false, toVcObject = true))
     .fieldConverter(ListOrSingleVC::class, VcConverter(singleVC = false, singleIfOne = true, toVcObject = false))

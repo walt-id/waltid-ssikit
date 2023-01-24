@@ -1,7 +1,7 @@
 package id.walt.auditor
 
 import com.beust.klaxon.Klaxon
-import id.walt.common.klaxonWithConverters
+import id.walt.common.KlaxonWithConverters
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
@@ -83,7 +83,7 @@ class AuditorApiTest : AnnotationSpec() {
             path = "/v1/verify"
             body {
                 json(
-                    klaxonWithConverters.toJsonString(
+                    KlaxonWithConverters.toJsonString(
                         VerificationRequest(
                             policies = policyList.split(",").map { p -> PolicyRequest(policy = p.trim()) }.toList(),
                             credentials = listOf(

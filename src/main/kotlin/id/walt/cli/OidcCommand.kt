@@ -11,7 +11,7 @@ import com.nimbusds.oauth2.sdk.id.State
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken
 import com.nimbusds.oauth2.sdk.util.URLUtils
 import com.nimbusds.openid.connect.sdk.Nonce
-import id.walt.common.klaxonWithConverters
+import id.walt.common.KlaxonWithConverters
 import id.walt.common.prettyPrint
 import id.walt.credentials.w3c.toVerifiablePresentation
 import id.walt.custodian.Custodian
@@ -410,7 +410,7 @@ class OidcVerificationParseCommand : CliktCommand(name = "parse", help = "Parse 
         } else {
             val presentationDefinition = OIDC4VPService.getPresentationDefinition(req)
             println("Presentation requirements:")
-            println(klaxonWithConverters.toJsonString(presentationDefinition).prettyPrint())
+            println(KlaxonWithConverters.toJsonString(presentationDefinition).prettyPrint())
             if (listCredentials) {
                 println("----------------------------")
                 println("Matching credentials by input descriptor id:")

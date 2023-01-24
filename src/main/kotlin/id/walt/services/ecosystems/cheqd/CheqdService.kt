@@ -1,6 +1,6 @@
 package id.walt.services.ecosystems.cheqd
 
-import id.walt.common.klaxonWithConverters
+import id.walt.common.KlaxonWithConverters
 import id.walt.model.did.DidCheqd
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
@@ -25,7 +25,7 @@ object CheqdService {
 
         log.debug { "Received body from CHEQD resolver: $resultText" }
 
-        val resp = klaxonWithConverters.parse<DidCheqdResolutionResponse>(resultText)
+        val resp = KlaxonWithConverters.parse<DidCheqdResolutionResponse>(resultText)
             ?: throw IllegalArgumentException("Could not decode did:cheqd resolve response!")
 
         log.debug { "Decoded response from CHEQD resolver: $resp" }
