@@ -39,7 +39,7 @@ class DifTest : AnnotationSpec() {
             ]
         }"""
 
-        val parsedPD = KlaxonWithConverters.parse<PresentationDefinition>(pd)
+        val parsedPD = KlaxonWithConverters().parse<PresentationDefinition>(pd)
         parsedPD shouldNotBe null
         parsedPD!!.id shouldBe "vp token example"
         parsedPD.input_descriptors shouldNotBe null
@@ -294,7 +294,7 @@ class DifTest : AnnotationSpec() {
     ]
   }"""
 
-        val parsedPD = KlaxonWithConverters.parse<PresentationDefinition>(pd)
+        val parsedPD = KlaxonWithConverters().parse<PresentationDefinition>(pd)
         parsedPD shouldNotBe null
     }
 }

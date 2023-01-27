@@ -442,6 +442,6 @@ class OIDC4VCTest : AnnotationSpec() {
             OIDC4VPService.getPresentationDefinition(parsedReq)
         }
 
-        KlaxonWithConverters.toJsonString(presentation) shouldEqualJson KlaxonWithConverters.toJsonString(OIDCTestProvider.TEST_PRESENTATION_DEFINITION)
+        KlaxonWithConverters().toJsonString(presentation) shouldEqualJson KlaxonWithConverters().toJsonString(OIDCTestProvider.TEST_PRESENTATION_DEFINITION)
     }
 }

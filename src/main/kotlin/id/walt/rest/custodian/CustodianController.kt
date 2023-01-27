@@ -127,7 +127,7 @@ object CustodianController {
         val ids = ctx.queryParams("id").toSet()
         ctx.contentType(ContentType.APPLICATION_JSON).result(
             custodian.listCredentials().filter { ids.isEmpty() || (it.id != null && ids.contains(it.id!!)) }
-                .let { KlaxonWithConverters.toJsonString(ListCredentialsResponse(it)) }
+                .let { KlaxonWithConverters().toJsonString(ListCredentialsResponse(it)) }
         )
     }
 

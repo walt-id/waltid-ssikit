@@ -83,7 +83,7 @@ class AuditorApiTest : AnnotationSpec() {
             path = "/v1/verify"
             body {
                 json(
-                    KlaxonWithConverters.toJsonString(
+                    KlaxonWithConverters().toJsonString(
                         VerificationRequest(
                             policies = policyList.split(",").map { p -> PolicyRequest(policy = p.trim()) }.toList(),
                             credentials = listOf(

@@ -410,7 +410,7 @@ class OidcVerificationParseCommand : CliktCommand(name = "parse", help = "Parse 
         } else {
             val presentationDefinition = OIDC4VPService.getPresentationDefinition(req)
             println("Presentation requirements:")
-            println(KlaxonWithConverters.toJsonString(presentationDefinition).prettyPrint())
+            println(KlaxonWithConverters().toJsonString(presentationDefinition).prettyPrint())
             if (listCredentials) {
                 println("----------------------------")
                 println("Matching credentials by input descriptor id:")

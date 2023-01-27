@@ -34,7 +34,7 @@ object OIDCUtils {
                         else -> it["id_token"]?.toString() // EBSI WCT: vp_token is wrongly (?) contained inside id_token object
                     }
                 }
-                ?.let { KlaxonWithConverters.parse<VCClaims>(it) } ?: VCClaims()
+                ?.let { KlaxonWithConverters().parse<VCClaims>(it) } ?: VCClaims()
         return claims
     }
 

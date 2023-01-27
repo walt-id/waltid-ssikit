@@ -303,7 +303,7 @@ object UserWalletService {
 
     private fun createVpToken(holderDid: String, va: String): String {
 
-        val vaWrapper = KlaxonWithConverters.parse<EbsiVAWrapper>(va)!!
+        val vaWrapper = KlaxonWithConverters().parse<EbsiVAWrapper>(va)!!
 
         val vpReq = VerifiablePresentationBuilder()
             .setHolder(holderDid)

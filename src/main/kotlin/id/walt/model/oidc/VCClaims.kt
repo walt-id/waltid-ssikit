@@ -38,10 +38,10 @@ class VCClaims(
     override fun toJSONObject(): JSONObject {
         val o = super.toJSONObject()
         if (credentials != null) {
-            o["credentials"] = JSONParser(JSONParser.MODE_PERMISSIVE).parse(KlaxonWithConverters.toJsonString(credentials))
+            o["credentials"] = JSONParser(JSONParser.MODE_PERMISSIVE).parse(KlaxonWithConverters().toJsonString(credentials))
         }
         if (vp_token != null) {
-            o["vp_token"] = JSONParser().parse(KlaxonWithConverters.toJsonString(vp_token))
+            o["vp_token"] = JSONParser().parse(KlaxonWithConverters().toJsonString(vp_token))
         }
         return o
     }

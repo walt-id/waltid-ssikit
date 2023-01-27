@@ -140,7 +140,7 @@ object OIDC4CIService {
 
     fun getIssuerInfo(issuer: OIDCProviderWithMetadata): CredentialIssuer? {
         return issuer.oidc_provider_metadata.customParameters["credential_issuer"]?.let {
-            KlaxonWithConverters.parse(it.toString())
+            KlaxonWithConverters().parse(it.toString())
         }
     }
 
@@ -192,7 +192,7 @@ object OIDC4CIService {
         )
             .state(state?.let { State(it) } ?: State())
             .nonce(nonce?.let { Nonce(it) } ?: Nonce())
-            .customParameter("authorization_details", KlaxonWithConverters.toJsonString(credentialDetails))
+            .customParameter("authorization_details", KlaxonWithConverters().toJsonString(credentialDetails))
             .endpointURI(if (pushedAuthorization) issuer.oidc_provider_metadata.pushedAuthorizationRequestEndpointURI else issuer.oidc_provider_metadata.authorizationEndpointURI)
 
         wallet_issuer?.let { builder.customParameter("wallet_issuer", it) }
@@ -353,13 +353,13 @@ object OIDC4CIService {
         ).apply {
             authorization = accessToken.toAuthorizationHeader()
             setHeader("Content-Type", "application/json")
-            query = KlaxonWithConverters.toJsonString(CredentialRequest(type, format, jwtProof))
+            query = KlaxonWithConverters().toJsonString(CredentialRequest(type, format, jwtProof))
         }.also {
             log.info("Sending credential request to {}\n {}", it.uri, it.query)
         }.send()
         if (resp.indicatesSuccess()) {
             log.info("Credential received: {}", resp.content)
-            val credResp = KlaxonWithConverters.parse<CredentialResponse>(resp.content)
+            val credResp = KlaxonWithConverters().parse<CredentialResponse>(resp.content)
             return credResp?.credential
         } else {
             log.error("Got error response from credential endpoint: {}: {}", resp.statusCode, resp.content)
@@ -382,7 +382,7 @@ object OIDC4CIService {
 
     fun getCredentialAuthorizationDetails(request: AuthorizationRequest): List<CredentialAuthorizationDetails> {
         return request.customParameters["authorization_details"]?.flatMap {
-            KlaxonWithConverters.parseArray<AuthorizationDetails>(it) ?: listOf()
+            KlaxonWithConverters().parseArray<AuthorizationDetails>(it) ?: listOf()
         }?.filterIsInstance<CredentialAuthorizationDetails>()?.toList() ?: listOf()
     }
 }

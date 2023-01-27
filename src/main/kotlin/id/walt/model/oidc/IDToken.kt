@@ -36,7 +36,7 @@ data class IDToken(
 
     companion object {
         fun parse(jwt: String): IDToken? {
-            return SignedJWT.parse(jwt).jwtClaimsSet.toString().let { KlaxonWithConverters.parse<IDToken>(it) }?.also {
+            return SignedJWT.parse(jwt).jwtClaimsSet.toString().let { KlaxonWithConverters().parse<IDToken>(it) }?.also {
                 it.jwt = jwt
             }
         }

@@ -25,7 +25,7 @@ object CheqdService {
 
         log.debug { "Received body from CHEQD resolver: $resultText" }
 
-        val resp = KlaxonWithConverters.parse<DidCheqdResolutionResponse>(resultText)
+        val resp = KlaxonWithConverters().parse<DidCheqdResolutionResponse>(resultText)
             ?: throw IllegalArgumentException("Could not decode did:cheqd resolve response!")
 
         log.debug { "Decoded response from CHEQD resolver: $resp" }
