@@ -84,10 +84,12 @@ data class Issuer(
 
 @Serializable
 data class ServiceEndpoint(
-    var id: String,
-    var type: String,
-    var serviceEndpoint: String,
-)
+    open var id: String,
+    open var type: String,
+    open var serviceEndpoint: List<String>,
+) {
+    constructor(id: String, type: String, serviceEndpoints: String) : this(id, type, listOf(serviceEndpoints))
+}
 
 
 @Serializable
