@@ -100,7 +100,7 @@ object PolicyRegistry {
     }
 
     fun getPolicyWithJsonArg(id: String, argumentJson: JsonObject?): VerificationPolicy {
-        val policyFactory = policies[id]!!
+        val policyFactory = policies[id] ?: throw IllegalArgumentException("No policy exists with id: $id")
         val argument =
             policyFactory.argType?.let {
                 argumentJson?.let {
