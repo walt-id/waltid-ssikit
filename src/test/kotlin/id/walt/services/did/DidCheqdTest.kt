@@ -14,12 +14,12 @@ class DidCheqdTest : StringSpec({
     ServiceMatrix("service-matrix.properties")
 
     "Test CheqdService DID CHEQD resolving" {
-        println(CheqdService.resolveDid("did:cheqd:mainnet:zF7rhDBfUt9d1gJPjx7s1JXfUY7oVWkY"))
+        println(CheqdService.resolveDid("did:cheqd:mainnet:Ps1ysXP2Ae6GBfxNhNQNKN"))
     }
     "Test DidService DID CHEQD resolving" {
-        val did = DidService.resolve("did:cheqd:mainnet:zF7rhDBfUt9d1gJPjx7s1JXfUY7oVWkY")
+        val did = DidService.resolve("did:cheqd:mainnet:Ps1ysXP2Ae6GBfxNhNQNKN")
         println(did.id)
-        did.id shouldBe "did:cheqd:mainnet:zF7rhDBfUt9d1gJPjx7s1JXfUY7oVWkY"
+        did.id shouldBe "did:cheqd:mainnet:Ps1ysXP2Ae6GBfxNhNQNKN"
     }
     var didCheqdKeyId: KeyId? = null
     "Test did:cheqd key importing" {
