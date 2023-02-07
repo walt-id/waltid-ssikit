@@ -115,8 +115,24 @@ object UserWalletService {
                 did.substringAfterLast(":"),
                 EssifClient.verifiableAuthorizationFile
             )
-        ) ?: throw FileNotFoundException("The Verifiable Authorization cannot be found in the HKV store. " +
-                "It has to be installed first by running the SSI Kit ESSIF Onboarding flow (\"ssikit essif onboard ...\").")
+        ) ?: throw FileNotFoundException(
+            "The Verifiable Authorization cannot be found in the HKV store. " +
+                    "It has to be installed first by running the SSI Kit ESSIF Onboarding flow (\"ssikit essif onboard ...\")."
+        )
+
+        if (verifiableAuthorization.startsWith("{\"title\":\"Unauthorized\",\"status\":401,\"type\":\"about:blank\"")) {
+            log.error { "Your Verifiable Authorization was stored invalidly, error: $verifiableAuthorization" }
+
+            throw IllegalArgumentException(
+                when {
+                    "claim timestamp check failed" in verifiableAuthorization || "JWT has expired" in verifiableAuthorization ->
+                        "Your Verifiable Authorization was stored invalidly. Your EBSI Bearer token at the time of onboarding (getting the Verifiable Authorization) was expired."
+                    else -> "(yet-)Unknown error in Verifiable Authorization. See the error message above for more information."
+                }
+            )
+
+
+        }
 
         // val verifiableAuthorization = readWhenContent(EssifClient.verifiableAuthorizationFile)
 
@@ -307,7 +323,6 @@ object UserWalletService {
 
 
     private fun createVpToken(holderDid: String, va: String): String {
-
         val vaWrapper = KlaxonWithConverters().parse<EbsiVAWrapper>(va)!!
 
         val vpReq = VerifiablePresentationBuilder()
