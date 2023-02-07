@@ -68,8 +68,8 @@ class SignatoryApiTest : AnnotationSpec() {
 
         VcTemplateManager.listTemplates().map { it.name }.forEach { templateName -> templates shouldContain templateName }
 
-        templates.map { it } shouldContain "Europass"
-        templates.map { it } shouldContain "VerifiablePresentation"
+        templates shouldContain "Europass"
+        templates shouldContain "VerifiablePresentation"
     }
 
 
