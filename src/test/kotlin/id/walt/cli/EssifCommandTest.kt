@@ -159,13 +159,12 @@ class EssifCommandTest : StringSpec({
         EssifTimestampGetCommand().parse(listOf("--timestamp-id", timestamp!!.timestampId!!))
     }
 
-    // TODO: ESSIF backend issue
-    "8. essif tir get -r".config(enabled = false) {
+    "8. essif tir get -r" {
         EssifTirGetIssuerCommand().parse(listOf("--did", "did:ebsi:224AEY73SGS1gpTvbt5TNTTPdNj8GU6NAq2AVBFmasQbntCt", "-r"))
     }
 
     // TODO: ESSIF backend issue
-    "9. essif tir get -t".config(enabled = false) {
+    "9. essif tir get -t".config(enabled = enableTests) {
         EssifTirGetIssuerCommand().parse(listOf("--did", "did:ebsi:224AEY73SGS1gpTvbt5TNTTPdNj8GU6NAq2AVBFmasQbntCt", "-t"))
     }
 })
