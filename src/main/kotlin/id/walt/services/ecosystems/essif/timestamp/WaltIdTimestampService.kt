@@ -7,7 +7,6 @@ import id.walt.services.ecosystems.essif.jsonrpc.TimestampHashesParams
 import id.walt.services.key.KeyService
 import io.ktor.client.call.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import mu.KotlinLogging
@@ -65,9 +64,6 @@ open class WaltIdTimestampService : TimestampService() {
     override fun getByTimestampId(timestampId: String): Timestamp? = runBlocking {
         val href = "$TIMESTAMPS/$timestampId"
 
-
-
-
         return@runBlocking runBlocking {
             WaltIdServices.http.get(href).body<Timestamp>().also {
                 it.timestampId = timestampId
@@ -79,7 +75,7 @@ open class WaltIdTimestampService : TimestampService() {
     override fun getByTransactionHash(transactionHash: String): Timestamp? = runBlocking {
         var nextPage = WaltIdServices.http.get(TIMESTAMPS).body<Timestamps>().links.last
         var timestamps: Timestamps? = null
-         do {
+        do {
             timestamps = WaltIdServices.http.get(nextPage).body()!!
             val timestampsIterator = timestamps.items.listIterator(timestamps.items.size)
             while (timestampsIterator.hasPrevious()) {
