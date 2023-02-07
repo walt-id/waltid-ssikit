@@ -12,7 +12,10 @@ import com.nimbusds.jwt.JWTClaimsSet
 import id.walt.common.KlaxonWithConverters
 import id.walt.common.toParamMap
 import id.walt.credentials.w3c.VerifiablePresentationBuilder
-import id.walt.crypto.*
+import id.walt.crypto.KeyAlgorithm
+import id.walt.crypto.KeyId
+import id.walt.crypto.findFirst
+import id.walt.crypto.parseEncryptedAke1Payload
 import id.walt.model.*
 import id.walt.services.context.ContextManager
 import id.walt.services.did.DidService
@@ -30,6 +33,7 @@ import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import mu.KotlinLogging
 import org.bouncycastle.jce.provider.BouncyCastleProvider
+import java.io.FileNotFoundException
 import java.security.MessageDigest
 import java.time.Instant
 import java.util.*
@@ -111,7 +115,8 @@ object UserWalletService {
                 did.substringAfterLast(":"),
                 EssifClient.verifiableAuthorizationFile
             )
-        )!!
+        ) ?: throw FileNotFoundException("The Verifiable Authorization cannot be found in the HKV store. " +
+                "It has to be installed first by running the SSI Kit ESSIF Onboarding flow (\"ssikit essif onboard ...\").")
 
         // val verifiableAuthorization = readWhenContent(EssifClient.verifiableAuthorizationFile)
 
