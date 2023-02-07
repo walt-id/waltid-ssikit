@@ -1,6 +1,7 @@
 package id.walt.services.ecosystems.essif
 
 import id.walt.common.readEssifBearerToken
+import id.walt.crypto.JwtUtils
 import id.walt.services.WaltIdServices
 import id.walt.services.context.ContextManager
 import id.walt.services.ecosystems.essif.didebsi.DidEbsiService
@@ -45,6 +46,12 @@ object EssifClient {
 
         log.debug { "Loaded bearer token from ${bearerTokenFile.absolutePath}." }
         log.debug { "Loaded bearer token $bearerToken." }
+
+        JwtUtils.getJwtExpirationIfExpired(bearerToken).let {
+            if (it != null) {
+                throw IllegalArgumentException(JwtUtils.getJwtExpirationMessageIfExpired(bearerToken))
+            }
+        }
 
         ///////////////////////////////////////////////////////////////////////////
         // Requesting the DID Auth Request from the ESSIF Onboarding Service (EOS)
