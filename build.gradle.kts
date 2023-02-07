@@ -14,7 +14,7 @@ plugins {
 }
 
 group = "id.walt"
-version = "1.13.0-SNAPSHOT6"
+version = "1.13.0-SNAPSHOT7"
 
 repositories {
     mavenCentral()
@@ -30,8 +30,7 @@ dependencies {
     api("com.google.crypto.tink:tink:1.7.0")
     api("info.weboftrust:ld-signatures-java:1.2-SNAPSHOT")
     api("decentralized-identity:jsonld-common-java:1.1.0")
-    //implementation("com.goterl:lazysodium-java:5.1.2")
-    implementation("com.github.terl:lazysodium-java:5.1.2")
+    implementation("com.goterl:lazysodium-java:5.1.4")
     implementation("net.java.dev.jna:jna:5.12.1")
     implementation("com.github.multiformats:java-multibase:v1.1.0")
     implementation("com.microsoft.azure:azure-keyvault:1.2.6")
