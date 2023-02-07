@@ -1,15 +1,15 @@
 package id.walt.cli
 
 import com.github.ajalt.clikt.core.PrintHelpMessage
+import id.walt.crypto.JwtUtils.getJwtExpirationMessageIfExpired
+import id.walt.crypto.JwtUtils.isJwtExpired
 import id.walt.crypto.KeyAlgorithm
 import id.walt.model.DidMethod
-import id.walt.model.DidUrl
 import id.walt.servicematrix.ServiceMatrix
+import id.walt.services.crypto.CryptoService
 import id.walt.services.did.DidService
 import id.walt.services.ecosystems.essif.timestamp.Timestamp
 import id.walt.services.ecosystems.essif.timestamp.WaltIdTimestampService
-import id.walt.services.key.KeyService
-import id.walt.test.RESOURCES_PATH
 import io.kotest.assertions.retry
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.assertions.throwables.shouldThrow
@@ -20,6 +20,8 @@ import io.kotest.matchers.string.shouldContain
 import io.kotest.matchers.string.shouldNotBeBlank
 import io.kotest.matchers.string.shouldNotBeEmpty
 import io.kotest.mpp.log
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.util.*
 import kotlin.time.Duration.Companion.minutes
@@ -29,15 +31,34 @@ import kotlin.time.Duration.Companion.seconds
 class EssifCommandTest : StringSpec({
 
     val bearerToken = File("data/ebsi/bearer-token.txt")
-    val enableTests = bearerToken.exists()
+    val enableTests = bearerToken.exists() && if (!isJwtExpired(bearerToken.readText())) true else {
+        println("YOUR EBSI BEARER TOKEN HAS EXPIRED. GET A NEW EBSI BEARER TOKEN FROM https://app-pilot.ebsi.eu/users-onboarding/")
+        println(getJwtExpirationMessageIfExpired(bearerToken.readText()))
+        false
+    }
 
     ServiceMatrix("service-matrix.properties")
 
-    // DID used for onboarding
-    val key = KeyService.getService().generate(KeyAlgorithm.EdDSA_Ed25519)
-    val ethKey = KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1)
-    val did = DidService.create(DidMethod.ebsi, keyAlias = key.id)
-    val identifier = DidUrl.from(did).identifier
+    lateinit var keyId: String
+    lateinit var did: String
+    lateinit var identifier: String
+
+    "META - Check EBSI Bearer Token".config(enabled = enableTests) {
+        if (isJwtExpired(bearerToken.readText())) {
+            runBlocking {
+                repeat(10) {
+                    println("YOUR EBSI BEARER TOKEN HAS EXPIRED. GET A NEW EBSI BEARER TOKEN FROM https://app-pilot.ebsi.eu/users-onboarding/")
+                    delay(1000)
+                }
+            }
+        }
+    }
+
+    "0. Create EBSI DID" {
+        keyId = CryptoService.getService().generateKey(KeyAlgorithm.ECDSA_Secp256k1).id
+        did = DidService.create(DidMethod.ebsi, keyId, DidService.DidEbsiOptions(1))
+        identifier = did.removePrefix("did:ebsi:")
+    }
 
     "1. onboard --help" {
         val e = shouldThrow<PrintHelpMessage> {
@@ -72,7 +93,7 @@ class EssifCommandTest : StringSpec({
         retry(9, 2.minutes, delay = 4.seconds) {
             println("Registering did")
             shouldNotThrowAny {
-                EssifDidRegisterCommand().parse(listOf("--did", did, "--eth-key", ethKey.id))
+                EssifDidRegisterCommand().parse(listOf("--did", did, "--eth-key", keyId))
             }
         }
     }
@@ -107,7 +128,7 @@ class EssifCommandTest : StringSpec({
                 )*/
 
                 transactionHash =
-                    WaltIdTimestampService().createTimestamp(did, ethKey.id, "{\"test\": \"${UUID.randomUUID()}\"}")
+                    WaltIdTimestampService().createTimestamp(did, keyId, "{\"test\": \"${UUID.randomUUID()}\"}")
                 log { "ESSIFCOMMANDTEST: $transactionHash" }
                 transactionHash.shouldNotBeEmpty()
                 transactionHash.shouldNotBeBlank()
