@@ -104,76 +104,63 @@ class TrustedIssuerDidPolicy : SimpleVerificationPolicy() {
     }
 }
 
-class TrustedIssuerRegistryPolicy() : SimpleVerificationPolicy() {
-
-    override val description: String = "Verify by an EBSI Trusted Issuers Registry compliant api."
-    override fun doVerify(vc: VerifiableCredential): Boolean {
-
-        return doVerifyByTrustedIssuersRegistry(vc, null)
-    }
-
-    override var applyToVP: Boolean = false
-}
 
 data class TrustedIssuerRegistryPolicyArg(val registryAddress: String)
 
-class ParameterizedTrustedIssuerRegistryPolicy(registryArg: TrustedIssuerRegistryPolicyArg) :
+class TrustedIssuerRegistryPolicy(registryArg: TrustedIssuerRegistryPolicyArg) :
     ParameterizedVerificationPolicy<TrustedIssuerRegistryPolicyArg>(registryArg) {
 
     constructor(registryAddress: String) : this(
         TrustedIssuerRegistryPolicyArg(registryAddress)
     )
 
+    constructor() : this(
+        TrustedIssuerRegistryPolicyArg("https://api-pilot.ebsi.eu/trusted-issuers-registry/v2/issuers/")
+    )
+
     override val description: String = "Verify by an EBSI Trusted Issuers Registry compliant api."
     override fun doVerify(vc: VerifiableCredential): Boolean {
 
-        return doVerifyByTrustedIssuersRegistry(vc, argument)
+        // VPs are not considered
+        if (vc is VerifiablePresentation)
+            return true
+
+        val issuerDid = vc.issuerId!!
+
+        val resolvedIssuerDid = DidService.loadOrResolveAnyDid(issuerDid)
+            ?: throw Exception("Could not resolve issuer DID $issuerDid")
+
+        if (resolvedIssuerDid.id != issuerDid) {
+            log.debug { "Resolved DID ${resolvedIssuerDid.id} does not match the issuer DID $issuerDid" }
+            return false
+        }
+        var tirRecord: TrustedIssuer
+
+
+        runCatching {
+            tirRecord = TrustedIssuerClient.getIssuer(issuerDid, argument.registryAddress)
+            return isValidTrustedIssuerRecord(tirRecord)
+        }.getOrElse {
+            log.debug { it }
+            log.warn { "Could not resolve issuer TIR record of $issuerDid" }
+            return false
+        }
+    }
+
+    private fun isValidTrustedIssuerRecord(tirRecord: TrustedIssuer): Boolean {
+        for (attribute in tirRecord.attributes) {
+            val attributeInfo = AttributeInfo.from(attribute.body)
+            log.warn { attributeInfo }
+            if (TIR_TYPE_ATTRIBUTE == attributeInfo?.type && TIR_NAME_ISSUER == attributeInfo.name) {
+                return true
+            }
+        }
+        return false
     }
 
     override var applyToVP: Boolean = false
 }
 
-private fun doVerifyByTrustedIssuersRegistry(vc: VerifiableCredential, argument: TrustedIssuerRegistryPolicyArg?): Boolean {
-
-    // VPs are not considered
-    if (vc is VerifiablePresentation)
-        return true
-
-    val issuerDid = vc.issuerId!!
-
-    val resolvedIssuerDid = DidService.loadOrResolveAnyDid(issuerDid)
-        ?: throw Exception("Could not resolve issuer DID $issuerDid")
-
-    if (resolvedIssuerDid.id != issuerDid) {
-        log.debug { "Resolved DID ${resolvedIssuerDid.id} does not match the issuer DID $issuerDid" }
-        return false
-    }
-    var tirRecord: TrustedIssuer
-
-    argument?.let {
-        tirRecord = runCatching {
-            TrustedIssuerClient.getIssuer(issuerDid, it.registryAddress)
-        }.getOrElse { throw Exception("Could not resolve issuer TIR record of $issuerDid", it) }
-        return isValidTrustedIssuerRecord(tirRecord)
-    } ?: run {
-        tirRecord = runCatching {
-            TrustedIssuerClient.getIssuer(issuerDid)
-        }.getOrElse { throw Exception("Could not resolve issuer TIR record of $issuerDid", it) }
-        return isValidTrustedIssuerRecord(tirRecord)
-    }
-
-}
-
-private fun isValidTrustedIssuerRecord(tirRecord: TrustedIssuer): Boolean {
-    for (attribute in tirRecord.attributes) {
-        val attributeInfo = AttributeInfo.from(attribute.body)
-        log.warn { attributeInfo }
-        if (TIR_TYPE_ATTRIBUTE == attributeInfo?.type && TIR_NAME_ISSUER == attributeInfo.name) {
-            return true
-        }
-    }
-    return false
-}
 
 class TrustedSubjectDidPolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by trusted subject did"

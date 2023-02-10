@@ -17,10 +17,14 @@ import io.kotest.core.test.TestCase
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockkObject
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
+import org.junit.jupiter.params.provider.ValueSource
+import java.util.stream.Stream
 
 class TrustedIssuerRegistryPolicyTest : AnnotationSpec() {
 
-    private val testedPolicy = TrustedIssuerRegistryPolicy()
     private val mockedHash = "mockHash"
     private val validAttrInfoJson =
         "{\"@context\":\"https://ebsi.eu\",\"type\":\"attribute\",\"name\":\"issuer\",\"data\":\"5d50b3fa18dde32b384d8c6d096869de\"}"
@@ -53,36 +57,47 @@ class TrustedIssuerRegistryPolicyTest : AnnotationSpec() {
         verifiableCredential = vcStr.toVerifiableCredential()
     }
 
-    @Test
-    fun whenTrustedIssuerRegistryContainsValidAttributeThenReturnTrue() {
+    @ParameterizedTest
+    @MethodSource("id.walt.auditor.TrustedIssuerRegistryPolicyTest#provideTestPolicies")
+    fun whenTrustedIssuerRegistryContainsValidAttributeThenReturnTrue(policy : VerificationPolicy) {
         val attributeList = listOf(Attribute(mockedHash, encBase64Str(validAttrInfoJson)))
         mockTrustedIssuerWithAttributes(attributeList)
 
-        testedPolicy.verify(verifiableCredential) shouldBe true
+        policy.verify(verifiableCredential) shouldBe true
     }
 
-    @Test
-    fun whenTrustedIssuerRegistryContainsInvalidBase64AttributeThenReturnFalse() {
+    fun provideTestPolicies(): Stream<Arguments> {
+        return Stream.of(
+            Arguments.of(TrustedIssuerRegistryPolicy()),
+            Arguments.of(TrustedIssuerRegistryPolicy("http://my-other-registry.org/v3/issuers/"))
+        )
+
+    }
+
+    @ParameterizedTest
+    @MethodSource("id.walt.auditor.TrustedIssuerRegistryPolicyTest#provideTestPolicies")
+    fun whenTrustedIssuerRegistryContainsInvalidBase64AttributeThenReturnFalse(policy : VerificationPolicy) {
         val attributeList = listOf(Attribute(mockedHash, "invalidBase64EncodedString"))
         mockTrustedIssuerWithAttributes(attributeList)
 
-        testedPolicy.verify(verifiableCredential) shouldBe false
+        policy.verify(verifiableCredential) shouldBe false
     }
 
-    @Test
-    fun whenTrustedIssuerRegistryContainsMultipleAttributesWithLastValidThenReturnTrue() {
+    @ParameterizedTest
+    @MethodSource("id.walt.auditor.TrustedIssuerRegistryPolicyTest#provideTestPolicies")
+    fun whenTrustedIssuerRegistryContainsMultipleAttributesWithLastValidThenReturnTrue(policy : VerificationPolicy) {
         val attr1 = Attribute(mockedHash, "invalidBase64EncodedString")
         val attr2 = Attribute(mockedHash, encBase64Str("invalidAttr"))
         val attr3 = Attribute(mockedHash, encBase64Str(validAttrInfoJson))
         val attributeList = listOf(attr1, attr2, attr3)
         mockTrustedIssuerWithAttributes(attributeList)
 
-        testedPolicy.verify(verifiableCredential) shouldBe true
+        policy.verify(verifiableCredential) shouldBe true
     }
 
     private fun mockTrustedIssuerWithAttributes(attributeList: List<Attribute>) {
         val tirRecord = TrustedIssuer(did, attributeList)
         mockkObject(TrustedIssuerClient)
-        every { TrustedIssuerClient.getIssuer(any()) } returns tirRecord
+        every { TrustedIssuerClient.getIssuer(any(), any()) } returns tirRecord
     }
 }

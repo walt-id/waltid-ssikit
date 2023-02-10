@@ -18,15 +18,21 @@ open class PolicyFactory<P : VerificationPolicy, A : Any>(
     val policyType: KClass<P>,
     val argType: KClass<A>?,
     val name: String,
-    val description: String? = null
+    val description: String? = null,
+    val optionalArgument: Boolean = false
 ) {
     open fun create(argument: Any? = null): P {
         return argType?.let {
-            policyType.primaryConstructor!!.call(argument)
-        }
+                if (optionalArgument) {
+                    argument.let {
+                        policyType.primaryConstructor!!.call(argument)
+                    }
+                } else {
+                    policyType.primaryConstructor!!.call(argument)
+                }
+            }
             ?: policyType.createInstance()
     }
-
 
     val requiredArgumentType = when (argType) {
         null -> "None"
@@ -75,8 +81,9 @@ object PolicyRegistry {
     fun <P : ParameterizedVerificationPolicy<A>, A : Any> register(
         policy: KClass<P>,
         argType: KClass<A>,
-        description: String? = null
-    ) = policies.put(policy.simpleName!!, PolicyFactory(policy, argType, policy.simpleName!!, description))
+        description: String? = null,
+        optionalArgument: Boolean = false
+    ) = policies.put(policy.simpleName!!, PolicyFactory(policy, argType, policy.simpleName!!, description, optionalArgument))
 
     fun <P : SimpleVerificationPolicy> register(policy: KClass<P>, description: String? = null) =
         policies.put(policy.simpleName!!, PolicyFactory<P, Unit>(policy, null, policy.simpleName!!, description))
@@ -173,11 +180,11 @@ object PolicyRegistry {
         //register(JsonSchemaPolicy::class, "Verify by JSON schema")
         register(TrustedSchemaRegistryPolicy::class, "Verify by EBSI Trusted Schema Registry")
         register(TrustedIssuerDidPolicy::class, "Verify by trusted issuer did")
-        register(TrustedIssuerRegistryPolicy::class, "Verify by EBSI Trusted Issuer Registry record")
         register(
-            ParameterizedTrustedIssuerRegistryPolicy::class,
+            TrustedIssuerRegistryPolicy::class,
             TrustedIssuerRegistryPolicyArg::class,
-            "Verify by an EBSI Trusted Issuers Registry compliant api."
+            "Verify by an EBSI Trusted Issuers Registry compliant api.",
+            true
         )
         register(TrustedSubjectDidPolicy::class, "Verify by trusted subject did")
         register(IssuedDateBeforePolicy::class, "Verify by issuance date")
