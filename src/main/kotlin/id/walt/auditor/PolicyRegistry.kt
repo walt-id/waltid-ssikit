@@ -173,7 +173,12 @@ object PolicyRegistry {
         //register(JsonSchemaPolicy::class, "Verify by JSON schema")
         register(TrustedSchemaRegistryPolicy::class, "Verify by EBSI Trusted Schema Registry")
         register(TrustedIssuerDidPolicy::class, "Verify by trusted issuer did")
-        register(TrustedIssuerRegistryPolicy::class, "Verify by trusted EBSI Trusted Issuer Registry record")
+        register(TrustedIssuerRegistryPolicy::class, "Verify by EBSI Trusted Issuer Registry record")
+        register(
+            ParameterizedTrustedIssuerRegistryPolicy::class,
+            TrustedIssuerRegistryPolicyArg::class,
+            "Verify by an EBSI Trusted Issuers Registry compliant api."
+        )
         register(TrustedSubjectDidPolicy::class, "Verify by trusted subject did")
         register(IssuedDateBeforePolicy::class, "Verify by issuance date")
         register(ValidFromBeforePolicy::class, "Verify by valid from")

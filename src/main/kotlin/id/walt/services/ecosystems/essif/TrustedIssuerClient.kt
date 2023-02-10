@@ -112,15 +112,23 @@ object TrustedIssuerClient {
         return@runBlocking trustedIssuer
     }
 
-    fun getIssuer(did: String): TrustedIssuer = runBlocking {
+
+    fun getIssuer(did: String, registryAddress: String): TrustedIssuer = runBlocking {
         log.debug { "Getting trusted issuer with DID $did" }
 
+        val registryUrl = registryAddress + did
+
         val trustedIssuer: String =
-            WaltIdServices.http.get("https://api-pilot.ebsi.eu/trusted-issuers-registry/v2/issuers/$did").bodyAsText()
+            WaltIdServices.http.get(registryUrl).bodyAsText()
 
         log.debug { trustedIssuer }
 
         return@runBlocking Klaxon().parse<TrustedIssuer>(trustedIssuer)!!
+    }
+
+    fun getIssuer(did: String): TrustedIssuer = runBlocking {
+        log.debug { "Getting trusted issuer with DID $did" }
+        return@runBlocking getIssuer(did, "https://api-pilot.ebsi.eu/trusted-issuers-registry/v2/issuers/")
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
