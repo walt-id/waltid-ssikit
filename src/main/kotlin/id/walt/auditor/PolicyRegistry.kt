@@ -2,6 +2,7 @@ package id.walt.auditor
 
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
+import com.beust.klaxon.KlaxonException
 import id.walt.auditor.dynamic.DynamicPolicy
 import id.walt.auditor.dynamic.DynamicPolicyArg
 import id.walt.common.deepMerge
@@ -9,10 +10,14 @@ import id.walt.common.resolveContent
 import id.walt.model.dif.PresentationDefinition
 import id.walt.services.context.ContextManager
 import id.walt.services.hkvstore.HKVKey
+import mu.KotlinLogging
 import java.io.StringReader
+import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.primaryConstructor
+
+private val log = KotlinLogging.logger {}
 
 open class PolicyFactory<P : VerificationPolicy, A : Any>(
     val policyType: KClass<P>,
@@ -22,16 +27,21 @@ open class PolicyFactory<P : VerificationPolicy, A : Any>(
     val optionalArgument: Boolean = false
 ) {
     open fun create(argument: Any? = null): P {
-        return argType?.let {
-                if (optionalArgument) {
-                    argument.let {
-                        policyType.primaryConstructor!!.call(argument)
+        try {
+            return argType?.let {
+                if(optionalArgument) {
+                    argument?.let {
+                        return policyType.primaryConstructor!!.call(it)
                     }
                 } else {
-                    policyType.primaryConstructor!!.call(argument)
+                    return policyType.primaryConstructor!!.call(argument)
                 }
-            }
-            ?: policyType.createInstance()
+            } ?: policyType.createInstance()
+        } catch (e: KlaxonException) {
+            throw IllegalArgumentException("Provided argument was of wrong type.", e)
+        } catch (e: InvocationTargetException) {
+            throw IllegalArgumentException("No argument was provided.", e)
+        }
     }
 
     val requiredArgumentType = when (argType) {
