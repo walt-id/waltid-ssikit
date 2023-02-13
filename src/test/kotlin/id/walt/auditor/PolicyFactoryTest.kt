@@ -5,7 +5,6 @@ import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.should
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.beInstanceOf
-import io.kotest.matchers.types.shouldBeInstanceOf
 import org.junit.jupiter.api.Assertions.assertAll
 
 class PolicyFactoryTest : AnnotationSpec() {
