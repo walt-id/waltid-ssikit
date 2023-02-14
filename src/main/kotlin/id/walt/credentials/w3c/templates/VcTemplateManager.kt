@@ -45,6 +45,7 @@ object VcTemplateManager {
         when {
             File(resource.file).isDirectory ->
                 File(resource.file).walk().filter { it.isFile }.map { it.nameWithoutExtension }.toList()
+
             else -> {
                 FileSystems.newFileSystem(resource.toURI(), emptyMap<String, String>()).use { fs ->
                     Files.walk(fs.getPath("/vc-templates"))

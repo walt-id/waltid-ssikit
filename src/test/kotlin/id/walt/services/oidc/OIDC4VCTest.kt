@@ -18,6 +18,7 @@ import id.walt.model.oidc.*
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
 import id.walt.services.jwt.JwtService
+import id.walt.services.oidc.OidcSchemeFixer.unescapeOpenIdScheme
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
@@ -44,13 +45,13 @@ class OIDC4VCTest : AnnotationSpec() {
     lateinit var SUBJECT_DID: String
 
     val FULL_AUTH_INITIATION_REQUEST: URI = URI.create(
-        "openid-initiate-issuance:/?" +
+        "openid-initiate-issuance://waltid-openid-scheme-hack?" +
                 "issuer=http%3A%2F%2Flocalhost%3A$TEST_ISSUER_PORT" +
                 "&credential_type=${OIDCTestProvider.TEST_CREDENTIAL_ID}" +
                 "&op_state=${OIDCTestProvider.TEST_OP_STATE}"
     )
     val PRE_AUTH_INITIATION_REQUEST: URI = URI.create(
-        "openid-initiate-issuance:/?" +
+        "openid-initiate-issuance://waltid-openid-scheme-hack?" +
                 "issuer=http%3A%2F%2Flocalhost%3A$TEST_ISSUER_PORT" +
                 "&credential_type=${OIDCTestProvider.TEST_CREDENTIAL_ID}" +
                 "&pre-authorized_code=${OIDCTestProvider.TEST_PREAUTHZ_CODE}"
@@ -186,7 +187,7 @@ class OIDC4VCTest : AnnotationSpec() {
         val presentation = Custodian.getService().createPresentation(listOf(credential), SUBJECT_DID)
             .toVerifiablePresentation()
         val req = OIDC4VPService.createOIDC4VPRequest(
-            URI("openid:///"),
+            "openid://",
             redirect_uri = URI.create("${testProvider.url}/present"),
             nonce = Nonce(),
             presentation_definition = OIDCTestProvider.TEST_PRESENTATION_DEFINITION
@@ -210,7 +211,7 @@ class OIDC4VCTest : AnnotationSpec() {
         val presentation = Custodian.getService().createPresentation(listOf(credential), SUBJECT_DID)
             .toVerifiablePresentation()
         val req = OIDC4VPService.createOIDC4VPRequest(
-            URI.create("openid:///"),
+            "openid://",
             redirect_uri = URI.create("${testProvider.url}/present"),
             nonce = Nonce(),
             presentation_definition = OIDCTestProvider.TEST_PRESENTATION_DEFINITION
@@ -233,7 +234,7 @@ class OIDC4VCTest : AnnotationSpec() {
         val presentation = Custodian.getService().createPresentation(listOf(credential), SUBJECT_DID)
             .toVerifiablePresentation()
         val req = OIDC4VPService.createOIDC4VPRequest(
-            URI.create("openid:///"),
+            "openid://",
             redirect_uri = URI.create("${testProvider.url}/present"),
             nonce = Nonce(),
             presentation_definition = OIDCTestProvider.TEST_PRESENTATION_DEFINITION
@@ -262,7 +263,7 @@ class OIDC4VCTest : AnnotationSpec() {
         val presentation = Custodian.getService().createPresentation(listOf(credential), SUBJECT_DID)
             .toVerifiablePresentation()
         val req = OIDC4VPService.createOIDC4VPRequest(
-            URI.create("openid:///"),
+            "openid://",
             redirect_uri = URI.create("${testProvider.url}/present"),
             nonce = Nonce(),
             presentation_definition = OIDCTestProvider.TEST_PRESENTATION_DEFINITION
@@ -423,16 +424,16 @@ class OIDC4VCTest : AnnotationSpec() {
 
     @Test
     fun testPresentationDefinitionByReference() {
-        val req = OIDC4VPService.createOIDC4VPRequest(
-            URI.create("openid:///"),
+        val reqURI = OIDC4VPService.createOIDC4VPRequest(
+            "openid://",
             URI.create("/"),
             Nonce(),
             presentation_definition_uri = URI.create("${testProvider.url}/pdByReference")
-        )
+        ).toURI().unescapeOpenIdScheme()
 
         // parse request
         val parsedReq = shouldNotThrowAny {
-            OIDC4VPService.parseOIDC4VPRequestUri(req.toURI())
+            OIDC4VPService.parseOIDC4VPRequestUri(reqURI)
         }
 
         parsedReq.customParameters shouldContainKey "presentation_definition_uri"

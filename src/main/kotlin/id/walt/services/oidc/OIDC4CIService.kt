@@ -15,7 +15,6 @@ import com.nimbusds.oauth2.sdk.util.JSONObjectUtils
 import com.nimbusds.openid.connect.sdk.*
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata
 import id.walt.common.KlaxonWithConverters
-import id.walt.common.KlaxonWithConverters
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.crypto.LdSignatureType
 import id.walt.model.oidc.*
@@ -148,10 +147,11 @@ object OIDC4CIService {
         @Suppress("UNCHECKED_CAST")
         val supportedCredentials = issuer.oidc_provider_metadata.customParameters["credentials_supported"]
 
-        when (supportedCredentials ){
+        when (supportedCredentials) {
             null -> {
                 return emptyMap()
             }
+
             is net.minidev.json.JSONObject -> {
                 return (issuer.oidc_provider_metadata.customParameters["credentials_supported"]?.let {
                     log.debug { "OIDC Provider \"${issuer.id}\" metadata - credentials supported: " + it.toString() }
@@ -163,9 +163,11 @@ object OIDC4CIService {
 
                 }?.filterValues { v -> v != null } as Map<String, CredentialMetadata>?) ?: mapOf()
             }
+
             is Map<*, *> -> {
                 return supportedCredentials.filter { it.value != null } as? Map<String, CredentialMetadata> ?: mapOf()
             }
+
             else -> return emptyMap()
         }
     }

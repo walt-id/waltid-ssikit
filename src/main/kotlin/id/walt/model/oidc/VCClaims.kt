@@ -2,8 +2,8 @@ package id.walt.model.oidc
 
 import com.beust.klaxon.Json
 import com.nimbusds.openid.connect.sdk.OIDCClaimsRequest
-import id.walt.common.ListOrSingleVC
 import id.walt.common.KlaxonWithConverters
+import id.walt.common.ListOrSingleVC
 import id.walt.credentials.w3c.VerifiablePresentation
 import id.walt.model.dif.PresentationDefinition
 import id.walt.model.dif.PresentationSubmission

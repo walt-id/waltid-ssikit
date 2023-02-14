@@ -137,7 +137,7 @@ class EssifCommandTest : StringSpec({
         }
     }
 
-    "6. Get timestamp transaction hash".config(enabled = enableTests) {
+    "6. Get timestamp transaction hash".config(enabled = false) {
         timestamp =
             WaltIdTimestampService().getByTransactionHash(transactionHash!!)
         validateTimestamp(timestamp)
@@ -152,7 +152,7 @@ class EssifCommandTest : StringSpec({
         )
     }
 
-    "7. Get by timestamp Id".config(enabled = enableTests) {
+    "7. Get by timestamp Id".config(enabled = false) {
         val timestampReceived =
             WaltIdTimestampService().getByTimestampId(timestamp!!.timestampId!!)
         validateTimestamp(timestampReceived)

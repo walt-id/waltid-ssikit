@@ -20,6 +20,7 @@ import id.walt.model.oidc.OIDCProvider
 import id.walt.model.oidc.SIOPv2Response
 import id.walt.model.oidc.SelfIssuedIDToken
 import id.walt.model.oidc.VpTokenRef
+import id.walt.services.oidc.OidcSchemeFixer.safeOpenidScheme
 import io.javalin.http.Context
 import mu.KotlinLogging
 import java.net.URI
@@ -43,7 +44,7 @@ object OIDC4VPService {
     }
 
     fun createOIDC4VPRequest(
-        wallet_url: URI,
+        wallet_url: String,
         redirect_uri: URI,
         nonce: Nonce,
         response_type: ResponseType = ResponseType("vp_token"),
@@ -77,8 +78,9 @@ object OIDC4VPService {
             customParams[presentationDefinitionKey] = listOf(presentationDefinitionValue)
         }
         customParameters?.let { customParams.putAll(customParameters) }
+
         return AuthorizationRequest(
-            wallet_url,
+            wallet_url.safeOpenidScheme(),
             response_type,
             response_mode,
             ClientID(redirect_uri.toString()),
@@ -124,7 +126,7 @@ object OIDC4VPService {
     private fun authRequest2OIDC4VPRequest(authReq: AuthorizationRequest): AuthorizationRequest {
         val customParameters = authReq.customParameters.toMutableMap()
         return createOIDC4VPRequest(
-            authReq.requestURI ?: URI.create("openid:///"),
+            authReq.requestURI?.toString() ?: OidcSchemeFixer.openIdSchemeFix,
             redirect_uri = authReq.requestObject?.jwtClaimsSet?.claims?.get("redirect_uri")?.let { URI.create(it.toString()) }
                 ?: authReq.redirectionURI,
             nonce = (authReq.requestObject?.jwtClaimsSet?.claims?.get("nonce")
@@ -147,10 +149,14 @@ object OIDC4VPService {
                         }
                         // 3
                         ?: (authReq.requestObject?.jwtClaimsSet?.getJSONObjectClaim("claims")
-                                    ?.get("id_token") as? LinkedTreeMap<*, *>)?.let { idToken ->
+                            ?.get("id_token") as? LinkedTreeMap<*, *>)?.let { idToken ->
                             (idToken["vp_token"] as? LinkedTreeMap<*, *>)?.let { vpToken ->
                                 (vpToken["presentation_definition"] as? LinkedTreeMap<*, *>)?.let { presDef ->
-                                    KlaxonWithConverters().parse<PresentationDefinition>(KlaxonWithConverters().toJsonString(presDef))
+                                    KlaxonWithConverters().parse<PresentationDefinition>(
+                                        KlaxonWithConverters().toJsonString(
+                                            presDef
+                                        )
+                                    )
                                 }
                             }
                         }

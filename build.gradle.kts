@@ -14,7 +14,7 @@ plugins {
 }
 
 group = "id.walt"
-version = "1.13.0-SNAPSHOT8"
+version = "1.13.0-SNAPSHOT9"
 
 repositories {
     mavenCentral()
@@ -35,8 +35,8 @@ dependencies {
     implementation("com.github.multiformats:java-multibase:v1.1.0")
     implementation("com.microsoft.azure:azure-keyvault:1.2.6")
     implementation("com.microsoft.azure:azure-client-authentication:1.7.14")
-    implementation("com.nimbusds:nimbus-jose-jwt:9.25.6")
-    implementation("com.nimbusds:oauth2-oidc-sdk:10.1")
+    implementation("com.nimbusds:nimbus-jose-jwt:9.30.1")
+    implementation("com.nimbusds:oauth2-oidc-sdk:10.5.1")
 
     implementation("org.bouncycastle:bcprov-jdk15to18:1.72")
     implementation("org.bouncycastle:bcpkix-jdk15to18:1.72")

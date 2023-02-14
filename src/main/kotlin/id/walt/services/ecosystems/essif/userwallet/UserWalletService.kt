@@ -127,6 +127,7 @@ object UserWalletService {
                 when {
                     "claim timestamp check failed" in verifiableAuthorization || "JWT has expired" in verifiableAuthorization ->
                         "Your Verifiable Authorization was stored invalidly. Your EBSI Bearer token at the time of onboarding (getting the Verifiable Authorization) was expired."
+
                     else -> "(yet-)Unknown error in Verifiable Authorization. See the error message above for more information."
                 }
             )

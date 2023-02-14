@@ -200,7 +200,7 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
     }
 
     override fun removeTemplate(templateId: String) {
-        val template = VcTemplateManager.getTemplate(templateId,true, configuration.templatesFolder)
+        val template = VcTemplateManager.getTemplate(templateId, true, configuration.templatesFolder)
         if (template.mutable) {
             VcTemplateManager.unregisterTemplate(templateId)
         } else {

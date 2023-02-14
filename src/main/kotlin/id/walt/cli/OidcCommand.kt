@@ -26,6 +26,7 @@ import id.walt.services.oidc.CompatibilityMode
 import id.walt.services.oidc.OIDC4CIService
 import id.walt.services.oidc.OIDC4VPService
 import id.walt.services.oidc.OIDCUtils
+import id.walt.services.oidc.OidcSchemeFixer.unescapeOpenIdScheme
 import java.net.URI
 import java.util.*
 
@@ -343,8 +344,8 @@ class OidcVerificationGenUrlCommand :
     val client_url: String by option(
         "-c",
         "--client-url",
-        help = "Base URL of client, e.g. Wallet, default: openid:///"
-    ).default("openid:///")
+        help = "Base URL of client, e.g. Wallet, default: openid://"
+    ).default("openid://")
     val response_type: String by option("--response-type", help = "Response type, default: vp_token").default("vp_token")
     val response_mode: String by option("--response-mode", help = "Response mode, default: fragment").default("fragment")
     val nonce: String? by option("-n", "--nonce", help = "Nonce, default: auto-generated")
@@ -358,12 +359,12 @@ class OidcVerificationGenUrlCommand :
 
     override fun run() {
         val req = OIDC4VPService.createOIDC4VPRequest(
-            wallet_url = URI.create(client_url),
+            wallet_url = client_url,
             redirect_uri = URI.create("${verifier_url.trimEnd('/')}/${verifier_path.trimStart('/')}"),
             nonce = nonce?.let { Nonce(it) } ?: Nonce(),
             response_type = ResponseType.parse(response_type),
             response_mode = ResponseMode(response_mode),
-            scope = Scope(scope),
+            scope = scope?.let { Scope(scope) },
             presentation_definition = if (scope.isNullOrEmpty() && presentationDefinitionUrl.isNullOrEmpty()) {
                 PresentationDefinition("1",
                     input_descriptors = credentialTypes?.map { credType ->
@@ -386,17 +387,18 @@ class OidcVerificationGenUrlCommand :
             presentation_definition_uri = presentationDefinitionUrl?.let { URI.create(it) },
             state = state?.let { State(it) }
         )
-        println("${req.toURI()}")
+        println("${req.toURI().unescapeOpenIdScheme()}")
     }
 }
 
 class OidcVerificationParseCommand : CliktCommand(name = "parse", help = "Parse SIOP presentation request") {
 
-    val authUrl: String? by option(
+    val authUrl: String by option(
         "-u",
         "--url",
         help = "Authentication request URL from verifier portal, or get-url / gen-url subcommands"
-    )
+    ).required()
+
     val listCredentials: Boolean by option(
         "-l",
         "--list-credentials",

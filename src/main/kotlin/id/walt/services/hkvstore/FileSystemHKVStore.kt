@@ -49,7 +49,8 @@ class FileSystemHKVStore(configPath: String) : HKVStoreService() {
         storeMappings()
     }
 
-    private fun retrieveHashMapping(hashMapping: String): String = mappingProperties.value[hashMapping] as? String ?: throw IllegalArgumentException("No HKVS mapping found for hash: $hashMapping")
+    private fun retrieveHashMapping(hashMapping: String): String = mappingProperties.value[hashMapping] as? String
+        ?: throw IllegalArgumentException("No HKVS mapping found for hash: $hashMapping")
 
     private fun hashIfNeeded(path: Path): File {
         if (path.name.length > MAX_KEY_SIZE) {
