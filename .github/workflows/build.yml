@@ -1,40 +1,64 @@
-name: CI/CD Workflow for walt.id SSI Kit
+name: Build on every push
 
 on:
-  push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
+    push:
+        branches:
+            - '*'
+            - '*/*'
+            - '**'
+            - '!main'
+
 
 jobs:
-  verify-wrapper:
-    name: "Verification"
-    runs-on: "ubuntu-latest"
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Validate gradle wrapper
-        uses: gradle/wrapper-validation-action@v1
-
-  gradle:
-    needs: verify-wrapper
-    name: "Build"
-    strategy:
-      matrix:
-        # os: [ubuntu-latest, macos-latest]
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-    - name: Setup java
-      uses: actions/setup-java@v2.1.0
-      with:
-        distribution: 'adopt-hotspot'
-        java-version: '16'
-    - name: Running gradle build
-      uses: eskatos/gradle-command-action@v1.3.3
-      with:
-        arguments: build --no-daemon --info
+    build:
+        name: "Build"
+        runs-on: "ubuntu-latest"
+        steps:
+            - uses: actions/checkout@v3
+            - name: Calculate release version
+              run: |
+                  echo "release_version=1.$(date +'%g%m%d%H%M').$(echo ${{ github.ref_name }} | tr / -)" >> $GITHUB_ENV
+            - name: Set version
+              run: |
+                  sed -i "s/1.SNAPSHOT/${{ env.release_version }}/g" build.gradle.kts src/main/kotlin/id/walt/Values.kt
+            - run: |
+                  git tag v${{ env.release_version }}
+                  git push --tags
+            - name: Setup java
+              uses: actions/setup-java@v2.1.0
+              with:
+                  distribution: 'adopt-hotspot'
+                  java-version: '16'
+            - name: Setup cache
+              uses: actions/cache@v2
+              with:
+                  path: |
+                      ~/.gradle/caches
+                      ~/.gradle/wrapper
+                  key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+                  restore-keys: |
+                      ${{ runner.os }}-gradle-
+            - name: Gradle wrapper validation
+              uses: gradle/wrapper-validation-action@v1
+            - name: Running gradle build
+              uses: eskatos/gradle-command-action@v1.3.3
+              env:
+                  MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+                  MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
+              with:
+                  arguments: build publish --no-daemon
+            - name: Docker Build and Push SNAPSHOT
+              uses: philpotisk/github-action-docker-build-push@master
+              env:
+                  DOCKER_USERNAME: ${{secrets.DOCKER_USERNAME}}
+                  DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+                  DOCKER_FILE: Dockerfile
+                  CONTAINER_TAG: waltid/ssikit:latest
+            - name: Prepare CD K8S
+              run: sed "s/_DEFAULT_DEPLOYMENT_/$GITHUB_SHA/g" k8s/deployment-dev.yaml > k8s/deployment-dev_mod.yaml
+            - name: Continuous deployment K8S
+              uses: actions-hub/kubectl@master
+              env:
+                  KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+              with:
+                  args: apply -n dev -f k8s/deployment-dev_mod.yaml
