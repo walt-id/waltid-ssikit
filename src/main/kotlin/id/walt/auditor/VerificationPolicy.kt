@@ -57,6 +57,8 @@ abstract class SimpleVerificationPolicy : VerificationPolicy()
 
 abstract class ParameterizedVerificationPolicy<T>(val argument: T) : VerificationPolicy()
 
+abstract class OptionalParameterizedVerificationPolicy<T>(val argument: T?) : VerificationPolicy()
+
 class SignaturePolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by signature"
     override fun doVerify(vc: VerifiableCredential) = runCatching {
@@ -102,8 +104,21 @@ class TrustedIssuerDidPolicy : SimpleVerificationPolicy() {
     }
 }
 
-class TrustedIssuerRegistryPolicy : SimpleVerificationPolicy() {
-    override val description: String = "Verify by trusted EBSI Trusted Issuer Registry record"
+
+data class TrustedIssuerRegistryPolicyArg(val registryAddress: String)
+
+class TrustedIssuerRegistryPolicy(registryArg: TrustedIssuerRegistryPolicyArg) :
+    ParameterizedVerificationPolicy<TrustedIssuerRegistryPolicyArg>(registryArg) {
+
+    constructor(registryAddress: String) : this(
+        TrustedIssuerRegistryPolicyArg(registryAddress)
+    )
+
+    constructor() : this(
+        TrustedIssuerRegistryPolicyArg("https://api-pilot.ebsi.eu/trusted-issuers-registry/v2/issuers/")
+    )
+
+    override val description: String = "Verify by an EBSI Trusted Issuers Registry compliant api."
     override fun doVerify(vc: VerifiableCredential): Boolean {
 
         // VPs are not considered
@@ -119,17 +134,23 @@ class TrustedIssuerRegistryPolicy : SimpleVerificationPolicy() {
             log.debug { "Resolved DID ${resolvedIssuerDid.id} does not match the issuer DID $issuerDid" }
             return false
         }
+        var tirRecord: TrustedIssuer
 
-        val tirRecord = runCatching {
-            TrustedIssuerClient.getIssuer(issuerDid)
-        }.getOrElse { throw Exception("Could not resolve issuer TIR record of $issuerDid", it) }
 
-        return isValidTrustedIssuerRecord(tirRecord)
+        runCatching {
+            tirRecord = TrustedIssuerClient.getIssuer(issuerDid, argument.registryAddress)
+            return isValidTrustedIssuerRecord(tirRecord)
+        }.getOrElse {
+            log.debug { it }
+            log.warn { "Could not resolve issuer TIR record of $issuerDid" }
+            return false
+        }
     }
 
     private fun isValidTrustedIssuerRecord(tirRecord: TrustedIssuer): Boolean {
         for (attribute in tirRecord.attributes) {
             val attributeInfo = AttributeInfo.from(attribute.body)
+            log.warn { attributeInfo }
             if (TIR_TYPE_ATTRIBUTE == attributeInfo?.type && TIR_NAME_ISSUER == attributeInfo.name) {
                 return true
             }
@@ -139,6 +160,7 @@ class TrustedIssuerRegistryPolicy : SimpleVerificationPolicy() {
 
     override var applyToVP: Boolean = false
 }
+
 
 class TrustedSubjectDidPolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by trusted subject did"
@@ -220,7 +242,8 @@ class CredentialStatusPolicy : SimpleVerificationPolicy() {
 
 data class ChallengePolicyArg(val challenges: Set<String>, val applyToVC: Boolean = true, val applyToVP: Boolean = true)
 
-class ChallengePolicy(challengeArg: ChallengePolicyArg) : ParameterizedVerificationPolicy<ChallengePolicyArg>(challengeArg) {
+class ChallengePolicy(challengeArg: ChallengePolicyArg) :
+    ParameterizedVerificationPolicy<ChallengePolicyArg>(challengeArg) {
     constructor(challenge: String, applyToVC: Boolean = true, applyToVP: Boolean = true) : this(
         ChallengePolicyArg(
             setOf(

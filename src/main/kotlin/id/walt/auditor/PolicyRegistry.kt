@@ -2,6 +2,7 @@ package id.walt.auditor
 
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
+import com.beust.klaxon.KlaxonException
 import id.walt.auditor.dynamic.DynamicPolicy
 import id.walt.auditor.dynamic.DynamicPolicyArg
 import id.walt.common.deepMerge
@@ -9,24 +10,39 @@ import id.walt.common.resolveContent
 import id.walt.model.dif.PresentationDefinition
 import id.walt.services.context.ContextManager
 import id.walt.services.hkvstore.HKVKey
+import mu.KotlinLogging
 import java.io.StringReader
+import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 import kotlin.reflect.full.primaryConstructor
+
+private val log = KotlinLogging.logger {}
 
 open class PolicyFactory<P : VerificationPolicy, A : Any>(
     val policyType: KClass<P>,
     val argType: KClass<A>?,
     val name: String,
-    val description: String? = null
+    val description: String? = null,
+    val optionalArgument: Boolean = false
 ) {
     open fun create(argument: Any? = null): P {
-        return argType?.let {
-            policyType.primaryConstructor!!.call(argument)
+        try {
+            return argType?.let {
+                if(optionalArgument) {
+                    argument?.let {
+                        return policyType.primaryConstructor!!.call(it)
+                    }
+                } else {
+                    return policyType.primaryConstructor!!.call(argument)
+                }
+            } ?: policyType.createInstance()
+        } catch (e: KlaxonException) {
+            throw IllegalArgumentException("Provided argument was of wrong type.", e)
+        } catch (e: InvocationTargetException) {
+            throw IllegalArgumentException("No argument was provided.", e)
         }
-            ?: policyType.createInstance()
     }
-
 
     val requiredArgumentType = when (argType) {
         null -> "None"
@@ -75,8 +91,9 @@ object PolicyRegistry {
     fun <P : ParameterizedVerificationPolicy<A>, A : Any> register(
         policy: KClass<P>,
         argType: KClass<A>,
-        description: String? = null
-    ) = policies.put(policy.simpleName!!, PolicyFactory(policy, argType, policy.simpleName!!, description))
+        description: String? = null,
+        optionalArgument: Boolean = false
+    ) = policies.put(policy.simpleName!!, PolicyFactory(policy, argType, policy.simpleName!!, description, optionalArgument))
 
     fun <P : SimpleVerificationPolicy> register(policy: KClass<P>, description: String? = null) =
         policies.put(policy.simpleName!!, PolicyFactory<P, Unit>(policy, null, policy.simpleName!!, description))
@@ -173,7 +190,12 @@ object PolicyRegistry {
         //register(JsonSchemaPolicy::class, "Verify by JSON schema")
         register(TrustedSchemaRegistryPolicy::class, "Verify by EBSI Trusted Schema Registry")
         register(TrustedIssuerDidPolicy::class, "Verify by trusted issuer did")
-        register(TrustedIssuerRegistryPolicy::class, "Verify by trusted EBSI Trusted Issuer Registry record")
+        register(
+            TrustedIssuerRegistryPolicy::class,
+            TrustedIssuerRegistryPolicyArg::class,
+            "Verify by an EBSI Trusted Issuers Registry compliant api.",
+            true
+        )
         register(TrustedSubjectDidPolicy::class, "Verify by trusted subject did")
         register(IssuedDateBeforePolicy::class, "Verify by issuance date")
         register(ValidFromBeforePolicy::class, "Verify by valid from")

@@ -15,12 +15,19 @@ import id.walt.signatory.Signatory
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.core.test.TestCase
 import io.kotest.matchers.shouldBe
+import io.mockk.CapturingSlot
 import io.mockk.every
 import io.mockk.mockkObject
+import org.junit.jupiter.api.assertAll
 
 class TrustedIssuerRegistryPolicyTest : AnnotationSpec() {
 
-    private val testedPolicy = TrustedIssuerRegistryPolicy()
+    private val defaultRegistry = "https://api-pilot.ebsi.eu/trusted-issuers-registry/v2/issuers/"
+    private val otherRegistry = "http://my-other-registry.org/v3/issuers/"
+
+    private val simplePolicy = TrustedIssuerRegistryPolicy();
+    private val parameterizedPolicy = TrustedIssuerRegistryPolicy(otherRegistry);
+
     private val mockedHash = "mockHash"
     private val validAttrInfoJson =
         "{\"@context\":\"https://ebsi.eu\",\"type\":\"attribute\",\"name\":\"issuer\",\"data\":\"5d50b3fa18dde32b384d8c6d096869de\"}"
@@ -56,17 +63,29 @@ class TrustedIssuerRegistryPolicyTest : AnnotationSpec() {
     @Test
     fun whenTrustedIssuerRegistryContainsValidAttributeThenReturnTrue() {
         val attributeList = listOf(Attribute(mockedHash, encBase64Str(validAttrInfoJson)))
-        mockTrustedIssuerWithAttributes(attributeList)
+        val capture = mockTrustedIssuerWithAttributes(attributeList)
 
-        testedPolicy.verify(verifiableCredential) shouldBe true
+        assertAll(
+            { simplePolicy.verify(verifiableCredential) shouldBe true },
+            { capture.captured shouldBe defaultRegistry }
+        )
+
+        assertAll(
+            { parameterizedPolicy.verify(verifiableCredential) shouldBe true },
+            { capture.captured shouldBe otherRegistry }
+        )
     }
+
 
     @Test
     fun whenTrustedIssuerRegistryContainsInvalidBase64AttributeThenReturnFalse() {
         val attributeList = listOf(Attribute(mockedHash, "invalidBase64EncodedString"))
         mockTrustedIssuerWithAttributes(attributeList)
 
-        testedPolicy.verify(verifiableCredential) shouldBe false
+        assertAll(
+            { simplePolicy.verify(verifiableCredential) shouldBe false },
+            { parameterizedPolicy.verify(verifiableCredential) shouldBe false }
+        )
     }
 
     @Test
@@ -75,14 +94,25 @@ class TrustedIssuerRegistryPolicyTest : AnnotationSpec() {
         val attr2 = Attribute(mockedHash, encBase64Str("invalidAttr"))
         val attr3 = Attribute(mockedHash, encBase64Str(validAttrInfoJson))
         val attributeList = listOf(attr1, attr2, attr3)
-        mockTrustedIssuerWithAttributes(attributeList)
+        val capture = mockTrustedIssuerWithAttributes(attributeList)
 
-        testedPolicy.verify(verifiableCredential) shouldBe true
+        assertAll(
+            { simplePolicy.verify(verifiableCredential) shouldBe true },
+            { capture.captured shouldBe defaultRegistry }
+        )
+
+        assertAll(
+            { parameterizedPolicy.verify(verifiableCredential) shouldBe true },
+            { capture.captured shouldBe otherRegistry }
+        )
+
     }
 
-    private fun mockTrustedIssuerWithAttributes(attributeList: List<Attribute>) {
+    private fun mockTrustedIssuerWithAttributes(attributeList: List<Attribute>): CapturingSlot<String> {
         val tirRecord = TrustedIssuer(did, attributeList)
+        val slot = CapturingSlot<String>()
         mockkObject(TrustedIssuerClient)
-        every { TrustedIssuerClient.getIssuer(any()) } returns tirRecord
+        every { TrustedIssuerClient.getIssuer(any(), capture(slot)) } returns tirRecord
+        return slot
     }
 }
