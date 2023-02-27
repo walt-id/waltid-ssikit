@@ -14,11 +14,16 @@ object OPAPolicyEngine : PolicyEngine {
 
     fun validate(jsonInput: String, data: Map<String, Any?>, regoPolicy: String, regoQuery: String): Boolean {
         val input: Map<String, Any?> = Parser.default().parse(StringBuilder(jsonInput)) as JsonObject
-
         return validate(input, data, regoPolicy, regoQuery)
     }
 
     override fun validate(input: Map<String, Any?>, data: Map<String, Any?>, policy: String, query: String): Boolean {
+        try {
+            ProcessBuilder("opa").start()
+        } catch (e: Exception) {
+            throw IllegalStateException(
+                "Executable for OPA policy engine not installed. See https://www.openpolicyagent.org/docs/#running-opa", e)
+        }
         val regoFile = resolveContentToFile(policy, tempPrefix = TEMP_PREFIX, tempPostfix = ".rego")
         val dataFile = File.createTempFile("data", ".json")
         dataFile.writeText(JsonObject(data).toJsonString())
