@@ -31,16 +31,16 @@ import kotlin.io.path.writeText
 class DidCommand : CliktCommand(
     help = """Decentralized Identifiers (DIDs).
 
-        DID related operations, like registering, updating and deactivating DIDs.
+        DID related operations, like creating, updating and deleted DIDs in the associated data store.
         
-        Supported DID methods are "key", "web" and "ebsi"""
+        Supported DID methods are "key", "jwk", "web", "ebsi" , "iota", "cheqd""""
 ) {
     override fun run() {}
 }
 
 class CreateDidCommand : CliktCommand(
     name = "create",
-    help = """Create DID.
+    help = """Create DID
 
         Creates a DID document based on the corresponding SSI ecosystem (DID method). 
         Optionally the associated asymmetric key is also created.
@@ -104,7 +104,7 @@ fun resolveDidHelper(did: String, raw: Boolean) = when {
 
 class ResolveDidCommand : CliktCommand(
     name = "resolve",
-    help = """Resolve DID.
+    help = """Resolve DID
 
         Resolves the DID document. Use option RAW to disable type checking."""
 ) {
