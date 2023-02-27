@@ -32,7 +32,7 @@ import kotlin.io.path.writeText
 
 class GaiaxCommand : CliktCommand(
     name = "gaiax",
-    help = """Gaia-X specific operations.
+    help = """Gaia-X specific operations
 
         Gaia-X functions & flows."""
 ) {
