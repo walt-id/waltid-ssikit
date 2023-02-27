@@ -66,7 +66,7 @@ jobs:
                       chore: Chores
                       other: Other Changes
                   default-commit-type: Other Changes
-                  release-name: ${{ env.release_version }}
+                  release-name: v${{ env.release_version }}
                   mention-authors: true
                   mention-new-contributors: true
                   include-compare: true

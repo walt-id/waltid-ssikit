@@ -2,6 +2,7 @@ package id.walt.model.oidc
 
 import com.beust.klaxon.Json
 import com.beust.klaxon.Klaxon
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.nimbusds.jwt.SignedJWT
 import id.walt.common.KlaxonWithConverters
 import id.walt.model.dif.PresentationSubmission
@@ -12,20 +13,21 @@ import java.time.Instant
 
 data class IDToken(
     @Json("iss") val issuer: String = "https://self-issued.me/v2",
-    @Json("sub") val subject: String,
-    @Json("aud") val client_id: String,
-    @Json("exp") val expiration: Long = Instant.now().plusSeconds((60 * 60).toLong()).epochSecond,
-    @Json("iat") val issueDate: Long = Instant.now().epochSecond,
-    val nonce: String,
+    @Json(name = "sub", serializeNull = false) val subject: String? = null,
+    @Json(name = "aud", serializeNull = false) val client_id: String? = null,
+    @Json(name = "exp", serializeNull = false) val expiration: Long? = null,
+    @Json(name = "iat", serializeNull = false) val issueDate: Long? = null,
+    @Json(name = "nonce", serializeNull = false) val nonce: String? = null,
     @Json(name = "_vp_token", serializeNull = false) val vpTokenRef: VpTokenRef?,
     @Json(ignored = true) var jwt: String? = null
 ) {
     fun sign(): String {
-        return JwtService.getService().sign(subject, Klaxon().toJsonString(this))
+        return subject?.let {JwtService.getService().sign(it, Klaxon().toJsonString(this)) } ?:
+            throw Exception("No subject specified")
     }
 
     fun verify(): Boolean {
-        if (jwt != null) {
+        if (jwt != null && subject != null) {
             if (KeyStoreService.getService().getKeyId(subject) == null) {
                 DidService.importKeys(subject)
             }
