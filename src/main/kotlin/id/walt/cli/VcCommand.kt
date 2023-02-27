@@ -37,20 +37,19 @@ import kotlin.io.path.readText
 private val log = KotlinLogging.logger {}
 
 class VcCommand : CliktCommand(
-    name = "vc", help = """Verifiable Credentials (VCs).
+    name = "vc", help = """Verifiable Credentials (VCs)
 
         VC related operations like issuing, verifying and revoking VCs.
 
         """
 ) {
-
     override fun run() {
 
     }
 }
 
 class VcIssueCommand : CliktCommand(
-    name = "issue", help = """Issues and save VC.
+    name = "issue", help = """Issues and save VC
         
         """
 ) {
@@ -141,7 +140,7 @@ class VcImportCommand : CliktCommand(
 }
 
 class PresentVcCommand : CliktCommand(
-    name = "present", help = """Present VC.
+    name = "present", help = """Present VC
         
         """
 ) {
@@ -181,7 +180,7 @@ class PresentVcCommand : CliktCommand(
 }
 
 class VerifyVcCommand : CliktCommand(
-    name = "verify", help = """Verify VC or VP.
+    name = "verify", help = """Verify VC or VP
         
         """
 ) {
@@ -337,7 +336,7 @@ class RemoveDynamicVerificationPolicyCommand : CliktCommand(
 }
 
 class ListVcCommand : CliktCommand(
-    name = "list", help = """List VC.
+    name = "list", help = """List VCs
         
         """
 ) {
@@ -352,7 +351,7 @@ class ListVcCommand : CliktCommand(
 }
 
 class VcTemplatesCommand : CliktCommand(
-    name = "templates", help = """VC Templates.
+    name = "templates", help = """VC templates
 
         VC templates related operations e.g.: list & export.
 
@@ -365,7 +364,7 @@ class VcTemplatesCommand : CliktCommand(
 }
 
 class VcTemplatesListCommand : CliktCommand(
-    name = "list", help = """List VC Templates.
+    name = "list", help = """List VC templates
 
         """
 ) {
@@ -384,7 +383,7 @@ class VcTemplatesListCommand : CliktCommand(
 }
 
 class VcTemplatesExportCommand : CliktCommand(
-    name = "export", help = """Export VC Template.
+    name = "export", help = """Export VC template
 
         """
 ) {
@@ -400,7 +399,7 @@ class VcTemplatesExportCommand : CliktCommand(
 }
 
 class VcTemplatesImportCommand : CliktCommand(
-    name = "import", help = """Import VC Template.
+    name = "import", help = """Import VC template
 
         """
 ) {
@@ -427,7 +426,7 @@ class VcTemplatesImportCommand : CliktCommand(
 }
 
 class VcTemplatesRemoveCommand : CliktCommand(
-    name = "remove", help = """Remove VC Template.
+    name = "remove", help = """Remove VC template
 
         """
 ) {

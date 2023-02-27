@@ -19,9 +19,9 @@ import java.nio.file.Path
 private val keyService = KeyService.getService()
 
 class KeyCommand : CliktCommand(
-    help = """Key Management.
+    help = """Key Management
 
-        Key management functions like generation, export/import, and deletion."""
+       Generation export/import, and deletion of asymmetric keys."""
 ) {
     val algorithm: String by option(help = "Key algorithm [Ed25519]").default("Ed25519")
 
@@ -30,7 +30,7 @@ class KeyCommand : CliktCommand(
 }
 
 class GenKeyCommand : CliktCommand(
-    name = "gen", help = """Generate keys.
+    name = "gen", help = """Generate keys
 
         Generates an asymmetric keypair by the specified algorithm. Supported algorithms are ECDSA Secp256k1 & EdDSA Ed25519 (default)
         
@@ -51,7 +51,7 @@ class GenKeyCommand : CliktCommand(
 }
 
 class ImportKeyCommand : CliktCommand(
-    name = "import", help = """Import key in JWK or PEM format.
+    name = "import", help = """Import key in JWK or PEM format
 
         For JWK Keys: Based on the JWK key ID and key material an internal key object will be
         created and placed in the corresponding key store.
@@ -78,7 +78,7 @@ class ImportKeyCommand : CliktCommand(
 }
 
 class ExportKeyCommand : CliktCommand(
-    name = "export", help = """Export keys.
+    name = "export", help = """Export keys
 
         Export key in JWK format."""
 ) {
@@ -101,7 +101,7 @@ class ExportKeyCommand : CliktCommand(
 }
 
 class ListKeysCommand : CliktCommand(
-    name = "list", help = """List keys.
+    name = "list", help = """List keys
 
         List all keys in the key store."""
 ) {
@@ -118,7 +118,7 @@ class ListKeysCommand : CliktCommand(
 }
 
 class DeleteKeyCommand : CliktCommand(
-    name = "delete", help = """Delete key.
+    name = "delete", help = """Delete key
 
         Deletes the key with the specified ID.
         """

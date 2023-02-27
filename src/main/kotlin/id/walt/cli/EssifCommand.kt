@@ -21,7 +21,7 @@ import java.util.*
 
 class EssifCommand : CliktCommand(
     name = "essif",
-    help = """ESSIF specific operations.
+    help = """ESSIF specific operations
 
         ESSIF functions & flows."""
 ) {
@@ -71,16 +71,16 @@ class EssifAuthCommand : CliktCommand(
 
 class EssifDidCommand : CliktCommand(
     name = "did",
-    help = """ESSIF DID operations.
+    help = """ESSIF DID operations
 
-        ESSIF DID operations."""
+        ESSIF DID operations"""
 ) {
     override fun run() {}
 }
 
 class EssifDidRegisterCommand : CliktCommand(
     name = "register",
-    help = """Register ESSIF DID.
+    help = """Register ESSIF DID
 
         Registers a previously created DID with the EBSI ledger."""
 ) {
@@ -97,50 +97,9 @@ class EssifDidRegisterCommand : CliktCommand(
     }
 }
 
-//class EssifVcIssuanceCommand : CliktCommand(
-//    name = "vc-issuance",
-//    help = """ESSIF VC issuance flow
-//
-//        ESSIF VC issuance flow"""
-//) {
-//    override fun run() {
-//
-//        // Mocked flow:
-//        // EssifFlowRunner.vcIssuance()
-//
-//        // This runs everything: EssifClient.authenticate()
-//        val did: String = DidService.create(DidMethod.ebsi) // Client DID
-//
-//        val oidcReq = TrustedIssuerClient.generateAuthenticationRequest()
-//        echo("- Authentication request: \n$oidcReq\n\n")
-//
-//        val didAuthReq = EssifClientVcExchange.validateAuthenticationRequest(oidcReq)
-//        echo("- Parsed and validated authentication request: \n$didAuthReq\n\n")
-//
-//        val authResp = EssifClientVcExchange.generateAuthenticationResponse(did, didAuthReq)
-//        echo("- Authentication response JWT: \n$authResp\n\n")
-//
-//        val encAccessToken = TrustedIssuerClient.openSession(authResp)
-//        echo("- Received encrypted access token: \n$encAccessToken\n\n")
-//
-//        val accessToken = EssifClientVcExchange.decryptAccessToken(encAccessToken)
-//        echo("- Decrypted and verified access token: \n$accessToken\n\n")
-//
-//    }
-//}
-//
-//class EssifVcExchangeCommand : CliktCommand(
-//    name = "vc-exchange",
-//    help = """ESSIF VC exchange flow
-//
-//        ESSIF VC exchange flow"""
-//) {
-//    override fun run() = EssifClient.vcExchange()
-//}
-
 class EssifTimestampCommand : CliktCommand(
     name = "timestamp",
-    help = """EBSI Timestamp API operations.
+    help = """EBSI Timestamp API operations
 
         Create and retrieve a timestamp on the EBSI ledger."""
 ) {
@@ -149,7 +108,7 @@ class EssifTimestampCommand : CliktCommand(
 
 class EssifTimestampCreateCommand : CliktCommand(
     name = "create",
-    help = """Create timestamp.
+    help = """Create timestamp
 
         Create timestamp on the EBSI ledger."""
 ) {
@@ -173,7 +132,7 @@ class EssifTimestampCreateCommand : CliktCommand(
 
 class EssifTimestampGetCommand : CliktCommand(
     name = "get",
-    help = """Get timestamp.
+    help = """Get timestamp
 
         Get timestamp by its ID or transaction hash."""
 ) {
@@ -199,9 +158,9 @@ class EssifTimestampGetCommand : CliktCommand(
 
 class EssifTirCommand : CliktCommand(
     name = "tir",
-    help = """ESSIF Trusted Issuer Registry operations.
+    help = """ESSIF Trusted Issuer Registry operations
 
-        ESSIF DID operations."""
+        Not implemented yet"""
 ) {
     override fun run() {}
 }
@@ -209,7 +168,7 @@ class EssifTirCommand : CliktCommand(
 
 class EssifTirGetIssuerCommand : CliktCommand(
     name = "get",
-    help = """Get issuer.
+    help = """Get issuer
 
         Get issuer by its DID. Use option raw to disable type checking."""
 ) {
@@ -234,9 +193,9 @@ class EssifTirGetIssuerCommand : CliktCommand(
 
 class EssifTaorCommand : CliktCommand(
     name = "taor",
-    help = """ESSIF Trusted Accreditation Organization operations.
+    help = """ESSIF Trusted Accreditation Organization operations
 
-        ESSIF Trusted Accreditation Organization operations."""
+        Not implemented yet"""
 ) {
     override fun run() =
         TODO("The \"ESSIF-TAOR\" operation has not yet been implemented in this snapshot (currently running ${Values.version}).")
@@ -246,8 +205,8 @@ class EssifTsrCommand : CliktCommand(
     name = "tsr",
     help = """ESSIF Trusted Schema Registry operations.
 
-        ESSIF Trusted Schema Registry operations."""
+        Not implemented yet"""
 ) {
     override fun run() =
-        TODO("The \"ESSIF-TSR\" operation has not yet been implemented in this snapshot (currently running ${Values.version}).")
+        TODO("The \"ESSIF-TSR\" operation has not yet been implemented in this version (currently running ${Values.version}).")
 }

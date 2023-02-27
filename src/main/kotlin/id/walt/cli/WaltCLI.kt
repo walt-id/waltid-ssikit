@@ -16,7 +16,7 @@ data class CliConfig(var dataDir: String, val properties: MutableMap<String, Str
 private val log = KotlinLogging.logger {}
 
 class Walt : CliktCommand(
-    name = "walt",
+    name = "ssikit",
     help = """SSI Kit by walt.id
 
         The SSI Kit by walt.id is a command line tool that allows you to onboard and use
