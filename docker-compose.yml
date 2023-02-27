@@ -4,7 +4,7 @@ services:
     build: .
     volumes:
     - ./data:/app/data
-    entrypoint: /app/bin/waltid-ssi-kit serve -b 0.0.0.0
+    entrypoint: /app/bin/waltid-ssikit serve -b 0.0.0.0
     ports:
       - "7000:7000"
       - "7001:7001"

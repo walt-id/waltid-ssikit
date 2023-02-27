@@ -47,7 +47,7 @@ COPY --from=opa-env /opa /usr/local/bin/opa
 COPY --from=iota-env /usr/local/lib/libwaltid_iota_identity_wrapper.so /usr/local/lib/libwaltid_iota_identity_wrapper.so
 RUN ldconfig
 
-COPY --from=build-env /appbuild/build/install/waltid-ssi-kit /app/
+COPY --from=build-env /appbuild/build/install/waltid-ssikit /app/
 COPY --from=build-env /appbuild/service-matrix.properties /app/
 COPY --from=build-env /appbuild/config /app/config
 
@@ -55,4 +55,4 @@ COPY --from=build-env /appbuild/config /app/config
 ### Execution
 EXPOSE 7000 7001 7002 7003 7004 7010
 
-ENTRYPOINT ["/app/bin/waltid-ssi-kit"]
+ENTRYPOINT ["/app/bin/waltid-ssikit"]

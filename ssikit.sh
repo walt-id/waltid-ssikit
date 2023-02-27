@@ -2,7 +2,7 @@
 set -e
 
 function header() {
-  echo "waltid-ssi-kit wrapper script"
+  echo "waltid-ssikit wrapper script"
   echo
 }
 
@@ -72,8 +72,8 @@ function build_runscript_question() {
 }
 
 function execute_debug() {
-  if [[ -f build/install/waltid-ssi-kit/bin/waltid-ssi-kit ]]; then
-    JAVA_OPTS="-Dorg.slf4j.simpleLogger.defaultLogLevel=DEBUG" build/install/waltid-ssi-kit/bin/waltid-ssi-kit "$@"
+  if [[ -f build/install/waltid-ssikit/bin/waltid-ssikit ]]; then
+    JAVA_OPTS="-Dorg.slf4j.simpleLogger.defaultLogLevel=DEBUG" build/install/waltid-ssikit/bin/waltid-ssikit "$@"
   else
     build_runscript_question
 
@@ -85,8 +85,8 @@ function execute_debug() {
 }
 
 function execute() {
-  if [[ -f build/install/waltid-ssi-kit/bin/waltid-ssi-kit ]]; then
-    build/install/waltid-ssi-kit/bin/waltid-ssi-kit "$@"
+  if [[ -f build/install/waltid-ssikit/bin/waltid-ssikit ]]; then
+    build/install/waltid-ssikit/bin/waltid-ssikit "$@"
   else
     build_runscript_question
 
@@ -104,8 +104,8 @@ function clean() {
 function help() {
   echo "Usage: $0 {build|build-st|build-docker|build-podman|extract|--verbose|execute (default)}"
   echo
-  echo "Use \"execute\" to execute waltid-ssi-kit with no arguments. If you don't supply any"
-  echo "arguments of {build|build-st|build-docker|build-podman|extract}, waltid-ssi-kit will"
+  echo "Use \"execute\" to execute waltid-ssikit with no arguments. If you don't supply any"
+  echo "arguments of {build|build-st|build-docker|build-podman|extract}, waltid-ssikit will"
   echo "be executed with the provided arguments."
 }
 
