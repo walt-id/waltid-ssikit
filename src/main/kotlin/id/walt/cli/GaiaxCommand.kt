@@ -20,9 +20,7 @@ import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.signatory.dataproviders.CLIDataProvider
-import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.call.body
 import io.ktor.client.request.*
 import kotlinx.coroutines.runBlocking
 import java.nio.file.Path

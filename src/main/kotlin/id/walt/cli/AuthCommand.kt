@@ -6,11 +6,7 @@ import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
 import com.nimbusds.jwt.SignedJWT
 import id.walt.services.WaltIdServices.http
-import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.call.body
-import io.ktor.client.engine.okhttp.*
-//import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.JsonObject

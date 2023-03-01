@@ -3,7 +3,6 @@ package id.walt.services.ecosystems.gaiax
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
 import id.walt.services.WaltIdServices.http
-import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*

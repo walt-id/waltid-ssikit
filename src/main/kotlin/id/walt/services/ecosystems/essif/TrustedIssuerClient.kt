@@ -9,14 +9,6 @@ import id.walt.services.ecosystems.essif.didebsi.EBSI_ENV_URL
 import id.walt.services.ecosystems.essif.enterprisewallet.EnterpriseWalletService
 import id.walt.services.ecosystems.essif.mock.DidRegistry
 import io.ktor.client.call.*
-import io.ktor.client.call.body
-import io.ktor.client.call.body
-import io.ktor.client.call.body
-import io.ktor.client.call.body
-import io.ktor.client.call.body
-import io.ktor.client.call.body
-import io.ktor.client.call.body
-import io.ktor.client.call.body
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*

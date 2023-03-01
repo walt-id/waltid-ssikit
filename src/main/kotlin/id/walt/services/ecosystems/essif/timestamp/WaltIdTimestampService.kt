@@ -6,10 +6,6 @@ import id.walt.services.ecosystems.essif.jsonrpc.JsonRpcService
 import id.walt.services.ecosystems.essif.jsonrpc.TimestampHashesParams
 import id.walt.services.key.KeyService
 import io.ktor.client.call.*
-import io.ktor.client.call.body
-import io.ktor.client.call.body
-import io.ktor.client.call.body
-import io.ktor.client.call.body
 import io.ktor.client.request.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable

@@ -2,14 +2,12 @@ package id.walt.model.oidc
 
 import com.beust.klaxon.Json
 import com.beust.klaxon.Klaxon
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.nimbusds.jwt.SignedJWT
 import id.walt.common.KlaxonWithConverters
 import id.walt.model.dif.PresentationSubmission
 import id.walt.services.did.DidService
 import id.walt.services.jwt.JwtService
 import id.walt.services.keystore.KeyStoreService
-import java.time.Instant
 
 data class IDToken(
     @Json("iss") val issuer: String = "https://self-issued.me/v2",
