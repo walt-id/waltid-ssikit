@@ -57,7 +57,7 @@ abstract class SimpleVerificationPolicy : VerificationPolicy()
 
 abstract class ParameterizedVerificationPolicy<T>(val argument: T) : VerificationPolicy()
 
-abstract class OptionalParameterizedVerificationPolicy<T>(val argument: T?) : VerificationPolicy()
+abstract class OptionalParameterizedVerificationPolicy<T>(argument: T?) : ParameterizedVerificationPolicy<T?>(argument)
 
 class SignaturePolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by signature"
@@ -72,10 +72,17 @@ class SignaturePolicy : SimpleVerificationPolicy() {
     }.getOrDefault(false)
 }
 
-class JsonSchemaPolicy : SimpleVerificationPolicy() {
+/**
+ * @param schema    URL, file path or content of JSON schema to validate against
+ */
+data class JsonSchemaPolicyArg(val schema: String)
+
+class JsonSchemaPolicy(schemaPolicyArg: JsonSchemaPolicyArg?) : OptionalParameterizedVerificationPolicy<JsonSchemaPolicyArg>(schemaPolicyArg) {
+    constructor() : this(null)
+
     override val description: String = "Verify by JSON schema"
     override fun doVerify(vc: VerifiableCredential): Boolean {
-        return vc.credentialSchema?.id?.let { URI.create(it) }?.let {
+        return (argument?.schema ?: vc.credentialSchema?.id)?.let {
             SchemaValidatorFactory.get(it).validate(vc.toJson())
         } ?: false
     }

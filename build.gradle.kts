@@ -52,7 +52,7 @@ dependencies {
     implementation("com.beust:klaxon:5.6")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.0")
     implementation("com.jayway.jsonpath:json-path:2.7.0")
-    implementation("com.networknt:json-schema-validator:1.0.73")
+    implementation("com.networknt:json-schema-validator:1.0.77")
     implementation("net.pwall.json:json-kotlin-schema:0.39")
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
