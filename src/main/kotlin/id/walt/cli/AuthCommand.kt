@@ -5,9 +5,12 @@ import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.prompt
 import com.nimbusds.jwt.SignedJWT
+import id.walt.services.WaltIdServices.http
 import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.engine.cio.*
+import io.ktor.client.call.body
+import io.ktor.client.engine.okhttp.*
+//import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.JsonObject
@@ -40,7 +43,8 @@ class AuthCommand : CliktCommand(
         */
 
         runBlocking {
-            val client = HttpClient(CIO)
+            //val client = HttpClient(CIO)
+            val client = http
             val token = client.post("https://api.walt.id/users/auth/login") {
                 setBody(mapOf("email" to email, "password" to password))
             }.body<JsonObject>()["token"].toString()

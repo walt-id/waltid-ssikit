@@ -23,7 +23,6 @@ import id.walt.signatory.ProofConfig
 import id.walt.test.RESOURCES_PATH
 import id.walt.test.getTemplate
 import id.walt.test.readCredOffer
-import io.kotest.assertions.json.shouldEqualJson
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.data.blocking.forAll
@@ -32,7 +31,6 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -54,7 +52,7 @@ class CoreApiTest : AnnotationSpec() {
     val CORE_API_URL = "http://localhost:7013"
     val keyService = KeyService.getService()
 
-    val client = HttpClient(CIO) {
+    val client = HttpClient() {
         install(ContentNegotiation) {
             json()
         }

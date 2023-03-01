@@ -145,7 +145,7 @@ object OIDC4VPService {
                         }
                     // 2
                         ?: OIDCUtils.getVCClaims(authReq).vp_token?.presentation_definition?.also {
-                            customParameters.put(LEGACY_OIDC4VP_FLAG, listOf("true"))
+                            customParameters[LEGACY_OIDC4VP_FLAG] = listOf("true")
                         }
                         // 3
                         ?: (authReq.requestObject?.jwtClaimsSet?.getJSONObjectClaim("claims")
