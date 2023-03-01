@@ -12,14 +12,16 @@ import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.signatory.dataproviders.MergingDataProvider
 import id.walt.test.RESOURCES_PATH
+import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.annotation.Ignored
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.core.test.TestCase
 import io.kotest.matchers.collections.shouldBeSameSizeAs
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
+import java.io.File
+import java.net.URI
 
-@Ignored // TODO: Ignored test since ebsi dids are currently not resolving
 class AuditorCommandTest : StringSpec() {
     private lateinit var did: String
     private lateinit var vcStr: String
@@ -209,6 +211,37 @@ class AuditorCommandTest : StringSpec() {
                 )
             )
             negResult.valid shouldBe false
+        }
+
+        "7. test JsonSchemaPolicy" {
+            // test schema from credentialSchema.id property of credential
+            Auditor.getService().verify(vcStr, listOf(JsonSchemaPolicy())).valid shouldBe true
+
+            // test VerifiableDiploma schema from vclib
+            Auditor.getService().verify(vcStr, listOf(JsonSchemaPolicy(JsonSchemaPolicyArg("https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableDiploma.json"))))
+                .valid shouldBe true
+
+            // test VerifiableId schema from vclib (should not validate)
+            Auditor.getService().verify(vcStr, listOf(JsonSchemaPolicy(JsonSchemaPolicyArg("https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableId.json"))))
+                .valid shouldBe false
+
+            // this is a VerifiableDiploma (EUROPASS) schema, which our VerifiableDiploma template does NOT comply with:
+            // https://ec.europa.eu/digital-building-blocks/wikis/display/EBSIDOC/Data+Models+and+Schemas
+            Auditor.getService().verify(vcStr, listOf(JsonSchemaPolicy(JsonSchemaPolicyArg("https://api-pilot.ebsi.eu/trusted-schemas-registry/v1/schemas/0x4dd3926cd92bb3cb64fa6c837539ed31fc30dd38a11266a91678efa7268cde09"))))
+                .valid shouldBe false
+
+            // test passing schema by value
+            val schemaContent = URI.create("https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableDiploma.json").toURL().readText()
+            Auditor.getService().verify(vcStr, listOf(JsonSchemaPolicy(JsonSchemaPolicyArg(schemaContent)))).valid shouldBe true
+
+            // test passsing schema by file path
+            val tempFile = File.createTempFile("schema", ".json")
+            tempFile.writeText(schemaContent)
+            shouldNotThrowAny {
+                Auditor.getService()
+                    .verify(vcStr, listOf(JsonSchemaPolicy(JsonSchemaPolicyArg(tempFile.absolutePath)))).valid shouldBe true
+            }
+            tempFile.delete()
         }
     }
 }

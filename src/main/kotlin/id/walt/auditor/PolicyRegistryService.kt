@@ -42,6 +42,12 @@ open class PolicyRegistryService: WaltIdService() {
         optionalArgument: Boolean = false
     ) = policies.put(policy.simpleName!!, PolicyFactory(policy, argType, policy.simpleName!!, description, optionalArgument))
 
+    fun <P : OptionalParameterizedVerificationPolicy<A>, A : Any> register(
+        policy: KClass<P>,
+        argType: KClass<A>,
+        description: String? = null
+    ) = policies.put(policy.simpleName!!, PolicyFactory(policy, argType, policy.simpleName!!, description, true))
+
     fun <P : SimpleVerificationPolicy> register(policy: KClass<P>, description: String? = null) =
         policies.put(policy.simpleName!!, PolicyFactory<P, Unit>(policy, null, policy.simpleName!!, description))
 
@@ -132,7 +138,7 @@ open class PolicyRegistryService: WaltIdService() {
 
     open fun initPolicies() {
         register(SignaturePolicy::class, "Verify by signature")
-        //register(JsonSchemaPolicy::class, "Verify by JSON schema")
+        register(JsonSchemaPolicy::class, JsonSchemaPolicyArg::class, "Verify by JSON schema")
         register(TrustedSchemaRegistryPolicy::class, "Verify by EBSI Trusted Schema Registry")
         register(TrustedIssuerDidPolicy::class, "Verify by trusted issuer did")
         PolicyRegistry.register(
