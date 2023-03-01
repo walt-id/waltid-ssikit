@@ -11,6 +11,7 @@ import id.walt.model.Did
 import id.walt.model.DidMethod
 import id.walt.model.gaiax.GaiaxCredentialGroup
 import id.walt.model.gaiax.ParticipantVerificationResult
+import id.walt.services.WaltIdServices.http
 import id.walt.services.did.DidService
 import id.walt.services.ecosystems.gaiax.GaiaxService
 import id.walt.services.key.KeyService
@@ -19,9 +20,7 @@ import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.signatory.dataproviders.CLIDataProvider
-import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.runBlocking
 import java.nio.file.Path
@@ -197,7 +196,7 @@ class GaiaxVerifyCredentialGroupCommand : CliktCommand(
         )
 
         val verificationResult = runBlocking {
-            HttpClient(CIO).post("https://compliance.lab.gaia-x.eu/api/v2206/participant/verify/raw") {
+            http.post("https://compliance.lab.gaia-x.eu/api/v2206/participant/verify/raw") {
                 setBody(credentialGroup)
             }.body<ParticipantVerificationResult>()
         }

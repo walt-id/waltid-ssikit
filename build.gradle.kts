@@ -51,8 +51,6 @@ dependencies {
     implementation("org.json:json:20220924")
     implementation("com.beust:klaxon:5.6")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.0")
-    implementation("io.ktor:ktor-client-jackson:2.1.3")
-    implementation("io.ktor:ktor-client-content-negotiation:2.1.3")
     implementation("com.jayway.jsonpath:json-path:2.7.0")
     implementation("com.networknt:json-schema-validator:1.0.73")
     implementation("net.pwall.json:json-kotlin-schema:0.39")
@@ -72,11 +70,13 @@ dependencies {
     implementation("io.minio:minio:8.4.6")
 
     // HTTP
-    implementation("io.ktor:ktor-client-core:2.1.3")
-    implementation("io.ktor:ktor-client-cio:2.1.3")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:2.1.3")
-    implementation("io.ktor:ktor-client-logging:2.1.3")
-    implementation("io.github.rybalkinsd:kohttp:0.12.0")
+    implementation("io.ktor:ktor-client-jackson-jvm:2.2.4")
+    implementation("io.ktor:ktor-client-content-negotiation:2.2.4")
+    implementation("io.ktor:ktor-client-core-jvm:2.2.4")
+    //implementation("io.ktor:ktor-client-cio-jvm:2.2.4")
+    implementation("io.ktor:ktor-client-okhttp:2.2.4")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.2.4")
+    implementation("io.ktor:ktor-client-logging-jvm:2.2.4")
 
     // REST
     implementation("io.javalin:javalin:4.6.7")

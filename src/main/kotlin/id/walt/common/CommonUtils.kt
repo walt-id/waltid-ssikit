@@ -1,20 +1,10 @@
 package id.walt.common
 
-import io.ktor.client.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.contentnegotiation.*
+import id.walt.services.WaltIdServices.http
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.runBlocking
 import java.io.File
-
-
-val client = HttpClient(CIO) {
-    install(ContentNegotiation) {
-        json()
-    }
-}
 
 fun resolveContent(fileUrlContent: String): String {
     val file = File(fileUrlContent)
@@ -22,7 +12,7 @@ fun resolveContent(fileUrlContent: String): String {
         return file.readText()
     }
     if (Regex("^https?:\\/\\/.*$").matches(fileUrlContent)) {
-        return runBlocking { client.get(fileUrlContent).bodyAsText() }
+        return runBlocking { http.get(fileUrlContent).bodyAsText() }
     }
     return fileUrlContent
 }

@@ -3,17 +3,14 @@ package id.walt.rest
 import id.walt.rest.essif.EbsiTimestampRequest
 import id.walt.rest.essif.EssifAPI
 import id.walt.servicematrix.ServiceMatrix
+import id.walt.services.WaltIdServices.http
 import io.kotest.core.annotation.Ignored
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldStartWith
-import io.ktor.client.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.runBlocking
 
 @Ignored
@@ -21,11 +18,7 @@ class EssifApiTest : AnnotationSpec() {
 
     val ESSIF_API_URL = "http://localhost:7012"
 
-    val client = HttpClient(CIO) {
-        install(ContentNegotiation) {
-            json()
-        }
-    }
+    val client = http
 
     init {
         ServiceMatrix("service-matrix.properties")

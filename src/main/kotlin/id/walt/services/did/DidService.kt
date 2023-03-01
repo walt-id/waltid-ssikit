@@ -665,7 +665,7 @@ object DidService {
                 vm.type
             )
         ) {
-            log.error { "Key import does currently not support verification-key algorithm: ${vm.type}" }
+            log.warn { "Key import does currently not support verification-key algorithm: ${vm.type}" }
             // TODO: support RSA and Secp256k1
             return null
         }
@@ -691,7 +691,7 @@ object DidService {
                 vm.type
             )
         ) {
-            log.error { "Key import does currently not support verification-key algorithm: ${vm.type}" }
+            log.warn { "Key import does currently not support verification-key algorithm: ${vm.type}" }
             // TODO: support RSA and Secp256k1
             return null
         }

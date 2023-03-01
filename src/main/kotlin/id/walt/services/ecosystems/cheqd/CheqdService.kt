@@ -3,7 +3,6 @@ package id.walt.services.ecosystems.cheqd
 import id.walt.common.KlaxonWithConverters
 import id.walt.model.did.DidCheqd
 import io.ktor.client.*
-import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import kotlinx.coroutines.runBlocking
@@ -20,7 +19,7 @@ object CheqdService {
     fun resolveDid(did: String): DidCheqd {
         log.debug { "Resolving did:cheqd, DID: $did" }
         val resultText = runBlocking {
-            HttpClient(CIO).get("https://resolver.cheqd.net/1.0/identifiers/$did").bodyAsText()
+            HttpClient().get("https://resolver.cheqd.net/1.0/identifiers/$did").bodyAsText()
         }
 
         log.debug { "Received body from CHEQD resolver: $resultText" }

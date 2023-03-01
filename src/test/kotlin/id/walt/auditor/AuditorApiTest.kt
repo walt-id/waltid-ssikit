@@ -5,21 +5,19 @@ import id.walt.common.KlaxonWithConverters
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
+import id.walt.services.WaltIdServices
 import id.walt.services.did.DidService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.Signatory
 import id.walt.test.RESOURCES_PATH
 import id.walt.test.readVerifiableCredential
 import id.walt.test.readVerifiablePresentation
-import io.github.rybalkinsd.kohttp.dsl.httpPost
-import io.github.rybalkinsd.kohttp.ext.asString
 import io.kotest.core.annotation.Ignored
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
 import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -27,6 +25,7 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
+import java.net.URL
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
@@ -44,7 +43,7 @@ class AuditorApiTest : AnnotationSpec() {
 
     val DEFAULT_POLICIES = "SignaturePolicy, JsonSchemaPolicy"
 
-    val client = HttpClient(CIO) {
+    val client = HttpClient() {
         install(ContentNegotiation) {
             json(Json { ignoreUnknownKeys = true })
         }
@@ -77,12 +76,9 @@ class AuditorApiTest : AnnotationSpec() {
     }
 
     private fun postAndVerify(vcToVerify: String, policyList: String = DEFAULT_POLICIES) {
-        val verificationResponseJson = httpPost {
-            host = Auditor_HOST
-            port = Auditor_API_PORT
-            path = "/v1/verify"
-            body {
-                json(
+        val verificationResponseJson = runBlocking {
+            WaltIdServices.http.post(URL("http", Auditor_HOST, Auditor_API_PORT, "/v1/verify")) {
+                setBody(
                     KlaxonWithConverters().toJsonString(
                         VerificationRequest(
                             policies = policyList.split(",").map { p -> PolicyRequest(policy = p.trim()) }.toList(),
@@ -92,8 +88,8 @@ class AuditorApiTest : AnnotationSpec() {
                         )
                     )
                 )
-            }
-        }.asString()!!
+            }.bodyAsText()
+        }
 
         println(verificationResponseJson)
 
@@ -108,9 +104,7 @@ class AuditorApiTest : AnnotationSpec() {
 
         val vcToVerify = signatory.issue(
             "VerifiableId", ProofConfig(
-                subjectDid = did,
-                issuerDid = did,
-                issueDate = LocalDateTime.of(2020, 11, 3, 0, 0).toInstant(ZoneOffset.UTC)
+                subjectDid = did, issuerDid = did, issueDate = LocalDateTime.of(2020, 11, 3, 0, 0).toInstant(ZoneOffset.UTC)
             )
         )
 

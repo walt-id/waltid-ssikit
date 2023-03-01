@@ -7,37 +7,37 @@ import id.walt.credentials.w3c.templates.VcTemplateManager
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
+import id.walt.services.WaltIdServices
 import id.walt.services.did.DidService
 import id.walt.signatory.rest.IssueCredentialRequest
 import id.walt.signatory.rest.SignatoryRestAPI
 import id.walt.test.RESOURCES_PATH
-import io.github.rybalkinsd.kohttp.dsl.httpPost
-import io.github.rybalkinsd.kohttp.ext.asString
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldStartWith
 import io.ktor.client.*
-import io.ktor.client.engine.cio.*
+import io.ktor.client.engine.okhttp.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.runBlocking
+import java.net.URL
 
 class SignatoryApiTest : AnnotationSpec() {
 
     init {
-       ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
+        ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
     }
 
     val SIGNATORY_API_HOST = "localhost"
     val SIGNATORY_API_PORT = 7001
     val SIGNATORY_API_URL = "http://$SIGNATORY_API_HOST:$SIGNATORY_API_PORT"
 
-    val client = HttpClient(CIO) {
+    val client = HttpClient(OkHttp) {
         install(ContentNegotiation) {
             json()
         }
@@ -63,7 +63,8 @@ class SignatoryApiTest : AnnotationSpec() {
     @Test
     fun testListVcTemplates() = runBlocking {
         val templates =
-            client.get("$SIGNATORY_API_URL/v1/templates").bodyAsText().let { KlaxonWithConverters().parseArray<VcTemplate>(it) }!!
+            client.get("$SIGNATORY_API_URL/v1/templates").bodyAsText()
+                .let { KlaxonWithConverters().parseArray<VcTemplate>(it) }!!
                 .map { it.name }
 
         VcTemplateManager.listTemplates().map { it.name }.forEach { templateName -> templates shouldContain templateName }
@@ -108,6 +109,17 @@ class SignatoryApiTest : AnnotationSpec() {
         pdsJson.toVerifiableCredential().type shouldContain "PacketDeliveryService"
     }
 
+    private fun httpPost(path: String, body: String, host: String = SIGNATORY_API_HOST, port: Int = SIGNATORY_API_PORT) =
+        runBlocking {
+            try {
+                WaltIdServices.http.post(URL("http", host, port, path)) {
+                    setBody(body)
+                }.bodyAsText()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                null
+            }
+        }
 
     @Test
     fun testIssueVerifiableDiplomaJsonLd() = runBlocking {
@@ -115,27 +127,19 @@ class SignatoryApiTest : AnnotationSpec() {
         val didDoc = DidService.load(did)
         val vm = didDoc.assertionMethod!!.first().id
 
-        val vc = httpPost {
-            host = SIGNATORY_API_HOST
-            port = SIGNATORY_API_PORT
-            path = "/v1/credentials/issue"
-
-            body {
-                json(
-                    Klaxon().toJsonString(
-                        IssueCredentialRequest(
-                            "VerifiableDiploma",
-                            ProofConfig(
-                                issuerDid = did,
-                                subjectDid = did,
-                                issuerVerificationMethod = vm,
-                                proofType = ProofType.LD_PROOF
-                            )
-                        )
+        val vc = httpPost(
+            "/v1/credentials/issue", Klaxon().toJsonString(
+                IssueCredentialRequest(
+                    "VerifiableDiploma",
+                    ProofConfig(
+                        issuerDid = did,
+                        subjectDid = did,
+                        issuerVerificationMethod = vm,
+                        proofType = ProofType.LD_PROOF
                     )
                 )
-            }
-        }.asString()
+            )
+        )
 
         vc shouldNotBe null
         println(vc!!)
@@ -151,27 +155,19 @@ class SignatoryApiTest : AnnotationSpec() {
         val didDoc = DidService.load(did)
         val vm = didDoc.assertionMethod!!.first().id
 
-        val vc = httpPost {
-            host = SIGNATORY_API_HOST
-            port = SIGNATORY_API_PORT
-            path = "/v1/credentials/issue"
-
-            body {
-                json(
-                    Klaxon().toJsonString(
-                        IssueCredentialRequest(
-                            "VerifiableId",
-                            ProofConfig(
-                                issuerDid = did,
-                                subjectDid = did,
-                                issuerVerificationMethod = vm,
-                                proofType = ProofType.JWT
-                            )
-                        )
+        val vc = httpPost(
+            "/v1/credentials/issue", Klaxon().toJsonString(
+                IssueCredentialRequest(
+                    "VerifiableId",
+                    ProofConfig(
+                        issuerDid = did,
+                        subjectDid = did,
+                        issuerVerificationMethod = vm,
+                        proofType = ProofType.JWT
                     )
                 )
-            }
-        }.asString()
+            )
+        )
 
         println(vc)
         vc shouldStartWith "ey"
@@ -183,27 +179,19 @@ class SignatoryApiTest : AnnotationSpec() {
         val didDoc = DidService.load(did)
         val vm = didDoc.assertionMethod!!.first().id
 
-        val vc = httpPost {
-            host = SIGNATORY_API_HOST
-            port = SIGNATORY_API_PORT
-            path = "/v1/credentials/issue"
-
-            body {
-                json(
-                    Klaxon().toJsonString(
-                        IssueCredentialRequest(
-                            "Europass",
-                            ProofConfig(
-                                issuerDid = did,
-                                subjectDid = did,
-                                issuerVerificationMethod = vm,
-                                proofType = ProofType.LD_PROOF
-                            )
-                        )
+        val vc = httpPost(
+            "/v1/credentials/issue", Klaxon().toJsonString(
+                IssueCredentialRequest(
+                    "Europass",
+                    ProofConfig(
+                        issuerDid = did,
+                        subjectDid = did,
+                        issuerVerificationMethod = vm,
+                        proofType = ProofType.LD_PROOF
                     )
                 )
-            }
-        }.also { it.code shouldBe 200 }.asString()
+            )
+        )
 
         vc shouldNotBe null
         println(vc!!)
@@ -219,27 +207,19 @@ class SignatoryApiTest : AnnotationSpec() {
         val didDoc = DidService.load(did)
         val vm = didDoc.assertionMethod!!.first().id
 
-        val vc = httpPost {
-            host = SIGNATORY_API_HOST
-            port = SIGNATORY_API_PORT
-            path = "/v1/credentials/issue"
-
-            body {
-                json(
-                    Klaxon().toJsonString(
-                        IssueCredentialRequest(
-                            "PermanentResidentCard",
-                            ProofConfig(
-                                issuerDid = did,
-                                subjectDid = did,
-                                issuerVerificationMethod = vm,
-                                proofType = ProofType.LD_PROOF
-                            )
-                        )
+        val vc = httpPost(
+            "/v1/credentials/issue", Klaxon().toJsonString(
+                IssueCredentialRequest(
+                    "PermanentResidentCard",
+                    ProofConfig(
+                        issuerDid = did,
+                        subjectDid = did,
+                        issuerVerificationMethod = vm,
+                        proofType = ProofType.LD_PROOF
                     )
                 )
-            }
-        }.asString()
+            )
+        )
 
         vc shouldNotBe null
         println(vc!!)
@@ -255,27 +235,19 @@ class SignatoryApiTest : AnnotationSpec() {
         val didDoc = DidService.load(did)
         val vm = didDoc.assertionMethod!!.first().id
 
-        val vc = httpPost {
-            host = SIGNATORY_API_HOST
-            port = SIGNATORY_API_PORT
-            path = "/v1/credentials/issue"
-
-            body {
-                json(
-                    Klaxon().toJsonString(
-                        IssueCredentialRequest(
-                            "VerifiableAuthorization",
-                            ProofConfig(
-                                issuerDid = did,
-                                subjectDid = did,
-                                issuerVerificationMethod = vm,
-                                proofType = ProofType.LD_PROOF
-                            )
-                        )
+        val vc = httpPost(
+            "/v1/credentials/issue", Klaxon().toJsonString(
+                IssueCredentialRequest(
+                    "VerifiableAuthorization",
+                    ProofConfig(
+                        issuerDid = did,
+                        subjectDid = did,
+                        issuerVerificationMethod = vm,
+                        proofType = ProofType.LD_PROOF
                     )
                 )
-            }
-        }.asString()
+            )
+        )
 
         vc shouldNotBe null
         println(vc!!)
@@ -291,27 +263,19 @@ class SignatoryApiTest : AnnotationSpec() {
         val didDoc = DidService.load(did)
         val vm = didDoc.assertionMethod!!.first().id
 
-        val vc = httpPost {
-            host = SIGNATORY_API_HOST
-            port = SIGNATORY_API_PORT
-            path = "/v1/credentials/issue"
-
-            body {
-                json(
-                    Klaxon().toJsonString(
-                        IssueCredentialRequest(
-                            "VerifiableAttestation",
-                            ProofConfig(
-                                issuerDid = did,
-                                subjectDid = did,
-                                issuerVerificationMethod = vm,
-                                proofType = ProofType.LD_PROOF
-                            )
-                        )
+        val vc = httpPost(
+            "/v1/credentials/issue", Klaxon().toJsonString(
+                IssueCredentialRequest(
+                    "VerifiableAttestation",
+                    ProofConfig(
+                        issuerDid = did,
+                        subjectDid = did,
+                        issuerVerificationMethod = vm,
+                        proofType = ProofType.LD_PROOF
                     )
                 )
-            }
-        }.asString()
+            )
+        )
 
         vc shouldNotBe null
         println(vc!!)
@@ -332,18 +296,10 @@ class SignatoryApiTest : AnnotationSpec() {
                 }
             }
         """.trimIndent()
-        val vc = httpPost {
-            host = SIGNATORY_API_HOST
-            port = SIGNATORY_API_PORT
-            path = "/v1/credentials/issueFromJson"
-            param {
-                "issuerId" to did
-                "subjectId" to did
-            }
-            body {
-                json(json)
-            }
-        }.asString()
+
+        val vc = httpPost(
+            "/v1/credentials/issueFromJson?issuerId=$did&subjectId=$did", json
+        )
 
         vc shouldNotBe null
         val vcParsed = vc!!.toVerifiableCredential()
