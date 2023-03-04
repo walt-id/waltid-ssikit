@@ -512,7 +512,7 @@ object DidService {
             capabilityDelegation = keyRef,
             capabilityInvocation = keyRef,
             keyAgreement = keyAgreementKeys,
-            serviceEndpoint = null
+            service = null
         )
     }
 
@@ -627,21 +627,7 @@ object DidService {
 
     fun importKeys(didUrl: String): Boolean {
         val did = loadOrResolveAnyDid(didUrl) ?: throw Exception("Could not load or resolve $didUrl")
-
-        return (did.verificationMethod ?: listOf())
-            .asSequence()
-            .plus(
-                did.capabilityInvocation ?: listOf()
-            ).plus(
-                did.capabilityDelegation ?: listOf()
-            ).plus(
-                did.assertionMethod ?: listOf()
-            ).plus(
-                did.authentication ?: listOf()
-            ).plus(
-                did.keyAgreement ?: listOf()
-            )
-            .filter { vm -> !vm.isReference }
+        return did.allVerificationMethods
             .mapIndexed { idx, vm -> tryImportVerificationKey(didUrl, vm, idx == 0) }
             .reduce { acc, b -> acc || b }
     }
@@ -649,7 +635,7 @@ object DidService {
     fun deleteDid(didUrl: String) {
         loadOrResolveAnyDid(didUrl)?.let { did ->
             ContextManager.hkvStore.delete(HKVKey("did", "created", didUrl), recursive = true)
-            did.verificationMethod?.forEach {
+            did.allVerificationMethods.forEach {
                 ContextManager.keyStore.delete(it.id)
             }
         }

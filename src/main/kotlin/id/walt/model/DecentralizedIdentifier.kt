@@ -5,6 +5,7 @@ import id.walt.common.*
 import id.walt.model.did.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import kotlin.reflect.KClass
 
 const val DID_CONTEXT_URL: String = "https://www.w3.org/ns/did/v1"
@@ -29,18 +30,18 @@ enum class DidMethod(val didClass: KClass<out Did>) {
 @Serializable
 @TypeFor(field = "id", adapter = DidTypeAdapter::class)
 open class Did(
-    @SerialName("@context")
-    @Json(name = "@context")
     @ListOrSingleValue
-    val context: List<String>,
+    @SerialName("@context")
+    @Json(name = "@context", serializeNull = false)
+    val context: List<String>? = null,
     val id: String,
     @Json(serializeNull = false) var verificationMethod: List<VerificationMethod>? = null,
-    @Json(serializeNull = false) @DidVerificationRelationships open var authentication: List<VerificationMethod>? = null,
+    @Json(serializeNull = false) @DidVerificationRelationships var authentication: List<VerificationMethod>? = null,
     @Json(serializeNull = false) @DidVerificationRelationships var assertionMethod: List<VerificationMethod>? = null,
     @Json(serializeNull = false) @DidVerificationRelationships var capabilityDelegation: List<VerificationMethod>? = null,
     @Json(serializeNull = false) @DidVerificationRelationships var capabilityInvocation: List<VerificationMethod>? = null,
     @Json(serializeNull = false) @DidVerificationRelationships var keyAgreement: List<VerificationMethod>? = null,
-    @Json(serializeNull = false) var serviceEndpoint: List<ServiceEndpoint>? = null //TODO change to service-endpoint
+    @Json(serializeNull = false) var service: List<ServiceEndpoint>? = null
 ) {
     constructor( // secondary constructor with context as string
         context: String,
@@ -51,7 +52,7 @@ open class Did(
         capabilityDelegation: List<VerificationMethod>? = null,
         capabilityInvocation: List<VerificationMethod>? = null,
         keyAgreement: List<VerificationMethod>? = null,
-        serviceEndpoint: List<ServiceEndpoint>? = null
+        service: List<ServiceEndpoint>? = null
     ) : this(
         context = listOf(context),
         id = id,
@@ -61,7 +62,7 @@ open class Did(
         capabilityDelegation = capabilityDelegation,
         capabilityInvocation = capabilityInvocation,
         keyAgreement = keyAgreement,
-        serviceEndpoint = serviceEndpoint
+        service = service
     )
 
     @Json(ignored = true)
@@ -71,6 +72,17 @@ open class Did(
     @Json(ignored = true)
     val method: DidMethod
         get() = DidMethod.valueOf(url.method)
+
+    @Transient
+    @Json(ignored = true)
+    val allVerificationMethods = listOf<VerificationMethod>().asSequence()
+        .plus(verificationMethod ?: listOf())
+        .plus(capabilityInvocation ?: listOf())
+        .plus(capabilityDelegation ?: listOf())
+        .plus(assertionMethod ?: listOf())
+        .plus(authentication ?: listOf())
+        .plus(keyAgreement ?: listOf())
+        .filter { vm -> !vm.isReference }
 
     fun encode() = KlaxonWithConverters().toJsonString(this)
     fun encodePretty() = KlaxonWithConverters().toJsonString(this).prettyPrint()

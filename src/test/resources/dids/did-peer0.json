@@ -1,0 +1,11 @@
+{
+    "id": "did:peer:0z6Mksu6Kco9yky1pUAWnWyer17bnokrLL3bYvYFp27zv8WNv",
+    "authentication": [
+        {
+            "id": "did:peer:0z6Mksu6Kco9yky1pUAWnWyer17bnokrLL3bYvYFp27zv8WNv#6Mksu6Kco9yky1pUAWnWyer17bnokrLL3bYvYFp27zv8WNv",
+            "type": "Ed25519VerificationKey2020",
+            "controller": "did:peer:0z6Mksu6Kco9yky1pUAWnWyer17bnokrLL3bYvYFp27zv8WNv",
+            "publicKeyMultibase": "z6Mksu6Kco9yky1pUAWnWyer17bnokrLL3bYvYFp27zv8WNv"
+        }
+    ]
+}

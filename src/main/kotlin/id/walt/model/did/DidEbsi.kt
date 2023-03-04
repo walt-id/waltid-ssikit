@@ -1,6 +1,7 @@
 package id.walt.model.did
 
 import com.beust.klaxon.Json
+import id.walt.common.KlaxonWithConverters
 import id.walt.credentials.w3c.W3CProof
 import id.walt.model.Did
 import id.walt.model.ServiceEndpoint
@@ -26,7 +27,7 @@ class DidEbsi(
     capabilityDelegation = capabilityDelegation,
     capabilityInvocation = capabilityInvocation,
     keyAgreement = keyAgreement,
-    serviceEndpoint = serviceEndpoint
+    service = serviceEndpoint
 ) {
     constructor(
         context: String,
@@ -51,4 +52,8 @@ class DidEbsi(
         serviceEndpoint = serviceEndpoint,
         proof = proof
     )
+
+    companion object {
+        fun decode(didDoc: String): DidEbsi? = KlaxonWithConverters().parse<DidEbsi>(didDoc)
+    }
 }
