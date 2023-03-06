@@ -270,7 +270,7 @@ class AuditorCommandTest : StringSpec() {
         "8. verify EBSI credentials" {
 
             // VerifiableAttestation
-            validateSchema("ebsi-json-schema/ebsi-attestation/2022-11_01/examples/generic-attestation.json", "/home/pp/dev/waltid-new/waltid-ssikit/src/test/resources/ebsi-json-schema/ebsi-attestation/2022-11_01/schema-online.json")
+            validateSchema("ebsi-json-schema/ebsi-attestation/2022-11_01/examples/generic-attestation.json", "./src/test/resources/ebsi-json-schema/ebsi-attestation/2022-11_01/schema-online.json")
 
             validateSchema("ebsi-json-schema/ebsi-attestation/2022-11_01/examples/generic-attestation.json", "https://api-test.ebsi.eu/trusted-schemas-registry/v2/schemas/0x23039e6356ea6b703ce672e7cfac0b42765b150f63df78e2bd18ae785787f6a2")
 
@@ -286,7 +286,7 @@ class AuditorCommandTest : StringSpec() {
 
             // AccreditedVerifiableAttestation
 
-           validateSchema("ebsi-json-schema/ebsi-accredited-attestation/2022-11/examples/example.json", "/home/pp/dev/waltid-new/waltid-ssikit/src/test/resources/ebsi-json-schema/ebsi-attestation/2022-11/schema.json")
+           validateSchema("ebsi-json-schema/ebsi-accredited-attestation/2022-11/examples/example.json", "./src/test/resources/ebsi-json-schema/ebsi-accredited-attestation/2022-11/schema.json")
 
         }
     }
