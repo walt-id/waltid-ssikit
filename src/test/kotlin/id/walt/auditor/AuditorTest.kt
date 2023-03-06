@@ -3,6 +3,7 @@ package id.walt.auditor
 import com.beust.klaxon.JsonObject
 import id.walt.auditor.dynamic.DynamicPolicy
 import id.walt.auditor.dynamic.DynamicPolicyArg
+import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
@@ -13,7 +14,6 @@ import id.walt.signatory.Signatory
 import id.walt.signatory.dataproviders.MergingDataProvider
 import id.walt.test.RESOURCES_PATH
 import io.kotest.assertions.throwables.shouldNotThrowAny
-import io.kotest.core.annotation.Ignored
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.core.test.TestCase
 import io.kotest.matchers.collections.shouldBeSameSizeAs
@@ -21,6 +21,7 @@ import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
 import java.io.File
 import java.net.URI
+
 
 class AuditorCommandTest : StringSpec() {
     private lateinit var did: String
@@ -218,23 +219,34 @@ class AuditorCommandTest : StringSpec() {
             Auditor.getService().verify(vcStr, listOf(JsonSchemaPolicy())).valid shouldBe true
 
             // test VerifiableDiploma schema from vclib
-            Auditor.getService().verify(vcStr, listOf(JsonSchemaPolicy(JsonSchemaPolicyArg("https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableDiploma.json"))))
+            Auditor.getService().verify(
+                vcStr,
+                listOf(JsonSchemaPolicy(JsonSchemaPolicyArg("https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableDiploma.json")))
+            )
                 .valid shouldBe true
 
             // test VerifiableId schema from vclib (should not validate)
-            Auditor.getService().verify(vcStr, listOf(JsonSchemaPolicy(JsonSchemaPolicyArg("https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableId.json"))))
+            Auditor.getService().verify(
+                vcStr,
+                listOf(JsonSchemaPolicy(JsonSchemaPolicyArg("https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableId.json")))
+            )
                 .valid shouldBe false
 
             // this is a VerifiableDiploma (EUROPASS) schema, which our VerifiableDiploma template does NOT comply with:
             // https://ec.europa.eu/digital-building-blocks/wikis/display/EBSIDOC/Data+Models+and+Schemas
-            Auditor.getService().verify(vcStr, listOf(JsonSchemaPolicy(JsonSchemaPolicyArg("https://api-pilot.ebsi.eu/trusted-schemas-registry/v1/schemas/0x4dd3926cd92bb3cb64fa6c837539ed31fc30dd38a11266a91678efa7268cde09"))))
+            Auditor.getService().verify(
+                vcStr,
+                listOf(JsonSchemaPolicy(JsonSchemaPolicyArg("https://api-pilot.ebsi.eu/trusted-schemas-registry/v1/schemas/0x4dd3926cd92bb3cb64fa6c837539ed31fc30dd38a11266a91678efa7268cde09")))
+            )
                 .valid shouldBe false
 
             // test passing schema by value
-            val schemaContent = URI.create("https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableDiploma.json").toURL().readText()
+            val schemaContent =
+                URI.create("https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableDiploma.json")
+                    .toURL().readText()
             Auditor.getService().verify(vcStr, listOf(JsonSchemaPolicy(JsonSchemaPolicyArg(schemaContent)))).valid shouldBe true
 
-            // test passsing schema by file path
+            // test passing schema by file path
             val tempFile = File.createTempFile("schema", ".json")
             tempFile.writeText(schemaContent)
             shouldNotThrowAny {
@@ -242,6 +254,40 @@ class AuditorCommandTest : StringSpec() {
                     .verify(vcStr, listOf(JsonSchemaPolicy(JsonSchemaPolicyArg(tempFile.absolutePath)))).valid shouldBe true
             }
             tempFile.delete()
+        }
+
+        fun validateSchema(credentialFile: String, schemaFile: String? = null) {
+            val credential =
+                VerifiableCredential.fromString(File("$RESOURCES_PATH/$credentialFile").readText())
+
+            if (schemaFile.isNullOrBlank()) {
+                Auditor.getService().verify(credential, listOf(JsonSchemaPolicy())).valid shouldBe true
+            } else {
+                Auditor.getService().verify(credential, listOf(JsonSchemaPolicy(JsonSchemaPolicyArg(schemaFile)))).valid shouldBe true
+            }
+        }
+
+        "8. verify EBSI credentials" {
+
+            // VerifiableAttestation
+            validateSchema("ebsi-json-schema/ebsi-attestation/2022-11_01/examples/generic-attestation.json", "/home/pp/dev/waltid-new/waltid-ssikit/src/test/resources/ebsi-json-schema/ebsi-attestation/2022-11_01/schema-online.json")
+
+            validateSchema("ebsi-json-schema/ebsi-attestation/2022-11_01/examples/generic-attestation.json", "https://api-test.ebsi.eu/trusted-schemas-registry/v2/schemas/0x23039e6356ea6b703ce672e7cfac0b42765b150f63df78e2bd18ae785787f6a2")
+
+            validateSchema("ebsi-json-schema/ebsi-attestation/2022-11_01/examples/generic-attestation.json")
+
+
+
+            // VerifiableAccreditationToAttest -  "Schema Not Found"
+            // validateSchema("ebsi-json-schema/ebsi-accreditation/2022-11_01/examples/accredited-to-attest.json")
+
+            // VerifiableAccreditationToAccredit
+            //validateSchema("ebsi-json-schema/ebsi-accreditation/2022-11_01/examples/accredited-to-accredit.json")
+
+            // AccreditedVerifiableAttestation
+
+           validateSchema("ebsi-json-schema/ebsi-accredited-attestation/2022-11/examples/example.json", "/home/pp/dev/waltid-new/waltid-ssikit/src/test/resources/ebsi-json-schema/ebsi-attestation/2022-11/schema.json")
+
         }
     }
 }

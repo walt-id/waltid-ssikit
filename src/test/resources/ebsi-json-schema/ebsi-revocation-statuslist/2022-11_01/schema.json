@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EBSI StatusList2021 Credential",
+  "description": "Schema of an EBSI StatusList2021 Verifiable Credential",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../../ebsi-attestation/2022-11_01/schema.json"
+    },
+    {
+      "properties": {
+        "credentialSubject": {
+          "description": "Defines information about the subject that is described by the Verifiable Attestation",
+          "type": "object",
+          "properties": {
+            "id": {
+              "description": "Defines the DID of the subject that is described by the Verifiable Attestation",
+              "type": "string",
+              "format": "uri"
+            },
+            "type": {
+              "description": "Defines the Verifiable Credential subject type",
+              "type": "string",
+              "const": "StatusList2021"
+            },
+            "statusPurpose": {
+              "description": "Purpose of the status entry",
+              "type": "string",
+              "enum": ["revocation", "suspension"]
+            },
+            "encodedList": {
+              "description": "Encoded and compressed list of statuses",
+              "type": "string"
+            }
+          },
+          "required": ["id", "type", "statusPurpose", "encodedList"]
+        }
+      },
+      "required": ["credentialSubject"]
+    }
+  ]
+}

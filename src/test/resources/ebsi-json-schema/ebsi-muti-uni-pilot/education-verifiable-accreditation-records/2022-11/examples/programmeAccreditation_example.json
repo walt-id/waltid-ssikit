@@ -1,0 +1,58 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://essif.europa.eu/schemas/vc/2020/v1"
+  ],
+  "id": "https://essif.europa.eu/tsr/53",
+  "type": [
+    "VerifiableCredential",
+    "VerifiableAttestation",
+    "VerifiableAccreditation",
+    "DiplomaVerifiableAccreditation"
+  ],
+  "issuer": "did:ebsi:00001234",
+  "issued": "2020-06-22T14:11:44Z",
+  "issuanceDate": "2021-11-01T00:00:00Z",
+  "validFrom": "2021-11-01T00:00:00Z",
+  "expirationDate": "2024-06-22T14:11:44Z",
+  "credentialSubject": {
+    "id": "did:ebsi:00001235",
+    "authorizationClaims": {
+      "accreditationType": "http://data.europa.eu/snb/accreditation/e57dddfcf3",
+      "decision": "fully compliant",
+      "report": ["https://www.example.com/URLtoreport.pdf"],
+      "limitQualification": [
+        {
+          "id": "http://qualdb.org/qual/1",
+          "title": "Masters' Diploma in Sociology",
+          "alternativeLabel": [
+            "Diploma in Sociology",
+            "Masters' Diploma in Sociological Studies"
+          ],
+          "EQFLevel": "http://data.europa.eu/snb/eqf/6",
+          "NQFLevel": "http://data.europa.eu/snb/qdr/c_1711a061"
+        }
+      ],
+      "limitJurisdiction": [
+        "http://publications.europa.eu/resource/authority/atu/NLD"
+      ],
+      "reviewDate": "2024-04-22T14:11:44Z"
+    }
+  },
+  "credentialStatus": {
+    "id": "https://essif.europa.eu/status/45",
+    "type": "CredentialsStatusList2020"
+  },
+  "credentialSchema": {
+    "id": "https://essif.europa.eu/tsr-123/verifiableattestation.json",
+    "type": "FullJsonSchemaValidator2021"
+  },
+  "proof": {
+    "type": "EidasSeal2019",
+    "created": "2019-06-22T14:11:44Z",
+    "proofPurpose": "assertionMethod",
+    "verificationMethod": "http://uri-to-verification-method",
+    "jws": "eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..TCYt5X",
+    "proofValue": "BD21J4fdlnBvBA+y6D...fnC8Y="
+  }
+}

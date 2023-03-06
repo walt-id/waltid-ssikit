@@ -1,0 +1,106 @@
+{
+  "@context": ["https://www.w3.org/2018/credentials/v1"],
+  "type": ["VerifiableCredential", "VerifiableAttestation", "Europass"],
+  "id": "urn:credential:5a4d5412-27e3-4540-a5e5-f1aa4d55b20c",
+  "issuer": "did:epass:org:1",
+  "issuanceDate": "2020-07-20T13:58:53+02:00",
+  "issued": "2020-07-20T13:58:53+02:00",
+  "validFrom": "2019-09-20T00:00:00+02:00",
+  "credentialSubject": {
+    "id": "did:epass:person:1",
+    "identifier": {
+      "schemeID": "Student identification number",
+      "value": 99009900
+    },
+    "achieved": [
+      {
+        "id": "urn:epass:learningAchievement:1",
+        "title": "TITLE OF PROGRAMME",
+        "wasDerivedFrom": [
+          {
+            "id": "urn:epass:assessment:1",
+            "title": "Overall Diploma Assessment",
+            "grade": "excellent (5)"
+          }
+        ],
+        "specifiedBy": [
+          {
+            "id": "urn:epass:qualification:1",
+            "title": "Title of Achievement",
+            "eqfLevel": "http://data.europa.eu/snb/eqf/5",
+            "learningOutcome": [
+              {
+                "name": "Outcome1",
+                "id": "urn:epass:learningOutcome:1",
+                "title": "Name of DigiComp Competence",
+                "description": "Description of DigiCompCompetence",
+                "relatedSkill": ["http://data.europa.eu/snb/dcf/860966ekgo"]
+              },
+              {
+                "name": "Outcome2",
+                "id": "urn:epass:learningOutcome:2",
+                "title": "Name of DigiComp Competence 2",
+                "description": "Description of DigiCompCompetence 2",
+                "relatedSkill": ["http://data.europa.eu/snb/dcf/34v10n662m"]
+              }
+            ]
+          }
+        ],
+        "hasPart": {
+          "learningAchievements": [
+            {
+              "id": "urn:epass:learningAchievement:3",
+              "title": "Topic #1",
+              "specifiedBy": [
+                {
+                  "id": "urn:epass:qualification:3",
+                  "title": "Topic #1",
+                  "learningOutcome": [
+                    {
+                      "name": "LO1",
+                      "id": "urn:epass:learningOutcome:1",
+                      "title": "Name of DigiComp Competence",
+                      "description": "Description of DigiCompCompetence",
+                      "relatedSkill": [
+                        "http://data.europa.eu/snb/dcf/860966ekgo"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "urn:epass:learningAchievement:3",
+              "title": "Topic #1",
+              "specifiedBy": [
+                {
+                  "id": "urn:epass:qualification:3",
+                  "title": "Topic #1",
+                  "learningOutcome": [
+                    {
+                      "name": "LO3",
+                      "id": "urn:epass:learningOutcome:1",
+                      "title": "Name of DigiComp Competence",
+                      "description": "Description of DigiCompCompetence",
+                      "relatedSkill": [
+                        "http://data.europa.eu/snb/dcf/860966ekgo"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "credentialSchema": {
+    "type": "FullJsonSchemaValidator2021",
+    "id": "https://api-test.ebsi.eu/trusted-schemas-registry/v2/schemas/0x6b304591b86b7e5e4c8a713ddfb84ee5810a56334827adda4e741f80b9aa49ed"
+  },
+  "credentialStatus": {
+    "id": "https://uri.to.status",
+    "type": "TrustedCredentialStatus2021"
+  }
+}

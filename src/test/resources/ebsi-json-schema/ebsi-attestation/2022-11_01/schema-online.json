@@ -1,0 +1,224 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "EBSI Verifiable Attestation",
+    "description": "Defines generic structure for any EBSI related Verifiable Credential",
+    "type": "object",
+    "properties": {
+        "@context": {
+            "description": "Semantic context for the issued credential",
+            "type": "array",
+            "items": {
+                "type": "string",
+                "format": "uri"
+            }
+        },
+        "id": {
+            "description": "Globally unique identifier for the issued credential",
+            "type": "string",
+            "format": "uri"
+        },
+        "type": {
+            "description": "Full type chain, used to identify the credential base types",
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
+        },
+        "issuer": {
+            "description": "DID which issued this credential",
+            "type": "string",
+            "format": "uri"
+        },
+        "issuanceDate": {
+            "description": "Defines the date and time, when the issued credential becomes valid",
+            "type": "string",
+            "format": "date-time"
+        },
+        "issued": {
+            "description": "Defines when the issued credential was issued",
+            "type": "string",
+            "format": "date-time"
+        },
+        "validFrom": {
+            "description": "Defines the date and time, when the issued credential becomes valid",
+            "type": "string",
+            "format": "date-time"
+        },
+        "validUntil": {
+            "description": "Defines the date and time, when the issued credential expires",
+            "type": "string",
+            "format": "date-time"
+        },
+        "expirationDate": {
+            "description": "Defines the date and time, when the issued credential expires",
+            "type": "string",
+            "format": "date-time"
+        },
+        "credentialSubject": {
+            "description": "Defines information about the subject that is defined by the type chain",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "Defines the DID of the subject that is described by the issued credential",
+                    "type": "string",
+                    "format": "uri"
+                }
+            }
+        },
+        "credentialStatus": {
+            "description": "Defines revocation details for the issued credential. Further redefined by type extension",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "Exact identity for the credential status",
+                    "type": "string",
+                    "format": "uri"
+                },
+                "type": {
+                    "description": "Defines the revocation type extension",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id",
+                "type"
+            ]
+        },
+        "credentialSchema": {
+            "anyOf": [
+                {
+                    "$ref": "#/$defs/credentialSchema"
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/credentialSchema"
+                    }
+                }
+            ]
+        },
+        "termsOfUse": {
+            "anyOf": [
+                {
+                    "$ref": "#/$defs/termsOfUse"
+                },
+                {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/termsOfUse"
+                    }
+                }
+            ]
+        },
+        "evidence": {
+            "description": "Contains information about the process which resulted in the issuance of the credential",
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "If present, it MUST contain a URL that points to where more information about this instance of evidence can be found.",
+                        "type": "string"
+                    },
+                    "type": {
+                        "description": "Defines the evidence type extension",
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "required": [
+                    "type"
+                ]
+            }
+        },
+        "proof": {
+            "description": "Contains information about the proof",
+            "type": "object",
+            "properties": {
+                "type": {
+                    "description": "Defines the proof type",
+                    "type": "string"
+                },
+                "proofPurpose": {
+                    "description": "Defines the purpose of the proof",
+                    "type": "string"
+                },
+                "created": {
+                    "description": "Defines the date and time, when the proof has been created",
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "verificationMethod": {
+                    "description": "Contains information about the verification method / proof mechanisms",
+                    "type": "string"
+                },
+                "jws": {
+                    "description": "Defines the proof value in JWS format",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "type",
+                "proofPurpose",
+                "created",
+                "verificationMethod",
+                "jws"
+            ]
+        }
+    },
+    "required": [
+        "@context",
+        "id",
+        "type",
+        "issuer",
+        "issuanceDate",
+        "issued",
+        "validFrom",
+        "credentialSubject",
+        "credentialSchema"
+    ],
+    "$defs": {
+        "credentialSchema": {
+            "description": "Contains information about the credential schema on which the issued credential is based",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "References the credential schema stored on the Trusted Schemas Registry (TSR) on which the Verifiable Authorisation is based",
+                    "type": "string",
+                    "format": "uri"
+                },
+                "type": {
+                    "description": "Defines credential schema type",
+                    "type": "string",
+                    "enum": [
+                        "FullJsonSchemaValidator2021"
+                    ]
+                }
+            },
+            "required": [
+                "id",
+                "type"
+            ]
+        },
+        "termsOfUse": {
+            "description": "Contains the terms under which the issued credential was issued",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "description": "Contains a URL that points to where more information about this instance of terms of use can be found.",
+                    "type": "string",
+                    "format": "uri"
+                },
+                "type": {
+                    "description": "Defines the type extension",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "type"
+            ]
+        }
+    }
+}

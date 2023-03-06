@@ -1,0 +1,608 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ESSP Portable Document A1",
+  "description": "Schema for the PDA1",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../../../ebsi-attestation/2022-11_01/schema.json"
+    },
+    {
+      "properties": {
+        "credentialSubject": {
+          "description": "Defines additional information about the subject that is described by the Verifiable Accreditation",
+          "type": "object",
+          "properties": {
+            "id": {
+              "description": "Defines the DID of the subject that is described by the Verifiable Attestation",
+              "type": "string",
+              "format": "uri"
+            },
+            "section1": {
+              "type": "object",
+              "unevaluatedProperties": false,
+              "properties": {
+                "personalIdentificationNumber": {
+                  "$ref": "#/$defs/PDA1PINType"
+                },
+                "sex": {
+                  "$ref": "#/$defs/PDA1SexType"
+                },
+                "surname": {
+                  "$ref": "#/$defs/PDA1PersonNameType"
+                },
+                "forenames": {
+                  "$ref": "#/$defs/PDA1PersonNameType"
+                },
+                "surnameAtBirth": {
+                  "$ref": "#/$defs/PDA1PersonNameType"
+                },
+                "dateBirth": {
+                  "$ref": "#/$defs/PDA1BusinessDateType"
+                },
+                "nationalities": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/PDA1NationalityType"
+                  }
+                },
+                "placeBirth": {
+                  "$ref": "#/$defs/PDA1PlaceBirthType"
+                },
+                "stateOfResidenceAddress": {
+                  "$ref": "#/$defs/PDA1AddressType"
+                },
+                "stateOfStayAddress": {
+                  "$ref": "#/$defs/PDA1AddressType"
+                }
+              },
+              "required": []
+            },
+            "section2": {
+              "type": "object",
+              "unevaluatedProperties": false,
+              "properties": {
+                "memberStateWhichLegislationApplies": {
+                  "$ref": "#/$defs/PDA1EUEFTACountryType"
+                },
+                "startingDate": {
+                  "$ref": "#/$defs/PDA1BusinessDateType"
+                },
+                "endingDate": {
+                  "$ref": "#/$defs/PDA1BusinessDateType"
+                },
+                "certificateForDurationActivity": {
+                  "type": "boolean"
+                },
+                "determinationProvisional": {
+                  "type": "boolean"
+                },
+                "transitionRulesApplyAsEC8832004": {
+                  "type": "boolean"
+                }
+              },
+              "required": []
+            },
+            "section3": {
+              "type": "object",
+              "unevaluatedProperties": false,
+              "properties": {
+                "postedEmployedPerson": {
+                  "type": "boolean"
+                },
+                "employedTwoOrMoreStates": {
+                  "type": "boolean"
+                },
+                "postedSelfEmployedPerson": {
+                  "type": "boolean"
+                },
+                "selfEmployedTwoOrMoreStates": {
+                  "type": "boolean"
+                },
+                "civilServant": {
+                  "type": "boolean"
+                },
+                "contractStaff": {
+                  "type": "boolean"
+                },
+                "mariner": {
+                  "type": "boolean"
+                },
+                "employedAndSelfEmployed": {
+                  "type": "boolean"
+                },
+                "civilAndEmployedSelfEmployed": {
+                  "type": "boolean"
+                },
+                "flightCrewMember": {
+                  "type": "boolean"
+                },
+                "exception": {
+                  "type": "boolean"
+                },
+                "exceptionDescription": {
+                  "$ref": "#/$defs/PDA1MediumStringType"
+                },
+                "workingInStateUnder21": {
+                  "type": "boolean"
+                }
+              },
+              "required": []
+            },
+            "section4": {
+              "type": "object",
+              "unevaluatedProperties": false,
+              "properties": {
+                "employee": {
+                  "type": "boolean"
+                },
+                "selfEmployedActivity": {
+                  "type": "boolean"
+                },
+                "employerSelfEmployedActivityCodes": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/PDA1TinyStringType"
+                  }
+                },
+                "nameBusinessName": {
+                  "$ref": "#/$defs/PDA1MediumStringType"
+                },
+                "registeredAddress": {
+                  "$ref": "#/$defs/PDA1AddressType"
+                }
+              },
+              "required": []
+            },
+            "section5": {
+              "type": "object",
+              "unevaluatedProperties": false,
+              "properties": {
+                "workPlaceNames": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/PDA1WorkPlaceNameType"
+                  }
+                },
+                "workPlaceNamesBlob": {
+                  "$ref": "#/$defs/PDA1VeryLongStringType"
+                },
+                "workPlaceAddresses": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/PDA1WorkPlaceAddressType"
+                  }
+                },
+                "workPlaceAddressesBlob": {
+                  "$ref": "#/$defs/PDA1VeryLongStringType"
+                },
+                "noFixedAddress": {
+                  "type": "boolean"
+                },
+                "noFixedAddressDescription": {
+                  "$ref": "#/$defs/PDA1MediumStringType"
+                }
+              },
+              "required": []
+            },
+            "section6": {
+              "type": "object",
+              "unevaluatedProperties": false,
+              "properties": {
+                "name": {
+                  "$ref": "#/$defs/PDA1MediumStringType"
+                },
+                "address": {
+                  "$ref": "#/$defs/PDA1AddressType"
+                },
+                "institutionID": {
+                  "$ref": "#/$defs/PDA1PINType"
+                },
+                "officeFaxNo": {
+                  "$ref": "#/$defs/PDA1ShortStringType"
+                },
+                "officePhoneNo": {
+                  "$ref": "#/$defs/PDA1ShortStringType"
+                },
+                "email": {
+                  "$ref": "#/$defs/PDA1MediumStringType"
+                },
+                "date": {
+                  "$ref": "#/$defs/PDA1BusinessDateType"
+                },
+                "signature": {
+                  "$ref": "#/$defs/PDA1MediumStringType"
+                }
+              },
+              "required": []
+            }
+          },
+          "required": [
+            "id",
+            "section1",
+            "section2",
+            "section3",
+            "section4",
+            "section5",
+            "section6"
+          ]
+        }
+      },
+      "required": ["credentialSubject"]
+    }
+  ],
+  "$defs": {
+    "PDA1SexType": {
+      "enum": ["01", "02", "98", "99"]
+    },
+    "PDA1BusinessDateType": {
+      "type": "string",
+      "format": "date"
+    },
+    "PDA1NationalityType": {
+      "enum": [
+        "AT",
+        "BE",
+        "BG",
+        "HR",
+        "CY",
+        "CZ",
+        "DK",
+        "EE",
+        "FI",
+        "FR",
+        "DE",
+        "EL",
+        "HU",
+        "IS",
+        "IE",
+        "IT",
+        "LV",
+        "LI",
+        "LT",
+        "LU",
+        "MT",
+        "NL",
+        "NO",
+        "PL",
+        "PT",
+        "RO",
+        "SK",
+        "SI",
+        "ES",
+        "SE",
+        "CH",
+        "UK",
+        "XR",
+        "XS",
+        "XU",
+        "AF",
+        "AL",
+        "DZ",
+        "AD",
+        "AO",
+        "AG",
+        "AR",
+        "AM",
+        "AU",
+        "AZ",
+        "BS",
+        "BH",
+        "BD",
+        "BB",
+        "BY",
+        "BZ",
+        "BJ",
+        "BT",
+        "BO",
+        "BA",
+        "BW",
+        "BR",
+        "BN",
+        "BF",
+        "BI",
+        "KH",
+        "CM",
+        "CA",
+        "CV",
+        "CF",
+        "TD",
+        "CL",
+        "CN",
+        "CO",
+        "KM",
+        "CG",
+        "CD",
+        "CR",
+        "CI",
+        "CU",
+        "DJ",
+        "DM",
+        "DO",
+        "EC",
+        "EG",
+        "SV",
+        "GQ",
+        "ER",
+        "ET",
+        "FJ",
+        "GA",
+        "GM",
+        "GE",
+        "GH",
+        "GD",
+        "GT",
+        "GN",
+        "GW",
+        "GY",
+        "HT",
+        "VA",
+        "HN",
+        "IN",
+        "ID",
+        "IR",
+        "IQ",
+        "IL",
+        "JM",
+        "JP",
+        "JO",
+        "KZ",
+        "KE",
+        "KI",
+        "KP",
+        "KR",
+        "KW",
+        "KG",
+        "LA",
+        "LB",
+        "LS",
+        "LR",
+        "LY",
+        "MK",
+        "MG",
+        "MW",
+        "MY",
+        "MV",
+        "ML",
+        "MH",
+        "MR",
+        "MU",
+        "MX",
+        "FM",
+        "MD",
+        "MC",
+        "MN",
+        "ME",
+        "MA",
+        "MZ",
+        "MM",
+        "NA",
+        "NR",
+        "NP",
+        "NZ",
+        "NI",
+        "NE",
+        "NG",
+        "OM",
+        "PK",
+        "PW",
+        "PS",
+        "PA",
+        "PG",
+        "PY",
+        "PE",
+        "PH",
+        "QA",
+        "RU",
+        "RW",
+        "KN",
+        "LC",
+        "VC",
+        "WS",
+        "SM",
+        "ST",
+        "SA",
+        "SN",
+        "RS",
+        "SC",
+        "SL",
+        "SG",
+        "SB",
+        "SO",
+        "ZA",
+        "SS",
+        "LK",
+        "SD",
+        "SR",
+        "SZ",
+        "SY",
+        "TJ",
+        "TZ",
+        "TH",
+        "TL",
+        "TG",
+        "TO",
+        "TT",
+        "TN",
+        "TR",
+        "TM",
+        "TV",
+        "UG",
+        "UA",
+        "AE",
+        "US",
+        "UY",
+        "UZ",
+        "VU",
+        "VE",
+        "VN",
+        "YE",
+        "ZM",
+        "ZW",
+        "BQAQ",
+        "BUMM",
+        "BYAA",
+        "CTKI",
+        "CSHH",
+        "DYBJ",
+        "NQAQ",
+        "TPTL",
+        "FXFR",
+        "AIDJ",
+        "FQHH",
+        "DDDE",
+        "GEHH",
+        "JTUM",
+        "MIUM",
+        "ANHH",
+        "NTHH",
+        "NHVU",
+        "PCHH",
+        "PZPA",
+        "CSXX",
+        "SKIN",
+        "RHZW",
+        "HVBF",
+        "PUUM",
+        "SUHH",
+        "VDVN",
+        "WKUM",
+        "YDYE",
+        "YUCS",
+        "ZRCD"
+      ]
+    },
+    "PDA1TinyStringType": {
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 25
+    },
+    "PDA1ShortStringType": {
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 65
+    },
+    "PDA1MediumStringType": {
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 155
+    },
+    "PDA1VeryLongStringType": {
+      "type": "string",
+      "minLength": 0,
+      "maxLength": 500
+    },
+    "PDA1PINType": {
+      "$ref": "#/$defs/PDA1ShortStringType"
+    },
+    "PDA1PersonNameType": {
+      "$ref": "#/$defs/PDA1MediumStringType"
+    },
+    "PDA1EUEFTACountryType": {
+      "enum": [
+        "AT",
+        "BE",
+        "BG",
+        "HR",
+        "CY",
+        "CZ",
+        "DK",
+        "EE",
+        "FI",
+        "FR",
+        "DE",
+        "EL",
+        "HU",
+        "IS",
+        "IE",
+        "IT",
+        "LV",
+        "LI",
+        "LT",
+        "LU",
+        "MT",
+        "NL",
+        "NO",
+        "PL",
+        "PT",
+        "RO",
+        "SK",
+        "SI",
+        "ES",
+        "SE",
+        "CH",
+        "UK"
+      ]
+    },
+    "PDA1PlaceBirthType": {
+      "type": "object",
+      "unevaluatedProperties": false,
+      "properties": {
+        "town": {
+          "$ref": "#/$defs/PDA1ShortStringType"
+        },
+        "region": {
+          "$ref": "#/$defs/PDA1ShortStringType"
+        },
+        "countryCode": {
+          "$ref": "#/$defs/PDA1EUEFTACountryType"
+        }
+      },
+      "required": []
+    },
+    "PDA1AddressType": {
+      "type": "object",
+      "unevaluatedProperties": false,
+      "properties": {
+        "buildingName": {
+          "$ref": "#/$defs/PDA1MediumStringType"
+        },
+        "streetNo": {
+          "$ref": "#/$defs/PDA1MediumStringType"
+        },
+        "postCode": {
+          "$ref": "#/$defs/PDA1TinyStringType"
+        },
+        "town": {
+          "$ref": "#/$defs/PDA1ShortStringType"
+        },
+        "region": {
+          "$ref": "#/$defs/PDA1ShortStringType"
+        },
+        "countryCode": {
+          "$ref": "#/$defs/PDA1EUEFTACountryType"
+        }
+      },
+      "required": []
+    },
+    "PDA1WorkPlaceNameType": {
+      "type": "object",
+      "unevaluatedProperties": false,
+      "properties": {
+        "seqno": {
+          "type": "number"
+        },
+        "flagStatehomeBase": {
+          "$ref": "#/$defs/PDA1MediumStringType"
+        },
+        "companyNameVesselName": {
+          "$ref": "#/$defs/PDA1MediumStringType"
+        }
+      },
+      "required": []
+    },
+    "PDA1WorkPlaceAddressType": {
+      "type": "object",
+      "unevaluatedProperties": false,
+      "properties": {
+        "seqno": {
+          "type": "number"
+        },
+        "address": {
+          "$ref": "#/$defs/PDA1AddressType"
+        }
+      },
+      "required": []
+    }
+  }
+}

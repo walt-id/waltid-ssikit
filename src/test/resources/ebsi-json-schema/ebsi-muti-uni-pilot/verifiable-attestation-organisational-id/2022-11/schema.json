@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EBSI Legal Entity Verifiable ID",
+  "description": "Schema of an EBSI Verifiable ID for an organization-legal entity participating in the educational use cases",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../../../ebsi-attestation/2022-11/schema.json"
+    },
+    {
+      "properties": {
+        "credentialSubject": {
+          "description": "Defines information about the subject that is described by the Verifiable ID",
+          "type": "object",
+          "properties": {
+            "id": {
+              "description": "Defines a unique identifier of the credential subject",
+              "type": "string"
+            },
+            "identifier": {
+              "description": "Defines an alternative identifier for the organization",
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/identifier"
+              }
+            },
+            "legalPersonIdentifier": {
+              "description": "National/Legal Identifier of Credential Subject (constructed by the sending Member State in accordance with the technical specifications for the purposes of cross-border identification and which is as persistent as possible in time)",
+              "type": "string"
+            },
+            "legalName": {
+              "description": "Official legal name of Credential Subject",
+              "type": "string"
+            },
+            "legalAddress": {
+              "description": "Official legal address of Credential Subject",
+              "type": "string"
+            },
+            "VATRegistration": {
+              "description": "VAT number  of Credential Subject",
+              "type": "string"
+            },
+            "taxReference": {
+              "description": "Official tax reference number of Credential Subject",
+              "type": "string"
+            },
+            "LEI": {
+              "description": "Official legal entity identifier (LEI) of Credential Subject (referred to in Commission Implementing Regulation (EU) No 1247/2012)",
+              "type": "string"
+            },
+            "EORI": {
+              "description": "Economic Operator Registration and Identification (EORI) of Credential Subject (referred to in Commission Implementing Regulation (EU) No 1352/2013)",
+              "type": "string"
+            },
+            "SEED": {
+              "description": "System for Exchange of Excise Data (SEED) of Credential Subject (i.e. excise number provided in Article 2(12) of Council Regulation (EC) No 389/2012)",
+              "type": "string"
+            },
+            "SIC": {
+              "description": "Standard Industrial Classification (SIC) of Credential Subject (Article 3(1) of Directive 2009/101/EC of the European Parliament and of the Council.)",
+              "type": "string"
+            },
+            "domainName": {
+              "description": "Domain name  of Credential Subject",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": ["id"]
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "identifier": {
+      "description": "Defines an alternative Identifier object",
+      "type": "object",
+      "properties": {
+        "schemeID": {
+          "description": "Defines the schema used to define alternative identification",
+          "type": "string"
+        },
+        "value": {
+          "description": "Define the alternative identification value",
+          "type": "string"
+        },
+        "id": {
+          "description": "The URI of the identifier",
+          "type": "string",
+          "format": "uri"
+        }
+      },
+      "required": ["schemeID", "value"]
+    }
+  }
+}

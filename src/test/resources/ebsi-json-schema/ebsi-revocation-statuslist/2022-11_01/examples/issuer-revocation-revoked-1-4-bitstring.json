@@ -1,0 +1,24 @@
+{
+  "@context": ["https://www.w3.org/2018/credentials/v1"],
+  "id": "https://api-test.ebsi.eu/trusted-issuers-registry/v3/issuers/did:ebsi:zyrMG8T9xYbNoSwyQa4SGMJ/proxy/6cc5fcc621d8098977d378ec7bf63f9ad0b204d56bb604f75bc9290e7033ac84/credentials/status/5",
+  "type": [
+    "VerifiableCredential",
+    "VerifiableAttestation",
+    "StatusList2021Credential"
+  ],
+  "issuer": "did:ebsi:zvHWX359A3CvfJnCYaAiAde",
+  "issuanceDate": "2022-08-04T10:01:00Z",
+  "validFrom": "2022-08-04T11:00:00Z",
+  "expirationDate": "2026-08-04T11:00:00Z",
+  "issued": "2022-08-04T10:01:00Z",
+  "credentialSubject": {
+    "id": "https://api-test.ebsi.eu/trusted-issuers-registry/v3/issuers/did:ebsi:zyrMG8T9xYbNoSwyQa4SGMJ/proxy/6cc5fcc621d8098977d378ec7bf63f9ad0b204d56bb604f75bc9290e7033ac84/credentials/status/5#list",
+    "type": "StatusList2021",
+    "statusPurpose": "revocation",
+    "encodedList": "H4sIAAAAAAAAE+3CMREAAAgAobd/aW3hAkdTFwAAAAAAAAAAAAAAAAAAAHi0N5xmiABAAAA"
+  },
+  "credentialSchema": {
+    "id": "https://api-test.ebsi.eu/trusted-schemas-registry/v2/schemas/0x903038ac23105d2e553b3dc9065d194799dc29796fa2778d594311c10c255123",
+    "type": "FullJsonSchemaValidator2021"
+  }
+}

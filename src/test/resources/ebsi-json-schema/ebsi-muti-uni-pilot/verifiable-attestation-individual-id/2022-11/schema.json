@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EBSI Natural Person Verifiable ID",
+  "description": "Schema of an EBSI Verifiable ID for a natural person participating in the educational use cases ",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "../../../ebsi-attestation/2022-11/schema.json"
+    },
+    {
+      "properties": {
+        "credentialSubject": {
+          "description": "Defines additional properties on credentialSubject to describe IDs that do not have a substantial level of assurance.",
+          "type": "object",
+          "properties": {
+            "id": {
+              "description": "Defines a unique identifier of the credential subject",
+              "type": "string"
+            },
+            "identifier": {
+              "description": "Defines an alternative identifier for the person ",
+              "type": "array",
+              "items": { "$ref": "#/$defs/identifier" }
+            },
+            "familyName": {
+              "description": "Defines current family name(s) of the credential subject",
+              "type": "string"
+            },
+            "firstName": {
+              "description": "Defines current first name(s) of the credential subject",
+              "type": "string"
+            },
+            "dateOfBirth": {
+              "description": "Defines date of birth of the credential subject",
+              "type": "string",
+              "format": "date"
+            },
+            "personalIdentifier": {
+              "description": "Defines the unique national identifier of the credential subject (constructed by the sending Member State in accordance with the technical specifications for the purposes of cross-border identification and which is as persistent as possible in time)",
+              "type": "string"
+            },
+            "nameAndFamilyNameAtBirth": {
+              "description": "Defines the first and the family name(s) of the credential subject at the time of their birth",
+              "type": "string"
+            },
+            "placeOfBirth": {
+              "description": "Defines the place where the credential subject is born",
+              "type": "string"
+            },
+            "currentAddress": {
+              "description": "Defines the current address of the credential subject",
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "gender": {
+              "description": "Defines the gender of the credential subject",
+              "type": "string"
+            }
+          },
+          "required": ["id"]
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "identifier": {
+      "description": "Defines an alternative Identifier object ",
+      "type": "object",
+      "properties": {
+        "schemeID": {
+          "description": "Defines the schema used to define alternative identification",
+          "type": "string"
+        },
+        "value": {
+          "description": "Define the alternative identification value",
+          "type": "string"
+        },
+        "id": {
+          "description": "The URI of the identifier",
+          "type": "string",
+          "format": "uri"
+        }
+      },
+      "required": ["schemeID", "value"]
+    }
+  }
+}

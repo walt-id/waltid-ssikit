@@ -1,0 +1,41 @@
+{
+  "@context": ["https://www.w3.org/2018/credentials/v1"],
+  "id": "urn:credential:5a4d5412-27e3-4540-a5e5-f1aa4d55c40d",
+  "type": ["VerifiableCredential", "VerifiableAttestation"],
+  "issuer": "did:ebsi:2757945549477fc571663bee12042873fe555b674bd294a3",
+  "issuanceDate": "2020-06-24T14:11:44Z",
+  "issued": "2020-06-24T14:11:44Z",
+  "validFrom": "2020-06-24T14:11:44Z",
+  "credentialSubject": {
+    "id": "did:ebsi:2659b154a445434a39d91149ead3bd993cb99fd5e78281c7",
+    "identifier": [
+      {
+        "schemaID": "Europass Wallet",
+        "value": "urn:schac:personalwalletID:xxxxxxxxxx",
+        "id": "urn:walletId:n0024gtb"
+      }
+    ],
+    "familyName": "Cruz Argudo",
+    "firstName": "Francisco",
+    "dateOfBirth": "1967-07-13",
+    "gender": "masculine"
+  },
+  "credentialStatus": {
+    "id": "https://example.eu",
+    "type": "FullCredentialStatus2021"
+  },
+  "credentialSchema": {
+    "id": "https://api-test.ebsi.eu/trusted-schemas-registry/v2/schemas/0x6b304591b86b7e5e4c8a713ddfb84ee5810a56334827adda4e741f80b9aa49ed",
+    "type": "FullJsonSchemaValidator2021"
+  },
+  "evidence": [
+    {
+      "id": "https:/.europa.eu/tsr-vid/evidence/f2aeec97-fc0d-42bf-8ca7-0548192d4231",
+      "type": ["DocumentVerification"],
+      "verifier": "did:ebsi:2e81454f76775c687694ee6772a17796436768a30e289555",
+      "evidenceDocument": ["Passport"],
+      "subjectPresence": "Physical",
+      "documentPresence": ["Physical"]
+    }
+  ]
+}

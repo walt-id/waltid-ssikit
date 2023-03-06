@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "EBSI type extension for use of IssuanceCertificate",
+  "description": "Defines accredited trust chain bindings for an issued Verifiable Credentials",
+  "type": "object",
+  "properties": {
+    "termsOfUse": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/termsOfUse"
+        },
+        {
+          "type": "array",
+          "description": "One item must match the type extension",
+          "contains": {
+            "$ref": "#/$defs/termsOfUse"
+          }
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "termsOfUse": {
+      "description": "Extension binds the Issuer's Verifiable Accreditation into any issued Verifiable Credential",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "References the Verifiable Credential stored as an attribute of the issuer in the Trusted Issuers Registry (TIR).",
+          "type": "string",
+          "format": "uri"
+        },
+        "type": {
+          "description": "Defines the term of use type",
+          "type": "string",
+          "const": "IssuanceCertificate"
+        }
+      },
+      "required": ["id", "type"]
+    }
+  }
+}

@@ -1,0 +1,2451 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1",
+    "https://base.uri.europass/contexts/v1"
+  ],
+  "type": ["VerifiableCredential", "VerifiableAttestation", "Europass"],
+  "id": "urn:credential:5a4d5412-27e3-4540-a5e5-f1aa4d55b20c",
+  "issuer": "did:epass:org:1",
+  "issued": "2020-07-20T13:58:53+02:00",
+  "issuanceDate": "2019-09-20T00:00:00+02:00",
+  "validFrom": "2019-09-20T00:00:00+02:00",
+  "credentialSubject": {
+    "id": "did:epass:person:1",
+    "identifier": [
+      {
+        "schemeID": "Student identification number",
+        "value": 99009900
+      }
+    ],
+    "achieved": [
+      {
+        "id": "urn:epass:learningAchievement:1",
+        "title": "Master of Science in Civil Engineering",
+        "wasDerivedFrom": [
+          {
+            "id": "urn:epass:assessment:1",
+            "title": "Overall Diploma Assessment",
+            "grade": "excellent (5)",
+            "assessedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+            "specifiedBy": {
+              "id": "urn:epass:asssessmentspec:1",
+              "title": "Overall Diploma Assessment",
+              "gradingScheme": {
+                "id": "urn:epass:scoringschemespec:1",
+                "title": "General grading scheme in Croatia",
+                "definition": "The Croatian national grading scheme consists of five grades with numerical equivalents: izvrstan \u2013 5 (outstanding); vrlo dobar \u2013 4 (very good); dobar \u2013 3 (good); dovoljan \u2013 2 (sufficient); nedovoljan \u2013 1 (insufficient - fail). The minimum passing grade is dovoljan \u2013 2."
+              }
+            }
+          }
+        ],
+        "wasInfluencedBy": [
+          {
+            "id": "urn:epass:activity:1",
+            "identifier": [
+              {
+                "schemeID": "Activity ID",
+                "value": "GAB701"
+              }
+            ],
+            "title": "Applied mathematics",
+            "workload": "PT60H",
+            "startedAtTime": "2017-09-04T00:00:00+02:00",
+            "endedAtTime": "2018-01-14T00:00:00+01:00",
+            "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+            "location": ["urn:epass:location:4"],
+            "specifiedBy": {
+              "id": "urn:epass:learningactivityspec:1",
+              "title": "Applied mathematics",
+              "learningActivityType": [
+                "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+              ],
+              "workload": "PT60H",
+              "language": [
+                "http://publications.europa.eu/resource/authority/language/HRV"
+              ]
+            }
+          },
+          {
+            "id": "urn:epass:activity:2",
+            "identifier": [
+              {
+                "schemeID": "Activity ID",
+                "value": "GAE701"
+              }
+            ],
+            "title": "Concrete structures I",
+            "workload": "PT60H",
+            "startedAtTime": "2017-09-04T00:00:00+02:00",
+            "endedAtTime": "2018-01-14T00:00:00+01:00",
+            "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+            "location": ["urn:epass:location:5"],
+            "specifiedBy": {
+              "id": "urn:epass:learningactivityspec:2",
+              "title": "Concrete structures I",
+              "learningActivityType": [
+                "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+              ],
+              "workload": "PT60H",
+              "language": [
+                "http://publications.europa.eu/resource/authority/language/HRV"
+              ]
+            }
+          },
+          {
+            "id": "urn:epass:activity:3",
+            "identifier": [
+              {
+                "schemeID": "Activity ID",
+                "value": "GAO701"
+              }
+            ],
+            "title": "Dynamics of structures and earthquake engineering",
+            "workload": "PT45H",
+            "startedAtTime": "2017-09-04T00:00:00+02:00",
+            "endedAtTime": "2018-01-14T00:00:00+01:00",
+            "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+            "location": ["urn:epass:location:6"],
+            "specifiedBy": {
+              "id": "urn:epass:learningactivityspec:3",
+              "title": "Dynamics of structures and earthquake engineering",
+              "learningActivityType": [
+                "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+              ],
+              "workload": "PT45H",
+              "language": [
+                "http://publications.europa.eu/resource/authority/language/HRV"
+              ]
+            }
+          },
+          {
+            "id": "urn:epass:activity:4",
+            "identifier": [
+              {
+                "schemeID": "Activity ID",
+                "value": "GAG703"
+              }
+            ],
+            "title": "Geotechnical engineering",
+            "workload": "PT60H",
+            "startedAtTime": "2017-09-04T00:00:00+02:00",
+            "endedAtTime": "2018-01-14T00:00:00+01:00",
+            "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+            "location": ["urn:epass:location:7"],
+            "specifiedBy": {
+              "id": "urn:epass:learningactivityspec:4",
+              "title": "Geotechnical engineering",
+              "learningActivityType": [
+                "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+              ],
+              "workload": "PT60H",
+              "language": [
+                "http://publications.europa.eu/resource/authority/language/HRV"
+              ]
+            }
+          },
+          {
+            "id": "urn:epass:activity:5",
+            "identifier": [
+              {
+                "schemeID": "Activity ID",
+                "value": "GAO702"
+              }
+            ],
+            "title": "Stability of structures",
+            "workload": "PT60H",
+            "startedAtTime": "2017-09-04T00:00:00+02:00",
+            "endedAtTime": "2018-01-14T00:00:00+01:00",
+            "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+            "location": ["urn:epass:location:8"],
+            "specifiedBy": {
+              "id": "urn:epass:learningactivityspec:5",
+              "title": "Stability of structures",
+              "learningActivityType": [
+                "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+              ],
+              "workload": "PT60H",
+              "language": [
+                "http://publications.europa.eu/resource/authority/language/HRV"
+              ]
+            }
+          },
+          {
+            "id": "urn:epass:activity:6",
+            "identifier": [
+              {
+                "schemeID": "Activity ID",
+                "value": "GAP701"
+              }
+            ],
+            "title": "Metal structures I",
+            "workload": "PT75H",
+            "startedAtTime": "2017-09-04T00:00:00+02:00",
+            "endedAtTime": "2018-01-14T00:00:00+01:00",
+            "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+            "location": ["urn:epass:location:9"],
+            "specifiedBy": {
+              "id": "urn:epass:learningactivityspec:6",
+              "title": "Metal structures I",
+              "learningActivityType": [
+                "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+              ],
+              "workload": "PT75H",
+              "language": [
+                "http://publications.europa.eu/resource/authority/language/HRV"
+              ]
+            }
+          },
+          {
+            "id": "urn:epass:activity:7",
+            "identifier": [
+              {
+                "schemeID": "Activity ID",
+                "value": "GAE702"
+              }
+            ],
+            "title": "Masonry structures",
+            "workload": "PT60H",
+            "startedAtTime": "2018-01-15T00:00:00+01:00",
+            "endedAtTime": "2018-06-24T00:00:00+02:00",
+            "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+            "location": ["urn:epass:location:10"],
+            "specifiedBy": {
+              "id": "urn:epass:learningactivityspec:7",
+              "title": "Masonry structures",
+              "learningActivityType": [
+                "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+              ],
+              "workload": "PT60H",
+              "language": [
+                "http://publications.europa.eu/resource/authority/language/HRV"
+              ]
+            }
+          },
+          {
+            "id": "urn:epass:activity:8",
+            "identifier": [
+              {
+                "schemeID": "Activity ID",
+                "value": "GAE703"
+              }
+            ],
+            "title": "Prestressed concrete",
+            "workload": "PT60H",
+            "startedAtTime": "2018-01-15T00:00:00+01:00",
+            "endedAtTime": "2018-06-24T00:00:00+02:00",
+            "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+            "location": ["urn:epass:location:11"],
+            "specifiedBy": {
+              "id": "urn:epass:learningactivityspec:8",
+              "title": "Prestressed concrete",
+              "learningActivityType": [
+                "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+              ],
+              "workload": "PT60H",
+              "language": [
+                "http://publications.europa.eu/resource/authority/language/HRV"
+              ]
+            }
+          },
+          {
+            "id": "urn:epass:activity:9",
+            "identifier": [
+              {
+                "schemeID": "Activity ID",
+                "value": "GAE704"
+              }
+            ],
+            "title": "Concrete structures II",
+            "workload": "PT60H",
+            "startedAtTime": "2018-01-15T00:00:00+01:00",
+            "endedAtTime": "2018-06-24T00:00:00+02:00",
+            "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+            "location": ["urn:epass:location:12"],
+            "specifiedBy": {
+              "id": "urn:epass:learningactivityspec:9",
+              "title": "Concrete structures II",
+              "learningActivityType": [
+                "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+              ],
+              "workload": "PT60H",
+              "language": [
+                "http://publications.europa.eu/resource/authority/language/HRV"
+              ]
+            }
+          },
+          {
+            "id": "urn:epass:activity:19",
+            "identifier": [
+              {
+                "schemeID": "Activity ID",
+                "value": "GAP702"
+              }
+            ],
+            "title": "Metal structures II",
+            "workload": "PT60H",
+            "startedAtTime": "2018-01-15T00:00:00+01:00",
+            "endedAtTime": "2018-06-24T00:00:00+02:00",
+            "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+            "location": ["urn:epass:location:22"],
+            "specifiedBy": {
+              "id": "urn:epass:learningactivityspec:19",
+              "title": "Metal structures II",
+              "learningActivityType": [
+                "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+              ],
+              "workload": "PT60H",
+              "language": [
+                "http://publications.europa.eu/resource/authority/language/HRV"
+              ]
+            }
+          },
+          {
+            "id": "urn:epass:activity:10",
+            "identifier": [
+              {
+                "schemeID": "Activity ID",
+                "value": "GAP703"
+              }
+            ],
+            "title": "Structure reliability",
+            "workload": "PT60H",
+            "startedAtTime": "2018-01-15T00:00:00+01:00",
+            "endedAtTime": "2018-06-24T00:00:00+02:00",
+            "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+            "location": ["urn:epass:location:13"],
+            "specifiedBy": {
+              "id": "urn:epass:learningactivityspec:10",
+              "title": "Structure reliability",
+              "learningActivityType": [
+                "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+              ],
+              "workload": "PT60H",
+              "language": [
+                "http://publications.europa.eu/resource/authority/language/HRV"
+              ]
+            }
+          },
+          {
+            "id": "urn:epass:activity:11",
+            "identifier": [
+              {
+                "schemeID": "Activity ID",
+                "value": "GAE705"
+              }
+            ],
+            "title": "Composite structures",
+            "workload": "PT60H",
+            "startedAtTime": "2018-01-15T00:00:00+01:00",
+            "endedAtTime": "2018-06-24T00:00:00+02:00",
+            "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+            "location": ["urn:epass:location:14"],
+            "specifiedBy": {
+              "id": "urn:epass:learningactivityspec:11",
+              "title": "Composite structures",
+              "learningActivityType": [
+                "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+              ],
+              "workload": "PT60H",
+              "language": [
+                "http://publications.europa.eu/resource/authority/language/HRV"
+              ]
+            }
+          },
+          {
+            "id": "urn:epass:activity:12",
+            "identifier": [
+              {
+                "schemeID": "Activity ID",
+                "value": "GAE706"
+              }
+            ],
+            "title": "Construction of concrete structures",
+            "workload": "PT60H",
+            "startedAtTime": "2018-09-03T00:00:00+02:00",
+            "endedAtTime": "2019-01-13T00:00:00+01:00",
+            "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+            "location": ["urn:epass:location:15"],
+            "specifiedBy": {
+              "id": "urn:epass:learningactivityspec:12",
+              "title": "Construction of concrete structures",
+              "learningActivityType": [
+                "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+              ],
+              "workload": "PT60H",
+              "language": [
+                "http://publications.europa.eu/resource/authority/language/HRV"
+              ]
+            }
+          },
+          {
+            "id": "urn:epass:activity:13",
+            "identifier": [
+              {
+                "schemeID": "Activity ID",
+                "value": "GAM701"
+              }
+            ],
+            "title": "Housing installations",
+            "workload": "PT60H",
+            "startedAtTime": "2018-09-03T00:00:00+02:00",
+            "endedAtTime": "2019-01-13T00:00:00+01:00",
+            "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+            "location": ["urn:epass:location:16"],
+            "specifiedBy": {
+              "id": "urn:epass:learningactivityspec:13",
+              "title": "Housing installations",
+              "learningActivityType": [
+                "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+              ],
+              "workload": "PT60H",
+              "language": [
+                "http://publications.europa.eu/resource/authority/language/HRV"
+              ]
+            }
+          },
+          {
+            "id": "urn:epass:activity:14",
+            "identifier": [
+              {
+                "schemeID": "Activity ID",
+                "value": "GAE803"
+              }
+            ],
+            "title": "Numerical modelling of concrete structures",
+            "workload": "PT60H",
+            "startedAtTime": "2018-09-03T00:00:00+02:00",
+            "endedAtTime": "2019-01-13T00:00:00+01:00",
+            "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+            "location": ["urn:epass:location:17"],
+            "specifiedBy": {
+              "id": "urn:epass:learningactivityspec:14",
+              "title": "Numerical modelling of concrete structures",
+              "learningActivityType": [
+                "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+              ],
+              "workload": "PT60H",
+              "language": [
+                "http://publications.europa.eu/resource/authority/language/HRV"
+              ]
+            }
+          },
+          {
+            "id": "urn:epass:activity:15",
+            "identifier": [
+              {
+                "schemeID": "Activity ID",
+                "value": "GAL702"
+              }
+            ],
+            "title": "Business and investments in civil engineering",
+            "workload": "PT60H",
+            "startedAtTime": "2018-09-03T00:00:00+02:00",
+            "endedAtTime": "2019-01-13T00:00:00+01:00",
+            "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+            "location": ["urn:epass:location:18"],
+            "specifiedBy": {
+              "id": "urn:epass:learningactivityspec:15",
+              "title": "Business and investments in civil engineering",
+              "learningActivityType": [
+                "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+              ],
+              "workload": "PT60H",
+              "language": [
+                "http://publications.europa.eu/resource/authority/language/HRV"
+              ]
+            }
+          },
+          {
+            "id": "urn:epass:activity:16",
+            "identifier": [
+              {
+                "schemeID": "Activity ID",
+                "value": "GAE801"
+              }
+            ],
+            "title": "Concrete bridges",
+            "workload": "PT60H",
+            "startedAtTime": "2018-09-03T00:00:00+02:00",
+            "endedAtTime": "2019-01-13T00:00:00+01:00",
+            "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+            "location": ["urn:epass:location:19"],
+            "specifiedBy": {
+              "id": "urn:epass:learningactivityspec:16",
+              "title": "Concrete bridges",
+              "learningActivityType": [
+                "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+              ],
+              "workload": "PT60H",
+              "language": [
+                "http://publications.europa.eu/resource/authority/language/HRV"
+              ]
+            }
+          },
+          {
+            "id": "urn:epass:activity:17",
+            "identifier": [
+              {
+                "schemeID": "Activity ID",
+                "value": "GAP801"
+              }
+            ],
+            "title": "Metal bridges",
+            "workload": "PT60H",
+            "startedAtTime": "2018-09-03T00:00:00+02:00",
+            "endedAtTime": "2019-01-13T00:00:00+01:00",
+            "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+            "location": ["urn:epass:location:20"],
+            "specifiedBy": {
+              "id": "urn:epass:learningactivityspec:17",
+              "title": "Metal bridges",
+              "learningActivityType": [
+                "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+              ],
+              "workload": "PT60H",
+              "language": [
+                "http://publications.europa.eu/resource/authority/language/HRV"
+              ]
+            }
+          },
+          {
+            "id": "urn:epass:activity:18",
+            "identifier": [
+              {
+                "schemeID": "Activity ID",
+                "value": "GAX801"
+              }
+            ],
+            "title": "Diploma work",
+            "workload": "PT360H",
+            "startedAtTime": "2019-01-14T00:00:00+01:00",
+            "endedAtTime": "2019-09-20T00:00:00+02:00",
+            "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+            "location": ["urn:epass:location:21"],
+            "specifiedBy": {
+              "id": "urn:epass:learningactivityspec:18",
+              "title": "Diploma work",
+              "learningActivityType": [
+                "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+              ],
+              "workload": "PT360H",
+              "language": [
+                "http://publications.europa.eu/resource/authority/language/HRV"
+              ]
+            }
+          }
+        ],
+        "wasAwardedBy": {
+          "id": "urn:epass:awardingProcess:1",
+          "awardingBody": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+          "awardingDate": "2019-09-20T00:00:00+02:00"
+        },
+        "hasPart": {
+          "learningAchievements": [
+            {
+              "id": "urn:epass:learningAchievement:2",
+              "identifier": [
+                {
+                  "schemeID": "Achievement ID",
+                  "value": "GAB701"
+                }
+              ],
+              "title": "Applied mathematics",
+              "wasDerivedFrom": [
+                {
+                  "id": "urn:epass:assessment:2",
+                  "title": "Applied mathematics",
+                  "grade": "good (3)",
+                  "assessedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "specifiedBy": {
+                    "id": "urn:epass:asssessmentspec:2",
+                    "title": "Applied mathematics",
+                    "gradingScheme": {
+                      "id": "urn:epass:scoringschemespec:2",
+                      "title": "General grading scheme in Croatia",
+                      "definition": "The Croatian national grading scheme consists of five grades with numerical equivalents: izvrstan \u2013 5 (outstanding); vrlo dobar \u2013 4 (very good); dobar \u2013 3 (good); dovoljan \u2013 2 (sufficient); nedovoljan \u2013 1 (insufficient - fail). The minimum passing grade is dovoljan \u2013 2."
+                    }
+                  }
+                }
+              ],
+              "wasInfluencedBy": [
+                {
+                  "id": "urn:epass:activity:1",
+                  "identifier": [
+                    {
+                      "schemeID": "Activity ID",
+                      "value": "GAB701"
+                    }
+                  ],
+                  "title": "Applied mathematics",
+                  "workload": "PT60H",
+                  "startedAtTime": "2017-09-04T00:00:00+02:00",
+                  "endedAtTime": "2018-01-14T00:00:00+01:00",
+                  "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "location": ["urn:epass:location:4"],
+                  "specifiedBy": {
+                    "id": "urn:epass:learningactivityspec:1",
+                    "title": "Applied mathematics",
+                    "learningActivityType": [
+                      "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+                    ],
+                    "workload": "PT60H",
+                    "language": [
+                      "http://publications.europa.eu/resource/authority/language/HRV"
+                    ]
+                  }
+                }
+              ],
+              "wasAwardedBy": {
+                "id": "urn:epass:awardingProcess:2",
+                "awardingBody": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                "awardingDate": "2019-09-20T00:00:00+02:00"
+              },
+              "specifiedBy": [
+                {
+                  "id": "urn:epass:qualification:1",
+                  "title": "Applied mathematics",
+                  "volumeOfLearning": "PT60H",
+                  "eCTSCreditPoints": 5,
+                  "maximumDuration": "P6M",
+                  "isPartialQualification": true,
+                  "eqfLevel": "http://data.europa.eu/snb/eqf/4",
+                  "nqfLevel": "http://data.europa.eu/snb/qdr/c_49672c5a"
+                }
+              ]
+            },
+            {
+              "id": "urn:epass:learningAchievement:3",
+              "identifier": [
+                {
+                  "schemeID": "Achievement ID",
+                  "value": "GAE701"
+                }
+              ],
+              "title": "Concrete structures I",
+              "wasDerivedFrom": [
+                {
+                  "id": "urn:epass:assessment:3",
+                  "title": "Concrete structures I",
+                  "grade": "excellent (5)",
+                  "assessedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "specifiedBy": {
+                    "id": "urn:epass:asssessmentspec:3",
+                    "title": "Concrete structures I",
+                    "gradingScheme": {
+                      "id": "urn:epass:scoringschemespec:3",
+                      "title": "General grading scheme in Croatia",
+                      "definition": "The Croatian national grading scheme consists of five grades with numerical equivalents: izvrstan \u2013 5 (outstanding); vrlo dobar \u2013 4 (very good); dobar \u2013 3 (good); dovoljan \u2013 2 (sufficient); nedovoljan \u2013 1 (insufficient - fail). The minimum passing grade is dovoljan \u2013 2."
+                    }
+                  }
+                }
+              ],
+              "wasInfluencedBy": [
+                {
+                  "id": "urn:epass:activity:2",
+                  "identifier": [
+                    {
+                      "schemeID": "Activity ID",
+                      "value": "GAE701"
+                    }
+                  ],
+                  "title": "Concrete structures I",
+                  "workload": "PT60H",
+                  "startedAtTime": "2017-09-04T00:00:00+02:00",
+                  "endedAtTime": "2018-01-14T00:00:00+01:00",
+                  "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "location": ["urn:epass:location:5"],
+                  "specifiedBy": {
+                    "id": "urn:epass:learningactivityspec:2",
+                    "title": "Concrete structures I",
+                    "learningActivityType": [
+                      "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+                    ],
+                    "workload": "PT60H",
+                    "language": [
+                      "http://publications.europa.eu/resource/authority/language/HRV"
+                    ]
+                  }
+                }
+              ],
+              "wasAwardedBy": {
+                "id": "urn:epass:awardingProcess:3",
+                "awardingBody": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                "awardingDate": "2019-09-20T00:00:00+02:00"
+              },
+              "specifiedBy": [
+                {
+                  "id": "urn:epass:qualification:2",
+                  "title": "Concrete structures I",
+                  "volumeOfLearning": "PT60H",
+                  "eCTSCreditPoints": 5,
+                  "maximumDuration": "P6M",
+                  "isPartialQualification": true,
+                  "eqfLevel": "http://data.europa.eu/snb/eqf/4",
+                  "nqfLevel": "http://data.europa.eu/snb/qdr/c_49672c5a"
+                }
+              ]
+            },
+            {
+              "id": "urn:epass:learningAchievement:4",
+              "identifier": [
+                {
+                  "schemeID": "Achievement ID",
+                  "value": "GAO701"
+                }
+              ],
+              "title": "Dynamics of structures and earthquake engineering",
+              "wasDerivedFrom": [
+                {
+                  "id": "urn:epass:assessment:4",
+                  "title": "Dynamics of structures and earthquake engineering",
+                  "grade": "good (3)",
+                  "assessedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "specifiedBy": {
+                    "id": "urn:epass:asssessmentspec:4",
+                    "title": "Dynamics of structures and earthquake engineering",
+                    "gradingScheme": {
+                      "id": "urn:epass:scoringschemespec:4",
+                      "title": "General grading scheme in Croatia",
+                      "definition": "The Croatian national grading scheme consists of five grades with numerical equivalents: izvrstan \u2013 5 (outstanding); vrlo dobar \u2013 4 (very good); dobar \u2013 3 (good); dovoljan \u2013 2 (sufficient); nedovoljan \u2013 1 (insufficient - fail). The minimum passing grade is dovoljan \u2013 2."
+                    }
+                  }
+                }
+              ],
+              "wasInfluencedBy": [
+                {
+                  "id": "urn:epass:activity:3",
+                  "identifier": [
+                    {
+                      "schemeID": "Activity ID",
+                      "value": "GAO701"
+                    }
+                  ],
+                  "title": "Dynamics of structures and earthquake engineering",
+                  "workload": "PT45H",
+                  "startedAtTime": "2017-09-04T00:00:00+02:00",
+                  "endedAtTime": "2018-01-14T00:00:00+01:00",
+                  "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "location": ["urn:epass:location:6"],
+                  "specifiedBy": {
+                    "id": "urn:epass:learningactivityspec:3",
+                    "title": "Dynamics of structures and earthquake engineering",
+                    "learningActivityType": [
+                      "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+                    ],
+                    "workload": "PT45H",
+                    "language": [
+                      "http://publications.europa.eu/resource/authority/language/HRV"
+                    ]
+                  }
+                }
+              ],
+              "wasAwardedBy": {
+                "id": "urn:epass:awardingProcess:4",
+                "awardingBody": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                "awardingDate": "2019-09-20T00:00:00+02:00"
+              },
+              "specifiedBy": [
+                {
+                  "id": "urn:epass:qualification:3",
+                  "title": "Dynamics of structures and earthquake engineering",
+                  "volumeOfLearning": "PT45H",
+                  "eCTSCreditPoints": 4,
+                  "maximumDuration": "P6M",
+                  "isPartialQualification": true,
+                  "eqfLevel": "http://data.europa.eu/snb/eqf/4",
+                  "nqfLevel": "http://data.europa.eu/snb/qdr/c_49672c5a"
+                }
+              ]
+            },
+            {
+              "id": "urn:epass:learningAchievement:5",
+              "identifier": [
+                {
+                  "schemeID": "Achievement ID",
+                  "value": "GAG703"
+                }
+              ],
+              "title": "Geotechnical engineering",
+              "wasDerivedFrom": [
+                {
+                  "id": "urn:epass:assessment:5",
+                  "title": "Geotechnical engineering",
+                  "grade": "good (3)",
+                  "assessedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "specifiedBy": {
+                    "id": "urn:epass:asssessmentspec:5",
+                    "title": "Geotechnical engineering",
+                    "gradingScheme": {
+                      "id": "urn:epass:scoringschemespec:5",
+                      "title": "General grading scheme in Croatia",
+                      "definition": "The Croatian national grading scheme consists of five grades with numerical equivalents: izvrstan \u2013 5 (outstanding); vrlo dobar \u2013 4 (very good); dobar \u2013 3 (good); dovoljan \u2013 2 (sufficient); nedovoljan \u2013 1 (insufficient - fail). The minimum passing grade is dovoljan \u2013 2."
+                    }
+                  }
+                }
+              ],
+              "wasInfluencedBy": [
+                {
+                  "id": "urn:epass:activity:4",
+                  "identifier": [
+                    {
+                      "schemeID": "Activity ID",
+                      "value": "GAG703"
+                    }
+                  ],
+                  "title": "Geotechnical engineering",
+                  "workload": "PT60H",
+                  "startedAtTime": "2017-09-04T00:00:00+02:00",
+                  "endedAtTime": "2018-01-14T00:00:00+01:00",
+                  "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "location": ["urn:epass:location:7"],
+                  "specifiedBy": {
+                    "id": "urn:epass:learningactivityspec:4",
+                    "title": "Geotechnical engineering",
+                    "learningActivityType": [
+                      "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+                    ],
+                    "workload": "PT60H",
+                    "language": [
+                      "http://publications.europa.eu/resource/authority/language/HRV"
+                    ]
+                  }
+                }
+              ],
+              "wasAwardedBy": {
+                "id": "urn:epass:awardingProcess:5",
+                "awardingBody": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                "awardingDate": "2019-09-20T00:00:00+02:00"
+              },
+              "specifiedBy": [
+                {
+                  "id": "urn:epass:qualification:4",
+                  "title": "Geotechnical engineering",
+                  "volumeOfLearning": "PT60H",
+                  "eCTSCreditPoints": 5,
+                  "maximumDuration": "P6M",
+                  "isPartialQualification": true,
+                  "eqfLevel": "http://data.europa.eu/snb/eqf/4",
+                  "nqfLevel": "http://data.europa.eu/snb/qdr/c_49672c5a"
+                }
+              ]
+            },
+            {
+              "id": "urn:epass:learningAchievement:6",
+              "identifier": [
+                {
+                  "schemeID": "Achievement ID",
+                  "value": "GAO702"
+                }
+              ],
+              "title": "Stability of structures",
+              "wasDerivedFrom": [
+                {
+                  "id": "urn:epass:assessment:6",
+                  "title": "Stability of structures",
+                  "grade": "excellent (5)",
+                  "assessedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "specifiedBy": {
+                    "id": "urn:epass:asssessmentspec:6",
+                    "title": "Stability of structures",
+                    "gradingScheme": {
+                      "id": "urn:epass:scoringschemespec:6",
+                      "title": "General grading scheme in Croatia",
+                      "definition": "The Croatian national grading scheme consists of five grades with numerical equivalents: izvrstan \u2013 5 (outstanding); vrlo dobar \u2013 4 (very good); dobar \u2013 3 (good); dovoljan \u2013 2 (sufficient); nedovoljan \u2013 1 (insufficient - fail). The minimum passing grade is dovoljan \u2013 2."
+                    }
+                  }
+                }
+              ],
+              "wasInfluencedBy": [
+                {
+                  "id": "urn:epass:activity:5",
+                  "identifier": [
+                    {
+                      "schemeID": "Activity ID",
+                      "value": "GAO702"
+                    }
+                  ],
+                  "title": "Stability of structures",
+                  "workload": "PT60H",
+                  "startedAtTime": "2017-09-04T00:00:00+02:00",
+                  "endedAtTime": "2018-01-14T00:00:00+01:00",
+                  "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "location": ["urn:epass:location:8"],
+                  "specifiedBy": {
+                    "id": "urn:epass:learningactivityspec:5",
+                    "title": "Stability of structures",
+                    "learningActivityType": [
+                      "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+                    ],
+                    "workload": "PT60H",
+                    "language": [
+                      "http://publications.europa.eu/resource/authority/language/HRV"
+                    ]
+                  }
+                }
+              ],
+              "wasAwardedBy": {
+                "id": "urn:epass:awardingProcess:6",
+                "awardingBody": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                "awardingDate": "2019-09-20T00:00:00+02:00"
+              },
+              "specifiedBy": [
+                {
+                  "id": "urn:epass:qualification:5",
+                  "title": "Stability of structures",
+                  "volumeOfLearning": "PT60H",
+                  "eCTSCreditPoints": 5,
+                  "maximumDuration": "P6M",
+                  "isPartialQualification": true,
+                  "eqfLevel": "http://data.europa.eu/snb/eqf/4",
+                  "nqfLevel": "http://data.europa.eu/snb/qdr/c_49672c5a"
+                }
+              ]
+            },
+            {
+              "id": "urn:epass:learningAchievement:7",
+              "identifier": [
+                {
+                  "schemeID": "Achievement ID",
+                  "value": "GAP701"
+                }
+              ],
+              "title": "Metal structures I",
+              "wasDerivedFrom": [
+                {
+                  "id": "urn:epass:assessment:7",
+                  "title": "Metal structures I",
+                  "grade": "very good (4)",
+                  "assessedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "specifiedBy": {
+                    "id": "urn:epass:asssessmentspec:7",
+                    "title": "Metal structures I",
+                    "gradingScheme": {
+                      "id": "urn:epass:scoringschemespec:7",
+                      "title": "General grading scheme in Croatia",
+                      "definition": "The Croatian national grading scheme consists of five grades with numerical equivalents: izvrstan \u2013 5 (outstanding); vrlo dobar \u2013 4 (very good); dobar \u2013 3 (good); dovoljan \u2013 2 (sufficient); nedovoljan \u2013 1 (insufficient - fail). The minimum passing grade is dovoljan \u2013 2."
+                    }
+                  }
+                }
+              ],
+              "wasInfluencedBy": [
+                {
+                  "id": "urn:epass:activity:6",
+                  "identifier": [
+                    {
+                      "schemeID": "Activity ID",
+                      "value": "GAP701"
+                    }
+                  ],
+                  "title": "Metal structures I",
+                  "workload": "PT75H",
+                  "startedAtTime": "2017-09-04T00:00:00+02:00",
+                  "endedAtTime": "2018-01-14T00:00:00+01:00",
+                  "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "location": ["urn:epass:location:9"],
+                  "specifiedBy": {
+                    "id": "urn:epass:learningactivityspec:6",
+                    "title": "Metal structures I",
+                    "learningActivityType": [
+                      "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+                    ],
+                    "workload": "PT75H",
+                    "language": [
+                      "http://publications.europa.eu/resource/authority/language/HRV"
+                    ]
+                  }
+                }
+              ],
+              "wasAwardedBy": {
+                "id": "urn:epass:awardingProcess:7",
+                "awardingBody": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                "awardingDate": "2019-09-20T00:00:00+02:00"
+              },
+              "specifiedBy": [
+                {
+                  "id": "urn:epass:qualification:6",
+                  "title": "Metal structures I",
+                  "volumeOfLearning": "PT75H",
+                  "eCTSCreditPoints": 6,
+                  "maximumDuration": "P6M",
+                  "isPartialQualification": true,
+                  "eqfLevel": "http://data.europa.eu/snb/eqf/4",
+                  "nqfLevel": "http://data.europa.eu/snb/qdr/c_49672c5a"
+                }
+              ]
+            },
+            {
+              "id": "urn:epass:learningAchievement:8",
+              "identifier": [
+                {
+                  "schemeID": "Achievement ID",
+                  "value": "GAE702"
+                }
+              ],
+              "title": "Masonry structures",
+              "wasDerivedFrom": [
+                {
+                  "id": "urn:epass:assessment:8",
+                  "title": "Masonry structures",
+                  "grade": "excellent (5)",
+                  "assessedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "specifiedBy": {
+                    "id": "urn:epass:asssessmentspec:8",
+                    "title": "Masonry structures",
+                    "gradingScheme": {
+                      "id": "urn:epass:scoringschemespec:8",
+                      "title": "General grading scheme in Croatia",
+                      "definition": "The Croatian national grading scheme consists of five grades with numerical equivalents: izvrstan \u2013 5 (outstanding); vrlo dobar \u2013 4 (very good); dobar \u2013 3 (good); dovoljan \u2013 2 (sufficient); nedovoljan \u2013 1 (insufficient - fail). The minimum passing grade is dovoljan \u2013 2."
+                    }
+                  }
+                }
+              ],
+              "wasInfluencedBy": [
+                {
+                  "id": "urn:epass:activity:7",
+                  "identifier": [
+                    {
+                      "schemeID": "Activity ID",
+                      "value": "GAE702"
+                    }
+                  ],
+                  "title": "Masonry structures",
+                  "workload": "PT60H",
+                  "startedAtTime": "2018-01-15T00:00:00+01:00",
+                  "endedAtTime": "2018-06-24T00:00:00+02:00",
+                  "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "location": ["urn:epass:location:10"],
+                  "specifiedBy": {
+                    "id": "urn:epass:learningactivityspec:7",
+                    "title": "Masonry structures",
+                    "learningActivityType": [
+                      "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+                    ],
+                    "workload": "PT60H",
+                    "language": [
+                      "http://publications.europa.eu/resource/authority/language/HRV"
+                    ]
+                  }
+                }
+              ],
+              "wasAwardedBy": {
+                "id": "urn:epass:awardingProcess:8",
+                "awardingBody": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                "awardingDate": "2019-09-20T00:00:00+02:00"
+              },
+              "specifiedBy": [
+                {
+                  "id": "urn:epass:qualification:7",
+                  "title": "Masonry structures",
+                  "volumeOfLearning": "PT60H",
+                  "eCTSCreditPoints": 5,
+                  "maximumDuration": "P6M",
+                  "isPartialQualification": true,
+                  "eqfLevel": "http://data.europa.eu/snb/eqf/4",
+                  "nqfLevel": "http://data.europa.eu/snb/qdr/c_49672c5a"
+                }
+              ]
+            },
+            {
+              "id": "urn:epass:learningAchievement:9",
+              "identifier": [
+                {
+                  "schemeID": "Achievement ID",
+                  "value": "GAE703"
+                }
+              ],
+              "title": "Prestressed concrete",
+              "wasDerivedFrom": [
+                {
+                  "id": "urn:epass:assessment:9",
+                  "title": "Prestressed concrete",
+                  "grade": "excellent (5)",
+                  "assessedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "specifiedBy": {
+                    "id": "urn:epass:asssessmentspec:9",
+                    "title": "Prestressed concrete",
+                    "gradingScheme": {
+                      "id": "urn:epass:scoringschemespec:9",
+                      "title": "General grading scheme in Croatia",
+                      "definition": "The Croatian national grading scheme consists of five grades with numerical equivalents: izvrstan \u2013 5 (outstanding); vrlo dobar \u2013 4 (very good); dobar \u2013 3 (good); dovoljan \u2013 2 (sufficient); nedovoljan \u2013 1 (insufficient - fail). The minimum passing grade is dovoljan \u2013 2."
+                    }
+                  }
+                }
+              ],
+              "wasInfluencedBy": [
+                {
+                  "id": "urn:epass:activity:8",
+                  "identifier": [
+                    {
+                      "schemeID": "Activity ID",
+                      "value": "GAE703"
+                    }
+                  ],
+                  "title": "Prestressed concrete",
+                  "workload": "PT60H",
+                  "startedAtTime": "2018-01-15T00:00:00+01:00",
+                  "endedAtTime": "2018-06-24T00:00:00+02:00",
+                  "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "location": ["urn:epass:location:11"],
+                  "specifiedBy": {
+                    "id": "urn:epass:learningactivityspec:8",
+                    "title": "Prestressed concrete",
+                    "learningActivityType": [
+                      "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+                    ],
+                    "workload": "PT60H",
+                    "language": [
+                      "http://publications.europa.eu/resource/authority/language/HRV"
+                    ]
+                  }
+                }
+              ],
+              "wasAwardedBy": {
+                "id": "urn:epass:awardingProcess:9",
+                "awardingBody": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                "awardingDate": "2019-09-20T00:00:00+02:00"
+              },
+              "specifiedBy": [
+                {
+                  "id": "urn:epass:qualification:8",
+                  "title": "Prestressed concrete",
+                  "volumeOfLearning": "PT60H",
+                  "eCTSCreditPoints": 5,
+                  "maximumDuration": "P6M",
+                  "isPartialQualification": true,
+                  "eqfLevel": "http://data.europa.eu/snb/eqf/4",
+                  "nqfLevel": "http://data.europa.eu/snb/qdr/c_49672c5a"
+                }
+              ]
+            },
+            {
+              "id": "urn:epass:learningAchievement:10",
+              "identifier": [
+                {
+                  "schemeID": "Achievement ID",
+                  "value": "GAE704"
+                }
+              ],
+              "title": "Concrete structures II",
+              "wasDerivedFrom": [
+                {
+                  "id": "urn:epass:assessment:10",
+                  "title": "Concrete structures II",
+                  "grade": "very good (4)",
+                  "assessedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "specifiedBy": {
+                    "id": "urn:epass:asssessmentspec:10",
+                    "title": "Concrete structures II",
+                    "gradingScheme": {
+                      "id": "urn:epass:scoringschemespec:10",
+                      "title": "General grading scheme in Croatia",
+                      "definition": "The Croatian national grading scheme consists of five grades with numerical equivalents: izvrstan \u2013 5 (outstanding); vrlo dobar \u2013 4 (very good); dobar \u2013 3 (good); dovoljan \u2013 2 (sufficient); nedovoljan \u2013 1 (insufficient - fail). The minimum passing grade is dovoljan \u2013 2."
+                    }
+                  }
+                }
+              ],
+              "wasInfluencedBy": [
+                {
+                  "id": "urn:epass:activity:9",
+                  "identifier": [
+                    {
+                      "schemeID": "Activity ID",
+                      "value": "GAE704"
+                    }
+                  ],
+                  "title": "Concrete structures II",
+                  "workload": "PT60H",
+                  "startedAtTime": "2018-01-15T00:00:00+01:00",
+                  "endedAtTime": "2018-06-24T00:00:00+02:00",
+                  "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "location": ["urn:epass:location:12"],
+                  "specifiedBy": {
+                    "id": "urn:epass:learningactivityspec:9",
+                    "title": "Concrete structures II",
+                    "learningActivityType": [
+                      "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+                    ],
+                    "workload": "PT60H",
+                    "language": [
+                      "http://publications.europa.eu/resource/authority/language/HRV"
+                    ]
+                  }
+                }
+              ],
+              "wasAwardedBy": {
+                "id": "urn:epass:awardingProcess:10",
+                "awardingBody": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                "awardingDate": "2019-09-20T00:00:00+02:00"
+              },
+              "specifiedBy": [
+                {
+                  "id": "urn:epass:qualification:9",
+                  "title": "Concrete structures II",
+                  "volumeOfLearning": "PT60H",
+                  "eCTSCreditPoints": 5,
+                  "maximumDuration": "P6M",
+                  "isPartialQualification": true,
+                  "eqfLevel": "http://data.europa.eu/snb/eqf/4",
+                  "nqfLevel": "http://data.europa.eu/snb/qdr/c_49672c5a"
+                }
+              ]
+            },
+            {
+              "id": "urn:epass:learningAchievement:11",
+              "identifier": [
+                {
+                  "schemeID": "Achievement ID",
+                  "value": "GAP702"
+                }
+              ],
+              "title": "Metal structures II",
+              "wasDerivedFrom": [
+                {
+                  "id": "urn:epass:assessment:11",
+                  "title": "Metal structures II",
+                  "grade": "excellent (5)",
+                  "assessedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "specifiedBy": {
+                    "id": "urn:epass:asssessmentspec:11",
+                    "title": "Metal structures II",
+                    "gradingScheme": {
+                      "id": "urn:epass:scoringschemespec:11",
+                      "title": "General grading scheme in Croatia",
+                      "definition": "The Croatian national grading scheme consists of five grades with numerical equivalents: izvrstan \u2013 5 (outstanding); vrlo dobar \u2013 4 (very good); dobar \u2013 3 (good); dovoljan \u2013 2 (sufficient); nedovoljan \u2013 1 (insufficient - fail). The minimum passing grade is dovoljan \u2013 2."
+                    }
+                  }
+                }
+              ],
+              "wasInfluencedBy": [
+                {
+                  "id": "urn:epass:activity:19",
+                  "identifier": [
+                    {
+                      "schemeID": "Activity ID",
+                      "value": "GAP702"
+                    }
+                  ],
+                  "title": "Metal structures II",
+                  "workload": "PT60H",
+                  "startedAtTime": "2018-01-15T00:00:00+01:00",
+                  "endedAtTime": "2018-06-24T00:00:00+02:00",
+                  "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "location": ["urn:epass:location:22"],
+                  "specifiedBy": {
+                    "id": "urn:epass:learningactivityspec:19",
+                    "title": "Metal structures II",
+                    "learningActivityType": [
+                      "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+                    ],
+                    "workload": "PT60H",
+                    "language": [
+                      "http://publications.europa.eu/resource/authority/language/HRV"
+                    ]
+                  }
+                }
+              ],
+              "wasAwardedBy": {
+                "id": "urn:epass:awardingProcess:11",
+                "awardingBody": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                "awardingDate": "2019-09-20T00:00:00+02:00"
+              },
+              "specifiedBy": [
+                {
+                  "id": "urn:epass:qualification:10",
+                  "title": "Metal structures II",
+                  "volumeOfLearning": "PT60H",
+                  "eCTSCreditPoints": 5,
+                  "maximumDuration": "P6M",
+                  "isPartialQualification": true,
+                  "eqfLevel": "http://data.europa.eu/snb/eqf/4",
+                  "nqfLevel": "http://data.europa.eu/snb/qdr/c_49672c5a"
+                }
+              ]
+            },
+            {
+              "id": "urn:epass:learningAchievement:12",
+              "identifier": [
+                {
+                  "schemeID": "Achievement ID",
+                  "value": "GAP703"
+                }
+              ],
+              "title": "Structure reliability",
+              "wasDerivedFrom": [
+                {
+                  "id": "urn:epass:assessment:12",
+                  "title": "Structure reliability",
+                  "grade": "very good (4)",
+                  "assessedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "specifiedBy": {
+                    "id": "urn:epass:asssessmentspec:12",
+                    "title": "Structure reliability",
+                    "gradingScheme": {
+                      "id": "urn:epass:scoringschemespec:12",
+                      "title": "General grading scheme in Croatia",
+                      "definition": "The Croatian national grading scheme consists of five grades with numerical equivalents: izvrstan \u2013 5 (outstanding); vrlo dobar \u2013 4 (very good); dobar \u2013 3 (good); dovoljan \u2013 2 (sufficient); nedovoljan \u2013 1 (insufficient - fail). The minimum passing grade is dovoljan \u2013 2."
+                    }
+                  }
+                }
+              ],
+              "wasInfluencedBy": [
+                {
+                  "id": "urn:epass:activity:10",
+                  "identifier": [
+                    {
+                      "schemeID": "Activity ID",
+                      "value": "GAP703"
+                    }
+                  ],
+                  "title": "Structure reliability",
+                  "workload": "PT60H",
+                  "startedAtTime": "2018-01-15T00:00:00+01:00",
+                  "endedAtTime": "2018-06-24T00:00:00+02:00",
+                  "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "location": ["urn:epass:location:13"],
+                  "specifiedBy": {
+                    "id": "urn:epass:learningactivityspec:10",
+                    "title": "Structure reliability",
+                    "learningActivityType": [
+                      "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+                    ],
+                    "workload": "PT60H",
+                    "language": [
+                      "http://publications.europa.eu/resource/authority/language/HRV"
+                    ]
+                  }
+                }
+              ],
+              "wasAwardedBy": {
+                "id": "urn:epass:awardingProcess:12",
+                "awardingBody": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                "awardingDate": "2019-09-20T00:00:00+02:00"
+              },
+              "specifiedBy": [
+                {
+                  "id": "urn:epass:qualification:11",
+                  "title": "Structure reliability",
+                  "volumeOfLearning": "PT60H",
+                  "eCTSCreditPoints": 5,
+                  "maximumDuration": "P6M",
+                  "isPartialQualification": true,
+                  "eqfLevel": "http://data.europa.eu/snb/eqf/4",
+                  "nqfLevel": "http://data.europa.eu/snb/qdr/c_49672c5a"
+                }
+              ]
+            },
+            {
+              "id": "urn:epass:learningAchievement:13",
+              "identifier": [
+                {
+                  "schemeID": "Achievement ID",
+                  "value": "GAE705"
+                }
+              ],
+              "title": "Composite structures",
+              "wasDerivedFrom": [
+                {
+                  "id": "urn:epass:assessment:13",
+                  "title": "Composite structures",
+                  "grade": "excellent (5)",
+                  "assessedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "specifiedBy": {
+                    "id": "urn:epass:asssessmentspec:13",
+                    "title": "Composite structures",
+                    "gradingScheme": {
+                      "id": "urn:epass:scoringschemespec:13",
+                      "title": "General grading scheme in Croatia",
+                      "definition": "The Croatian national grading scheme consists of five grades with numerical equivalents: izvrstan \u2013 5 (outstanding); vrlo dobar \u2013 4 (very good); dobar \u2013 3 (good); dovoljan \u2013 2 (sufficient); nedovoljan \u2013 1 (insufficient - fail). The minimum passing grade is dovoljan \u2013 2."
+                    }
+                  }
+                }
+              ],
+              "wasInfluencedBy": [
+                {
+                  "id": "urn:epass:activity:11",
+                  "identifier": [
+                    {
+                      "schemeID": "Activity ID",
+                      "value": "GAE705"
+                    }
+                  ],
+                  "title": "Composite structures",
+                  "workload": "PT60H",
+                  "startedAtTime": "2018-01-15T00:00:00+01:00",
+                  "endedAtTime": "2018-06-24T00:00:00+02:00",
+                  "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "location": ["urn:epass:location:14"],
+                  "specifiedBy": {
+                    "id": "urn:epass:learningactivityspec:11",
+                    "title": "Composite structures",
+                    "learningActivityType": [
+                      "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+                    ],
+                    "workload": "PT60H",
+                    "language": [
+                      "http://publications.europa.eu/resource/authority/language/HRV"
+                    ]
+                  }
+                }
+              ],
+              "wasAwardedBy": {
+                "id": "urn:epass:awardingProcess:13",
+                "awardingBody": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                "awardingDate": "2019-09-20T00:00:00+02:00"
+              },
+              "specifiedBy": [
+                {
+                  "id": "urn:epass:qualification:12",
+                  "title": "Composite structures",
+                  "volumeOfLearning": "PT60H",
+                  "eCTSCreditPoints": 5,
+                  "maximumDuration": "P6M",
+                  "isPartialQualification": true,
+                  "eqfLevel": "http://data.europa.eu/snb/eqf/5",
+                  "nqfLevel": "http://data.europa.eu/snb/qdr/c_dcc9aca1"
+                }
+              ]
+            },
+            {
+              "id": "urn:epass:learningAchievement:14",
+              "identifier": [
+                {
+                  "schemeID": "Achievement ID",
+                  "value": "GAE706"
+                }
+              ],
+              "title": "Construction of concrete structures",
+              "wasDerivedFrom": [
+                {
+                  "id": "urn:epass:assessment:14",
+                  "title": "Construction of concrete structures",
+                  "grade": "excellent (5)",
+                  "assessedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "specifiedBy": {
+                    "id": "urn:epass:asssessmentspec:14",
+                    "title": "Construction of concrete structures",
+                    "gradingScheme": {
+                      "id": "urn:epass:scoringschemespec:14",
+                      "title": "General grading scheme in Croatia",
+                      "definition": "The Croatian national grading scheme consists of five grades with numerical equivalents: izvrstan \u2013 5 (outstanding); vrlo dobar \u2013 4 (very good); dobar \u2013 3 (good); dovoljan \u2013 2 (sufficient); nedovoljan \u2013 1 (insufficient - fail). The minimum passing grade is dovoljan \u2013 2."
+                    }
+                  }
+                }
+              ],
+              "wasInfluencedBy": [
+                {
+                  "id": "urn:epass:activity:12",
+                  "identifier": [
+                    {
+                      "schemeID": "Activity ID",
+                      "value": "GAE706"
+                    }
+                  ],
+                  "title": "Construction of concrete structures",
+                  "workload": "PT60H",
+                  "startedAtTime": "2018-09-03T00:00:00+02:00",
+                  "endedAtTime": "2019-01-13T00:00:00+01:00",
+                  "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "location": ["urn:epass:location:15"],
+                  "specifiedBy": {
+                    "id": "urn:epass:learningactivityspec:12",
+                    "title": "Construction of concrete structures",
+                    "learningActivityType": [
+                      "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+                    ],
+                    "workload": "PT60H",
+                    "language": [
+                      "http://publications.europa.eu/resource/authority/language/HRV"
+                    ]
+                  }
+                }
+              ],
+              "wasAwardedBy": {
+                "id": "urn:epass:awardingProcess:14",
+                "awardingBody": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                "awardingDate": "2019-09-20T00:00:00+02:00"
+              },
+              "specifiedBy": [
+                {
+                  "id": "urn:epass:qualification:13",
+                  "title": "Construction of concrete structures",
+                  "volumeOfLearning": "PT60H",
+                  "eCTSCreditPoints": 5,
+                  "maximumDuration": "P6M",
+                  "isPartialQualification": true,
+                  "eqfLevel": "http://data.europa.eu/snb/eqf/5",
+                  "nqfLevel": "http://data.europa.eu/snb/qdr/c_dcc9aca1"
+                }
+              ]
+            },
+            {
+              "id": "urn:epass:learningAchievement:15",
+              "identifier": [
+                {
+                  "schemeID": "Achievement ID",
+                  "value": "GAM701"
+                }
+              ],
+              "title": "Housing installations",
+              "wasDerivedFrom": [
+                {
+                  "id": "urn:epass:assessment:15",
+                  "title": "Housing installations",
+                  "grade": "very good (4)",
+                  "assessedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "specifiedBy": {
+                    "id": "urn:epass:asssessmentspec:15",
+                    "title": "Housing installations",
+                    "gradingScheme": {
+                      "id": "urn:epass:scoringschemespec:15",
+                      "title": "General grading scheme in Croatia",
+                      "definition": "The Croatian national grading scheme consists of five grades with numerical equivalents: izvrstan \u2013 5 (outstanding); vrlo dobar \u2013 4 (very good); dobar \u2013 3 (good); dovoljan \u2013 2 (sufficient); nedovoljan \u2013 1 (insufficient - fail). The minimum passing grade is dovoljan \u2013 2."
+                    }
+                  }
+                }
+              ],
+              "wasInfluencedBy": [
+                {
+                  "id": "urn:epass:activity:13",
+                  "identifier": [
+                    {
+                      "schemeID": "Activity ID",
+                      "value": "GAM701"
+                    }
+                  ],
+                  "title": "Housing installations",
+                  "workload": "PT60H",
+                  "startedAtTime": "2018-09-03T00:00:00+02:00",
+                  "endedAtTime": "2019-01-13T00:00:00+01:00",
+                  "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "location": ["urn:epass:location:16"],
+                  "specifiedBy": {
+                    "id": "urn:epass:learningactivityspec:13",
+                    "title": "Housing installations",
+                    "learningActivityType": [
+                      "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+                    ],
+                    "workload": "PT60H",
+                    "language": [
+                      "http://publications.europa.eu/resource/authority/language/HRV"
+                    ]
+                  }
+                }
+              ],
+              "wasAwardedBy": {
+                "id": "urn:epass:awardingProcess:15",
+                "awardingBody": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                "awardingDate": "2019-09-20T00:00:00+02:00"
+              },
+              "specifiedBy": [
+                {
+                  "id": "urn:epass:qualification:14",
+                  "title": "Housing installations",
+                  "volumeOfLearning": "PT60H",
+                  "eCTSCreditPoints": 5,
+                  "maximumDuration": "P6M",
+                  "isPartialQualification": true,
+                  "eqfLevel": "http://data.europa.eu/snb/eqf/5",
+                  "nqfLevel": "http://data.europa.eu/snb/qdr/c_dcc9aca1"
+                }
+              ]
+            },
+            {
+              "id": "urn:epass:learningAchievement:16",
+              "identifier": [
+                {
+                  "schemeID": "Achievement ID",
+                  "value": "GAE803"
+                }
+              ],
+              "title": "Numerical modelling of concrete structures",
+              "wasDerivedFrom": [
+                {
+                  "id": "urn:epass:assessment:16",
+                  "title": "Numerical modelling of concrete structures",
+                  "grade": "excellent (5)",
+                  "assessedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "specifiedBy": {
+                    "id": "urn:epass:asssessmentspec:16",
+                    "title": "Numerical modelling of concrete structures",
+                    "gradingScheme": {
+                      "id": "urn:epass:scoringschemespec:16",
+                      "title": "General grading scheme in Croatia",
+                      "definition": "The Croatian national grading scheme consists of five grades with numerical equivalents: izvrstan \u2013 5 (outstanding); vrlo dobar \u2013 4 (very good); dobar \u2013 3 (good); dovoljan \u2013 2 (sufficient); nedovoljan \u2013 1 (insufficient - fail). The minimum passing grade is dovoljan \u2013 2."
+                    }
+                  }
+                }
+              ],
+              "wasInfluencedBy": [
+                {
+                  "id": "urn:epass:activity:14",
+                  "identifier": [
+                    {
+                      "schemeID": "Activity ID",
+                      "value": "GAE803"
+                    }
+                  ],
+                  "title": "Numerical modelling of concrete structures",
+                  "workload": "PT60H",
+                  "startedAtTime": "2018-09-03T00:00:00+02:00",
+                  "endedAtTime": "2019-01-13T00:00:00+01:00",
+                  "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "location": ["urn:epass:location:17"],
+                  "specifiedBy": {
+                    "id": "urn:epass:learningactivityspec:14",
+                    "title": "Numerical modelling of concrete structures",
+                    "learningActivityType": [
+                      "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+                    ],
+                    "workload": "PT60H",
+                    "language": [
+                      "http://publications.europa.eu/resource/authority/language/HRV"
+                    ]
+                  }
+                }
+              ],
+              "wasAwardedBy": {
+                "id": "urn:epass:awardingProcess:16",
+                "awardingBody": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                "awardingDate": "2019-09-20T00:00:00+02:00"
+              },
+              "specifiedBy": [
+                {
+                  "id": "urn:epass:qualification:15",
+                  "title": "Numerical modelling of concrete structures",
+                  "volumeOfLearning": "PT60H",
+                  "eCTSCreditPoints": 5,
+                  "maximumDuration": "P6M",
+                  "isPartialQualification": true,
+                  "eqfLevel": "http://data.europa.eu/snb/eqf/5",
+                  "nqfLevel": "http://data.europa.eu/snb/qdr/c_dcc9aca1"
+                }
+              ]
+            },
+            {
+              "id": "urn:epass:learningAchievement:17",
+              "identifier": [
+                {
+                  "schemeID": "Achievement ID",
+                  "value": "GAL702"
+                }
+              ],
+              "title": "Business and investments in civil engineering",
+              "wasDerivedFrom": [
+                {
+                  "id": "urn:epass:assessment:17",
+                  "title": "Business and investments in civil engineering",
+                  "grade": "excellent (5)",
+                  "assessedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "specifiedBy": {
+                    "id": "urn:epass:asssessmentspec:17",
+                    "title": "Business and investments in civil engineering",
+                    "gradingScheme": {
+                      "id": "urn:epass:scoringschemespec:17",
+                      "title": "General grading scheme in Croatia",
+                      "definition": "The Croatian national grading scheme consists of five grades with numerical equivalents: izvrstan \u2013 5 (outstanding); vrlo dobar \u2013 4 (very good); dobar \u2013 3 (good); dovoljan \u2013 2 (sufficient); nedovoljan \u2013 1 (insufficient - fail). The minimum passing grade is dovoljan \u2013 2."
+                    }
+                  }
+                }
+              ],
+              "wasInfluencedBy": [
+                {
+                  "id": "urn:epass:activity:15",
+                  "identifier": [
+                    {
+                      "schemeID": "Activity ID",
+                      "value": "GAL702"
+                    }
+                  ],
+                  "title": "Business and investments in civil engineering",
+                  "workload": "PT60H",
+                  "startedAtTime": "2018-09-03T00:00:00+02:00",
+                  "endedAtTime": "2019-01-13T00:00:00+01:00",
+                  "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "location": ["urn:epass:location:18"],
+                  "specifiedBy": {
+                    "id": "urn:epass:learningactivityspec:15",
+                    "title": "Business and investments in civil engineering",
+                    "learningActivityType": [
+                      "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+                    ],
+                    "workload": "PT60H",
+                    "language": [
+                      "http://publications.europa.eu/resource/authority/language/HRV"
+                    ]
+                  }
+                }
+              ],
+              "wasAwardedBy": {
+                "id": "urn:epass:awardingProcess:17",
+                "awardingBody": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                "awardingDate": "2019-09-20T00:00:00+02:00"
+              },
+              "specifiedBy": [
+                {
+                  "id": "urn:epass:qualification:16",
+                  "title": "Business and investments in civil engineering",
+                  "volumeOfLearning": "PT60H",
+                  "eCTSCreditPoints": 5,
+                  "maximumDuration": "P6M",
+                  "isPartialQualification": true,
+                  "eqfLevel": "http://data.europa.eu/snb/eqf/5",
+                  "nqfLevel": "http://data.europa.eu/snb/qdr/c_dcc9aca1"
+                }
+              ]
+            },
+            {
+              "id": "urn:epass:learningAchievement:18",
+              "identifier": [
+                {
+                  "schemeID": "Achievement ID",
+                  "value": "GAE801"
+                }
+              ],
+              "title": "Concrete bridges",
+              "wasDerivedFrom": [
+                {
+                  "id": "urn:epass:assessment:18",
+                  "title": "Concrete bridges",
+                  "grade": "very good (4)",
+                  "assessedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "specifiedBy": {
+                    "id": "urn:epass:asssessmentspec:18",
+                    "title": "Concrete bridges",
+                    "gradingScheme": {
+                      "id": "urn:epass:scoringschemespec:18",
+                      "title": "General grading scheme in Croatia",
+                      "definition": "The Croatian national grading scheme consists of five grades with numerical equivalents: izvrstan \u2013 5 (outstanding); vrlo dobar \u2013 4 (very good); dobar \u2013 3 (good); dovoljan \u2013 2 (sufficient); nedovoljan \u2013 1 (insufficient - fail). The minimum passing grade is dovoljan \u2013 2."
+                    }
+                  }
+                }
+              ],
+              "wasInfluencedBy": [
+                {
+                  "id": "urn:epass:activity:16",
+                  "identifier": [
+                    {
+                      "schemeID": "Activity ID",
+                      "value": "GAE801"
+                    }
+                  ],
+                  "title": "Concrete bridges",
+                  "workload": "PT60H",
+                  "startedAtTime": "2018-09-03T00:00:00+02:00",
+                  "endedAtTime": "2019-01-13T00:00:00+01:00",
+                  "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "location": ["urn:epass:location:19"],
+                  "specifiedBy": {
+                    "id": "urn:epass:learningactivityspec:16",
+                    "title": "Concrete bridges",
+                    "learningActivityType": [
+                      "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+                    ],
+                    "workload": "PT60H",
+                    "language": [
+                      "http://publications.europa.eu/resource/authority/language/HRV"
+                    ]
+                  }
+                }
+              ],
+              "wasAwardedBy": {
+                "id": "urn:epass:awardingProcess:18",
+                "awardingBody": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                "awardingDate": "2019-09-20T00:00:00+02:00"
+              },
+              "specifiedBy": [
+                {
+                  "id": "urn:epass:qualification:17",
+                  "title": "Concrete bridges",
+                  "volumeOfLearning": "PT60H",
+                  "eCTSCreditPoints": 5,
+                  "maximumDuration": "P6M",
+                  "isPartialQualification": true,
+                  "eqfLevel": "http://data.europa.eu/snb/eqf/5",
+                  "nqfLevel": "http://data.europa.eu/snb/qdr/c_dcc9aca1"
+                }
+              ]
+            },
+            {
+              "id": "urn:epass:learningAchievement:19",
+              "identifier": [
+                {
+                  "schemeID": "Achievement ID",
+                  "value": "GAP801"
+                }
+              ],
+              "title": "Metal bridges",
+              "wasDerivedFrom": [
+                {
+                  "id": "urn:epass:assessment:19",
+                  "title": "Metal bridges",
+                  "grade": "excellent (5)",
+                  "assessedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "specifiedBy": {
+                    "id": "urn:epass:asssessmentspec:19",
+                    "title": "Metal bridges",
+                    "gradingScheme": {
+                      "id": "urn:epass:scoringschemespec:19",
+                      "title": "General grading scheme in Croatia",
+                      "definition": "The Croatian national grading scheme consists of five grades with numerical equivalents: izvrstan \u2013 5 (outstanding); vrlo dobar \u2013 4 (very good); dobar \u2013 3 (good); dovoljan \u2013 2 (sufficient); nedovoljan \u2013 1 (insufficient - fail). The minimum passing grade is dovoljan \u2013 2."
+                    }
+                  }
+                }
+              ],
+              "wasInfluencedBy": [
+                {
+                  "id": "urn:epass:activity:17",
+                  "identifier": [
+                    {
+                      "schemeID": "Activity ID",
+                      "value": "GAP801"
+                    }
+                  ],
+                  "title": "Metal bridges",
+                  "workload": "PT60H",
+                  "startedAtTime": "2018-09-03T00:00:00+02:00",
+                  "endedAtTime": "2019-01-13T00:00:00+01:00",
+                  "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "location": ["urn:epass:location:20"],
+                  "specifiedBy": {
+                    "id": "urn:epass:learningactivityspec:17",
+                    "title": "Metal bridges",
+                    "learningActivityType": [
+                      "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+                    ],
+                    "workload": "PT60H",
+                    "language": [
+                      "http://publications.europa.eu/resource/authority/language/HRV"
+                    ]
+                  }
+                }
+              ],
+              "wasAwardedBy": {
+                "id": "urn:epass:awardingProcess:19",
+                "awardingBody": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                "awardingDate": "2019-09-20T00:00:00+02:00"
+              },
+              "specifiedBy": [
+                {
+                  "id": "urn:epass:qualification:18",
+                  "title": "Metal bridges",
+                  "volumeOfLearning": "PT60H",
+                  "eCTSCreditPoints": 5,
+                  "maximumDuration": "P6M",
+                  "isPartialQualification": true,
+                  "eqfLevel": "http://data.europa.eu/snb/eqf/5",
+                  "nqfLevel": "http://data.europa.eu/snb/qdr/c_dcc9aca1"
+                }
+              ]
+            },
+            {
+              "id": "urn:epass:learningAchievement:20",
+              "identifier": [
+                {
+                  "schemeID": "Achievement ID",
+                  "value": "GAX801"
+                }
+              ],
+              "title": "Diploma work",
+              "wasDerivedFrom": [
+                {
+                  "id": "urn:epass:assessment:20",
+                  "title": "Diploma work",
+                  "grade": "excellent (5)",
+                  "assessedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "specifiedBy": {
+                    "id": "urn:epass:asssessmentspec:20",
+                    "title": "Diploma work",
+                    "gradingScheme": {
+                      "id": "urn:epass:scoringschemespec:20",
+                      "title": "General grading scheme in Croatia",
+                      "definition": "The Croatian national grading scheme consists of five grades with numerical equivalents: izvrstan \u2013 5 (outstanding); vrlo dobar \u2013 4 (very good); dobar \u2013 3 (good); dovoljan \u2013 2 (sufficient); nedovoljan \u2013 1 (insufficient - fail). The minimum passing grade is dovoljan \u2013 2."
+                    }
+                  }
+                }
+              ],
+              "wasInfluencedBy": [
+                {
+                  "id": "urn:epass:activity:18",
+                  "identifier": [
+                    {
+                      "schemeID": "Activity ID",
+                      "value": "GAX801"
+                    }
+                  ],
+                  "title": "Diploma work",
+                  "workload": "PT360H",
+                  "startedAtTime": "2019-01-14T00:00:00+01:00",
+                  "endedAtTime": "2019-09-20T00:00:00+02:00",
+                  "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                  "location": ["urn:epass:location:21"],
+                  "specifiedBy": {
+                    "id": "urn:epass:learningactivityspec:18",
+                    "title": "Diploma work",
+                    "learningActivityType": [
+                      "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+                    ],
+                    "workload": "PT360H",
+                    "language": [
+                      "http://publications.europa.eu/resource/authority/language/HRV"
+                    ]
+                  }
+                }
+              ],
+              "wasAwardedBy": {
+                "id": "urn:epass:awardingProcess:20",
+                "awardingBody": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                "awardingDate": "2019-09-20T00:00:00+02:00"
+              },
+              "specifiedBy": [
+                {
+                  "id": "urn:epass:qualification:19",
+                  "title": "Diploma work",
+                  "volumeOfLearning": "PT360H",
+                  "eCTSCreditPoints": 30,
+                  "maximumDuration": "P6M",
+                  "isPartialQualification": true,
+                  "eqfLevel": "http://data.europa.eu/snb/eqf/5",
+                  "nqfLevel": "http://data.europa.eu/snb/qdr/c_dcc9aca1"
+                }
+              ]
+            }
+          ]
+        },
+        "entitlesTo": [
+          {
+            "id": "urn:epass:entitlement:1",
+            "title": "Postgraduate doctoral study",
+            "definition": "Competences the student acquires after the completion of Graduate university study are sufficient conditions for attending the programme of Postgraduate doctoral study at the Faculty of Civil Engineering, Architecture and Geodesy in Split, as well as for attending the same or similar programmes and Postgraduate specialist studies at other faculties of Civil Engineering in Croatia. The acquired learning outcomes enable the student to attend other postgraduate study programmes in the field of technical sciences. ",
+            "issuedDate": "2019-09-20T00:00:00+02:00",
+            "specifiedBy": {
+              "id": "urn:epass:entitlementspec:1",
+              "title": "Postgraduate doctoral study",
+              "entitlementType": "http://data.europa.eu/snb/entitlement/64aad92881",
+              "status": "http://data.europa.eu/snb/entitlement-status/5b8d6b34fb",
+              "limitOrganisation": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+              "limitJurisdiction": [
+                "http://publications.europa.eu/resource/authority/country/HRV"
+              ]
+            }
+          }
+        ],
+        "specifiedBy": [
+          {
+            "id": "urn:epass:qualification:20",
+            "title": "Master of Science in Civil Engineering",
+            "volumeOfLearning": "PT1440H",
+            "eCTSCreditPoints": 120,
+            "maximumDuration": "P21M",
+            "entryRequirementsNote": "The minimum educational requirement for enrolment into graduate university programmes is the completion of an undergraduate university programme. The university can allow students who have completed a professional programme to also enrol graduate university programmes, but they are allowed to set special requirements in these cases.\nThe minimum educational requirement for enrolment into specialist graduate professional programmes is the completion of an undergraduate university programme or a professional programme (first cycle).",
+            "isPartialQualification": false,
+            "eqfLevel": "http://data.europa.eu/snb/eqf/5",
+            "nqfLevel": "http://data.europa.eu/snb/qdr/c_dcc9aca1"
+          }
+        ]
+      }
+    ],
+    "performed": [
+      {
+        "id": "urn:epass:activity:1",
+        "identifier": [
+          {
+            "schemeID": "Activity ID",
+            "value": "GAB701"
+          }
+        ],
+        "title": "Applied mathematics",
+        "workload": "PT60H",
+        "startedAtTime": "2017-09-04T00:00:00+02:00",
+        "endedAtTime": "2018-01-14T00:00:00+01:00",
+        "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+        "location": ["urn:epass:location:4"],
+        "specifiedBy": {
+          "id": "urn:epass:learningactivityspec:1",
+          "title": "Applied mathematics",
+          "learningActivityType": [
+            "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+          ],
+          "workload": "PT60H",
+          "language": [
+            "http://publications.europa.eu/resource/authority/language/HRV"
+          ]
+        }
+      },
+      {
+        "id": "urn:epass:activity:2",
+        "identifier": [
+          {
+            "schemeID": "Activity ID",
+            "value": "GAE701"
+          }
+        ],
+        "title": "Concrete structures I",
+        "workload": "PT60H",
+        "startedAtTime": "2017-09-04T00:00:00+02:00",
+        "endedAtTime": "2018-01-14T00:00:00+01:00",
+        "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+        "location": ["urn:epass:location:5"],
+        "specifiedBy": {
+          "id": "urn:epass:learningactivityspec:2",
+          "title": "Concrete structures I",
+          "learningActivityType": [
+            "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+          ],
+          "workload": "PT60H",
+          "language": [
+            "http://publications.europa.eu/resource/authority/language/HRV"
+          ]
+        }
+      },
+      {
+        "id": "urn:epass:activity:3",
+        "identifier": [
+          {
+            "schemeID": "Activity ID",
+            "value": "GAO701"
+          }
+        ],
+        "title": "Dynamics of structures and earthquake engineering",
+        "workload": "PT45H",
+        "startedAtTime": "2017-09-04T00:00:00+02:00",
+        "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+        "location": ["urn:epass:location:6"],
+        "specifiedBy": {
+          "id": "urn:epass:learningactivityspec:3",
+          "title": "Dynamics of structures and earthquake engineering",
+          "learningActivityType": [
+            "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+          ],
+          "workload": "PT45H",
+          "language": [
+            "http://publications.europa.eu/resource/authority/language/HRV"
+          ]
+        }
+      },
+      {
+        "id": "urn:epass:activity:4",
+        "identifier": [
+          {
+            "schemeID": "Activity ID",
+            "value": "GAG703"
+          }
+        ],
+        "title": "Geotechnical engineering",
+        "workload": "PT60H",
+        "startedAtTime": "2017-09-04T00:00:00+02:00",
+        "endedAtTime": "2018-01-14T00:00:00+01:00",
+        "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+        "location": ["urn:epass:location:7"],
+        "specifiedBy": {
+          "id": "urn:epass:learningactivityspec:4",
+          "title": "Geotechnical engineering",
+          "learningActivityType": [
+            "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+          ],
+          "workload": "PT60H",
+          "language": [
+            "http://publications.europa.eu/resource/authority/language/HRV"
+          ]
+        }
+      },
+      {
+        "id": "urn:epass:activity:5",
+        "identifier": [
+          {
+            "schemeID": "Activity ID",
+            "value": "GAO702"
+          }
+        ],
+        "title": "Stability of structures",
+        "workload": "PT60H",
+        "startedAtTime": "2017-09-04T00:00:00+02:00",
+        "endedAtTime": "2018-01-14T00:00:00+01:00",
+        "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+        "location": ["urn:epass:location:8"],
+        "specifiedBy": {
+          "id": "urn:epass:learningactivityspec:5",
+          "title": "Stability of structures",
+          "learningActivityType": [
+            "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+          ],
+          "workload": "PT60H",
+          "language": [
+            "http://publications.europa.eu/resource/authority/language/HRV"
+          ]
+        }
+      },
+      {
+        "id": "urn:epass:activity:6",
+        "identifier": [
+          {
+            "schemeID": "Activity ID",
+            "value": "GAP701"
+          }
+        ],
+        "title": "Metal structures I",
+        "workload": "PT75H",
+        "startedAtTime": "2017-09-04T00:00:00+02:00",
+        "endedAtTime": "2018-01-14T00:00:00+01:00",
+        "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+        "location": ["urn:epass:location:9"],
+        "specifiedBy": {
+          "id": "urn:epass:learningactivityspec:6",
+          "title": "Metal structures I",
+          "learningActivityType": [
+            "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+          ],
+          "workload": "PT75H",
+          "language": [
+            "http://publications.europa.eu/resource/authority/language/HRV"
+          ]
+        }
+      },
+      {
+        "id": "urn:epass:activity:7",
+        "identifier": [
+          {
+            "schemeID": "Activity ID",
+            "value": "GAE702"
+          }
+        ],
+        "title": "Masonry structures",
+        "workload": "PT60H",
+        "startedAtTime": "2018-01-15T00:00:00+01:00",
+        "endedAtTime": "2018-06-24T00:00:00+02:00",
+        "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+        "location": ["urn:epass:location:10"],
+        "specifiedBy": {
+          "id": "urn:epass:learningactivityspec:7",
+          "title": "Masonry structures",
+          "learningActivityType": [
+            "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+          ],
+          "workload": "PT60H",
+          "language": [
+            "http://publications.europa.eu/resource/authority/language/HRV"
+          ]
+        }
+      },
+      {
+        "id": "urn:epass:activity:8",
+        "identifier": [
+          {
+            "schemeID": "Activity ID",
+            "value": "GAE703"
+          }
+        ],
+        "title": "Prestressed concrete",
+        "workload": "PT60H",
+        "startedAtTime": "2018-01-15T00:00:00+01:00",
+        "endedAtTime": "2018-06-24T00:00:00+02:00",
+        "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+        "location": ["urn:epass:location:11"],
+        "specifiedBy": {
+          "id": "urn:epass:learningactivityspec:8",
+          "title": "Prestressed concrete",
+          "learningActivityType": [
+            "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+          ],
+          "workload": "PT60H",
+          "language": [
+            "http://publications.europa.eu/resource/authority/language/HRV"
+          ]
+        }
+      },
+      {
+        "id": "urn:epass:activity:9",
+        "identifier": [
+          {
+            "schemeID": "Activity ID",
+            "value": "GAE704"
+          }
+        ],
+        "title": "Concrete structures II",
+        "workload": "PT60H",
+        "startedAtTime": "2018-01-15T00:00:00+01:00",
+        "endedAtTime": "2018-06-24T00:00:00+02:00",
+        "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+        "location": ["urn:epass:location:12"],
+        "specifiedBy": {
+          "id": "urn:epass:learningactivityspec:9",
+          "title": "Concrete structures II",
+          "learningActivityType": [
+            "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+          ],
+          "workload": "PT60H",
+          "language": [
+            "http://publications.europa.eu/resource/authority/language/HRV"
+          ]
+        }
+      },
+      {
+        "id": "urn:epass:activity:10",
+        "identifier": [
+          {
+            "schemeID": "Activity ID",
+            "value": "GAP703"
+          }
+        ],
+        "title": "Structure reliability",
+        "workload": "PT60H",
+        "startedAtTime": "2018-01-15T00:00:00+01:00",
+        "endedAtTime": "2018-06-24T00:00:00+02:00",
+        "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+        "location": ["urn:epass:location:13"],
+        "specifiedBy": {
+          "id": "urn:epass:learningactivityspec:10",
+          "title": "Structure reliability",
+          "learningActivityType": [
+            "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+          ],
+          "workload": "PT60H",
+          "language": [
+            "http://publications.europa.eu/resource/authority/language/HRV"
+          ]
+        }
+      },
+      {
+        "id": "urn:epass:activity:11",
+        "identifier": [
+          {
+            "schemeID": "Activity ID",
+            "value": "GAE705"
+          }
+        ],
+        "title": "Composite structures",
+        "workload": "PT60H",
+        "startedAtTime": "2018-01-15T00:00:00+01:00",
+        "endedAtTime": "2018-06-24T00:00:00+02:00",
+        "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+        "location": ["urn:epass:location:14"],
+        "specifiedBy": {
+          "id": "urn:epass:learningactivityspec:11",
+          "title": "Composite structures",
+          "learningActivityType": [
+            "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+          ],
+          "workload": "PT60H",
+          "language": [
+            "http://publications.europa.eu/resource/authority/language/HRV"
+          ]
+        }
+      },
+      {
+        "id": "urn:epass:activity:12",
+        "identifier": [
+          {
+            "schemeID": "Activity ID",
+            "value": "GAE706"
+          }
+        ],
+        "title": "Construction of concrete structures",
+        "workload": "PT60H",
+        "startedAtTime": "2018-09-03T00:00:00+02:00",
+        "endedAtTime": "2019-01-13T00:00:00+01:00",
+        "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+        "location": ["urn:epass:location:15"],
+        "specifiedBy": {
+          "id": "urn:epass:learningactivityspec:12",
+          "title": "Construction of concrete structures",
+          "learningActivityType": [
+            "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+          ],
+          "workload": "PT60H",
+          "language": [
+            "http://publications.europa.eu/resource/authority/language/HRV"
+          ]
+        }
+      },
+      {
+        "id": "urn:epass:activity:13",
+        "identifier": [
+          {
+            "schemeID": "Activity ID",
+            "value": "GAM701"
+          }
+        ],
+        "title": "Housing installations",
+        "workload": "PT60H",
+        "startedAtTime": "2018-09-03T00:00:00+02:00",
+        "endedAtTime": "2019-01-13T00:00:00+01:00",
+        "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+        "location": ["urn:epass:location:16"],
+        "specifiedBy": {
+          "id": "urn:epass:learningactivityspec:13",
+          "title": "Housing installations",
+          "learningActivityType": [
+            "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+          ],
+          "workload": "PT60H",
+          "language": [
+            "http://publications.europa.eu/resource/authority/language/HRV"
+          ]
+        }
+      },
+      {
+        "id": "urn:epass:activity:14",
+        "identifier": [
+          {
+            "schemeID": "Activity ID",
+            "value": "GAE803"
+          }
+        ],
+        "title": "Numerical modelling of concrete structures",
+        "workload": "PT60H",
+        "startedAtTime": "2018-09-03T00:00:00+02:00",
+        "endedAtTime": "2019-01-13T00:00:00+01:00",
+        "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+        "location": ["urn:epass:location:17"],
+        "specifiedBy": {
+          "id": "urn:epass:learningactivityspec:14",
+          "title": "Numerical modelling of concrete structures",
+          "learningActivityType": [
+            "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+          ],
+          "workload": "PT60H",
+          "language": [
+            "http://publications.europa.eu/resource/authority/language/HRV"
+          ]
+        }
+      },
+      {
+        "id": "urn:epass:activity:15",
+        "identifier": [
+          {
+            "schemeID": "Activity ID",
+            "value": "GAL702"
+          }
+        ],
+        "title": "Business and investments in civil engineering",
+        "workload": "PT60H",
+        "startedAtTime": "2018-09-03T00:00:00+02:00",
+        "endedAtTime": "2019-01-13T00:00:00+01:00",
+        "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+        "location": ["urn:epass:location:18"],
+        "specifiedBy": {
+          "id": "urn:epass:learningactivityspec:15",
+          "title": "Business and investments in civil engineering",
+          "learningActivityType": [
+            "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+          ],
+          "workload": "PT60H",
+          "language": [
+            "http://publications.europa.eu/resource/authority/language/HRV"
+          ]
+        }
+      },
+      {
+        "id": "urn:epass:activity:16",
+        "identifier": [
+          {
+            "schemeID": "Activity ID",
+            "value": "GAE801"
+          }
+        ],
+        "title": "Concrete bridges",
+        "workload": "PT60H",
+        "startedAtTime": "2018-09-03T00:00:00+02:00",
+        "endedAtTime": "2019-01-13T00:00:00+01:00",
+        "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+        "location": ["urn:epass:location:19"],
+        "specifiedBy": {
+          "id": "urn:epass:learningactivityspec:16",
+          "title": "Concrete bridges",
+          "learningActivityType": [
+            "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+          ],
+          "workload": "PT60H",
+          "language": [
+            "http://publications.europa.eu/resource/authority/language/HRV"
+          ]
+        }
+      },
+      {
+        "id": "urn:epass:activity:17",
+        "identifier": [
+          {
+            "schemeID": "Activity ID",
+            "value": "GAP801"
+          }
+        ],
+        "title": "Metal bridges",
+        "workload": "PT60H",
+        "startedAtTime": "2018-09-03T00:00:00+02:00",
+        "endedAtTime": "2019-01-13T00:00:00+01:00",
+        "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+        "location": ["urn:epass:location:20"],
+        "specifiedBy": {
+          "id": "urn:epass:learningactivityspec:17",
+          "title": "Metal bridges",
+          "learningActivityType": [
+            "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+          ],
+          "workload": "PT60H",
+          "language": [
+            "http://publications.europa.eu/resource/authority/language/HRV"
+          ]
+        }
+      },
+      {
+        "id": "urn:epass:activity:18",
+        "identifier": [
+          {
+            "schemeID": "Activity ID",
+            "value": "GAX801"
+          }
+        ],
+        "title": "Diploma work",
+        "workload": "PT360H",
+        "startedAtTime": "2019-01-14T00:00:00+01:00",
+        "endedAtTime": "2019-09-20T00:00:00+02:00",
+        "directedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+        "location": ["urn:epass:location:21"],
+        "specifiedBy": {
+          "id": "urn:epass:learningactivityspec:18",
+          "title": "Diploma work",
+          "learningActivityType": [
+            "http://data.europa.eu/snb/learning-activity/fd33e234ae"
+          ],
+          "workload": "PT360H",
+          "language": [
+            "http://publications.europa.eu/resource/authority/language/HRV"
+          ]
+        }
+      }
+    ],
+    "entitledTo": [
+      {
+        "id": "urn:epass:entitlement:1",
+        "title": "Postgraduate doctoral study",
+        "definition": "Competences the student acquires after the completion of Graduate university study are sufficient conditions for attending the programme of Postgraduate doctoral study at the Faculty of Civil Engineering, Architecture and Geodesy in Split, as well as for attending the same or similar programmes and Postgraduate specialist studies at other faculties of Civil Engineering in Croatia. The acquired learning outcomes enable the student to attend other postgraduate study programmes in the field of technical sciences. ",
+        "issuedDate": "2019-09-20T00:00:00+02:00",
+        "specifiedBy": {
+          "id": "urn:epass:entitlementspec:1",
+          "title": "Postgraduate doctoral study",
+          "entitlementType": "http://data.europa.eu/snb/entitlement/64aad92881",
+          "status": "http://data.europa.eu/snb/entitlement-status/5b8d6b34fb",
+          "limitOrganisation": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+          "limitJurisdiction": [
+            "http://publications.europa.eu/resource/authority/country/HRV"
+          ]
+        }
+      }
+    ]
+  },
+  "credentialStatus": {
+    "id": "https://api-test.ebsi.eu/trusted-schemas-registry/v1",
+    "type": "TrustedCredentialStatus2021"
+  },
+  "credentialSchema": {
+    "id": "https://api-test.ebsi.eu/trusted-schemas-registry/v2/schemas/0xsomething",
+    "type": "FullJsonSchemaValidator2021"
+  },
+  "proof": {
+    "type": "EcdsaSecp256k1Signature2019",
+    "created": "2019-06-22T14:11:44Z",
+    "proofPurpose": "assertionMethod",
+    "verificationMethod": "http://uri-to-verification-method",
+    "jws": "eyJhbGciOiJSUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..TCYt5X",
+    "proofValue": "BD21J4fdlnBvBA+y6D...fnC8Y="
+  }
+}

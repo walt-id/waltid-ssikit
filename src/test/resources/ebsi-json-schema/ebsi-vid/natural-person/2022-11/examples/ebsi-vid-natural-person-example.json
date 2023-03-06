@@ -1,0 +1,20 @@
+{
+  "@context": ["https://www.w3.org/2018/credentials/v1"],
+  "id": "urn:did:123456",
+  "type": ["VerifiableCredential", "VerifiableAttestation", "VerifiableId"],
+  "issuer": "urn:did:9999999",
+  "issuanceDate": "2021-11-01T00:00:00Z",
+  "validFrom": "2021-11-01T00:00:00Z",
+  "issued": "2021-11-01T00:00:00Z",
+  "credentialSubject": {
+    "id": "urn:uri:123",
+    "personalIdentifier": "IT/DE/1234",
+    "familyName": "Castafiori",
+    "firstName": "Bianca",
+    "dateOfBirth": "1930-10-01"
+  },
+  "credentialSchema": {
+    "id": "https://permanent.url.of/vid/naturalperson",
+    "type": "FullJsonSchemaValidator2021"
+  }
+}
