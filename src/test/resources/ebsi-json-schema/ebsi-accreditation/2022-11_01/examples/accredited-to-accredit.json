@@ -32,14 +32,9 @@
       "type": "IssuanceCertificate"
     }
   ],
-  "credentialSchema": [
-    {
-      "id": "https://api-test.ebsi.eu/trusted-schemas-registry/v2/schemas/0xc4747735f30c452de7bfc29ea71f26e161de0688d696e577b0f849fff145f644",
-      "type": "FullJsonSchemaValidator2021"
-    },
+  "credentialSchema":
     {
       "id": "https://api-test.ebsi.eu/trusted-schemas-registry/v2/schemas/0x1d7146f8897aa6cd5c59321ea0756ec61277028e4a8b3c13ec1b310ec47e6495",
       "type": "FullJsonSchemaValidator2021"
     }
-  ]
 }
