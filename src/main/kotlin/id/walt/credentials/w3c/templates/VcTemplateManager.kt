@@ -1,6 +1,7 @@
 package id.walt.credentials.w3c.templates
 
 import id.walt.credentials.w3c.VerifiableCredential
+import id.walt.credentials.w3c.W3CIssuer
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.services.context.ContextManager
 import id.walt.services.hkvstore.HKVKey
@@ -17,7 +18,7 @@ object VcTemplateManager {
 
     fun register(name: String, template: VerifiableCredential): VcTemplate {
         template.proof = null
-        template.issuer = null
+        template.issuer = template.issuer?.let { W3CIssuer("", it._isObject, it.properties) }
         template.credentialSubject?.id = null
         template.id = null
         ContextManager.hkvStore.put(HKVKey(SAVED_VC_TEMPLATES_KEY, name), template.toJson())
