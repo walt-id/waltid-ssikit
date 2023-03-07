@@ -263,40 +263,70 @@ class AuditorCommandTest : StringSpec() {
             if (schemaFile.isNullOrBlank()) {
                 Auditor.getService().verify(credential, listOf(JsonSchemaPolicy())).valid shouldBe true
             } else {
-                Auditor.getService().verify(credential, listOf(JsonSchemaPolicy(JsonSchemaPolicyArg(schemaFile)))).valid shouldBe true
+                Auditor.getService()
+                    .verify(credential, listOf(JsonSchemaPolicy(JsonSchemaPolicyArg(schemaFile)))).valid shouldBe true
             }
         }
 
         "8. verify EBSI credentials" {
 
             // Schemas should be used from here https://ec.europa.eu/digital-building-blocks/wikis/display/EBSIDOC/Data+Models+and+Schemas
-            val EBSI_RESOURCES_PATH = "src/main/resources/vc-templates/ebsi/"
+            val EBSI_VC_PATH = "src/main/resources/vc-templates/"
+            val EBSI_SCHEMA_PATH = "src/test/resources/ebsi/schema/"
+            val EBSI_TSR_BASE = "https://api-pilot.ebsi.eu/trusted-schemas-registry/v1/schemas"
 
             // VerifiableAttestation - verification from local file
-            validateSchema("$EBSI_RESOURCES_PATH/EbsiVerifiableAttestationGeneric.json", "$EBSI_RESOURCES_PATH/schemas/EbsiVerifiableAttestationSchema.json")
-            validateSchema("$EBSI_RESOURCES_PATH/EbsiVerifiableAttestationPerson.json", "$EBSI_RESOURCES_PATH/schemas/EbsiVerifiableAttestationSchema.json")
-            validateSchema("$EBSI_RESOURCES_PATH/EbsiVerifiableAttestationLegal.json", "$EBSI_RESOURCES_PATH/schemas/EbsiVerifiableAttestationSchema.json")
+            validateSchema(
+                "$EBSI_VC_PATH/EbsiVerifiableAttestationGeneric.json",
+                "$EBSI_SCHEMA_PATH/src/test/resources/ebsi/schema/EbsiVerifiableAttestationSchema.json"
+            )
+            validateSchema(
+                "$EBSI_VC_PATH/EbsiVerifiableAttestationPerson.json",
+                "$EBSI_SCHEMA_PATH/src/test/resources/ebsi/schema/EbsiVerifiableAttestationSchema.json"
+            )
+            validateSchema(
+                "$EBSI_VC_PATH/EbsiVerifiableAttestationLegal.json",
+                "$EBSI_SCHEMA_PATH/src/test/resources/ebsi/schema/EbsiVerifiableAttestationSchema.json"
+            )
 
             // VerifiableAttestation - verification via http-link
-            validateSchema("$EBSI_RESOURCES_PATH/EbsiVerifiableAttestationGeneric.json", "https://api-test.ebsi.eu/trusted-schemas-registry/v2/schemas/0x23039e6356ea6b703ce672e7cfac0b42765b150f63df78e2bd18ae785787f6a2")
+            validateSchema(
+                "$EBSI_VC_PATH/EbsiVerifiableAttestationGeneric.json",
+                "https://api-test.ebsi.eu/trusted-schemas-registry/v2/schemas/0x23039e6356ea6b703ce672e7cfac0b42765b150f63df78e2bd18ae785787f6a2"
+            )
 
             // VerifiableAttestation - verification via http-link in attribute credentialSchema
-            validateSchema("$EBSI_RESOURCES_PATH/EbsiVerifiableAttestationGeneric.json")
+            validateSchema("$EBSI_VC_PATH/EbsiVerifiableAttestationGeneric.json")
 
             // VerifiableAccreditationToAccredit
             validateSchema("$RESOURCES_PATH/ebsi-json-schema/ebsi-accreditation/2022-11_01/examples/accredited-to-accredit.json")
 
             // AccreditedVerifiableAttestation
-            validateSchema("$RESOURCES_PATH/ebsi-json-schema/ebsi-accredited-attestation/2022-11/examples/example.json", "./src/test/resources/ebsi-json-schema/ebsi-accredited-attestation/2022-11/schema.json")
+            validateSchema(
+                "$RESOURCES_PATH/ebsi-json-schema/ebsi-accredited-attestation/2022-11/examples/example.json",
+                "./src/test/resources/ebsi-json-schema/ebsi-accredited-attestation/2022-11/schema.json"
+            )
 
             // Multi UNI Pilot
-            validateSchema("$RESOURCES_PATH/ebsi-json-schema/ebsi-muti-uni-pilot/verifiable-attestation-organisational-id/2022-11/examples/institutionalAccreditation_example.json", "https://api-pilot.ebsi.eu/trusted-schemas-registry/v1/schemas/0x960904265eba56f0c3a171f19af2970d3c62eb0ed1cd7981065261f37f007101")
+            validateSchema(
+                "$RESOURCES_PATH/ebsi-json-schema/ebsi-muti-uni-pilot/verifiable-attestation-organisational-id/2022-11/examples/institutionalAccreditation_example.json",
+                "$EBSI_TSR_BASE/0x960904265eba56f0c3a171f19af2970d3c62eb0ed1cd7981065261f37f007101"
+            )
 
-            validateSchema("$RESOURCES_PATH/ebsi-json-schema/ebsi-muti-uni-pilot/verifiable-attestation-organisational-id/2022-11/examples/Bengales_organizationVerifiableAttestation.json", "https://api-pilot.ebsi.eu/trusted-schemas-registry/v1/schemas/0x960904265eba56f0c3a171f19af2970d3c62eb0ed1cd7981065261f37f007101")
+            validateSchema(
+                "$RESOURCES_PATH/ebsi-json-schema/ebsi-muti-uni-pilot/verifiable-attestation-organisational-id/2022-11/examples/Bengales_organizationVerifiableAttestation.json",
+                "$EBSI_TSR_BASE/0x960904265eba56f0c3a171f19af2970d3c62eb0ed1cd7981065261f37f007101"
+            )
 
-            validateSchema("$RESOURCES_PATH/ebsi-json-schema/ebsi-muti-uni-pilot/education-verifiable-accreditation-records/2022-11/examples/programmeAccreditation_example.json", "https://api-pilot.ebsi.eu/trusted-schemas-registry/v1/schemas/0x960904265eba56f0c3a171f19af2970d3c62eb0ed1cd7981065261f37f007101")
+            validateSchema(
+                "$RESOURCES_PATH/ebsi-json-schema/ebsi-muti-uni-pilot/education-verifiable-accreditation-records/2022-11/examples/programmeAccreditation_example.json",
+                "$EBSI_TSR_BASE/0x960904265eba56f0c3a171f19af2970d3c62eb0ed1cd7981065261f37f007101"
+            )
 
-            validateSchema("$RESOURCES_PATH/ebsi-json-schema/ebsi-muti-uni-pilot/verifiable-attestation-individual-id/2022-11/examples/individualVerifiableAttestation_MyAcademicIDexample.json", "https://api-pilot.ebsi.eu/trusted-schemas-registry/v1/schemas/0x6ff8cdf21b3969222e4a799d9605997b0f1de7d49edcde4ad0c09eb636dfaf3c")
+            validateSchema(
+                "$RESOURCES_PATH/ebsi-json-schema/ebsi-muti-uni-pilot/verifiable-attestation-individual-id/2022-11/examples/individualVerifiableAttestation_MyAcademicIDexample.json",
+                "$EBSI_TSR_BASE/0x6ff8cdf21b3969222e4a799d9605997b0f1de7d49edcde4ad0c09eb636dfaf3c"
+            )
 
         }
     }
