@@ -1,0 +1,41 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "title": "EBSI Accredited Verifiable Attestation Record",
+    "description": "Schema of an EBSI Accredited Verifiable Attestation",
+    "type": "object",
+    "allOf": [
+        {
+            "$ref": "https://api-pilot.ebsi.eu/trusted-schemas-registry/v2/schemas/0xeb6d8131264327f3cbc5ddba9c69cb9afd34732b3b787e4b3e3507a25d3079e9"
+        },
+        {
+            "properties": {
+                "termsOfUse": {
+                    "description": "Contains the terms under which the Accredited Verifiable Attestation was issued",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "description": "Contains a URL that points to where more information about this instance of terms of use can be found.",
+                                "type": "string",
+                                "format": "uri"
+                            },
+                            "type": {
+                                "description": "Defines the type of terms of use.",
+                                "type": "string"
+                            }
+                        },
+                        "required": [
+                            "id",
+                            "type"
+                        ]
+                    }
+                }
+            },
+            "required": [
+                "credentialStatus",
+                "termsOfUse"
+            ]
+        }
+    ]
+}

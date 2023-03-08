@@ -1,0 +1,48 @@
+{
+    "type": [
+        "VerifiableCredential",
+        "VerifiableAttestation",
+        "VerifiableId",
+        "NEOMVerifiableId"
+    ],
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1"
+    ],
+    "id": "urn:uuid:3add94f4-28ec-42a1-8704-4e4aa51006b4",
+    "issuer": "did:ebsi:2A9BZ9SUe6BatacSpvs1V5CdjHvLpQ7bEsi2Jb6LdHKnQxaN",
+    "issuanceDate": "2021-08-31T00:00:00Z",
+    "issued": "2021-08-31T00:00:00Z",
+    "validFrom": "2021-08-31T00:00:00Z",
+    "credentialSchema": {
+        "id": "https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableId.json",
+        "type": "FullJsonSchemaValidator2021"
+    },
+    "credentialSubject": {
+        "id": "did:ebsi:2AEMAqXWKYMu1JHPAgGcga4dxu7ThgfgN95VyJBJGZbSJUtp",
+        "currentAddress": [
+            "1 Boulevard de la Liberté, 59800 Lille"
+        ],
+        "dateOfBirth": "1993-04-08",
+        "familyName": "DOE",
+        "firstName": "Jane",
+        "gender": "FEMALE",
+        "nameAndFamilyNameAtBirth": "Jane DOE",
+        "neomId": "0904008084H",
+        "placeOfBirth": "LILLE, FRANCE"
+    },
+    "evidence": [
+        {
+            "documentPresence": [
+                "Physical"
+            ],
+            "evidenceDocument": [
+                "Passport"
+            ],
+            "subjectPresence": "Physical",
+            "type": [
+                "DocumentVerification"
+            ],
+            "verifier": "did:ebsi:2A9BZ9SUe6BatacSpvs1V5CdjHvLpQ7bEsi2Jb6LdHKnQxaN"
+        }
+    ]
+}

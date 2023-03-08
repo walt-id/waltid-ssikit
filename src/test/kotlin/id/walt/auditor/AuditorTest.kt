@@ -3,6 +3,7 @@ package id.walt.auditor
 import com.beust.klaxon.JsonObject
 import id.walt.auditor.dynamic.DynamicPolicy
 import id.walt.auditor.dynamic.DynamicPolicyArg
+import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
@@ -13,7 +14,6 @@ import id.walt.signatory.Signatory
 import id.walt.signatory.dataproviders.MergingDataProvider
 import id.walt.test.RESOURCES_PATH
 import io.kotest.assertions.throwables.shouldNotThrowAny
-import io.kotest.core.annotation.Ignored
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.core.test.TestCase
 import io.kotest.matchers.collections.shouldBeSameSizeAs
@@ -21,6 +21,7 @@ import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
 import java.io.File
 import java.net.URI
+
 
 class AuditorCommandTest : StringSpec() {
     private lateinit var did: String
@@ -218,23 +219,34 @@ class AuditorCommandTest : StringSpec() {
             Auditor.getService().verify(vcStr, listOf(JsonSchemaPolicy())).valid shouldBe true
 
             // test VerifiableDiploma schema from vclib
-            Auditor.getService().verify(vcStr, listOf(JsonSchemaPolicy(JsonSchemaPolicyArg("https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableDiploma.json"))))
+            Auditor.getService().verify(
+                vcStr,
+                listOf(JsonSchemaPolicy(JsonSchemaPolicyArg("https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableDiploma.json")))
+            )
                 .valid shouldBe true
 
             // test VerifiableId schema from vclib (should not validate)
-            Auditor.getService().verify(vcStr, listOf(JsonSchemaPolicy(JsonSchemaPolicyArg("https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableId.json"))))
+            Auditor.getService().verify(
+                vcStr,
+                listOf(JsonSchemaPolicy(JsonSchemaPolicyArg("https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableId.json")))
+            )
                 .valid shouldBe false
 
             // this is a VerifiableDiploma (EUROPASS) schema, which our VerifiableDiploma template does NOT comply with:
             // https://ec.europa.eu/digital-building-blocks/wikis/display/EBSIDOC/Data+Models+and+Schemas
-            Auditor.getService().verify(vcStr, listOf(JsonSchemaPolicy(JsonSchemaPolicyArg("https://api-pilot.ebsi.eu/trusted-schemas-registry/v1/schemas/0x4dd3926cd92bb3cb64fa6c837539ed31fc30dd38a11266a91678efa7268cde09"))))
+            Auditor.getService().verify(
+                vcStr,
+                listOf(JsonSchemaPolicy(JsonSchemaPolicyArg("https://api-pilot.ebsi.eu/trusted-schemas-registry/v1/schemas/0x4dd3926cd92bb3cb64fa6c837539ed31fc30dd38a11266a91678efa7268cde09")))
+            )
                 .valid shouldBe false
 
             // test passing schema by value
-            val schemaContent = URI.create("https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableDiploma.json").toURL().readText()
+            val schemaContent =
+                URI.create("https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableDiploma.json")
+                    .toURL().readText()
             Auditor.getService().verify(vcStr, listOf(JsonSchemaPolicy(JsonSchemaPolicyArg(schemaContent)))).valid shouldBe true
 
-            // test passsing schema by file path
+            // test passing schema by file path
             val tempFile = File.createTempFile("schema", ".json")
             tempFile.writeText(schemaContent)
             shouldNotThrowAny {
@@ -242,6 +254,64 @@ class AuditorCommandTest : StringSpec() {
                     .verify(vcStr, listOf(JsonSchemaPolicy(JsonSchemaPolicyArg(tempFile.absolutePath)))).valid shouldBe true
             }
             tempFile.delete()
+        }
+
+        fun validateSchema(credentialFile: String, schemaFile: String? = null) {
+            val credential =
+                VerifiableCredential.fromString(File("$credentialFile").readText())
+
+            if (schemaFile.isNullOrBlank()) {
+                Auditor.getService().verify(credential, listOf(JsonSchemaPolicy())).valid shouldBe true
+            } else {
+                Auditor.getService()
+                    .verify(credential, listOf(JsonSchemaPolicy(JsonSchemaPolicyArg(schemaFile)))).valid shouldBe true
+            }
+        }
+
+        "8. verify EBSI credentials" {
+
+            // EBSI data models and schemas  https://ec.europa.eu/digital-building-blocks/wikis/display/EBSIDOC/Data+Models+and+Schemas
+            val EBSI_VC_PATH = "src/main/resources/vc-templates/"
+            val EBSI_SCHEMA_PATH = "src/test/resources/ebsi/schema/"
+            val EBSI_TSR_BASE = "https://api-pilot.ebsi.eu/trusted-schemas-registry/v1/schemas"
+
+            // VerifiableAttestation - verification from local file
+            validateSchema(
+                "$EBSI_VC_PATH/EbsiVerifiableAttestationGeneric.json",
+                "$EBSI_SCHEMA_PATH/EbsiVerifiableAttestationSchema.json"
+            )
+            validateSchema(
+                "$EBSI_VC_PATH/EbsiVerifiableAttestationPerson.json",
+                "$EBSI_SCHEMA_PATH/EbsiVerifiableAttestationSchema.json"
+            )
+            validateSchema(
+                "$EBSI_VC_PATH/EbsiVerifiableAttestationLegal.json",
+                "$EBSI_SCHEMA_PATH/EbsiVerifiableAttestationSchema.json"
+            )
+
+            // VerifiableAttestation - verification via http-link
+            validateSchema(
+                "$EBSI_VC_PATH/EbsiVerifiableAttestationGeneric.json",
+                "$EBSI_TSR_BASE/0x23039e6356ea6b703ce672e7cfac0b42765b150f63df78e2bd18ae785787f6a2"
+            )
+
+            // VerifiableAttestation - verification via http-link in attribute credentialSchema
+            validateSchema("$EBSI_VC_PATH/EbsiVerifiableAttestationGeneric.json")
+
+            // VerifiableAccreditationToAccredit
+            validateSchema("$EBSI_VC_PATH/EbsiVerifiableAccreditationToAccredit.json")
+
+            // AccreditedVerifiableAttestation
+            validateSchema(
+                "$EBSI_VC_PATH/EbsiAccreditedVerifiableAttestation.json",
+                "$EBSI_SCHEMA_PATH/AccreditedVerifiableAttestation.json"
+            )
+
+            // EbsiDiplomaVerifiableAccreditation (Multi UNI Pilot)
+            validateSchema(
+                "$EBSI_VC_PATH/EbsiDiplomaVerifiableAccreditation.json",
+                "$EBSI_TSR_BASE/0x960904265eba56f0c3a171f19af2970d3c62eb0ed1cd7981065261f37f007101"
+            )
         }
     }
 }
