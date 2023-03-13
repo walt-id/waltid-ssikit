@@ -93,6 +93,8 @@ object DidService {
     }
 
     private fun createDidCheqd(keyAlias: String?): String {
+        val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(EdDSA_Ed25519)
+        val did = CheqdService.createDid(keyId.id)
         TODO("Not yet implemented")
     }
 

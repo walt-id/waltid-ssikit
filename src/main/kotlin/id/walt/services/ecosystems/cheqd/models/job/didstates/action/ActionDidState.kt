@@ -10,4 +10,4 @@ data class ActionDidState(
     val did: String,
     val secret: Secret,
     val signingRequest: List<SigningRequest>,
-) : DidState("action")
+) : DidState(States.Action.toString())

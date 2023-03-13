@@ -9,4 +9,4 @@ data class FinishedDidState(
     val did: String,
     val didDocument: DidDocument,
     val secret: Secret,
-) : DidState("finished")
+) : DidState(DidState.States.Finished.toString())
