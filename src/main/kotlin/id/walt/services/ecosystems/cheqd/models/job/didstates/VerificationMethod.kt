@@ -1,4 +1,4 @@
-package id.walt.services.ecosystems.cheqd.models.job.didstates.finished
+package id.walt.services.ecosystems.cheqd.models.job.didstates
 
 import kotlinx.serialization.Serializable
 
