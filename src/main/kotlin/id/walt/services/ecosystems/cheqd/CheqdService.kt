@@ -1,6 +1,7 @@
 package id.walt.services.ecosystems.cheqd
 
 import id.walt.common.KlaxonWithConverters
+import id.walt.crypto.toPEM
 import id.walt.model.Did
 import id.walt.model.did.DidCheqd
 import id.walt.servicematrix.ServiceMatrix
@@ -21,7 +22,16 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
+import org.bouncycastle.crypto.Signer
+import org.bouncycastle.crypto.signers.Ed25519Signer
+import org.bouncycastle.crypto.util.OpenSSHPrivateKeyUtil
 import org.bouncycastle.util.encoders.Hex
+import org.bouncycastle.util.io.pem.PemReader
+import java.io.StringReader
+import java.nio.charset.StandardCharsets
+import java.security.PrivateKey
+import java.security.Signature
+import java.util.*
 
 object CheqdService {
 
@@ -36,20 +46,20 @@ object CheqdService {
 
     fun createDid(keyId: String): DidCheqd  = let{
         val key = KeyService.getService().load(keyId, KeyType.PRIVATE)
-        // step#0. get public key hex
+//        step#0. get public key hex
         val pubKeyHex = Hex.toHexString(key.getPublicKeyBytes())
-        // step#1. fetch the did document from cheqd registrar
+//        step#1. fetch the did document from cheqd registrar
         val response = runBlocking {
             client.get(String.format(didCreateUrl, verificationMethod, methodSpecificIdAlgo, network, pubKeyHex)).bodyAsText()
         }
-        // step#2. onboard did with cheqd registrar
+//        step#2. onboard did with cheqd registrar
         KlaxonWithConverters().parse<DidGetResponse>(response)?.let {
-            // step#2a. initialize
+//            step#2a. initialize
             val job = initiateDidOnboarding(it.didDoc) ?: throw Exception("Failed to initialize the did onboarding process")
             val state = (job.didState as? ActionDidState) ?: throw IllegalArgumentException("Unexpected did state")
-            // step#2b. sign the serialized payload
-            val signature = "sign(state.signingRequest.firstOrNull()?.serializedPayload)"
-            // step#2c. finalize
+//            step#2b. sign the serialized payload
+            val signature = signPayload(key.keyPair!!.private, state.signingRequest.firstOrNull()?.serializedPayload ?: "")
+//            step#2c. finalize
             val didDocument = (finalizeDidOnboarding(job.jobId, it.didDoc.verificationMethod.first().id, signature)?.didState as? FinishedDidState)?.didDocument
                 ?: throw Exception("Failed to finalize the did onboarding process")
             Did.decode(KlaxonWithConverters().toJsonString(didDocument)) as DidCheqd
@@ -87,6 +97,16 @@ object CheqdService {
             }.bodyAsText()
         }
         KlaxonWithConverters().parse<JobActionResponse>(actionResponse)
+    }
+
+    private fun signPayload(privateKey: PrivateKey, payload: String) = let {
+//        prepare signature
+        val signature: Signature = Signature.getInstance("Ed25519")
+        signature.initSign(privateKey)
+        signature.update(payload.toByteArray(StandardCharsets.UTF_8))
+        val signResult: ByteArray = signature.sign()
+//        prepare result
+        Base64.getEncoder().encodeToString(signResult)
     }
 
     private fun finalizeDidOnboarding(jobId: String, verificationMethodId: String, signature: String) = let{
