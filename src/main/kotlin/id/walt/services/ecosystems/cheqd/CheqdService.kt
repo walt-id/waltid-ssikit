@@ -1,13 +1,14 @@
 package id.walt.services.ecosystems.cheqd
 
+import com.nimbusds.jose.JWSAlgorithm
+import com.nimbusds.jose.JWSHeader
 import id.walt.common.KlaxonWithConverters
-import id.walt.crypto.encBase64
+import id.walt.crypto.Key
+import id.walt.crypto.LdSigner
 import id.walt.crypto.toBase64Url
-import id.walt.crypto.toPEM
 import id.walt.model.Did
 import id.walt.model.did.DidCheqd
 import id.walt.servicematrix.ServiceMatrix
-import id.walt.services.crypto.CryptoService
 import id.walt.services.ecosystems.cheqd.models.job.didstates.Secret
 import id.walt.services.ecosystems.cheqd.models.job.didstates.SigningResponse
 import id.walt.services.ecosystems.cheqd.models.job.didstates.action.ActionDidState
@@ -25,16 +26,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
-import org.bouncycastle.crypto.Signer
-import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters
-import org.bouncycastle.crypto.signers.Ed25519Signer
-import org.bouncycastle.crypto.util.OpenSSHPrivateKeyUtil
 import org.bouncycastle.util.encoders.Hex
-import org.bouncycastle.util.io.pem.PemReader
-import java.io.StringReader
-import java.nio.charset.StandardCharsets
-import java.security.PrivateKey
-import java.security.Signature
 import java.util.*
 
 object CheqdService {
@@ -45,10 +37,11 @@ object CheqdService {
     private const val verificationMethod = "Ed25519VerificationKey2018"
     private const val methodSpecificIdAlgo = "uuid"
     private const val network = "testnet"
-    private const val didCreateUrl = "https://did-registrar.cheqd.net/1.0/did-document?verificationMethod=%s&methodSpecificIdAlgo=%s&network=%s&publicKeyHex=%s"
+    private const val didCreateUrl =
+        "https://did-registrar.cheqd.net/1.0/did-document?verificationMethod=%s&methodSpecificIdAlgo=%s&network=%s&publicKeyHex=%s"
     private const val didOnboardUrl = "https://did-registrar.cheqd.net/1.0/create"
 
-    fun createDid(keyId: String): DidCheqd  = let{
+    fun createDid(keyId: String): DidCheqd = let {
         val key = KeyService.getService().load(keyId, KeyType.PRIVATE)
 //        step#0. get public key hex
         val pubKeyHex = Hex.toHexString(key.getPublicKeyBytes())
@@ -62,14 +55,22 @@ object CheqdService {
             val job = initiateDidOnboarding(it.didDoc) ?: throw Exception("Failed to initialize the did onboarding process")
             val state = (job.didState as? ActionDidState) ?: throw IllegalArgumentException("Unexpected did state")
 //            step#2b. sign the serialized payload
-            val payload = state.signingRequest.firstOrNull()?.serializedPayload ?: throw NoSuchElementException("No serializedPayload in first-or-null signing request")
-            val signature = signPayload(key.keyPair!!.private, payload)
+            val payload = Base64.getDecoder().decode(
+                state.signingRequest.firstOrNull()?.serializedPayload
+                    ?: throw NoSuchElementException("No serializedPayload in first-or-null signing request")
+            )
+
+            val signature = signPayload(key, payload)
 //            val signature = CryptoService.getService().sign(key.keyId, payload.toByteArray(StandardCharsets.UTF_8))
 //            step#2c. finalize
-            val didDocument = (finalizeDidOnboarding(job.jobId, it.didDoc.verificationMethod.first().id, toBase64Url(signature))?.didState as? FinishedDidState)?.didDocument
+            val didDocument = (finalizeDidOnboarding(
+                job.jobId,
+                it.didDoc.verificationMethod.first().id,
+                toBase64Url(signature)
+            )?.didState as? FinishedDidState)?.didDocument
                 ?: throw Exception("Failed to finalize the did onboarding process")
             Did.decode(KlaxonWithConverters().toJsonString(didDocument)) as DidCheqd
-        }?: throw Exception("Failed to fetch the did document from cheqd registrar helper")
+        } ?: throw Exception("Failed to fetch the did document from cheqd registrar helper")
     }
 
     fun resolveDid(did: String): DidCheqd {
@@ -105,15 +106,19 @@ object CheqdService {
         KlaxonWithConverters().parse<JobActionResponse>(actionResponse)
     }
 
-    fun signPayload(privateKey: PrivateKey, payload: String) = let {
-        val message: ByteArray = payload.toByteArray(StandardCharsets.UTF_8)
-        val secretKeyParameters = Ed25519PrivateKeyParameters(privateKey.encoded, 0)
-        val signer: Signer = Ed25519Signer()
-        signer.init(true, secretKeyParameters)
-        signer.update(message, 0, message.size)
-        val signature: ByteArray = signer.generateSignature()
-        Base64.getEncoder().encodeToString(signature)
+    fun signPayload(key: Key, payload: ByteArray): String {
+        val signed = LdSigner.Ed25519Signature2020(key.keyId).getJwsSigner().sign(JWSHeader(JWSAlgorithm.EdDSA), payload)
+        return Base64.getUrlEncoder().encodeToString(signed.decode())
 
+        /*        val message: ByteArray = payload.toByteArray(StandardCharsets.UTF_8)
+                val secretKeyParameters = Ed25519PrivateKeyParameters(privateKey.encoded, 0)
+                val signer: Signer = Ed25519Signer()
+                signer.init(true, secretKeyParameters)
+
+                signer.update(message, 0, message.size)
+                val signature: ByteArray = signer.generateSignature()
+                Base64.getEncoder().encodeToString(signature)
+        */
 ////        prepare signature
 //        val signature: Signature = Signature.getInstance("Ed25519")
 //        signature.initSign(privateKey)
@@ -123,19 +128,25 @@ object CheqdService {
 //        Base64.getEncoder().encodeToString(signResult)
     }
 
-    private fun finalizeDidOnboarding(jobId: String, verificationMethodId: String, signature: String) = let{
+    private fun finalizeDidOnboarding(jobId: String, verificationMethodId: String, signature: String) = let {
         val actionResponse = runBlocking {
             client.post(didOnboardUrl) {
                 contentType(ContentType.Application.Json)
-                setBody(KlaxonWithConverters().toJsonString(JobSignRequest(
-                    jobId = jobId,
-                    secret = Secret(
-                        signingResponse = listOf(SigningResponse(
-                            signature = signature,
-                            verificationMethodId = verificationMethodId,
-                        ))
+                setBody(
+                    KlaxonWithConverters().toJsonString(
+                        JobSignRequest(
+                            jobId = jobId,
+                            secret = Secret(
+                                signingResponse = listOf(
+                                    SigningResponse(
+                                        signature = signature,
+                                        verificationMethodId = verificationMethodId,
+                                    )
+                                )
+                            )
+                        )
                     )
-                )))
+                )
             }.bodyAsText()
         }
         KlaxonWithConverters().parse<JobActionResponse>(actionResponse)
