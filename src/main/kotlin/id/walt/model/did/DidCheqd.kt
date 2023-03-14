@@ -6,7 +6,7 @@ import id.walt.model.ServiceEndpoint
 import id.walt.model.VerificationMethod
 
 class DidCheqd(
-    context: List<String>,
+    context: List<String> = listOf("https://www.w3.org/ns/did/v1"),
     id: String, // did:cheqd:mainnet:zF7rhDBfUt9d1gJPjx7s1JXfUY7oVWkY
     @Json(serializeNull = false) val service: List<ServiceEndpoint>? = null,
     //@SerialName("authentication") @JsonProperty("authentication") @Json(name = "authentication") val cheqdAuthentication: List<String>? = null,

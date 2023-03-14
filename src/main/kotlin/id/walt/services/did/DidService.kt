@@ -95,7 +95,10 @@ object DidService {
     private fun createDidCheqd(keyAlias: String?): String {
         val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(EdDSA_Ed25519)
         val did = CheqdService.createDid(keyId.id)
-        TODO("Not yet implemented")
+        storeDid(did.id, did.encode())
+        ContextManager.keyStore.addAlias(keyId, did.id)
+        ContextManager.keyStore.addAlias(keyId, did.verificationMethod!![0].id)
+        return did.id
     }
 
     fun resolve(did: String): Did = resolve(DidUrl.from(did))
