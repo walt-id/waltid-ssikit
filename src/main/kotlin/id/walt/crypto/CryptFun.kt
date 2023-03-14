@@ -122,6 +122,9 @@ fun encBase64(bytes: ByteArray): String = String(Base64.getEncoder().encode(byte
 
 fun decBase64(base64: String): ByteArray = Base64.getDecoder().decode(base64)
 
+fun toBase64Url(base64: String) = base64.replace("+", "-").replace("/", "_").replace("=", "")
+
+
 fun PublicKey.toBase64(): String = encBase64(X509EncodedKeySpec(this.encoded).encoded)
 
 fun decodePubKeyBase64(base64: String, kf: KeyFactory): PublicKey =
