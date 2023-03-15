@@ -74,7 +74,10 @@ open class VerifiableCredential internal constructor(
         }
     }
 
-    fun toJson() = toJsonObject().toString()
+    fun toJson(): String {
+        println("To JSON Object: $type $id")
+        return toJsonObject().toString()
+    }
 
     fun toJsonElement() = jwt?.let { JsonPrimitive(it) } ?: toJsonObject()
     override fun toString(): String {

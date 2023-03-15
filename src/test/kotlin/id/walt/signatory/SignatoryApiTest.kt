@@ -64,13 +64,17 @@ class SignatoryApiTest : AnnotationSpec() {
     fun testListVcTemplates() = runBlocking {
         val templates =
             client.get("$SIGNATORY_API_URL/v1/templates").bodyAsText()
+                .also { println("BODY: $it") }
                 .let { KlaxonWithConverters().parseArray<VcTemplate>(it) }!!
-                .map { it.name }
 
-        VcTemplateManager.listTemplates().map { it.name }.forEach { templateName -> templates shouldContain templateName }
+        val templateNames = templates.map { it.name }
 
-        templates shouldContain "Europass"
-        templates shouldContain "VerifiablePresentation"
+        templateNames shouldContain "Europass"
+        templateNames shouldContain "VerifiablePresentation"
+
+        VcTemplateManager.listTemplates().map { it.name }.forEach { templateName -> templateNames shouldContain templateName }
+
+        println(templates)
     }
 
 

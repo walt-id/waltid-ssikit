@@ -1,0 +1,40 @@
+{
+    "@context": ["https://www.w3.org/2018/credentials/v1"],
+    "id": "urn:uuid:8568b525-a24e-4bc0-9d97-6a8459ec0130",
+    "type": [
+        "VerifiableCredential",
+        "VerifiableAttestation",
+        "VerifiableAccreditation",
+        "VerifiableAccreditationToAccredit"
+    ],
+    "issuer": "did:ebsi:00001234",
+    "issuanceDate": "2021-11-01T00:00:00Z",
+    "validFrom": "2021-11-01T00:00:00Z",
+    "expirationDate": "2024-06-22T14:11:44Z",
+    "issued": "2020-06-22T14:11:44Z",
+    "credentialSubject": {
+        "id": "did:ebsi:00001235",
+        "accreditedFor": [
+            {
+                "schemaId": "https://api-test.ebsi.eu/trusted-schemas-registry/v2/schemas/0x010110",
+                "types": [
+                    "VerifiableCredential",
+                    "VerifiableAttestation",
+                    "DiplomaCredential"
+                ],
+                "limitJurisdiction": "https://publications.europa.eu/resource/authority/atu/FIN"
+            }
+        ]
+    },
+    "termsOfUse": [
+        {
+            "id": "https://api-test.ebsi.eu/trusted-issuers-registry/../..xyz",
+            "type": "IssuanceCertificate"
+        }
+    ],
+    "credentialSchema":
+    {
+        "id": "https://api-test.ebsi.eu/trusted-schemas-registry/v2/schemas/0x1d7146f8897aa6cd5c59321ea0756ec61277028e4a8b3c13ec1b310ec47e6495",
+        "type": "FullJsonSchemaValidator2021"
+    }
+}

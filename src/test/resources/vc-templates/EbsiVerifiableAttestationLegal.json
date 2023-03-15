@@ -1,0 +1,49 @@
+{
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        "https:/.europa.eu/schemas/v-id/2020/v1",
+        "https:/.europa.eu/schemas/eidas/2020/v1"
+    ],
+    "id": "urn:did:123456",
+    "type": ["VerifiableCredential", "VerifiableAttestation"],
+    "issuer": "did:ebsi:2757945549477fc571663bee12042873fe555b674bd294a3",
+    "issuanceDate": "2019-06-22T14:11:44Z",
+    "validFrom": "2019-06-22T14:11:44Z",
+    "issued": "2019-06-22T14:11:44Z",
+    "credentialSubject": {
+        "id": "did:ebsi:2659b154a445434a39d91149ead3bd993cb99fd5e78281b7",
+        "identifier": [
+            {
+                "schemeID": "SHACL",
+                "value": "SHACL ID 1",
+                "id": "http://student.id/41231232"
+            }
+        ],
+        "legalName": "Example Company"
+    },
+    "credentialStatus": {
+        "id": "https:/europa.eu/status/identity#1dee355d-0432-4910-ac9c-70d89e8d674e",
+        "type": "CredentialStatusList2020"
+    },
+    "credentialSchema": {
+        "id": "https:/.europa.eu/tsr-vid/verifiableid1.json",
+        "type": "FullJsonSchemaValidator2021"
+    },
+    "evidence": [
+        {
+            "id": "https:/.europa.eu/tsr-vid/evidence/f2aeec97-fc0d-42bf-8ca7-0548192d4231",
+            "type": ["DocumentVerification"],
+            "verifier": "did:ebsi:2e81454f76775c687694ee6772a17796436768a30e289555",
+            "evidenceDocument": ["Passport"],
+            "subjectPresence": "Physical",
+            "documentPresence": ["Physical"]
+        }
+    ],
+    "proof": {
+        "type": "EidasSeal2021",
+        "created": "2019-06-22T14:11:44Z",
+        "proofPurpose": "assertionMethod",
+        "verificationMethod": "did:ebsi:2757945549477fc571663bee12042873fe555b674bd294a3#2368332668",
+        "jws": "HG21J4fdlnBvBA+y6D...amP7O="
+    }
+}

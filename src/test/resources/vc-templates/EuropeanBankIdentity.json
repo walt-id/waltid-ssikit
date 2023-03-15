@@ -1,0 +1,23 @@
+{
+  "@context": ["https://www.w3.org/2018/credentials/v1"],
+  "credentialSchema": {
+    "id": "https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/EuropeanBankIdentity.json",
+    "type": "JsonSchemaValidator2018"
+  },
+  "credentialSubject": {
+    "birthDate": "1958-08-17",
+    "familyName": "DOE",
+    "givenName": "JOHN",
+    "id": "identity#verifiableID",
+    "placeOfBirth": {
+      "country": "DE",
+      "locality": "Berlin"
+    }
+  },
+  "id": "identity#EuropeanBankIdentity#3add94f4-28ec-42a1-8704-4e4aa51006b4",
+  "issued": "2021-08-31T00:00:00Z",
+  "issuer": "did:example:456",
+  "validFrom": "2021-08-31T00:00:00Z",
+  "issuanceDate": "2021-08-31T00:00:00Z",
+  "type": ["VerifiableCredential", "EuropeanBankIdentity"]
+}

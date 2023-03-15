@@ -183,7 +183,7 @@ class OIDC4VCTest : AnnotationSpec() {
 
     @Test
     fun testVerifyPresentation() {
-        val credential = Signatory.getService().issue("VerifiableId", ProofConfig(OIDCTestProvider.ISSUER_DID, SUBJECT_DID))
+        val credential = Signatory.getService().issue("VerifiableId", ProofConfig(OIDCTestProvider.ISSUER_DID, SUBJECT_DID, proofType = ProofType.LD_PROOF))
         val presentation = Custodian.getService().createPresentation(listOf(credential), SUBJECT_DID)
             .toVerifiablePresentation()
         val req = OIDC4VPService.createOIDC4VPRequest(
@@ -230,7 +230,7 @@ class OIDC4VCTest : AnnotationSpec() {
 
     @Test
     fun testVerifyMultiplePresentations() {
-        val credential = Signatory.getService().issue("VerifiableId", ProofConfig(OIDCTestProvider.ISSUER_DID, SUBJECT_DID))
+        val credential = Signatory.getService().issue("VerifiableId", ProofConfig(OIDCTestProvider.ISSUER_DID, SUBJECT_DID, proofType = ProofType.LD_PROOF))
         val presentation = Custodian.getService().createPresentation(listOf(credential), SUBJECT_DID)
             .toVerifiablePresentation()
         val req = OIDC4VPService.createOIDC4VPRequest(

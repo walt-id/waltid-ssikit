@@ -39,7 +39,8 @@ class SignatoryServiceTest : StringSpec({
                 subjectDid = did,
                 issuerDid = did,
                 issueDate = LocalDateTime.of(2020, 11, 3, 0, 0).toInstant(ZoneOffset.UTC),
-                issuerVerificationMethod = vm
+                issuerVerificationMethod = vm,
+                proofType = ProofType.LD_PROOF
             )
         )
 
@@ -59,9 +60,7 @@ class SignatoryServiceTest : StringSpec({
         println("ISSUING CREDENTIAL...")
         val jwtStr = signatory.issue(
             "VerifiableId", ProofConfig(
-                subjectDid = did,
-                issuerDid = did,
-                proofType = ProofType.JWT
+                subjectDid = did, issuerDid = did, proofType = ProofType.JWT
             )
         )
 
@@ -89,7 +88,8 @@ class SignatoryServiceTest : StringSpec({
                 subjectDid = did,
                 issuerDid = did,
                 issueDate = LocalDateTime.of(2020, 11, 3, 0, 0).toInstant(ZoneOffset.UTC),
-                issuerVerificationMethod = vm
+                issuerVerificationMethod = vm,
+                proofType = ProofType.LD_PROOF
             )
         )
 
@@ -108,7 +108,8 @@ class SignatoryServiceTest : StringSpec({
     "Issue and verify: VerifiableDiploma (JWT-Proof)" {
         println("ISSUING CREDENTIAL...")
         val jwtStr = signatory.issue(
-            "VerifiableDiploma", ProofConfig(subjectDid = did, issuerDid = did, proofType = ProofType.JWT)
+            "VerifiableDiploma",
+            ProofConfig(subjectDid = did, issuerDid = did, proofType = ProofType.JWT)
         )
 
         println("VC:")
@@ -145,8 +146,7 @@ class SignatoryServiceTest : StringSpec({
         val builder = W3CCredentialBuilder()
         val data = mapOf(Pair("credentialSubject", mapOf(Pair("firstName", "Yves"))))
         val populated = MergingDataProvider(data).populate(
-            builder,
-            ProofConfig(subjectDid = did, issuerDid = did, proofType = ProofType.LD_PROOF)
+            builder, ProofConfig(subjectDid = did, issuerDid = did, proofType = ProofType.LD_PROOF)
         ).build()
 
         populated.credentialSubject?.properties?.get("firstName") shouldBe "Yves"
@@ -168,9 +168,7 @@ class SignatoryServiceTest : StringSpec({
         """.trimIndent()
 
         val signedVC = Signatory.getService().issue(
-            W3CCredentialBuilder
-                .fromPartial(template)
-                .setFromJson(userData),
+            W3CCredentialBuilder.fromPartial(template).setFromJson(userData),
             ProofConfig(subjectDid = did, issuerDid = did, proofType = ProofType.LD_PROOF)
         )
 
@@ -189,11 +187,10 @@ class SignatoryServiceTest : StringSpec({
 
     "sign any credential with user data from subject builder" {
         val signedVC = Signatory.getService().issue(
-            W3CCredentialBuilder()
-                .buildSubject {
-                    setProperty("firstName", "Inco")
-                    setProperty("familyName", "GNITO")
-                },
+            W3CCredentialBuilder().buildSubject {
+                setProperty("firstName", "Inco")
+                setProperty("familyName", "GNITO")
+            },
             ProofConfig(subjectDid = did, issuerDid = did, proofType = ProofType.LD_PROOF),
             W3CIssuer(did, mapOf("name" to "Test Issuer"))
         )
