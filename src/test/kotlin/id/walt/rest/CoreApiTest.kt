@@ -12,6 +12,10 @@ import id.walt.crypto.localTimeSecondsUtc
 import id.walt.model.DidMethod
 import id.walt.model.DidUrl
 import id.walt.rest.core.*
+import id.walt.rest.core.requests.did.CreateDidRequest
+import id.walt.rest.core.requests.did.EbsiCreateDidRequest
+import id.walt.rest.core.requests.did.KeyCreateDidRequest
+import id.walt.rest.core.requests.did.WebCreateDidRequest
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
 import id.walt.services.key.KeyFormat
@@ -279,7 +283,7 @@ class CoreApiTest : AnnotationSpec() {
     fun testDidCreateKey() = runBlocking {
         val did = client.post("$CORE_API_URL/v1/did/create") {
             contentType(ContentType.Application.Json)
-            setBody(CreateDidRequest(DidMethod.key))
+            setBody(KeyCreateDidRequest())
         }.bodyAsText()
         val didUrl = DidUrl.from(did)
         DidMethod.key.name shouldBe didUrl.method
@@ -289,7 +293,7 @@ class CoreApiTest : AnnotationSpec() {
     fun testDidCreateWeb() = runBlocking {
         val did = client.post("$CORE_API_URL/v1/did/create") {
             contentType(ContentType.Application.Json)
-            setBody(CreateDidRequest(DidMethod.web))
+            setBody(WebCreateDidRequest())
         }.bodyAsText()
         val didUrl = DidUrl.from(did)
         DidMethod.web.name shouldBe didUrl.method
@@ -317,7 +321,7 @@ class CoreApiTest : AnnotationSpec() {
     fun testDidCreateMethodNotSupported() = runBlocking {
         val errorResp = client.post("$CORE_API_URL/v1/did/create") {
             contentType(ContentType.Application.Json)
-            setBody(CreateDidRequest(DidMethod.ebsi))
+            setBody(EbsiCreateDidRequest())
         }
         errorResp.status.value shouldBe 400
         val error = Klaxon().parse<ErrorResponse>(errorResp.bodyAsText())!!
@@ -329,11 +333,11 @@ class CoreApiTest : AnnotationSpec() {
     fun testDidCreateVc() = runBlocking {
         val didHolder = client.post("$CORE_API_URL/v1/did/create") {
             contentType(ContentType.Application.Json)
-            setBody(CreateDidRequest(DidMethod.web))
+            setBody(WebCreateDidRequest())
         }.bodyAsText()
         val didIssuer = client.post("$CORE_API_URL/v1/did/create") {
             contentType(ContentType.Application.Json)
-            setBody(CreateDidRequest(DidMethod.web))
+            setBody(WebCreateDidRequest())
         }.bodyAsText()
 
         val credOffer = readCredOffer("vc-offer-simple-example")
