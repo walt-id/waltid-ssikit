@@ -1,0 +1,18 @@
+{
+  "@context": ["https://www.w3.org/2018/credentials/v1"],
+  "credentialSubject": {
+    "id": "1234"
+  },
+  "dataspace": [{
+    "id": "Gaia-X AISBL",
+    "serviceEndpoint": "https://endpoint1.io"
+  }, {
+    "id": "Gaia-X XYZ",
+    "serviceEndpoint": "https://endpoint2.io"
+  }],
+  "expirationDate": "2022-01-06T20:38:38Z",
+  "id": "1234",
+  "issued": "2022-01-03T20:38:38Z",
+  "issuer": "did:web:vc.gaia-x.eu:issuer",
+  "type": ["VerifiableCredential", "DataConsortiumCredential"]
+}

@@ -28,7 +28,7 @@ class ReadmeTest : StringSpec({
             val issuerDid = DidService.create(DidMethod.ebsi)
             val holderDid = DidService.create(DidMethod.key)
 
-            // Issue VC in JSON-LD and JWT format (for show-casing both formats)
+            // Issue VC with LD_PROOF and JWT format (for show-casing both formats)
             val vcJson = Signatory.getService().issue(
                 templateIdOrFilename = "VerifiableId",
                 config = ProofConfig(issuerDid = issuerDid, subjectDid = holderDid, proofType = ProofType.LD_PROOF)

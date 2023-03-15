@@ -1,0 +1,29 @@
+{
+  "@context": ["https://www.w3.org/2018/credentials/v1"],
+  "credentialSubject": {
+    "gx-participant:blockchainAccountId": "0x4C84a36fCDb7Bc750294A7f3B5ad5CA8F74C4A52",
+    "gx-participant:headquarterAddress": {
+      "gx-participant:addressCode": "DE-HH",
+      "gx-participant:addressCountryCode": "DE",
+      "gx-participant:postal-code": "22303",
+      "gx-participant:street-address": "Geibelstraße 46b"
+    },
+    "gx-participant:legalAddress": {
+      "gx-participant:addressCode": "DE-HH",
+      "gx-participant:addressCountryCode": "DE",
+      "gx-participant:postal-code": "22303",
+      "gx-participant:street-address": "Geibelstraße 46b"
+    },
+    "gx-participant:legalName": "deltaDAO AG",
+    "gx-participant:registrationNumber": {
+      "gx-participant:registrationNumberNumber": "391200FJBNU0YW987L26",
+      "gx-participant:registrationNumberType": "leiCode"
+    },
+    "gx-participant:termsAndConditions": "70c1d713215f95191a11d38fe2341faed27d19e083917bc8732ca4fea4976700",
+    "id": "did:web:delta-dao.com"
+  },
+  "id": "https://delta-dao.com/.well-known/participant.json",
+  "issuanceDate": "2022-09-15T20:05:20.997Z",
+  "issuer": "did:web:delta-dao.com",
+  "type": ["VerifiableCredential", "LegalPerson"]
+}

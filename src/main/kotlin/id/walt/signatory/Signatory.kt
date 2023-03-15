@@ -150,8 +150,8 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
         val credentialBuilder = when (Files.exists(Path.of(templateIdOrFilename))) {
             true -> Files.readString(Path.of(templateIdOrFilename)).toVerifiableCredential()
             else -> VcTemplateManager.getTemplate(templateIdOrFilename, true, configuration.templatesFolder).template
-        }?.let { /*println("Issuing with $it");*/ W3CCredentialBuilder.fromPartial(it) }
-            ?: throw Exception("Template could not be loaded")
+        }?.let { W3CCredentialBuilder.fromPartial(it) }
+            ?: throw Exception("Template could not be loaded: $templateIdOrFilename")
 
         return issue(dataProvider?.populate(credentialBuilder, config) ?: credentialBuilder, config, issuer, storeCredential)
     }
@@ -190,12 +190,14 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
         return signedVc
     }
 
-    override fun hasTemplateId(templateId: String) = runCatching { VcTemplateManager.getTemplate(templateId, true) }.getOrNull() != null
+    override fun hasTemplateId(templateId: String) =
+        runCatching { VcTemplateManager.getTemplate(templateId, false) }.getOrNull() != null
 
     override fun listTemplates(): List<VcTemplate> = VcTemplateManager.listTemplates(configuration.templatesFolder)
     override fun listTemplateIds() = VcTemplateManager.listTemplates(configuration.templatesFolder).map { it.name }
     override fun loadTemplate(templateId: String): VerifiableCredential =
-        VcTemplateManager.getTemplate(templateId, true, configuration.templatesFolder).template!!
+        VcTemplateManager.getTemplate(templateId, true, configuration.templatesFolder).template
+            ?: throw IllegalArgumentException("Could not load template \"$templateId\" into WaltSignatory")
 
     override fun importTemplate(templateId: String, template: String) {
         val vc = VerifiableCredential.fromJson(template)
