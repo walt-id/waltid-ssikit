@@ -68,6 +68,7 @@ dependencies {
     // Misc
     implementation("commons-io:commons-io:2.11.0")
     implementation("io.minio:minio:8.4.6")
+    implementation("io.github.reactivecircus.cache4k:cache4k:0.9.0")
 
     // HTTP
     implementation("io.ktor:ktor-client-jackson-jvm:2.2.4")

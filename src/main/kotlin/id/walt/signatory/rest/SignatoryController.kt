@@ -68,7 +68,7 @@ object SignatoryController {
 
     fun issueCredential(ctx: Context) {
         val req = ctx.bodyAsClass<IssueCredentialRequest>()
-        if (req.templateId != null && !signatory.listTemplateIds().contains(req.templateId)) {
+        if (req.templateId != null && !signatory.hasTemplateId(req.templateId)) {
             throw BadRequestResponse("Template with supplied id does not exist.")
         }
         if (req.templateId == null && req.credentialData == null) {

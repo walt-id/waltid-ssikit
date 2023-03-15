@@ -5,12 +5,15 @@ import id.walt.credentials.w3c.W3CIssuer
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.services.context.ContextManager
 import id.walt.services.hkvstore.HKVKey
+import io.github.reactivecircus.cache4k.Cache
+import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import java.io.File
 import java.nio.file.FileSystems
 import java.nio.file.Files
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.nameWithoutExtension
+import kotlin.time.Duration.Companion.hours
 
 object VcTemplateManager {
     private val log = KotlinLogging.logger {}
@@ -25,20 +28,40 @@ object VcTemplateManager {
         return VcTemplate(name, template, true)
     }
 
+    val templateCache = Cache.Builder()
+        .maximumCacheSize(1000)
+        .expireAfterWrite(1.hours)
+        .build<String, VcTemplate>()
+
+    private fun String?.toVcTemplate(name: String, loadTemplate: Boolean, isMutable: Boolean) =
+        this?.let { VcTemplate(name, if (loadTemplate) it.toVerifiableCredential() else null, isMutable) }
+
+    fun loadTemplateFromHkvStore(name: String, loadTemplate: Boolean) =
+        ContextManager.hkvStore.getAsString(HKVKey(SAVED_VC_TEMPLATES_KEY, name))
+            .toVcTemplate(name, loadTemplate, true)
+
+    fun loadTemplateFromResources(name: String, loadTemplate: Boolean) =
+        object {}.javaClass.getResource("/vc-templates/$name.json")?.readText()
+            .toVcTemplate(name, loadTemplate, false)
+
+    fun loadTemplateFromFile(name: String, loadTemplate: Boolean, runtimeTemplateFolder: String) =
+        File("$runtimeTemplateFolder/$name.json").let {
+            if (it.exists()) it.readText() else null
+        }.toVcTemplate(name, loadTemplate, false)
+
     fun getTemplate(
         name: String,
         loadTemplate: Boolean = true,
         runtimeTemplateFolder: String = "/vc-templates-runtime"
-    ): VcTemplate {
-        return ContextManager.hkvStore.getAsString(HKVKey(SAVED_VC_TEMPLATES_KEY, name))
-            ?.let { VcTemplate(name, if (loadTemplate) it.toVerifiableCredential() else null, true) }
-            ?: object {}.javaClass.getResource("/vc-templates/$name.json")?.readText()
-                ?.let { VcTemplate(name, if (loadTemplate) it.toVerifiableCredential() else null, false) }
-            ?: File("$runtimeTemplateFolder/$name.json").let {
-                if (it.exists()) it.readText() else null
-            }?.let { VcTemplate(name, if (loadTemplate) it.toVerifiableCredential() else null, false) }
-            ?: throw IllegalArgumentException("No template found, with name $name")
-    }
+    ): VcTemplate =
+        runBlocking {
+            templateCache.get(name) {
+                loadTemplateFromHkvStore(name, true)//.also { println("At $name HKV: $it") }
+                    ?: loadTemplateFromResources(name, true)//.also { println("At $name resources: $it") }
+                    ?: loadTemplateFromFile(name, true, runtimeTemplateFolder)//.also { println("At $name file: $it") }
+                    ?: throw IllegalArgumentException("No template found with name: $name")
+            }
+        }
 
     private val resourceWalk = lazy {
 

@@ -21,6 +21,7 @@ import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.ProofConfig
+import io.github.reactivecircus.cache4k.Cache
 import io.ipfs.multibase.Multibase
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
@@ -40,6 +41,7 @@ import java.security.KeyFactory
 import java.security.KeyPair
 import java.security.spec.X509EncodedKeySpec
 import java.util.*
+import kotlin.time.Duration.Companion.minutes
 
 private val log = KotlinLogging.logger {}
 
@@ -109,10 +111,19 @@ object DidService {
         }
     }
 
-    fun load(did: String): Did = load(DidUrl.from(did))
-    fun load(didUrl: DidUrl): Did = Did.decode(
-        loadDid(didUrl.did) ?: throw IllegalArgumentException("DID $didUrl not found.")
-    ) ?: throw IllegalArgumentException("DID $didUrl not found.")
+    val didCache = Cache.Builder()
+        .maximumCacheSize(1000)
+        .expireAfterWrite(15.minutes)
+        .build<DidUrl, Did>()
+
+
+    fun load(did: String): Did = runBlocking { load(DidUrl.from(did)) }
+    suspend fun load(didUrl: DidUrl): Did =
+        didCache.get(didUrl) {
+            Did.decode(
+                loadDid(didUrl.did) ?: throw IllegalArgumentException("DID $didUrl not found.")
+            ) ?: throw IllegalArgumentException("DID $didUrl not found.")
+        }
 
     fun resolveDidEbsiRaw(did: String): String = runBlocking {
         log.debug { "Resolving DID $did" }
