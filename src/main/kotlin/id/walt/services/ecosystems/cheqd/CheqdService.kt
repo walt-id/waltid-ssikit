@@ -35,11 +35,10 @@ object CheqdService {
 
     private const val verificationMethod = "Ed25519VerificationKey2020"
     private const val methodSpecificIdAlgo = "uuid"
-    private const val network = "testnet"
     private const val didCreateUrl = "https://registrar.walt.id/cheqd/1.0/did-document?verificationMethod=%s&methodSpecificIdAlgo=%s&network=%s&publicKeyHex=%s"
     private const val didOnboardUrl = "https://registrar.walt.id/cheqd/1.0/create"
 
-    fun createDid(keyId: String): DidCheqd = let {
+    fun createDid(keyId: String, network: String): DidCheqd = let {
         val key = keyService.load(keyId, KeyType.PRIVATE)
         if (key.algorithm != KeyAlgorithm.EdDSA_Ed25519) throw IllegalArgumentException("Key of type Ed25519 expected")
 //        step#0. get public key hex
