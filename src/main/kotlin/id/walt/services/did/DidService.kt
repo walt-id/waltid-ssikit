@@ -41,12 +41,13 @@ import java.security.KeyPair
 import java.security.spec.X509EncodedKeySpec
 import java.util.*
 
-private val log = KotlinLogging.logger {}
 
 /**
  * W3C Decentralized Identity Service
  */
 object DidService {
+
+    private val log = KotlinLogging.logger {}
 
     private val DEFAULT_KEY_ALGORITHM = EdDSA_Ed25519
 

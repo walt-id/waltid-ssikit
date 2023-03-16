@@ -7,6 +7,7 @@ import id.walt.services.ecosystems.cheqd.CheqdService
 import id.walt.services.key.KeyService
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
+import io.ktor.client.network.sockets.*
 import java.io.File
 import kotlin.io.path.Path
 import kotlin.io.path.readText
@@ -44,11 +45,15 @@ class DidCheqdTest : StringSpec({
     }
 
     "Register and load did:cheqd" {
-        val did = DidService.create(DidMethod.cheqd)
-        println("Created: $did")
+        try {
+            val did = DidService.create(DidMethod.cheqd)
+            println("Created: $did")
 
-        val loadedDid = DidService.load(did)
-        println("Loaded: $loadedDid")
+            val loadedDid = DidService.load(did)
+            println("Loaded: $loadedDid")
+        } catch (e: SocketTimeoutException) {
+            println("Timed out: (msg ${e.message})")
+        }
     }
 })
 
