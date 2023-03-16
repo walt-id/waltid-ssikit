@@ -1,25 +1,80 @@
 package id.walt.services.ecosystems.cheqd
 
 import id.walt.common.KlaxonWithConverters
+import id.walt.crypto.KeyAlgorithm
+import id.walt.crypto.toBase64Url
+import id.walt.model.Did
 import id.walt.model.did.DidCheqd
+import id.walt.services.crypto.CryptoService
+import id.walt.services.ecosystems.cheqd.models.job.didstates.Secret
+import id.walt.services.ecosystems.cheqd.models.job.didstates.SigningResponse
+import id.walt.services.ecosystems.cheqd.models.job.didstates.action.ActionDidState
+import id.walt.services.ecosystems.cheqd.models.job.didstates.finished.FinishedDidState
+import id.walt.services.ecosystems.cheqd.models.job.request.JobActionRequest
+import id.walt.services.ecosystems.cheqd.models.job.request.JobSignRequest
+import id.walt.services.ecosystems.cheqd.models.job.response.JobActionResponse
+import id.walt.services.ecosystems.cheqd.models.job.response.didresponse.DidDocObject
+import id.walt.services.ecosystems.cheqd.models.job.response.didresponse.DidGetResponse
+import id.walt.services.key.KeyService
+import id.walt.services.keystore.KeyType
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
+import org.bouncycastle.util.encoders.Hex
+import java.util.*
 
 object CheqdService {
 
     private val log = KotlinLogging.logger { }
+    private val client = HttpClient()
+    private val cryptoService = CryptoService.getService()
+    private val keyService = KeyService.getService()
 
-    fun createDid(keyId: String): DidCheqd {
-        TODO("CHEQD DID creation is not yet implemented")
+    private const val verificationMethod = "Ed25519VerificationKey2020"
+    private const val methodSpecificIdAlgo = "uuid"
+    private const val didCreateUrl =
+        "https://registrar.walt.id/cheqd/1.0/did-document?verificationMethod=%s&methodSpecificIdAlgo=%s&network=%s&publicKeyHex=%s"
+    private const val didOnboardUrl = "https://registrar.walt.id/cheqd/1.0/create"
+
+    fun createDid(keyId: String, network: String): DidCheqd = let {
+        val key = keyService.load(keyId, KeyType.PRIVATE)
+        if (key.algorithm != KeyAlgorithm.EdDSA_Ed25519) throw IllegalArgumentException("Key of type Ed25519 expected")
+//        step#0. get public key hex
+        val pubKeyHex = Hex.toHexString(key.getPublicKeyBytes())
+//        step#1. fetch the did document from cheqd registrar
+        val response = runBlocking {
+            client.get(String.format(didCreateUrl, verificationMethod, methodSpecificIdAlgo, network, pubKeyHex)).bodyAsText()
+        }
+//        step#2. onboard did with cheqd registrar
+        KlaxonWithConverters().parse<DidGetResponse>(response)?.let {
+//            step#2a. initialize
+            val job = initiateDidOnboarding(it.didDoc) ?: throw Exception("Failed to initialize the did onboarding process")
+            val state = (job.didState as? ActionDidState) ?: throw IllegalArgumentException("Unexpected did state")
+//            step#2b. sign the serialized payload
+            val payloads = state.signingRequest.map {
+                Base64.getDecoder().decode(it.serializedPayload)
+            }
+            // TODO: sign with key having alias from verification method
+            val signatures = payloads.map { Base64.getUrlEncoder().encodeToString(cryptoService.sign(key.keyId, it)) }
+//            step#2c. finalize
+            val didDocument = (finalizeDidOnboarding(
+                job.jobId,
+                it.didDoc.verificationMethod.first().id, // TODO: associate verificationMethodId with signature
+                signatures
+            )?.didState as? FinishedDidState)?.didDocument
+                ?: throw Exception("Failed to finalize the did onboarding process")
+
+            Did.decode(KlaxonWithConverters().toJsonString(didDocument)) as DidCheqd
+        } ?: throw Exception("Failed to fetch the did document from cheqd registrar helper")
     }
 
     fun resolveDid(did: String): DidCheqd {
         log.debug { "Resolving did:cheqd, DID: $did" }
         val resultText = runBlocking {
-            HttpClient().get("https://resolver.cheqd.net/1.0/identifiers/$did").bodyAsText()
+            client.get("https://resolver.cheqd.net/1.0/identifiers/$did").bodyAsText()
         }
 
         log.debug { "Received body from CHEQD resolver: $resultText" }
@@ -37,6 +92,40 @@ object CheqdService {
         log.debug { "Found DID document in CHEQD resolver response: ${resp.didDocument}" }
 
         return resp.didDocument!! // cheqd above for null
+    }
+
+    private fun initiateDidOnboarding(didDocObject: DidDocObject) = let {
+        val actionResponse = runBlocking {
+            client.post(didOnboardUrl) {
+                contentType(ContentType.Application.Json)
+                setBody(KlaxonWithConverters().toJsonString(JobActionRequest(didDocObject)))
+            }.bodyAsText()
+        }
+        KlaxonWithConverters().parse<JobActionResponse>(actionResponse)
+    }
+
+    private fun finalizeDidOnboarding(jobId: String, verificationMethodId: String, signatures: List<String>) = let {
+        val actionResponse = runBlocking {
+            client.post(didOnboardUrl) {
+                contentType(ContentType.Application.Json)
+                setBody(
+                    KlaxonWithConverters().toJsonString(
+                        JobSignRequest(
+                            jobId = jobId,
+                            secret = Secret(
+                                signingResponse = signatures.map {
+                                    SigningResponse(
+                                        signature = toBase64Url(it),
+                                        verificationMethodId = verificationMethodId,
+                                    )
+                                }
+                            )
+                        )
+                    )
+                )
+            }.bodyAsText()
+        }
+        KlaxonWithConverters().parse<JobActionResponse>(actionResponse)
     }
 
 }

@@ -6,11 +6,9 @@ import id.walt.model.ServiceEndpoint
 import id.walt.model.VerificationMethod
 
 class DidCheqd(
-    context: List<String>,
+    context: List<String> = listOf("https://w3id.org/did-resolution/v1"),
     id: String, // did:cheqd:mainnet:zF7rhDBfUt9d1gJPjx7s1JXfUY7oVWkY
     @Json(serializeNull = false) val service: List<ServiceEndpoint>? = null,
-    //@SerialName("authentication") @JsonProperty("authentication") @Json(name = "authentication") val cheqdAuthentication: List<String>? = null,
-    //@SerialName("_authentication") @JsonProperty("_authentication") @Json(name = "_authentication") override var authentication: List<VerificationMethod>? = null,
     authentication: List<VerificationMethod>? = null,
     verificationMethod: List<VerificationMethod>? = null,
     assertionMethod: List<VerificationMethod>? = null,
@@ -22,7 +20,6 @@ class DidCheqd(
     context = context,
     id = id,
     verificationMethod = verificationMethod,
-    // authentication = emptyList(),
     authentication = authentication,
     assertionMethod = assertionMethod,
     capabilityDelegation = capabilityDelegation,
@@ -35,7 +32,6 @@ class DidCheqd(
         context: String,
         id: String, // did:cheqd:mainnet:zF7rhDBfUt9d1gJPjx7s1JXfUY7oVWkY
         service: List<ServiceEndpoint>? = null,
-        //authentication: List<String>? = null,
         authentication: List<VerificationMethod>? = null,
         verificationMethod: List<VerificationMethod>? = null,
         assertionMethod: List<VerificationMethod>? = null,

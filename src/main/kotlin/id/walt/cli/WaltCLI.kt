@@ -7,6 +7,7 @@ import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.versionOption
 import id.walt.Values
+import id.walt.cli.did.*
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.WaltIdServices
 import mu.KotlinLogging
