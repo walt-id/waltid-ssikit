@@ -32,41 +32,52 @@ object VcTemplateManager {
         .expireAfterWrite(Duration.ofMinutes(10))
         .build<String, VcTemplate>()
 
-    private fun String?.toVcTemplate(name: String, loadTemplate: Boolean, isMutable: Boolean) =
-        this?.let { VcTemplate(name, if (loadTemplate && it.isNotBlank()) it.toVerifiableCredential() else null, isMutable) }
+    private fun String?.toVcTemplate(name: String, populateTemplate: Boolean, isMutable: Boolean) =
+        this?.let { VcTemplate(name, if (populateTemplate && it.isNotBlank()) it.toVerifiableCredential() else null, isMutable) }
 
     fun loadTemplateFromHkvStore(name: String, loadTemplate: Boolean) =
         ContextManager.hkvStore.getAsString(HKVKey(SAVED_VC_TEMPLATES_KEY, name))
             .toVcTemplate(name, loadTemplate, true)
 
-    fun loadTemplateFromResources(name: String, loadTemplate: Boolean) =
+    fun loadTemplateFromResources(name: String, populateTemplate: Boolean) =
         object {}.javaClass.getResource("/vc-templates/$name.json")?.readText()
-            .toVcTemplate(name, loadTemplate, false)
+            .toVcTemplate(name, populateTemplate, false)
 
-    fun loadTemplateFromFile(name: String, loadTemplate: Boolean, runtimeTemplateFolder: String) =
+    fun loadTemplateFromFile(name: String, populateTemplate: Boolean, runtimeTemplateFolder: String) =
         File("$runtimeTemplateFolder/$name.json").let {
             if (it.exists()) it.readText() else null
-        }.toVcTemplate(name, loadTemplate, false)
+        }.toVcTemplate(name, populateTemplate, false)
+
+    fun loadTemplate(name: String, populateTemplate: Boolean, runtimeTemplateFolder: String) = loadTemplateFromHkvStore(name, populateTemplate)
+        ?: loadTemplateFromResources(name, populateTemplate)
+        ?: loadTemplateFromFile(name, populateTemplate, runtimeTemplateFolder)
+        ?: throw IllegalArgumentException("No template found with name: $name")
 
     fun retrieveOrLoadCachedTemplate(
         name: String,
-        loadTemplate: Boolean = true,
+        populateTemplate: Boolean = true,
         runtimeTemplateFolder: String = "/vc-templates-runtime"
-    ) = templateCache.get(name) {
-        loadTemplateFromHkvStore(name, loadTemplate)
-            ?: loadTemplateFromResources(name, loadTemplate)
-            ?: loadTemplateFromFile(name, loadTemplate, runtimeTemplateFolder)
-            ?: throw IllegalArgumentException("No template found with name: $name")
-    }
+    ) = if(populateTemplate) {
+        // only add to cache, if template is populated
+            templateCache.get(name) {
+                loadTemplate(name, true, runtimeTemplateFolder)
+            }
+        } else {
+            // try to get from cache or load unpopulated template
+            (templateCache.getIfPresent(name) ?: loadTemplate(name, false, runtimeTemplateFolder)).let {
+                // reset populated template, in case it was loaded from cache
+                VcTemplate(it.name, null, it.mutable)
+            }
+        }
 
     fun getTemplate(
         name: String,
-        loadTemplate: Boolean = true,
+        populateTemplate: Boolean = true,
         runtimeTemplateFolder: String = "/vc-templates-runtime"
     ): VcTemplate {
-        val cachedTemplate = retrieveOrLoadCachedTemplate(name, loadTemplate, runtimeTemplateFolder)
+        val cachedTemplate = retrieveOrLoadCachedTemplate(name, populateTemplate, runtimeTemplateFolder)
 
-        return if (cachedTemplate.template == null && loadTemplate) {
+        return if (cachedTemplate.template == null && populateTemplate) {
             templateCache.invalidate(name)
             retrieveOrLoadCachedTemplate(name, true, runtimeTemplateFolder)
         } else cachedTemplate
