@@ -3,6 +3,7 @@ package id.walt.services
 import id.walt.auditor.Auditor
 import id.walt.auditor.JsonSchemaPolicy
 import id.walt.auditor.SignaturePolicy
+import id.walt.auditor.VerificationPolicyResult
 import id.walt.credentials.w3c.schema.SchemaValidator
 import id.walt.credentials.w3c.schema.SchemaValidatorFactory
 import id.walt.custodian.Custodian
@@ -55,8 +56,8 @@ class ReadmeTest : StringSpec({
     override suspend fun beforeSpec(spec: Spec) {
         mockkObject(SchemaValidatorFactory)
         every { SchemaValidatorFactory.get(any<URI>()) }.returns(object : SchemaValidator {
-            override fun validate(json: String): Boolean {
-                return true
+            override fun validate(json: String): VerificationPolicyResult {
+                return VerificationPolicyResult.success()
             }
 
         })

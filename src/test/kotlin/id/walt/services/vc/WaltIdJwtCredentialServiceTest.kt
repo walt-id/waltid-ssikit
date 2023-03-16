@@ -141,10 +141,10 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
             )
         val notParsableVc = ""
 
-        credentialService.validateSchemaTsr(noSchemaVc) shouldBe true
-        credentialService.validateSchemaTsr(validVc) shouldBe true
-        credentialService.validateSchemaTsr(invalidDataVc) shouldBe false
-        credentialService.validateSchemaTsr(notParsableVc) shouldBe false
+        credentialService.validateSchemaTsr(noSchemaVc).outcome shouldBe true
+        credentialService.validateSchemaTsr(validVc).outcome shouldBe true
+        credentialService.validateSchemaTsr(invalidDataVc).outcome shouldBe false
+        credentialService.validateSchemaTsr(notParsableVc).outcome shouldBe false
     }
 
     @Test
@@ -169,7 +169,7 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
         KeyService.getService().hasKey(didV2) shouldBe false
         // verify presentation JWT
         val verificationResult = Auditor.getService().verify(presentation, listOf(SignaturePolicy()))
-        verificationResult.valid shouldBe true
+        verificationResult.outcome shouldBe true
         // verify key has been resolved
         KeyService.getService().hasKey(didV2) shouldBe true
     }

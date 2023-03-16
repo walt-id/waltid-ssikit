@@ -6,6 +6,7 @@ import com.danubetech.keyformats.crypto.provider.impl.TinkEd25519Provider
 import foundation.identity.jsonld.ConfigurableDocumentLoader
 import foundation.identity.jsonld.JsonLDException
 import foundation.identity.jsonld.JsonLDObject
+import id.walt.auditor.VerificationPolicyResult
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.VerifiablePresentation
 import id.walt.credentials.w3c.VerifiablePresentationBuilder
@@ -279,13 +280,14 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
 
         vc.toVerifiableCredential().let {
 
-            if (it is VerifiablePresentation) return true
+            if (it is VerifiablePresentation)
+                return VerificationPolicyResult.success()
 
             val credentialSchemaUrl = it.credentialSchema?.id
 
             if (credentialSchemaUrl == null) {
                 log.debug { "Credential has no associated credentialSchema property" }
-                return false
+                return VerificationPolicyResult.failure()
             }
 
             return validateSchema(it, URI.create(credentialSchemaUrl))
@@ -295,6 +297,6 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
             log.debug { "Could not validate schema" }
             e.printStackTrace()
         }
-        false
+        VerificationPolicyResult.failure()
     }
 }

@@ -139,7 +139,7 @@ object OIDCTestProvider {
         siopResponse shouldNotBe null
         siopResponse.vp_token shouldNot beEmpty()
         siopResponse.vp_token.forEach { vp ->
-            Auditor.getService().verify(vp.encode(), listOf(SignaturePolicy())).valid shouldBe true
+            Auditor.getService().verify(vp.encode(), listOf(SignaturePolicy())).outcome shouldBe true
         }
         ctx.result(siopResponse.toFormBody())
     }

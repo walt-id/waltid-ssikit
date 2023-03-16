@@ -248,9 +248,9 @@ private fun verifyCredential(src: File) {
         println("$policy:\t\t $result")
         result shouldBe true
     }
-    println("Verified:\t\t ${verificationResult.valid}")
+    println("Verified:\t\t ${verificationResult.outcome}")
 
-    verificationResult.valid shouldBe true
+    verificationResult.outcome shouldBe true
 }
 
 private fun privateKeyExists(keyAlias: String) =

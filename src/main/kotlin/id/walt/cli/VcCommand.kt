@@ -219,7 +219,7 @@ class VerifyVcCommand : CliktCommand(
         verificationResult.policyResults.forEach { (policy, result) ->
             echo("$policy:\t $result")
         }
-        echo("Verified:\t\t ${verificationResult.valid}")
+        echo("Verified:\t\t ${verificationResult.outcome}")
     }
 }
 
