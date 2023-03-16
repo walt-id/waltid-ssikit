@@ -1,6 +1,7 @@
 package id.walt.services.did
 
 import id.walt.crypto.KeyId
+import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.ecosystems.cheqd.CheqdService
 import id.walt.services.key.KeyService
@@ -40,6 +41,14 @@ class DidCheqdTest : StringSpec({
         DidService.setKeyIdForDid(did, didCheqdKeyId!!.id)
 
         println("DID imported: $did")
+    }
+
+    "Register and load did:cheqd" {
+        val did = DidService.create(DidMethod.cheqd)
+        println("Created: $did")
+
+        val loadedDid = DidService.load(did)
+        println("Loaded: $loadedDid")
     }
 })
 
