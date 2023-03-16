@@ -11,6 +11,14 @@ fun resolveContent(fileUrlContent: String): String {
     if (file.exists()) {
         return file.readText()
     }
+    if (fileUrlContent.startsWith("class:")) {
+        val clazz = object{}.javaClass.enclosingClass
+        val path = fileUrlContent.substring(6)
+        var url = clazz.getResource(path)
+        if (url == null && !path.startsWith('/'))
+            url = clazz.getResource("/$path")
+        return url?.readText() ?: fileUrlContent
+    }
     if (Regex("^https?:\\/\\/.*$").matches(fileUrlContent)) {
         return runBlocking { http.get(fileUrlContent).bodyAsText() }
     }
