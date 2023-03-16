@@ -1,5 +1,6 @@
 package id.walt.signatory.rest
 
+import id.walt.common.KlaxonWithConverters
 import id.walt.credentials.w3c.JsonConverter
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.builder.W3CCredentialBuilder
@@ -24,7 +25,7 @@ object SignatoryController {
     val signatory = Signatory.getService()
 
     fun listTemplates(ctx: Context) {
-        ctx.json(signatory.listTemplates())
+        ctx.contentType(ContentType.APPLICATION_JSON).result(KlaxonWithConverters().toJsonString(signatory.listTemplates()))
     }
 
     fun listTemplatesDocs() = document().operation {
