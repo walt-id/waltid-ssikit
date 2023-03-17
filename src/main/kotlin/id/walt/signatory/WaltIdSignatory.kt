@@ -18,6 +18,7 @@ import id.walt.services.vc.JwtCredentialService
 import mu.KotlinLogging
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.Paths
 import java.time.Instant
 import java.util.*
 
@@ -25,9 +26,15 @@ open class WaltIdSignatory(configurationPath: String) : Signatory() {
     private val log = KotlinLogging.logger {}
 
     private val VC_GROUP = "signatory"
-    override val configuration: SignatoryConfig = fromConfiguration(configurationPath)
-    
+    final override val configuration: SignatoryConfig = fromConfiguration(configurationPath)
+
     private val templateService: VcTemplateService get() = ServiceRegistry.getService()
+
+    init {
+        // Templates runtime folder may not exist
+        // https://github.com/walt-id/waltid-ssikit/issues/246
+        Files.createDirectories(Paths.get(configuration.templatesFolder))
+    }
 
     private fun defaultLdSignatureByDidMethod(did: String): LdSignatureType? {
         val didUrl = DidUrl.from(did)
