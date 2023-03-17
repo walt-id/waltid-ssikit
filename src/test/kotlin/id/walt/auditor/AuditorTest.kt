@@ -21,6 +21,7 @@ import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
 import java.io.File
 import java.net.URI
+import java.net.URL
 
 
 class AuditorCommandTest : StringSpec() {
@@ -234,11 +235,13 @@ class AuditorCommandTest : StringSpec() {
 
             // this is a VerifiableDiploma (EUROPASS) schema, which our VerifiableDiploma template does NOT comply with:
             // https://ec.europa.eu/digital-building-blocks/wikis/display/EBSIDOC/Data+Models+and+Schemas
-            Auditor.getService().verify(
-                vcStr,
-                listOf(JsonSchemaPolicy(JsonSchemaPolicyArg("https://api-pilot.ebsi.eu/trusted-schemas-registry/v1/schemas/0x4dd3926cd92bb3cb64fa6c837539ed31fc30dd38a11266a91678efa7268cde09")))
-            )
-                .valid shouldBe false
+            val verifiableDiplomaUrl = URL("https://api-pilot.ebsi.eu/trusted-schemas-registry/v1/schemas/0x4dd3926cd92bb3cb64fa6c837539ed31fc30dd38a11266a91678efa7268cde09")
+            kotlin.runCatching { verifiableDiplomaUrl.openStream() }.onSuccess {
+                Auditor.getService().verify(
+                    vcStr,
+                    listOf(JsonSchemaPolicy(JsonSchemaPolicyArg(verifiableDiplomaUrl.toExternalForm())))
+                ).valid shouldBe false
+            }
 
             // test passing schema by value
             val schemaContent =
@@ -290,10 +293,13 @@ class AuditorCommandTest : StringSpec() {
             )
 
             // VerifiableAttestation - verification via http-link
-            validateSchema(
-                "$EBSI_VC_PATH/EbsiVerifiableAttestationGeneric.json",
-                "$EBSI_TSR_BASE/0x23039e6356ea6b703ce672e7cfac0b42765b150f63df78e2bd18ae785787f6a2"
-            )
+            val ebsiVerifiableAttestationGenericSchemaUrl = URL("$EBSI_TSR_BASE/0x23039e6356ea6b703ce672e7cfac0b42765b150f63df78e2bd18ae785787f6a2")
+            kotlin.runCatching { ebsiVerifiableAttestationGenericSchemaUrl.openStream() }.onSuccess {
+                validateSchema(
+                    "$EBSI_VC_PATH/EbsiVerifiableAttestationGeneric.json",
+                    ebsiVerifiableAttestationGenericSchemaUrl.toExternalForm()
+                )
+            }
 
             // VerifiableAttestation - verification via http-link in attribute credentialSchema
             validateSchema("$EBSI_VC_PATH/EbsiVerifiableAttestationGeneric.json")
@@ -308,10 +314,13 @@ class AuditorCommandTest : StringSpec() {
             )
 
             // EbsiDiplomaVerifiableAccreditation (Multi UNI Pilot)
-            validateSchema(
-                "$EBSI_VC_PATH/EbsiDiplomaVerifiableAccreditation.json",
-                "$EBSI_TSR_BASE/0x960904265eba56f0c3a171f19af2970d3c62eb0ed1cd7981065261f37f007101"
-            )
+            val ebsiDiplomaVerifiableAccreditationSchemaUrl = URL("$EBSI_TSR_BASE/0x960904265eba56f0c3a171f19af2970d3c62eb0ed1cd7981065261f37f007101")
+            kotlin.runCatching { ebsiDiplomaVerifiableAccreditationSchemaUrl.openStream() }.onSuccess {
+                validateSchema(
+                    "$EBSI_VC_PATH/EbsiDiplomaVerifiableAccreditation.json",
+                    ebsiDiplomaVerifiableAccreditationSchemaUrl.toExternalForm()
+                )
+            }
         }
     }
 }
