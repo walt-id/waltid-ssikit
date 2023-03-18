@@ -8,6 +8,7 @@ import com.sksamuel.hoplite.yaml.YamlParser
 import com.zaxxer.hikari.HikariDataSource
 import id.walt.Values
 import io.ktor.client.*
+import io.ktor.client.engine.cio.*
 import io.ktor.client.engine.okhttp.*
 //import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
