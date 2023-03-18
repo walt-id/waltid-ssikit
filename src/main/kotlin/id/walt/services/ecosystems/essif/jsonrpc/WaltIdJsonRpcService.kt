@@ -118,7 +118,7 @@ class WaltIdJsonRpcService : JsonRpcService() {
         urlString: String,
         method: String,
         params: List<JsonRpcParams>
-    ): T = WaltIdServices.http.post(urlString) {
+    ): T = WaltIdServices.httpNoAuth.post(urlString) {
         contentType(ContentType.Application.Json)
         accept(ContentType.Application.Json)
         headers {

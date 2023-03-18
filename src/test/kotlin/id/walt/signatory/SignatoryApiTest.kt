@@ -109,7 +109,7 @@ class SignatoryApiTest : AnnotationSpec() {
     private fun httpPost(path: String, body: String, host: String = SIGNATORY_API_HOST, port: Int = SIGNATORY_API_PORT) =
         runBlocking {
             try {
-                WaltIdServices.http.post(URL("http", host, port, path)) {
+                WaltIdServices.httpNoAuth.post(URL("http", host, port, path)) {
                     setBody(body)
                 }.bodyAsText()
             } catch (e: Exception) {
