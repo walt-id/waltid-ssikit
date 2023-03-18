@@ -12,7 +12,7 @@ import id.walt.rest.custodian.CustodianAPI
 import id.walt.rest.custodian.ExportKeyRequest
 import id.walt.rest.custodian.PresentCredentialsRequest
 import id.walt.servicematrix.ServiceMatrix
-import id.walt.services.WaltIdServices.http
+import id.walt.services.WaltIdServices.httpNoAuth
 import id.walt.services.did.DidService
 import id.walt.services.key.KeyFormat
 import id.walt.services.key.KeyService
@@ -37,7 +37,7 @@ class CustodianApiTest : StringSpec({
 
     ServiceMatrix("service-matrix.properties")
 
-    val client = http
+    val client = httpNoAuth
 
     println("${CustodianAPI.DEFAULT_BIND_ADDRESS}/${CustodianAPI.DEFAULT_Custodian_API_PORT}")
 
