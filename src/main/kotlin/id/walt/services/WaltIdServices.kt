@@ -8,15 +8,18 @@ import com.sksamuel.hoplite.yaml.YamlParser
 import com.zaxxer.hikari.HikariDataSource
 import id.walt.Values
 import io.ktor.client.*
+import io.ktor.client.engine.cio.*
 import io.ktor.client.engine.okhttp.*
 //import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
+import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.io.File
+import java.net.http.HttpResponse
 import java.nio.file.Files
 import java.nio.file.Path
 import java.security.Security
@@ -35,11 +38,31 @@ object WaltIdServices {
 
     val httpLogging = false
     private val log = KotlinLogging.logger {}
+    private val bearerTokenStorage = mutableListOf<BearerTokens>()
 
     //val http = HttpClient(CIO) {
-    val http = HttpClient(OkHttp) {
+    val httpNoAuth = HttpClient(OkHttp) {
         install(ContentNegotiation) {
             json(Json { ignoreUnknownKeys = true })
+        }
+        if (httpLogging) {
+            install(Logging) {
+                logger = Logger.SIMPLE
+                level = LogLevel.HEADERS
+            }
+        }
+    }
+
+    val httpWithAuth = HttpClient(CIO) {
+        install(ContentNegotiation) {
+            json(Json { ignoreUnknownKeys = true })
+        }
+        install(io.ktor.client.plugins.auth.Auth) {
+            bearer {
+                loadTokens {
+                    bearerTokenStorage.last()
+                }
+            }
         }
         if (httpLogging) {
             install(Logging) {
@@ -92,4 +115,20 @@ object WaltIdServices {
         .build()
         .loadConfigOrThrow<WaltIdConfig>()
 
+    fun addBearerToken(token: String) = bearerTokenStorage.add(BearerTokens(token, token))
+
+    fun clearBearerTokens() = bearerTokenStorage.clear()
+
+    suspend inline fun <T> callWithToken(token: String, vararg arg: T, callback: (Any) -> HttpResponse): Result<String> {
+        addBearerToken(token)
+        val result = callback(arg)
+        clearBearerTokens()
+        return when (result.status) {
+            HttpStatusCode.Accepted,
+            HttpStatusCode.Created,
+            HttpStatusCode.OK -> Result.success(result.bodyAsText())
+            else -> Result.failure(Exception(result.bodyAsText()))
+
+        }
+    }
 }

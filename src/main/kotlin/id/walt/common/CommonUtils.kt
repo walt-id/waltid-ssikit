@@ -1,6 +1,6 @@
 package id.walt.common
 
-import id.walt.services.WaltIdServices.http
+import id.walt.services.WaltIdServices.httpNoAuth
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import kotlinx.coroutines.runBlocking
@@ -12,7 +12,7 @@ fun resolveContent(fileUrlContent: String): String {
         return file.readText()
     }
     if (Regex("^https?:\\/\\/.*$").matches(fileUrlContent)) {
-        return runBlocking { http.get(fileUrlContent).bodyAsText() }
+        return runBlocking { httpNoAuth.get(fileUrlContent).bodyAsText() }
     }
     return fileUrlContent
 }

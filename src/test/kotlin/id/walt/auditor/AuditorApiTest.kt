@@ -77,7 +77,7 @@ class AuditorApiTest : AnnotationSpec() {
 
     private fun postAndVerify(vcToVerify: String, policyList: String = DEFAULT_POLICIES) {
         val verificationResponseJson = runBlocking {
-            WaltIdServices.http.post(URL("http", Auditor_HOST, Auditor_API_PORT, "/v1/verify")) {
+            WaltIdServices.httpNoAuth.post(URL("http", Auditor_HOST, Auditor_API_PORT, "/v1/verify")) {
                 setBody(
                     KlaxonWithConverters().toJsonString(
                         VerificationRequest(
