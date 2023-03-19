@@ -13,6 +13,7 @@ import id.walt.model.gaiax.GaiaxCredentialGroup
 import id.walt.model.gaiax.ParticipantVerificationResult
 import id.walt.services.WaltIdServices.httpNoAuth
 import id.walt.services.did.DidService
+import id.walt.services.did.DidWebCreateOptions
 import id.walt.services.ecosystems.gaiax.GaiaxService
 import id.walt.services.key.KeyService
 import id.walt.signatory.Ecosystem
@@ -81,7 +82,7 @@ class GaiaxOnboardingCommand : CliktCommand(
         if (didWebPath?.isBlank() == true) didWebPath = null
 
         echo(">>> Creating did:web from key $keyId...")
-        val did = DidService.create(DidMethod.web, keyId.id, DidService.DidWebOptions(didWebDomain, didWebPath))
+        val did = DidService.create(DidMethod.web, keyId.id, DidWebCreateOptions(didWebDomain, didWebPath))
         echo("DID created: $did")
 
         var encodedDid = DidService.load(did).encodePretty()

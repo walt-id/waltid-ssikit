@@ -29,10 +29,4 @@ object IotaService {
             throw Exception("Error creating did:iota")
         }
     }
-
-    fun resolveDid(did: String): Did = iotaWrapper.resolve_did(did).takeIf { it.address() != 0L }?.let {
-        val doc = it.getString(0)
-        iotaWrapper.free_str(it)
-        Did.decode(doc)
-    } ?: throw Exception("Could not resolve $did")
 }
