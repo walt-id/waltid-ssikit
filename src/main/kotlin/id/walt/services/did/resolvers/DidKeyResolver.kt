@@ -6,12 +6,13 @@ import id.walt.crypto.*
 import id.walt.model.*
 import id.walt.model.did.DidKey
 import id.walt.services.CryptoProvider
+import id.walt.services.did.DidOptions
 import id.walt.services.did.DidService
 import java.security.KeyPair
 
 class DidKeyResolver : DidResolverBase<DidKey>() {
 
-    override fun resolve(didUrl: DidUrl) = resolveDidKey(didUrl)
+    override fun resolve(didUrl: DidUrl, options: DidOptions?) = resolveDidKey(didUrl)
 
     private fun resolveDidKey(didUrl: DidUrl): Did {
         val keyAlgorithm = getKeyAlgorithmFromMultibase(didUrl.identifier)

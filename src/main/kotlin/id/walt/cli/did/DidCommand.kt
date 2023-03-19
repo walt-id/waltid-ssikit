@@ -6,21 +6,17 @@ import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.optional
 import com.github.ajalt.clikt.parameters.groups.*
-import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.options.required
-import com.github.ajalt.clikt.parameters.types.choice
-import com.github.ajalt.clikt.parameters.types.int
 import com.github.ajalt.clikt.parameters.types.path
 import id.walt.cli.CliConfig
-import id.walt.common.prettyPrint
 import id.walt.crypto.KeyAlgorithm
 import id.walt.model.DidMethod
 import id.walt.model.DidMethod.*
 import id.walt.model.DidUrl
 import id.walt.services.crypto.CryptoService
-import id.walt.services.did.DidService
+import id.walt.services.did.*
 import java.io.File
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
@@ -69,9 +65,9 @@ class CreateDidCommand : CliktCommand(
         echo("Creating did:${method} (key: ${keyId})")
 
         val did = when (method) {
-            is WebMethodOption -> DidService.create(web, keyId, DidService.DidWebOptions((method as WebMethodOption).domain, (method as WebMethodOption).path))
-            is EbsiMethodOption -> DidService.create(ebsi, keyId, DidService.DidEbsiOptions((method as EbsiMethodOption).version))
-            is CheqdMethodOption -> DidService.create(cheqd, keyId, DidService.DidCheqdOptions((method as CheqdMethodOption).network))
+            is WebMethodOption -> DidService.create(web, keyId, DidWebCreateOptions((method as WebMethodOption).domain, (method as WebMethodOption).path))
+            is EbsiMethodOption -> DidService.create(ebsi, keyId, DidEbsiCreateOptions((method as EbsiMethodOption).version))
+            is CheqdMethodOption -> DidService.create(cheqd, keyId, DidCheqdCreateOptions((method as CheqdMethodOption).network))
             else -> DidService.create(DidMethod.valueOf(method.method), keyId)
         }
 
@@ -97,11 +93,7 @@ class CreateDidCommand : CliktCommand(
 
 fun resolveDidHelper(did: String, raw: Boolean) = when {
     did.contains("web") -> DidService.resolve(DidUrl.from(did)).encodePretty()
-    did.contains("ebsi") -> when (raw) {
-        true -> DidService.resolveDidEbsiRaw(did).prettyPrint()
-        else -> DidService.resolve(did).encodePretty()
-    }
-
+    did.contains("ebsi") -> DidService.resolve(did, DidEbsiResolveOptions(raw)).encodePretty()
     else -> DidService.resolve(did).encodePretty()
 }
 
