@@ -15,7 +15,6 @@ import id.walt.services.ecosystems.cheqd.models.job.request.JobCreateRequest
 import id.walt.services.ecosystems.cheqd.models.job.request.JobDeactivateRequest
 import id.walt.services.ecosystems.cheqd.models.job.request.JobSignRequest
 import id.walt.services.ecosystems.cheqd.models.job.response.JobActionResponse
-import id.walt.services.ecosystems.cheqd.models.job.response.didresponse.DidDocObject
 import id.walt.services.ecosystems.cheqd.models.job.response.didresponse.DidGetResponse
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
@@ -41,7 +40,7 @@ object CheqdService {
     private const val registrarApiVersion = "1.0"
     private const val didCreateUrl =
         "$registrarUrl/$registrarApiVersion/did-document?verificationMethod=%s&methodSpecificIdAlgo=%s&network=%s&publicKeyHex=%s"
-    private const val didOnboardUrl = "$registrarUrl/$registrarApiVersion/create"
+    private const val didRegisterUrl = "$registrarUrl/$registrarApiVersion/create"
     private const val didDeactivateUrl = "$registrarUrl/$registrarApiVersion/deactivate"
     private const val didUpdateUrl = "$registrarUrl/$registrarApiVersion/update"
 
@@ -57,13 +56,13 @@ object CheqdService {
 //        step#2. onboard did with cheqd registrar
         KlaxonWithConverters().parse<DidGetResponse>(response)?.let {
 //            step#2a. initialize
-            val job = initiateDidJob(didCreateUrl, KlaxonWithConverters().toJsonString(JobCreateRequest(it.didDoc)))
+            val job = initiateDidJob(didRegisterUrl, KlaxonWithConverters().toJsonString(JobCreateRequest(it.didDoc)))
                 ?: throw Exception("Failed to initialize the did onboarding process")
 //            step#2b. sign the serialized payload
             val signatures = signPayload(key.keyId, job)
 //            step#2c. finalize
             val didDocument = (finalizeDidJob(
-                didCreateUrl,
+                didRegisterUrl,
                 job.jobId,
                 it.didDoc.verificationMethod.first().id, // TODO: associate verificationMethodId with signature
                 signatures
@@ -72,29 +71,6 @@ object CheqdService {
 
             Did.decode(KlaxonWithConverters().toJsonString(didDocument)) as DidCheqd
         } ?: throw Exception("Failed to fetch the did document from cheqd registrar helper")
-    }
-
-    fun resolveDid(did: String): DidCheqd {
-        log.debug { "Resolving did:cheqd, DID: $did" }
-        val resultText = runBlocking {
-            client.get("https://resolver.cheqd.net/1.0/identifiers/$did").bodyAsText()
-        }
-
-        log.debug { "Received body from CHEQD resolver: $resultText" }
-
-        val resp = KlaxonWithConverters().parse<DidCheqdResolutionResponse>(resultText)
-            ?: throw IllegalArgumentException("Could not decode did:cheqd resolve response!")
-
-        log.debug { "Decoded response from CHEQD resolver: $resp" }
-
-        if (resp.didResolutionMetadata.error != null)
-            throw IllegalArgumentException("Could not resolve did:cheqd, resolver responded: ${resp.didResolutionMetadata.error}")
-
-        resp.didDocument ?: throw IllegalArgumentException("Response for did:cheqd did not contain a DID document!")
-
-        log.debug { "Found DID document in CHEQD resolver response: ${resp.didDocument}" }
-
-        return resp.didDocument!! // cheqd above for null
     }
 
     fun deactivateDid(did: String){

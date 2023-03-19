@@ -1,7 +1,6 @@
 package id.walt.services.did.resolvers
 
 import id.walt.model.DidMethod
-import id.walt.model.DidUrl
 import id.walt.services.WaltIdServices
 import id.walt.services.ecosystems.iota.IotaWrapper
 import id.walt.services.key.KeyService
@@ -14,8 +13,8 @@ class DidResolverFactory(
     private val iotaWrapper: IotaWrapper,
 ) {
 
-    fun create(didUrl: DidUrl): DidResolver {
-        return when (DidMethod.valueOf(didUrl.method)) {
+    fun create(didMethod: String): DidResolver {
+        return when (DidMethod.valueOf(didMethod)) {
             DidMethod.key -> DidKeyResolver()
             DidMethod.web -> DidWebResolver(httpNoAuth)
             DidMethod.ebsi -> DidEbsiResolver(httpNoAuth, keyService)

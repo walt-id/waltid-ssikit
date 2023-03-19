@@ -49,8 +49,8 @@ class IotaTest : AnnotationSpec() {
         doc.capabilityInvocation!!.first().id shouldBe doc.verificationMethod!!.first().id
         KeyService.getService().hasKey(doc.verificationMethod!!.first().id) shouldBe true
 
-        val docResolved = IotaService.resolveDid(doc.id)
+        val docResolved = DidService.resolve(doc.id)
         docResolved shouldNotBe null
-        docResolved!!.encode() shouldEqualJson doc.encode()
+        docResolved.encode() shouldEqualJson doc.encode()
     }
 }

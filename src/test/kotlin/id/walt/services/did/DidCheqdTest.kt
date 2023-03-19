@@ -15,9 +15,6 @@ import kotlin.io.path.readText
 class DidCheqdTest : StringSpec({
     ServiceMatrix("service-matrix.properties")
 
-    "Test CheqdService DID CHEQD resolving" {
-        println(CheqdService.resolveDid("did:cheqd:mainnet:Ps1ysXP2Ae6GBfxNhNQNKN"))
-    }
     "Test DidService DID CHEQD resolving" {
         val did = DidService.resolve("did:cheqd:mainnet:Ps1ysXP2Ae6GBfxNhNQNKN")
         println(did.id)
