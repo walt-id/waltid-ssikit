@@ -12,12 +12,12 @@ import id.walt.crypto.localTimeSecondsUtc
 import id.walt.model.DidMethod
 import id.walt.model.DidUrl
 import id.walt.rest.core.*
-import id.walt.rest.core.requests.did.CreateDidRequest
 import id.walt.rest.core.requests.did.EbsiCreateDidRequest
 import id.walt.rest.core.requests.did.KeyCreateDidRequest
 import id.walt.rest.core.requests.did.WebCreateDidRequest
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
+import id.walt.services.did.DidWebCreateOptions
 import id.walt.services.key.KeyFormat
 import id.walt.services.key.KeyService
 import id.walt.services.vc.JsonLdCredentialService
@@ -381,7 +381,7 @@ class CoreApiTest : AnnotationSpec() {
     @Test
     fun testPresentVerifyVC() = runBlocking {
         val credOffer = getTemplate("europass")
-        val issuerDid = DidService.create(DidMethod.web, options = DidService.DidWebOptions("example.com"))
+        val issuerDid = DidService.create(DidMethod.web, options = DidWebCreateOptions("example.com"))
         val subjectDid = DidService.create(DidMethod.key)
 
         credOffer.id = Timestamp.valueOf(LocalDateTime.now()).time.toString()

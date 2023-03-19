@@ -7,6 +7,7 @@ import id.walt.crypto.KeyAlgorithm
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.crypto.CryptoService
+import id.walt.services.did.DidEbsiCreateOptions
 import id.walt.services.did.DidService
 import id.walt.services.ecosystems.essif.timestamp.Timestamp
 import id.walt.services.ecosystems.essif.timestamp.WaltIdTimestampService
@@ -56,7 +57,7 @@ class EssifCommandTest : StringSpec({
 
     "0. Create EBSI DID" {
         keyId = CryptoService.getService().generateKey(KeyAlgorithm.ECDSA_Secp256k1).id
-        did = DidService.create(DidMethod.ebsi, keyId, DidService.DidEbsiOptions(1))
+        did = DidService.create(DidMethod.ebsi, keyId, DidEbsiCreateOptions(1))
         identifier = did.removePrefix("did:ebsi:")
     }
 

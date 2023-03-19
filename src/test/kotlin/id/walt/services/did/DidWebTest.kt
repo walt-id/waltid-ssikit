@@ -37,7 +37,7 @@ class DidWebTest : StringSpec({
     }
 
     "create did:web custom domain" {
-        val options = DidService.DidWebOptions("example.com")
+        val options = DidWebCreateOptions("example.com")
         val keyId = KeyService.getService().generate(KeyAlgorithm.EdDSA_Ed25519).id
         val did = DidService.create(DidMethod.web, keyId, options)
         did shouldBe "did:web:example.com"
@@ -46,7 +46,7 @@ class DidWebTest : StringSpec({
     }
 
     "create did:web custom domain and path" {
-        val options = DidService.DidWebOptions("example.com", "api/users/1234")
+        val options = DidWebCreateOptions("example.com", "api/users/1234")
         val didDoc = createAndTestDidWeb(KeyAlgorithm.RSA, options)
         didDoc.id shouldBe "did:web:example.com:api:users:1234"
         println(didDoc.encodePretty())
@@ -101,7 +101,7 @@ class DidWebTest : StringSpec({
     }
 }
 
-fun createAndTestDidWeb(keyAlgorith: KeyAlgorithm, options: DidService.DidWebOptions? = null): Did {
+fun createAndTestDidWeb(keyAlgorith: KeyAlgorithm, options: DidWebCreateOptions? = null): Did {
     val keyService = KeyService.getService()
     val keyId = keyService.generate(keyAlgorith).id
     val did = DidService.create(DidMethod.web, keyId, options)
