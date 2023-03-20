@@ -43,18 +43,20 @@ import java.security.spec.X509EncodedKeySpec
 import java.util.*
 import kotlin.time.Duration.Companion.minutes
 
-private val log = KotlinLogging.logger {}
 
 /**
  * W3C Decentralized Identity Service
  */
 object DidService {
 
+    private val log = KotlinLogging.logger {}
+
     private val DEFAULT_KEY_ALGORITHM = EdDSA_Ed25519
 
     sealed class DidOptions
     data class DidWebOptions(val domain: String?, val path: String? = null) : DidOptions()
     data class DidEbsiOptions(val version: Int) : DidOptions()
+    data class DidCheqdOptions(val network: String) : DidOptions()
 
 
     private val credentialService = JsonLdCredentialService.getService()
@@ -87,15 +89,20 @@ object DidService {
             DidMethod.ebsi -> createDidEbsi(keyAlias, options as? DidEbsiOptions)
             DidMethod.iota -> createDidIota(keyAlias)
             DidMethod.jwk -> createDidJwk(keyAlias)
-            DidMethod.cheqd -> createDidCheqd(keyAlias)
+            DidMethod.cheqd -> createDidCheqd(keyAlias, options as? DidCheqdOptions)
             else -> throw Exception("DID method $method not supported")
         }
 
         return didUrl
     }
 
-    private fun createDidCheqd(keyAlias: String?): String {
-        TODO("Not yet implemented")
+    private fun createDidCheqd(keyAlias: String?, options: DidCheqdOptions?): String {
+        val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(EdDSA_Ed25519)
+        val did = CheqdService.createDid(keyId.id, options?.network ?: "testnet")
+        storeDid(did.id, did.encode())
+        ContextManager.keyStore.addAlias(keyId, did.id)
+        ContextManager.keyStore.addAlias(keyId, did.verificationMethod!![0].id)
+        return did.id
     }
 
     fun resolve(did: String): Did = resolve(DidUrl.from(did))

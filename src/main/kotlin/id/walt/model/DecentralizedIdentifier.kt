@@ -78,6 +78,8 @@ open class Did(
     companion object {
         fun decode(didDoc: String): Did? = KlaxonWithConverters().parse<Did>(didDoc)
     }
+
+    override fun toString() = "[DidDocument of ${url.url}]"
 }
 
 @Serializable

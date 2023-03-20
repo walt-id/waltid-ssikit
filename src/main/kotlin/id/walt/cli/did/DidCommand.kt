@@ -1,13 +1,11 @@
-package id.walt.cli
+package id.walt.cli.did
 
 
 import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.requireObject
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.arguments.optional
-import com.github.ajalt.clikt.parameters.groups.mutuallyExclusiveOptions
-import com.github.ajalt.clikt.parameters.groups.required
-import com.github.ajalt.clikt.parameters.groups.single
+import com.github.ajalt.clikt.parameters.groups.*
 import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
@@ -15,11 +13,11 @@ import com.github.ajalt.clikt.parameters.options.required
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.int
 import com.github.ajalt.clikt.parameters.types.path
+import id.walt.cli.CliConfig
 import id.walt.common.prettyPrint
 import id.walt.crypto.KeyAlgorithm
 import id.walt.model.DidMethod
-import id.walt.model.DidMethod.ebsi
-import id.walt.model.DidMethod.web
+import id.walt.model.DidMethod.*
 import id.walt.model.DidUrl
 import id.walt.services.crypto.CryptoService
 import id.walt.services.did.DidService
@@ -48,31 +46,33 @@ class CreateDidCommand : CliktCommand(
         """
 ) {
     val config: CliConfig by requireObject()
-    val method: String by option("-m", "--did-method", help = "Specify DID method [key]")
-        .choice("key", "web", "ebsi", "iota", "jwk").default("key")
+    val method by option("-m", "--did-method", help = "Specify DID method [key]")
+        .groupChoice(
+            "key" to KeyMethodOption(),
+            "web" to WebMethodOption(),
+            "ebsi" to EbsiMethodOption(),
+            "iota" to IotaMethodOption(),
+            "jwk" to JwkMethodOption(),
+            "cheqd" to CheqdMethodOption(),
+        ).defaultByName("key")
 
     val keyAlias: String? by option("-k", "--key", help = "Specific key (ID or alias)")
-    val didWebDomain: String by option("-d", "--domain", help = "Domain for did:web").default("walt.id")
-    val didWebPath: String? by option("-p", "--path", help = "Path for did:web")
-    val didEbsiVersion: Int by option("-v", "--version", help = "Version of did:ebsi. Allowed values: 1 (default), 2").int()
-        .default(1)
     val dest: Path? by argument("destination-file").path().optional()
 
     override fun run() {
 
-        val didMethod = DidMethod.valueOf(method)
-
-        val keyId = keyAlias ?: when (didMethod) {
-            ebsi -> CryptoService.getService().generateKey(KeyAlgorithm.ECDSA_Secp256k1).id
+        val keyId = keyAlias ?: when (method) {
+            is EbsiMethodOption -> CryptoService.getService().generateKey(KeyAlgorithm.ECDSA_Secp256k1).id
             else -> CryptoService.getService().generateKey(KeyAlgorithm.EdDSA_Ed25519).id
         }
 
         echo("Creating did:${method} (key: ${keyId})")
 
-        val did = when (didMethod) {
-            web -> DidService.create(web, keyId, DidService.DidWebOptions(didWebDomain, didWebPath))
-            ebsi -> DidService.create(ebsi, keyId, DidService.DidEbsiOptions(didEbsiVersion))
-            else -> DidService.create(didMethod, keyId)
+        val did = when (method) {
+            is WebMethodOption -> DidService.create(web, keyId, DidService.DidWebOptions((method as WebMethodOption).domain, (method as WebMethodOption).path))
+            is EbsiMethodOption -> DidService.create(ebsi, keyId, DidService.DidEbsiOptions((method as EbsiMethodOption).version))
+            is CheqdMethodOption -> DidService.create(cheqd, keyId, DidService.DidCheqdOptions((method as CheqdMethodOption).network))
+            else -> DidService.create(DidMethod.valueOf(method.method), keyId)
         }
 
         echo("\nResults:\n")
@@ -86,8 +86,11 @@ class CreateDidCommand : CliktCommand(
             dest!!.writeText(encodedDid)
         }
 
-        if (didMethod == web) echo(
-            "\nInstall this did:web at: " + DidService.getWebPathForDidWeb(didWebDomain, didWebPath)
+        if (method is WebMethodOption) echo(
+            "\nInstall this did:web at: " + DidService.getWebPathForDidWeb(
+                (method as WebMethodOption).domain,
+                (method as WebMethodOption).path
+            )
         )
     }
 }

@@ -1,20 +1,23 @@
 package id.walt.rest.core
 
+import id.walt.common.KlaxonWithConverters
 import id.walt.common.prettyPrint
 import id.walt.crypto.KeyAlgorithm
 import id.walt.model.DidMethod
+import id.walt.rest.core.requests.did.*
 import id.walt.services.did.DidService
 import io.javalin.http.Context
+import io.javalin.http.HttpCode
 import io.javalin.plugin.openapi.dsl.document
 import kotlinx.serialization.Serializable
 
-@Serializable
-data class CreateDidRequest(
-    val method: DidMethod,
-    val keyAlias: String? = null,
-    val didWebDomain: String? = null,
-    val didWebPath: String? = null,
-)
+//@Serializable
+//data class CreateDidRequest(
+//    val method: DidMethod,
+//    val keyAlias: String? = null,
+//    val didWebDomain: String? = null,
+//    val didWebPath: String? = null,
+//)
 
 @Serializable
 data class ResolveDidRequest(
@@ -61,15 +64,22 @@ object DidController {
     }.json<String>("200") { it.description("Http OK") }
 
     fun create(ctx: Context) {
-        val req = ctx.bodyAsClass(CreateDidRequest::class.java)
+        runCatching {
+            KlaxonWithConverters().parse<CreateDidRequest>(ctx.bodyAsInputStream())!!
+        }.onSuccess {
+            ctx.status(HttpCode.CREATED)
+            ctx.result(DidService.create(DidMethod.valueOf(it.method), it.keyAlias, getOptions(it)))
+        }.onFailure {
+            ctx.status(HttpCode.BAD_REQUEST)
+            ctx.result(it.localizedMessage)
+        }
+    }
 
-        ctx.result(
-            DidService.create(
-                req.method,
-                req.keyAlias,
-                DidService.DidWebOptions(req.didWebDomain ?: "walt.id", req.didWebPath)
-            )
-        )
+    private fun getOptions(request: CreateDidRequest) = when (request) {
+        is WebCreateDidRequest -> DidService.DidWebOptions(request.domain ?: "walt.id", request.path)
+        is EbsiCreateDidRequest -> DidService.DidEbsiOptions(request.version)
+        is CheqdCreateDidRequest -> DidService.DidCheqdOptions(request.network)
+        else -> null
     }
 
     fun createDocs() = document().operation {

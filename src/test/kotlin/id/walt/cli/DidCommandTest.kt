@@ -1,5 +1,9 @@
 package id.walt.cli
 
+import id.walt.cli.did.CreateDidCommand
+import id.walt.cli.did.DeleteDidCommand
+import id.walt.cli.did.ImportDidCommand
+import id.walt.cli.did.ResolveDidCommand
 import id.walt.common.readWhenContent
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyAlgorithm.*

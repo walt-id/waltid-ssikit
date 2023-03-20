@@ -2,7 +2,7 @@ package id.walt.essif
 
 import id.walt.auditor.Auditor
 import id.walt.auditor.PolicyRegistry
-import id.walt.cli.resolveDidHelper
+import id.walt.cli.did.resolveDidHelper
 import id.walt.common.SqlDbManager
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.KeyAlgorithm
