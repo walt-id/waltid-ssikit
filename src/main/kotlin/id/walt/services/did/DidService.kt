@@ -1,6 +1,7 @@
 package id.walt.services.did
 
 import com.beust.klaxon.Klaxon
+import com.github.benmanes.caffeine.cache.Caffeine
 import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jose.util.Base64URL
@@ -39,6 +40,7 @@ import java.nio.charset.StandardCharsets
 import java.security.KeyFactory
 import java.security.KeyPair
 import java.security.spec.X509EncodedKeySpec
+import java.time.Duration
 import java.util.*
 
 
@@ -116,10 +118,18 @@ object DidService {
         }
     }
 
+    private val didCache = Caffeine.newBuilder()
+        .maximumSize(1000)
+        .expireAfterWrite(Duration.ofMinutes(10))
+        .build<DidUrl, Did>()
+
     fun load(did: String): Did = load(DidUrl.from(did))
-    fun load(didUrl: DidUrl): Did = Did.decode(
-        loadDid(didUrl.did) ?: throw IllegalArgumentException("DID $didUrl not found.")
-    ) ?: throw IllegalArgumentException("DID $didUrl not found.")
+    fun load(didUrl: DidUrl): Did =
+        didCache.get(didUrl) {
+            Did.decode(
+                loadDid(didUrl.did) ?: throw IllegalArgumentException("DID $didUrl could not be loaded/found.")
+            ) ?: throw IllegalArgumentException("DID $didUrl could not be decoded.")
+        }
 
     fun resolveDidEbsiRaw(did: String): String = runBlocking {
         log.debug { "Resolving DID $did" }
@@ -192,7 +202,7 @@ object DidService {
     }
 
     fun loadDidEbsi(did: String): DidEbsi = loadDidEbsi(DidUrl.from(did))
-    fun loadDidEbsi(didUrl: DidUrl): DidEbsi = Did.decode(loadDid(didUrl.did)!!)!! as DidEbsi
+    fun loadDidEbsi(didUrl: DidUrl): DidEbsi = load(didUrl.did) as DidEbsi
 
     fun updateDidEbsi(did: DidEbsi) = storeDid(did.id, did.encode())
 
@@ -648,6 +658,7 @@ object DidService {
 
     fun deleteDid(didUrl: String) {
         loadOrResolveAnyDid(didUrl)?.let { did ->
+            didCache.invalidate(DidUrl.from(didUrl))
             ContextManager.hkvStore.delete(HKVKey("did", "created", didUrl), recursive = true)
             did.verificationMethod?.forEach {
                 ContextManager.keyStore.delete(it.id)

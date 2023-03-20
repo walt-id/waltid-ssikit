@@ -67,17 +67,17 @@ open class WaltIdJwtService : JwtService() {
 
     private fun createSignedJwt(jwsAlgorithm: JWSAlgorithm, keyAlias: String, claimsSet: JWTClaimsSet, includeJwk: JWK?) =
         SignedJWT(
-            /* header = */ JWSHeader
+            JWSHeader
                 .Builder(jwsAlgorithm)
                 .keyID(keyAlias)
                 .type(JOSEObjectType.JWT)
                 .apply {
                     includeJwk?.let { jwk(it) }
                 }.build(),
-            /* claimsSet = */ claimsSet
-        ).also {
+            claimsSet
+        )/*.also {
             // log.debug { "Created signable JWT object: $it." }
-        }
+        }*/
 
 
     override fun sign(

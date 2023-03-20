@@ -1,0 +1,19 @@
+{
+  "@context": ["https://www.w3.org/2018/credentials/v1"],
+  "credentialSubject": {
+    "dependsOn": ["Pilot004DataService"],
+    "description": "AIS demonstrates machine learning application use case.",
+    "hasCertifications": ["ISO_27001", "GDPR_Compliance"],
+    "hasMarketingImage": "https://www.data-infrastructure.eu/GAIAX/Redaktion/EN/Bilder/UseCases/ai-marketplace-for-product-development.jpg?__blob=normal",
+    "hasName": "AIS",
+    "hasVersion": "0.1.0",
+    "id": "Pilot004AIService",
+    "providedBy": "GAIA-X",
+    "type": "Service",
+    "utilizes": ["ExampleKubernetesService"]
+  },
+  "id": "did:ebsi-eth:00000001/credentials/1872",
+  "issued": "2020-08-24T14:13:44Z",
+  "issuer": "did:example:456",
+  "type": ["VerifiableCredential", "DataSelfDescription"]
+}

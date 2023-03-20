@@ -1,5 +1,6 @@
 package id.walt.credentials.w3c.templates
 
+import com.github.benmanes.caffeine.cache.Caffeine
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.W3CIssuer
 import id.walt.credentials.w3c.toVerifiableCredential
@@ -9,6 +10,7 @@ import mu.KotlinLogging
 import java.io.File
 import java.nio.file.FileSystems
 import java.nio.file.Files
+import java.time.Duration
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.nameWithoutExtension
 
@@ -25,19 +27,60 @@ object VcTemplateManager {
         return VcTemplate(name, template, true)
     }
 
+    val templateCache = Caffeine.newBuilder()
+        .maximumSize(1000)
+        .expireAfterWrite(Duration.ofMinutes(10))
+        .build<String, VcTemplate>()
+
+    private fun String?.toVcTemplate(name: String, populateTemplate: Boolean, isMutable: Boolean) =
+        this?.let { VcTemplate(name, if (populateTemplate && it.isNotBlank()) it.toVerifiableCredential() else null, isMutable) }
+
+    fun loadTemplateFromHkvStore(name: String, loadTemplate: Boolean) =
+        ContextManager.hkvStore.getAsString(HKVKey(SAVED_VC_TEMPLATES_KEY, name))
+            .toVcTemplate(name, loadTemplate, true)
+
+    fun loadTemplateFromResources(name: String, populateTemplate: Boolean) =
+        object {}.javaClass.getResource("/vc-templates/$name.json")?.readText()
+            .toVcTemplate(name, populateTemplate, false)
+
+    fun loadTemplateFromFile(name: String, populateTemplate: Boolean, runtimeTemplateFolder: String) =
+        File("$runtimeTemplateFolder/$name.json").let {
+            if (it.exists()) it.readText() else null
+        }.toVcTemplate(name, populateTemplate, false)
+
+    fun loadTemplate(name: String, populateTemplate: Boolean, runtimeTemplateFolder: String) = loadTemplateFromHkvStore(name, populateTemplate)
+        ?: loadTemplateFromResources(name, populateTemplate)
+        ?: loadTemplateFromFile(name, populateTemplate, runtimeTemplateFolder)
+        ?: throw IllegalArgumentException("No template found with name: $name")
+
+    fun retrieveOrLoadCachedTemplate(
+        name: String,
+        populateTemplate: Boolean = true,
+        runtimeTemplateFolder: String = "/vc-templates-runtime"
+    ) = if(populateTemplate) {
+        // only add to cache, if template is populated
+            templateCache.get(name) {
+                loadTemplate(name, true, runtimeTemplateFolder)
+            }
+        } else {
+            // try to get from cache or load unpopulated template
+            (templateCache.getIfPresent(name) ?: loadTemplate(name, false, runtimeTemplateFolder)).let {
+                // reset populated template, in case it was loaded from cache
+                VcTemplate(it.name, null, it.mutable)
+            }
+        }
+
     fun getTemplate(
         name: String,
-        loadTemplate: Boolean = true,
+        populateTemplate: Boolean = true,
         runtimeTemplateFolder: String = "/vc-templates-runtime"
     ): VcTemplate {
-        return ContextManager.hkvStore.getAsString(HKVKey(SAVED_VC_TEMPLATES_KEY, name))
-            ?.let { VcTemplate(name, if (loadTemplate) it.toVerifiableCredential() else null, true) }
-            ?: object {}.javaClass.getResource("/vc-templates/$name.json")?.readText()
-                ?.let { VcTemplate(name, if (loadTemplate) it.toVerifiableCredential() else null, false) }
-            ?: File("$runtimeTemplateFolder/$name.json").let {
-                if (it.exists()) it.readText() else null
-            }?.let { VcTemplate(name, if (loadTemplate) it.toVerifiableCredential() else null, false) }
-            ?: throw IllegalArgumentException("No template found, with name $name")
+        val cachedTemplate = retrieveOrLoadCachedTemplate(name, populateTemplate, runtimeTemplateFolder)
+
+        return if (cachedTemplate.template == null && populateTemplate) {
+            templateCache.invalidate(name)
+            retrieveOrLoadCachedTemplate(name, true, runtimeTemplateFolder)
+        } else cachedTemplate
     }
 
     private val resourceWalk = lazy {

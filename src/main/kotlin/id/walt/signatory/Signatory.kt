@@ -42,7 +42,7 @@ data class ProofConfig(
     @Json(serializeNull = false) val subjectDid: String? = null,
     @Json(serializeNull = false) val verifierDid: String? = null,
     @Json(serializeNull = false) val issuerVerificationMethod: String? = null, // DID URL that defines key ID; if null the issuers' default key is used
-    val proofType: ProofType = ProofType.LD_PROOF,
+    val proofType: ProofType = ProofType.JWT,
     @Json(serializeNull = false) val domain: String? = null,
     @Json(serializeNull = false) val nonce: String? = null,
     @Json(serializeNull = false) val proofPurpose: String? = null,
@@ -90,6 +90,7 @@ abstract class Signatory : WaltIdService() {
 
     open fun importTemplate(templateId: String, template: String): Unit = implementation.importTemplate(templateId, template)
     open fun removeTemplate(templateId: String): Unit = implementation.removeTemplate(templateId)
+    open fun hasTemplateId(templateId: String): Boolean = implementation.hasTemplateId(templateId)
 }
 
 class WaltIdSignatory(configurationPath: String) : Signatory() {
@@ -149,7 +150,8 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
         val credentialBuilder = when (Files.exists(Path.of(templateIdOrFilename))) {
             true -> Files.readString(Path.of(templateIdOrFilename)).toVerifiableCredential()
             else -> VcTemplateManager.getTemplate(templateIdOrFilename, true, configuration.templatesFolder).template
-        }?.let { W3CCredentialBuilder.fromPartial(it) } ?: throw Exception("Template not found")
+        }?.let { W3CCredentialBuilder.fromPartial(it) }
+            ?: throw Exception("Template could not be loaded: $templateIdOrFilename")
 
         return issue(dataProvider?.populate(credentialBuilder, config) ?: credentialBuilder, config, issuer, storeCredential)
     }
@@ -173,7 +175,7 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
             fullProofConfig.expirationDate?.let { setExpirationDate(it) }
         }.build()
 
-        log.info { "Signing credential with proof using ${fullProofConfig.proofType.name}..." }
+        log.debug { "Signing credential with proof using ${fullProofConfig.proofType.name}..." }
         log.debug { "Signing credential with proof using ${fullProofConfig.proofType.name}, credential is: $vcRequest" }
         val signedVc = when (fullProofConfig.proofType) {
             ProofType.LD_PROOF -> JsonLdCredentialService.getService().sign(vcRequest.toJson(), fullProofConfig)
@@ -188,10 +190,14 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
         return signedVc
     }
 
+    override fun hasTemplateId(templateId: String) =
+        runCatching { VcTemplateManager.getTemplate(templateId, false) }.getOrNull() != null
+
     override fun listTemplates(): List<VcTemplate> = VcTemplateManager.listTemplates(configuration.templatesFolder)
     override fun listTemplateIds() = VcTemplateManager.listTemplates(configuration.templatesFolder).map { it.name }
     override fun loadTemplate(templateId: String): VerifiableCredential =
-        VcTemplateManager.getTemplate(templateId, true, configuration.templatesFolder).template!!
+        VcTemplateManager.getTemplate(templateId, true, configuration.templatesFolder).template
+            ?: throw IllegalArgumentException("Could not load template \"$templateId\" into WaltSignatory")
 
     override fun importTemplate(templateId: String, template: String) {
         val vc = VerifiableCredential.fromJson(template)

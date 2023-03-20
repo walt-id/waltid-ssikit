@@ -13,6 +13,7 @@ import id.walt.signatory.rest.IssueCredentialRequest
 import id.walt.signatory.rest.SignatoryRestAPI
 import id.walt.test.RESOURCES_PATH
 import io.kotest.core.spec.style.AnnotationSpec
+import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -64,13 +65,20 @@ class SignatoryApiTest : AnnotationSpec() {
     fun testListVcTemplates() = runBlocking {
         val templates =
             client.get("$SIGNATORY_API_URL/v1/templates").bodyAsText()
+                .also { println("BODY: $it") }
                 .let { KlaxonWithConverters().parseArray<VcTemplate>(it) }!!
-                .map { it.name }
+        // make sure templates are not populated
+        templates.forEach {
+            it.template shouldBe null
+        }
+        val templateNames = templates.map { it.name }
 
-        VcTemplateManager.listTemplates().map { it.name }.forEach { templateName -> templates shouldContain templateName }
+        templateNames shouldContain "Europass"
+        templateNames shouldContain "VerifiablePresentation"
 
-        templates shouldContain "Europass"
-        templates shouldContain "VerifiablePresentation"
+        VcTemplateManager.listTemplates().map { it.name }.forEach { templateName -> templateNames shouldContain templateName }
+
+        println(templates)
     }
 
 

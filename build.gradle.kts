@@ -35,8 +35,8 @@ dependencies {
     implementation("com.github.multiformats:java-multibase:v1.1.0")
     implementation("com.microsoft.azure:azure-keyvault:1.2.6")
     implementation("com.microsoft.azure:azure-client-authentication:1.7.14")
-    implementation("com.nimbusds:nimbus-jose-jwt:9.30.1")
-    implementation("com.nimbusds:oauth2-oidc-sdk:10.5.1")
+    implementation("com.nimbusds:nimbus-jose-jwt:9.30.2")
+    implementation("com.nimbusds:oauth2-oidc-sdk:10.7")
 
     implementation("org.bouncycastle:bcprov-jdk15to18:1.72")
     implementation("org.bouncycastle:bcpkix-jdk15to18:1.72")
@@ -52,22 +52,23 @@ dependencies {
     implementation("com.beust:klaxon:5.6")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.0")
     implementation("com.jayway.jsonpath:json-path:2.7.0")
-    implementation("com.networknt:json-schema-validator:1.0.77")
+    implementation("com.networknt:json-schema-validator:1.0.78")
     implementation("net.pwall.json:json-kotlin-schema:0.39")
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
 
     // DB
-    implementation("org.xerial:sqlite-jdbc:3.39.4.1")
+    implementation("org.xerial:sqlite-jdbc:3.40.1.0")
     implementation("com.zaxxer:HikariCP:5.0.1")
 
     // CLI
-    implementation("com.github.ajalt.clikt:clikt-jvm:3.5.0")
+    implementation("com.github.ajalt.clikt:clikt-jvm:3.5.2")
     implementation("com.github.ajalt.clikt:clikt:3.5.0")
 
     // Misc
     implementation("commons-io:commons-io:2.11.0")
     implementation("io.minio:minio:8.4.6")
+    implementation("com.github.ben-manes.caffeine:caffeine:3.1.5")
 
     // HTTP
     implementation("io.ktor:ktor-client-jackson-jvm:2.2.4")
@@ -107,9 +108,9 @@ dependencies {
     //testImplementation(kotlin("test-junit"))
     testImplementation("io.mockk:mockk:1.13.2")
 
-    testImplementation("io.kotest:kotest-runner-junit5:5.5.4")
-    testImplementation("io.kotest:kotest-assertions-core:5.5.4")
-    testImplementation("io.kotest:kotest-assertions-json:5.5.4")
+    testImplementation("io.kotest:kotest-runner-junit5:5.5.5")
+    testImplementation("io.kotest:kotest-assertions-core:5.5.5")
+    testImplementation("io.kotest:kotest-assertions-json:5.5.5")
 
 }
 
