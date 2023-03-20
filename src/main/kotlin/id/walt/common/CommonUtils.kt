@@ -12,11 +12,11 @@ fun resolveContent(fileUrlContent: String): String {
         return file.readText()
     }
     if (fileUrlContent.startsWith("class:")) {
-        val clazz = object{}.javaClass.enclosingClass
+        val enclosingClass = object {}.javaClass.enclosingClass
         val path = fileUrlContent.substring(6)
-        var url = clazz.getResource(path)
+        var url = enclosingClass.getResource(path)
         if (url == null && !path.startsWith('/'))
-            url = clazz.getResource("/$path")
+            url = enclosingClass.getResource("/$path")
         return url?.readText() ?: fileUrlContent
     }
     if (Regex("^https?:\\/\\/.*$").matches(fileUrlContent)) {
@@ -27,9 +27,11 @@ fun resolveContent(fileUrlContent: String): String {
 
 fun resolveContentToFile(fileUrlContent: String, tempPrefix: String = "TEMP", tempPostfix: String = ".txt"): File {
     val fileCheck = File(fileUrlContent)
-    if (fileCheck.exists())
-        return fileCheck
-    val file = File.createTempFile(tempPrefix, tempPostfix)
-    file.writeText(resolveContent(fileUrlContent))
-    return file
+    if (!fileCheck.exists()) {
+        File.createTempFile(tempPrefix, tempPostfix).let {
+            it.writeText(resolveContent(fileUrlContent))
+            return it
+        }
+    }
+    return fileCheck
 }
