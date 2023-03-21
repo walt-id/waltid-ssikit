@@ -12,7 +12,8 @@ object SchemaValidatorFactory {
     fun get(schema: URI): SchemaValidator = get(schema.toURL().readText())
 
     fun get(schemaUrlFileOrContent: String): SchemaValidator {
-        val schema = resolveContent(schemaUrlFileOrContent)
+        val schema = resolveContent(schemaUrlFileOrContent).trim()
+        require(schema.startsWith('{') && schema.endsWith('}')) { "Invalid schema content: $schema" }
         with(mapper.readTree(schema).get("\$schema").asText()) {
             return when {
                 contains("2020-12") -> NetworkntSchemaValidator(V202012, schema)
