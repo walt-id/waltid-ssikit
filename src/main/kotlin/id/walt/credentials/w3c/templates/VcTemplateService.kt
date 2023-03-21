@@ -135,7 +135,9 @@ open class VcTemplateService(private val resourcePath: String = "/vc-templates")
     private fun listRuntimeTemplates(folderPath: String): List<String> {
         val templatesFolder = File(folderPath)
         return if (templatesFolder.isDirectory) {
-            templatesFolder.walk().filter { it.isFile }.map { it.nameWithoutExtension }.toList()
+            templatesFolder.walk().filter { it.isFile }.map {
+                (it.relativeTo(templatesFolder).parent?.let { "$it/" } ?: "") + it.nameWithoutExtension
+            }.toList()
         } else {
             log.warn { "Requested runtime templates folder $folderPath is not a folder." }
             listOf()
