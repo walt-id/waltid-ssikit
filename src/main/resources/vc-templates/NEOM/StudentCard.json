@@ -1,7 +1,7 @@
 {
   "@context": ["https://www.w3.org/2018/credentials/v1"],
   "credentialSchema": {
-    "id": "https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableId.json",
+    "id": "https://raw.githubusercontent.com/walt-id/waltid-ssikit/feat-neom-credential-schemas/src/test/resources/schemas/NEOM/StudentCard.json",
     "type": "FullJsonSchemaValidator2021"
   },
   "credentialSubject": {
