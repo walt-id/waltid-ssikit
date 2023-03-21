@@ -12,9 +12,11 @@ import mu.KotlinLogging
 import java.io.File
 import java.nio.file.FileSystems
 import java.nio.file.Files
+import java.nio.file.Path
 import java.time.Duration
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.nameWithoutExtension
+import kotlin.io.path.relativeTo
 
 open class VcTemplateService(private val resourcePath: String = "/vc-templates") : WaltIdService() {
     override val implementation: VcTemplateService get() = serviceImplementation()
@@ -112,13 +114,17 @@ open class VcTemplateService(private val resourcePath: String = "/vc-templates")
 
         when {
             File(resource.file).isDirectory ->
-                File(resource.file).walk().filter { it.isFile }.map { it.nameWithoutExtension }.toList()
+                File(resource.file).walk().filter { it.isFile }.map {
+                    (it.relativeTo(File(resource.file)).parent?.let { "$it/" } ?: "") + it.nameWithoutExtension
+                }.toList()
 
             else -> {
                 FileSystems.newFileSystem(resource.toURI(), emptyMap<String, String>()).use { fs ->
                     Files.walk(fs.getPath(resourcePath))
                         .filter { it.isRegularFile() }
-                        .map { it.nameWithoutExtension }.toList()
+                        .map {
+                            (Path.of(it.toString()).relativeTo(Path.of(resourcePath)).parent?.let { "$it/" } ?: "") + it.nameWithoutExtension
+                        }.toList()
                 }
             }
         }
