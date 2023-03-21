@@ -16,7 +16,7 @@ import java.time.Duration
 import kotlin.io.path.isRegularFile
 import kotlin.io.path.nameWithoutExtension
 
-open class VcTemplateService(val resourcePath: String = "/vc-templates") : WaltIdService() {
+open class VcTemplateService(private val resourcePath: String = "/vc-templates") : WaltIdService() {
     override val implementation: VcTemplateService get() = serviceImplementation()
     private val log = KotlinLogging.logger {}
 
@@ -34,7 +34,6 @@ open class VcTemplateService(val resourcePath: String = "/vc-templates") : WaltI
         ContextManager.hkvStore.put(HKVKey(SAVED_VC_TEMPLATES_KEY, name), template.toJson())
         return VcTemplate(name, template, true)
     }
-
 
     private val templateCache = Caffeine.newBuilder()
         .maximumSize(1000)
@@ -55,7 +54,7 @@ open class VcTemplateService(val resourcePath: String = "/vc-templates") : WaltI
             .toVcTemplate(name, loadTemplate, true)
 
     private fun loadTemplateFromResources(name: String, populateTemplate: Boolean) =
-        object {}.javaClass.getResource("/vc-templates/$name.json")?.readText()
+        object {}.javaClass.getResource("$resourcePath/$name.json")?.readText()
             .toVcTemplate(name, populateTemplate, false)
 
     private fun loadTemplateFromFile(name: String, populateTemplate: Boolean, runtimeTemplateFolder: String) =
@@ -106,14 +105,18 @@ open class VcTemplateService(val resourcePath: String = "/vc-templates") : WaltI
 
     private val resourceWalk = lazy {
 
-        val resource = object {}.javaClass.getResource("/vc-templates")!!
+        val resource = javaClass.getResource(resourcePath)
+        checkNotNull(resource) { "Cannot find resource path: $resourcePath" }
+
+        log.debug { "Loading templates from: $resource" }
+
         when {
             File(resource.file).isDirectory ->
                 File(resource.file).walk().filter { it.isFile }.map { it.nameWithoutExtension }.toList()
 
             else -> {
                 FileSystems.newFileSystem(resource.toURI(), emptyMap<String, String>()).use { fs ->
-                    Files.walk(fs.getPath("/vc-templates"))
+                    Files.walk(fs.getPath(resourcePath))
                         .filter { it.isRegularFile() }
                         .map { it.nameWithoutExtension }.toList()
                 }
