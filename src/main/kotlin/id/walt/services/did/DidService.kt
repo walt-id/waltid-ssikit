@@ -2,8 +2,6 @@ package id.walt.services.did
 
 import com.beust.klaxon.Klaxon
 import com.github.benmanes.caffeine.cache.Caffeine
-import java.time.Duration
-import com.nimbusds.jose.jwk.Curve
 import com.nimbusds.jose.jwk.JWK
 import com.nimbusds.jose.util.Base64URL
 import id.walt.crypto.*
@@ -13,24 +11,23 @@ import id.walt.model.*
 import id.walt.model.did.DidEbsi
 import id.walt.model.did.DidWeb
 import id.walt.services.CryptoProvider
-import id.walt.services.WaltIdServices
 import id.walt.services.context.ContextManager
 import id.walt.services.crypto.CryptoService
 import id.walt.services.did.resolvers.*
 import id.walt.services.ecosystems.cheqd.CheqdService
 import id.walt.services.ecosystems.iota.IotaService
+import id.walt.services.ecosystems.iota.IotaWrapper
 import id.walt.services.hkvstore.HKVKey
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.ProofConfig
 import io.ipfs.multibase.Multibase
+import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.util.*
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.bouncycastle.asn1.edec.EdECObjectIdentifiers
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier
@@ -42,6 +39,7 @@ import java.nio.charset.StandardCharsets
 import java.security.KeyFactory
 import java.security.KeyPair
 import java.security.spec.X509EncodedKeySpec
+import java.time.Duration
 import java.util.*
 
 
@@ -54,16 +52,14 @@ object DidService {
 
     private val DEFAULT_KEY_ALGORITHM = EdDSA_Ed25519
 
-    sealed class DidOptions
-    data class DidWebOptions(val domain: String?, val path: String? = null) : DidOptions()
-    data class DidEbsiOptions(val version: Int) : DidOptions()
-    data class DidCheqdOptions(val network: String) : DidOptions()
-
-
     private val credentialService = JsonLdCredentialService.getService()
     private val cryptoService = CryptoService.getService()
     val keyService = KeyService.getService()
-    private val didResolverFactory = DidResolverFactory(keyService = keyService, iotaWrapper = IotaService.iotaWrapper)
+    private val didResolverFactory = DidResolverFactory(
+        httpNoAuth = HttpClient(),//TODO: fix contentType for application/did+ld+json
+        keyService = keyService,
+        iotaWrapper = IotaWrapper.createInstance()
+    )
     private val didCache = Caffeine.newBuilder()
         .maximumSize(1000)
         .expireAfterWrite(Duration.ofMinutes(10))
@@ -85,87 +81,25 @@ object DidService {
             } +
             "did.json"
 
-    //region did-resolve
-    fun resolve(did: String): Did = resolve(DidUrl.from(did))
-
-    fun resolve(didUrl: DidUrl): Did = didResolverFactory.create(didUrl).resolve(didUrl)
-
-    fun resolveDidEbsiRaw(did: String): String = runBlocking {
-        log.debug { "Resolving DID $did" }
-
-        val didDoc = WaltIdServices.httpNoAuth.get("https://api-pilot.ebsi.eu/did-registry/v3/identifiers/$did").bodyAsText()
-
-        log.debug { didDoc }
-
-        return@runBlocking didDoc
-    }
-    //endregion
-
-    //region did-import
-    fun importDid(did: String) {
-        val did2 = did.replace("-", ":")
-        resolveAndStore(did2)
-
-        when {
-            did.startsWith("did_web_") -> println("TODO(did:web implementation cannot yet load keys from web address (is dummy))")
-            did.startsWith("did_ebsi_") -> println("TODO")
-        }
-    }
-
-    fun importDidFromFile(file: File): String {
-        if (!file.exists())
-            throw NoSuchElementException("DID doc file not found")
-        val doc = file.readText(StandardCharsets.UTF_8)
-        val did = Did.decode(doc)
-        storeDid(did!!.id, doc)
-        return did.id
-    }
-
-    fun importDidAndKeys(did: String) {
-        importDid(did)
-        log.debug { "DID imported: $did" }
-
-        importKeys(did)
-        log.debug { "Key imported for: $did" }
-    }
-    //endregion
-
-    //region did-load
-    private fun loadDid(didUrlStr: String): String? = ContextManager.hkvStore.getAsString(HKVKey("did", "created", didUrlStr))
-    fun load(did: String): Did = load(DidUrl.from(did))
-    fun load(didUrl: DidUrl): Did = didCache.get(didUrl) {
-        Did.decode(
-            loadDid(didUrl.did) ?: throw IllegalArgumentException("DID $didUrl could not be loaded/found.")
-        ) ?: throw IllegalArgumentException("DID $didUrl could not be decoded.")
-    }
-
-    fun loadDidEbsi(did: String): DidEbsi = loadDidEbsi(DidUrl.from(did))
-    private fun loadDidEbsi(didUrl: DidUrl): DidEbsi = load(didUrl.did) as DidEbsi
-    //endregion
-
-    //region did-update
-    fun updateDidEbsi(did: DidEbsi) = storeDid(did.id, did.encode())
-    //endregion
-
     // region did-create
     fun create(method: DidMethod, keyAlias: String? = null, options: DidOptions? = null): String {
         @Suppress("REDUNDANT_ELSE_IN_WHEN")
         val didUrl = when (method) {
             DidMethod.key -> createDidKey(keyAlias)
             DidMethod.web -> createDidWeb(keyAlias,
-                options?.let { it as DidWebOptions } ?: DidWebOptions("walt.id", UUID.randomUUID().toString()))
+                options?.let { it as DidWebCreateOptions } ?: DidWebCreateOptions("walt.id", UUID.randomUUID().toString()))
 
-            DidMethod.ebsi -> createDidEbsi(keyAlias, options as? DidEbsiOptions)
+            DidMethod.ebsi -> createDidEbsi(keyAlias, options as? DidEbsiCreateOptions)
             DidMethod.iota -> createDidIota(keyAlias)
             DidMethod.jwk -> createDidJwk(keyAlias)
-            DidMethod.cheqd -> createDidCheqd(keyAlias, options as? DidCheqdOptions)
+            DidMethod.cheqd -> createDidCheqd(keyAlias, options as? DidCheqdCreateOptions)
             else -> throw UnsupportedOperationException("DID method $method not supported")
         }
 
         return didUrl
     }
 
-    private fun createDidCheqd(keyAlias: String?, options: DidCheqdOptions?): String {
+    private fun createDidCheqd(keyAlias: String?, options: DidCheqdCreateOptions?): String {
         val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(EdDSA_Ed25519)
         val did = CheqdService.createDid(keyId.id, options?.network ?: "testnet")
         storeDid(did.id, did.encode())
@@ -230,7 +164,7 @@ object DidService {
         return didUrl
     }
 
-    private fun createDidWeb(keyAlias: String?, options: DidWebOptions?): String {
+    private fun createDidWeb(keyAlias: String?, options: DidWebCreateOptions?): String {
 
         options ?: throw Exception("DidWebOptions are mandatory")
         if (options.domain.isNullOrEmpty())
@@ -278,7 +212,7 @@ object DidService {
         return didIota.id
     }
 
-    private fun createDidEbsi(keyAlias: String?, didEbsiOptions: DidEbsiOptions?): String {
+    private fun createDidEbsi(keyAlias: String?, didEbsiOptions: DidEbsiCreateOptions?): String {
         val version = didEbsiOptions?.version ?: 1
         return when (version) {
             1 -> createDidEbsiV1(keyAlias)
@@ -330,6 +264,19 @@ object DidService {
     }
     //endregion
 
+    //region did-load
+    private fun loadDid(didUrlStr: String): String? = ContextManager.hkvStore.getAsString(HKVKey("did", "created", didUrlStr))
+    fun load(did: String): Did = load(DidUrl.from(did))
+    fun load(didUrl: DidUrl): Did = didCache.get(didUrl) {
+        Did.decode(
+            loadDid(didUrl.did) ?: throw IllegalArgumentException("DID $didUrl could not be loaded/found.")
+        ) ?: throw IllegalArgumentException("DID $didUrl could not be decoded.")
+    }
+
+    fun loadDidEbsi(did: String): DidEbsi = loadDidEbsi(DidUrl.from(did))
+    private fun loadDidEbsi(didUrl: DidUrl): DidEbsi = load(didUrl.did) as DidEbsi
+    //endregion
+
     //region did-delete
     fun deleteDid(didUrl: String) {
         loadOrResolveAnyDid(didUrl)?.let { did ->
@@ -339,6 +286,44 @@ object DidService {
                 ContextManager.keyStore.delete(it.id)
             }
         }
+    }
+    //endregion
+
+    //region did-update
+    fun updateDidEbsi(did: DidEbsi) = storeDid(did.id, did.encode())
+    //endregion
+
+    //region did-resolve
+    fun resolve(did: String, options: DidOptions? = null): Did = resolve(DidUrl.from(did), options)
+    fun resolve(didUrl: DidUrl, options: DidOptions? = null): Did = didResolverFactory.create(didUrl.method).resolve(didUrl, options)
+    //endregion
+
+    //region did-import
+    fun importDid(did: String) {
+        val did2 = did.replace("-", ":")
+        resolveAndStore(did2)
+
+        when {
+            did.startsWith("did_web_") -> println("TODO(did:web implementation cannot yet load keys from web address (is dummy))")
+            did.startsWith("did_ebsi_") -> println("TODO")
+        }
+    }
+
+    fun importDidFromFile(file: File): String {
+        if (!file.exists())
+            throw Exception("DID doc file not found")
+        val doc = file.readText(StandardCharsets.UTF_8)
+        val did = Did.decode(doc)
+        storeDid(did!!.id, doc)
+        return did.id
+    }
+
+    fun importDidAndKeys(did: String) {
+        importDid(did)
+        log.debug { "DID imported: $did" }
+
+        importKeys(did)
+        log.debug { "Key imported for: $did" }
     }
     //endregion
 

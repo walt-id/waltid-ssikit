@@ -6,6 +6,8 @@ import id.walt.model.DidUrl
 import id.walt.model.Jwk
 import id.walt.model.VerificationMethod
 import id.walt.model.did.DidEbsi
+import id.walt.services.did.DidEbsiResolveOptions
+import id.walt.services.did.DidOptions
 import id.walt.services.key.KeyService
 import io.ipfs.multibase.Multibase
 import io.ktor.client.*
@@ -20,7 +22,11 @@ class DidEbsiResolver(
     private val keyService: KeyService,
 ) : DidResolverBase<DidEbsi>() {
 
-    override fun resolve(didUrl: DidUrl) = when (Multibase.decode(didUrl.identifier).first().toInt()) {
+    override fun resolve(didUrl: DidUrl, options: DidOptions?) = (options as? DidEbsiResolveOptions)?.takeIf {
+        it.isRaw
+    }?.let { resolveDidEbsiRaw(didUrl.did) }?:resolveEbsi(didUrl)
+
+    private fun resolveEbsi(didUrl: DidUrl) = when (Multibase.decode(didUrl.identifier).first().toInt()) {
         1 -> resolveDidEbsiV1(didUrl)
         2 -> resolveDidEbsiV2(didUrl)
         else -> throw IllegalArgumentException("did:ebsi must have version 1 or 2")
@@ -70,5 +76,12 @@ class DidEbsiResolver(
             authentication = listOf(VerificationMethod.Reference(vmId)),
             assertionMethod = listOf(VerificationMethod.Reference(vmId))
         )
+    }
+
+    private fun resolveDidEbsiRaw(did: String): Did = runBlocking {
+        log.debug { "Resolving DID $did" }
+        val didDoc = httpClient.get("https://api-pilot.ebsi.eu/did-registry/v3/identifiers/$did").bodyAsText()
+        log.debug { didDoc }
+        Did.decode(didDoc) ?: throw Exception("Could not resolve $did")
     }
 }
