@@ -15,7 +15,7 @@ class VerifiablePresentation internal constructor(jsonObject: JsonObject) : Veri
                 when (it) {
                     is JsonPrimitive -> VerifiableCredential.fromString(it.content)
                     is JsonObject -> VerifiableCredential.fromJsonObject(it)
-                    else -> throw Exception("Invalid type of verifiableCredential item")
+                    else -> throw IllegalArgumentException("Invalid type of verifiableCredential item")
                 }
             }
 
