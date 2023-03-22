@@ -167,11 +167,10 @@ class TrustedIssuerRegistryPolicy(registryArg: TrustedIssuerRegistryPolicyArg) :
         val issuerDid = vc.issuerId!!
 
         val resolvedIssuerDid = DidService.loadOrResolveAnyDid(issuerDid)
-            ?: throw Exception("Could not resolve issuer DID $issuerDid")
+            ?: throw IllegalArgumentException("Could not resolve issuer DID $issuerDid")
 
         if (resolvedIssuerDid.id != issuerDid) {
-            log.debug { "Resolved DID ${resolvedIssuerDid.id} does not match the issuer DID $issuerDid" }
-            return VerificationPolicyResult.failure()
+            return VerificationPolicyResult.failure(IllegalArgumentException("Resolved DID ${resolvedIssuerDid.id} does not match the issuer DID $issuerDid"))
         }
         var tirRecord: TrustedIssuer
 
