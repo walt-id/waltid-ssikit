@@ -150,7 +150,7 @@ open class FileSystemKeyStoreService : KeyStoreService() {
 ////                return Key(KeyId(keyId), algorithm, provider, keyPair)
 ////            }
 //        }
-//        throw Exception("Could not load key: $keyId")
+//        throw NoSuchElementException("Could not load key: $keyId")
 //    }
 
 
