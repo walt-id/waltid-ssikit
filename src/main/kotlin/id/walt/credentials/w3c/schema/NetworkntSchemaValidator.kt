@@ -5,6 +5,7 @@ import com.networknt.schema.JsonSchemaFactory
 import com.networknt.schema.SpecVersion
 import id.walt.auditor.VerificationPolicyResult
 import mu.KotlinLogging
+import javax.naming.directory.SchemaViolationException
 
 class NetworkntSchemaValidator(versionFlag: SpecVersion.VersionFlag, schema: String) : SchemaValidator {
     private val log = KotlinLogging.logger {}
@@ -18,6 +19,6 @@ class NetworkntSchemaValidator(versionFlag: SpecVersion.VersionFlag, schema: Str
             log.debug { "Could not validate vc against schema. The validation errors are:" }
             errors.forEach { log.debug { it } }
         }
-        return VerificationPolicyResult(errors.isEmpty(), errors)
+        return VerificationPolicyResult(errors.isEmpty(), errors.map { SchemaViolationException(it.toString()) })
     }
 }

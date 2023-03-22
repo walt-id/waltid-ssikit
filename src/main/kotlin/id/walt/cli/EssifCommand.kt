@@ -18,6 +18,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.util.*
+import kotlin.NoSuchElementException
 
 class EssifCommand : CliktCommand(
     name = "essif",
@@ -119,7 +120,7 @@ class EssifTimestampCreateCommand : CliktCommand(
     override fun run() {
         echo("Creating timestamp")
 
-        if (!dataFile.exists()) throw Exception("File ${dataFile.absoluteFile} not found.")
+        if (!dataFile.exists()) throw NoSuchElementException("File ${dataFile.absoluteFile} not found.")
 
         val transactionHash =
             WaltIdTimestampService().createTimestamp(did, ethKeyAlias ?: did, "{\"test\": \"${UUID.randomUUID()}\"}")
@@ -146,7 +147,7 @@ class EssifTimestampGetCommand : CliktCommand(
             when {
                 id != null -> WaltIdTimestampService().getByTimestampId(id!!)
                 txhash != null -> WaltIdTimestampService().getByTransactionHash(txhash!!)
-                else -> throw Exception("Either timestamp ID or transaction hash need to be specified")
+                else -> throw IllegalArgumentException("Either timestamp ID or transaction hash need to be specified")
             }
         }
 

@@ -81,7 +81,7 @@ class CustodianApiTest : StringSpec({
 
         println("VP Response: $response")
 
-        Auditor.getService().verify(response, listOf(SignaturePolicy())).outcome shouldBe true
+        Auditor.getService().verify(response, listOf(SignaturePolicy())).result shouldBe true
     }
 
     "Check Custodian Presentation generation JWT" {
@@ -110,7 +110,7 @@ class CustodianApiTest : StringSpec({
 
         println("VP Response: $response")
 
-        Auditor.getService().verify(response, listOf(SignaturePolicy())).outcome shouldBe true
+        Auditor.getService().verify(response, listOf(SignaturePolicy())).result shouldBe true
     }
 
     "Test export key" {

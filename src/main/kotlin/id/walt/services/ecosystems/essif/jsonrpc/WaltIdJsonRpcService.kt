@@ -19,6 +19,7 @@ import org.web3j.rlp.RlpList
 import org.web3j.utils.Numeric
 import java.math.BigInteger
 import java.util.*
+import kotlin.NoSuchElementException
 
 class WaltIdJsonRpcService : JsonRpcService() {
 
@@ -39,7 +40,7 @@ class WaltIdJsonRpcService : JsonRpcService() {
         val token = ContextManager.hkvStore.getAsString(
             HKVKey("ebsi", did.substringAfterLast(":"), EssifClient.ebsiAccessTokenFile)
         )
-            ?: throw Exception("Could not load EBSI access token. Make sure that the ESSIF onboarding flow is performed correctly.")
+            ?: throw NoSuchElementException("Could not load EBSI access token. Make sure that the ESSIF onboarding flow is performed correctly.")
 
         val unsignedTx = post<UnsignedTransactionResponse>(token, urlString, method, unsignedTransactionParams).result
         log.debug { "Unsigned transaction: $unsignedTx" }

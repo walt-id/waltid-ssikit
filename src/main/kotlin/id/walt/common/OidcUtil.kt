@@ -106,7 +106,7 @@ object OidcUtil {
         if (jwtService.verify(authRequestJwt)) {
             log.debug { "Successfully verified signature of JWT" }
         } else {
-            throw Exception("Could not verify JWT $authRequestJwt")
+            throw IllegalArgumentException("Could not verify JWT $authRequestJwt")
         }
 
         //val didAuthRequestStr = String(decBase64(authRequestJwt))
@@ -115,15 +115,15 @@ object OidcUtil {
         val request = Klaxon().parse<DidAuthRequest>(jwt.payload.toString())!!
 
         if (oidcAuthReq.callback != request.callback) {
-            throw Exception("Callbacks in OidcRequest data structure are not matching we got: ${oidcAuthReq.callback} & ${request.callback}")
+            throw IllegalArgumentException("Callbacks in OidcRequest data structure are not matching we got: ${oidcAuthReq.callback} & ${request.callback}")
         }
 
         if (scope != request.scope) {
-            throw Exception("Scopes in OidcRequest data structure are not matching we got: $scope & ${request.scope}")
+            throw IllegalArgumentException("Scopes in OidcRequest data structure are not matching we got: $scope & ${request.scope}")
         }
 
         if (responseType != request.response_type) {
-            throw Exception("Scopes in OidcRequest data structure are not matching we got: $responseType & ${request.response_type}")
+            throw IllegalArgumentException("Scopes in OidcRequest data structure are not matching we got: $responseType & ${request.response_type}")
         }
 
         return request

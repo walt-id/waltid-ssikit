@@ -96,5 +96,5 @@ open class HKVKeyStoreService : KeyStoreService() {
 
     private fun loadKey(keyId: String, suffix: String): ByteArray =
         HKVKey.combine(KEYS_ROOT, keyId, suffix)
-            .let { hkvStore.getAsByteArray(it) ?: throw Exception("Could not load key '$it' from HKV store") }
+            .let { hkvStore.getAsByteArray(it) ?: throw NoSuchElementException("Could not load key '$it' from HKV store") }
 }

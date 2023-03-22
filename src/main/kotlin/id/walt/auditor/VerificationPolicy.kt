@@ -36,19 +36,27 @@ data class VerificationPolicyMetadata(
     val isMutable: Boolean
 )
 
-class VerificationPolicyResult(val outcome: Boolean, val errors: List<Any> = listOf()) {
+data class VerificationPolicyResult(val result: Boolean, val errors: List<Throwable> = listOf()) {
     companion object {
         fun success() = VerificationPolicyResult(true)
-        fun failure(error: Any) = VerificationPolicyResult(false, listOf(error))
-        fun failure(errors: List<Any> = listOf()) = VerificationPolicyResult(false, errors.toList())
+        fun failure(error: Throwable): VerificationPolicyResult {
+            log.debug { "VerificationPolicy failed: ${error.stackTraceToString()}" }
+            return VerificationPolicyResult(false, listOf(error))
+        }
+        fun failure(errors: List<Throwable> = listOf()) = VerificationPolicyResult(false, errors.toList())
     }
-    val isSuccess = outcome
-    val isFailure = !outcome
+
+    val isSuccess = result
+    val isFailure = !result
+
+    fun getErrorString() = errors.mapIndexed { index, throwable ->
+        "#${index + 1}: ${throwable::class.simpleName ?: "Error"} - ${throwable.message}"
+    }.joinToString()
 
     override fun toString(): String {
-        return when(outcome) {
-            true -> "true"
-            false -> "false $errors"
+        return when (result) {
+            true -> "passed"
+            false -> "failed: ${getErrorString()}"
         }
     }
 }
@@ -81,13 +89,15 @@ class SignaturePolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by signature"
     override fun doVerify(vc: VerifiableCredential) = runCatching {
         log.debug { "is jwt: ${vc.jwt != null}" }
-        VerificationPolicyResult(when (vc.jwt) {
-            null -> jsonLdCredentialService.verify(vc.encode()).verified
-            else -> jwtCredentialService.verify(vc.encode()).verified
-        })
-    }.onFailure {
-        log.error(it.localizedMessage)
-    }.getOrDefault(VerificationPolicyResult.failure())
+        VerificationPolicyResult(
+            when (vc.jwt) {
+                null -> jsonLdCredentialService.verify(vc.encode()).verified
+                else -> jwtCredentialService.verify(vc.encode()).verified
+            }
+        )
+    }.getOrElse {
+        VerificationPolicyResult.failure(it)
+    }
 }
 
 /**
@@ -95,14 +105,15 @@ class SignaturePolicy : SimpleVerificationPolicy() {
  */
 data class JsonSchemaPolicyArg(val schema: String)
 
-class JsonSchemaPolicy(schemaPolicyArg: JsonSchemaPolicyArg?) : OptionalParameterizedVerificationPolicy<JsonSchemaPolicyArg>(schemaPolicyArg) {
+class JsonSchemaPolicy(schemaPolicyArg: JsonSchemaPolicyArg?) :
+    OptionalParameterizedVerificationPolicy<JsonSchemaPolicyArg>(schemaPolicyArg) {
     constructor() : this(null)
 
     override val description: String = "Verify by JSON schema"
     override fun doVerify(vc: VerifiableCredential): VerificationPolicyResult {
         return (argument?.schema ?: vc.credentialSchema?.id)?.let {
             SchemaValidatorFactory.get(it).validate(vc.toJson())
-        } ?: VerificationPolicyResult.failure()
+        } ?: VerificationPolicyResult.failure(IllegalArgumentException("No \"argument.schema\" or \"credentialSchema.id\" supplied."))
     }
 
     override val applyToVP: Boolean
@@ -123,8 +134,11 @@ class TrustedIssuerDidPolicy : SimpleVerificationPolicy() {
         return try {
             VerificationPolicyResult(DidService.loadOrResolveAnyDid(vc.issuerId!!) != null)
         } catch (e: ClientRequestException) {
-            if (!e.message.contains("did must be a valid DID") && !e.message.contains("Identifier Not Found")) throw e
-            VerificationPolicyResult.failure()
+            VerificationPolicyResult.failure(IllegalArgumentException(when {
+                "did must be a valid DID" in e.message -> "did must be a valid DID"
+                "Identifier Not Found" in e.message -> "Identifier Not Found"
+                else -> throw e
+            }))
         }
     }
 }
@@ -153,11 +167,10 @@ class TrustedIssuerRegistryPolicy(registryArg: TrustedIssuerRegistryPolicyArg) :
         val issuerDid = vc.issuerId!!
 
         val resolvedIssuerDid = DidService.loadOrResolveAnyDid(issuerDid)
-            ?: throw Exception("Could not resolve issuer DID $issuerDid")
+            ?: throw IllegalArgumentException("Could not resolve issuer DID $issuerDid")
 
         if (resolvedIssuerDid.id != issuerDid) {
-            log.debug { "Resolved DID ${resolvedIssuerDid.id} does not match the issuer DID $issuerDid" }
-            return VerificationPolicyResult.failure()
+            return VerificationPolicyResult.failure(IllegalArgumentException("Resolved DID ${resolvedIssuerDid.id} does not match the issuer DID $issuerDid"))
         }
         var tirRecord: TrustedIssuer
 
@@ -249,17 +262,17 @@ class CredentialStatusPolicy : SimpleVerificationPolicy() {
     override fun doVerify(vc: VerifiableCredential): VerificationPolicyResult {
         val cs = Klaxon().parse<CredentialStatusCredential>(vc.toJson())!!.credentialStatus!!
 
-        return VerificationPolicyResult(when (cs.type) {
+        fun revocationVerificationPolicy(revoked: Boolean, timeOfRevocation: Long?) =
+            if (!revoked) VerificationPolicyResult.success() else VerificationPolicyResult.failure(IllegalArgumentException("CredentialStatus (type ${cs.type}) was REVOKED at timestamp $timeOfRevocation for id ${cs.id}."))
+
+        return when (cs.type) {
             "SimpleCredentialStatus2022" -> {
                 val rs = RevocationClientService.getService()
                 val result = rs.checkRevoked(cs.id)
-                !result.isRevoked
+                revocationVerificationPolicy(result.isRevoked, result.timeOfRevocation)
             }
-
-            else -> {
-                throw IllegalArgumentException("CredentialStatus type \"\"")
-            }
-        })
+            else -> VerificationPolicyResult.failure(UnsupportedOperationException("CredentialStatus type \"${cs.type}\" is not yet supported."))
+        }
     }
 }
 
@@ -345,12 +358,12 @@ data class VerificationResult(
     /***
      * Validation status over all policy results.
      */
-    val outcome: Boolean = false,
+    val result: Boolean = false,
     val policyResults: Map<String, VerificationPolicyResult>
 ) {
-    @Deprecated("Deprecated in favour of: outcome")
-    val valid: Boolean = outcome
+    @Deprecated("Deprecated in favour of: result")
+    val valid: Boolean = result
 
     override fun toString() =
-        "VerificationResult(outcome=$outcome, policyResults={${policyResults.entries.joinToString { it.key + "=" + it.value }}})"
+        "VerificationResult(result=$result, policyResults={${policyResults.entries.joinToString { it.key + "=" + it.value }}})"
 }

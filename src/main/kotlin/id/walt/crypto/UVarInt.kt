@@ -28,7 +28,7 @@ class UVarInt(val value: UInt) {
 
         fun fromBytes(bytes: ByteArray): UVarInt {
             if (bytes.isEmpty())
-                throw Exception("Empty byte array")
+                throw IllegalArgumentException("Empty byte array")
 
             var idx = 0
             var value = (bytes[idx].toUInt() and LSB)

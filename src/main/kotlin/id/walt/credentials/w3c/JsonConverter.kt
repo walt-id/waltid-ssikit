@@ -18,7 +18,7 @@ object JsonConverter {
             is JsonElement -> value
 
             //else -> JsonNull
-            else -> throw Exception("Json values can only be Number, String, Boolean, Null, List or Map, not \"${value::class.jvmName}\": toString = $value")
+            else -> throw IllegalArgumentException("Json values can only be Number, String, Boolean, Null, List or Map, not \"${value::class.jvmName}\": toString = $value")
         }
     }
 

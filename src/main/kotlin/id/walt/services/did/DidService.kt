@@ -90,7 +90,7 @@ object DidService {
             DidMethod.iota -> createDidIota(keyAlias)
             DidMethod.jwk -> createDidJwk(keyAlias)
             DidMethod.cheqd -> createDidCheqd(keyAlias, options as? DidCheqdOptions)
-            else -> throw Exception("DID method $method not supported")
+            else -> throw UnsupportedOperationException("DID method $method not supported")
         }
 
         return didUrl
@@ -112,7 +112,7 @@ object DidService {
             DidMethod.web.name -> resolveDidWeb(didUrl)
             DidMethod.ebsi.name -> resolveDidEbsi(didUrl)
             DidMethod.jwk.name -> resolveDidJwk(didUrl)
-            DidMethod.iota.name -> IotaService.resolveDid(didUrl.did) ?: throw Exception("Could not resolve $didUrl")
+            DidMethod.iota.name -> IotaService.resolveDid(didUrl.did) ?: throw IllegalArgumentException("Could not resolve $didUrl")
             DidMethod.cheqd.name -> CheqdService.resolveDid(didUrl.did)
             else -> TODO("did:${didUrl.method} not implemented yet")
         }
@@ -151,7 +151,7 @@ object DidService {
         return when (version) {
             1 -> resolveDidEbsiV1(didUrl)
             2 -> resolveDidEbsiV2(didUrl)
-            else -> throw Exception("did:ebsi must have version 1 or 2")
+            else -> throw IllegalArgumentException("did:ebsi must have version 1 or 2")
         }
     }
 
@@ -183,7 +183,7 @@ object DidService {
         val jwk = keyService.toJwk(didUrl.did)
         val vmId = "${didUrl.did}#${jwk.computeThumbprint()}"
         if (DidUrl.generateDidEbsiV2DidUrl(jwk.computeThumbprint().decode()).identifier != didUrl.identifier) {
-            throw Exception("Public key doesn't match with DID identifier")
+            throw IllegalArgumentException("Public key doesn't match with DID identifier")
         }
         return DidEbsi(
             context = listOf("https://w3id.org/did/v1"),
@@ -211,7 +211,7 @@ object DidService {
         return when (version) {
             1 -> createDidEbsiV1(keyAlias)
             2 -> createDidEbsiV2(keyAlias)
-            else -> throw Exception("Did ebsi version must be 1 or 2")
+            else -> throw IllegalArgumentException("Did ebsi version must be 1 or 2")
         }
     }
 
@@ -322,7 +322,7 @@ object DidService {
 
     private fun createDidWeb(keyAlias: String?, options: DidWebOptions?): String {
 
-        options ?: throw Exception("DidWebOptions are mandatory")
+        options ?: throw IllegalArgumentException("DidWebOptions are mandatory")
         if (options.domain.isNullOrEmpty())
             throw IllegalArgumentException("Missing 'domain' parameter for creating did:web")
 
@@ -408,7 +408,7 @@ object DidService {
 
     fun importDidFromFile(file: File): String {
         if (!file.exists())
-            throw Exception("DID doc file not found")
+            throw NoSuchElementException("DID doc file not found")
         val doc = file.readText(StandardCharsets.UTF_8)
         val did = Did.decode(doc)
         storeDid(did!!.id, doc)
@@ -569,7 +569,7 @@ object DidService {
         val vmType =
             if (algorithm == ECDSA_Secp256k1) EcdsaSecp256k1VerificationKey2019.name else EcdsaSecp256r1VerificationKey2019.name
 
-        val uncompressedPubKey = uncompressSecp256k1(pubKey, curve) ?: throw Exception("Error uncompressing public key bytes")
+        val uncompressedPubKey = uncompressSecp256k1(pubKey, curve) ?: throw IllegalArgumentException("Error uncompressing public key bytes")
         val key = Key(newKeyId(), algorithm, CryptoProvider.SUN, KeyPair(uncompressedPubKey.toECPublicKey(), null))
         val pubKeyId = didUrl.did + "#" + didUrl.identifier
 
@@ -636,7 +636,7 @@ object DidService {
     }
 
     fun importKeys(didUrl: String): Boolean {
-        val did = loadOrResolveAnyDid(didUrl) ?: throw Exception("Could not load or resolve $didUrl")
+        val did = loadOrResolveAnyDid(didUrl) ?: throw IllegalArgumentException("Could not load or resolve $didUrl")
 
         return (did.verificationMethod ?: listOf())
             .asSequence()
@@ -738,12 +738,12 @@ object DidService {
 
     fun importKeyForDidEbsiV2(did: String, key: JWK) {
         if (!isDidEbsiV2(did)) {
-            throw Exception("Specified DID is not did:ebsi version 2")
+            throw IllegalArgumentException("Specified DID is not did:ebsi version 2")
         }
         val thumbprint = key.computeThumbprint()
         val generatedDid = DidUrl.generateDidEbsiV2DidUrl(thumbprint.decode())
         if (generatedDid.did != did) {
-            throw Exception("did doesn't match specified key")
+            throw IllegalArgumentException("did doesn't match specified key")
         }
         val vmId = "$did#$thumbprint"
         if (!keyService.hasKey(vmId)) {
