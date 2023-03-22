@@ -6,6 +6,7 @@ import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
 import mu.KotlinLogging
+import java.util.concurrent.atomic.*
 
 
 private val log = KotlinLogging.logger {}
@@ -14,7 +15,7 @@ private val log = KotlinLogging.logger {}
 abstract class Auditor : WaltIdService() {
     override val implementation: Auditor get() = serviceImplementation()
 
-    protected fun allAccepted(policyResults: Map<String, Boolean>) = policyResults.values.all { it }
+    protected fun allAccepted(policyResults: Map<String, VerificationPolicyResult>) = policyResults.values.all { it.isSuccess }
 
     open fun verify(vc: VerifiableCredential, policies: List<VerificationPolicy>): VerificationResult =
         implementation.verify(vc, policies)
@@ -36,19 +37,23 @@ class WaltIdAuditor : Auditor() {
 
     override fun verify(vc: VerifiableCredential, policies: List<VerificationPolicy>): VerificationResult {
 
-        val policyResults = policies
-            .associateBy(keySelector = VerificationPolicy::id) { policy ->
-                log.debug { "Verifying vc with ${policy.id} ..." }
+        val policyResults = policies.associateBy(keySelector = VerificationPolicy::id) { policy ->
+            log.debug { "Verifying vc with ${policy.id} ..." }
 
-                policy.verify(vc) && when (vc) {
-                    is VerifiablePresentation -> vc.verifiableCredential?.all { cred ->
-                        log.debug { "Verifying ${cred.type.last()} in VP with ${policy.id}..." }
-                        policy.verify(cred)
-                    } ?: true
-
-                    else -> true
+            val vcResult = policy.verify(vc)
+            val success = AtomicBoolean(vcResult.outcome)
+            val allErrors = vcResult.errors.toMutableList()
+            if (allErrors.isEmpty() && vc is VerifiablePresentation) {
+                vc.verifiableCredential?.forEach { cred ->
+                    log.debug { "Verifying ${cred.type.last()} in VP with ${policy.id}..." }
+                    val vpResult = policy.verify(cred)
+                    allErrors.addAll(vpResult.errors)
+                    success.compareAndSet(true, vpResult.outcome)
                 }
             }
+            allErrors.forEach { log.error { "${policy.id}: $it" } }
+            VerificationPolicyResult(success.get(), allErrors)
+        }
 
         return VerificationResult(allAccepted(policyResults), policyResults)
     }

@@ -27,20 +27,10 @@ import io.kotest.data.blocking.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.instanceOf
-import io.ktor.client.*
-import io.ktor.client.call.*
 import io.ktor.client.call.body
-import io.ktor.client.call.body
-import io.ktor.client.call.body
-import io.ktor.client.call.body
-import io.ktor.client.call.body
-import io.ktor.client.call.body
-import io.ktor.client.call.body
-import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
 import java.io.File
 
 class CustodianApiTest : StringSpec({
@@ -91,7 +81,7 @@ class CustodianApiTest : StringSpec({
 
         println("VP Response: $response")
 
-        Auditor.getService().verify(response, listOf(SignaturePolicy())).valid shouldBe true
+        Auditor.getService().verify(response, listOf(SignaturePolicy())).outcome shouldBe true
     }
 
     "Check Custodian Presentation generation JWT" {
@@ -120,7 +110,7 @@ class CustodianApiTest : StringSpec({
 
         println("VP Response: $response")
 
-        Auditor.getService().verify(response, listOf(SignaturePolicy())).valid shouldBe true
+        Auditor.getService().verify(response, listOf(SignaturePolicy())).outcome shouldBe true
     }
 
     "Test export key" {

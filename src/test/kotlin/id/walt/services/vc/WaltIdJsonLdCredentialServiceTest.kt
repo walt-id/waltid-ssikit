@@ -234,10 +234,10 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
         )
         val notParsableVc = ""
 
-        credentialService.validateSchemaTsr(noSchemaVc) shouldBe false
-        credentialService.validateSchemaTsr(validVc) shouldBe true
-        credentialService.validateSchemaTsr(invalidDataVc) shouldBe false
-        credentialService.validateSchemaTsr(notParsableVc) shouldBe false
+        credentialService.validateSchemaTsr(noSchemaVc).outcome shouldBe false
+        credentialService.validateSchemaTsr(validVc).outcome shouldBe true
+        credentialService.validateSchemaTsr(invalidDataVc).outcome shouldBe false
+        credentialService.validateSchemaTsr(notParsableVc).outcome shouldBe false
     }
 
     /*@Test

@@ -66,12 +66,12 @@ class TrustedIssuerRegistryPolicyTest : AnnotationSpec() {
         val capture = mockTrustedIssuerWithAttributes(attributeList)
 
         assertAll(
-            { simplePolicy.verify(verifiableCredential) shouldBe true },
+            { simplePolicy.verify(verifiableCredential).isSuccess },
             { capture.captured shouldBe defaultRegistry }
         )
 
         assertAll(
-            { parameterizedPolicy.verify(verifiableCredential) shouldBe true },
+            { parameterizedPolicy.verify(verifiableCredential).isSuccess },
             { capture.captured shouldBe otherRegistry }
         )
     }
@@ -83,8 +83,8 @@ class TrustedIssuerRegistryPolicyTest : AnnotationSpec() {
         mockTrustedIssuerWithAttributes(attributeList)
 
         assertAll(
-            { simplePolicy.verify(verifiableCredential) shouldBe false },
-            { parameterizedPolicy.verify(verifiableCredential) shouldBe false }
+            { simplePolicy.verify(verifiableCredential).isFailure },
+            { parameterizedPolicy.verify(verifiableCredential).isFailure }
         )
     }
 
@@ -97,12 +97,12 @@ class TrustedIssuerRegistryPolicyTest : AnnotationSpec() {
         val capture = mockTrustedIssuerWithAttributes(attributeList)
 
         assertAll(
-            { simplePolicy.verify(verifiableCredential) shouldBe true },
+            { simplePolicy.verify(verifiableCredential).isSuccess },
             { capture.captured shouldBe defaultRegistry }
         )
 
         assertAll(
-            { parameterizedPolicy.verify(verifiableCredential) shouldBe true },
+            { parameterizedPolicy.verify(verifiableCredential).isSuccess },
             { capture.captured shouldBe otherRegistry }
         )
 

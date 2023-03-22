@@ -4,7 +4,7 @@ import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.VerifiablePresentationBuilder
 import id.walt.credentials.w3c.builder.W3CCredentialBuilder
 import io.kotest.core.spec.style.StringSpec
-import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import java.time.Instant
 
 class ValidFromBeforePolicyTest : StringSpec({
@@ -13,21 +13,21 @@ class ValidFromBeforePolicyTest : StringSpec({
 
     "returns true when valid from is before current" {
         val vc = W3CCredentialBuilder().setValidFrom(Instant.parse("2019-06-22T14:11:44Z")).build()
-        assertEquals(true, validFromBeforePolicy.verify(vc))
+        assertTrue(validFromBeforePolicy.verify(vc).isSuccess)
     }
 
     "returns false when valid from is in the future" {
         val vc = W3CCredentialBuilder().setValidFrom(Instant.parse("3999-06-22T14:11:44Z")).build()
-        assertEquals(false, validFromBeforePolicy.verify(vc))
+        assertTrue(validFromBeforePolicy.verify(vc).isFailure)
     }
 
     "returns false when vc is not a presentation and valid from is null" {
         val vc = W3CCredentialBuilder().build()
-        assertEquals(false, validFromBeforePolicy.verify(vc))
+        assertTrue(validFromBeforePolicy.verify(vc).isFailure)
     }
 
     "returns always true when vc is a presentation" {
         val vp = VerifiablePresentationBuilder().setVerifiableCredentials(listOf(VerifiableCredential())).build()
-        assertEquals(true, validFromBeforePolicy.verify(vp))
+        assertTrue(validFromBeforePolicy.verify(vp).isSuccess)
     }
 })

@@ -33,7 +33,7 @@ object AuditorRestController {
             Auditor.getService().verify(cred, policies)
         }
 
-        ctx.json(VerificationResponse(valid = results.all { it.valid }, results = results))
+        ctx.json(VerificationResponse(valid = results.all { it.outcome }, results = results))
     }
 
     fun verifyVPDocs() = document()
