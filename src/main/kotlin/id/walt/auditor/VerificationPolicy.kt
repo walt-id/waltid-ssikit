@@ -134,8 +134,11 @@ class TrustedIssuerDidPolicy : SimpleVerificationPolicy() {
         return try {
             VerificationPolicyResult(DidService.loadOrResolveAnyDid(vc.issuerId!!) != null)
         } catch (e: ClientRequestException) {
-            if (!e.message.contains("did must be a valid DID") && !e.message.contains("Identifier Not Found")) throw e
-            VerificationPolicyResult.failure()
+            VerificationPolicyResult.failure(IllegalArgumentException(when {
+                "did must be a valid DID" in e.message -> "did must be a valid DID"
+                "Identifier Not Found" in e.message -> "Identifier Not Found"
+                else -> throw e
+            }))
         }
     }
 }
