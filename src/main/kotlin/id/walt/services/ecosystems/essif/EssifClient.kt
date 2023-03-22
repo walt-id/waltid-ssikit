@@ -269,7 +269,7 @@ object EssifClient {
             }
         }
 
-        throw Exception("Could not register DID (after $maxTries tries to contact EBSI)!")
+        throw IllegalStateException("Could not register DID (after $maxTries tries to contact EBSI)!")
     }
 
     // https://ec.europa.eu/cefdigital/wiki/display/BLOCKCHAININT/VC-Issuance+Flow
