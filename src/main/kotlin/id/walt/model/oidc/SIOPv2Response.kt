@@ -53,14 +53,14 @@ data class SIOPv2Response(
 
     companion object {
         fun fromFormParams(params: Map<String, String>): SIOPv2Response {
-            val vpTokenStr = params["vp_token"] ?: throw Exception("vp_token parameter must be set")
+            val vpTokenStr = params["vp_token"] ?: throw IllegalArgumentException("vp_token parameter must be set")
             val idToken = params["id_token"]
             val presentationSubmissionStr = params["presentation_submission"]
             return SIOPv2Response(
                 vp_token = OIDCUtils.fromVpToken(vpTokenStr),
                 presentation_submission = presentationSubmissionStr?.let { KlaxonWithConverters().parse<PresentationSubmission>(it) }
                     ?: idToken?.let { IDToken.parse(it)?.vpTokenRef?.presentation_submission }
-                    ?: throw Exception("Could not parse presentation_submission parameter"),
+                    ?: throw IllegalArgumentException("Could not parse presentation_submission parameter"),
                 id_token = idToken,
                 state = params["state"]
             )
