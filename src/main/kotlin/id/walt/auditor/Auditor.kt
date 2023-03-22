@@ -41,14 +41,14 @@ class WaltIdAuditor : Auditor() {
             log.debug { "Verifying vc with ${policy.id} ..." }
 
             val vcResult = policy.verify(vc)
-            val success = AtomicBoolean(vcResult.outcome)
+            val success = AtomicBoolean(vcResult.result)
             val allErrors = vcResult.errors.toMutableList()
             if (allErrors.isEmpty() && vc is VerifiablePresentation) {
                 vc.verifiableCredential?.forEach { cred ->
                     log.debug { "Verifying ${cred.type.last()} in VP with ${policy.id}..." }
                     val vpResult = policy.verify(cred)
                     allErrors.addAll(vpResult.errors)
-                    success.compareAndSet(true, vpResult.outcome)
+                    success.compareAndSet(true, vpResult.result)
                 }
             }
             allErrors.forEach { log.error { "${policy.id}: $it" } }
