@@ -22,7 +22,7 @@ object OPAPolicyEngine : PolicyEngine {
         try {
             ProcessBuilder("opa").start()
         } catch (e: Exception) {
-            return VerificationPolicyResult.failure("Executable for OPA policy engine not installed. See https://www.openpolicyagent.org/docs/#running-opa")
+            return VerificationPolicyResult.failure(IllegalStateException("Executable for OPA policy engine not installed. See https://www.openpolicyagent.org/docs/#running-opa"))
         }
         val regoFile = resolveContentToFile(policy, tempPrefix = TEMP_PREFIX, tempPostfix = ".rego")
         val dataFile = File.createTempFile("data", ".json")
