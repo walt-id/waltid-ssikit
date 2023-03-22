@@ -3,6 +3,9 @@ package id.walt.rest.custodian
 import cc.vileda.openapi.dsl.externalDocs
 import cc.vileda.openapi.dsl.info
 import com.beust.klaxon.Klaxon
+import com.beust.klaxon.KlaxonException
+import com.fasterxml.jackson.databind.exc.MismatchedInputException
+import com.nimbusds.oauth2.sdk.ParseException
 import id.walt.Values
 import id.walt.rest.ErrorResponse
 import id.walt.rest.OpenAPIUtils
@@ -153,11 +156,55 @@ object CustodianAPI {
             }
         }.exception(IllegalArgumentException::class.java) { e, ctx ->
             log.error { e.stackTraceToString() }
-            ctx.json(ErrorResponse(e.message ?: " Illegal argument exception", 400))
+            ctx.json(ErrorResponse(e.message ?: "Illegal argument exception", 400))
             ctx.status(400)
+        }.exception(IllegalStateException::class.java) { e, ctx ->
+            log.error { e.stackTraceToString() }
+            ctx.json(ErrorResponse(e.message ?: "Illegal state exception", 400))
+            ctx.status(400)
+        }.exception(NoSuchElementException::class.java) { e, ctx ->
+            log.error { e.stackTraceToString() }
+            ctx.json(ErrorResponse(e.message ?: "No such element", 400))
+            ctx.status(404)
+
+            // JSON
+        }.exception(MismatchedInputException::class.java) { e, ctx ->
+            log.error { e.stackTraceToString() }
+            ctx.json(ErrorResponse(e.message ?: "Mismatched input", 400))
+            ctx.status(404)
+        }.exception(com.fasterxml.jackson.core.JsonParseException::class.java) { e, ctx ->
+            log.error { e.stackTraceToString() }
+            ctx.json(ErrorResponse(e.message ?: "JsonParseException", 400))
+            ctx.status(404)
+        }.exception(com.google.gson.JsonParseException::class.java) { e, ctx ->
+            log.error { e.stackTraceToString() }
+            ctx.json(ErrorResponse(e.message ?: "JsonParseException", 400))
+            ctx.status(404)
+        }.exception(com.nimbusds.jose.shaded.gson.JsonParseException::class.java) { e, ctx ->
+            log.error { e.stackTraceToString() }
+            ctx.json(ErrorResponse(e.message ?: "JsonParseException", 400))
+            ctx.status(404)
+        }.exception(KlaxonException::class.java) { e, ctx ->
+            log.error { e.stackTraceToString() }
+            ctx.json(ErrorResponse(e.message ?: "JsonParseException", 400))
+            ctx.status(404)
+
+        }.exception(ParseException::class.java) { e, ctx ->
+            log.error { e.stackTraceToString() }
+            ctx.json(ErrorResponse(e.message ?: "OAuth2 parse exception", 400))
+            ctx.status(404)
+
+
+            // Misc
+        }.exception(UnsupportedOperationException::class.java) { e, ctx ->
+            log.error { e.stackTraceToString() }
+            ctx.json(ErrorResponse(e.message ?: "Unsupported operation", 400))
+            ctx.status(404)
+
+            // Catch-all
         }.exception(Exception::class.java) { e, ctx ->
             log.error { e.stackTraceToString() }
-            ctx.json(ErrorResponse(e.message ?: " Unknown application error", 500))
+            ctx.json(ErrorResponse(e.message ?: "Unknown application error", 500))
             ctx.status(500)
         }.start(bindAddress, port)
     }
