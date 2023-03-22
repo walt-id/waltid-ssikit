@@ -36,19 +36,27 @@ data class VerificationPolicyMetadata(
     val isMutable: Boolean
 )
 
-class VerificationPolicyResult(val outcome: Boolean, val errors: List<Any> = listOf()) {
+data class VerificationPolicyResult(val result: Boolean, val errors: List<Throwable> = listOf()) {
     companion object {
         fun success() = VerificationPolicyResult(true)
-        fun failure(error: Any) = VerificationPolicyResult(false, listOf(error))
-        fun failure(errors: List<Any> = listOf()) = VerificationPolicyResult(false, errors.toList())
+        fun failure(error: Throwable): VerificationPolicyResult {
+            log.debug { "VerificationPolicy failed: ${error.stackTraceToString()}" }
+            return VerificationPolicyResult(false, listOf(error))
+        }
+        fun failure(errors: List<Throwable> = listOf()) = VerificationPolicyResult(false, errors.toList())
     }
-    val isSuccess = outcome
-    val isFailure = !outcome
+
+    val isSuccess = result
+    val isFailure = !result
+
+    fun getErrorString() = errors.mapIndexed { index, throwable ->
+        "#${index + 1}: ${throwable::class.simpleName ?: "Error"} - ${throwable.message}"
+    }.joinToString()
 
     override fun toString(): String {
-        return when(outcome) {
-            true -> "true"
-            false -> "false $errors"
+        return when (result) {
+            true -> "passed"
+            false -> "failed: ${getErrorString()}"
         }
     }
 }
