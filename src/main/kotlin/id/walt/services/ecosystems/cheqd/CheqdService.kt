@@ -2,6 +2,7 @@ package id.walt.services.ecosystems.cheqd
 
 import id.walt.common.KlaxonWithConverters
 import id.walt.crypto.KeyAlgorithm
+import id.walt.crypto.KeyId
 import id.walt.crypto.toBase64Url
 import id.walt.model.Did
 import id.walt.model.did.DidCheqd
@@ -10,10 +11,10 @@ import id.walt.services.ecosystems.cheqd.models.job.didstates.Secret
 import id.walt.services.ecosystems.cheqd.models.job.didstates.SigningResponse
 import id.walt.services.ecosystems.cheqd.models.job.didstates.action.ActionDidState
 import id.walt.services.ecosystems.cheqd.models.job.didstates.finished.FinishedDidState
-import id.walt.services.ecosystems.cheqd.models.job.request.JobActionRequest
+import id.walt.services.ecosystems.cheqd.models.job.request.JobCreateRequest
+import id.walt.services.ecosystems.cheqd.models.job.request.JobDeactivateRequest
 import id.walt.services.ecosystems.cheqd.models.job.request.JobSignRequest
 import id.walt.services.ecosystems.cheqd.models.job.response.JobActionResponse
-import id.walt.services.ecosystems.cheqd.models.job.response.didresponse.DidDocObject
 import id.walt.services.ecosystems.cheqd.models.job.response.didresponse.DidGetResponse
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
@@ -35,9 +36,13 @@ object CheqdService {
 
     private const val verificationMethod = "Ed25519VerificationKey2020"
     private const val methodSpecificIdAlgo = "uuid"
+    private const val registrarUrl = "https://registrar.walt.id/cheqd"
+    private const val registrarApiVersion = "1.0"
     private const val didCreateUrl =
-        "https://registrar.walt.id/cheqd/1.0/did-document?verificationMethod=%s&methodSpecificIdAlgo=%s&network=%s&publicKeyHex=%s"
-    private const val didOnboardUrl = "https://registrar.walt.id/cheqd/1.0/create"
+        "$registrarUrl/$registrarApiVersion/did-document?verificationMethod=%s&methodSpecificIdAlgo=%s&network=%s&publicKeyHex=%s"
+    private const val didOnboardUrl = "$registrarUrl/$registrarApiVersion/create"
+    private const val didDeactivateUrl = "$registrarUrl/$registrarApiVersion/deactivate"
+    private const val didUpdateUrl = "$registrarUrl/$registrarApiVersion/update"
 
     fun createDid(keyId: String, network: String): DidCheqd = let {
         val key = keyService.load(keyId, KeyType.PRIVATE)
@@ -51,16 +56,13 @@ object CheqdService {
 //        step#2. onboard did with cheqd registrar
         KlaxonWithConverters().parse<DidGetResponse>(response)?.let {
 //            step#2a. initialize
-            val job = initiateDidOnboarding(it.didDoc) ?: throw IllegalArgumentException("Failed to initialize the did onboarding process")
-            val state = (job.didState as? ActionDidState) ?: throw IllegalArgumentException("Unexpected did state")
+            val job = initiateDidJob(didCreateUrl, KlaxonWithConverters().toJsonString(JobCreateRequest(it.didDoc)))
+                ?: throw Exception("Failed to initialize the did onboarding process")
 //            step#2b. sign the serialized payload
-            val payloads = state.signingRequest.map {
-                Base64.getDecoder().decode(it.serializedPayload)
-            }
-            // TODO: sign with key having alias from verification method
-            val signatures = payloads.map { Base64.getUrlEncoder().encodeToString(cryptoService.sign(key.keyId, it)) }
+            val signatures = signPayload(key.keyId, job)
 //            step#2c. finalize
-            val didDocument = (finalizeDidOnboarding(
+            val didDocument = (finalizeDidJob(
+                didCreateUrl,
                 job.jobId,
                 it.didDoc.verificationMethod.first().id, // TODO: associate verificationMethodId with signature
                 signatures
@@ -94,19 +96,36 @@ object CheqdService {
         return resp.didDocument!! // cheqd above for null
     }
 
-    private fun initiateDidOnboarding(didDocObject: DidDocObject) = let {
-        val actionResponse = runBlocking {
-            client.post(didOnboardUrl) {
-                contentType(ContentType.Application.Json)
-                setBody(KlaxonWithConverters().toJsonString(JobActionRequest(didDocObject)))
-            }.bodyAsText()
-        }
-        KlaxonWithConverters().parse<JobActionResponse>(actionResponse)
+    fun deactivateDid(did: String){
+        val job = initiateDidJob(didCreateUrl, KlaxonWithConverters().toJsonString(JobDeactivateRequest(did)))
+            ?: throw Exception("Failed to initialize the did onboarding process")
+        val signatures = signPayload(KeyId(""), job)
+        val didDocument = (finalizeDidJob(
+            didDeactivateUrl,
+            job.jobId,
+            "", // TODO: associate verificationMethodId with signature
+            signatures
+        )?.didState as? FinishedDidState)?.didDocument
+            ?: throw Exception("Failed to finalize the did onboarding process")
     }
 
-    private fun finalizeDidOnboarding(jobId: String, verificationMethodId: String, signatures: List<String>) = let {
+    fun updateDid(did: String){
+        TODO()
+    }
+
+    private fun initiateDidJob(url: String, body: String) = let{
+        val response = runBlocking {
+            client.post(url) {
+                contentType(ContentType.Application.Json)
+                setBody(body)
+            }.bodyAsText()
+        }
+        KlaxonWithConverters().parse<JobActionResponse>(response)
+    }
+
+    private fun finalizeDidJob(url: String, jobId: String, verificationMethodId: String, signatures: List<String>) = let{
         val actionResponse = runBlocking {
-            client.post(didOnboardUrl) {
+            client.post(url) {
                 contentType(ContentType.Application.Json)
                 setBody(
                     KlaxonWithConverters().toJsonString(
@@ -128,8 +147,13 @@ object CheqdService {
         KlaxonWithConverters().parse<JobActionResponse>(actionResponse)
     }
 
-}
+    private fun signPayload(keyId: KeyId, job: JobActionResponse) = let {
+        val state = (job.didState as? ActionDidState) ?: throw IllegalArgumentException("Unexpected did state")
+        val payloads = state.signingRequest.map {
+            Base64.getDecoder().decode(it.serializedPayload)
+        }
+        // TODO: sign with key having alias from verification method
+        payloads.map { Base64.getUrlEncoder().encodeToString(cryptoService.sign(keyId, it)) }
+    }
 
-fun main() {
-    println(CheqdService.resolveDid("did:cheqd:mainnet:zF7rhDBfUt9d1gJPjx7s1JXfUY7oVWkY"))
 }
