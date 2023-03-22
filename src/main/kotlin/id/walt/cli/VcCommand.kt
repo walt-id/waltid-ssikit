@@ -201,8 +201,8 @@ class VerifyVcCommand : CliktCommand(
         echo("Verifying from file \"$src\"...\n")
 
         when {
-            !src.exists() -> throw Exception("Could not load file: \"$src\".")
-            usedPolicies.keys.any { !PolicyRegistry.contains(it) } -> throw Exception(
+            !src.exists() -> throw NoSuchElementException("Could not load file: \"$src\".")
+            usedPolicies.keys.any { !PolicyRegistry.contains(it) } -> throw NoSuchElementException(
                 "Unknown verification policy specified: ${
                     usedPolicies.keys.minus(PolicyRegistry.listPolicies().toSet()).joinToString()
                 }"
@@ -219,7 +219,7 @@ class VerifyVcCommand : CliktCommand(
         verificationResult.policyResults.forEach { (policy, result) ->
             echo("$policy:\t $result")
         }
-        echo("Verified:\t\t ${verificationResult.outcome}")
+        echo("Verified:\t\t ${verificationResult.result}")
     }
 }
 
