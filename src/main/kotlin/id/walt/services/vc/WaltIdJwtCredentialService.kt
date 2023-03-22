@@ -131,7 +131,6 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
             return validateSchema(it, URI.create(credentialSchema.id))
         }
     } catch (e: Exception) {
-        e.printStackTrace()
-        VerificationPolicyResult.failure()
+        VerificationPolicyResult.failure(e)
     }
 }
