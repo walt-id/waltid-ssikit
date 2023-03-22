@@ -40,8 +40,8 @@ data class IssuanceInitiationRequest(
     companion object {
         fun fromQueryParams(params: Map<String, List<String>>): IssuanceInitiationRequest {
             return IssuanceInitiationRequest(
-                issuer_url = params["issuer"]?.firstOrNull() ?: throw Exception("Missing parameter 'issuer'"),
-                credential_types = params["credential_type"] ?: throw Exception("Missing parameter(s) 'credential_type'"),
+                issuer_url = params["issuer"]?.firstOrNull() ?: throw IllegalArgumentException("Missing parameter 'issuer'"),
+                credential_types = params["credential_type"] ?: throw IllegalArgumentException("Missing parameter(s) 'credential_type'"),
                 pre_authorized_code = params["pre-authorized_code"]?.firstOrNull(),
                 user_pin_required = params["user_pin_required"]?.map { it.toBoolean() }?.firstOrNull() ?: false,
                 op_state = params["op_state"]?.firstOrNull()
