@@ -262,17 +262,17 @@ class CredentialStatusPolicy : SimpleVerificationPolicy() {
     override fun doVerify(vc: VerifiableCredential): VerificationPolicyResult {
         val cs = Klaxon().parse<CredentialStatusCredential>(vc.toJson())!!.credentialStatus!!
 
-        return VerificationPolicyResult(when (cs.type) {
+        fun revocationVerificationPolicy(revoked: Boolean, timeOfRevocation: Long?) =
+            if (!revoked) VerificationPolicyResult.success() else VerificationPolicyResult.failure(IllegalArgumentException("CredentialStatus (type ${cs.type}) was REVOKED at timestamp $timeOfRevocation for id ${cs.id}."))
+
+        return when (cs.type) {
             "SimpleCredentialStatus2022" -> {
                 val rs = RevocationClientService.getService()
                 val result = rs.checkRevoked(cs.id)
-                !result.isRevoked
+                revocationVerificationPolicy(result.isRevoked, result.timeOfRevocation)
             }
-
-            else -> {
-                throw IllegalArgumentException("CredentialStatus type \"\"")
-            }
-        })
+            else -> VerificationPolicyResult.failure(UnsupportedOperationException("CredentialStatus type \"${cs.type}\" is not yet supported."))
+        }
     }
 }
 
