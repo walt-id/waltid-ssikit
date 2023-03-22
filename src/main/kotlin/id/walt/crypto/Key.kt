@@ -19,7 +19,7 @@ data class Key(val keyId: KeyId, val algorithm: KeyAlgorithm, val cryptoProvider
     fun getPublicKey(): PublicKey = when {
         keyPair != null -> keyPair!!.public
         keysetHandle != null -> TinkKeyStoreService().loadPublicKey(this) as ECPublicKey
-        else -> throw Exception("No public key for $keyId")
+        else -> throw NoSuchElementException("No public key for $keyId")
     }
 
     fun getPublicKeyBytes(): ByteArray {
