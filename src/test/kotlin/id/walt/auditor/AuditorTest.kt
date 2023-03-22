@@ -3,7 +3,9 @@ package id.walt.auditor
 import com.beust.klaxon.JsonObject
 import id.walt.auditor.dynamic.DynamicPolicy
 import id.walt.auditor.dynamic.DynamicPolicyArg
+import id.walt.credentials.w3c.JsonConverter
 import id.walt.credentials.w3c.VerifiableCredential
+import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
@@ -19,6 +21,8 @@ import io.kotest.core.test.TestCase
 import io.kotest.matchers.collections.shouldBeSameSizeAs
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
 import java.io.File
 import java.net.URI
 import java.net.URL
@@ -134,7 +138,7 @@ class AuditorCommandTest : StringSpec() {
             val mandateSubj = mapOf(
                 "credentialSubject" to mapOf(
                     "id" to did,
-                    "policySchemaURI" to "https://raw.githubusercontent.com/walt-id/waltid-ssikit/master/src/test/resources/verifiable-mandates/test-policy.rego",
+                    "policySchemaURI" to "src/test/resources/verifiable-mandates/test-policy.rego",
                     "holder" to mapOf(
                         "role" to "family",
                         "grant" to "apply_to_masters",
@@ -185,7 +189,7 @@ class AuditorCommandTest : StringSpec() {
                 listOf(
                     PolicyRegistry.getPolicyWithJsonArg(
                         "DynamicPolicy",
-                        "{\"dataPath\" : \"\$.credentialSubject\", \"input\" : {\"user\": \"$did\" }, \"policy\" : \"src/test/resources/rego/subject-policy.rego\"}"
+                        "{\"dataPath\" : \"\$\", \"input\" : {\"user\": \"$did\" }, \"policy\" : \"src/test/resources/rego/subject-policy.rego\"}"
                     )
                 )
             ).result
@@ -205,6 +209,19 @@ class AuditorCommandTest : StringSpec() {
                 )
             )
             negResult.result shouldBe false
+        }
+
+        "6a. test policy example in issue #264".config(enabled = enableOPATests)  {
+            val credential = File("$RESOURCES_PATH/rego/issue264/StudentCard.json").readText().toVerifiableCredential()
+            val input = Json.parseToJsonElement(File("$RESOURCES_PATH/rego/issue264/input.json").readText()).jsonObject
+            val dynPolArg = DynamicPolicyArg(
+                input = JsonConverter.fromJsonElement(input) as Map<String, Any?>,
+                policy = "$RESOURCES_PATH/rego/issue264/policy.rego"
+            )
+            val polResult = Auditor.getService().verify(
+                credential, listOf(DynamicPolicy(dynPolArg))
+            )
+            polResult.result shouldBe true
         }
 
         "7. test JsonSchemaPolicy" {

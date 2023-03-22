@@ -1,0 +1,25 @@
+{
+    "@context": ["https://www.w3.org/2018/credentials/v1"],
+    "credentialSchema": {
+        "id": "https://raw.githubusercontent.com/walt-id/waltid-ssikit/feat-neom-credential-schemas/src/test/resources/schemas/NEOM/StudentCard.json",
+        "type": "FullJsonSchemaValidator2021"
+    },
+    "credentialSubject": {
+        "currentAddress": ["1 Boulevard de la Liberté, 59800 Lille"],
+        "dateOfBirth": "1993-04-08",
+        "familyName": "DOE",
+        "firstName": "Jane",
+        "gender": "FEMALE",
+        "id": "did:ebsi:2AEMAqXWKYMu1JHPAgGcga4dxu7ThgfgN95VyJBJGZbSJUtp",
+        "nameAndFamilyNameAtBirth": "Jane DOE",
+        "matriculationNumber": "0904008084H",
+        "placeOfBirth": "LILLE, FRANCE"
+    },
+    "id": "urn:uuid:3add94f4-28ec-42a1-8704-4e4aa51006b4",
+    "issued": "2021-08-31T00:00:00Z",
+    "issuer": "did:ebsi:2A9BZ9SUe6BatacSpvs1V5CdjHvLpQ7bEsi2Jb6LdHKnQxaN",
+    "validFrom": "2021-08-31T00:00:00Z",
+    "issuanceDate": "2021-08-31T00:00:00Z",
+    "expirationDate": "2023-12-31T23:59:59Z",
+    "type": ["VerifiableCredential", "VerifiableAttestation", "StudentCard"]
+}

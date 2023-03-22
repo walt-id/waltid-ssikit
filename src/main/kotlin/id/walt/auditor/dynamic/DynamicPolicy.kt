@@ -20,9 +20,9 @@ open class DynamicPolicy(dynPolArg: DynamicPolicyArg) : ParameterizedVerificatio
         } else {
             argument.policy
         }
+        val credentialData: Map<String, Any?> = JsonPath.parse(json)?.read(argument.dataPath)!!
         return PolicyEngine.get(argument.policyEngine).validate(
-            input = argument.input,
-            data = JsonPath.parse(json)?.read(argument.dataPath)!!,
+            input = PolicyEngineInput(credentialData, argument.input),
             policy = rego,
             query = argument.policyQuery
         ).also {
