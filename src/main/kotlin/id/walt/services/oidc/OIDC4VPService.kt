@@ -66,7 +66,7 @@ object OIDC4VPService {
                 presentation_definition_uri != null
             ).count { it } != 1
         ) {
-            throw Exception("One and only one parameter of [single-scope, presentation_definition, presentation_definition_url] MUST be given.")
+            throw IllegalArgumentException("One and only one parameter of [single-scope, presentation_definition, presentation_definition_url] MUST be given.")
         }
         val customParams = mutableMapOf("nonce" to listOf(nonce.value))
         if (!presentationByScope) {
@@ -107,7 +107,7 @@ object OIDC4VPService {
                 presentationDefinitionUri
             ).filter { it != null && !(it is String && it.isEmpty()) }.size != 1
         ) {
-            throw Exception("One and only one parameter of [scope, presentation_definition, presentation_definition_url] MUST be given.")
+            throw IllegalArgumentException("One and only one parameter of [scope, presentation_definition, presentation_definition_url] MUST be given.")
         }
         if (!scope.isNullOrEmpty()) {
             TODO("How to find pre-definied presentation definition by scope")
@@ -118,9 +118,9 @@ object OIDC4VPService {
         val response = HTTPRequest(HTTPRequest.Method.GET, URI.create(presentationDefinitionUri!!)).send()
         if (response.indicatesSuccess()) {
             return KlaxonWithConverters().parse<PresentationDefinition>(response.content)
-                ?: throw Exception("Error parsing presentation_definition_url response as PresentationDefinition object")
+                ?: throw IllegalArgumentException("Error parsing presentation_definition_url response as PresentationDefinition object")
         }
-        throw Exception("Error fetching presentation definition from presentation_definition_uri")
+        throw IllegalArgumentException("Error fetching presentation definition from presentation_definition_uri")
     }
 
     private fun authRequest2OIDC4VPRequest(authReq: AuthorizationRequest): AuthorizationRequest {
