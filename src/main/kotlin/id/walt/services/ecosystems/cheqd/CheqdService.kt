@@ -51,7 +51,7 @@ object CheqdService {
 //        step#2. onboard did with cheqd registrar
         KlaxonWithConverters().parse<DidGetResponse>(response)?.let {
 //            step#2a. initialize
-            val job = initiateDidOnboarding(it.didDoc) ?: throw Exception("Failed to initialize the did onboarding process")
+            val job = initiateDidOnboarding(it.didDoc) ?: throw IllegalArgumentException("Failed to initialize the did onboarding process")
             val state = (job.didState as? ActionDidState) ?: throw IllegalArgumentException("Unexpected did state")
 //            step#2b. sign the serialized payload
             val payloads = state.signingRequest.map {
@@ -65,10 +65,10 @@ object CheqdService {
                 it.didDoc.verificationMethod.first().id, // TODO: associate verificationMethodId with signature
                 signatures
             )?.didState as? FinishedDidState)?.didDocument
-                ?: throw Exception("Failed to finalize the did onboarding process")
+                ?: throw IllegalArgumentException("Failed to finalize the did onboarding process")
 
             Did.decode(KlaxonWithConverters().toJsonString(didDocument)) as DidCheqd
-        } ?: throw Exception("Failed to fetch the did document from cheqd registrar helper")
+        } ?: throw IllegalArgumentException("Failed to fetch the did document from cheqd registrar helper")
     }
 
     fun resolveDid(did: String): DidCheqd {
