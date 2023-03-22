@@ -4,6 +4,6 @@ import id.walt.services.ecosystems.cheqd.models.job.response.didresponse.DidDocO
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class JobActionRequest(
+data class JobCreateRequest(
     val didDocument: DidDocObject
 )

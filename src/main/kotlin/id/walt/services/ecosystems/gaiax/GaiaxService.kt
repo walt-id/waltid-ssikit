@@ -2,7 +2,7 @@ package id.walt.services.ecosystems.gaiax
 
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
-import id.walt.services.WaltIdServices.http
+import id.walt.services.WaltIdServices.httpNoAuth
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -53,7 +53,7 @@ class WaltIdGaiaxService : GaiaxService() {
         val complianceCredential = runCatching {
 
             val complianceCredential = runBlocking {
-                val req = http.post("https://compliance.lab.gaia-x.eu/v2206/api/sign") {
+                val req = httpNoAuth.post("https://compliance.lab.gaia-x.eu/v2206/api/sign") {
                     contentType(ContentType.Application.Json)
                     setBody(selfDescription)
                 }

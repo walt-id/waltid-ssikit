@@ -14,6 +14,7 @@ import id.walt.model.oidc.IssuanceInitiationRequest
 import id.walt.model.oidc.OIDCProvider
 import id.walt.model.oidc.OIDCProviderWithMetadata
 import id.walt.servicematrix.ServiceMatrix
+import id.walt.services.did.DidEbsiCreateOptions
 import id.walt.services.did.DidService
 import id.walt.services.ecosystems.essif.didebsi.EBSI_ENV_URL
 import id.walt.services.key.KeyService
@@ -67,7 +68,7 @@ class WCTTest : AnnotationSpec() {
         EBSI_ENV_URL = EBSI_WCT_ENV
         ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
         val key = KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1)
-        did = DidService.create(DidMethod.ebsi, key.id, DidService.DidEbsiOptions(2))
+        did = DidService.create(DidMethod.ebsi, key.id, DidEbsiCreateOptions(2))
 
         //ebsiBearerToken = File(EBSI_BEARER_TOKEN_FILE).readText().trim()
     }
