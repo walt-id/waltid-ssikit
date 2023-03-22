@@ -9,8 +9,6 @@ import id.walt.services.ecosystems.cheqd.DidCheqdResolutionResponse
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
-import io.ktor.client.utils.EmptyContent.contentType
-import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
 
 class DidCheqdResolver(private val httpClient: HttpClient) : DidResolverBase<DidCheqd>() {
