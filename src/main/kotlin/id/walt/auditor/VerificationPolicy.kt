@@ -358,12 +358,12 @@ data class VerificationResult(
     /***
      * Validation status over all policy results.
      */
-    val outcome: Boolean = false,
+    val result: Boolean = false,
     val policyResults: Map<String, VerificationPolicyResult>
 ) {
-    @Deprecated("Deprecated in favour of: outcome")
-    val valid: Boolean = outcome
+    @Deprecated("Deprecated in favour of: result")
+    val valid: Boolean = result
 
     override fun toString() =
-        "VerificationResult(outcome=$outcome, policyResults={${policyResults.entries.joinToString { it.key + "=" + it.value }}})"
+        "VerificationResult(result=$result, policyResults={${policyResults.entries.joinToString { it.key + "=" + it.value }}})"
 }
