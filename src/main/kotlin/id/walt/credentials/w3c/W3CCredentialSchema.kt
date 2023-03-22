@@ -26,8 +26,8 @@ class W3CCredentialSchema(
 
         fun fromJsonObject(jsonObject: JsonObject): W3CCredentialSchema {
             return W3CCredentialSchema(
-                id = jsonObject["id"]?.jsonPrimitive?.content ?: throw Exception("Missing id property in CredentialSchema"),
-                type = jsonObject["type"]?.jsonPrimitive?.content ?: throw Exception("Missing id property in CredentialSchema"),
+                id = jsonObject["id"]?.jsonPrimitive?.content ?: throw IllegalArgumentException("Missing id property in CredentialSchema"),
+                type = jsonObject["type"]?.jsonPrimitive?.content ?: throw IllegalArgumentException("Missing id property in CredentialSchema"),
                 properties = jsonObject.filterKeys { k -> !W3CProof.PREDEFINED_PROPERTY_KEYS.contains(k) }
                     .mapValues { entry -> JsonConverter.fromJsonElement(entry.value) }
             )
