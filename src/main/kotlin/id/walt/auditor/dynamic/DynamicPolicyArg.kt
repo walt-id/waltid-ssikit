@@ -5,7 +5,7 @@ data class DynamicPolicyArg(
     val description: String? = null,
     val input: Map<String, Any?>,
     val policy: String,
-    val dataPath: String = "\$.credentialSubject", // for specifying the input data
+    val dataPath: String = "\$", // for specifying the credential data, default: the whole credential object
     val policyQuery: String = "data.system.main", // for evaluating the result from the rego engine
     val policyEngine: PolicyEngineType = PolicyEngineType.OPA,
     val applyToVC: Boolean = true,

@@ -1,0 +1,8 @@
+{
+    "type": "StudentCard",
+    "acl": [
+        "0904008084H",
+        "123456789"
+    ],
+    "idProp": "credentialSubject.matriculationNumber"
+}

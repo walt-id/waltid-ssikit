@@ -32,7 +32,7 @@ RUN if [ -z "$SKIP_TESTS" ]; \
     fi
 
 # --- opa-env
-FROM docker.io/openpolicyagent/opa:0.46.1-static as opa-env
+FROM docker.io/openpolicyagent/opa:0.50.2-static as opa-env
 
 # --- iota-env
 FROM docker.io/waltid/waltid_iota_identity_wrapper:latest as iota-env

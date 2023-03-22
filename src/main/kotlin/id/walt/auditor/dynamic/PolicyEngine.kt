@@ -4,7 +4,7 @@ import id.walt.auditor.VerificationPolicyResult
 
 interface PolicyEngine {
 
-    fun validate(input: Map<String, Any?>, data: Map<String, Any?>, policy: String, query: String): VerificationPolicyResult
+    fun validate(input: PolicyEngineInput, policy: String, query: String): VerificationPolicyResult
     val type: PolicyEngineType
 
     companion object {
