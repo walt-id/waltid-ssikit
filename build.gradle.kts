@@ -75,6 +75,7 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation:2.2.4")
     implementation("io.ktor:ktor-client-core-jvm:2.2.4")
     implementation("io.ktor:ktor-client-cio-jvm:2.2.4")
+    implementation("io.ktor:ktor-client-auth:2.0.3")
     implementation("io.ktor:ktor-client-okhttp:2.2.4")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.2.4")
     implementation("io.ktor:ktor-client-logging-jvm:2.2.4")
