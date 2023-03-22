@@ -89,13 +89,15 @@ class SignaturePolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by signature"
     override fun doVerify(vc: VerifiableCredential) = runCatching {
         log.debug { "is jwt: ${vc.jwt != null}" }
-        VerificationPolicyResult(when (vc.jwt) {
-            null -> jsonLdCredentialService.verify(vc.encode()).verified
-            else -> jwtCredentialService.verify(vc.encode()).verified
-        })
-    }.onFailure {
-        log.error(it.localizedMessage)
-    }.getOrDefault(VerificationPolicyResult.failure())
+        VerificationPolicyResult(
+            when (vc.jwt) {
+                null -> jsonLdCredentialService.verify(vc.encode()).verified
+                else -> jwtCredentialService.verify(vc.encode()).verified
+            }
+        )
+    }.getOrElse {
+        VerificationPolicyResult.failure(it)
+    }
 }
 
 /**
