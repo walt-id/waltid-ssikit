@@ -3,6 +3,7 @@ package id.walt.credentials.w3c.schema
 import id.walt.auditor.VerificationPolicyResult
 import mu.KotlinLogging
 import net.pwall.json.schema.JSONSchema
+import javax.naming.directory.SchemaViolationException
 
 class PWallSchemaValidator(schema: String) : SchemaValidator {
     private val log = KotlinLogging.logger {}
@@ -15,6 +16,8 @@ class PWallSchemaValidator(schema: String) : SchemaValidator {
             log.debug { "Could not validate vc against schema. The validation errors are:" }
             errors.forEach { log.debug { it } }
         }
-        return VerificationPolicyResult(errors.isEmpty(), errors)
+        return VerificationPolicyResult(errors.isEmpty(), errors.map {
+            SchemaViolationException(it.error)
+        })
     }
 }
