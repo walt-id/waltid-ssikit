@@ -3,7 +3,9 @@ package id.walt.auditor
 import com.beust.klaxon.JsonObject
 import id.walt.auditor.dynamic.DynamicPolicy
 import id.walt.auditor.dynamic.DynamicPolicyArg
+import id.walt.credentials.w3c.JsonConverter
 import id.walt.credentials.w3c.VerifiableCredential
+import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
@@ -19,6 +21,8 @@ import io.kotest.core.test.TestCase
 import io.kotest.matchers.collections.shouldBeSameSizeAs
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
 import java.io.File
 import java.net.URI
 import java.net.URL
@@ -76,54 +80,48 @@ class AuditorCommandTest : StringSpec() {
             val policyList = listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy())
             val res = Auditor.getService().verify(vpStr, policyList)
 
-            res.valid shouldBe true
+            res.result shouldBe true
 
             res.policyResults.keys shouldBeSameSizeAs policyList
 
             res.policyResults.keys shouldContainAll policyList.map { it.id }
 
-            res.policyResults.values.forEach {
-                it shouldBe true
-            }
+            res.policyResults.values.forEach { it.result shouldBe true }
         }
 
         "2. verify vc" {
             val res =
                 Auditor.getService().verify(vcStr, listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy()))
 
-            res.valid shouldBe true
+            res.result shouldBe true
             res.policyResults.keys shouldBeSameSizeAs listOf(
                 SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy()
             )
 
             res.policyResults.keys shouldContainAll listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy()).map { it.id }
 
-            res.policyResults.values.forEach {
-                it shouldBe true
-            }
+            res.policyResults.values.forEach { it.result shouldBe true }
         }
 
         "3. verify vc jwt" {
             val res =
                 Auditor.getService().verify(vcJwt, listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy()))
 
-            res.valid shouldBe true
+            res.result shouldBe true
             res.policyResults.keys shouldBeSameSizeAs listOf(
                 SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy()
             )
 
             res.policyResults.keys shouldContainAll listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy()).map { it.id }
 
-            res.policyResults.values.forEach {
-                it shouldBe true
-            }
+            res.policyResults.values.forEach { it.result shouldBe true }
         }
 
         "4. verify vp jwt" {
             val res =
                 Auditor.getService().verify(vpJwt, listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy()))
 
-            res.valid shouldBe true
+            res.result shouldBe true
 
             res.policyResults.keys shouldBeSameSizeAs listOf(
                 SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy()
@@ -131,9 +129,7 @@ class AuditorCommandTest : StringSpec() {
 
             res.policyResults.keys shouldContainAll listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy()).map { it.id }
 
-            res.policyResults.values.forEach {
-                it shouldBe true
-            }
+            res.policyResults.values.forEach { it.result shouldBe true }
         }
 
         // CLI call for testing VerifiableMandatePolicy
@@ -142,7 +138,7 @@ class AuditorCommandTest : StringSpec() {
             val mandateSubj = mapOf(
                 "credentialSubject" to mapOf(
                     "id" to did,
-                    "policySchemaURI" to "https://raw.githubusercontent.com/walt-id/waltid-ssikit/master/src/test/resources/verifiable-mandates/test-policy.rego",
+                    "policySchemaURI" to "src/test/resources/verifiable-mandates/test-policy.rego",
                     "holder" to mapOf(
                         "role" to "family",
                         "grant" to "apply_to_masters",
@@ -165,7 +161,7 @@ class AuditorCommandTest : StringSpec() {
             println("Testing query: $query")
             val verificationResult = Auditor.getService()
                 .verify(mandate, listOf(PolicyRegistry.getPolicy("VerifiableMandatePolicy", JsonObject(query))))
-            verificationResult.valid shouldBe true
+            verificationResult.result shouldBe true
         }
 
         // CLI call for testing RegoPolicy
@@ -185,7 +181,7 @@ class AuditorCommandTest : StringSpec() {
                     )
                 )
             )
-            verificationResult.valid shouldBe true
+            verificationResult.result shouldBe true
 
             // Successful testcase with Rego Policy Arg str
             val verificationResultStr = Auditor.getService().verify(
@@ -193,10 +189,10 @@ class AuditorCommandTest : StringSpec() {
                 listOf(
                     PolicyRegistry.getPolicyWithJsonArg(
                         "DynamicPolicy",
-                        "{\"dataPath\" : \"\$.credentialSubject\", \"input\" : {\"user\": \"$did\" }, \"policy\" : \"src/test/resources/rego/subject-policy.rego\"}"
+                        "{\"dataPath\" : \"\$\", \"input\" : {\"user\": \"$did\" }, \"policy\" : \"src/test/resources/rego/subject-policy.rego\"}"
                     )
                 )
-            ).valid
+            ).result
             verificationResultStr shouldBe true
 
             // Unsuccessful testcase
@@ -212,26 +208,39 @@ class AuditorCommandTest : StringSpec() {
                     )
                 )
             )
-            negResult.valid shouldBe false
+            negResult.result shouldBe false
+        }
+
+        "6a. test policy example in issue #264".config(enabled = enableOPATests)  {
+            val credential = File("$RESOURCES_PATH/rego/issue264/StudentCard.json").readText().toVerifiableCredential()
+            val input = Json.parseToJsonElement(File("$RESOURCES_PATH/rego/issue264/input.json").readText()).jsonObject
+            val dynPolArg = DynamicPolicyArg(
+                input = JsonConverter.fromJsonElement(input) as Map<String, Any?>,
+                policy = "$RESOURCES_PATH/rego/issue264/policy.rego"
+            )
+            val polResult = Auditor.getService().verify(
+                credential, listOf(DynamicPolicy(dynPolArg))
+            )
+            polResult.result shouldBe true
         }
 
         "7. test JsonSchemaPolicy" {
             // test schema from credentialSchema.id property of credential
-            Auditor.getService().verify(vcStr, listOf(JsonSchemaPolicy())).valid shouldBe true
+            Auditor.getService().verify(vcStr, listOf(JsonSchemaPolicy())).result shouldBe true
 
             // test VerifiableDiploma schema from vclib
             Auditor.getService().verify(
                 vcStr,
                 listOf(JsonSchemaPolicy(JsonSchemaPolicyArg("https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableDiploma.json")))
             )
-                .valid shouldBe true
+                .result shouldBe true
 
             // test VerifiableId schema from vclib (should not validate)
             Auditor.getService().verify(
                 vcStr,
                 listOf(JsonSchemaPolicy(JsonSchemaPolicyArg("https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableId.json")))
             )
-                .valid shouldBe false
+                .result shouldBe false
 
             // this is a VerifiableDiploma (EUROPASS) schema, which our VerifiableDiploma template does NOT comply with:
             // https://ec.europa.eu/digital-building-blocks/wikis/display/EBSIDOC/Data+Models+and+Schemas
@@ -241,21 +250,21 @@ class AuditorCommandTest : StringSpec() {
                 Auditor.getService().verify(
                     vcStr,
                     listOf(JsonSchemaPolicy(JsonSchemaPolicyArg(verifiableDiplomaUrl.toExternalForm())))
-                ).valid shouldBe false
+                ).result shouldBe false
             }
 
             // test passing schema by value
             val schemaContent =
                 URI.create("https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableDiploma.json")
                     .toURL().readText()
-            Auditor.getService().verify(vcStr, listOf(JsonSchemaPolicy(JsonSchemaPolicyArg(schemaContent)))).valid shouldBe true
+            Auditor.getService().verify(vcStr, listOf(JsonSchemaPolicy(JsonSchemaPolicyArg(schemaContent)))).result shouldBe true
 
             // test passing schema by file path
             val tempFile = File.createTempFile("schema", ".json")
             tempFile.writeText(schemaContent)
             shouldNotThrowAny {
                 Auditor.getService()
-                    .verify(vcStr, listOf(JsonSchemaPolicy(JsonSchemaPolicyArg(tempFile.absolutePath)))).valid shouldBe true
+                    .verify(vcStr, listOf(JsonSchemaPolicy(JsonSchemaPolicyArg(tempFile.absolutePath)))).result shouldBe true
             }
             tempFile.delete()
         }
@@ -265,10 +274,10 @@ class AuditorCommandTest : StringSpec() {
                 VerifiableCredential.fromString(File("$credentialFile").readText())
 
             if (schemaFile.isNullOrBlank()) {
-                Auditor.getService().verify(credential, listOf(JsonSchemaPolicy())).valid shouldBe true
+                Auditor.getService().verify(credential, listOf(JsonSchemaPolicy())).result shouldBe true
             } else {
                 Auditor.getService()
-                    .verify(credential, listOf(JsonSchemaPolicy(JsonSchemaPolicyArg(schemaFile)))).valid shouldBe true
+                    .verify(credential, listOf(JsonSchemaPolicy(JsonSchemaPolicyArg(schemaFile)))).result shouldBe true
             }
         }
 

@@ -19,6 +19,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.time.Instant
 import java.util.*
+import kotlin.NoSuchElementException
 
 private val log = KotlinLogging.logger {}
 
@@ -80,7 +81,7 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
             true -> Files.readString(Path.of(templateIdOrFilename)).toVerifiableCredential()
             else -> VcTemplateManager.getTemplate(templateIdOrFilename, true, configuration.templatesFolder).template
         }?.let { W3CCredentialBuilder.fromPartial(it) }
-            ?: throw Exception("Template could not be loaded: $templateIdOrFilename")
+            ?: throw NoSuchElementException("Template could not be loaded: $templateIdOrFilename")
 
         return issue(dataProvider?.populate(credentialBuilder, config) ?: credentialBuilder, config, issuer, storeCredential)
     }
@@ -139,7 +140,7 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
         if (template.mutable) {
             VcTemplateManager.unregisterTemplate(templateId)
         } else {
-            throw Exception("Template is immutable and cannot be removed. Use import to override existing templates.")
+            throw IllegalArgumentException("Template is immutable and cannot be removed. Use import to override existing templates.")
         }
     }
 

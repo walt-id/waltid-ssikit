@@ -134,10 +134,10 @@ data class Keys(val keyId: String, val pair: KeyPair, val provider: String) {
             return when (algorithm) {
                 "ed" -> toOctetKeyPair().toJSONString()
                 "sec" -> toEcKey().toJSONString()
-                else -> throw Exception("Export of algo: $algorithm not supported")
+                else -> throw UnsupportedOperationException("Export of algo: $algorithm not supported")
             }
         }
-        throw Exception("Export of for provider: $provider not supported")
+        throw UnsupportedOperationException("Export of for provider: $provider not supported")
     }
 }
 

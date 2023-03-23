@@ -75,7 +75,6 @@ open class VerifiableCredential internal constructor(
     }
 
     fun toJson(): String {
-        println("To JSON Object: $type $id")
         return toJsonObject().toString()
     }
 

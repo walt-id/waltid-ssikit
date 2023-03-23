@@ -300,10 +300,10 @@ object UserWalletService {
         ///////////////////////////////////////////////////////////////////////////
 
         // Validated nonce
-        if (nonce != decAccesTokenResp.nonce) throw Exception("Nonce in Access Token response not valid")
+        if (nonce != decAccesTokenResp.nonce) throw IllegalArgumentException("Nonce in Access Token response not valid")
 
         // Compare DID of EOS
-        if (accessTokenResponse.did != decAccesTokenResp.did) throw Exception("Decrypted DID does not match the DID of the siop response")
+        if (accessTokenResponse.did != decAccesTokenResp.did) throw IllegalArgumentException("Decrypted DID does not match the DID of the siop response")
 
         // TODO load MAC + validate payload
 
@@ -451,7 +451,7 @@ object UserWalletService {
 //
 //        if (false) {//!jwtService.verify(oidcReqUri.request)) {
 //            log.error { "Could not verify Authentication Request Token signature: " + oidcReqUri.request }
-//            throw Exception("Could not verify Authentication Request Token signature: " + oidcReqUri.request)
+//            throw IllegalArgumentException("Could not verify Authentication Request Token signature: " + oidcReqUri.request)
 //        } else {
 //            println("\nJWT signature of Authentication Request Token Verified successfully ✔\n")
 //        }
@@ -495,7 +495,7 @@ object UserWalletService {
         log.debug { "Validating Authentication Request $authReq" }
 
 //        if (authReq.claims.id_token.verified_claims.verification.trust_framework != "EBSI") {
-//            throw Exception("Trust framework needs to be: EBSI")
+//            throw IllegalArgumentException("Trust framework needs to be: EBSI")
 //        }
 
         //TODO add further validations and validation based on the JSON schema

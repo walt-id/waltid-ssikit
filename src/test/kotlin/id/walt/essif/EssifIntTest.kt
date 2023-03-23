@@ -53,7 +53,7 @@ class EssifIntTest : StringSpec({
         println("Checking for bearer token...")
         if (!Path(bearerTokenFile).exists()) {
             if (!Path("bearer-token.txt").exists()) {
-                throw Exception("Place token from https://app-pilot.ebsi.eu/users-onboarding in file bearer-token.txt")
+                throw NoSuchElementException("Place token from https://app-pilot.ebsi.eu/users-onboarding in file bearer-token.txt")
             }
             Path("bearer-token.txt").copyTo(Path(bearerTokenFile))
         }
@@ -225,7 +225,7 @@ class EssifIntTest : StringSpec({
 
 private fun resetDataDir() {
     SqlDbManager.stop()
-    if (!File("data").deleteRecursively()) throw Exception("Could not delete data-dir!")
+    if (!File("data").deleteRecursively()) throw IllegalStateException("Could not delete data-dir!")
     File("data").mkdir()
     SqlDbManager.start()
 }
@@ -236,8 +236,8 @@ private fun verifyCredential(src: File) {
     println("Verifying from file \"$src\"...\n")
 
     when {
-        !src.exists() -> throw Exception("Could not load file: \"$src\".")
-        policies.any { !PolicyRegistry.contains(it) } -> throw Exception(
+        !src.exists() -> throw NoSuchElementException("Could not load file: \"$src\".")
+        policies.any { !PolicyRegistry.contains(it) } -> throw NoSuchElementException(
             "Unknown verification policy specified: ${policies.minus(PolicyRegistry.listPolicies()).joinToString()}"
         )
     }
@@ -248,9 +248,9 @@ private fun verifyCredential(src: File) {
         println("$policy:\t\t $result")
         result shouldBe true
     }
-    println("Verified:\t\t ${verificationResult.valid}")
+    println("Verified:\t\t ${verificationResult.result}")
 
-    verificationResult.valid shouldBe true
+    verificationResult.result shouldBe true
 }
 
 private fun privateKeyExists(keyAlias: String) =

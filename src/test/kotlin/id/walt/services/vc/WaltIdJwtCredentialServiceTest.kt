@@ -11,6 +11,7 @@ import id.walt.crypto.KeyAlgorithm
 import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
+import id.walt.services.did.DidEbsiCreateOptions
 import id.walt.services.did.DidService
 import id.walt.services.jwt.JwtService
 import id.walt.services.key.KeyService
@@ -141,15 +142,15 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
             )
         val notParsableVc = ""
 
-        credentialService.validateSchemaTsr(noSchemaVc) shouldBe true
-        credentialService.validateSchemaTsr(validVc) shouldBe true
-        credentialService.validateSchemaTsr(invalidDataVc) shouldBe false
-        credentialService.validateSchemaTsr(notParsableVc) shouldBe false
+        credentialService.validateSchemaTsr(noSchemaVc).result shouldBe true
+        credentialService.validateSchemaTsr(validVc).result shouldBe true
+        credentialService.validateSchemaTsr(invalidDataVc).result shouldBe false
+        credentialService.validateSchemaTsr(notParsableVc).result shouldBe false
     }
 
     @Test
     fun testJwtWithDidEbsiV2() {
-        val didV2 = DidService.create(DidMethod.ebsi, options = DidService.DidEbsiOptions(version = 2))
+        val didV2 = DidService.create(DidMethod.ebsi, options = DidEbsiCreateOptions(version = 2))
         // issue credential using did ebsi v2
         val vc = Signatory.getService()
             .issue("VerifiableId", ProofConfig(didV2, didV2, proofType = ProofType.JWT, ecosystem = Ecosystem.ESSIF))
@@ -169,7 +170,7 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
         KeyService.getService().hasKey(didV2) shouldBe false
         // verify presentation JWT
         val verificationResult = Auditor.getService().verify(presentation, listOf(SignaturePolicy()))
-        verificationResult.valid shouldBe true
+        verificationResult.result shouldBe true
         // verify key has been resolved
         KeyService.getService().hasKey(didV2) shouldBe true
     }

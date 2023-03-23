@@ -3,7 +3,10 @@ package id.walt.auditor.dynamic
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
 import com.beust.klaxon.Parser
+import id.walt.auditor.VerificationPolicyResult
 import id.walt.common.resolveContentToFile
+import id.walt.credentials.w3c.JsonConverter
+import kotlinx.serialization.json.buildJsonObject
 import mu.KotlinLogging
 import java.io.File
 
@@ -12,46 +15,32 @@ object OPAPolicyEngine : PolicyEngine {
 
     const val TEMP_PREFIX = "_TEMP_"
 
-    fun validate(jsonInput: String, data: Map<String, Any?>, regoPolicy: String, regoQuery: String): Boolean {
-        val input: Map<String, Any?> = Parser.default().parse(StringBuilder(jsonInput)) as JsonObject
-        return validate(input, data, regoPolicy, regoQuery)
-    }
-
-    override fun validate(input: Map<String, Any?>, data: Map<String, Any?>, policy: String, query: String): Boolean {
+    override fun validate(input: PolicyEngineInput, policy: String, query: String): VerificationPolicyResult {
         try {
             ProcessBuilder("opa").start()
         } catch (e: Exception) {
-            throw IllegalStateException(
-                "Executable for OPA policy engine not installed. See https://www.openpolicyagent.org/docs/#running-opa", e)
+            return VerificationPolicyResult.failure(IllegalStateException("Executable for OPA policy engine not installed. See https://www.openpolicyagent.org/docs/#running-opa"))
         }
         val regoFile = resolveContentToFile(policy, tempPrefix = TEMP_PREFIX, tempPostfix = ".rego")
-        val dataFile = File.createTempFile("data", ".json")
-        dataFile.writeText(JsonObject(data).toJsonString())
         try {
             val p = ProcessBuilder(
                 "opa",
                 "eval",
                 "-d",
                 regoFile.absolutePath,
-                "-d",
-                dataFile.absolutePath,
                 "-I",
                 "-f",
                 "values",
                 query
-            )
-                .start()
-            p.outputStream.writer().use { it.write(JsonObject(input).toJsonString()) }
+            ).start()
+            p.outputStream.writer().use { it.write(input.toJson()) }
             val output = p.inputStream.reader().use { it.readText() }
             p.waitFor()
             log.debug("rego eval output: {}", output)
-            return Klaxon().parseArray<Boolean>(output)?.all { it } ?: false
+            return VerificationPolicyResult(Klaxon().parseArray<Boolean>(output)?.all { it } ?: false)
         } finally {
             if (regoFile.exists() && regoFile.name.startsWith(TEMP_PREFIX)) {
                 regoFile.delete()
-            }
-            if (dataFile.exists()) {
-                dataFile.delete()
             }
         }
     }

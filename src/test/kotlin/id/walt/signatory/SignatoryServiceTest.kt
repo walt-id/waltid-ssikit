@@ -182,7 +182,7 @@ class SignatoryServiceTest : StringSpec({
         parsedVC.credentialSubject?.properties?.get("familyName") shouldBe "GNITO"
 
         signedVC shouldMatchJson parsedVC.toJson()
-        Auditor.getService().verify(parsedVC, listOf(SignaturePolicy())).valid shouldBe true
+        Auditor.getService().verify(parsedVC, listOf(SignaturePolicy())).result shouldBe true
     }
 
     "sign any credential with user data from subject builder" {
@@ -206,7 +206,7 @@ class SignatoryServiceTest : StringSpec({
         parsedVC.issuer?.properties?.get("name") shouldBe "Test Issuer"
 
         signedVC shouldMatchJson parsedVC.toJson()
-        Auditor.getService().verify(parsedVC, listOf(SignaturePolicy())).valid shouldBe true
+        Auditor.getService().verify(parsedVC, listOf(SignaturePolicy())).result shouldBe true
     }
 
     /*"sign verifiable id credential with typed builder" {

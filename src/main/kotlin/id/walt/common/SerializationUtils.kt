@@ -108,7 +108,7 @@ val didVerificationRelationshipsConverter = object : Converter {
             when (item) {
                 is String -> VerificationMethod.Reference(item)
                 is JsonObject -> Klaxon().parseFromJsonObject<VerificationMethod>(item)
-                else -> throw Exception("Verification relationship must be either String or JsonObject")
+                else -> throw IllegalArgumentException("Verification relationship must be either String or JsonObject")
             }
         }
     }

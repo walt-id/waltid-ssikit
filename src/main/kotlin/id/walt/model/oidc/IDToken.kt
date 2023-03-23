@@ -21,7 +21,7 @@ data class IDToken(
 ) {
     fun sign(): String {
         return subject?.let {JwtService.getService().sign(it, Klaxon().toJsonString(this)) } ?:
-            throw Exception("No subject specified")
+            throw IllegalArgumentException("No subject specified")
     }
 
     fun verify(): Boolean {

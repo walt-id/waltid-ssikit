@@ -6,6 +6,7 @@ import com.danubetech.keyformats.crypto.provider.impl.TinkEd25519Provider
 import foundation.identity.jsonld.ConfigurableDocumentLoader
 import foundation.identity.jsonld.JsonLDException
 import foundation.identity.jsonld.JsonLDObject
+import id.walt.auditor.VerificationPolicyResult
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.VerifiablePresentation
 import id.walt.credentials.w3c.VerifiablePresentationBuilder
@@ -171,11 +172,11 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
 
     override fun verify(vcOrVp: String): VerificationResult {
         val vcObj = vcOrVp.toVerifiableCredential()
-        val issuer = vcObj.issuerId ?: throw Exception("No issuer DID found for VC or VP")
+        val issuer = vcObj.issuerId ?: throw NoSuchElementException("No issuer DID found for VC or VP")
         val vm = vcObj.proof?.verificationMethod ?: issuer
 
         if (!DidService.importKeys(issuer)) {
-            throw Exception("Could not resolve verification keys")
+            throw IllegalArgumentException("Could not resolve verification keys")
         }
 
         log.debug { "Loading verification key for:  $vm" }
@@ -200,7 +201,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
         val ldProof = LdProof.getFromJsonLDObject(jsonLdObject)
         if (ldProof == null) {
             log.info { "No LD proof found on VC" }
-            throw Exception("No LD proof found on VC")
+            throw NoSuchElementException("No LD proof found on VC")
         }
 
         val ldSignatureType = LdSignatureType.valueOf(ldProof.type)
@@ -279,22 +280,15 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
 
         vc.toVerifiableCredential().let {
 
-            if (it is VerifiablePresentation) return true
+            if (it is VerifiablePresentation)
+                return VerificationPolicyResult.success()
 
             val credentialSchemaUrl = it.credentialSchema?.id
-
-            if (credentialSchemaUrl == null) {
-                log.debug { "Credential has no associated credentialSchema property" }
-                return false
-            }
+                ?: return VerificationPolicyResult.failure(IllegalArgumentException("Credential has no associated credentialSchema property"))
 
             return validateSchema(it, URI.create(credentialSchemaUrl))
         }
     } catch (e: Exception) {
-        if (log.isDebugEnabled) {
-            log.debug { "Could not validate schema" }
-            e.printStackTrace()
-        }
-        false
+        VerificationPolicyResult.failure(e)
     }
 }

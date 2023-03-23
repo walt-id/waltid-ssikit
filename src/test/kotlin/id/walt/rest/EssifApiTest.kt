@@ -3,7 +3,7 @@ package id.walt.rest
 import id.walt.rest.essif.EbsiTimestampRequest
 import id.walt.rest.essif.EssifAPI
 import id.walt.servicematrix.ServiceMatrix
-import id.walt.services.WaltIdServices.http
+import id.walt.services.WaltIdServices.httpNoAuth
 import io.kotest.core.annotation.Ignored
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
@@ -18,7 +18,7 @@ class EssifApiTest : AnnotationSpec() {
 
     val ESSIF_API_URL = "http://localhost:7012"
 
-    val client = http
+    val client = httpNoAuth
 
     init {
         ServiceMatrix("service-matrix.properties")

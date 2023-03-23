@@ -56,7 +56,7 @@ open class WaltIdJwtService : JwtService() {
         //val encKey = KeyManagementService.load(keyId)
         if (encKey == null) {
             log.error { "Could not load verifying key for $keyId" }
-            throw Exception("Could not load verifying key for $keyId")
+            throw IllegalArgumentException("Could not load verifying key for $keyId")
         }
         val decrypter = X25519Decrypter(encKey)
         decrypter.jcaContext.provider = provider
@@ -99,7 +99,7 @@ open class WaltIdJwtService : JwtService() {
         val issuerKey = keyService.load(keyAlias)
         if (issuerKey == null) {
             log.error { "Could not load signing key for $keyAlias" }
-            throw Exception("Could not load signing key for $keyAlias")
+            throw IllegalArgumentException("Could not load signing key for $keyAlias")
         }
 
         log.debug { "Signing JWT with algorithm: ${issuerKey.algorithm}" }
@@ -138,7 +138,7 @@ open class WaltIdJwtService : JwtService() {
 
             else -> {
                 log.error { "Algorithm ${issuerKey.algorithm} not supported" }
-                throw Exception("Algorithm ${issuerKey.algorithm} not supported")
+                throw UnsupportedOperationException("Algorithm ${issuerKey.algorithm} not supported")
             }
         }
 
@@ -156,7 +156,7 @@ open class WaltIdJwtService : JwtService() {
             if (DidService.isDidEbsiV2(keyAlias) && jwt.header.jwk != null) {
                 DidService.importKeyForDidEbsiV2(DidUrl.from(keyAlias).did, jwt.header.jwk)
             } else if (!DidService.importKeys(DidUrl.from(keyAlias).did)) {
-                throw Exception("Could not resolve verification keys")
+                throw IllegalArgumentException("Could not resolve verification keys")
             }
         }
 
@@ -178,7 +178,7 @@ open class WaltIdJwtService : JwtService() {
 
             else -> {
                 log.error { "Algorithm ${verifierKey.algorithm} not supported" }
-                throw Exception("Algorithm ${verifierKey.algorithm} not supported")
+                throw UnsupportedOperationException("Algorithm ${verifierKey.algorithm} not supported")
             }
         }
 

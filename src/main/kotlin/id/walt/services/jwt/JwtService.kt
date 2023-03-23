@@ -12,7 +12,7 @@ open class JwtService : WaltIdService() {
     // val recipientJWK = KeyManagementService.loadKeys(keyAlias)
     // if (recipientJWK == null) {
     //     log.error { "Could not load verifying key for $keyAlias" }
-    //     throw Exception("Could not load verifying key for $keyAlias")
+    //     throw NoSuchElementException("Could not load verifying key for $keyAlias")
     // }
 
     open fun encrypt(

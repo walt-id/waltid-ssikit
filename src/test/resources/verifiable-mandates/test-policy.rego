@@ -18,13 +18,13 @@ constraints = {
 # all inputs must contain user and actions
 
 main {
-    input.user == data.id
-    data.role in roles
-    input.action in grants[data.role]
+    input.parameter.user == input.credentialData.id
+    input.credentialData.role in roles
+    input.parameter.action in grants[input.credentialData.role]
 
-    input.action == data.grant
+    input.parameter.action == input.credentialData.grant
 
-    every constraint in constraints[input.action] {
-        data.constraints[constraint] == input[constraint]
+    every constraint in constraints[input.parameter.action] {
+        input.credentialData.constraints[constraint] == input.parameter[constraint]
     }
 }

@@ -11,8 +11,9 @@ import id.walt.model.Did
 import id.walt.model.DidMethod
 import id.walt.model.gaiax.GaiaxCredentialGroup
 import id.walt.model.gaiax.ParticipantVerificationResult
-import id.walt.services.WaltIdServices.http
+import id.walt.services.WaltIdServices.httpNoAuth
 import id.walt.services.did.DidService
+import id.walt.services.did.DidWebCreateOptions
 import id.walt.services.ecosystems.gaiax.GaiaxService
 import id.walt.services.key.KeyService
 import id.walt.signatory.Ecosystem
@@ -81,7 +82,7 @@ class GaiaxOnboardingCommand : CliktCommand(
         if (didWebPath?.isBlank() == true) didWebPath = null
 
         echo(">>> Creating did:web from key $keyId...")
-        val did = DidService.create(DidMethod.web, keyId.id, DidService.DidWebOptions(didWebDomain, didWebPath))
+        val did = DidService.create(DidMethod.web, keyId.id, DidWebCreateOptions(didWebDomain, didWebPath))
         echo("DID created: $did")
 
         var encodedDid = DidService.load(did).encodePretty()
@@ -196,7 +197,7 @@ class GaiaxVerifyCredentialGroupCommand : CliktCommand(
         )
 
         val verificationResult = runBlocking {
-            http.post("https://compliance.lab.gaia-x.eu/api/v2206/participant/verify/raw") {
+            httpNoAuth.post("https://compliance.lab.gaia-x.eu/api/v2206/participant/verify/raw") {
                 setBody(credentialGroup)
             }.body<ParticipantVerificationResult>()
         }

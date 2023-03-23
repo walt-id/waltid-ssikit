@@ -1,17 +1,23 @@
 package id.walt.credentials.w3c.schema
 
+import id.walt.auditor.VerificationPolicyResult
 import mu.KotlinLogging
 import net.pwall.json.schema.JSONSchema
+import javax.naming.directory.SchemaViolationException
 
 class PWallSchemaValidator(schema: String) : SchemaValidator {
     private val log = KotlinLogging.logger {}
 
     private val jsonSchema = JSONSchema.parse(schema)
 
-    override fun validate(json: String) = jsonSchema.validateBasic(json).errors?.also {
-        if (it.isNotEmpty()) {
-            log.debug { "Could not validate vc against schema . The validation errors are:" }
-            it.forEach { log.debug { it } }
+    override fun validate(json: String): VerificationPolicyResult {
+        val errors = jsonSchema.validateBasic(json).errors ?: listOf()
+        if (errors.isNotEmpty()) {
+            log.debug { "Could not validate vc against schema. The validation errors are:" }
+            errors.forEach { log.debug { it } }
         }
-    }?.isEmpty() ?: true
+        return VerificationPolicyResult(errors.isEmpty(), errors.map {
+            SchemaViolationException(it.error)
+        })
+    }
 }

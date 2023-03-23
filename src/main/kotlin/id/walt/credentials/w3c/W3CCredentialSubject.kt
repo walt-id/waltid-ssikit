@@ -9,7 +9,6 @@ open class W3CCredentialSubject(var id: String? = null, override val properties:
         id?.let { put("id", it) }
         properties.let { props ->
             props.keys.forEach { key ->
-                println("Properties key: $key => ${props[key]}")
                 put(key, JsonConverter.toJsonElement(props[key]))
             }
         }

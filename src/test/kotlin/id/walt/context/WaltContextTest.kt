@@ -67,7 +67,7 @@ class WaltContextTest : AnnotationSpec() {
         ContextManager.runWith(userBContext) {
             // verify credential in user B context, importing key from did on the fly
             val result = Auditor.getService().verify(cred, listOf(SignaturePolicy()))
-            result.valid shouldBe true
+            result.result shouldBe true
         }
     }
 }

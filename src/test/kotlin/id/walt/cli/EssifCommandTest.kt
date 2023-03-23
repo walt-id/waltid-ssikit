@@ -7,6 +7,7 @@ import id.walt.crypto.KeyAlgorithm
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.crypto.CryptoService
+import id.walt.services.did.DidEbsiCreateOptions
 import id.walt.services.did.DidService
 import id.walt.services.ecosystems.essif.timestamp.Timestamp
 import id.walt.services.ecosystems.essif.timestamp.WaltIdTimestampService
@@ -56,7 +57,7 @@ class EssifCommandTest : StringSpec({
 
     "0. Create EBSI DID" {
         keyId = CryptoService.getService().generateKey(KeyAlgorithm.ECDSA_Secp256k1).id
-        did = DidService.create(DidMethod.ebsi, keyId, DidService.DidEbsiOptions(1))
+        did = DidService.create(DidMethod.ebsi, keyId, DidEbsiCreateOptions(1))
         identifier = did.removePrefix("did:ebsi:")
     }
 
@@ -75,7 +76,7 @@ class EssifCommandTest : StringSpec({
      * The token can be retrieved from https://app-pilot.ebsi.eu/users-onboarding/v2/
      */
     "2. onboard --did".config(enabled = enableTests) {
-        if (!bearerToken.exists()) throw Exception("Bearer Token from https://app-pilot.ebsi.eu/users-onboarding/v2/ should be placed in file data/ebsi/bearer-token.txt")
+        if (!bearerToken.exists()) throw NoSuchElementException("Bearer Token from https://app-pilot.ebsi.eu/users-onboarding/v2/ should be placed in file data/ebsi/bearer-token.txt")
 
         println("Generating verifiable authorization...")
         EssifOnboardingCommand().parse(listOf("--did", did, File("data/ebsi/bearer-token.txt").absolutePath))

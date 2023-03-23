@@ -81,7 +81,7 @@ open class WaltIdKeyService : KeyService() {
                 when (curve) {
                     Curve.SECP256K1 -> JWSAlgorithm.ES256K
                     Curve.P_256 -> JWSAlgorithm.ES256
-                    else -> throw Exception("Unsupported curve for Secp256Jwk: $curve")
+                    else -> throw UnsupportedOperationException("Unsupported curve for Secp256Jwk: $curve")
                 }
             )
             .keyID(jwkKeyId ?: key.keyId.id)

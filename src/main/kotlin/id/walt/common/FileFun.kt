@@ -15,7 +15,7 @@ fun readWhenContent(file: File, errorMessage: String? = null) = readWhenContent(
 
 fun readWhenContent(file: Path, errorMessage: String? = null) = when {
     file.exists() && file.fileSize() > 0 -> file.readText()
-    else -> throw Exception(errorMessage ?: "Expecting file with content at: ${file.absolutePathString()}")
+    else -> throw NoSuchElementException(errorMessage ?: "Expecting file with content at: ${file.absolutePathString()}")
 }
 
 fun readEssifBearerToken(): String = readWhenContent(

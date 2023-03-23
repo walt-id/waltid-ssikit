@@ -2,6 +2,7 @@ package id.walt.services.vc
 
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
+import id.walt.auditor.VerificationPolicyResult
 import id.walt.credentials.w3c.*
 import id.walt.credentials.w3c.schema.SchemaValidatorFactory
 import id.walt.services.did.DidService
@@ -120,17 +121,16 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
             .filter { it.toString().endsWith(".json") }
             .map { it.fileName.toString() }.toList()
 
-    override fun validateSchema(vc: VerifiableCredential, schemaURI: URI): Boolean =
+    override fun validateSchema(vc: VerifiableCredential, schemaURI: URI): VerificationPolicyResult =
         SchemaValidatorFactory.get(schemaURI).validate(vc.toJson())
 
     override fun validateSchemaTsr(vc: String) = try {
         vc.toVerifiableCredential().let {
-            if (it is VerifiablePresentation) return true
-            val credentialSchema = it.credentialSchema ?: return true
+            if (it is VerifiablePresentation) return VerificationPolicyResult.success()
+            val credentialSchema = it.credentialSchema ?: return VerificationPolicyResult.success()
             return validateSchema(it, URI.create(credentialSchema.id))
         }
     } catch (e: Exception) {
-        e.printStackTrace()
-        false
+        VerificationPolicyResult.failure(e)
     }
 }
