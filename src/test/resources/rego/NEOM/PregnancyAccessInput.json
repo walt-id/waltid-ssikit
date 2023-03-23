@@ -1,0 +1,7 @@
+// example input parameter for access_control.rego
+{
+    "type": "PregnancyCertificate",
+    "acl": false,
+    "beginDateProp": "credentialSubject.dateOfConception",
+    "endDateProp": "credentialSubject.dateOfDelivery"
+}

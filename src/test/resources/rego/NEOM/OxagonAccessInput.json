@@ -1,0 +1,11 @@
+// example input parameter for access_control.rego
+{
+    "type": "StudentCard",
+    "acl": [
+        "0904008084H",
+        "..."
+    ],
+    "idProp": "credentialSubject.matriculationNumber",
+    "beginDateProp": "issuanceDate",
+    "endDateProp": "expirationDate"
+}

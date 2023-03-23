@@ -1,0 +1,14 @@
+// example input parameter for job_application.rego
+{
+    "diploma_required": false,
+    "job_requirements": {
+        "diploma": {
+            "achievement": "MASTERS LAW, ECONOMICS AND MANAGEMENT",
+            "minEqfLevel": 7
+        },
+        "qualification": {
+            "achievement": "Master of Science in Civil Engineering",
+            "minEqfLevel": 5
+        }
+    }
+}

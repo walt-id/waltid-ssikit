@@ -88,11 +88,11 @@
       "specifiedBy": [{
         "eCTSCreditPoints": 120,
         "entryRequirementsNote": "The minimum educational requirement for enrolment into graduate university programmes is the completion of an undergraduate university programme. The university can allow students who have completed a professional programme to also enrol graduate university programmes, but they are allowed to set special requirements in these cases.\nThe minimum educational requirement for enrolment into specialist graduate professional programmes is the completion of an undergraduate university programme or a professional programme (first cycle).",
-        "eqflLevel": "http://data.europa.eu/snb/eqf/5",
+        "eqfLevel": "http://data.europa.eu/snb/eqf/5",
         "id": "urn:epass:qualification:20",
         "isPartialQualification": false,
         "maximumDuration": "P21M",
-        "nqflLevel": "http://data.europa.eu/snb/qdr/c_dcc9aca1",
+        "nqfLevel": "http://data.europa.eu/snb/qdr/c_dcc9aca1",
         "title": "Master of Science in Civil Engineering",
         "volumeOfLearning": "PT1440H"
       }],
