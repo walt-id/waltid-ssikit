@@ -6,6 +6,7 @@ import com.beust.klaxon.Json
 import com.beust.klaxon.Klaxon
 import com.beust.klaxon.KlaxonException
 import com.nimbusds.jose.jwk.ECKey
+import id.walt.common.ListOrSingleValue
 import id.walt.common.prettyPrint
 import id.walt.credentials.w3c.W3CProof
 import id.walt.crypto.decBase64
@@ -86,6 +87,7 @@ data class Issuer(
 data class ServiceEndpoint(
     open var id: String,
     open var type: String,
+    @ListOrSingleValue
     open var serviceEndpoint: List<String>,
 ) {
     constructor(id: String, type: String, serviceEndpoints: String) : this(id, type, listOf(serviceEndpoints))
