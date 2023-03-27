@@ -40,7 +40,7 @@ open class Did(
     @Json(serializeNull = false) @DidVerificationRelationships var capabilityDelegation: List<VerificationMethod>? = null,
     @Json(serializeNull = false) @DidVerificationRelationships var capabilityInvocation: List<VerificationMethod>? = null,
     @Json(serializeNull = false) @DidVerificationRelationships var keyAgreement: List<VerificationMethod>? = null,
-    @Json(serializeNull = false) var serviceEndpoint: List<ServiceEndpoint>? = null //TODO change to service-endpoint
+    @Json(serializeNull = false) var service: List<ServiceEndpoint>? = null
 ) {
     constructor( // secondary constructor with context as string
         context: String,
@@ -51,7 +51,7 @@ open class Did(
         capabilityDelegation: List<VerificationMethod>? = null,
         capabilityInvocation: List<VerificationMethod>? = null,
         keyAgreement: List<VerificationMethod>? = null,
-        serviceEndpoint: List<ServiceEndpoint>? = null
+        service: List<ServiceEndpoint>? = null
     ) : this(
         context = listOf(context),
         id = id,
@@ -61,7 +61,7 @@ open class Did(
         capabilityDelegation = capabilityDelegation,
         capabilityInvocation = capabilityInvocation,
         keyAgreement = keyAgreement,
-        serviceEndpoint = serviceEndpoint
+        service = service
     )
 
     @Json(ignored = true)

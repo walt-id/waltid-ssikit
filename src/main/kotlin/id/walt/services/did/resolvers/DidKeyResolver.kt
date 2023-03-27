@@ -42,7 +42,7 @@ class DidKeyResolver : DidResolverBase<DidKey>() {
             capabilityDelegation = keyRef,
             capabilityInvocation = keyRef,
             keyAgreement = keyAgreementKeys,
-            serviceEndpoint = null
+            service = null
         )
     }
 
