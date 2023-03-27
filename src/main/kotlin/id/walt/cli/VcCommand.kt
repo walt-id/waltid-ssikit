@@ -16,6 +16,7 @@ import id.walt.auditor.PolicyRegistry
 import id.walt.auditor.dynamic.DynamicPolicyArg
 import id.walt.auditor.dynamic.PolicyEngineType
 import id.walt.common.prettyPrint
+import id.walt.common.resolveContent
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.LdSignatureType
 import id.walt.custodian.Custodian
@@ -191,7 +192,9 @@ class VerifyVcCommand : CliktCommand(
     val policies: Map<String, String?> by option(
         "-p",
         "--policy",
-        help = "Verification policy. Can be specified multiple times. By default, ${PolicyRegistry.defaultPolicyId} is used."
+        help = "Verification policy. Can be specified multiple times. By default, ${PolicyRegistry.defaultPolicyId} is used. " +
+                "To specify a policy argument (if required), use the format PolicyName='{\"myParam\": \"myValue\", ...}', to specify the JSON object directly, " +
+                "or PolicyName=path/to/arg.json, to read the argument from a JSON file."
     ).associate()
 
 
@@ -212,7 +215,9 @@ class VerifyVcCommand : CliktCommand(
         val verificationResult = Auditor.getService()
             .verify(
                 src.readText().trim(),
-                usedPolicies.entries.map { PolicyRegistry.getPolicyWithJsonArg(it.key, it.value?.ifEmpty { null }) })
+                usedPolicies.entries.map { PolicyRegistry.getPolicyWithJsonArg(it.key, it.value?.ifEmpty { null }?.let {
+                    resolveContent(it)
+                }) })
 
         echo("\nResults:\n")
 
@@ -258,8 +263,8 @@ class CreateDynamicVerificationPolicyCommand : CliktCommand(
     val dataPath: String by option(
         "-d",
         "--data-path",
-        help = "JSON path to the data in the credential which should be verified"
-    ).default("$.credentialSubject")
+        help = "JSON path to the data in the credential which should be verified, default: \"$\" (whole credential object)"
+    ).default("$")
     val policyQuery: String by option(
         "-q",
         "--policy-query",
@@ -268,8 +273,8 @@ class CreateDynamicVerificationPolicyCommand : CliktCommand(
     val input: JsonObject by option(
         "-i",
         "--input",
-        help = "Input JSON object for rego query, which can be overridden/extended on verification"
-    ).convert { Klaxon().parseJsonObject(StringReader(it)) }.default(JsonObject())
+        help = "Input JSON object for rego query, which can be overridden/extended on verification. Can be a JSON string or JSON file."
+    ).convert { Klaxon().parseJsonObject(StringReader(resolveContent(it))) }.default(JsonObject())
     val save: Boolean by option(
         "-s",
         "--save-policy",
