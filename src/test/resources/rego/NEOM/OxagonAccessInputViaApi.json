@@ -1,0 +1,7 @@
+{
+    "type": "StudentCard",
+    "acl_api": "https://my.host.com/user_in_acl?userId=%s",
+    "idProp": "credentialSubject.matriculationNumber",
+    "beginDateProp": "issuanceDate",
+    "endDateProp": "expirationDate"
+}

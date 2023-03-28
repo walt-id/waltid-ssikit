@@ -8,6 +8,7 @@
 #                             "0904008084H",
 #                             "123456789"
 #                         ],
+#                         "acl_api": "https://my.host.com/api/acl/%s",       # api URL to check user ID against, in sprintf format: use %s for placeholder for user id, api should return status 200 if user is allowed, any other status will result in user denied
 #                         "idProp": "credentialSubject.matriculationNumber", # path to id property, for acl
 #                         "beginDateProp": "issuanceDate",                   # path to begin date property, remove or set false if no timerange restriction is required
 #                         "endDateProp": "expirationDate"                    # path to end date property, remove or set false if no timerange restriction is required
@@ -61,11 +62,20 @@ resolve(path, obj) := v {
 
 vc_type_ok if input.parameter.type == input.credentialData.type[i]
 
-has_acl if {
+has_acl if input.parameter.acl
+has_acl if input.parameter.acl_api
+
+user_in_acl if {
     input.parameter.acl
+    resolve(input.parameter.idProp, input.credentialData) == input.parameter.acl[i]
 }
 
-user_in_acl if resolve(input.parameter.idProp, input.credentialData) == input.parameter.acl[i]
+user_in_acl if {
+    input.parameter.acl_api
+    api_query_url := sprintf(input.parameter.acl_api, [ resolve(input.parameter.idProp, input.credentialData) ])
+    response := http.send({"method": "get", "url": api_query_url})
+    response.status_code == 200
+}
 
 has_timerange if {
     input.parameter.beginDateProp

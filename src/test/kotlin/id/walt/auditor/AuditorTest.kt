@@ -16,13 +16,13 @@ import id.walt.signatory.Signatory
 import id.walt.signatory.dataproviders.MergingDataProvider
 import id.walt.test.RESOURCES_PATH
 import io.kotest.assertions.throwables.shouldNotThrowAny
+import io.kotest.core.spec.Spec
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.core.test.TestCase
 import io.kotest.matchers.collections.shouldBeSameSizeAs
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.*
 import java.io.File
 import java.net.URI
 import java.net.URL
@@ -35,6 +35,7 @@ class AuditorCommandTest : StringSpec() {
     private lateinit var vpStr: String
     private lateinit var vpJwt: String
     val enableOPATests = kotlin.runCatching { ProcessBuilder("opa").start().waitFor() == 0 }.getOrElse { false }
+    val ACL_TEST_API_PORT = 7777
 
     override suspend fun beforeTest(testCase: TestCase) {
         super.beforeTest(testCase)
@@ -72,6 +73,13 @@ class AuditorCommandTest : StringSpec() {
         )
 
         vpJwt = custodian.createPresentation(listOf(vcJwt), did, did, null, "abcd", null)
+
+        ACLTestApi.start(ACL_TEST_API_PORT)
+    }
+
+    override fun afterSpec(f: suspend (Spec) -> Unit) {
+        super.afterSpec(f)
+        ACLTestApi.stop()
     }
 
     init {
@@ -333,6 +341,25 @@ class AuditorCommandTest : StringSpec() {
                     ebsiDiplomaVerifiableAccreditationSchemaUrl.toExternalForm()
                 )
             }
+        }
+
+        "9. test access control policy via acl api".config(enabled = enableOPATests)  {
+            val credential = File("$RESOURCES_PATH/rego/issue264/StudentCard.json").readText().toVerifiableCredential()
+            val input_tmpl = Json.parseToJsonElement(File("$RESOURCES_PATH/rego/NEOM/OxagonAccessInputViaApi.json").readText()).jsonObject
+            val input = buildJsonObject {
+                input_tmpl.forEach {
+                    put(it.key, it.value)
+                }
+                put("acl_api", JsonPrimitive("http://localhost:$ACL_TEST_API_PORT/user_in_acl?userId=%s"))
+            }
+            val dynPolArg = DynamicPolicyArg(
+                input = JsonConverter.fromJsonElement(input) as Map<String, Any?>,
+                policy = "$RESOURCES_PATH/rego/NEOM/access_control.rego"
+            )
+            val polResult = Auditor.getService().verify(
+                credential, listOf(DynamicPolicy(dynPolArg))
+            )
+            polResult.result shouldBe true
         }
     }
 }
