@@ -52,7 +52,7 @@ class WaltIdAuditor : Auditor() {
                 }
             }
             allErrors.forEach { log.error { "${policy.id}: $it" } }
-            VerificationPolicyResult(success.get(), allErrors)
+            success.get().takeIf { it }?.let { VerificationPolicyResult.success() } ?: VerificationPolicyResult.failure(allErrors)
         }
 
         return VerificationResult(allAccepted(policyResults), policyResults)
