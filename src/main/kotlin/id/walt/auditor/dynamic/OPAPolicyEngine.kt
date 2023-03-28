@@ -37,7 +37,8 @@ object OPAPolicyEngine : PolicyEngine {
             val output = p.inputStream.reader().use { it.readText() }
             p.waitFor()
             log.debug("rego eval output: {}", output)
-            return VerificationPolicyResult(Klaxon().parseArray<Boolean>(output)?.all { it } ?: false)
+            return (Klaxon().parseArray<Boolean>(output)?.all { it } ?: false).takeIf { it }
+                ?.let { VerificationPolicyResult.success() } ?: VerificationPolicyResult.failure()
         } finally {
             if (regoFile.exists() && regoFile.name.startsWith(TEMP_PREFIX)) {
                 regoFile.delete()
