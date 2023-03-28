@@ -61,7 +61,7 @@ jobs:
               uses: docker/build-push-action@v4
               with:
                 push: true
-                tags: waltid/ssikit:latest,name/app:${{ env.release_version }}
+                tags: waltid/ssikit:latest,waltid/ssikit:${{ env.release_version }}
 
             - name: Prepare CD K8S
               run: sed "s/_DEFAULT_DEPLOYMENT_/$GITHUB_SHA/g" k8s/deployment-dev.yaml > k8s/deployment-dev_mod.yaml
