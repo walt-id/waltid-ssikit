@@ -26,7 +26,7 @@ class DidIota(
     capabilityDelegation = capabilityDelegation,
     capabilityInvocation = capabilityInvocation,
     keyAgreement = keyAgreement,
-    serviceEndpoint = serviceEndpoint
+    service = serviceEndpoint
 ) {
     constructor(
         context: String,
