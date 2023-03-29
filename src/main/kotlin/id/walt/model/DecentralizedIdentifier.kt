@@ -30,9 +30,9 @@ enum class DidMethod(val didClass: KClass<out Did>) {
 @TypeFor(field = "id", adapter = DidTypeAdapter::class)
 open class Did(
     @SerialName("@context")
-    @Json(name = "@context")
+    @Json(name = "@context", serializeNull = false)
     @ListOrSingleValue
-    val context: List<String>,
+    val context: List<String>? = null,
     val id: String,
     @Json(serializeNull = false) var verificationMethod: List<VerificationMethod>? = null,
     @Json(serializeNull = false) @DidVerificationRelationships open var authentication: List<VerificationMethod>? = null,

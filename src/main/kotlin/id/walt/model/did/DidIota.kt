@@ -7,7 +7,7 @@ import id.walt.model.ServiceEndpoint
 import id.walt.model.VerificationMethod
 
 class DidIota(
-    context: List<String> = listOf("https://www.w3.org/ns/did/v1"),
+    context: List<String>? = listOf("https://www.w3.org/ns/did/v1"),
     id: String,
     verificationMethod: List<VerificationMethod>? = null,
     authentication: List<VerificationMethod>? = null,

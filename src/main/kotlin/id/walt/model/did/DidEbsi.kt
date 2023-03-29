@@ -7,7 +7,7 @@ import id.walt.model.ServiceEndpoint
 import id.walt.model.VerificationMethod
 
 class DidEbsi(
-    context: List<String>,
+    context: List<String>? = null,
     id: String,
     verificationMethod: List<VerificationMethod>? = null,
     authentication: List<VerificationMethod>? = null,

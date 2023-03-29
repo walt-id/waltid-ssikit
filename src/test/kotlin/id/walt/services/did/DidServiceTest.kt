@@ -378,4 +378,25 @@ class DidServiceTest : AnnotationSpec() {
             DidService.importDidAndKeys(did)
         }
     }
+
+    @Test
+    fun testDidWithoutContext() {
+        val did = "{\n" +
+                "  \"id\": \"did:peer:0z6Mksu6Kco9yky1pUAWnWyer17bnokrLL3bYvYFp27zv8WNv\",\n" +
+                "  \"authentication\": [\n" +
+                "    {\n" +
+                "      \"id\": \"did:peer:0z6Mksu6Kco9yky1pUAWnWyer17bnokrLL3bYvYFp27zv8WNv#6Mksu6Kco9yky1pUAWnWyer17bnokrLL3bYvYFp27zv8WNv\",\n" +
+                "      \"type\": \"Ed25519VerificationKey2020\",\n" +
+                "      \"controller\": \"did:peer:0z6Mksu6Kco9yky1pUAWnWyer17bnokrLL3bYvYFp27zv8WNv\",\n" +
+                "      \"publicKeyMultibase\": \"z6Mksu6Kco9yky1pUAWnWyer17bnokrLL3bYvYFp27zv8WNv\"\n" +
+                "    }\n" +
+                "  ]\n" +
+                "}"
+        val parsedDid = Did.decode(did)
+        parsedDid?.id shouldNotBe null
+        parsedDid!!.id shouldBe "did:peer:0z6Mksu6Kco9yky1pUAWnWyer17bnokrLL3bYvYFp27zv8WNv"
+        parsedDid.context shouldBe null
+
+        parsedDid.encode() shouldMatchJson did
+    }
 }
