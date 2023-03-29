@@ -9,7 +9,7 @@ import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
 class DidWeb(
-    context: List<String>,
+    context: List<String>? = null,
     id: String,
     verificationMethod: List<VerificationMethod>? = null,
     authentication: List<VerificationMethod>? = null,
