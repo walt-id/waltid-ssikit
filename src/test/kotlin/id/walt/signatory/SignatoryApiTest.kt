@@ -3,7 +3,7 @@ package id.walt.signatory
 import com.beust.klaxon.Klaxon
 import id.walt.common.KlaxonWithConverters
 import id.walt.credentials.w3c.templates.VcTemplate
-import id.walt.credentials.w3c.templates.VcTemplateManager
+import id.walt.credentials.w3c.templates.VcTemplateService
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
@@ -13,7 +13,6 @@ import id.walt.signatory.rest.IssueCredentialRequest
 import id.walt.signatory.rest.SignatoryRestAPI
 import id.walt.test.RESOURCES_PATH
 import io.kotest.core.spec.style.AnnotationSpec
-import io.kotest.inspectors.shouldForAll
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -55,6 +54,8 @@ class SignatoryApiTest : AnnotationSpec() {
         SignatoryRestAPI.stop()
     }
 
+    private val templateService get () = VcTemplateService.getService()
+
     @Test
     fun testHealth() = runBlocking {
         val response = client.get("$SIGNATORY_API_URL/health").bodyAsText()
@@ -76,7 +77,7 @@ class SignatoryApiTest : AnnotationSpec() {
         templateNames shouldContain "Europass"
         templateNames shouldContain "VerifiablePresentation"
 
-        VcTemplateManager.listTemplates().map { it.name }.forEach { templateName -> templateNames shouldContain templateName }
+        templateService.listTemplates().map { it.name }.forEach { templateName -> templateNames shouldContain templateName }
 
         println(templates)
     }
@@ -85,7 +86,7 @@ class SignatoryApiTest : AnnotationSpec() {
     @Test
     fun testLoadVcTemplates() = runBlocking {
 
-        VcTemplateManager.listTemplates().forEach { template ->
+        templateService.listTemplates().forEach { template ->
 
             val templateJson = client.get("$SIGNATORY_API_URL/v1/templates/${template.name}") {
                 contentType(ContentType.Application.Json)

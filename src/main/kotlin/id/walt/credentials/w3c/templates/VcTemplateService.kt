@@ -5,6 +5,7 @@ import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.W3CIssuer
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.servicematrix.ServiceProvider
+import id.walt.servicematrix.ServiceRegistry
 import id.walt.services.WaltIdService
 import id.walt.services.context.ContextManager
 import id.walt.services.hkvstore.HKVKey
@@ -23,7 +24,7 @@ open class VcTemplateService(private val resourcePath: String = "/vc-templates")
     private val log = KotlinLogging.logger {}
 
     companion object : ServiceProvider {
-        override fun getService() = object : VcTemplateService() {}
+        override fun getService() = ServiceRegistry.getService(VcTemplateService::class)
         override fun defaultImplementation() = VcTemplateService()
         const val SAVED_VC_TEMPLATES_KEY = "vc-templates"
     }
