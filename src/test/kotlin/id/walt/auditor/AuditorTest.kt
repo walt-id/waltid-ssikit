@@ -37,9 +37,8 @@ class AuditorCommandTest : StringSpec() {
     val enableOPATests = kotlin.runCatching { ProcessBuilder("opa").start().waitFor() == 0 }.getOrElse { false }
     val ACL_TEST_API_PORT = 7777
 
-    override suspend fun beforeTest(testCase: TestCase) {
-        super.beforeTest(testCase)
-
+    override suspend fun beforeSpec(spec: Spec) {
+        super.beforeSpec(spec)
         ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
 
         val signatory = Signatory.getService()
