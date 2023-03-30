@@ -5,7 +5,7 @@ import id.walt.model.ServiceEndpoint
 import id.walt.model.VerificationMethod
 
 class DidCheqd(
-    context: List<String> = listOf("https://w3id.org/did-resolution/v1"),
+    context: List<String>? = listOf("https://w3id.org/did-resolution/v1"),
     id: String, // did:cheqd:mainnet:zF7rhDBfUt9d1gJPjx7s1JXfUY7oVWkY
     authentication: List<VerificationMethod>? = null,
     verificationMethod: List<VerificationMethod>? = null,

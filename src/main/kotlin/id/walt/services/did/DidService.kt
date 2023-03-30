@@ -102,7 +102,7 @@ object DidService {
     private fun createDidCheqd(keyAlias: String?, options: DidCheqdCreateOptions?): String {
         val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(EdDSA_Ed25519)
         val did = CheqdService.createDid(keyId.id, options?.network ?: "testnet")
-        storeDid(did.id, did.encode())
+        storeDid(did)
         ContextManager.keyStore.addAlias(keyId, did.id)
         ContextManager.keyStore.addAlias(keyId, did.verificationMethod!![0].id)
         return did.id
@@ -122,10 +122,8 @@ object DidService {
         runCatching {
             ContextManager.keyStore.load(keyId.id)
         }.onSuccess {
-            if (it != null) {
-                log.debug { "A key with the id \"${keyId.id}\" exists." }
-                //throw IllegalArgumentException("A key with the id \"${keyId.id}\" already exists.")
-            }
+            log.debug { "A key with the id \"${keyId.id}\" exists." }
+            //throw IllegalArgumentException("A key with the id \"${keyId.id}\" already exists.")
         }
         ContextManager.keyStore.addAlias(keyId, didUrl)
 
@@ -133,7 +131,7 @@ object DidService {
         didDoc.verificationMethod?.forEach { (id) ->
             ContextManager.keyStore.addAlias(keyId, id)
         }
-        storeDid(didUrl, didDoc.encodePretty())
+        storeDid(didDoc)
 
         return didUrl
     }
@@ -148,10 +146,8 @@ object DidService {
         runCatching {
             ContextManager.keyStore.load(keyId.id)
         }.onSuccess {
-            if (it != null) {
-                log.debug { "A key with the id \"${keyId.id}\" exists." }
-                //throw IllegalArgumentException("A key with the id \"${keyId.id}\" already exists.")
-            }
+            log.debug { "A key with the id \"${keyId.id}\" exists." }
+            //throw IllegalArgumentException("A key with the id \"${keyId.id}\" already exists.")
         }
         ContextManager.keyStore.addAlias(keyId, didUrl)
 
@@ -159,7 +155,7 @@ object DidService {
         didDoc.verificationMethod?.forEach { (id) ->
             ContextManager.keyStore.addAlias(keyId, id)
         }
-        storeDid(didUrl, didDoc.encodePretty())
+        storeDid(didDoc)
 
         return didUrl
     }
@@ -197,7 +193,7 @@ object DidService {
 
         val didDoc = DidWeb(DID_CONTEXT_URL, didUrlStr, verificationMethods, keyRef, keyRef)
 
-        storeDid(didUrlStr, didDoc.encode())
+        storeDid(didDoc)
 
         return didUrlStr
     }
@@ -206,7 +202,7 @@ object DidService {
         // did:iota requires key of type EdDSA_Ed25519
         val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(EdDSA_Ed25519)
         val didIota = IotaService.createDid(keyId.id)
-        storeDid(didIota.id, didIota.encode())
+        storeDid(didIota)
         ContextManager.keyStore.addAlias(keyId, didIota.id)
         ContextManager.keyStore.addAlias(keyId, didIota.verificationMethod!![0].id)
         return didIota.id
@@ -236,16 +232,14 @@ object DidService {
 
         val verificationMethods = buildVerificationMethods(key, kid, didUrlStr)
 
-        val did = DidEbsi(
+        val didEbsi = DidEbsi(
             listOf(DID_CONTEXT_URL), // TODO Context not working "https://ebsi.org/ns/did/v1"
             didUrlStr,
             verificationMethods,
             listOf(VerificationMethod.Reference(kid)), listOf(VerificationMethod.Reference(kid))
         )
-        val ebsiDid = did.encode()
 
-        // Store DID
-        storeDid(didUrlStr, ebsiDid)
+        storeDid(didEbsi)
 
         return didUrlStr
     }
@@ -259,13 +253,14 @@ object DidService {
         ContextManager.keyStore.addAlias(keyId, didUrlStr)
         ContextManager.keyStore.addAlias(keyId, vmId)
         val didDoc = resolve(didUrlStr)
-        storeDid(didUrlStr, didDoc.encode())
+        storeDid(didDoc)
         return didUrlStr
     }
     //endregion
 
     //region did-load
-    private fun loadDid(didUrlStr: String): String? = ContextManager.hkvStore.getAsString(HKVKey("did", "created", didUrlStr))
+    @Suppress("MemberVisibilityCanBePrivate")
+    fun loadDid(didUrlStr: String): String? = ContextManager.hkvStore.getAsString(HKVKey("did", "created", didUrlStr))
     fun load(did: String): Did = load(DidUrl.from(did))
     fun load(didUrl: DidUrl): Did = didCache.get(didUrl) {
         Did.decode(
@@ -290,7 +285,7 @@ object DidService {
     //endregion
 
     //region did-update
-    fun updateDidEbsi(did: DidEbsi) = storeDid(did.id, did.encode())
+    fun updateDidEbsi(did: DidEbsi) = storeDid(did)
     //endregion
 
     //region did-resolve
@@ -314,7 +309,7 @@ object DidService {
             throw Exception("DID doc file not found")
         val doc = file.readText(StandardCharsets.UTF_8)
         val did = Did.decode(doc)
-        storeDid(did!!.id, doc)
+        storeDid(did!!)
         return did.id
     }
 
@@ -328,8 +323,14 @@ object DidService {
     //endregion
 
     fun listDids(): List<String> = ContextManager.hkvStore.listChildKeys(HKVKey("did", "created")).map { it.name }.toList()
-    private fun resolveAndStore(didUrl: String) = storeDid(didUrl, resolve(didUrl).encodePretty())
-    private fun storeDid(didUrlStr: String, didDoc: String) = ContextManager.hkvStore.put(HKVKey("did", "created", didUrlStr), didDoc)
+    private fun resolveAndStore(didUrl: String) = storeDid(resolve(didUrl))
+
+    @Suppress("MemberVisibilityCanBePrivate")
+    fun storeDid(did: Did) {
+        didCache.put(DidUrl.from(did.id), did)
+        ContextManager.hkvStore.put(HKVKey("did", "created", did.id), did.encodePretty())
+    }
+
     fun loadOrResolveAnyDid(didStr: String): Did? {
         log.debug { "Loading or resolving \"$didStr\"..." }
         val url = DidUrl.from(didStr)
@@ -337,10 +338,7 @@ object DidService {
 
         log.debug { "loadOrResolve: url=$url, length of stored=${storedDid?.length}" }
         return when (storedDid) {
-            null -> resolve(didStr).also { did ->
-                storeDid(didStr, did.encodePretty())
-            }
-
+            null -> resolve(didStr).also { did -> storeDid(did) }
             else -> Did.decode(storedDid)
         }
     }
