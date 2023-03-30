@@ -37,20 +37,27 @@ data class VerificationPolicyMetadata(
     val isMutable: Boolean
 )
 
-data class VerificationPolicyResult(val result: Boolean, @JsonIgnore val errors: List<Throwable> = listOf()) {
+class VerificationPolicyResult private constructor(
+    private val result: Boolean,
+    @JsonIgnore
+    private val errorList: List<Throwable> = emptyList()
+) {
+
     companion object {
         fun success() = VerificationPolicyResult(true)
         fun failure(error: Throwable): VerificationPolicyResult {
             log.debug { "VerificationPolicy failed: ${error.stackTraceToString()}" }
-            return VerificationPolicyResult(false, listOf(error))
+            return failure(listOf(error))
         }
-        fun failure(errors: List<Throwable> = listOf()) = VerificationPolicyResult(false, errors.toList())
+        fun failure(errors: List<Throwable> = emptyList()) = VerificationPolicyResult(false, errors)
     }
 
     val isSuccess = result
     val isFailure = !result
+    @JsonIgnore
+    val errors = errorList
 
-    fun getErrorString() = errors.mapIndexed { index, throwable ->
+    private fun getErrorString() = errorList.mapIndexed { index, throwable ->
         "#${index + 1}: ${throwable::class.simpleName ?: "Error"} - ${throwable.message}"
     }.joinToString()
 
@@ -90,12 +97,10 @@ class SignaturePolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by signature"
     override fun doVerify(vc: VerifiableCredential) = runCatching {
         log.debug { "is jwt: ${vc.jwt != null}" }
-        VerificationPolicyResult(
-            when (vc.jwt) {
-                null -> jsonLdCredentialService.verify(vc.encode()).verified
-                else -> jwtCredentialService.verify(vc.encode()).verified
-            }
-        )
+        when (vc.jwt) {
+            null -> jsonLdCredentialService.verify(vc.encode()).verified
+            else -> jwtCredentialService.verify(vc.encode()).verified
+        }.takeIf { it }?.let { VerificationPolicyResult.success() } ?: VerificationPolicyResult.failure()
     }.getOrElse {
         VerificationPolicyResult.failure(it)
     }
@@ -133,7 +138,9 @@ class TrustedIssuerDidPolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by trusted issuer did"
     override fun doVerify(vc: VerifiableCredential): VerificationPolicyResult {
         return try {
-            VerificationPolicyResult(DidService.loadOrResolveAnyDid(vc.issuerId!!) != null)
+            DidService.loadOrResolveAnyDid(vc.issuerId!!)?.let {
+                VerificationPolicyResult.success()
+            } ?: VerificationPolicyResult.failure()
         } catch (e: ClientRequestException) {
             VerificationPolicyResult.failure(IllegalArgumentException(when {
                 "did must be a valid DID" in e.message -> "did must be a valid DID"
@@ -176,14 +183,16 @@ class TrustedIssuerRegistryPolicy(registryArg: TrustedIssuerRegistryPolicyArg) :
         var tirRecord: TrustedIssuer
 
 
-        return VerificationPolicyResult(runCatching {
+        return runCatching {
             tirRecord = TrustedIssuerClient.getIssuer(issuerDid, argument.registryAddress)
             isValidTrustedIssuerRecord(tirRecord)
         }.getOrElse {
             log.debug { it }
             log.warn { "Could not resolve issuer TIR record of $issuerDid" }
             false
-        })
+        }.takeIf {
+            it
+        }?.let { VerificationPolicyResult.success() } ?: VerificationPolicyResult.failure()
     }
 
     private fun isValidTrustedIssuerRecord(tirRecord: TrustedIssuer): Boolean {
@@ -204,7 +213,7 @@ class TrustedIssuerRegistryPolicy(registryArg: TrustedIssuerRegistryPolicyArg) :
 class TrustedSubjectDidPolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by trusted subject did"
     override fun doVerify(vc: VerifiableCredential): VerificationPolicyResult {
-        return VerificationPolicyResult(vc.subjectId?.let {
+        return (vc.subjectId?.let {
             if (it.isEmpty()) true
             else try {
                 DidService.loadOrResolveAnyDid(it) != null
@@ -212,37 +221,39 @@ class TrustedSubjectDidPolicy : SimpleVerificationPolicy() {
                 if (!e.message.contains("did must be a valid DID") && !e.message.contains("Identifier Not Found")) throw e
                 false
             }
-        } ?: false)
+        } ?: false).takeIf { it }?.let {
+            VerificationPolicyResult.success()
+        } ?: VerificationPolicyResult.failure()
     }
 }
 
 class IssuedDateBeforePolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by issuance date"
     override fun doVerify(vc: VerifiableCredential): VerificationPolicyResult {
-        return VerificationPolicyResult(when (vc) {
+        return when (vc) {
             is VerifiablePresentation -> true
             else -> parseDate(vc.issued).let { it != null && it.before(Date()) }
-        })
+        }.takeIf { it }?.let { VerificationPolicyResult.success() } ?: VerificationPolicyResult.failure()
     }
 }
 
 class ValidFromBeforePolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by valid from"
     override fun doVerify(vc: VerifiableCredential): VerificationPolicyResult {
-        return VerificationPolicyResult(when (vc) {
+        return when (vc) {
             is VerifiablePresentation -> true
             else -> parseDate(vc.validFrom).let { it != null && it.before(Date()) }
-        })
+        }.takeIf { it }?.let { VerificationPolicyResult.success() } ?: VerificationPolicyResult.failure()
     }
 }
 
 class ExpirationDateAfterPolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by expiration date"
     override fun doVerify(vc: VerifiableCredential): VerificationPolicyResult {
-        return VerificationPolicyResult(when (vc) {
+        return when (vc) {
             is VerifiablePresentation -> true
             else -> parseDate(vc.expirationDate).let { it == null || it.after(Date()) }
-        })
+        }.takeIf { it }?.let { VerificationPolicyResult.success() } ?: VerificationPolicyResult.failure()
     }
 }
 
@@ -291,7 +302,9 @@ class ChallengePolicy(challengeArg: ChallengePolicyArg) :
 
     override val description: String = "Verify challenge"
     override fun doVerify(vc: VerifiableCredential): VerificationPolicyResult {
-        return VerificationPolicyResult(vc.challenge?.let { argument.challenges.contains(it) } ?: false)
+        return (vc.challenge?.let { argument.challenges.contains(it) } ?: false).takeIf { it }?.let {
+            VerificationPolicyResult.success()
+        } ?: VerificationPolicyResult.failure()
     }
 
     override val applyToVC: Boolean
@@ -305,11 +318,11 @@ class PresentationDefinitionPolicy(presentationDefinition: PresentationDefinitio
     ParameterizedVerificationPolicy<PresentationDefinition>(presentationDefinition) {
     override val description: String = "Verify that verifiable presentation complies with presentation definition"
     override fun doVerify(vc: VerifiableCredential): VerificationPolicyResult {
-        return VerificationPolicyResult(if (vc is VerifiablePresentation) {
+        return (if (vc is VerifiablePresentation) {
             argument.input_descriptors.all { desc ->
                 vc.verifiableCredential?.any { cred -> OIDCUtils.matchesInputDescriptor(cred, desc) } ?: false
             }
-        } else false)
+        } else false).takeIf { it }?.let { VerificationPolicyResult.success() } ?: VerificationPolicyResult.failure()
     }
 
     override var applyToVC: Boolean = false
