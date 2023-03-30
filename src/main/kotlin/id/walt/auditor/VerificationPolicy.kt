@@ -2,6 +2,7 @@ package id.walt.auditor
 
 import com.beust.klaxon.Json
 import com.beust.klaxon.Klaxon
+import com.fasterxml.jackson.annotation.JsonIgnore
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.VerifiablePresentation
 import id.walt.credentials.w3c.schema.SchemaValidatorFactory
@@ -36,7 +37,7 @@ data class VerificationPolicyMetadata(
     val isMutable: Boolean
 )
 
-data class VerificationPolicyResult(val result: Boolean, val errors: List<Throwable> = listOf()) {
+data class VerificationPolicyResult(val result: Boolean, @JsonIgnore val errors: List<Throwable> = listOf()) {
     companion object {
         fun success() = VerificationPolicyResult(true)
         fun failure(error: Throwable): VerificationPolicyResult {
