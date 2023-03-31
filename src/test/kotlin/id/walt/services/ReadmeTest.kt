@@ -1,9 +1,9 @@
 package id.walt.services
 
 import id.walt.auditor.Auditor
-import id.walt.auditor.JsonSchemaPolicy
-import id.walt.auditor.SignaturePolicy
 import id.walt.auditor.VerificationPolicyResult
+import id.walt.auditor.policies.JsonSchemaPolicy
+import id.walt.auditor.policies.SignaturePolicy
 import id.walt.credentials.w3c.schema.SchemaValidator
 import id.walt.credentials.w3c.schema.SchemaValidatorFactory
 import id.walt.custodian.Custodian

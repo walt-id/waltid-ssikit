@@ -4,6 +4,7 @@ import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
 import id.walt.auditor.dynamic.DynamicPolicy
 import id.walt.auditor.dynamic.DynamicPolicyArg
+import id.walt.auditor.policies.*
 import id.walt.common.resolveContent
 import id.walt.model.dif.PresentationDefinition
 import id.walt.servicematrix.ServiceProvider
@@ -139,15 +140,15 @@ open class PolicyRegistryService: WaltIdService() {
     open fun initPolicies() {
         register(SignaturePolicy::class, "Verify by signature")
         register(JsonSchemaPolicy::class, JsonSchemaPolicyArg::class, "Verify by JSON schema")
-        register(TrustedSchemaRegistryPolicy::class, "Verify by EBSI Trusted Schema Registry")
-        register(TrustedIssuerDidPolicy::class, "Verify by trusted issuer did")
+        register(EbsiTrustedSchemaRegistryPolicy::class, "Verify by EBSI Trusted Schema Registry")
+        register(EbsiTrustedIssuerDidPolicy::class, "Verify by trusted issuer did")
         PolicyRegistry.register(
-            TrustedIssuerRegistryPolicy::class,
-            TrustedIssuerRegistryPolicyArg::class,
+            EbsiTrustedIssuerRegistryPolicy::class,
+            EbsiTrustedIssuerRegistryPolicyArg::class,
             "Verify by an EBSI Trusted Issuers Registry compliant api.",
             true
         )
-        register(TrustedSubjectDidPolicy::class, "Verify by trusted subject did")
+        register(EbsiTrustedSubjectDidPolicy::class, "Verify by trusted subject did")
         register(IssuedDateBeforePolicy::class, "Verify by issuance date")
         register(ValidFromBeforePolicy::class, "Verify by valid from")
         register(ExpirationDateAfterPolicy::class, "Verify by expiration date")

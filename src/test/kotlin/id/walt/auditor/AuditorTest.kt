@@ -3,6 +3,10 @@ package id.walt.auditor
 import com.beust.klaxon.JsonObject
 import id.walt.auditor.dynamic.DynamicPolicy
 import id.walt.auditor.dynamic.DynamicPolicyArg
+import id.walt.auditor.policies.EbsiTrustedSchemaRegistryPolicy
+import id.walt.auditor.policies.JsonSchemaPolicy
+import id.walt.auditor.policies.JsonSchemaPolicyArg
+import id.walt.auditor.policies.SignaturePolicy
 import id.walt.credentials.w3c.JsonConverter
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.toVerifiableCredential
@@ -77,7 +81,7 @@ class AuditorCommandTest : StringSpec() {
     init {
 
         "1. verify vp" {
-            val policyList = listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy())
+            val policyList = listOf(SignaturePolicy(), EbsiTrustedSchemaRegistryPolicy(), JsonSchemaPolicy())
             val res = Auditor.getService().verify(vpStr, policyList)
 
             res.result shouldBe true
@@ -91,43 +95,43 @@ class AuditorCommandTest : StringSpec() {
 
         "2. verify vc" {
             val res =
-                Auditor.getService().verify(vcStr, listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy()))
+                Auditor.getService().verify(vcStr, listOf(SignaturePolicy(), EbsiTrustedSchemaRegistryPolicy(), JsonSchemaPolicy()))
 
             res.result shouldBe true
             res.policyResults.keys shouldBeSameSizeAs listOf(
-                SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy()
+                SignaturePolicy(), EbsiTrustedSchemaRegistryPolicy(), JsonSchemaPolicy()
             )
 
-            res.policyResults.keys shouldContainAll listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy()).map { it.id }
+            res.policyResults.keys shouldContainAll listOf(SignaturePolicy(), EbsiTrustedSchemaRegistryPolicy()).map { it.id }
 
             res.policyResults.values.forEach { it.result shouldBe true }
         }
 
         "3. verify vc jwt" {
             val res =
-                Auditor.getService().verify(vcJwt, listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy()))
+                Auditor.getService().verify(vcJwt, listOf(SignaturePolicy(), EbsiTrustedSchemaRegistryPolicy(), JsonSchemaPolicy()))
 
             res.result shouldBe true
             res.policyResults.keys shouldBeSameSizeAs listOf(
-                SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy()
+                SignaturePolicy(), EbsiTrustedSchemaRegistryPolicy(), JsonSchemaPolicy()
             )
 
-            res.policyResults.keys shouldContainAll listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy()).map { it.id }
+            res.policyResults.keys shouldContainAll listOf(SignaturePolicy(), EbsiTrustedSchemaRegistryPolicy()).map { it.id }
 
             res.policyResults.values.forEach { it.result shouldBe true }
         }
 
         "4. verify vp jwt" {
             val res =
-                Auditor.getService().verify(vpJwt, listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy()))
+                Auditor.getService().verify(vpJwt, listOf(SignaturePolicy(), EbsiTrustedSchemaRegistryPolicy(), JsonSchemaPolicy()))
 
             res.result shouldBe true
 
             res.policyResults.keys shouldBeSameSizeAs listOf(
-                SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy()
+                SignaturePolicy(), EbsiTrustedSchemaRegistryPolicy(), JsonSchemaPolicy()
             )
 
-            res.policyResults.keys shouldContainAll listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy()).map { it.id }
+            res.policyResults.keys shouldContainAll listOf(SignaturePolicy(), EbsiTrustedSchemaRegistryPolicy()).map { it.id }
 
             res.policyResults.values.forEach { it.result shouldBe true }
         }
