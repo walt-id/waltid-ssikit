@@ -1,5 +1,6 @@
 package id.walt.auditor
 
+import id.walt.auditor.policies.EbsiTrustedIssuerRegistryPolicy
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.encBase64Str
@@ -25,8 +26,8 @@ class TrustedIssuerRegistryPolicyTest : AnnotationSpec() {
     private val defaultRegistry = "https://api-pilot.ebsi.eu/trusted-issuers-registry/v2/issuers/"
     private val otherRegistry = "http://my-other-registry.org/v3/issuers/"
 
-    private val simplePolicy = TrustedIssuerRegistryPolicy();
-    private val parameterizedPolicy = TrustedIssuerRegistryPolicy(otherRegistry);
+    private val simplePolicy = EbsiTrustedIssuerRegistryPolicy();
+    private val parameterizedPolicy = EbsiTrustedIssuerRegistryPolicy(otherRegistry);
 
     private val mockedHash = "mockHash"
     private val validAttrInfoJson =

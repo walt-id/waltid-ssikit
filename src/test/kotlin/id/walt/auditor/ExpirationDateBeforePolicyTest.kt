@@ -1,5 +1,6 @@
 package id.walt.auditor
 
+import id.walt.auditor.policies.ExpirationDateAfterPolicy
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.VerifiablePresentationBuilder
 import id.walt.credentials.w3c.builder.W3CCredentialBuilder

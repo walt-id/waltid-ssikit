@@ -1,5 +1,8 @@
 package id.walt.auditor
 
+import id.walt.auditor.policies.EbsiTrustedIssuerRegistryPolicy
+import id.walt.auditor.policies.EbsiTrustedIssuerRegistryPolicyArg
+import id.walt.auditor.policies.SignaturePolicy
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.should
@@ -9,14 +12,14 @@ import org.junit.jupiter.api.Assertions.assertAll
 
 class PolicyFactoryTest : AnnotationSpec() {
 
-    private val testArgument = TrustedIssuerRegistryPolicyArg("testArg")
+    private val testArgument = EbsiTrustedIssuerRegistryPolicyArg("testArg")
     private val wrongArg = AnotherArg("Else")
-    private val defaultARg = TrustedIssuerRegistryPolicyArg("https://api-pilot.ebsi.eu/trusted-issuers-registry/v2/issuers/")
+    private val defaultARg = EbsiTrustedIssuerRegistryPolicyArg("https://api-pilot.ebsi.eu/trusted-issuers-registry/v2/issuers/")
 
     @Test
     fun createTrustedIssuerRegistryPolicyWithoutOptionalArg() {
         val factoryToTest =
-            PolicyFactory(TrustedIssuerRegistryPolicy::class, TrustedIssuerRegistryPolicyArg::class, "testPolicy", null, false)
+            PolicyFactory(EbsiTrustedIssuerRegistryPolicy::class, EbsiTrustedIssuerRegistryPolicyArg::class, "testPolicy", null, false)
 
         assertAll(
             { factoryToTest.create(testArgument).argument shouldBe testArgument },
@@ -28,7 +31,7 @@ class PolicyFactoryTest : AnnotationSpec() {
     @Test
     fun createTrustedIssuerRegistryPolicyWithOptionalArg() {
         val factoryToTest =
-            PolicyFactory(TrustedIssuerRegistryPolicy::class, TrustedIssuerRegistryPolicyArg::class, "testPolicy", null, true)
+            PolicyFactory(EbsiTrustedIssuerRegistryPolicy::class, EbsiTrustedIssuerRegistryPolicyArg::class, "testPolicy", null, true)
         assertAll(
             { factoryToTest.create(testArgument).argument shouldBe testArgument },
             { factoryToTest.create().argument shouldBe defaultARg },

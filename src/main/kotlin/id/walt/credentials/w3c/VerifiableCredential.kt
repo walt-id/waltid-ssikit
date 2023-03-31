@@ -142,3 +142,8 @@ fun String.toVerifiableCredential(): VerifiableCredential {
         return vc
     }
 }
+
+fun <T> VerifiableCredential.verifyByFormatType(jwt: (String) -> T, ld: (String) -> T): T = when (this.jwt) {
+    null -> ld(this.encode())
+    else -> jwt(this.encode())
+}
