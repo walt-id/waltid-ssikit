@@ -1,0 +1,101 @@
+{
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        "https://data.deqar.eu/context/v2.jsonld",
+        "https://w3id.org/security/suites/jws-2020/v1"
+    ],
+    "id": "https://data.deqar.eu/report/47569",
+    "type": [
+        "VerifiableCredential",
+        "DeqarReport"
+    ],
+    "issuer": {
+        "id": "did:web:data.deqar.eu",
+        "onBehalfOf": {
+            "id": "https://data.deqar.eu/agency/37",
+            "type": "EqarRegisteredAgency",
+            "acronym": "NVAO",
+            "name": "Accreditation Organisation of the Netherlands and Flanders",
+            "registrationValidFrom": "2008-03-04T00:00:00Z",
+            "registrationExpirationDate": "2027-09-30T00:00:00Z"
+        }
+    },
+    "credentialSubject": {
+        "authorizationClaims": {
+            "accreditationType": "institutional",
+            "decision": "positive",
+            "report": [
+                "http://backend.deqar.eu/reports/NVAO/20191025_1220_59b6a883ecd9a_Howest%20-%20Evaluatierapport.pdf",
+                "http://backend.deqar.eu/reports/NVAO/20191025_1220_59b6eef54f89e_Howest%20-%20Adviesrapport.pdf",
+                "http://backend.deqar.eu/reports/NVAO/20191025_1220_59b6a883ecd9a_Howest%20-%20%20Besluit.pdf"
+            ],
+            "accreditationStatus": "part of obligatory EQA system",
+            "accreditationActivity": "Institutional reviews in Flanders",
+            "id": "https://data.deqar.eu/report/47569#subject=https://data.deqar.eu/institution/120",
+            "limitJurisdiction": [
+                "https://data.deqar.eu/country/271"
+            ],
+            "limitQFLevel": [
+                "first cycle",
+                "short cycle"
+            ]
+        },
+        "id": "https://data.deqar.eu/institution/120",
+        "type": "DeqarInstitution",
+        "name": "Howest, University College West Vlaanderen",
+        "eterID": "BE0071",
+        "identifiers": [
+            {
+                "id": "https://data.deqar.eu/institution-identifier/6622",
+                "identifier": "B  KORTRIJ03",
+                "resource": "Erasmus"
+            },
+            {
+                "id": "https://data.deqar.eu/institution-identifier/11636",
+                "identifier": "howest.be",
+                "resource": "SCHAC"
+            },
+            {
+                "id": "https://data.deqar.eu/institution-identifier/11637",
+                "identifier": "E10205062",
+                "resource": "Erasmus-Charter"
+            },
+            {
+                "id": "https://data.deqar.eu/institution-identifier/11638",
+                "identifier": "998686684",
+                "resource": "EU-PIC"
+            },
+            {
+                "id": "https://data.deqar.eu/institution-identifier/11639",
+                "identifier": "BE0259366716",
+                "resource": "EU-VAT"
+            },
+            {
+                "id": "https://data.deqar.eu/institution-identifier/18034",
+                "identifier": "IAU-007487",
+                "resource": "WHED"
+            }
+        ],
+        "legalName": "Hogeschool West-Vlaanderen",
+        "location": [
+            "Oostende, Belgium (Flemish Community)",
+            "Brugge, Belgium (Flemish Community)",
+            "Kortrijk, Belgium (Flemish Community)"
+        ],
+        "foundingDate": "1995-01-01T00:00:00Z"
+    },
+    "credentialSchema": {
+        "id": "https://data.deqar.eu/schema/v1.json",
+        "type": "JsonSchemaValidator2018"
+    },
+    "issuanceDate": "2017-09-01T00:00:00Z",
+    "validFrom": "2017-09-01T00:00:00Z",
+    "expirationDate": "2024-09-30T00:00:00Z",
+    "proof": {
+        "type": "JsonWebSignature2020",
+        "creator": "did:web:data.deqar.eu",
+        "created": "2023-03-30T08:07:19Z",
+        "verificationMethod": "did:web:data.deqar.eu",
+        "jws": "eyJiNjQiOmZhbHNlLCJjcml0IjpbImI2NCJdLCJhbGciOiJFUzI1NksifQ..MtLgV-q6QLONJ_4AnYK4vx2TB_F8f9-8GMpb3YP9nZ77ZHDB6TTdjTkE7li8I7C49J5qTJUGAe0Q8hYrgEXI1A"
+    }
+}
