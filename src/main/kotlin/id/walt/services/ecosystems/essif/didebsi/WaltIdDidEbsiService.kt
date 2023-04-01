@@ -2,6 +2,7 @@ package id.walt.services.ecosystems.essif.didebsi
 
 import id.walt.crypto.canonicalize
 import id.walt.services.did.DidService
+import id.walt.services.ecosystems.essif.TrustedIssuerClient
 import id.walt.services.ecosystems.essif.jsonrpc.InsertDidDocumentParams
 import id.walt.services.ecosystems.essif.jsonrpc.JsonRpcService
 import id.walt.services.key.KeyService
@@ -17,7 +18,7 @@ open class WaltIdDidEbsiService : DidEbsiService() {
 
     companion object {
         private val DID_REGISTRY_JSONRPC =
-            "$EBSI_ENV_URL/did-registry/v3/jsonrpc" // TODO: make url configurable
+            "$EBSI_ENV_URL/did-registry/${TrustedIssuerClient.apiVersion}/jsonrpc" // TODO: make url configurable
     }
 
     private val log = KotlinLogging.logger {}

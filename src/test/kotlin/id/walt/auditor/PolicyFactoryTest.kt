@@ -3,6 +3,7 @@ package id.walt.auditor
 import id.walt.auditor.policies.EbsiTrustedIssuerRegistryPolicy
 import id.walt.auditor.policies.EbsiTrustedIssuerRegistryPolicyArg
 import id.walt.auditor.policies.SignaturePolicy
+import id.walt.services.ecosystems.essif.TrustedIssuerClient
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.should
@@ -14,7 +15,7 @@ class PolicyFactoryTest : AnnotationSpec() {
 
     private val testArgument = EbsiTrustedIssuerRegistryPolicyArg("testArg")
     private val wrongArg = AnotherArg("Else")
-    private val defaultARg = EbsiTrustedIssuerRegistryPolicyArg("https://api-pilot.ebsi.eu/trusted-issuers-registry/v2/issuers/")
+    private val defaultArg = EbsiTrustedIssuerRegistryPolicyArg("${TrustedIssuerClient.domain}/${TrustedIssuerClient.trustedIssuerPath}")
 
     @Test
     fun createTrustedIssuerRegistryPolicyWithoutOptionalArg() {
@@ -34,7 +35,7 @@ class PolicyFactoryTest : AnnotationSpec() {
             PolicyFactory(EbsiTrustedIssuerRegistryPolicy::class, EbsiTrustedIssuerRegistryPolicyArg::class, "testPolicy", null, true)
         assertAll(
             { factoryToTest.create(testArgument).argument shouldBe testArgument },
-            { factoryToTest.create().argument shouldBe defaultARg },
+            { factoryToTest.create().argument shouldBe defaultArg },
             { shouldThrow<IllegalArgumentException> { factoryToTest.create(wrongArg) } }
         )
     }

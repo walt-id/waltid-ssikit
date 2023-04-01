@@ -9,6 +9,7 @@ import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.crypto.CryptoService
 import id.walt.services.did.DidEbsiCreateOptions
 import id.walt.services.did.DidService
+import id.walt.services.ecosystems.essif.TrustedIssuerClient
 import id.walt.services.ecosystems.essif.timestamp.Timestamp
 import id.walt.services.ecosystems.essif.timestamp.WaltIdTimestampService
 import io.kotest.assertions.retry
@@ -31,9 +32,10 @@ import kotlin.time.Duration.Companion.seconds
 
 class EssifCommandTest : StringSpec({
 
+    val bearerTokenExpiredMessage = "YOUR EBSI BEARER TOKEN HAS EXPIRED. GET A NEW EBSI BEARER TOKEN FROM ${TrustedIssuerClient.onboarding}"
     val bearerToken = File("data/ebsi/bearer-token.txt")
     val enableTests = bearerToken.exists() && if (!isJwtExpired(bearerToken.readText())) true else {
-        println("YOUR EBSI BEARER TOKEN HAS EXPIRED. GET A NEW EBSI BEARER TOKEN FROM https://app-pilot.ebsi.eu/users-onboarding/")
+        println(bearerTokenExpiredMessage)
         println(getJwtExpirationMessageIfExpired(bearerToken.readText()))
         false
     }
@@ -48,7 +50,7 @@ class EssifCommandTest : StringSpec({
         if (isJwtExpired(bearerToken.readText())) {
             runBlocking {
                 repeat(10) {
-                    println("YOUR EBSI BEARER TOKEN HAS EXPIRED. GET A NEW EBSI BEARER TOKEN FROM https://app-pilot.ebsi.eu/users-onboarding/")
+                    println(bearerTokenExpiredMessage)
                     delay(1000)
                 }
             }
@@ -76,7 +78,7 @@ class EssifCommandTest : StringSpec({
      * The token can be retrieved from https://app-pilot.ebsi.eu/users-onboarding/v2/
      */
     "2. onboard --did".config(enabled = enableTests) {
-        if (!bearerToken.exists()) throw NoSuchElementException("Bearer Token from https://app-pilot.ebsi.eu/users-onboarding/v2/ should be placed in file data/ebsi/bearer-token.txt")
+        if (!bearerToken.exists()) throw NoSuchElementException("Bearer Token from ${TrustedIssuerClient.onboarding} should be placed in file data/ebsi/bearer-token.txt")
 
         println("Generating verifiable authorization...")
         EssifOnboardingCommand().parse(listOf("--did", did, File("data/ebsi/bearer-token.txt").absolutePath))

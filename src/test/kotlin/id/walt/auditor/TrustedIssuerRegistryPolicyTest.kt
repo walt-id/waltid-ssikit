@@ -23,7 +23,7 @@ import org.junit.jupiter.api.assertAll
 
 class TrustedIssuerRegistryPolicyTest : AnnotationSpec() {
 
-    private val defaultRegistry = "https://api-pilot.ebsi.eu/trusted-issuers-registry/v2/issuers/"
+    private val defaultRegistry = "${TrustedIssuerClient.domain}/${TrustedIssuerClient.trustedIssuerPath}"
     private val otherRegistry = "http://my-other-registry.org/v3/issuers/"
 
     private val simplePolicy = EbsiTrustedIssuerRegistryPolicy();
