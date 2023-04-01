@@ -161,6 +161,8 @@ object WaltCLI {
 
             if (log.isDebugEnabled)
                 e.printStackTrace()
+        } finally {
+            WaltIdServices.shutdown()
         }
     }
 }
