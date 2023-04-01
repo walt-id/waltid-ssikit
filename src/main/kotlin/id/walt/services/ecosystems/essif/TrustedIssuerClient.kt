@@ -26,6 +26,8 @@ object TrustedIssuerClient {
     val authorisation = "$domain/authorisation/v2"
     val onboarding = "$domain/users-onboarding/v2"
     val trustedIssuerUrl = "http://localhost:7001/v2/trusted-issuer"
+    const val apiVersion = "v4"
+    const val trustedIssuerPath = "trusted-issuers-registry/$apiVersion/issuers"
 
     private val enterpriseWalletService = EnterpriseWalletService.getService()
 
@@ -105,7 +107,7 @@ object TrustedIssuerClient {
         log.debug { "Getting trusted issuer with DID $did" }
 
         val trustedIssuer: String =
-            WaltIdServices.httpNoAuth.get("https://api-pilot.ebsi.eu/trusted-issuers-registry/v2/issuers/$did").bodyAsText()
+            WaltIdServices.httpNoAuth.get("$domain/$trustedIssuerPath/$did").bodyAsText()
 
         log.debug { trustedIssuer }
 
@@ -128,7 +130,7 @@ object TrustedIssuerClient {
 
     fun getIssuer(did: String): TrustedIssuer = runBlocking {
         log.debug { "Getting trusted issuer with DID $did" }
-        return@runBlocking getIssuer(did, "https://api-pilot.ebsi.eu/trusted-issuers-registry/v2/issuers/")
+        return@runBlocking getIssuer(did, "$domain/$trustedIssuerPath/")
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

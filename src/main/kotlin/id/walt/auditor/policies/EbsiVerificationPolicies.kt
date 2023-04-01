@@ -59,7 +59,7 @@ class EbsiTrustedIssuerRegistryPolicy(registryArg: EbsiTrustedIssuerRegistryPoli
     )
 
     constructor() : this(
-        EbsiTrustedIssuerRegistryPolicyArg("https://api-pilot.ebsi.eu/trusted-issuers-registry/v2/issuers/")
+        EbsiTrustedIssuerRegistryPolicyArg("${TrustedIssuerClient.domain}/${TrustedIssuerClient.trustedIssuerPath}")
     )
 
     override val description: String = "Verify by an EBSI Trusted Issuers Registry compliant api."
