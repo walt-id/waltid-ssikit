@@ -20,7 +20,7 @@ class DidResolverFactory(
             DidMethod.ebsi -> DidEbsiResolver(httpNoAuth, keyService)
             DidMethod.jwk -> DidJwkResolver()
             DidMethod.iota -> DidIotaResolver(iotaWrapper)
-            DidMethod.cheqd -> DidCheqdResolver(httpNoAuth)
+            DidMethod.cheqd -> DidCheqdResolver(HttpClient())//TODO: fix contentType for application/did+ld+json
         }
     }
 }
