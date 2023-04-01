@@ -42,8 +42,7 @@ class DidEbsiResolver(
         for (i in 1..5) {
             try {
                 log.debug { "Resolving did:ebsi at: https://api-pilot.ebsi.eu/did-registry/v3/identifiers/${didUrl.did}" }
-                didDoc = httpClient.get("https://api-pilot.ebsi.eu/did-registry/v3/identifiers/${didUrl.did}")
-                    .bodyAsText()
+                didDoc = httpClient.get("https://api-pilot.ebsi.eu/did-registry/v3/identifiers/${didUrl.did}").bodyAsText()
                 log.debug { "Result: $didDoc" }
                 return@runBlocking Did.decode(didDoc)!! as DidEbsi
             } catch (e: ClientRequestException) {

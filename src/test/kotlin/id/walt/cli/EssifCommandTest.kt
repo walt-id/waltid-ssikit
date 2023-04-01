@@ -161,11 +161,11 @@ class EssifCommandTest : StringSpec({
     }
 
     "8. essif tir get -r" {
-        EssifTirGetIssuerCommand().parse(listOf("--did", "did:ebsi:224AEY73SGS1gpTvbt5TNTTPdNj8GU6NAq2AVBFmasQbntCt", "-r"))
+        EssifTirGetIssuerCommand().parse(listOf("--did", did, "-r"))
     }
 
     // TODO: ESSIF backend issue
     "9. essif tir get -t".config(enabled = enableTests) {
-        EssifTirGetIssuerCommand().parse(listOf("--did", "did:ebsi:224AEY73SGS1gpTvbt5TNTTPdNj8GU6NAq2AVBFmasQbntCt", "-t"))
+        EssifTirGetIssuerCommand().parse(listOf("--did", did, "-t"))
     }
 })
