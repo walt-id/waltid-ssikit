@@ -11,6 +11,7 @@ import id.walt.cli.did.*
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.WaltIdServices
 import mu.KotlinLogging
+import okhttp3.internal.closeQuietly
 
 data class CliConfig(var dataDir: String, val properties: MutableMap<String, String>, var verbose: Boolean)
 
@@ -161,6 +162,8 @@ object WaltCLI {
 
             if (log.isDebugEnabled)
                 e.printStackTrace()
+        } finally {
+            WaltIdServices.shutdown()
         }
     }
 }
