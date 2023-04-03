@@ -3,32 +3,26 @@ package id.walt.auditor.policies
 import id.walt.auditor.ParameterizedVerificationPolicy
 import id.walt.auditor.SimpleVerificationPolicy
 import id.walt.auditor.VerificationPolicyResult
-import id.walt.common.resolveContent
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.VerifiablePresentation
-import id.walt.credentials.w3c.toVerifiableCredential
-import id.walt.credentials.w3c.verifyByFormatType
 import id.walt.model.TrustedIssuer
 import id.walt.model.TrustedIssuerType
+import id.walt.services.WaltIdServices
 import id.walt.services.did.DidService
 import id.walt.services.ecosystems.essif.TrustedIssuerClient
-import id.walt.services.vc.JsonLdCredentialService
-import id.walt.services.vc.JwtCredentialService
 import io.ktor.client.plugins.*
+import io.ktor.client.request.*
+import io.ktor.http.*
+import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
-import java.net.URI
-
-private const val TIR_TYPE_ATTRIBUTE = "attribute"
-private const val TIR_NAME_ISSUER = "issuer"
 
 private val log = KotlinLogging.logger {}
-private val jsonLdCredentialService = JsonLdCredentialService.getService()
-private val jwtCredentialService = JwtCredentialService.getService()
 
 class EbsiTrustedSchemaRegistryPolicy : SimpleVerificationPolicy() {
 
-    val EBSI_TRUSTED_SCHEMA_URL = "https://api-pilot.ebsi.eu/trusted-schemas-registry/v2/schemas/"
     override val description: String = "Verify by EBSI Trusted Schema Registry"
+    private val httpClient = WaltIdServices.httpNoAuth
+
     override fun doVerify(vc: VerifiableCredential): VerificationPolicyResult {
 
         try {
@@ -36,14 +30,14 @@ class EbsiTrustedSchemaRegistryPolicy : SimpleVerificationPolicy() {
             if (vc is VerifiablePresentation)
                 return VerificationPolicyResult.success()
 
-            val credentialSchemaUrl = vc.credentialSchema?.id
+            val credentialSchemaUrl = vc.credentialSchema?.id?.takeIf { it.isNotEmpty() }
                 ?: return VerificationPolicyResult.failure(IllegalArgumentException("Credential has no associated credentialSchema property"))
 
-            if (!credentialSchemaUrl.startsWith(EBSI_TRUSTED_SCHEMA_URL)) {
+            if (!credentialSchemaUrl.startsWith("${TrustedIssuerClient.domain}/${TrustedIssuerClient.trustedSchemaPath}")) {
                 return VerificationPolicyResult.failure(Throwable("No valid EBSI Trusted Schema Registry URL"))
             }
 
-            if (resolveContent(credentialSchemaUrl).isNullOrEmpty()){
+            if (runBlocking { httpClient.get(credentialSchemaUrl).status != HttpStatusCode.OK }) {
                 return VerificationPolicyResult.failure(Throwable("Schema not available in the EBSI Trusted Schema Registry"))
             }
 
@@ -148,4 +142,7 @@ class EbsiTrustedSubjectDidPolicy : SimpleVerificationPolicy() {
             }
         } ?: false)
     }
+}
+fun main(){
+    runBlocking { println(WaltIdServices.httpNoAuth.get("https://data.deqar.eu/schema/v1.json").status == HttpStatusCode.OK) }
 }

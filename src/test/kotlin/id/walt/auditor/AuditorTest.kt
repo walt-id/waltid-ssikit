@@ -7,6 +7,7 @@ import id.walt.auditor.policies.EbsiTrustedSchemaRegistryPolicy
 import id.walt.auditor.policies.JsonSchemaPolicy
 import id.walt.auditor.policies.JsonSchemaPolicyArg
 import id.walt.auditor.policies.SignaturePolicy
+import id.walt.common.resolveContent
 import id.walt.credentials.w3c.JsonConverter
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.toVerifiableCredential
@@ -22,12 +23,18 @@ import id.walt.test.RESOURCES_PATH
 import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.core.test.TestCase
+import io.kotest.data.blocking.forAll
+import io.kotest.data.row
+import io.kotest.matchers.collections.beEmpty
 import io.kotest.matchers.collections.shouldBeSameSizeAs
+import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
+import net.bytebuddy.pool.TypePool.Resolution.Illegal
 import java.io.File
+import java.lang.IllegalArgumentException
 import java.net.URI
 import java.net.URL
 
@@ -81,7 +88,7 @@ class AuditorCommandTest : StringSpec() {
     init {
 
         "1. verify vp" {
-            val policyList = listOf(SignaturePolicy(), EbsiTrustedSchemaRegistryPolicy(), JsonSchemaPolicy())
+            val policyList = listOf(SignaturePolicy(), JsonSchemaPolicy())
             val res = Auditor.getService().verify(vpStr, policyList)
 
             res.result shouldBe true
@@ -95,43 +102,43 @@ class AuditorCommandTest : StringSpec() {
 
         "2. verify vc" {
             val res =
-                Auditor.getService().verify(vcStr, listOf(SignaturePolicy(), EbsiTrustedSchemaRegistryPolicy(), JsonSchemaPolicy()))
+                Auditor.getService().verify(vcStr, listOf(SignaturePolicy(), JsonSchemaPolicy()))
 
             res.result shouldBe true
             res.policyResults.keys shouldBeSameSizeAs listOf(
-                SignaturePolicy(), EbsiTrustedSchemaRegistryPolicy(), JsonSchemaPolicy()
+                SignaturePolicy(), JsonSchemaPolicy()
             )
 
-            res.policyResults.keys shouldContainAll listOf(SignaturePolicy(), EbsiTrustedSchemaRegistryPolicy()).map { it.id }
+            res.policyResults.keys shouldContainAll listOf(SignaturePolicy()).map { it.id }
 
             res.policyResults.values.forEach { it.result shouldBe true }
         }
 
         "3. verify vc jwt" {
             val res =
-                Auditor.getService().verify(vcJwt, listOf(SignaturePolicy(), EbsiTrustedSchemaRegistryPolicy(), JsonSchemaPolicy()))
+                Auditor.getService().verify(vcJwt, listOf(SignaturePolicy(), JsonSchemaPolicy()))
 
             res.result shouldBe true
             res.policyResults.keys shouldBeSameSizeAs listOf(
-                SignaturePolicy(), EbsiTrustedSchemaRegistryPolicy(), JsonSchemaPolicy()
+                SignaturePolicy(),  JsonSchemaPolicy()
             )
 
-            res.policyResults.keys shouldContainAll listOf(SignaturePolicy(), EbsiTrustedSchemaRegistryPolicy()).map { it.id }
+            res.policyResults.keys shouldContainAll listOf(SignaturePolicy()).map { it.id }
 
             res.policyResults.values.forEach { it.result shouldBe true }
         }
 
         "4. verify vp jwt" {
             val res =
-                Auditor.getService().verify(vpJwt, listOf(SignaturePolicy(), EbsiTrustedSchemaRegistryPolicy(), JsonSchemaPolicy()))
+                Auditor.getService().verify(vpJwt, listOf(SignaturePolicy(), JsonSchemaPolicy()))
 
             res.result shouldBe true
 
             res.policyResults.keys shouldBeSameSizeAs listOf(
-                SignaturePolicy(), EbsiTrustedSchemaRegistryPolicy(), JsonSchemaPolicy()
+                SignaturePolicy(),  JsonSchemaPolicy()
             )
 
-            res.policyResults.keys shouldContainAll listOf(SignaturePolicy(), EbsiTrustedSchemaRegistryPolicy()).map { it.id }
+            res.policyResults.keys shouldContainAll listOf(SignaturePolicy()).map { it.id }
 
             res.policyResults.values.forEach { it.result shouldBe true }
         }
@@ -336,6 +343,23 @@ class AuditorCommandTest : StringSpec() {
                     "$EBSI_VC_PATH/EbsiDiplomaVerifiableAccreditation.json",
                     ebsiDiplomaVerifiableAccreditationSchemaUrl.toExternalForm()
                 )
+            }
+        }
+
+        "9. test EbsiTrustedSchemaRegistryPolicy" {
+            forAll(
+                row("verifiable-accreditation-pass.json", true, emptyList()),
+                row("verifiable-accreditation-fail-noschema.json", false, listOf(IllegalArgumentException("Credential has no associated credentialSchema property"))),
+                row("verifiable-accreditation-fail-notvalid.json", false, listOf(Throwable("No valid EBSI Trusted Schema Registry URL"))),
+                row("verifiable-accreditation-fail-notavailable.json", false, listOf(Throwable("Schema not available in the EBSI Trusted Schema Registry"))),
+            ) { filepath, isSuccess, message ->
+                val schemaPath = "src/test/resources/ebsi/trusted-schema-registry-tests/"
+                val policy = EbsiTrustedSchemaRegistryPolicy()
+                val vc = resolveContent(schemaPath + filepath).toVerifiableCredential()
+                val result = policy.verify(vc)
+
+                result.isSuccess shouldBe isSuccess
+                result.errors shouldBe message
             }
         }
     }
