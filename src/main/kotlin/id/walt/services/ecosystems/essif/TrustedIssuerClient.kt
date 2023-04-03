@@ -25,10 +25,11 @@ object TrustedIssuerClient {
 
     val authorisation = "$domain/authorisation/v2"
     val onboarding = "$domain/users-onboarding/v2"
-    val trustedIssuerUrl = "http://localhost:7001/v2/trusted-issuer"
     const val apiVersion = "v4"
     const val trustedIssuerPath = "trusted-issuers-registry/$apiVersion/issuers"
+    const val trustedSchemaPath = "trusted-schemas-registry/$apiVersion/schemas"
 
+    private const val trustedIssuerUrl = "http://localhost:7001/v2/trusted-issuer"
     private val enterpriseWalletService = EnterpriseWalletService.getService()
     private val httpClient = WaltIdServices.httpNoAuth
 
