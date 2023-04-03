@@ -96,8 +96,11 @@ data class ServiceEndpoint(
 
 @Serializable
 data class Attribute(
-    val hash: String,
-    val body: String,
+    val hash: String,               //sha256 hash of the payload
+    val body: String,               //Base64 encoded content
+    val issuerType: String? = null, //RootTAO, TAO, TI, Revoked or Undefined
+    val tao: String? = null,        //did:ebsi:zppVrNT9bBgMqxrJqVEnvyk
+    val rootTao: String? = null,    //did:ebsi:zppVrNT9bBgMqxrJqVEnvyk
 )
 
 private val attributeInfoLog = KotlinLogging.logger("AttributeInfo")

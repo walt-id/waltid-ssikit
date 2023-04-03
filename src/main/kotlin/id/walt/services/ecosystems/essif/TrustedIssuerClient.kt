@@ -30,6 +30,7 @@ object TrustedIssuerClient {
     const val trustedIssuerPath = "trusted-issuers-registry/$apiVersion/issuers"
 
     private val enterpriseWalletService = EnterpriseWalletService.getService()
+    private val httpClient = WaltIdServices.httpNoAuth
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Used for VC exchange flows
@@ -44,7 +45,7 @@ object TrustedIssuerClient {
 //    }
 
     fun generateAuthenticationRequest(): String = runBlocking {
-        return@runBlocking WaltIdServices.httpNoAuth.post("$trustedIssuerUrl/generateAuthenticationRequest") {
+        return@runBlocking httpClient.post("$trustedIssuerUrl/generateAuthenticationRequest") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
         }.bodyAsText()
@@ -52,7 +53,7 @@ object TrustedIssuerClient {
 
 
     fun openSession(authResp: String): String = runBlocking {
-        return@runBlocking WaltIdServices.httpNoAuth.post("$trustedIssuerUrl/openSession") {
+        return@runBlocking httpClient.post("$trustedIssuerUrl/openSession") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
             setBody(authResp)
@@ -64,7 +65,7 @@ object TrustedIssuerClient {
     // Used for registering DID EBSI
 
     fun authenticationRequests(): AuthRequestResponse = runBlocking {
-        return@runBlocking WaltIdServices.httpNoAuth.post("$onboarding/authentication-requests") {
+        return@runBlocking httpClient.post("$onboarding/authentication-requests") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
             setBody(mapOf("scope" to "ebsi users onboarding"))
@@ -72,7 +73,7 @@ object TrustedIssuerClient {
     }
 
     fun authenticationResponse(idToken: String, bearerToken: String): String = runBlocking {
-        return@runBlocking WaltIdServices.httpNoAuth.post("$onboarding/authentication-responses") {
+        return@runBlocking httpClient.post("$onboarding/authentication-responses") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
             headers {
@@ -83,7 +84,7 @@ object TrustedIssuerClient {
     }
 
     fun siopSession(idToken: String, vpToken: String): String = runBlocking {
-        return@runBlocking WaltIdServices.httpNoAuth.post("$authorisation/siop-sessions") {
+        return@runBlocking httpClient.post("$authorisation/siop-sessions") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
             setBody(mapOf("id_token" to idToken, "vp_token" to vpToken))
@@ -91,7 +92,7 @@ object TrustedIssuerClient {
     }
 
     fun siopSessionBearer(idToken: String, bearerToken: String): String = runBlocking {
-        return@runBlocking WaltIdServices.httpNoAuth.post("$authorisation/siop-sessions") {
+        return@runBlocking httpClient.post("$authorisation/siop-sessions") {
             contentType(ContentType.Application.Json)
             accept(ContentType.Application.Json)
             headers {
@@ -103,35 +104,17 @@ object TrustedIssuerClient {
 
     // GET /issuers/{did}
     // returns trusted issuer record
-    fun getIssuerRaw(did: String): String = runBlocking {
+    fun getIssuerRaw(did: String, registryAddress: String = "$domain/$trustedIssuerPath"): String = runBlocking {
         log.debug { "Getting trusted issuer with DID $did" }
-
-        val trustedIssuer: String =
-            WaltIdServices.httpNoAuth.get("$domain/$trustedIssuerPath/$did").bodyAsText()
-
+        val trustedIssuer: String = httpClient.get("$registryAddress/$did").bodyAsText()
         log.debug { trustedIssuer }
-
         return@runBlocking trustedIssuer
     }
 
+    fun getIssuer(did: String, registryAddress: String): TrustedIssuer =
+        Klaxon().parse<TrustedIssuer>(getIssuerRaw(did, registryAddress))!!
 
-    fun getIssuer(did: String, registryAddress: String): TrustedIssuer = runBlocking {
-        log.debug { "Getting trusted issuer with DID $did" }
-
-        val registryUrl = registryAddress + did
-
-        val trustedIssuer: String =
-            WaltIdServices.httpNoAuth.get(registryUrl).bodyAsText()
-
-        log.debug { trustedIssuer }
-
-        return@runBlocking Klaxon().parse<TrustedIssuer>(trustedIssuer)!!
-    }
-
-    fun getIssuer(did: String): TrustedIssuer = runBlocking {
-        log.debug { "Getting trusted issuer with DID $did" }
-        return@runBlocking getIssuer(did, "$domain/$trustedIssuerPath/")
-    }
+    fun getIssuer(did: String): TrustedIssuer = getIssuer(did, "$domain/$trustedIssuerPath")
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     //TODO: the methods below are stubbed - to be considered
