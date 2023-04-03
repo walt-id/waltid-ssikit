@@ -3,8 +3,10 @@ package id.walt.auditor.policies
 import id.walt.auditor.ParameterizedVerificationPolicy
 import id.walt.auditor.SimpleVerificationPolicy
 import id.walt.auditor.VerificationPolicyResult
+import id.walt.common.resolveContent
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.VerifiablePresentation
+import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.credentials.w3c.verifyByFormatType
 import id.walt.model.TrustedIssuer
 import id.walt.model.TrustedIssuerType
@@ -14,6 +16,7 @@ import id.walt.services.vc.JsonLdCredentialService
 import id.walt.services.vc.JwtCredentialService
 import io.ktor.client.plugins.*
 import mu.KotlinLogging
+import java.net.URI
 
 private const val TIR_TYPE_ATTRIBUTE = "attribute"
 private const val TIR_NAME_ISSUER = "issuer"
@@ -23,11 +26,33 @@ private val jsonLdCredentialService = JsonLdCredentialService.getService()
 private val jwtCredentialService = JwtCredentialService.getService()
 
 class EbsiTrustedSchemaRegistryPolicy : SimpleVerificationPolicy() {
+
+    val EBSI_TRUSTED_SCHEMA_URL = "https://api-pilot.ebsi.eu/trusted-schemas-registry/v2/schemas/"
     override val description: String = "Verify by EBSI Trusted Schema Registry"
-    override fun doVerify(vc: VerifiableCredential) = vc.verifyByFormatType(
-        { jwtCredentialService.validateSchemaTsr(it) },
-        { jsonLdCredentialService.validateSchemaTsr(it) }
-    )
+    override fun doVerify(vc: VerifiableCredential): VerificationPolicyResult {
+
+        try {
+
+            if (vc is VerifiablePresentation)
+                return VerificationPolicyResult.success()
+
+            val credentialSchemaUrl = vc.credentialSchema?.id
+                ?: return VerificationPolicyResult.failure(IllegalArgumentException("Credential has no associated credentialSchema property"))
+
+            if (!credentialSchemaUrl.startsWith(EBSI_TRUSTED_SCHEMA_URL)) {
+                return VerificationPolicyResult.failure(Throwable("No valid EBSI Trusted Schema Registry URL"))
+            }
+
+            if (resolveContent(credentialSchemaUrl).isNullOrEmpty()){
+                return VerificationPolicyResult.failure(Throwable("Schema not available in the EBSI Trusted Schema Registry"))
+            }
+
+        } catch (e: Exception) {
+            VerificationPolicyResult.failure(e)
+        }
+
+        return VerificationPolicyResult.success()
+    }
 }
 
 class EbsiTrustedIssuerDidPolicy : SimpleVerificationPolicy() {
