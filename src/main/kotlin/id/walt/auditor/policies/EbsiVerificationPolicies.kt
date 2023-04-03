@@ -6,8 +6,8 @@ import id.walt.auditor.VerificationPolicyResult
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.VerifiablePresentation
 import id.walt.credentials.w3c.verifyByFormatType
-import id.walt.model.AttributeInfo
 import id.walt.model.TrustedIssuer
+import id.walt.model.TrustedIssuerType
 import id.walt.services.did.DidService
 import id.walt.services.ecosystems.essif.TrustedIssuerClient
 import id.walt.services.vc.JsonLdCredentialService
@@ -49,17 +49,29 @@ class EbsiTrustedIssuerDidPolicy : SimpleVerificationPolicy() {
     }
 }
 
-data class EbsiTrustedIssuerRegistryPolicyArg(val registryAddress: String)
+data class EbsiTrustedIssuerRegistryPolicyArg(
+    val registryAddress: String,
+    val issuerType: TrustedIssuerType,
+)
 
 class EbsiTrustedIssuerRegistryPolicy(registryArg: EbsiTrustedIssuerRegistryPolicyArg) :
     ParameterizedVerificationPolicy<EbsiTrustedIssuerRegistryPolicyArg>(registryArg) {
 
-    constructor(registryAddress: String) : this(
-        EbsiTrustedIssuerRegistryPolicyArg(registryAddress)
+    constructor(registryAddress: String, issuerType: TrustedIssuerType) : this(
+        EbsiTrustedIssuerRegistryPolicyArg(registryAddress, issuerType)
+    )
+    constructor(issuerType: TrustedIssuerType) : this(
+        "${TrustedIssuerClient.domain}/${TrustedIssuerClient.trustedIssuerPath}",
+        issuerType
     )
 
+    constructor(registryAddress: String) : this(registryAddress, TrustedIssuerType.Undefined)
+
     constructor() : this(
-        EbsiTrustedIssuerRegistryPolicyArg("${TrustedIssuerClient.domain}/${TrustedIssuerClient.trustedIssuerPath}")
+        EbsiTrustedIssuerRegistryPolicyArg(
+            "${TrustedIssuerClient.domain}/${TrustedIssuerClient.trustedIssuerPath}",
+            TrustedIssuerType.Undefined
+        )
     )
 
     override val description: String = "Verify by an EBSI Trusted Issuers Registry compliant api."
@@ -90,15 +102,8 @@ class EbsiTrustedIssuerRegistryPolicy(registryArg: EbsiTrustedIssuerRegistryPoli
         })
     }
 
-    private fun isValidTrustedIssuerRecord(tirRecord: TrustedIssuer): Boolean {
-        for (attribute in tirRecord.attributes) {
-            val attributeInfo = AttributeInfo.from(attribute.body)
-            log.warn { attributeInfo }
-            if (TIR_TYPE_ATTRIBUTE == attributeInfo?.type && TIR_NAME_ISSUER == attributeInfo.name) {
-                return true
-            }
-        }
-        return false
+    private fun isValidTrustedIssuerRecord(tirRecord: TrustedIssuer): Boolean = tirRecord.attributes.any {
+        it.issuerType.equals(TrustedIssuerType.TI.name, ignoreCase = true)
     }
 
     override var applyToVP: Boolean = false
