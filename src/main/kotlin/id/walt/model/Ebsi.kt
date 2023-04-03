@@ -103,6 +103,14 @@ data class Attribute(
     val rootTao: String? = null,    //did:ebsi:zppVrNT9bBgMqxrJqVEnvyk
 )
 
+enum class TrustedIssuerType {
+    RootTAO,
+    TAO,
+    TI,
+    Revoked,
+    Undefined,
+}
+
 private val attributeInfoLog = KotlinLogging.logger("AttributeInfo")
 
 @Serializable

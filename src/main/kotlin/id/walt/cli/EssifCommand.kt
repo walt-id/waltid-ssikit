@@ -160,14 +160,13 @@ class EssifTimestampGetCommand : CliktCommand(
 class EssifTirCommand : CliktCommand(
     name = "tir",
     help = """ESSIF Trusted Issuer Registry operations
-
-        Not implemented yet"""
+        """
 ) {
     override fun run() {}
 }
 
 
-class EssifTirGetIssuerCommand : CliktCommand(
+open class EssifTirGetIssuerCommand : CliktCommand(
     name = "get",
     help = """Get issuer
 
@@ -176,15 +175,13 @@ class EssifTirGetIssuerCommand : CliktCommand(
     val did: String by option("-d", "--did", help = "DID of the issuer.").required()
     val raw by option("--raw", "-r").flag("--typed", "-t", default = false)
 
-    fun getIssuerHelper(did: String, raw: Boolean) = when (raw) {
-        true -> TrustedIssuerClient.getIssuerRaw(did).prettyPrint()
-        else -> TrustedIssuerClient.getIssuer(did).encodePretty()
-    }
-
     override fun run() {
         echo("Getting issuer with DID \"$did\"...")
 
-        val trustedIssuer = getIssuerHelper(did, raw)
+        val trustedIssuer = when (raw) {
+            true -> TrustedIssuerClient.getIssuerRaw(did).prettyPrint()
+            else -> TrustedIssuerClient.getIssuer(did).encodePretty()
+        }
 
         echo("\nResult:\n")
 
@@ -195,12 +192,13 @@ class EssifTirGetIssuerCommand : CliktCommand(
 class EssifTaorCommand : CliktCommand(
     name = "taor",
     help = """ESSIF Trusted Accreditation Organization operations
-
-        Not implemented yet"""
+        """
 ) {
-    override fun run() =
-        TODO("The \"ESSIF-TAOR\" operation has not yet been implemented in this snapshot (currently running ${Values.version}).")
+    override fun run() = Unit
+
 }
+
+class EssifTaorGetIssuerCommand : EssifTirGetIssuerCommand()
 
 class EssifTsrCommand : CliktCommand(
     name = "tsr",

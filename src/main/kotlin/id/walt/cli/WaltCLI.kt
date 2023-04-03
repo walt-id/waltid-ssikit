@@ -129,7 +129,9 @@ object WaltCLI {
                             EssifTimestampCreateCommand(),
                             EssifTimestampGetCommand()
                         ),
-                        EssifTaorCommand(),
+                        EssifTaorCommand().subcommands(
+                            EssifTaorGetIssuerCommand(),
+                        ),
                         EssifTsrCommand()
                     ),
                     GaiaxCommand().subcommands(
