@@ -1,7 +1,7 @@
 package id.walt.context
 
 import id.walt.auditor.Auditor
-import id.walt.auditor.SignaturePolicy
+import id.walt.auditor.policies.SignaturePolicy
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.context.ContextManager
