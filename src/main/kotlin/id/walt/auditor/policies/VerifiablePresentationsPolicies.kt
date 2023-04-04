@@ -11,11 +11,11 @@ class PresentationDefinitionPolicy(presentationDefinition: PresentationDefinitio
     ParameterizedVerificationPolicy<PresentationDefinition>(presentationDefinition) {
     override val description: String = "Verify that verifiable presentation complies with presentation definition"
     override fun doVerify(vc: VerifiableCredential): VerificationPolicyResult {
-        return VerificationPolicyResult(if (vc is VerifiablePresentation) {
+        return (if (vc is VerifiablePresentation) {
             argument.input_descriptors.all { desc ->
                 vc.verifiableCredential?.any { cred -> OIDCUtils.matchesInputDescriptor(cred, desc) } ?: false
             }
-        } else false)
+        } else false).takeIf { it }?.let { VerificationPolicyResult.success() } ?: VerificationPolicyResult.failure()
     }
 
     override var applyToVC: Boolean = false

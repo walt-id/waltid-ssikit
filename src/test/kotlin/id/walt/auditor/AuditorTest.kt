@@ -97,7 +97,7 @@ class AuditorCommandTest : StringSpec() {
 
             res.policyResults.keys shouldContainAll policyList.map { it.id }
 
-            res.policyResults.values.forEach { it.result shouldBe true }
+            res.policyResults.values.forEach { it.isSuccess shouldBe true }
         }
 
         "2. verify vc" {
@@ -111,7 +111,7 @@ class AuditorCommandTest : StringSpec() {
 
             res.policyResults.keys shouldContainAll listOf(SignaturePolicy()).map { it.id }
 
-            res.policyResults.values.forEach { it.result shouldBe true }
+            res.policyResults.values.forEach { it.isSuccess shouldBe true }
         }
 
         "3. verify vc jwt" {
@@ -125,7 +125,7 @@ class AuditorCommandTest : StringSpec() {
 
             res.policyResults.keys shouldContainAll listOf(SignaturePolicy()).map { it.id }
 
-            res.policyResults.values.forEach { it.result shouldBe true }
+            res.policyResults.values.forEach { it.isSuccess shouldBe true }
         }
 
         "4. verify vp jwt" {
@@ -140,7 +140,7 @@ class AuditorCommandTest : StringSpec() {
 
             res.policyResults.keys shouldContainAll listOf(SignaturePolicy()).map { it.id }
 
-            res.policyResults.values.forEach { it.result shouldBe true }
+            res.policyResults.values.forEach { it.isSuccess shouldBe true }
         }
 
         // CLI call for testing VerifiableMandatePolicy
