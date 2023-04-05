@@ -1,0 +1,57 @@
+{
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1"
+    ],
+    "id": "urn:uuid:4e1022a0-2406-4b82-9adf-b24825d67d9b",
+    "type": [
+        "VerifiableCredential",
+        "AccreditedVerifiableAttestation",
+        "VerifiableAccreditationTIDiploma"
+    ],
+    "issuer": "did:ebsi:zeVgsb6QdvhdNroPkvDpsiq",
+    "termsOfUse": [
+        {
+            "type": "VerifiableAccreditation",
+            "id": "https://raw.githubusercontent.com/walt-id/waltid-ssikit/main/src/main/resources/vc-templates/trusted-issuer-chain/tao-tir-record.json"
+        }
+    ],
+    "issuanceDate": "2022-01-01T00:00:00Z",
+    "validFrom": "2022-01-01T00:00:00Z",
+    "expirationDate": "2024-01-01T00:00:00Z",
+    "issued": "2022-01-01T00:00:00Z",
+    "credentialSubject": {
+        "id": "did:ebsi:zwx1X4tejNBDirXnNsXnNwU",
+        "authorisationClaims": [
+            {
+                "authorisedSchemaId": "https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableDiploma.json",
+                "limitJurisdiction": "http://publications.europa.eu/resource/authority/atu/NLD",
+                "accreditationType": "http://data.europa.eu/snb/accreditation/e57dddfcf3",
+                "decision": "fully compliant",
+                "report": [
+                    "https://www.example.com/URLtoreport.pdf"
+                ],
+                "limitQualification": [
+                    {
+                        "id": "http://qualdb.org/qual/1",
+                        "title": "Masters' Diploma in Sociology",
+                        "alternativeLabel": [
+                            "Diploma in Sociology",
+                            "Masters' Diploma in Sociological Studies"
+                        ],
+                        "EQFLevel": "http://data.europa.eu/snb/eqf/6",
+                        "NQFLevel": "http://data.europa.eu/snb/qdr/c_1711a061"
+                    }
+                ],
+                "reviewDate": "2024-04-22T14:11:44Z"
+            }
+        ]
+    },
+    "credentialStatus": {
+        "id": "https://essif.europa.eu/status/45",
+        "type": "CredentialsStatusList2020"
+    },
+    "credentialSchema": {
+        "id": "https://essif.europa.eu/tsr-123/verifiable-accreditation-ti-diploma.json",
+        "type": "FullJsonSchemaValidator2021"
+    }
+}

@@ -143,6 +143,3 @@ class EbsiTrustedSubjectDidPolicy : SimpleVerificationPolicy() {
         } ?: false)
     }
 }
-fun main(){
-    runBlocking { println(WaltIdServices.httpNoAuth.get("https://data.deqar.eu/schema/v1.json").status == HttpStatusCode.OK) }
-}
