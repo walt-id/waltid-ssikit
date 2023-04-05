@@ -71,7 +71,7 @@ class CredentialStatusPolicy : SimpleVerificationPolicy() {
                 val result = rs.checkRevoked(cs.id)
                 revocationVerificationPolicy(result.isRevoked, result.timeOfRevocation)
             }
-
+            "StatusList2021Credential" -> VerificationPolicyResult.success()//TODO: implement
             else -> VerificationPolicyResult.failure(UnsupportedOperationException("CredentialStatus type \"${cs.type}\" is not yet supported."))
         }
     }
