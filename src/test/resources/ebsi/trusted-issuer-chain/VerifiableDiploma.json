@@ -57,7 +57,7 @@
   "expirationDate": "2022-08-31T00:00:00Z",
   "id": "education#higherEducation#392ac7f6-399a-437b-a268-4691ead8f176",
   "issued": "2021-08-31T00:00:00Z",
-  "issuer": "did:ebsi:zwx1X4tejNBDirXnNsXnNwU",
+  "issuer": "did:ebsi:zmyj1kZ2Y2m43hzzfEJPhAp",
   "validFrom": "2021-08-31T00:00:00Z",
   "issuanceDate": "2021-08-31T00:00:00Z",
   "type": ["VerifiableCredential", "VerifiableAttestation", "VerifiableDiploma"]

@@ -5,11 +5,18 @@ import id.walt.auditor.SimpleVerificationPolicy
 import id.walt.auditor.VerificationPolicyResult
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.VerifiablePresentation
+import id.walt.model.DidMethod
+import id.walt.model.DidUrl
 import id.walt.model.TrustedIssuer
 import id.walt.model.TrustedIssuerType
+import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.WaltIdServices
 import id.walt.services.did.DidService
 import id.walt.services.ecosystems.essif.TrustedIssuerClient
+import id.walt.signatory.ProofConfig
+import id.walt.signatory.ProofType
+import id.walt.signatory.Signatory
+import io.ipfs.multibase.Multibase
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.http.*
@@ -102,28 +109,76 @@ class EbsiTrustedIssuerRegistryPolicy(registryArg: EbsiTrustedIssuerRegistryPoli
 
         val issuerDid = vc.issuerId!!
 
-        val resolvedIssuerDid = DidService.loadOrResolveAnyDid(issuerDid)
-            ?: throw IllegalArgumentException("Could not resolve issuer DID $issuerDid")
-
-        if (resolvedIssuerDid.id != issuerDid) {
-            return VerificationPolicyResult.failure(IllegalArgumentException("Resolved DID ${resolvedIssuerDid.id} does not match the issuer DID $issuerDid"))
+        // issuer did is a valid DID EBSI identifier
+        if (!validateDid(issuerDid)) {
+            return VerificationPolicyResult.failure(IllegalArgumentException("Not a valid ebsi legal entity did"))
         }
-        var tirRecord: TrustedIssuer
+        // issuer did is onboarded
+        EbsiTrustedIssuerDidPolicy().verify(vc).takeIf { it.isFailure }?.run {
+            return this
+        }
+//        if (resolvedIssuerDid.id != issuerDid) {
+//            return VerificationPolicyResult.failure(IllegalArgumentException("Resolved DID ${resolvedIssuerDid.id} does not match the issuer DID $issuerDid"))
+//        }
+        // the issuer is registered in TIR
+        val tirRecord = fetchTirRecord(issuerDid)
+            ?: return VerificationPolicyResult.failure(IllegalArgumentException("Issuer is not registered on TIR"))
+        // the issuer has a valid Legal Entity Verifiable ID registered as an attribute in TIR
+        tirRecord.attributes.any {
+            VerifiableCredential.fromString(it.body).type.contains("VerifiableId")
+        }.takeIf { !it }?.run {
+            return VerificationPolicyResult.failure(IllegalArgumentException("Issuer has no VerifiableId registered as an attribute in TIR"))
+        }
+        // validate issuer type
+        tirRecord.attributes.any {
+            it.issuerType.equals(argument.issuerType.name, ignoreCase = true)
+        }.takeIf { !it }?.run {
+            return VerificationPolicyResult.failure(IllegalArgumentException("Issuer type doesn't match"))
+        }
+        // verify credential status
+        CredentialStatusPolicy().verify(vc).takeIf { it.isFailure }?.run {
+            return this
+        }
+        // verify issuer's authorization claims against credential schema and issuer's accreditation status
+        tirRecord.attributes.any {
+            val accreditation = VerifiableCredential.fromString(it.body)
+            EbsiTrustedIssuerAuthorizationClaimsPolicy().verify(accreditation).isSuccess
+                    && CredentialStatusPolicy().verify(accreditation).isSuccess
+        }.takeIf { !it }?.run {
+            return VerificationPolicyResult.failure(IllegalArgumentException("Issuer's authorization claims don't match or issuer's accreditation is not valid"))
+        }
+
+        return VerificationPolicyResult.success()
 
 
-        return VerificationPolicyResult(runCatching {
-            tirRecord = TrustedIssuerClient.getIssuer(issuerDid, argument.registryAddress)
-            isValidTrustedIssuerRecord(tirRecord)
-        }.getOrElse {
-            log.debug { it }
-            log.warn { "Could not resolve issuer TIR record of $issuerDid" }
-            false
-        })
+//        var tirRecord: TrustedIssuer
+//
+//
+//        return VerificationPolicyResult(runCatching {
+//            tirRecord = TrustedIssuerClient.getIssuer(issuerDid, argument.registryAddress)
+//            isValidTrustedIssuerRecord(tirRecord)
+//        }.getOrElse {
+//            log.debug { it }
+//            log.warn { "Could not resolve issuer TIR record of $issuerDid" }
+//            false
+//        })
     }
 
     private fun isValidTrustedIssuerRecord(tirRecord: TrustedIssuer): Boolean = tirRecord.attributes.any {
-        it.issuerType.equals(argument.issuerType.name, ignoreCase = true)
+        val accreditation = VerifiableCredential.fromString(it.body)
+        EbsiTrustedIssuerAuthorizationClaimsPolicy().verify(accreditation).isSuccess
+                && CredentialStatusPolicy().verify(accreditation).isSuccess
     }
+
+    private fun validateDid(did: String) = let {
+        val didUrl = DidUrl.from(did)
+        val version = Multibase.decode(didUrl.identifier).first().toInt()
+        DidMethod.valueOf(didUrl.method) == DidMethod.ebsi && version == 1
+    }
+
+    private fun fetchTirRecord(did: String) = runCatching {
+        TrustedIssuerClient.getIssuer(did, argument.registryAddress)
+    }.getOrNull()
 
     override var applyToVP: Boolean = false
 }
@@ -166,4 +221,29 @@ class EbsiTrustedIssuerAuthorizationClaimsPolicy : SimpleVerificationPolicy() {
         }.takeIf { it }?.let { VerificationPolicyResult.success() }
             ?: VerificationPolicyResult.failure(Throwable("Issuer has no authorization claims for the credential schema"))
     }
+}
+
+fun main(){
+    ServiceMatrix("service-matrix.properties")
+    val vcti = Signatory.getService().issue("src/test/resources/ebsi/trusted-issuer-chain/TIVerifiableAccreditationTIDiploma.json", ProofConfig(
+        issuerDid = "did:ebsi:zmyj1kZ2Y2m43hzzfEJPhAp",
+        subjectDid = "did:ebsi:zcvXvBGgVhuijx1MTKiVvjZ",
+        proofType = ProofType.JWT,
+    ))
+    println("vc ti")
+    println(vcti)
+    val vctao = Signatory.getService().issue("src/test/resources/ebsi/trusted-issuer-chain/TAOVerifiableAccreditation.json", ProofConfig(
+        issuerDid = "did:ebsi:zmyj1kZ2Y2m43hzzfEJPhAp",
+        subjectDid = "did:ebsi:zmyj1kZ2Y2m43hzzfEJPhAp",
+        proofType = ProofType.JWT,
+    ))
+    println("vc tao")
+    println(vctao)
+    val vcid = Signatory.getService().issue("src/test/resources/ebsi/trusted-issuer-chain/VerifiableId.json", ProofConfig(
+        issuerDid = "did:ebsi:zmyj1kZ2Y2m43hzzfEJPhAp",
+        subjectDid = "did:ebsi:zcvXvBGgVhuijx1MTKiVvjZ",
+        proofType = ProofType.JWT,
+    ))
+    println("vc id")
+    println(vcid)
 }

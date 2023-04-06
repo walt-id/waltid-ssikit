@@ -6,9 +6,9 @@
     "type": [
         "VerifiableCredential",
         "AccreditedVerifiableAttestation",
-        "VerifiableAccreditationTIDiploma"
+        "VerifiableId"
     ],
-    "issuer": "did:ebsi:zmyj1kZ2Y2m43hzzfEJPhAp",
+    "issuer": "did:ebsi:zi18Mc3ttHvdTUi9HHYbmUa",
     "termsOfUse": [
         {
             "type": "VerifiableAccreditation",
@@ -20,7 +20,7 @@
     "expirationDate": "2024-01-01T00:00:00Z",
     "issued": "2022-01-01T00:00:00Z",
     "credentialSubject": {
-        "id": "did:ebsi:zcvXvBGgVhuijx1MTKiVvjZ",
+        "id": "did:ebsi:zhCeHRkNhxy7pUVHy3dtTh4",
         "authorisationClaims": [
             {
                 "authorisedSchemaId": "https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableDiploma.json",

@@ -9,7 +9,7 @@
         "AccreditedVerifiableAttestation",
         "VerifiableAccreditation"
     ],
-    "issuer": "did:ebsi:zi18Mc3ttHvdTUi9HHYbmUa",
+    "issuer": "did:ebsi:zmyj1kZ2Y2m43hzzfEJPhAp",
     "termsOfUse": [
         {
             "type": "VerifiableAccreditation",
@@ -21,7 +21,7 @@
     "expirationDate": "2024-01-01T00:00:00Z",
     "issued": "2022-01-01T00:00:00Z",
     "credentialSubject": {
-        "id": "did:ebsi:zi18Mc3ttHvdTUi9HHYbmUa",
+        "id": "did:ebsi:zmyj1kZ2Y2m43hzzfEJPhAp",
         "authorisationClaims": [
             {
                 "authorisedSchemaId": "https://essif.europa.eu/tsr-123/verifiable-accreditation.json"
