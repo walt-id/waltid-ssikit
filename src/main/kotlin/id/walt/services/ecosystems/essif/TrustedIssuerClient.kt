@@ -1,7 +1,10 @@
 package id.walt.services.ecosystems.essif
 
 import com.beust.klaxon.Klaxon
+import id.walt.common.KlaxonWithConverters
 import id.walt.common.readEssif
+import id.walt.common.resolveContent
+import id.walt.model.AttributeRecord
 import id.walt.model.AuthRequestResponse
 import id.walt.model.TrustedIssuer
 import id.walt.services.WaltIdServices
@@ -30,6 +33,7 @@ object TrustedIssuerClient {
     const val trustedIssuerPath = "trusted-issuers-registry/$apiVersion/issuers"
     const val trustedSchemaPath = "trusted-schemas-registry/$schemaApiVersion/schemas"
 
+    private const val attributesPath = "attributes"
     private const val trustedIssuerUrl = "http://localhost:7001/v2/trusted-issuer"
     private val enterpriseWalletService = EnterpriseWalletService.getService()
     private val httpClient = WaltIdServices.httpNoAuth
@@ -108,7 +112,7 @@ object TrustedIssuerClient {
     // returns trusted issuer record
     fun getIssuerRaw(did: String, registryAddress: String = "$domain/$trustedIssuerPath"): String = runBlocking {
         log.debug { "Getting trusted issuer with DID $did" }
-        val trustedIssuer: String = httpClient.get("$registryAddress/$did").bodyAsText()
+        val trustedIssuer: String = resolveContent("$registryAddress/$did")
         log.debug { trustedIssuer }
         return@runBlocking trustedIssuer
     }
@@ -117,6 +121,13 @@ object TrustedIssuerClient {
         Klaxon().parse<TrustedIssuer>(getIssuerRaw(did, registryAddress))!!
 
     fun getIssuer(did: String): TrustedIssuer = getIssuer(did, "$domain/$trustedIssuerPath")
+
+    fun getAttribute(did: String, attributeId: String) =
+        getAttribute("$domain/$trustedIssuerPath/$did/$attributesPath/$attributeId")
+
+    fun getAttribute(url: String) = resolveContent(url).let {
+        KlaxonWithConverters().parse<AttributeRecord>(it)!!
+    }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     //TODO: the methods below are stubbed - to be considered

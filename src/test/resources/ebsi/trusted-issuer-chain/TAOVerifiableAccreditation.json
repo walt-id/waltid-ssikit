@@ -1,3 +1,4 @@
+
 {
     "@context": [
         "https://www.w3.org/2018/credentials/v1"
@@ -8,11 +9,11 @@
         "AccreditedVerifiableAttestation",
         "VerifiableAccreditation"
     ],
-    "issuer": "did:ebsi:zeVgsb6QdvhdNroPkvDpsiq",
+    "issuer": "did:ebsi:zi18Mc3ttHvdTUi9HHYbmUa",
     "termsOfUse": [
         {
             "type": "VerifiableAccreditation",
-            "id": "https://raw.githubusercontent.com/walt-id/waltid-ssikit/main/src/main/resources/vc-templates/trusted-issuer-chain/tao-tir-record.json"
+            "id": "https://raw.githubusercontent.com/walt-id/waltid-ssikit/main/src/test/resources/ebsi/trusted-issuer-chain/tao-tir-record.json"
         }
     ],
     "issuanceDate": "2022-01-01T00:00:00Z",
@@ -20,7 +21,7 @@
     "expirationDate": "2024-01-01T00:00:00Z",
     "issued": "2022-01-01T00:00:00Z",
     "credentialSubject": {
-        "id": "did:ebsi:zeVgsb6QdvhdNroPkvDpsiq",
+        "id": "did:ebsi:zi18Mc3ttHvdTUi9HHYbmUa",
         "authorisationClaims": [
             {
                 "authorisedSchemaId": "https://essif.europa.eu/tsr-123/verifiable-accreditation.json"
@@ -35,7 +36,7 @@
         "type": "CredentialsStatusList2020"
     },
     "credentialSchema": {
-        "id": "https://api-pilot.ebsi.eu/trusted-schemas-registry/v1/schemas/0xcb6d86ed17e50ebd1bf2b43af1af987d87c2ca19f7b519714b93764285b85631",
+        "id": "https://essif.europa.eu/tsr-123/verifiable-accreditation.json",
         "type": "FullJsonSchemaValidator2021"
     }
 }

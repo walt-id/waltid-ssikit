@@ -3,7 +3,6 @@ package id.walt.auditor.policies
 import id.walt.auditor.ParameterizedVerificationPolicy
 import id.walt.auditor.SimpleVerificationPolicy
 import id.walt.auditor.VerificationPolicyResult
-import id.walt.common.KlaxonWithConverters
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.VerifiablePresentation
 import id.walt.model.TrustedIssuer
@@ -13,10 +12,8 @@ import id.walt.services.did.DidService
 import id.walt.services.ecosystems.essif.TrustedIssuerClient
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
-import kotlinx.serialization.Serializable
 import mu.KotlinLogging
 
 private val log = KotlinLogging.logger {}
@@ -147,41 +144,26 @@ class EbsiTrustedSubjectDidPolicy : SimpleVerificationPolicy() {
     }
 }
 
-class EbsiAuthorizationClaimsPolicy : SimpleVerificationPolicy() {
+class EbsiTrustedIssuerAuthorizationClaimsPolicy : SimpleVerificationPolicy() {
     override val description: String
-        get() = "Verify by authorized claims"
+        get() = "Verify by issuer's authorized claims"
 
     override fun doVerify(vc: VerifiableCredential): VerificationPolicyResult {
-        // get issuers accreditations
-        val tirRecords = (vc.properties["termsOfUse"] as? List<TermsOfUse>)?.filter {
-            it.type == "VerifiableAccreditation"
-        }?.map {
-            // fetch the issuers registry attributes
-            //TODO: replace with TrustedIssuerClient.getIssuer
-            runBlocking { WaltIdServices.httpNoAuth.get(it.id).bodyAsText() }
+        // get accreditations of the issuers
+        val tirRecords = (vc.properties["termsOfUse"] as? List<HashMap<String, String>>)?.filter {
+            it["type"] == "VerifiableAccreditation"
         }?.mapNotNull {
-            runCatching { KlaxonWithConverters().parse<TrustedIssuer>(it) }.getOrNull()
+            // fetch the issuers registry attributes
+            runCatching { TrustedIssuerClient.getAttribute(it["id"]!!) }.getOrNull()
         } ?: emptyList()
+
         // check the credential schema to match the issuers' authorized schemas
         return tirRecords.any {
-            it.attributes.any {
-                // attribute's body field holds the credential as jwt
-                (VerifiableCredential.fromString(it.body).credentialSubject?.properties?.get("authorisationClaims") as? List<AuthorizedClaim>)?.any {
-                    it.authorisedSchemaId == vc.credentialSchema?.id
-                } ?: false
-            }
-        }.takeIf { it }?.let { VerificationPolicyResult.success() } ?: VerificationPolicyResult.failure()
+            // attribute's body field holds the credential as jwt
+            (VerifiableCredential.fromString(it.attribute.body).credentialSubject?.properties?.get("authorisationClaims") as? List<HashMap<String, String>>)?.any {
+                it["authorisedSchemaId"] == vc.credentialSchema?.id
+            } ?: false
+        }.takeIf { it }?.let { VerificationPolicyResult.success() }
+            ?: VerificationPolicyResult.failure(Throwable("Issuer has no authorization claims for the credential schema"))
     }
 }
-
-@Serializable
-internal data class TermsOfUse(
-    val type: String,
-    val id: String,
-)
-
-@Serializable
-internal data class AuthorizedClaim(
-    val authorisedSchemaId: String,
-)
-

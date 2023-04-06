@@ -3,10 +3,7 @@ package id.walt.auditor
 import com.beust.klaxon.JsonObject
 import id.walt.auditor.dynamic.DynamicPolicy
 import id.walt.auditor.dynamic.DynamicPolicyArg
-import id.walt.auditor.policies.EbsiTrustedSchemaRegistryPolicy
-import id.walt.auditor.policies.JsonSchemaPolicy
-import id.walt.auditor.policies.JsonSchemaPolicyArg
-import id.walt.auditor.policies.SignaturePolicy
+import id.walt.auditor.policies.*
 import id.walt.common.resolveContent
 import id.walt.credentials.w3c.JsonConverter
 import id.walt.credentials.w3c.VerifiableCredential
@@ -25,16 +22,15 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.core.test.TestCase
 import io.kotest.data.blocking.forAll
 import io.kotest.data.row
-import io.kotest.matchers.collections.beEmpty
 import io.kotest.matchers.collections.shouldBeSameSizeAs
-import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
+import io.mockk.every
+import io.mockk.mockkStatic
+import io.mockk.unmockkStatic
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
-import net.bytebuddy.pool.TypePool.Resolution.Illegal
 import java.io.File
-import java.lang.IllegalArgumentException
 import java.net.URI
 import java.net.URL
 
@@ -360,6 +356,27 @@ class AuditorCommandTest : StringSpec() {
 
                 result.isSuccess shouldBe isSuccess
                 result.errors shouldBe message
+            }
+        }
+
+        "10. test EbsiAuthorizationClaimsPolicy" {
+            forAll(
+                row("TIVerifiableAccreditationTIDiploma.json", "tao-tir-record.json", true, emptyList<Throwable>()),
+                row("TAOVerifiableAccreditation.json", "tao-tir-record.json", true, emptyList<Throwable>()),
+            ) { vcpath, attrpath, isSuccess, message ->
+                val schemaPath = "src/test/resources/ebsi/trusted-issuer-chain/"
+                val policy = EbsiTrustedIssuerAuthorizationClaimsPolicy()
+                val vc = resolveContent(schemaPath + vcpath).toVerifiableCredential()
+                val tirRecord = resolveContent(schemaPath + attrpath)
+                mockkStatic(::resolveContent)
+                every { resolveContent(any()) } returns tirRecord
+
+                val result = policy.verify(vc)
+
+                result.isSuccess shouldBe isSuccess
+                result.errors shouldBe message
+
+                unmockkStatic(::resolveContent)
             }
         }
     }

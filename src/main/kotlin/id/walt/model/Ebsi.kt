@@ -103,6 +103,12 @@ data class Attribute(
     val rootTao: String? = null,    //did:ebsi:zppVrNT9bBgMqxrJqVEnvyk
 )
 
+@Serializable
+data class AttributeRecord(
+    val did: String,
+    val attribute: Attribute
+)
+
 enum class TrustedIssuerType {
     RootTAO,
     TAO,
