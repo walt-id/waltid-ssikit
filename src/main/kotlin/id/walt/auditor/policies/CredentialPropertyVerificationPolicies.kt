@@ -72,6 +72,7 @@ class CredentialStatusPolicy : SimpleVerificationPolicy() {
                 revocationVerificationPolicy(result.isRevoked, result.timeOfRevocation)
             }
             "StatusList2021Credential" -> VerificationPolicyResult.success()//TODO: implement
+            "CredentialStatusList2020" -> VerificationPolicyResult.success()//TODO: implement
             else -> VerificationPolicyResult.failure(UnsupportedOperationException("CredentialStatus type \"${cs.type}\" is not yet supported."))
         }
     }
