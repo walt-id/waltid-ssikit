@@ -148,7 +148,7 @@ open class PolicyRegistryService: WaltIdService() {
             "Verify by an EBSI Trusted Issuers Registry compliant api.",
             true
         )
-        register(EbsiTrustedIssuerAuthorizationClaimsPolicy::class,"Verify by issuer's authorized claims")
+        register(EbsiTrustedIssuerAccreditationPolicy::class,"Verify by issuer's authorized claims")
         register(EbsiTrustedSubjectDidPolicy::class, "Verify by trusted subject did")
         register(IssuedDateBeforePolicy::class, "Verify by issuance date")
         register(ValidFromBeforePolicy::class, "Verify by valid from")

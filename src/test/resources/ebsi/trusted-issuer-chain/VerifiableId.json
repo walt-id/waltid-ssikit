@@ -6,7 +6,7 @@
     "type": [
         "VerifiableCredential",
         "AccreditedVerifiableAttestation",
-        "VerifiableAccreditationTIDiploma"
+        "VerifiableId"
     ],
     "issuer": "did:ebsi:zyRRqha2AhYxVsXjseHybme",
     "termsOfUse": [
@@ -48,7 +48,7 @@
     },
     "credentialStatus": {
         "id": "https://essif.europa.eu/status/45",
-        "type": "CredentialStatusList2020"
+        "type": "CredentialsStatusList2020"
     },
     "credentialSchema": {
         "id": "https://essif.europa.eu/tsr-123/verifiable-accreditation-ti-diploma.json",
