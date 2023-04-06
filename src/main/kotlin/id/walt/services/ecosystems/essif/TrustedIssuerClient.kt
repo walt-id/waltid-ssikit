@@ -2,6 +2,7 @@ package id.walt.services.ecosystems.essif
 
 import com.beust.klaxon.Klaxon
 import id.walt.common.readEssif
+import id.walt.common.resolveContent
 import id.walt.model.AuthRequestResponse
 import id.walt.model.TrustedIssuer
 import id.walt.services.WaltIdServices
@@ -108,7 +109,9 @@ object TrustedIssuerClient {
     // returns trusted issuer record
     fun getIssuerRaw(did: String, registryAddress: String = "$domain/$trustedIssuerPath"): String = runBlocking {
         log.debug { "Getting trusted issuer with DID $did" }
-        val trustedIssuer: String = httpClient.get("$registryAddress/$did").bodyAsText()
+        // TODO: remove when able to write on ebsi tir -> work-around for tir mocks (hosted at certain urls without requiring the did)
+        val url = "$registryAddress${did.takeIf { it.isNotEmpty() }?.let { "/$did" } ?: ""}"
+        val trustedIssuer: String = resolveContent(url)
         log.debug { trustedIssuer }
         return@runBlocking trustedIssuer
     }
