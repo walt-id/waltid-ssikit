@@ -7,6 +7,7 @@ import id.walt.common.resolveContent
 import id.walt.model.AttributeRecord
 import id.walt.model.AuthRequestResponse
 import id.walt.model.TrustedIssuer
+import id.walt.model.TrustedIssuerType
 import id.walt.services.WaltIdServices
 import id.walt.services.ecosystems.essif.didebsi.EBSI_ENV_URL
 import id.walt.services.ecosystems.essif.enterprisewallet.EnterpriseWalletService
@@ -121,6 +122,20 @@ object TrustedIssuerClient {
         Klaxon().parse<TrustedIssuer>(getIssuerRaw(did, registryAddress))!!
 
     fun getIssuer(did: String): TrustedIssuer = getIssuer(did, "$domain/$trustedIssuerPath")
+
+    @Deprecated(
+        "Mock solution for ebsi registry. To be removed",
+        ReplaceWith("getIssuer(did), getIssuer(did, registryAddress)")
+    )
+    fun getIssuer(type: TrustedIssuerType): TrustedIssuer = runBlocking {
+        when (type) {
+            TrustedIssuerType.TI -> "https://raw.githubusercontent.com/walt-id/waltid-ssikit/main/src/test/resources/ebsi/trusted-issuer-chain/ti-tir-record.json"
+            TrustedIssuerType.TAO -> "https://raw.githubusercontent.com/walt-id/waltid-ssikit/main/src/test/resources/ebsi/trusted-issuer-chain/tao-tir-record.json"
+            else -> ""
+        }.let {
+            KlaxonWithConverters().parse(resolveContent(it))!!
+        }
+    }
 
     fun getAttribute(did: String, attributeId: String) =
         getAttribute("$domain/$trustedIssuerPath/$did/$attributesPath/$attributeId")

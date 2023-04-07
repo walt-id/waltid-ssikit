@@ -9,11 +9,11 @@
         "AccreditedVerifiableAttestation",
         "VerifiableAccreditation"
     ],
-    "issuer": "did:ebsi:zyRRqha2AhYxVsXjseHybme",
+    "issuer": "did:ebsi:ztSHfNUFDXmqBNkY8UBH8VE",
     "termsOfUse": [
         {
             "type": "VerifiableAccreditation",
-            "id": "https://raw.githubusercontent.com/walt-id/waltid-ssikit/main/src/test/resources/ebsi/trusted-issuer-chain/tao-tir-record.json"
+            "id": "https://raw.githubusercontent.com/walt-id/waltid-ssikit/main/src/test/resources/ebsi/trusted-issuer-chain/tao-tir-attribute.json"
         }
     ],
     "issuanceDate": "2022-01-01T00:00:00Z",
@@ -21,7 +21,7 @@
     "expirationDate": "2024-01-01T00:00:00Z",
     "issued": "2022-01-01T00:00:00Z",
     "credentialSubject": {
-        "id": "did:ebsi:zyRRqha2AhYxVsXjseHybme",
+        "id": "did:ebsi:ztSHfNUFDXmqBNkY8UBH8VE",
         "authorisationClaims": [
             {
                 "authorisedSchemaId": "https://essif.europa.eu/tsr-123/verifiable-accreditation.json"
