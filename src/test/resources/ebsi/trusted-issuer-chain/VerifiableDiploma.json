@@ -6,7 +6,7 @@
   },
   "credentialStatus": {
     "id": "https://essif.europa.eu/status/education#higherEducation#392ac7f6-399a-437b-a268-4691ead8f176",
-    "type": "CredentialStatusList2020"
+    "type": "CredentialsStatusList2020"
   },
   "credentialSubject": {
     "awardingOpportunity": {
@@ -46,18 +46,10 @@
       "nqfLevel": ["7"]
     }
   },
-  "evidence": {
-    "documentPresence": ["Physical"],
-    "evidenceDocument": ["Passport"],
-    "id": "https://essif.europa.eu/tsr-va/evidence/f2aeec97-fc0d-42bf-8ca7-0548192d5678",
-    "subjectPresence": "Physical",
-    "type": ["DocumentVerification"],
-    "verifier": "did:ebsi:2962fb784df61baa267c8132497539f8c674b37c1244a7a"
-  },
   "expirationDate": "2022-08-31T00:00:00Z",
   "id": "education#higherEducation#392ac7f6-399a-437b-a268-4691ead8f176",
   "issued": "2021-08-31T00:00:00Z",
-  "issuer": "did:ebsi:zmyj1kZ2Y2m43hzzfEJPhAp",
+  "issuer": "did:ebsi:zcvXvBGgVhuijx1MTKiVvjZ",
   "validFrom": "2021-08-31T00:00:00Z",
   "issuanceDate": "2021-08-31T00:00:00Z",
   "type": ["VerifiableCredential", "VerifiableAttestation", "VerifiableDiploma"]

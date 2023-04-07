@@ -109,6 +109,10 @@ class EbsiTrustedIssuerRegistryPolicy(registryArg: EbsiTrustedIssuerRegistryPoli
 
         val issuerDid = vc.issuerId!!
 
+        // verify credential status
+        CredentialStatusPolicy().verify(vc).takeIf { it.isFailure }?.run {
+            return this
+        }
         // issuer did is a valid DID EBSI identifier
         if (!validateDid(issuerDid)) {
             return VerificationPolicyResult.failure(IllegalArgumentException("Not a valid ebsi legal entity did"))
@@ -117,12 +121,17 @@ class EbsiTrustedIssuerRegistryPolicy(registryArg: EbsiTrustedIssuerRegistryPoli
         EbsiTrustedIssuerDidPolicy().verify(vc).takeIf { it.isFailure }?.run {
             return this
         }
-//        if (resolvedIssuerDid.id != issuerDid) {
-//            return VerificationPolicyResult.failure(IllegalArgumentException("Resolved DID ${resolvedIssuerDid.id} does not match the issuer DID $issuerDid"))
-//        }
         // the issuer is registered in TIR
         val tirRecord = fetchTirRecord(issuerDid)
             ?: return VerificationPolicyResult.failure(IllegalArgumentException("Issuer is not registered on TIR"))
+        // issuer is authorized to issue the vc's credential schema
+        val tirRecordAccreditationAttributes = tirRecord.attributes.filter {
+            val accreditation = VerifiableCredential.fromString(it.body)
+            (accreditation.credentialSubject?.properties?.get("authorisationClaims") as? List<HashMap<String, String>>)?.any {
+                it["authorisedSchemaId"] == vc.credentialSchema?.id
+            } ?: false
+        }.takeIf { it.isNotEmpty() }
+            ?: return VerificationPolicyResult.failure(IllegalArgumentException("Issuer is not authorized to issue this vc credential schema"))
         // the issuer has a valid Legal Entity Verifiable ID registered as an attribute in TIR
         tirRecord.attributes.any {
             VerifiableCredential.fromString(it.body).type.contains("VerifiableId")
@@ -130,22 +139,18 @@ class EbsiTrustedIssuerRegistryPolicy(registryArg: EbsiTrustedIssuerRegistryPoli
             return VerificationPolicyResult.failure(IllegalArgumentException("Issuer has no VerifiableId registered as an attribute in TIR"))
         }
         // validate issuer type
-        tirRecord.attributes.any {
+        tirRecordAccreditationAttributes.any {
             it.issuerType.equals(argument.issuerType.name, ignoreCase = true)
         }.takeIf { !it }?.run {
             return VerificationPolicyResult.failure(IllegalArgumentException("Issuer type doesn't match"))
         }
-        // verify credential status
-        CredentialStatusPolicy().verify(vc).takeIf { it.isFailure }?.run {
-            return this
-        }
-        // verify issuer's authorization claims against credential schema and issuer's accreditation status
-        tirRecord.attributes.any {
+        // verify issuer's accreditation
+        tirRecordAccreditationAttributes.any {
             val accreditation = VerifiableCredential.fromString(it.body)
             EbsiTrustedIssuerAuthorizationClaimsPolicy().verify(accreditation).isSuccess
                     && CredentialStatusPolicy().verify(accreditation).isSuccess
         }.takeIf { !it }?.run {
-            return VerificationPolicyResult.failure(IllegalArgumentException("Issuer's authorization claims don't match or issuer's accreditation is not valid"))
+            return VerificationPolicyResult.failure(IllegalArgumentException("Issuer's accreditation is not valid"))
         }
 
         return VerificationPolicyResult.success()
@@ -163,13 +168,7 @@ class EbsiTrustedIssuerRegistryPolicy(registryArg: EbsiTrustedIssuerRegistryPoli
 //            false
 //        })
     }
-
-    private fun isValidTrustedIssuerRecord(tirRecord: TrustedIssuer): Boolean = tirRecord.attributes.any {
-        val accreditation = VerifiableCredential.fromString(it.body)
-        EbsiTrustedIssuerAuthorizationClaimsPolicy().verify(accreditation).isSuccess
-                && CredentialStatusPolicy().verify(accreditation).isSuccess
-    }
-
+    
     private fun validateDid(did: String) = let {
         val didUrl = DidUrl.from(did)
         val version = Multibase.decode(didUrl.identifier).first().toInt()

@@ -382,14 +382,18 @@ class AuditorCommandTest : StringSpec() {
 
         "11. test EbsiTrustedIssuerRegistryPolicy"{
             forAll(
-                row("TIVerifiableAccreditationTIDiploma.json", "tao-tir-attribute.json", TrustedIssuerType.TAO, true, emptyList<Throwable>()),
-                row("TAOVerifiableAccreditation.json", "tao-tir-attribute.json", TrustedIssuerType.TAO, true, emptyList<Throwable>()),
-            ) { vcPath, attrPath, issuerType, isSuccess, errors ->
+                // self issued (tao accreditation)
+                row("TAOVerifiableAccreditation.json", "tao-tir-record.json", "tao-tir-attribute.json", TrustedIssuerType.TAO, true, emptyList<Throwable>()),
+                // issued by tao (ti accreditation)
+                row("TIVerifiableAccreditationTIDiploma.json", "tao-tir-record.json", "tao-tir-attribute.json", TrustedIssuerType.TAO, true, emptyList<Throwable>()),
+                // issued by issuer (diploma credential)
+                row("VerifiableDiploma.json", "ti-tir-record.json", "tao-tir-attribute.json", TrustedIssuerType.TI, true, emptyList<Throwable>()),
+            ) { vcPath, tirRecordPath, tirAttributePath, issuerType, isSuccess, errors ->
                 val schemaPath = "src/test/resources/ebsi/trusted-issuer-chain/"
                 val policy = EbsiTrustedIssuerRegistryPolicy(issuerType)
                 val vc = resolveContent(schemaPath + vcPath).toVerifiableCredential()
-                val attribute = KlaxonWithConverters().parse<AttributeRecord>(resolveContent (schemaPath + attrPath))!!
-                val tirRecord = KlaxonWithConverters().parse<TrustedIssuer>(resolveContent(schemaPath + "tao-tir-record.json"))!!
+                val attribute = KlaxonWithConverters().parse<AttributeRecord>(resolveContent (schemaPath + tirAttributePath))!!
+                val tirRecord = KlaxonWithConverters().parse<TrustedIssuer>(resolveContent(schemaPath + tirRecordPath))!!
                 mockkObject(DidService)
                 mockkObject(TrustedIssuerClient)
                 every { DidService.loadOrResolveAnyDid(any()) } returns Did(id = vc.issuerId!!)
