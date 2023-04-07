@@ -7,6 +7,7 @@ import id.walt.common.resolveContent
 import id.walt.model.AttributeRecord
 import id.walt.model.AuthRequestResponse
 import id.walt.model.TrustedIssuer
+import id.walt.model.TrustedIssuerType
 import id.walt.services.WaltIdServices
 import id.walt.services.ecosystems.essif.didebsi.EBSI_ENV_URL
 import id.walt.services.ecosystems.essif.enterprisewallet.EnterpriseWalletService
@@ -127,6 +128,20 @@ object TrustedIssuerClient {
 
     fun getAttribute(url: String) = resolveContent(url).let {
         KlaxonWithConverters().parse<AttributeRecord>(it)!!
+    }
+
+    @Deprecated(
+        "Mock solution for ebsi registry. To be removed",
+        ReplaceWith("getIssuer(did), getIssuer(did, registryAddress)")
+    )
+    fun getIssuer(type: TrustedIssuerType): TrustedIssuer = runBlocking {
+        when (type) {
+            TrustedIssuerType.TI -> "https://raw.githubusercontent.com/walt-id/waltid-ssikit/283-ssikit-update-ebsitrustedissuerregistrypolicy-to-verify-issuer-rights-permissions/src/test/resources/ebsi/trusted-issuer-chain/ti-tir-record.json"
+            TrustedIssuerType.TAO -> "https://raw.githubusercontent.com/walt-id/waltid-ssikit/283-ssikit-update-ebsitrustedissuerregistrypolicy-to-verify-issuer-rights-permissions/src/test/resources/ebsi/trusted-issuer-chain/tao-tir-record.json"
+            else -> ""
+        }.let {
+            KlaxonWithConverters().parse(resolveContent(it))!!
+        }
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////

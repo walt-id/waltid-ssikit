@@ -171,7 +171,8 @@ class EbsiTrustedIssuerRegistryPolicy(registryArg: EbsiTrustedIssuerRegistryPoli
     }
 
     private fun fetchTirRecord(did: String) = runCatching {
-        TrustedIssuerClient.getIssuer(did, argument.registryAddress)
+//        TrustedIssuerClient.getIssuer(did, argument.registryAddress)
+        TrustedIssuerClient.getIssuer(argument.issuerType)
     }.getOrNull()
 
     override var applyToVP: Boolean = false
