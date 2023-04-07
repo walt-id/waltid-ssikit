@@ -8,11 +8,11 @@
         "AccreditedVerifiableAttestation",
         "VerifiableAccreditationTIDiploma"
     ],
-    "issuer": "did:ebsi:zyRRqha2AhYxVsXjseHybme",
+    "issuer": "did:ebsi:ztSHfNUFDXmqBNkY8UBH8VE",
     "termsOfUse": [
         {
             "type": "VerifiableAccreditation",
-            "id": "https://raw.githubusercontent.com/walt-id/waltid-ssikit/main/src/test/resources/ebsi/trusted-issuer-chain/tao-tir-record.json"
+            "id": "https://raw.githubusercontent.com/walt-id/waltid-ssikit/main/src/test/resources/ebsi/trusted-issuer-chain/tao-tir-attribute.json"
         }
     ],
     "issuanceDate": "2022-01-01T00:00:00Z",

@@ -8,11 +8,11 @@
         "AccreditedVerifiableAttestation",
         "VerifiableId"
     ],
-    "issuer": "did:ebsi:zyRRqha2AhYxVsXjseHybme",
+    "issuer": "did:ebsi:ztSHfNUFDXmqBNkY8UBH8VE",
     "termsOfUse": [
         {
             "type": "VerifiableAccreditation",
-            "id": "https://raw.githubusercontent.com/walt-id/waltid-ssikit/main/src/test/resources/ebsi/trusted-issuer-chain/tao-tir-record.json"
+            "id": "https://raw.githubusercontent.com/walt-id/waltid-ssikit/main/src/test/resources/ebsi/trusted-issuer-chain/tao-tir-attribute.json"
         }
     ],
     "issuanceDate": "2022-01-01T00:00:00Z",
@@ -20,7 +20,7 @@
     "expirationDate": "2024-01-01T00:00:00Z",
     "issued": "2022-01-01T00:00:00Z",
     "credentialSubject": {
-        "id": "did:ebsi:zkRop63wCiVgHxn5yBb5AXf",
+        "id": "did:ebsi:zydWCsZxvT9tS2cTcU9wtwE",
         "authorisationClaims": [
             {
                 "authorisedSchemaId": "https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableDiploma.json",
