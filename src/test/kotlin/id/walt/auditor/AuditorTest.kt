@@ -398,7 +398,7 @@ class AuditorCommandTest : StringSpec() {
                 mockkObject(TrustedIssuerClient)
                 every { DidService.loadOrResolveAnyDid(any()) } returns Did(id = vc.issuerId!!)
                 every { TrustedIssuerClient.getAttribute(any()) } returns attribute
-                every { TrustedIssuerClient.getIssuer(any(), any()) } returns tirRecord
+                every { TrustedIssuerClient.getIssuer(any<TrustedIssuerType>()) } returns tirRecord
 
                 val result = policy.verify(vc)
 
