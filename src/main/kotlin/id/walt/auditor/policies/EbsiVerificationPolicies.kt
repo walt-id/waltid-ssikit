@@ -5,7 +5,6 @@ import id.walt.auditor.SimpleVerificationPolicy
 import id.walt.auditor.VerificationPolicyResult
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.VerifiablePresentation
-import id.walt.model.TrustedIssuer
 import id.walt.model.TrustedIssuerType
 import id.walt.services.WaltIdServices
 import id.walt.services.did.DidService
@@ -102,28 +101,44 @@ class EbsiTrustedIssuerRegistryPolicy(registryArg: EbsiTrustedIssuerRegistryPoli
 
         val issuerDid = vc.issuerId!!
 
-        val resolvedIssuerDid = DidService.loadOrResolveAnyDid(issuerDid)
-            ?: throw IllegalArgumentException("Could not resolve issuer DID $issuerDid")
-
-        if (resolvedIssuerDid.id != issuerDid) {
-            return VerificationPolicyResult.failure(IllegalArgumentException("Resolved DID ${resolvedIssuerDid.id} does not match the issuer DID $issuerDid"))
+        // the issuer is registered in TIR
+        val tirRecord = fetchTirRecord(issuerDid)
+            ?: return VerificationPolicyResult.failure(IllegalArgumentException("Issuer has no record on TIR"))
+        // issuer is authorized to issue the vc's credential schema
+        val tirRecordAccreditationAttributes = tirRecord.attributes.filter {
+            val accreditation = VerifiableCredential.fromString(it.body)
+            (accreditation.credentialSubject?.properties?.get("authorisationClaims") as? List<HashMap<String, String>>)?.any {
+                it["authorisedSchemaId"] == vc.credentialSchema?.id
+            } ?: false
+        }.takeIf { it.isNotEmpty() }
+            ?: return VerificationPolicyResult.failure(IllegalArgumentException("Issuer has no authorization claims matching the credential schema"))
+        // the issuer has a valid Legal Entity Verifiable ID registered as an attribute in TIR
+        tirRecord.attributes.any {
+            VerifiableCredential.fromString(it.body).type.contains("VerifiableId")
+        }.takeIf { !it }?.run {
+            return VerificationPolicyResult.failure(IllegalArgumentException("Issuer has no VerifiableId registered as an attribute in TIR"))
         }
-        var tirRecord: TrustedIssuer
+        // validate issuer type
+        tirRecordAccreditationAttributes.any {
+            it.issuerType.equals(argument.issuerType.name, ignoreCase = true)
+        }.takeIf { !it }?.run {
+            return VerificationPolicyResult.failure(IllegalArgumentException("Issuer type doesn't match"))
+        }
+        // verify issuer's accreditation
+        tirRecordAccreditationAttributes.any {
+            val accreditation = VerifiableCredential.fromString(it.body)
+            EbsiTrustedIssuerAccreditationPolicy().verify(accreditation).isSuccess
+        }.takeIf { !it }?.run {
+            return VerificationPolicyResult.failure(IllegalArgumentException("Issuer's accreditation is not valid"))
+        }
 
-
-        return VerificationPolicyResult(runCatching {
-            tirRecord = TrustedIssuerClient.getIssuer(issuerDid, argument.registryAddress)
-            isValidTrustedIssuerRecord(tirRecord)
-        }.getOrElse {
-            log.debug { it }
-            log.warn { "Could not resolve issuer TIR record of $issuerDid" }
-            false
-        })
+        return VerificationPolicyResult.success()
     }
 
-    private fun isValidTrustedIssuerRecord(tirRecord: TrustedIssuer): Boolean = tirRecord.attributes.any {
-        it.issuerType.equals(TrustedIssuerType.TI.name, ignoreCase = true)
-    }
+    private fun fetchTirRecord(did: String) = runCatching {
+//        TrustedIssuerClient.getIssuer(did, argument.registryAddress)
+        TrustedIssuerClient.getIssuer(argument.issuerType)
+    }.getOrNull()
 
     override var applyToVP: Boolean = false
 }
@@ -143,6 +158,27 @@ class EbsiTrustedSubjectDidPolicy : SimpleVerificationPolicy() {
         } ?: false)
     }
 }
-fun main(){
-    runBlocking { println(WaltIdServices.httpNoAuth.get("https://data.deqar.eu/schema/v1.json").status == HttpStatusCode.OK) }
+
+class EbsiTrustedIssuerAccreditationPolicy : SimpleVerificationPolicy() {
+    override val description: String
+        get() = "Verify by issuer's authorized claims"
+
+    override fun doVerify(vc: VerifiableCredential): VerificationPolicyResult {
+        // get accreditations of the issuers
+        val tirRecords = (vc.properties["termsOfUse"] as? List<HashMap<String, String>>)?.filter {
+            it["type"] == "VerifiableAccreditation"
+        }?.mapNotNull {
+            // fetch the issuers registry attributes
+            runCatching { TrustedIssuerClient.getAttribute(it["id"]!!) }.getOrNull()
+        } ?: emptyList()
+
+        // check the credential schema to match the issuers' authorized schemas
+        return tirRecords.any {
+            // attribute's body field holds the credential as jwt
+            (VerifiableCredential.fromString(it.attribute.body).credentialSubject?.properties?.get("authorisationClaims") as? List<HashMap<String, String>>)?.any {
+                it["authorisedSchemaId"] == vc.credentialSchema?.id
+            } ?: false
+        }.takeIf { it }?.let { VerificationPolicyResult.success() }
+            ?: VerificationPolicyResult.failure(Throwable("Issuer has no authorization claims matching the credential schema"))
+    }
 }

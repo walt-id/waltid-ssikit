@@ -3,18 +3,17 @@ package id.walt.auditor
 import com.beust.klaxon.JsonObject
 import id.walt.auditor.dynamic.DynamicPolicy
 import id.walt.auditor.dynamic.DynamicPolicyArg
-import id.walt.auditor.policies.EbsiTrustedSchemaRegistryPolicy
-import id.walt.auditor.policies.JsonSchemaPolicy
-import id.walt.auditor.policies.JsonSchemaPolicyArg
-import id.walt.auditor.policies.SignaturePolicy
+import id.walt.auditor.policies.*
+import id.walt.common.KlaxonWithConverters
 import id.walt.common.resolveContent
 import id.walt.credentials.w3c.JsonConverter
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.custodian.Custodian
-import id.walt.model.DidMethod
+import id.walt.model.*
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
+import id.walt.services.ecosystems.essif.TrustedIssuerClient
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
@@ -25,16 +24,13 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.core.test.TestCase
 import io.kotest.data.blocking.forAll
 import io.kotest.data.row
-import io.kotest.matchers.collections.beEmpty
 import io.kotest.matchers.collections.shouldBeSameSizeAs
-import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
+import io.mockk.*
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
-import net.bytebuddy.pool.TypePool.Resolution.Illegal
 import java.io.File
-import java.lang.IllegalArgumentException
 import java.net.URI
 import java.net.URL
 
@@ -360,6 +356,57 @@ class AuditorCommandTest : StringSpec() {
 
                 result.isSuccess shouldBe isSuccess
                 result.errors shouldBe message
+            }
+        }
+
+        "10. test EbsiTrustedIssuerAccreditationPolicy" {
+            forAll(
+                row("TIVerifiableAccreditationTIDiploma.json", "tao-tir-attribute.json", true, emptyList<Throwable>()),
+                row("TAOVerifiableAccreditation.json", "tao-tir-attribute.json", true, emptyList<Throwable>()),
+            ) { vcPath, attrPath, isSuccess, errors ->
+                val schemaPath = "src/test/resources/ebsi/trusted-issuer-chain/"
+                val policy = EbsiTrustedIssuerAccreditationPolicy()
+                val vc = resolveContent(schemaPath + vcPath).toVerifiableCredential()
+                val tirRecord = resolveContent(schemaPath + attrPath)
+                mockkStatic(::resolveContent)
+                every { resolveContent(any()) } returns tirRecord
+
+                val result = policy.verify(vc)
+
+                result.isSuccess shouldBe isSuccess
+                result.errors shouldBe errors
+
+                unmockkStatic(::resolveContent)
+            }
+        }
+
+        "11. test EbsiTrustedIssuerRegistryPolicy"{
+            forAll(
+                // self issued (tao accreditation)
+                row("TAOVerifiableAccreditation.json", "tao-tir-record.json", "tao-tir-attribute.json", TrustedIssuerType.TAO, true, emptyList<Throwable>()),
+                // issued by tao (ti accreditation)
+                row("TIVerifiableAccreditationTIDiploma.json", "tao-tir-record.json", "tao-tir-attribute.json", TrustedIssuerType.TAO, true, emptyList<Throwable>()),
+                // issued by issuer (diploma credential)
+                row("VerifiableDiploma.json", "ti-tir-record.json", "tao-tir-attribute.json", TrustedIssuerType.TI, true, emptyList<Throwable>()),
+            ) { vcPath, tirRecordPath, tirAttributePath, issuerType, isSuccess, errors ->
+                val schemaPath = "src/test/resources/ebsi/trusted-issuer-chain/"
+                val policy = EbsiTrustedIssuerRegistryPolicy(issuerType)
+                val vc = resolveContent(schemaPath + vcPath).toVerifiableCredential()
+                val attribute = KlaxonWithConverters().parse<AttributeRecord>(resolveContent (schemaPath + tirAttributePath))!!
+                val tirRecord = KlaxonWithConverters().parse<TrustedIssuer>(resolveContent(schemaPath + tirRecordPath))!!
+                mockkObject(DidService)
+                mockkObject(TrustedIssuerClient)
+                every { DidService.loadOrResolveAnyDid(any()) } returns Did(id = vc.issuerId!!)
+                every { TrustedIssuerClient.getAttribute(any()) } returns attribute
+                every { TrustedIssuerClient.getIssuer(any<TrustedIssuerType>()) } returns tirRecord
+
+                val result = policy.verify(vc)
+
+                result.isSuccess shouldBe isSuccess
+                result.errors shouldBe errors
+
+                unmockkObject(DidService)
+                unmockkObject(TrustedIssuerClient)
             }
         }
     }
