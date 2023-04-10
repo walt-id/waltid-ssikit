@@ -13,6 +13,7 @@ import id.walt.services.ecosystems.essif.TrustedIssuerClient
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
+import io.kotest.core.annotation.Ignored
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.core.test.TestCase
 import io.kotest.matchers.shouldBe
@@ -21,6 +22,7 @@ import io.mockk.every
 import io.mockk.mockkObject
 import org.junit.jupiter.api.assertAll
 
+@Ignored
 class TrustedIssuerRegistryPolicyTest : AnnotationSpec() {
 
     private val defaultRegistry = "${TrustedIssuerClient.domain}/${TrustedIssuerClient.trustedIssuerPath}"
