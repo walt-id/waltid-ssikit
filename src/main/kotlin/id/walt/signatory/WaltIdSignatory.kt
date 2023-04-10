@@ -5,7 +5,7 @@ import id.walt.credentials.w3c.W3CIssuer
 import id.walt.credentials.w3c.builder.AbstractW3CCredentialBuilder
 import id.walt.credentials.w3c.builder.W3CCredentialBuilder
 import id.walt.credentials.w3c.templates.VcTemplate
-import id.walt.credentials.w3c.templates.VcTemplateManager
+import id.walt.credentials.w3c.templates.VcTemplateService
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.LdSignatureType
 import id.walt.model.DidMethod
@@ -19,7 +19,6 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.time.Instant
 import java.util.*
-import kotlin.NoSuchElementException
 
 private val log = KotlinLogging.logger {}
 
@@ -28,6 +27,8 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
     private val VC_GROUP = "signatory"
     override val configuration: SignatoryConfig = fromConfiguration(configurationPath)
 
+    private val templateService get () = VcTemplateService.getService()
+    
     private fun defaultLdSignatureByDidMethod(did: String): LdSignatureType? {
         val didUrl = DidUrl.from(did)
         return when (didUrl.method) {
@@ -79,7 +80,7 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
 
         val credentialBuilder = when (Files.exists(Path.of(templateIdOrFilename))) {
             true -> Files.readString(Path.of(templateIdOrFilename)).toVerifiableCredential()
-            else -> VcTemplateManager.getTemplate(templateIdOrFilename, true, configuration.templatesFolder).template
+            else -> templateService.getTemplate(templateIdOrFilename, true, configuration.templatesFolder).template
         }?.let { W3CCredentialBuilder.fromPartial(it) }
             ?: throw NoSuchElementException("Template could not be loaded: $templateIdOrFilename")
 
@@ -121,24 +122,24 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
     }
 
     override fun hasTemplateId(templateId: String) =
-        runCatching { VcTemplateManager.getTemplate(templateId, false) }.getOrNull() != null
+        runCatching { templateService.getTemplate(templateId, false) }.getOrNull() != null
 
-    override fun listTemplates(): List<VcTemplate> = VcTemplateManager.listTemplates(configuration.templatesFolder)
-    override fun listTemplateIds() = VcTemplateManager.listTemplates(configuration.templatesFolder).map { it.name }
+    override fun listTemplates(): List<VcTemplate> = templateService.listTemplates(configuration.templatesFolder)
+    override fun listTemplateIds() = templateService.listTemplates(configuration.templatesFolder).map { it.name }
     override fun loadTemplate(templateId: String): VerifiableCredential =
-        VcTemplateManager.getTemplate(templateId, true, configuration.templatesFolder).template
+        templateService.getTemplate(templateId, true, configuration.templatesFolder).template
             ?: throw IllegalArgumentException("Could not load template \"$templateId\" into WaltSignatory")
 
     override fun importTemplate(templateId: String, template: String) {
         val vc = VerifiableCredential.fromJson(template)
         // serialize parsed credential template and save
-        VcTemplateManager.register(templateId, vc)
+        templateService.register(templateId, vc)
     }
 
     override fun removeTemplate(templateId: String) {
-        val template = VcTemplateManager.getTemplate(templateId, true, configuration.templatesFolder)
+        val template = templateService.getTemplate(templateId, true, configuration.templatesFolder)
         if (template.mutable) {
-            VcTemplateManager.unregisterTemplate(templateId)
+            templateService.unregisterTemplate(templateId)
         } else {
             throw IllegalArgumentException("Template is immutable and cannot be removed. Use import to override existing templates.")
         }
