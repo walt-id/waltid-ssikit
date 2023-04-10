@@ -5,13 +5,10 @@ import id.walt.auditor.SimpleVerificationPolicy
 import id.walt.auditor.VerificationPolicyResult
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.VerifiablePresentation
-import id.walt.model.DidMethod
-import id.walt.model.DidUrl
 import id.walt.model.TrustedIssuerType
 import id.walt.services.WaltIdServices
 import id.walt.services.did.DidService
 import id.walt.services.ecosystems.essif.TrustedIssuerClient
-import io.ipfs.multibase.Multibase
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
 import io.ktor.http.*
@@ -104,21 +101,9 @@ class EbsiTrustedIssuerRegistryPolicy(registryArg: EbsiTrustedIssuerRegistryPoli
 
         val issuerDid = vc.issuerId!!
 
-        // verify credential status
-        CredentialStatusPolicy().verify(vc).takeIf { it.isFailure }?.run {
-            return this
-        }
-        // issuer did is a valid DID EBSI identifier
-        if (!validateDid(issuerDid)) {
-            return VerificationPolicyResult.failure(IllegalArgumentException("Not a valid ebsi legal entity did"))
-        }
-        // issuer did is onboarded
-        EbsiTrustedIssuerDidPolicy().verify(vc).takeIf { it.isFailure }?.run {
-            return this
-        }
         // the issuer is registered in TIR
         val tirRecord = fetchTirRecord(issuerDid)
-            ?: return VerificationPolicyResult.failure(IllegalArgumentException("Issuer is not registered on TIR"))
+            ?: return VerificationPolicyResult.failure(IllegalArgumentException("Issuer has no record on TIR"))
         // issuer is authorized to issue the vc's credential schema
         val tirRecordAccreditationAttributes = tirRecord.attributes.filter {
             val accreditation = VerifiableCredential.fromString(it.body)
@@ -126,7 +111,7 @@ class EbsiTrustedIssuerRegistryPolicy(registryArg: EbsiTrustedIssuerRegistryPoli
                 it["authorisedSchemaId"] == vc.credentialSchema?.id
             } ?: false
         }.takeIf { it.isNotEmpty() }
-            ?: return VerificationPolicyResult.failure(IllegalArgumentException("Issuer is not authorized to issue this vc credential schema"))
+            ?: return VerificationPolicyResult.failure(IllegalArgumentException("Issuer has no authorization claims matching the credential schema"))
         // the issuer has a valid Legal Entity Verifiable ID registered as an attribute in TIR
         tirRecord.attributes.any {
             VerifiableCredential.fromString(it.body).type.contains("VerifiableId")
@@ -143,31 +128,11 @@ class EbsiTrustedIssuerRegistryPolicy(registryArg: EbsiTrustedIssuerRegistryPoli
         tirRecordAccreditationAttributes.any {
             val accreditation = VerifiableCredential.fromString(it.body)
             EbsiTrustedIssuerAccreditationPolicy().verify(accreditation).isSuccess
-//                    && CredentialStatusPolicy().verify(accreditation).isSuccess
         }.takeIf { !it }?.run {
             return VerificationPolicyResult.failure(IllegalArgumentException("Issuer's accreditation is not valid"))
         }
 
         return VerificationPolicyResult.success()
-
-
-//        var tirRecord: TrustedIssuer
-//
-//
-//        return VerificationPolicyResult(runCatching {
-//            tirRecord = TrustedIssuerClient.getIssuer(issuerDid, argument.registryAddress)
-//            isValidTrustedIssuerRecord(tirRecord)
-//        }.getOrElse {
-//            log.debug { it }
-//            log.warn { "Could not resolve issuer TIR record of $issuerDid" }
-//            false
-//        })
-    }
-    
-    private fun validateDid(did: String) = let {
-        val didUrl = DidUrl.from(did)
-        val version = Multibase.decode(didUrl.identifier).first().toInt()
-        DidMethod.valueOf(didUrl.method) == DidMethod.ebsi && version == 1
     }
 
     private fun fetchTirRecord(did: String) = runCatching {
@@ -214,6 +179,6 @@ class EbsiTrustedIssuerAccreditationPolicy : SimpleVerificationPolicy() {
                 it["authorisedSchemaId"] == vc.credentialSchema?.id
             } ?: false
         }.takeIf { it }?.let { VerificationPolicyResult.success() }
-            ?: VerificationPolicyResult.failure(Throwable("Issuer has no authorization claims for the credential schema"))
+            ?: VerificationPolicyResult.failure(Throwable("Issuer has no authorization claims matching the credential schema"))
     }
 }

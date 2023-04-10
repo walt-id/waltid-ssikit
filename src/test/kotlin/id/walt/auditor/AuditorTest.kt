@@ -359,7 +359,7 @@ class AuditorCommandTest : StringSpec() {
             }
         }
 
-        "10. test EbsiAuthorizationClaimsPolicy" {
+        "10. test EbsiTrustedIssuerAccreditationPolicy" {
             forAll(
                 row("TIVerifiableAccreditationTIDiploma.json", "tao-tir-attribute.json", true, emptyList<Throwable>()),
                 row("TAOVerifiableAccreditation.json", "tao-tir-attribute.json", true, emptyList<Throwable>()),

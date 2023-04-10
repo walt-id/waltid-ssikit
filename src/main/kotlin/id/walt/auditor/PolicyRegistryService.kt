@@ -142,7 +142,7 @@ open class PolicyRegistryService: WaltIdService() {
         register(JsonSchemaPolicy::class, JsonSchemaPolicyArg::class, "Verify by JSON schema")
         register(EbsiTrustedSchemaRegistryPolicy::class, "Verify by EBSI Trusted Schema Registry")
         register(EbsiTrustedIssuerDidPolicy::class, "Verify by trusted issuer did")
-        PolicyRegistry.register(
+        register(
             EbsiTrustedIssuerRegistryPolicy::class,
             EbsiTrustedIssuerRegistryPolicyArg::class,
             "Verify by an EBSI Trusted Issuers Registry compliant api.",
