@@ -18,30 +18,30 @@ private val dateFormatter =
 class IssuedDateBeforePolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by issuance date"
     override fun doVerify(vc: VerifiableCredential): VerificationPolicyResult {
-        return VerificationPolicyResult(when (vc) {
+        return when (vc) {
             is VerifiablePresentation -> true
             else -> parseDate(vc.issued).let { it != null && it.before(Date()) }
-        })
+        }.takeIf { it }?.let { VerificationPolicyResult.success() } ?: VerificationPolicyResult.failure()
     }
 }
 
 class ValidFromBeforePolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by valid from"
     override fun doVerify(vc: VerifiableCredential): VerificationPolicyResult {
-        return VerificationPolicyResult(when (vc) {
+        return when (vc) {
             is VerifiablePresentation -> true
             else -> parseDate(vc.validFrom).let { it != null && it.before(Date()) }
-        })
+        }.takeIf { it }?.let { VerificationPolicyResult.success() } ?: VerificationPolicyResult.failure()
     }
 }
 
 class ExpirationDateAfterPolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by expiration date"
     override fun doVerify(vc: VerifiableCredential): VerificationPolicyResult {
-        return VerificationPolicyResult(when (vc) {
+        return when (vc) {
             is VerifiablePresentation -> true
             else -> parseDate(vc.expirationDate).let { it == null || it.after(Date()) }
-        })
+        }.takeIf { it }?.let { VerificationPolicyResult.success() } ?: VerificationPolicyResult.failure()
     }
 }
 
@@ -92,7 +92,8 @@ class ChallengePolicy(challengeArg: ChallengePolicyArg) :
 
     override val description: String = "Verify challenge"
     override fun doVerify(vc: VerifiableCredential): VerificationPolicyResult {
-        return VerificationPolicyResult(vc.challenge?.let { argument.challenges.contains(it) } ?: false)
+        return (vc.challenge?.let { argument.challenges.contains(it) } ?: false).takeIf { it }
+            ?.let { VerificationPolicyResult.success() } ?: VerificationPolicyResult.failure()
     }
 
     override val applyToVC: Boolean

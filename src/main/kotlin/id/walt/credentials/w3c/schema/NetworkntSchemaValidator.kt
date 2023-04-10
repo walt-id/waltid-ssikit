@@ -19,6 +19,8 @@ class NetworkntSchemaValidator(versionFlag: SpecVersion.VersionFlag, schema: Str
             log.debug { "Could not validate vc against schema. The validation errors are:" }
             errors.forEach { log.debug { it } }
         }
-        return VerificationPolicyResult(errors.isEmpty(), errors.map { SchemaViolationException(it.toString()) })
+        return errors.takeIf { it.isEmpty() }?.let {
+            VerificationPolicyResult.success()
+        } ?: VerificationPolicyResult.failure(*errors.map { SchemaViolationException(it.toString()) }.toTypedArray())
     }
 }
