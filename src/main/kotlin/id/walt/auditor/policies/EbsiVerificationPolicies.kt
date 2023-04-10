@@ -52,7 +52,8 @@ class EbsiTrustedIssuerDidPolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by trusted issuer did"
     override fun doVerify(vc: VerifiableCredential): VerificationPolicyResult {
         return try {
-            VerificationPolicyResult(DidService.loadOrResolveAnyDid(vc.issuerId!!) != null)
+            DidService.loadOrResolveAnyDid(vc.issuerId!!)?.let { VerificationPolicyResult.success() }
+                ?: VerificationPolicyResult.failure()
         } catch (e: ClientRequestException) {
             VerificationPolicyResult.failure(
                 IllegalArgumentException(
@@ -147,7 +148,7 @@ class EbsiTrustedIssuerRegistryPolicy(registryArg: EbsiTrustedIssuerRegistryPoli
 class EbsiTrustedSubjectDidPolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by trusted subject did"
     override fun doVerify(vc: VerifiableCredential): VerificationPolicyResult {
-        return VerificationPolicyResult(vc.subjectId?.let {
+        return (vc.subjectId?.let {
             if (it.isEmpty()) true
             else try {
                 DidService.loadOrResolveAnyDid(it) != null
@@ -155,7 +156,7 @@ class EbsiTrustedSubjectDidPolicy : SimpleVerificationPolicy() {
                 if (!e.message.contains("did must be a valid DID") && !e.message.contains("Identifier Not Found")) throw e
                 false
             }
-        } ?: false)
+        } ?: false).takeIf { it }?.let { VerificationPolicyResult.success() } ?: VerificationPolicyResult.failure()
     }
 }
 

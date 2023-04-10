@@ -16,12 +16,10 @@ class SignaturePolicy : SimpleVerificationPolicy() {
 
     override fun doVerify(vc: VerifiableCredential) = runCatching {
         log.debug { "is jwt: ${vc.jwt != null}" }
-        VerificationPolicyResult(
-            vc.verifyByFormatType(
-                { jwtCredentialService.verify(it) },
-                { jsonLdCredentialService.verify(it) }
-            ).verified
-        )
+        vc.verifyByFormatType(
+            { jwtCredentialService.verify(it) },
+            { jsonLdCredentialService.verify(it) }
+        ).verified.takeIf { it }?.let { VerificationPolicyResult.success() } ?: VerificationPolicyResult.failure()
     }.getOrElse {
         VerificationPolicyResult.failure(it)
     }

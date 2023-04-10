@@ -56,21 +56,26 @@ data class VerificationPolicyMetadata(
     val isMutable: Boolean
 )
 
-data class VerificationPolicyResult(val result: Boolean, @JsonIgnore val errors: List<Throwable> = listOf()) {
+class VerificationPolicyResult private constructor(
+    private val result: Boolean,
+    @JsonIgnore
+    private val errorList: List<Throwable> = emptyList()
+) {
+
     companion object {
         fun success() = VerificationPolicyResult(true)
-        fun failure(error: Throwable): VerificationPolicyResult {
-            log.debug { "VerificationPolicy failed: ${error.stackTraceToString()}" }
-            return VerificationPolicyResult(false, listOf(error))
+        fun failure(vararg error: Throwable): VerificationPolicyResult {
+            log.debug { "VerificationPolicy failed: ${error.joinToString { it.localizedMessage }}" }
+            return VerificationPolicyResult(false, error.asList())
         }
-
-        fun failure(errors: List<Throwable> = listOf()) = VerificationPolicyResult(false, errors.toList())
     }
 
     val isSuccess = result
     val isFailure = !result
+    @JsonIgnore
+    val errors = errorList
 
-    fun getErrorString() = errors.mapIndexed { index, throwable ->
+    private fun getErrorString() = errorList.mapIndexed { index, throwable ->
         "#${index + 1}: ${throwable::class.simpleName ?: "Error"} - ${throwable.message}"
     }.joinToString()
 
