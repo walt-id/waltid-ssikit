@@ -1,0 +1,42 @@
+{
+    "serviceIds":
+    [
+        "#credential-agent-operator-1",
+        "#credential-agent-inspector-1",
+        "#credential-agent-issuer-1"
+    ],
+    "did": "did:ion:EiAD16U5eAJMUulSFMmV3ekV_mQ2rresO9d6mY6Vohg6Hg",
+    "keys":
+    [
+        {
+            "purposes":
+            [
+                "DLT_TRANSACTIONS"
+            ],
+            "algorithm": "SECP256K1",
+            "encoding": "hex",
+            "kidFragment": "#eth-account-key-1",
+            "key": "b3602c0d5a3b61b188a89e972be9fcc92baebaf24aaa314a28270f7129d9c845"
+        },
+        {
+            "purposes":
+            [
+                "EXCHANGES"
+            ],
+            "algorithm": "SECP256K1",
+            "encoding": "hex",
+            "kidFragment": "#exchange-key-1",
+            "key": "6f8b434721bb21c4db2ee9ecd8c5a9971adc005927ed6fc851b042bd5f6bc1ff"
+        },
+        {
+            "purposes":
+            [
+                "ISSUING_METADATA"
+            ],
+            "algorithm": "SECP256K1",
+            "encoding": "hex",
+            "kidFragment": "#vc-signing-key-1",
+            "key": "261134550292a722b665ab01ee483401892258815020c770cbb6a86885a1f7f3"
+        }
+    ]
+}

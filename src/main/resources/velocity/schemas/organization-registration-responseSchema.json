@@ -1,0 +1,186 @@
+{
+    "title": "organization-registration-response",
+    "description": "Auto generated JSON schema based on the 'organization-registration-response' file",
+    "type": "object",
+    "properties": {
+        "didDoc": {
+            "type": "object",
+            "properties": {
+                "assertionMethod": {
+                    "type": "array",
+                    "items": {}
+                },
+                "service": {
+                    "type": "array",
+                    "items": {
+                        "properties": {
+                            "id": {
+                                "type": "string"
+                            },
+                            "serviceEndpoint": {
+                                "type": "string"
+                            },
+                            "type": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "verificationMethod": {
+                    "type": "array",
+                    "items": {
+                        "properties": {
+                            "controller": {
+                                "type": "string"
+                            },
+                            "publicKeyJwk": {
+                                "type": "object",
+                                "properties": {
+                                    "kty": {
+                                        "type": "string"
+                                    },
+                                    "crv": {
+                                        "type": "string"
+                                    },
+                                    "x": {
+                                        "type": "string"
+                                    },
+                                    "y": {
+                                        "type": "string"
+                                    }
+                                }
+                            },
+                            "id": {
+                                "type": "string"
+                            },
+                            "type": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "@context": {
+                    "type": "array",
+                    "items": {}
+                }
+            }
+        },
+        "keys": {
+            "type": "array",
+            "items": {
+                "properties": {
+                    "controller": {
+                        "type": "string"
+                    },
+                    "purposes": {
+                        "type": "array",
+                        "items": {}
+                    },
+                    "id": {
+                        "type": "string"
+                    },
+                    "publicKey": {
+                        "type": "string"
+                    },
+                    "encoding": {
+                        "type": "string"
+                    },
+                    "key": {
+                        "type": "string"
+                    },
+                    "algorithm": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "profile": {
+            "type": "object",
+            "properties": {
+                "website": {
+                    "type": "string"
+                },
+                "permittedVelocityServiceCategory": {
+                    "type": "array",
+                    "items": {}
+                },
+                "name": {
+                    "type": "string"
+                },
+                "founded": {
+                    "type": "string"
+                },
+                "logo": {
+                    "type": "string"
+                },
+                "closed": {
+                    "type": "string"
+                },
+                "location": {
+                    "type": "object",
+                    "properties": {
+                        "regionCode": {
+                            "type": "string"
+                        },
+                        "countryCode": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "registrationNumbers": {
+                    "type": "array",
+                    "items": {
+                        "properties": {
+                            "number": {
+                                "type": "string"
+                            },
+                            "authority": {
+                                "type": "string"
+                            },
+                            "uri": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "verifiableCredentialJwt": {
+                    "type": "string"
+                },
+                "cntactEmail": {
+                    "type": "string"
+                }
+            }
+        },
+        "authClients": {
+            "type": "array",
+            "items": {
+                "properties": {
+                    "clientType": {
+                        "type": "string"
+                    },
+                    "clientId": {
+                        "type": "string"
+                    },
+                    "clientSecret": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "serviceId": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "id": {
+            "type": "string"
+        }
+    }
+}

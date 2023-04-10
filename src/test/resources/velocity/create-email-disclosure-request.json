@@ -1,0 +1,27 @@
+{
+    "vendorEndpoint": "integrated-issuing-identification",
+    "types": [
+        {
+            "type": "EmailV1.0"
+        }
+    ],
+    "identityMatchers":
+    {
+        "vendorUserIdIndex": 0,
+        "rules":
+        [
+            {
+                "valueIndex": 0,
+                "path":
+                [
+                    "$.emails"
+                ],
+                "rule": "pick"
+            }
+        ]
+    },
+    "purpose": "Issuing Career Credential",
+    "duration": "1m",
+    "termsUrl": "https://www.example.com/terms.html",
+    "activationDate": "2022-08-15T19:23:15+03:00"
+}

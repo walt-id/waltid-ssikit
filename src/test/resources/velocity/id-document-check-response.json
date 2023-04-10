@@ -1,0 +1,51 @@
+{
+    "credentials": [
+        {
+            "type": [
+                "IdDocument",
+                "VerifiableCredential"
+            ],
+            "issuer": {
+                "id": "756fe1b3-f08a-481c-9eae-56eb00b65d57"
+            },
+            "credentialSubject": {
+                "id": "adam.smith@example.com",
+                "firstName": {
+                    "localized": {
+                        "en": "Adam"
+                    }
+                },
+                "lastName": {
+                    "localized": {
+                        "en": "Smith"
+                    }
+                },
+                "kind": "DriversLicense",
+                "authority": {
+                    "localized": {
+                        "en": "California DMV"
+                    }
+                },
+                "location": {
+                    "countryCode": "US",
+                    "regionCode": "CA"
+                },
+                "dob": {
+                    "day": 20,
+                    "month": 6,
+                    "year": 1966
+                },
+                "identityNumber": "12310312312",
+                "default": true
+            },
+            "issued": "2021-05-04T11:44:42.000Z",
+            "id": "756fe1b3-f08a-481c-9eae-56eb00b65d57",
+            "credentialChecks": {
+                "TRUSTED_ISSUER": "SELF_SIGNED",
+                "UNREVOKED": "PASS",
+                "UNEXPIRED": "NOT_APPLICABLE",
+                "UNTAMPERED": "PASS"
+            }
+        }
+    ]
+}

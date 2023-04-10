@@ -1,6 +1,6 @@
 package id.walt.services.ecosystems.essif
 
-import id.walt.common.readEssifBearerToken
+import id.walt.common.readBearerToken
 import id.walt.crypto.JwtUtils
 import id.walt.services.WaltIdServices
 import id.walt.services.context.ContextManager
@@ -42,7 +42,10 @@ object EssifClient {
         // file: bearer-token.txt
         ///////////////////////////////////////////////////////////////////////////
 
-        val bearerToken = token ?: readEssifBearerToken()
+        val bearerToken = token ?: readBearerToken(
+            bearerTokenFile,
+            "The bearer token must be placed in file ${bearerTokenFile.absolutePath}. Visit https://app-pilot.ebsi.eu/users-onboarding for requesting a token."
+        )
 
         log.debug { "Loaded bearer token from ${bearerTokenFile.absolutePath}." }
         log.debug { "Loaded bearer token $bearerToken." }
