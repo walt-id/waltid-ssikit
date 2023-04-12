@@ -51,7 +51,7 @@ class JsonSerializeEbsiTest : AnnotationSpec() {
 
     ////@Test
     fun credentialStatusListTest() {
-        val expected = File("src/test/resources/ebsi/verifiable-credential-status.json").readText()
+        val expected = File("src/test/resources/ebsi/verifiable-vc-status-revoked.json").readText()
         println(expected)
         val obj = Klaxon().parse<List<CredentialStatusListEntry>>(expected)
         println(obj)

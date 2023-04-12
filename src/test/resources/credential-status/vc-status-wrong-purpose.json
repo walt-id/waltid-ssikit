@@ -1,0 +1,7 @@
+{
+    "id": "https://example.com/credentials/status/3#94567",
+    "type": "StatusList2021Entry",
+    "statusPurpose": "suspension",
+    "statusListIndex": "3",
+    "statusListCredential": "https://example.com/credentials/status/3"
+}
