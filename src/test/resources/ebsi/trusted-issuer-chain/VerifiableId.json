@@ -48,7 +48,7 @@
     },
     "credentialStatus": {
         "id": "https://essif.europa.eu/status/45",
-        "type": "CredentialsStatusList2020"
+        "type": "CredentialStatusList2020"
     },
     "credentialSchema": {
         "id": "https://essif.europa.eu/tsr-123/verifiable-accreditation-ti-diploma.json",
