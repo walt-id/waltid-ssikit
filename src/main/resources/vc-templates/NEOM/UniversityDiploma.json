@@ -1,64 +1,88 @@
 {
-  "@context": ["https://www.w3.org/2018/credentials/v1"],
-  "credentialSchema": {
-    "id": "https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableDiploma.json",
-    "type": "JsonSchemaValidator2018"
-  },
-  "credentialStatus": {
-    "id": "https://essif.europa.eu/status/education#higherEducation#392ac7f6-399a-437b-a268-4691ead8f176",
-    "type": "CredentialStatusList2020"
-  },
-  "credentialSubject": {
-    "awardingOpportunity": {
-      "awardingBody": {
-        "eidasLegalIdentifier": "Unknown",
-        "homepage": "https://leaston.bcdiploma.com/",
-        "id": "did:ebsi:2A9BZ9SUe6BatacSpvs1V5CdjHvLpQ7bEsi2Jb6LdHKnQxaN",
-        "preferredName": "Leaston University",
-        "registration": "0597065J"
-      },
-      "endedAtTime": "2020-06-26T00:00:00Z",
-      "id": "https://leaston.bcdiploma.com/law-economics-management#AwardingOpportunity",
-      "identifier": "https://certificate-demo.bcdiploma.com/check/87ED2F2270E6C41456E94B86B9D9115B4E35BCCAD200A49B846592C14F79C86BV1Fnbllta0NZTnJkR3lDWlRmTDlSRUJEVFZISmNmYzJhUU5sZUJ5Z2FJSHpWbmZZ",
-      "location": "FRANCE",
-      "startedAtTime": "2019-09-02T00:00:00Z"
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1"
+    ],
+    "type": [
+        "VerifiableCredential",
+        "VerifiableAttestation",
+        "Europass"
+    ],
+    "id": "urn:credential:5a4d5412-27e3-4540-a5e5-f1aa4d55b20c",
+    "issuer": "did:epass:org:1",
+    "issuanceDate": "2020-07-20T13:58:53+02:00",
+    "validFrom": "2019-09-20T00:00:00+02:00",
+    "credentialSubject": {
+        "id": "did:epass:person:1",
+        "identifier": [
+            {
+                "schemeID": "Student identification number",
+                "value": 99009900
+            }
+        ],
+        "achieved": [
+            {
+                "id": "urn:epass:learningAchievement:1",
+                "title": "Master of Science in Civil Engineering",
+                "wasDerivedFrom": [
+                    {
+                        "id": "urn:epass:assessment:1",
+                        "title": "Overall Diploma Assessment",
+                        "grade": "excellent (5)",
+                        "assessedBy": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                        "specifiedBy": {
+                            "id": "urn:epass:asssessmentspec:1",
+                            "title": "Overall Diploma Assessment",
+                            "gradingScheme": {
+                                "id": "urn:epass:scoringschemespec:1",
+                                "title": "General grading scheme in Croatia",
+                                "definition": "The Croatian national grading scheme c...dovoljan \u2013 2."
+                            }
+                        }
+                    }
+                ],
+                "wasAwardedBy": {
+                    "id": "urn:epass:awardingProcess:1",
+                    "awardingBody": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                    "awardingDate": "2019-09-20T00:00:00+02:00",
+                    "awardingLocation": "FRANCE"
+                },
+                "specifiedBy": [{
+                    "id": "urn:epass:qualification:20",
+                    "title": "Master of Science in Civil Engineering",
+                    "volumeOfLearning": "PT1440H",
+                    "eCTSCreditPoints": 120,
+                    "maximumDuration": "P21M",
+                    "isPartialQualification": false,
+                    "eqfLevel": "http://data.europa.eu/snb/eqf/5",
+                    "nqfLevel": "http://data.europa.eu/snb/qdr/c_dcc9aca1",
+                    "awardingOpportunity": [ {
+                        "id": "https://leaston.bcdiploma.com/law-economics-management#AwardingOpportunity",
+                        "identifier": "https://certificate-demo.bcdiploma.com/check/87ED...mZZ",
+                        "location": "FRANCE",
+                        "startedAtTime": "2019-09-02T00:00:00Z",
+                        "endedAtTime": "2020-06-26T00:00:00Z",
+                        "awardingBody": [ "did:ebsi:2A9BZ9SUe6BatacSpvs1V5CdjHvLpQ7bEsi2Jb6LdHKnQxaN" ]
+                    } ]
+                }]
+            }
+        ],
+        "entitledTo": [{
+            "id": "urn:epass:entitlement:1",
+            "title": "Postgraduate doctoral study",
+            "definition": "Competences ... technical sciences. ",
+            "issuedDate": "2019-09-20",
+            "specifiedBy": {
+                "id": "urn:epass:entitlementspec:1",
+                "title": "Postgraduate doctoral study",
+                "entitlementType": "http://data.europa.eu/snb/entitlement/64aad92881",
+                "status": "http://data.europa.eu/snb/entitlement-status/5b8d6b34fb",
+                "limitOrganisation": ["did:ebsi:zsSgDXeYPhZ3AuKhTFneDf1"],
+                "limitJurisdiction": ["http://publications.europa.eu/resource/authority/country/HRV"]
+            }
+        }]
     },
-    "dateOfBirth": "1993-04-08",
-    "familyName": "DOE",
-    "givenNames": "Jane",
-    "gradingScheme": {
-      "id": "https://leaston.bcdiploma.com/law-economics-management#GradingScheme",
-      "title": "Lower Second-Class Honours"
-    },
-    "id": "did:ebsi:2AEMAqXWKYMu1JHPAgGcga4dxu7ThgfgN95VyJBJGZbSJUtp",
-    "identifier": "0904008084H",
-    "learningAchievement": {
-      "additionalNote": ["DISTRIBUTION MANAGEMENT"],
-      "description": "MARKETING AND SALES",
-      "id": "https://leaston.bcdiploma.com/law-economics-management#LearningAchievment",
-      "title": "MASTERS LAW, ECONOMICS AND MANAGEMENT"
-    },
-    "learningSpecification": {
-      "ectsCreditPoints": 120,
-      "eqfLevel": 7,
-      "id": "https://leaston.bcdiploma.com/law-economics-management#LearningSpecification",
-      "iscedfCode": ["7"],
-      "nqfLevel": ["7"]
+    "credentialSchema": {
+        "id": "https://api-pilot.ebsi.eu/trusted-schemas-registry/v2/schemas/0x4dd3926cd92bb3cb64fa6c837539ed31fc30dd38a11266a91678efa7268cde09",
+        "type": "FullJsonSchemaValidator2021"
     }
-  },
-  "evidence": {
-    "documentPresence": ["Physical"],
-    "evidenceDocument": ["Passport"],
-    "id": "https://essif.europa.eu/tsr-va/evidence/f2aeec97-fc0d-42bf-8ca7-0548192d5678",
-    "subjectPresence": "Physical",
-    "type": ["DocumentVerification"],
-    "verifier": "did:ebsi:2962fb784df61baa267c8132497539f8c674b37c1244a7a"
-  },
-  "expirationDate": "2022-08-31T00:00:00Z",
-  "id": "education#higherEducation#392ac7f6-399a-437b-a268-4691ead8f176",
-  "issued": "2021-08-31T00:00:00Z",
-  "issuer": "did:ebsi:2A9BZ9SUe6BatacSpvs1V5CdjHvLpQ7bEsi2Jb6LdHKnQxaN",
-  "validFrom": "2021-08-31T00:00:00Z",
-  "issuanceDate": "2021-08-31T00:00:00Z",
-  "type": ["VerifiableCredential", "VerifiableAttestation", "UniversityDiploma"]
 }
