@@ -1,7 +1,7 @@
 package id.walt.rest
 
 import id.walt.auditor.Auditor
-import id.walt.auditor.SignaturePolicy
+import id.walt.auditor.policies.SignaturePolicy
 import id.walt.common.readWhenContent
 import id.walt.credentials.w3c.VerifiablePresentation
 import id.walt.credentials.w3c.toVerifiablePresentation
@@ -27,7 +27,7 @@ import io.kotest.data.blocking.forAll
 import io.kotest.data.row
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.instanceOf
-import io.ktor.client.call.body
+import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*

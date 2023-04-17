@@ -3,13 +3,17 @@ package id.walt.auditor
 import com.beust.klaxon.JsonObject
 import id.walt.auditor.dynamic.DynamicPolicy
 import id.walt.auditor.dynamic.DynamicPolicyArg
+import id.walt.auditor.policies.*
+import id.walt.common.KlaxonWithConverters
+import id.walt.common.resolveContent
 import id.walt.credentials.w3c.JsonConverter
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.custodian.Custodian
-import id.walt.model.DidMethod
+import id.walt.model.*
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
+import id.walt.services.ecosystems.essif.TrustedIssuerClient
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
@@ -19,9 +23,14 @@ import io.kotest.assertions.throwables.shouldNotThrowAny
 import io.kotest.core.spec.Spec
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.core.test.TestCase
+import io.kotest.data.blocking.forAll
+import io.kotest.data.row
 import io.kotest.matchers.collections.shouldBeSameSizeAs
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
+import io.mockk.*
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.*
 import java.io.File
 import java.net.URI
@@ -84,7 +93,7 @@ class AuditorCommandTest : StringSpec() {
     init {
 
         "1. verify vp" {
-            val policyList = listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy())
+            val policyList = listOf(SignaturePolicy(), JsonSchemaPolicy())
             val res = Auditor.getService().verify(vpStr, policyList)
 
             res.result shouldBe true
@@ -93,50 +102,50 @@ class AuditorCommandTest : StringSpec() {
 
             res.policyResults.keys shouldContainAll policyList.map { it.id }
 
-            res.policyResults.values.forEach { it.result shouldBe true }
+            res.policyResults.values.forEach { it.isSuccess shouldBe true }
         }
 
         "2. verify vc" {
             val res =
-                Auditor.getService().verify(vcStr, listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy()))
+                Auditor.getService().verify(vcStr, listOf(SignaturePolicy(), JsonSchemaPolicy()))
 
             res.result shouldBe true
             res.policyResults.keys shouldBeSameSizeAs listOf(
-                SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy()
+                SignaturePolicy(), JsonSchemaPolicy()
             )
 
-            res.policyResults.keys shouldContainAll listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy()).map { it.id }
+            res.policyResults.keys shouldContainAll listOf(SignaturePolicy()).map { it.id }
 
-            res.policyResults.values.forEach { it.result shouldBe true }
+            res.policyResults.values.forEach { it.isSuccess shouldBe true }
         }
 
         "3. verify vc jwt" {
             val res =
-                Auditor.getService().verify(vcJwt, listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy()))
+                Auditor.getService().verify(vcJwt, listOf(SignaturePolicy(), JsonSchemaPolicy()))
 
             res.result shouldBe true
             res.policyResults.keys shouldBeSameSizeAs listOf(
-                SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy()
+                SignaturePolicy(),  JsonSchemaPolicy()
             )
 
-            res.policyResults.keys shouldContainAll listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy()).map { it.id }
+            res.policyResults.keys shouldContainAll listOf(SignaturePolicy()).map { it.id }
 
-            res.policyResults.values.forEach { it.result shouldBe true }
+            res.policyResults.values.forEach { it.isSuccess shouldBe true }
         }
 
         "4. verify vp jwt" {
             val res =
-                Auditor.getService().verify(vpJwt, listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy()))
+                Auditor.getService().verify(vpJwt, listOf(SignaturePolicy(), JsonSchemaPolicy()))
 
             res.result shouldBe true
 
             res.policyResults.keys shouldBeSameSizeAs listOf(
-                SignaturePolicy(), TrustedSchemaRegistryPolicy(), JsonSchemaPolicy()
+                SignaturePolicy(),  JsonSchemaPolicy()
             )
 
-            res.policyResults.keys shouldContainAll listOf(SignaturePolicy(), TrustedSchemaRegistryPolicy()).map { it.id }
+            res.policyResults.keys shouldContainAll listOf(SignaturePolicy()).map { it.id }
 
-            res.policyResults.values.forEach { it.result shouldBe true }
+            res.policyResults.values.forEach { it.isSuccess shouldBe true }
         }
 
         // CLI call for testing VerifiableMandatePolicy
@@ -342,7 +351,75 @@ class AuditorCommandTest : StringSpec() {
             }
         }
 
-        "9. test access control policy via acl api".config(enabled = enableOPATests)  {
+        "9. test EbsiTrustedSchemaRegistryPolicy" {
+            forAll(
+                row("verifiable-accreditation-pass.json", true, emptyList()),
+                row("verifiable-accreditation-fail-noschema.json", false, listOf(IllegalArgumentException("Credential has no associated credentialSchema property"))),
+                row("verifiable-accreditation-fail-notvalid.json", false, listOf(Throwable("No valid EBSI Trusted Schema Registry URL"))),
+                row("verifiable-accreditation-fail-notavailable.json", false, listOf(Throwable("Schema not available in the EBSI Trusted Schema Registry"))),
+            ) { filepath, isSuccess, message ->
+                val schemaPath = "src/test/resources/ebsi/trusted-schema-registry-tests/"
+                val policy = EbsiTrustedSchemaRegistryPolicy()
+                val vc = resolveContent(schemaPath + filepath).toVerifiableCredential()
+                val result = policy.verify(vc)
+
+                result.isSuccess shouldBe isSuccess
+                result.errors shouldBe message
+            }
+        }
+
+        "10. test EbsiTrustedIssuerAccreditationPolicy" {
+            forAll(
+                row("TIVerifiableAccreditationTIDiploma.json", "tao-tir-attribute.json", true, emptyList<Throwable>()),
+                row("TAOVerifiableAccreditation.json", "tao-tir-attribute.json", true, emptyList<Throwable>()),
+            ) { vcPath, attrPath, isSuccess, errors ->
+                val schemaPath = "src/test/resources/ebsi/trusted-issuer-chain/"
+                val policy = EbsiTrustedIssuerAccreditationPolicy()
+                val vc = resolveContent(schemaPath + vcPath).toVerifiableCredential()
+                val tirRecord = resolveContent(schemaPath + attrPath)
+                mockkStatic(::resolveContent)
+                every { resolveContent(any()) } returns tirRecord
+
+                val result = policy.verify(vc)
+
+                result.isSuccess shouldBe isSuccess
+                result.errors shouldBe errors
+
+                unmockkStatic(::resolveContent)
+            }
+        }
+
+        "11. test EbsiTrustedIssuerRegistryPolicy"{
+            forAll(
+                // self issued (tao accreditation)
+                row("TAOVerifiableAccreditation.json", "tao-tir-record.json", "tao-tir-attribute.json", TrustedIssuerType.TAO, true, emptyList<Throwable>()),
+                // issued by tao (ti accreditation)
+                row("TIVerifiableAccreditationTIDiploma.json", "tao-tir-record.json", "tao-tir-attribute.json", TrustedIssuerType.TAO, true, emptyList<Throwable>()),
+                // issued by issuer (diploma credential)
+                row("VerifiableDiploma.json", "ti-tir-record.json", "tao-tir-attribute.json", TrustedIssuerType.TI, true, emptyList<Throwable>()),
+            ) { vcPath, tirRecordPath, tirAttributePath, issuerType, isSuccess, errors ->
+                val schemaPath = "src/test/resources/ebsi/trusted-issuer-chain/"
+                val policy = EbsiTrustedIssuerRegistryPolicy(issuerType)
+                val vc = resolveContent(schemaPath + vcPath).toVerifiableCredential()
+                val attribute = KlaxonWithConverters().parse<AttributeRecord>(resolveContent (schemaPath + tirAttributePath))!!
+                val tirRecord = KlaxonWithConverters().parse<TrustedIssuer>(resolveContent(schemaPath + tirRecordPath))!!
+                mockkObject(DidService)
+                mockkObject(TrustedIssuerClient)
+                every { DidService.loadOrResolveAnyDid(any()) } returns Did(id = vc.issuerId!!)
+                every { TrustedIssuerClient.getAttribute(any()) } returns attribute
+                every { TrustedIssuerClient.getIssuer(any<TrustedIssuerType>()) } returns tirRecord
+
+                val result = policy.verify(vc)
+
+                result.isSuccess shouldBe isSuccess
+                result.errors shouldBe errors
+
+                unmockkObject(DidService)
+                unmockkObject(TrustedIssuerClient)
+            }
+        }
+
+        "12. test access control policy via acl api".config(enabled = enableOPATests)  {
             val credential = File("$RESOURCES_PATH/rego/issue264/StudentCard.json").readText().toVerifiableCredential()
             val input_tmpl = Json.parseToJsonElement(File("$RESOURCES_PATH/rego/NEOM/OxagonAccessInputViaApi.json").readText()).jsonObject
             val input = buildJsonObject {

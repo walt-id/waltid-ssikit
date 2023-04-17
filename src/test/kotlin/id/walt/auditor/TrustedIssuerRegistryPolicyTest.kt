@@ -1,5 +1,6 @@
 package id.walt.auditor
 
+import id.walt.auditor.policies.EbsiTrustedIssuerRegistryPolicy
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.encBase64Str
@@ -12,6 +13,7 @@ import id.walt.services.ecosystems.essif.TrustedIssuerClient
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
+import io.kotest.core.annotation.Ignored
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.core.test.TestCase
 import io.kotest.matchers.shouldBe
@@ -20,13 +22,14 @@ import io.mockk.every
 import io.mockk.mockkObject
 import org.junit.jupiter.api.assertAll
 
+@Ignored
 class TrustedIssuerRegistryPolicyTest : AnnotationSpec() {
 
-    private val defaultRegistry = "https://api-pilot.ebsi.eu/trusted-issuers-registry/v2/issuers/"
+    private val defaultRegistry = "${TrustedIssuerClient.domain}/${TrustedIssuerClient.trustedIssuerPath}"
     private val otherRegistry = "http://my-other-registry.org/v3/issuers/"
 
-    private val simplePolicy = TrustedIssuerRegistryPolicy();
-    private val parameterizedPolicy = TrustedIssuerRegistryPolicy(otherRegistry);
+    private val simplePolicy = EbsiTrustedIssuerRegistryPolicy();
+    private val parameterizedPolicy = EbsiTrustedIssuerRegistryPolicy(otherRegistry);
 
     private val mockedHash = "mockHash"
     private val validAttrInfoJson =

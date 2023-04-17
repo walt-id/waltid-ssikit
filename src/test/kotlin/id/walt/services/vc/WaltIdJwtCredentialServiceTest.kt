@@ -2,7 +2,7 @@ package id.walt.services.vc
 
 import com.nimbusds.jwt.SignedJWT
 import id.walt.auditor.Auditor
-import id.walt.auditor.SignaturePolicy
+import id.walt.auditor.policies.SignaturePolicy
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.builder.W3CCredentialBuilder
 import id.walt.credentials.w3c.schema.SchemaValidatorFactory
@@ -142,10 +142,10 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
             )
         val notParsableVc = ""
 
-        credentialService.validateSchemaTsr(noSchemaVc).result shouldBe true
-        credentialService.validateSchemaTsr(validVc).result shouldBe true
-        credentialService.validateSchemaTsr(invalidDataVc).result shouldBe false
-        credentialService.validateSchemaTsr(notParsableVc).result shouldBe false
+        credentialService.validateSchemaTsr(noSchemaVc).isSuccess shouldBe true
+        credentialService.validateSchemaTsr(validVc).isSuccess shouldBe true
+        credentialService.validateSchemaTsr(invalidDataVc).isSuccess shouldBe false
+        credentialService.validateSchemaTsr(notParsableVc).isSuccess shouldBe false
     }
 
     @Test

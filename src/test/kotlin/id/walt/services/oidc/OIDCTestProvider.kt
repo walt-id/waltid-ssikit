@@ -9,7 +9,7 @@ import com.nimbusds.oauth2.sdk.token.RefreshToken
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse
 import com.nimbusds.openid.connect.sdk.token.OIDCTokens
 import id.walt.auditor.Auditor
-import id.walt.auditor.SignaturePolicy
+import id.walt.auditor.policies.SignaturePolicy
 import id.walt.common.KlaxonWithConverters
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.model.DidMethod

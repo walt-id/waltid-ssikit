@@ -1,0 +1,38 @@
+{
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1"
+    ],
+    "id": "urn:uuid:4e1022a0-2406-4b82-9adf-b24825d67d9b",
+    "type": [
+        "VerifiableCredential",
+        "AccreditedVerifiableAttestation",
+        "VerifiableAccreditation"
+    ],
+    "issuer": "did:ebsi:12345",
+    "termsOfUse": [
+        {
+            "type": "VerifiableAccreditation",
+            "id": "https://essif.europa.eu/tir-123/did:ebsi:12345/attributes/123"
+        }
+    ],
+    "issuanceDate": "2022-01-01T00:00:00Z",
+    "validFrom": "2022-01-01T00:00:00Z",
+    "expirationDate": "2024-01-01T00:00:00Z",
+    "issued": "2022-01-01T00:00:00Z",
+    "credentialSubject": {
+        "id": "did:ebsi:00000",
+        "authorisationClaims": [
+            {
+                "authorisedSchemaId": "https://essif.europa.eu/tsr-123/verifiable-accreditation.json"
+            },
+            {
+                "authorisedSchemaId": "https://essif.europa.eu/tsr-123/verifiable-accreditation2.json"
+            }
+        ]
+    },
+    "credentialStatus": {
+        "id": "https://essif.europa.eu/status/45",
+        "type": "CredentialsStatusList2020"
+    },
+    "credentialSchema": null
+}

@@ -8,6 +8,7 @@ import id.walt.model.VerificationMethod
 import id.walt.model.did.DidEbsi
 import id.walt.services.did.DidEbsiResolveOptions
 import id.walt.services.did.DidOptions
+import id.walt.services.ecosystems.essif.TrustedIssuerClient
 import id.walt.services.key.KeyService
 import io.ipfs.multibase.Multibase
 import io.ktor.client.*
@@ -22,6 +23,7 @@ class DidEbsiResolver(
     private val keyService: KeyService,
 ) : DidResolverBase<DidEbsi>() {
 
+    private val didRegistryPath = "did-registry/${TrustedIssuerClient.apiVersion}/identifiers"
     override fun resolve(didUrl: DidUrl, options: DidOptions?) = (options as? DidEbsiResolveOptions)?.takeIf {
         it.isRaw
     }?.let { resolveDidEbsiRaw(didUrl.did) }?:resolveEbsi(didUrl)
@@ -41,9 +43,8 @@ class DidEbsiResolver(
 
         for (i in 1..5) {
             try {
-                log.debug { "Resolving did:ebsi at: https://api-pilot.ebsi.eu/did-registry/v3/identifiers/${didUrl.did}" }
-                didDoc = httpClient.get("https://api-pilot.ebsi.eu/did-registry/v3/identifiers/${didUrl.did}")
-                    .bodyAsText()
+                log.debug { "Resolving did:ebsi at: ${TrustedIssuerClient.domain}/$didRegistryPath/${didUrl.did}" }
+                didDoc = httpClient.get("${TrustedIssuerClient.domain}/$didRegistryPath/${didUrl.did}").bodyAsText()
                 log.debug { "Result: $didDoc" }
                 return@runBlocking Did.decode(didDoc)!! as DidEbsi
             } catch (e: ClientRequestException) {
@@ -80,7 +81,7 @@ class DidEbsiResolver(
 
     private fun resolveDidEbsiRaw(did: String): Did = runBlocking {
         log.debug { "Resolving DID $did" }
-        val didDoc = httpClient.get("https://api-pilot.ebsi.eu/did-registry/v3/identifiers/$did").bodyAsText()
+        val didDoc = httpClient.get("${TrustedIssuerClient.domain}/$didRegistryPath/$did").bodyAsText()
         log.debug { didDoc }
         Did.decode(didDoc) ?: throw Exception("Could not resolve $did")
     }

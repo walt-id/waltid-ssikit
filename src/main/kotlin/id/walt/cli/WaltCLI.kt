@@ -129,7 +129,9 @@ object WaltCLI {
                             EssifTimestampCreateCommand(),
                             EssifTimestampGetCommand()
                         ),
-                        EssifTaorCommand(),
+                        EssifTaorCommand().subcommands(
+                            EssifTaorGetIssuerCommand(),
+                        ),
                         EssifTsrCommand()
                     ),
                     GaiaxCommand().subcommands(
@@ -161,6 +163,8 @@ object WaltCLI {
 
             if (log.isDebugEnabled)
                 e.printStackTrace()
+        } finally {
+            WaltIdServices.shutdown()
         }
     }
 }

@@ -19,6 +19,7 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
 import mu.KotlinLogging
 import org.bouncycastle.jce.provider.BouncyCastleProvider
+import java.io.Closeable
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
@@ -130,5 +131,15 @@ object WaltIdServices {
             else -> Result.failure(Exception(result.bodyAsText()))
 
         }
+    }
+
+    fun shutdown() {
+        log.debug { "Shutting down ${this.javaClass.simpleName}..." }
+        closeResource(httpNoAuth)
+        closeResource(httpWithAuth)
+    }
+
+    private fun closeResource(resource: Closeable) = runCatching {
+        resource.close()
     }
 }

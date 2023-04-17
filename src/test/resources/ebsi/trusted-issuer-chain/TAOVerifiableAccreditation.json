@@ -1,0 +1,42 @@
+
+{
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1"
+    ],
+    "id": "urn:uuid:4e1022a0-2406-4b82-9adf-b24825d67d9b",
+    "type": [
+        "VerifiableCredential",
+        "AccreditedVerifiableAttestation",
+        "VerifiableAccreditation"
+    ],
+    "issuer": "did:ebsi:ztSHfNUFDXmqBNkY8UBH8VE",
+    "termsOfUse": [
+        {
+            "type": "VerifiableAccreditation",
+            "id": "https://raw.githubusercontent.com/walt-id/waltid-ssikit/main/src/test/resources/ebsi/trusted-issuer-chain/tao-tir-attribute.json"
+        }
+    ],
+    "issuanceDate": "2022-01-01T00:00:00Z",
+    "validFrom": "2022-01-01T00:00:00Z",
+    "expirationDate": "2024-01-01T00:00:00Z",
+    "issued": "2022-01-01T00:00:00Z",
+    "credentialSubject": {
+        "id": "did:ebsi:ztSHfNUFDXmqBNkY8UBH8VE",
+        "authorisationClaims": [
+            {
+                "authorisedSchemaId": "https://essif.europa.eu/tsr-123/verifiable-accreditation.json"
+            },
+            {
+                "authorisedSchemaId": "https://essif.europa.eu/tsr-123/verifiable-accreditation-ti-diploma.json"
+            }
+        ]
+    },
+    "credentialStatus": {
+        "id": "https://essif.europa.eu/status/45",
+        "type": "CredentialStatusList2020"
+    },
+    "credentialSchema": {
+        "id": "https://essif.europa.eu/tsr-123/verifiable-accreditation.json",
+        "type": "FullJsonSchemaValidator2021"
+    }
+}

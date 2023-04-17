@@ -11,6 +11,7 @@ import id.walt.model.*
 import id.walt.model.did.DidEbsi
 import id.walt.model.did.DidWeb
 import id.walt.services.CryptoProvider
+import id.walt.services.WaltIdServices
 import id.walt.services.context.ContextManager
 import id.walt.services.crypto.CryptoService
 import id.walt.services.did.resolvers.*
@@ -56,7 +57,7 @@ object DidService {
     private val cryptoService = CryptoService.getService()
     val keyService = KeyService.getService()
     private val didResolverFactory = DidResolverFactory(
-        httpNoAuth = HttpClient(),//TODO: fix contentType for application/did+ld+json
+        httpNoAuth = WaltIdServices.httpNoAuth,
         keyService = keyService,
         iotaWrapper = IotaWrapper.createInstance()
     )
