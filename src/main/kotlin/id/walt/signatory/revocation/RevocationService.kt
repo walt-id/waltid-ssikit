@@ -11,6 +11,8 @@ interface RevocationService {
     fun setRevocation(parameter: RevocationParameter)
 }
 
+data class RevocationList(val revokedList: List<RevocationResult>)
+
 /*
 Revocation results
  */
@@ -22,8 +24,9 @@ abstract class RevocationResult {
 @Serializable
 data class TokenRevocationResult(
     val token: String,
-    @Json(serializeNull = false) val timeOfRevocation: Long? = null,
-    override val isRevoked: Boolean
+    override val isRevoked: Boolean,
+    @Json(serializeNull = false)
+    val timeOfRevocation: Long? = null
 ) : RevocationResult()
 
 @Serializable

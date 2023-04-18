@@ -4,6 +4,7 @@ import id.walt.common.createBaseToken
 import id.walt.common.deriveRevocationToken
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.signatory.revocation.SimpleCredentialStatus2022Service
+import id.walt.signatory.revocation.TokenRevocationResult
 import id.walt.test.RESOURCES_PATH
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
@@ -27,7 +28,7 @@ class RevocationServiceTest : AnnotationSpec() {
         println("Revocation token derived from base token: $revocationToken")
 
         println("Check revoked with derived token: $revocationToken")
-        val result1 = SimpleCredentialStatus2022Service.checkRevoked(revocationToken)
+        val result1 = SimpleCredentialStatus2022Service.checkRevoked(revocationToken) as TokenRevocationResult
         result1.isRevoked shouldBe false
         result1.timeOfRevocation shouldBe null
 
@@ -35,7 +36,7 @@ class RevocationServiceTest : AnnotationSpec() {
         SimpleCredentialStatus2022Service.revokeToken(baseToken)
 
         println("Check revoked with derived token: $revocationToken")
-        val result2 = SimpleCredentialStatus2022Service.checkRevoked(revocationToken)
+        val result2 = SimpleCredentialStatus2022Service.checkRevoked(revocationToken) as TokenRevocationResult
         result2.isRevoked shouldBe true
         result2.timeOfRevocation shouldNotBe null
     }
