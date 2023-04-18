@@ -1,11 +1,15 @@
 package id.walt.auditor.policies
 
+import id.walt.auditor.Auditor
 import id.walt.auditor.ParameterizedVerificationPolicy
 import id.walt.auditor.SimpleVerificationPolicy
 import id.walt.auditor.VerificationPolicyResult
+import id.walt.common.resolveContent
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.VerifiablePresentation
+import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.model.TrustedIssuerType
+import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.WaltIdServices
 import id.walt.services.did.DidService
 import id.walt.services.ecosystems.essif.TrustedIssuerClient
@@ -52,8 +56,8 @@ class EbsiTrustedIssuerDidPolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by trusted issuer did"
     override fun doVerify(vc: VerifiableCredential): VerificationPolicyResult {
         return try {
-            DidService.loadOrResolveAnyDid(vc.issuerId!!)?.let { VerificationPolicyResult.success() }
-                ?: VerificationPolicyResult.failure()
+            if (!DidService.isDidEbsiV1(vc.issuerId!!)) VerificationPolicyResult.failure(IllegalArgumentException("Not an ebsi v1 did"))
+            else DidService.loadOrResolveAnyDid(vc.issuerId!!)?.let { VerificationPolicyResult.success() } ?: VerificationPolicyResult.failure()
         } catch (e: ClientRequestException) {
             VerificationPolicyResult.failure(
                 IllegalArgumentException(
