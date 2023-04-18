@@ -1,5 +1,6 @@
 package id.walt.auditor
 
+import com.beust.klaxon.Json
 import com.fasterxml.jackson.annotation.JsonIgnore
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.VerifiablePresentation
@@ -57,9 +58,9 @@ data class VerificationPolicyMetadata(
 )
 
 class VerificationPolicyResult private constructor(
-    private val result: Boolean,
-    @JsonIgnore
-    private val errorList: List<Throwable> = emptyList()
+    val isSuccess: Boolean,
+    @JsonIgnore @Json(ignored = true)
+    val errors: List<Throwable> = emptyList()
 ) {
 
     companion object {
@@ -70,17 +71,15 @@ class VerificationPolicyResult private constructor(
         }
     }
 
-    val isSuccess = result
-    val isFailure = !result
-    @JsonIgnore
-    val errors = errorList
+    @JsonIgnore @Json(ignored = true)
+    val isFailure = !isSuccess
 
-    private fun getErrorString() = errorList.mapIndexed { index, throwable ->
+    private fun getErrorString() = errors.mapIndexed { index, throwable ->
         "#${index + 1}: ${throwable::class.simpleName ?: "Error"} - ${throwable.message}"
     }.joinToString()
 
     override fun toString(): String {
-        return when (result) {
+        return when (isSuccess) {
             true -> "passed"
             false -> "failed: ${getErrorString()}"
         }

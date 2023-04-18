@@ -419,7 +419,22 @@ class AuditorCommandTest : StringSpec() {
             }
         }
 
-        "12. test access control policy via acl api".config(enabled = enableOPATests)  {
+        "12. test serialize verification result" {
+            val verificationResult = VerificationResult(true, mapOf(
+                "SignaturePolicy" to VerificationPolicyResult.success()
+            ))
+
+            val serializedResult = KlaxonWithConverters().toJsonString(verificationResult)
+
+            val deserializedResult = KlaxonWithConverters().parse<VerificationResult>(serializedResult)
+
+            verificationResult.result shouldBe deserializedResult!!.result
+            verificationResult.policyResults.forEach {
+                deserializedResult.policyResults[it.key]?.isSuccess shouldBe it.value.isSuccess
+            }
+        }
+
+        "13. test access control policy via acl api".config(enabled = enableOPATests)  {
             val credential = File("$RESOURCES_PATH/rego/issue264/StudentCard.json").readText().toVerifiableCredential()
             val input_tmpl = Json.parseToJsonElement(File("$RESOURCES_PATH/rego/NEOM/OxagonAccessInputViaApi.json").readText()).jsonObject
             val input = buildJsonObject {

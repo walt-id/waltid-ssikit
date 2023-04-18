@@ -1,7 +1,7 @@
 {
   "@context": ["https://www.w3.org/2018/credentials/v1"],
   "credentialSchema": {
-    "id": "https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableDiploma.json",
+    "id": "https://api-pilot.ebsi.eu/trusted-schemas-registry/v2/schemas/0x4dd3926cd92bb3cb64fa6c837539ed31fc30dd38a11266a91678efa7268cde09",
     "type": "JsonSchemaValidator2018"
   },
   "credentialStatus": {
