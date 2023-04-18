@@ -1,9 +1,12 @@
 package id.walt.common
 
 import id.walt.services.WaltIdServices.httpNoAuth
+import id.walt.signatory.revocation.SimpleCredentialStatus2022Service
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import kotlinx.coroutines.runBlocking
+import org.apache.commons.codec.digest.DigestUtils
+import org.bouncycastle.util.encoders.Base32
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.*
@@ -64,6 +67,9 @@ fun uncompressGzip(data: ByteArray, idx: ULong? = null) =
             array
         } ?: it.readText().toCharArray()
     }
+
+fun createBaseToken() = UUID.randomUUID().toString() + UUID.randomUUID().toString()
+fun deriveRevocationToken(baseToken: String): String = Base32.toBase32String(DigestUtils.sha256(baseToken)).replace("=", "")
 
 fun main(){
     val bitstring = (0..7).map {

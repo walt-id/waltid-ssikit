@@ -3,7 +3,7 @@ package id.walt.signatory
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
 import id.walt.services.WaltIdServices
-import id.walt.signatory.RevocationService.RevocationResult
+import id.walt.signatory.revocation.SimpleCredentialStatus2022Service.RevocationResult
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*
@@ -14,7 +14,6 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
-import java.util.*
 
 open class RevocationClientService : WaltIdService() {
     override val implementation get() = serviceImplementation<RevocationClientService>()
@@ -23,9 +22,6 @@ open class RevocationClientService : WaltIdService() {
         implementation.checkRevoked(revocationCheckUrl)
 
     open fun revoke(baseTokenUrl: String): Unit = implementation.revoke(baseTokenUrl)
-
-    open fun createBaseToken(): String = implementation.createBaseToken()
-    open fun deriveRevocationToken(baseToken: String): String = implementation.deriveRevocationToken(baseToken)
 
     companion object : ServiceProvider {
         override fun getService() = object : RevocationClientService() {}
@@ -72,7 +68,4 @@ class WaltIdRevocationClientService : RevocationClientService() {
             http.post(baseTokenUrl)
         }
     }
-
-    override fun createBaseToken() = UUID.randomUUID().toString() + UUID.randomUUID().toString()
-    override fun deriveRevocationToken(baseToken: String): String = RevocationService.getRevocationToken(baseToken)
 }

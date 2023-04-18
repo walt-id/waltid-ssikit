@@ -1,17 +1,16 @@
-package id.walt.signatory
+package id.walt.signatory.revocation
 
 import com.beust.klaxon.Json
 import com.beust.klaxon.Klaxon
+import id.walt.common.deriveRevocationToken
 import kotlinx.serialization.Serializable
-import org.apache.commons.codec.digest.DigestUtils
-import org.bouncycastle.util.encoders.Base32.toBase32String
 import java.time.Instant
 import kotlin.io.path.Path
 import kotlin.io.path.exists
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
 
-object RevocationService {
+object SimpleCredentialStatus2022Service {
 
     private val klaxon = Klaxon()
     private val revokedPath = Path("data/revoked.json").apply {
@@ -42,12 +41,10 @@ object RevocationService {
 
     fun revokeToken(baseToken: String) { // UUIDUUID -> SHA256-Token (base32)
         if (baseToken.length != 72) throw IllegalArgumentException("base token has to have 72 chars (uuiduuid)")
-        val token = getRevocationToken(baseToken)
+        val token = deriveRevocationToken(baseToken)
         val revoked = getRevokedList().toMutableList().apply {
             add(RevocationResult(token, true, Instant.now().toEpochMilli()))
         }
         setRevokedList(RevocationList(revoked))
     }
-
-    fun getRevocationToken(baseToken: String) = toBase32String(DigestUtils.sha256(baseToken)).replace("=", "")
 }
