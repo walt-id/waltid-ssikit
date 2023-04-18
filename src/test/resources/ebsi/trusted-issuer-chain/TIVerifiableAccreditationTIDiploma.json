@@ -43,6 +43,18 @@
                     }
                 ],
                 "reviewDate": "2024-04-22T14:11:44Z"
+            },
+            {
+                "authorisedSchemaId": "https://raw.githubusercontent.com/walt-id/waltid-ssikit/feat-neom-credential-schemas/src/test/resources/schemas/NEOM/PregnancyCertificate.json"
+            },
+            {
+                "authorisedSchemaId": "https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/Europass.json"
+            },
+            {
+                "authorisedSchemaId": "https://raw.githubusercontent.com/walt-id/waltid-ssikit/feat-neom-credential-schemas/src/test/resources/schemas/NEOM/StudentCard.json"
+            },
+            {
+                "authorisedSchemaId": "https://api-pilot.ebsi.eu/trusted-schemas-registry/v2/schemas/0x4dd3926cd92bb3cb64fa6c837539ed31fc30dd38a11266a91678efa7268cde09"
             }
         ]
     },
