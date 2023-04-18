@@ -527,10 +527,14 @@ object DidService {
     }
     //endregion
 
-    fun isDidEbsiV2(did: String): Boolean {
+    fun isDidEbsiV1(did: String): Boolean = checkIsDidEbsiAndVersion(did, 1)
+    
+    fun isDidEbsiV2(did: String): Boolean = checkIsDidEbsiAndVersion(did, 2)
+
+    fun checkIsDidEbsiAndVersion(did: String, version: Int): Boolean {
         return DidUrl.isDidUrl(did) &&
                 DidUrl.from(did).let { didUrl ->
-                    didUrl.method == DidMethod.ebsi.name && Multibase.decode(didUrl.identifier).first().toInt() == 2
+                    didUrl.method == DidMethod.ebsi.name && Multibase.decode(didUrl.identifier).first().toInt() == version
                 }
     }
 
