@@ -13,7 +13,7 @@ import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 
 internal class StatusList2021ServiceTest : StringSpec({
-    val sut = StatusList2021Service
+    val sut = StatusList2021EntryService
     val rootPath = "src/test/resources/credential-status/"
     val statusLisCredential = resolveContent(rootPath + "status-list-credential.json")
 

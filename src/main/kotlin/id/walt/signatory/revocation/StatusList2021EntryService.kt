@@ -9,7 +9,7 @@ import id.walt.crypto.decBase64
 import id.walt.model.credential.status.StatusList2021EntryCredentialStatus
 import kotlinx.serialization.Serializable
 
-object StatusList2021Service {
+object StatusList2021EntryService {
 
     fun checkRevoked(credentialStatus: StatusList2021EntryCredentialStatus): Boolean = let {
         val statusListCredential = resolveContent(credentialStatus.statusListCredential).toVerifiableCredential()

@@ -11,7 +11,7 @@ import id.walt.model.credential.status.CredentialStatus
 import id.walt.model.credential.status.SimpleCredentialStatus2022
 import id.walt.model.credential.status.StatusList2021EntryCredentialStatus
 import id.walt.signatory.RevocationClientService
-import id.walt.signatory.revocation.StatusList2021Service
+import id.walt.signatory.revocation.StatusList2021EntryService
 import kotlinx.serialization.Serializable
 import java.text.SimpleDateFormat
 import java.util.*
@@ -81,7 +81,7 @@ class CredentialStatusPolicy : SimpleVerificationPolicy() {
     }
 
     private fun checkStatusListRevocation(cs: StatusList2021EntryCredentialStatus) =
-        StatusList2021Service.checkRevoked(cs).let {
+        StatusList2021EntryService.checkRevoked(cs).let {
             it.takeIf { !it }?.let {
                 VerificationPolicyResult.success()
             } ?: VerificationPolicyResult.failure(Throwable("CredentialStatus ${cs.type} was REVOKED for id ${cs.id}"))
