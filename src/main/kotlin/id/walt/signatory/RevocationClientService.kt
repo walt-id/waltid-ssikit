@@ -3,7 +3,7 @@ package id.walt.signatory
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
 import id.walt.services.WaltIdServices
-import id.walt.signatory.revocation.SimpleCredentialStatus2022Service.RevocationResult
+import id.walt.signatory.revocation.TokenRevocationResult
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*
@@ -18,7 +18,7 @@ import mu.KotlinLogging
 open class RevocationClientService : WaltIdService() {
     override val implementation get() = serviceImplementation<RevocationClientService>()
 
-    open fun checkRevoked(revocationCheckUrl: String): RevocationResult =
+    open fun checkRevoked(revocationCheckUrl: String): TokenRevocationResult =
         implementation.checkRevoked(revocationCheckUrl)
 
     open fun revoke(baseTokenUrl: String): Unit = implementation.revoke(baseTokenUrl)
@@ -51,7 +51,7 @@ class WaltIdRevocationClientService : RevocationClientService() {
         }
     }
 
-    override fun checkRevoked(revocationCheckUrl: String): RevocationResult = runBlocking {
+    override fun checkRevoked(revocationCheckUrl: String): TokenRevocationResult = runBlocking {
         val token = revocationCheckUrl.split("/").last()
         if (token.contains("-")) throw IllegalArgumentException("Revocation token contains '-', you probably didn't supply a derived revocation token, but a base token.")
 
