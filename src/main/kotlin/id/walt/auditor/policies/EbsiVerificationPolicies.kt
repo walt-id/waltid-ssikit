@@ -89,7 +89,7 @@ class EbsiTrustedIssuerRegistryPolicy(registryArg: EbsiTrustedIssuerRegistryPoli
     constructor() : this(
         EbsiTrustedIssuerRegistryPolicyArg(
             "${TrustedIssuerClient.domain}/${TrustedIssuerClient.trustedIssuerPath}",
-            TrustedIssuerType.Undefined
+            TrustedIssuerType.TI
         )
     )
 
