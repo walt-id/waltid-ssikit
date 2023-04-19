@@ -8,7 +8,7 @@ interface RevocationService {
     fun checkRevocation(parameter: RevocationParameter): RevocationResult
     fun getRevocation(): RevocationData
     fun clearAll()
-    fun setRevocation(parameter: RevocationParameter)
+    fun setRevocation(parameter: RevocationConfig)
 }
 
 data class RevocationList(val revokedList: List<RevocationResult>)
@@ -50,3 +50,18 @@ data class StatusListRevocationParameter(
 Revocation data
  */
 interface RevocationData
+
+/*
+Revocation config
+ */
+interface RevocationConfig
+
+@Serializable
+data class TokenRevocationConfig(
+    val token: String,
+) : RevocationConfig
+
+@Serializable
+data class StatusListRevocationConfig(
+    val id: String,
+) : RevocationConfig

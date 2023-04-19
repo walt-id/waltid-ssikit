@@ -2,6 +2,7 @@ package id.walt.common
 
 import id.walt.services.WaltIdServices.httpNoAuth
 import id.walt.signatory.revocation.SimpleCredentialStatus2022Service
+import id.walt.signatory.revocation.StatusList2021EntryService
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import kotlinx.coroutines.runBlocking
@@ -67,6 +68,22 @@ fun uncompressGzip(data: ByteArray, idx: ULong? = null) =
             array
         } ?: it.readText().toCharArray()
     }
+
+fun buildRawBitString(bitSet: BitSet): ByteArray{
+    var counter = bitSet.nextSetBit(0);
+    var lastIndex = counter
+    val builder = StringBuilder()
+    while (counter > -1) {
+        builder.append("0".repeat(counter))
+        builder.append("1")
+        counter = bitSet.nextSetBit(counter + 1)//TODO: handle overflow
+        if(counter > -1) lastIndex = counter
+    }
+    builder.append("0".repeat(bitSet.size() - lastIndex - 1))
+    return builder.toString().toByteArray()
+}
+
+fun createEncodedBitString(bitSet: BitSet): ByteArray = Base64.getEncoder().encode(compressGzip(buildRawBitString(bitSet)))
 
 fun createBaseToken() = UUID.randomUUID().toString() + UUID.randomUUID().toString()
 fun deriveRevocationToken(baseToken: String): String = Base32.toBase32String(DigestUtils.sha256(baseToken)).replace("=", "")
