@@ -66,6 +66,8 @@ class EbsiTrustedIssuerDidPolicy : SimpleVerificationPolicy() {
             )
         }
     }
+
+    override val applyToVP = false
 }
 
 data class EbsiTrustedIssuerRegistryPolicyArg(
