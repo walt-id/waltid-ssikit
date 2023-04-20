@@ -14,11 +14,11 @@ import org.junit.jupiter.api.Assertions.assertAll
 
 class PolicyFactoryTest : AnnotationSpec() {
 
-    private val testArgument = EbsiTrustedIssuerRegistryPolicyArg("testArg", TrustedIssuerType.Undefined)
+    private val testArgument = EbsiTrustedIssuerRegistryPolicyArg("testArg", TrustedIssuerType.TI)
     private val wrongArg = AnotherArg("Else")
     private val defaultArg = EbsiTrustedIssuerRegistryPolicyArg(
         "${TrustedIssuerClient.domain}/${TrustedIssuerClient.trustedIssuerPath}",
-        TrustedIssuerType.Undefined
+        TrustedIssuerType.TI
     )
 
     @Test

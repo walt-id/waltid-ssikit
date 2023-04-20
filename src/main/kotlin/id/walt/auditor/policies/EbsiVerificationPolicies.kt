@@ -52,8 +52,8 @@ class EbsiTrustedIssuerDidPolicy : SimpleVerificationPolicy() {
     override val description: String = "Verify by trusted issuer did"
     override fun doVerify(vc: VerifiableCredential): VerificationPolicyResult {
         return try {
-            DidService.loadOrResolveAnyDid(vc.issuerId!!)?.let { VerificationPolicyResult.success() }
-                ?: VerificationPolicyResult.failure()
+            if (!DidService.isDidEbsiV1(vc.issuerId!!)) VerificationPolicyResult.failure(IllegalArgumentException("Not an ebsi v1 did"))
+            else DidService.loadOrResolveAnyDid(vc.issuerId!!)?.let { VerificationPolicyResult.success() } ?: VerificationPolicyResult.failure()
         } catch (e: ClientRequestException) {
             VerificationPolicyResult.failure(
                 IllegalArgumentException(
@@ -66,6 +66,8 @@ class EbsiTrustedIssuerDidPolicy : SimpleVerificationPolicy() {
             )
         }
     }
+
+    override val applyToVP = false
 }
 
 data class EbsiTrustedIssuerRegistryPolicyArg(
@@ -89,7 +91,7 @@ class EbsiTrustedIssuerRegistryPolicy(registryArg: EbsiTrustedIssuerRegistryPoli
     constructor() : this(
         EbsiTrustedIssuerRegistryPolicyArg(
             "${TrustedIssuerClient.domain}/${TrustedIssuerClient.trustedIssuerPath}",
-            TrustedIssuerType.Undefined
+            TrustedIssuerType.TI
         )
     )
 

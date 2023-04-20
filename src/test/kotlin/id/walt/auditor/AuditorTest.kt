@@ -409,5 +409,20 @@ class AuditorCommandTest : StringSpec() {
                 unmockkObject(TrustedIssuerClient)
             }
         }
+
+        "12. test serialize verification result" {
+            val verificationResult = VerificationResult(true, mapOf(
+                "SignaturePolicy" to VerificationPolicyResult.success()
+            ))
+
+            val serializedResult = KlaxonWithConverters().toJsonString(verificationResult)
+
+            val deserializedResult = KlaxonWithConverters().parse<VerificationResult>(serializedResult)
+
+            verificationResult.result shouldBe deserializedResult!!.result
+            verificationResult.policyResults.forEach {
+                deserializedResult.policyResults[it.key]?.isSuccess shouldBe it.value.isSuccess
+            }
+        }
     }
 }
