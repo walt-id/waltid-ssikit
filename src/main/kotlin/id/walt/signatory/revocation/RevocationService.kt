@@ -1,52 +1,108 @@
 package id.walt.signatory.revocation
 
 import com.beust.klaxon.Json
+import com.beust.klaxon.Klaxon
+import id.walt.credentials.w3c.VerifiableCredential
+import id.walt.model.credential.status.CredentialStatus
+import id.walt.model.credential.status.SimpleCredentialStatus2022
 import id.walt.model.credential.status.StatusList2021EntryCredentialStatus
+import id.walt.signatory.revocation.simplestatus2022.SimpleCredentialClientService
+import id.walt.signatory.revocation.statuslist2021.StatusList2021EntryClientService
 import kotlinx.serialization.Serializable
 
-interface RevocationService {
-    fun checkRevocation(parameter: RevocationParameter): RevocationResult
-    fun getRevocation(): RevocationData
-    fun clearAll()
-    fun setRevocation(parameter: RevocationParameter)
+interface RevocationClientService {
+    fun checkRevocation(parameter: RevocationCheckParameter): RevocationStatus
+    fun revoke(parameter: RevocationConfig)
+
+    companion object {
+        fun revoke(vc: VerifiableCredential): RevocationResult =
+            (Klaxon().parse<CredentialStatusCredential>(vc.toJson())?.credentialStatus)?.let {
+                runCatching { getClient(it).revoke(getConfig(it)) }.fold(onSuccess = {
+                    RevocationResult(succeed = true)
+                }, onFailure = {
+                    RevocationResult(succeed = false, message = it.localizedMessage)
+                })
+            } ?: RevocationResult(succeed = false, message = "Verifiable credential has no credential-status property")
+
+        fun check(vc: VerifiableCredential): RevocationStatus =
+            (Klaxon().parse<CredentialStatusCredential>(vc.toJson())?.credentialStatus)?.let {
+                getClient(it).checkRevocation(getParameter(it))
+            } ?: throw IllegalArgumentException("Verifiable credential has no credential-status property")
+
+        private fun getConfig(credentialStatus: CredentialStatus): RevocationConfig = when (credentialStatus) {
+            is SimpleCredentialStatus2022 -> TokenRevocationConfig(baseTokenUrl = credentialStatus.id)
+            is StatusList2021EntryCredentialStatus -> StatusListRevocationConfig(credentialStatus = credentialStatus)
+        }
+
+        private fun getParameter(credentialStatus: CredentialStatus): RevocationCheckParameter = when (credentialStatus) {
+            is SimpleCredentialStatus2022 -> TokenRevocationCheckParameter(revocationCheckUrl = credentialStatus.id)
+            is StatusList2021EntryCredentialStatus -> StatusListRevocationCheckParameter(credentialStatus = credentialStatus)
+        }
+
+        private fun getClient(credentialStatus: CredentialStatus): RevocationClientService = when (credentialStatus) {
+            is SimpleCredentialStatus2022 -> SimpleCredentialClientService()
+            is StatusList2021EntryCredentialStatus -> StatusList2021EntryClientService()
+        }
+    }
 }
 
-data class RevocationList(val revokedList: List<RevocationResult>)
+/*
+Revocation status
+ */
+interface RevocationStatus {
+    val isRevoked: Boolean
+}
+//@Serializable
+//class BaseRevocationStatus(
+//    override val isRevoked: Boolean
+//) : RevocationStatus
+@Serializable
+data class TokenRevocationStatus(
+    val token: String,
+    override val isRevoked: Boolean,
+    @Json(serializeNull = false)
+    val timeOfRevocation: Long? = null
+) : RevocationStatus
+@Serializable
+data class StatusListRevocationStatus(
+    override val isRevoked: Boolean
+) : RevocationStatus
+
+/*
+Revocation check parameters
+ */
+interface RevocationCheckParameter
+data class TokenRevocationCheckParameter(
+    val revocationCheckUrl: String,
+) : RevocationCheckParameter
+
+data class StatusListRevocationCheckParameter(
+    val credentialStatus: StatusList2021EntryCredentialStatus,
+) : RevocationCheckParameter
+
+/*
+Revocation config
+ */
+interface RevocationConfig
+
+data class TokenRevocationConfig(
+    val baseTokenUrl: String,
+) : RevocationConfig
+
+data class StatusListRevocationConfig(
+    val credentialStatus: StatusList2021EntryCredentialStatus,
+) : RevocationConfig
 
 /*
 Revocation results
  */
 @Serializable
-abstract class RevocationResult {
-    abstract val isRevoked: Boolean
-}
+data class RevocationResult(
+    val succeed: Boolean,
+    val message: String = ""
+)
 
 @Serializable
-data class TokenRevocationResult(
-    val token: String,
-    override val isRevoked: Boolean,
-    @Json(serializeNull = false)
-    val timeOfRevocation: Long? = null
-) : RevocationResult()
-
-@Serializable
-data class StatusListRevocationResult(
-    override val isRevoked: Boolean
-) : RevocationResult()
-
-/*
-Revocation parameters
- */
-interface RevocationParameter
-data class TokenRevocationParameter(
-    val token: String,
-) : RevocationParameter
-
-data class StatusListRevocationParameter(
-    val credentialStatus: StatusList2021EntryCredentialStatus,
-) : RevocationParameter
-
-/*
-Revocation data
- */
-interface RevocationData
+data class CredentialStatusCredential(
+    @Json(serializeNull = false) var credentialStatus: CredentialStatus? = null
+)
