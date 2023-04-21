@@ -112,7 +112,11 @@ object WaltCLI {
                             VcTemplatesImportCommand(),
                             VcTemplatesRemoveCommand()
                         ),
-                        VcImportCommand()
+                        VcImportCommand(),
+                        VcRevocationCommand().subcommands(
+                            VcRevocationCheckCommand(),
+                            VcRevocationRevokeCommand(),
+                        ),
                     ),
                     EssifCommand().subcommands(
                         EssifOnboardingCommand(),
@@ -164,7 +168,9 @@ object WaltCLI {
             if (log.isDebugEnabled)
                 e.printStackTrace()
         } finally {
-            WaltIdServices.shutdown()
+            args.none { it.equals(ServeCommand().commandName, ignoreCase = true) }.takeIf { it }?.run {
+                WaltIdServices.shutdown()
+            }
         }
     }
 }
