@@ -4,15 +4,20 @@ import id.walt.common.KlaxonWithConverters
 import id.walt.credentials.w3c.JsonConverter
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.builder.W3CCredentialBuilder
+import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.signatory.dataproviders.MergingDataProvider
-import id.walt.signatory.revocation.SimpleCredentialStatus2022Service
-import id.walt.signatory.revocation.TokenRevocationResult
+import id.walt.signatory.revocation.RevocationClientService
+import id.walt.signatory.revocation.RevocationStatus
+import id.walt.signatory.revocation.TokenRevocationStatus
+import id.walt.signatory.revocation.simplestatus2022.SimpleCredentialStatus2022StorageService
+import id.walt.signatory.revocation.statuslist2021.StatusListCredentialStorageService
 import io.javalin.http.BadRequestResponse
 import io.javalin.http.ContentType
 import io.javalin.http.Context
+import io.javalin.http.HttpCode
 import io.javalin.plugin.openapi.dsl.document
 import kotlinx.serialization.json.jsonObject
 
@@ -129,22 +134,57 @@ object SignatoryController {
         .queryParam<ProofType>("proofType")
         .body<String>().json<String>("200")
 
+    fun statusDocs() = document().operation {
+        it.summary("Get StatusList2021Credential").operationId("status").addTagsItem("Credentials")
+            .description("Fetch the StatusList2021Credential based on id")
+    }.json<String>("200")
+
+    fun status(ctx: Context) {
+        StatusListCredentialStorageService.getService().fetch(ctx.pathParam("id"))?.let {
+            ctx.result(it.toJson()).status(HttpCode.OK)
+        } ?: let {
+            val error = mapOf("error" to "StatusList2021Credential not found for id: ${ctx.pathParam("id")}")
+            ctx.json(error).status(HttpCode.NOT_FOUND)
+        }
+    }
+
+    fun tokenDocs() = document().operation {
+        it.summary("Get the credential's specific delegated revocation-token that can be revoked on this server.")
+            .operationId("token").addTagsItem("Credentials")
+            .description("Get the revocation token based on id")
+    }.json<TokenRevocationStatus>("200")
+
+    fun token(ctx: Context) {
+        SimpleCredentialStatus2022StorageService.checkRevoked(ctx.pathParam("id")).let {
+            ctx.json(it).status(HttpCode.OK)
+        }
+    }
+
     fun checkRevokedDocs() = document().operation {
         it.summary("Check if credential is revoked").operationId("checkRevoked").addTagsItem("Revocations")
-            .description("Based on a revocation-token, this method will check if this token is still valid or has already been revoked.")
-    }.json<TokenRevocationResult>("200")
+            .description("The revocation status is checked based on credential's credential-status property.")
+    }.body<String> {
+        it.description("Verifiable credential to be checked for revocation status.")
+    }.json<RevocationStatus>("200")
 
-    fun checkRevoked(ctx: Context) {
-        ctx.json(SimpleCredentialStatus2022Service.checkRevoked(ctx.pathParam("id")))
+    fun checkRevoked(ctx: Context) = runCatching {
+        RevocationClientService.check(ctx.body().toVerifiableCredential())
+    }.onSuccess {
+        ctx.json(it)
+    }.onFailure {
+        ctx.json(it.localizedMessage)
     }
 
     fun revokeDocs() = document().operation {
         it.summary("Revoke a credential").operationId("revoke").addTagsItem("Revocations")
-            .description("Based on the <b>not-delegated</b> revocation-token, a credential with a specific delegated revocation-token can be revoked on this server.")
-    }.result<String>("201")
+            .description("The credential will be revoked based on its credential-status property on the current server.")
+    }.body<String> {
+        it.description("Verifiable credential to be revoked.")
+    }.json<String>("201")
 
-    fun revoke(ctx: Context) {
-        SimpleCredentialStatus2022Service.revokeToken(ctx.pathParam("id"))
-        ctx.status(201)
-    }
+    fun revoke(ctx: Context) = runCatching {
+        RevocationClientService.revoke(ctx.body().toVerifiableCredential())
+    }.onSuccess {
+        ctx.status(if (it.succeed) HttpCode.OK else HttpCode.NOT_FOUND).json(it.message)
+    }.onFailure { ctx.status(HttpCode.NOT_FOUND).json(it.localizedMessage) }
 }

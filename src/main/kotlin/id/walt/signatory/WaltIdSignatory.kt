@@ -4,6 +4,7 @@ import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.W3CIssuer
 import id.walt.credentials.w3c.builder.AbstractW3CCredentialBuilder
 import id.walt.credentials.w3c.builder.W3CCredentialBuilder
+import id.walt.credentials.w3c.builder.W3CCredentialBuilderWithCredentialStatus
 import id.walt.credentials.w3c.templates.VcTemplate
 import id.walt.credentials.w3c.templates.VcTemplateService
 import id.walt.credentials.w3c.toVerifiableCredential
@@ -75,7 +76,7 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
         config: ProofConfig,
         dataProvider: SignatoryDataProvider?,
         issuer: W3CIssuer?,
-        storeCredential: Boolean
+        storeCredential: Boolean,
     ): String {
 
         val credentialBuilder = when (Files.exists(Path.of(templateIdOrFilename))) {
@@ -91,7 +92,7 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
         credentialBuilder: AbstractW3CCredentialBuilder<*, *>,
         config: ProofConfig,
         issuer: W3CIssuer?,
-        storeCredential: Boolean
+        storeCredential: Boolean,
     ): String {
         val fullProofConfig = fillProofConfig(config)
         val vcRequest = credentialBuilder.apply {
@@ -104,6 +105,10 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
             setIssuanceDate(fullProofConfig.issueDate ?: Instant.now())
             setValidFrom(fullProofConfig.validDate ?: Instant.now())
             fullProofConfig.expirationDate?.let { setExpirationDate(it) }
+        }.let { builder ->
+            config.statusType?.let {
+                W3CCredentialBuilderWithCredentialStatus(builder, config)
+            } ?: builder
         }.build()
 
         log.debug { "Signing credential with proof using ${fullProofConfig.proofType.name}..." }

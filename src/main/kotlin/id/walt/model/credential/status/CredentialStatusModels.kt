@@ -11,12 +11,16 @@ sealed class CredentialStatus(
     val type: String,
 ) {
     abstract val id: String
+    enum class Types{
+        StatusList2021Entry,
+        SimpleCredentialStatus2022,
+    }
 }
 
 @Serializable
 class SimpleCredentialStatus2022(
     override val id: String,
-) : CredentialStatus("SimpleCredentialStatus2022")
+) : CredentialStatus(Types.SimpleCredentialStatus2022.name)
 
 @Serializable
 data class StatusList2021EntryCredentialStatus(
@@ -24,7 +28,7 @@ data class StatusList2021EntryCredentialStatus(
     val statusPurpose: String,
     val statusListIndex: String,
     val statusListCredential: String,
-) : CredentialStatus("StatusList2021Entry")
+) : CredentialStatus(Types.StatusList2021Entry.name)
 
 class CredentialStatusTypeAdapter : TypeAdapter<CredentialStatus> {
     override fun classFor(type: Any): KClass<out CredentialStatus> = when (type as String) {
