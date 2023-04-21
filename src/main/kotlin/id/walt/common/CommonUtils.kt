@@ -1,7 +1,6 @@
 package id.walt.common
 
 import id.walt.services.WaltIdServices.httpNoAuth
-import id.walt.signatory.revocation.SimpleCredentialStatus2022Service
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import kotlinx.coroutines.runBlocking
