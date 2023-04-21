@@ -10,6 +10,7 @@ import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.LdSignatureType
 import id.walt.model.DidMethod
 import id.walt.model.DidUrl
+import id.walt.model.credential.status.CredentialStatus
 import id.walt.services.context.ContextManager
 import id.walt.services.did.DidService
 import id.walt.services.vc.JsonLdCredentialService
@@ -68,6 +69,14 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
             ldSignatureType = config.ldSignatureType ?: defaultLdSignatureByDidMethod(config.issuerDid),
             creator = config.creator
         )
+    }
+
+    private fun setStatus(type: String) {
+        when (type) {
+            CredentialStatus.Types.SimpleCredentialStatus2022.name -> ""
+            CredentialStatus.Types.StatusList2021Entry.name -> ""
+            else -> throw IllegalArgumentException("Credential status type not supported: $type")
+        }
     }
 
     override fun issue(

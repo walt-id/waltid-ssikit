@@ -52,6 +52,33 @@ Revocation data
 interface RevocationData
 
 /*
+Revocation item
+ */
+interface RevocationItem
+
+@Serializable
+data class TokenRevocationItem(
+    val token: String,
+    val isRevoked: Boolean,
+    @Json(serializeNull = false)
+    val timeOfRevocation: Long? = null
+) : RevocationItem
+
+@Serializable
+data class StatusListRevocationItem(
+    val credentialId: String,
+    val credentialIndex: Int,
+) : RevocationItem
+
+/*
+Revocation lookup parameters
+ */
+interface RevocationLookupParameter
+data class StatusListRevocationLookupParameter(
+    val id: String,
+) : RevocationLookupParameter
+
+/*
 Revocation config
  */
 interface RevocationConfig
@@ -64,4 +91,5 @@ data class TokenRevocationConfig(
 @Serializable
 data class StatusListRevocationConfig(
     val id: String,
+    val status: StatusList2021EntryCredentialStatus,
 ) : RevocationConfig

@@ -68,14 +68,14 @@ fun uncompressGzip(data: ByteArray, idx: ULong? = null) =
     }
 
 fun buildRawBitString(bitSet: BitSet): ByteArray{
-    var counter = bitSet.nextSetBit(0);
-    var lastIndex = counter
+    var lastIndex = 0
+    var currIndex = bitSet.nextSetBit(lastIndex);
     val builder = StringBuilder()
-    while (counter > -1) {
-        builder.append("0".repeat(counter))
-        builder.append("1")
-        counter = bitSet.nextSetBit(counter + 1)//TODO: handle overflow
-        if(counter > -1) lastIndex = counter
+    while (currIndex > -1) {
+        val delta = 1 % (lastIndex + 1)
+        builder.append("0".repeat(currIndex - lastIndex - delta)).append("1")
+        lastIndex = currIndex
+        currIndex = bitSet.nextSetBit(lastIndex + 1)//TODO: handle overflow
     }
     builder.append("0".repeat(bitSet.size() - lastIndex - 1))
     return builder.toString().toByteArray()
@@ -85,3 +85,13 @@ fun createEncodedBitString(bitSet: BitSet): ByteArray = Base64.getEncoder().enco
 
 fun createBaseToken() = UUID.randomUUID().toString() + UUID.randomUUID().toString()
 fun deriveRevocationToken(baseToken: String): String = Base32.toBase32String(DigestUtils.sha256(baseToken)).replace("=", "")
+
+fun String.toBitSet(initialSize: Int) = let {
+    val bitSet = BitSet(initialSize)
+    for (i in this.indices) {
+        if (this[i] == '1') bitSet.set(i)
+    }
+    bitSet
+}
+
+fun CharArray.toBitSet(initialSize: Int) = String(this).toBitSet(initialSize)
