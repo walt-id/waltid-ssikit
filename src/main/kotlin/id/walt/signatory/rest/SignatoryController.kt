@@ -6,9 +6,10 @@ import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.builder.W3CCredentialBuilder
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
-import id.walt.signatory.RevocationService
 import id.walt.signatory.Signatory
 import id.walt.signatory.dataproviders.MergingDataProvider
+import id.walt.signatory.revocation.SimpleCredentialStatus2022Service
+import id.walt.signatory.revocation.TokenRevocationResult
 import io.javalin.http.BadRequestResponse
 import io.javalin.http.ContentType
 import io.javalin.http.Context
@@ -131,10 +132,10 @@ object SignatoryController {
     fun checkRevokedDocs() = document().operation {
         it.summary("Check if credential is revoked").operationId("checkRevoked").addTagsItem("Revocations")
             .description("Based on a revocation-token, this method will check if this token is still valid or has already been revoked.")
-    }.json<RevocationService.RevocationResult>("200")
+    }.json<TokenRevocationResult>("200")
 
     fun checkRevoked(ctx: Context) {
-        ctx.json(RevocationService.checkRevoked(ctx.pathParam("id")))
+        ctx.json(SimpleCredentialStatus2022Service.checkRevoked(ctx.pathParam("id")))
     }
 
     fun revokeDocs() = document().operation {
@@ -143,7 +144,7 @@ object SignatoryController {
     }.result<String>("201")
 
     fun revoke(ctx: Context) {
-        RevocationService.revokeToken(ctx.pathParam("id"))
+        SimpleCredentialStatus2022Service.revokeToken(ctx.pathParam("id"))
         ctx.status(201)
     }
 }
