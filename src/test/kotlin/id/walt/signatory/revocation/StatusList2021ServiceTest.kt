@@ -3,6 +3,7 @@ package id.walt.signatory.revocation
 import com.beust.klaxon.Klaxon
 import id.walt.common.resolveContent
 import id.walt.model.credential.status.StatusList2021EntryCredentialStatus
+import id.walt.signatory.revocation.statuslist2021.StatusList2021EntryClientService
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.data.blocking.forAll
@@ -13,7 +14,7 @@ import io.mockk.mockkStatic
 import io.mockk.unmockkStatic
 
 internal class StatusList2021ServiceTest : StringSpec({
-    val sut = StatusList2021EntryService
+    val sut = StatusList2021EntryClientService()
     val rootPath = "src/test/resources/credential-status/"
     val statusLisCredential = resolveContent(rootPath + "status-list-credential.json")
 
@@ -26,9 +27,9 @@ internal class StatusList2021ServiceTest : StringSpec({
             mockkStatic(::resolveContent)
             every { resolveContent(any()) } returns statusLisCredential
 
-            val result = sut.checkRevoked(vcStatus)
+            val result = sut.checkRevocation(StatusListRevocationCheckParameter(vcStatus))
 
-            result shouldBe isRevoked
+            result.isRevoked shouldBe isRevoked
 
             unmockkStatic(::resolveContent)
         }
@@ -44,7 +45,7 @@ internal class StatusList2021ServiceTest : StringSpec({
             every { resolveContent(any()) } returns statusLisCredential
 
             val exception = shouldThrow<Exception> {
-                sut.checkRevoked(vcStatus)
+                sut.checkRevocation(StatusListRevocationCheckParameter(vcStatus))
             }
             exception.message shouldBe message
             exception::class shouldBe throwing

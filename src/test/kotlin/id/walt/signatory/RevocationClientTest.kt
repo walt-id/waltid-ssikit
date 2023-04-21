@@ -4,7 +4,10 @@ import id.walt.common.createBaseToken
 import id.walt.common.deriveRevocationToken
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.signatory.rest.SignatoryRestAPI
-import id.walt.signatory.revocation.SimpleCredentialStatus2022Service
+import id.walt.signatory.revocation.TokenRevocationCheckParameter
+import id.walt.signatory.revocation.TokenRevocationConfig
+import id.walt.signatory.revocation.simplestatus2022.SimpleCredentialClientService
+import id.walt.signatory.revocation.simplestatus2022.SimpleCredentialStatus2022StorageService
 import id.walt.test.RESOURCES_PATH
 import io.kotest.core.spec.style.AnnotationSpec
 
@@ -12,7 +15,7 @@ class RevocationClientTest : AnnotationSpec() {
 
     init {
         ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
-        SimpleCredentialStatus2022Service.clearRevocations()
+        SimpleCredentialStatus2022StorageService.clearRevocations()
     }
 
     private val SIGNATORY_API_HOST = "localhost"
@@ -29,11 +32,11 @@ class RevocationClientTest : AnnotationSpec() {
         SignatoryRestAPI.stop()
     }
 
-//    @Test TODO: fix
+    @Test
     fun test() {
-        val revocationsBase = "$SIGNATORY_API_URL/v1/revocations"
+        val revocationsBase = "$SIGNATORY_API_URL/v1/credentials/token"
 
-        val rs = RevocationClientService.getService()
+        val rs = SimpleCredentialClientService()
 
         val baseToken = createBaseToken()
         println(baseToken)
@@ -41,12 +44,12 @@ class RevocationClientTest : AnnotationSpec() {
         val revocationToken = deriveRevocationToken(baseToken)
         println(revocationToken)
 
-        var result = rs.checkRevoked("$revocationsBase/$revocationToken")
+        var result = rs.checkRevocation(TokenRevocationCheckParameter("$revocationsBase/$revocationToken"))
         println(result)
 
-        rs.revoke("$revocationsBase/$baseToken")
+        rs.revoke(TokenRevocationConfig("$revocationsBase/$baseToken"))
 
-        result = rs.checkRevoked("$revocationsBase/$revocationToken")
+        result = rs.checkRevocation(TokenRevocationCheckParameter("$revocationsBase/$revocationToken"))
         println(result)
 
     }
