@@ -1,12 +1,54 @@
 package id.walt.credentials.w3c.builder
 
+import id.walt.common.asMap
+import id.walt.common.createBaseToken
 import id.walt.credentials.w3c.*
+import id.walt.model.credential.status.CredentialStatus
+import id.walt.signatory.ProofConfig
+import id.walt.signatory.revocation.SimpleCredentialStatusFactory
+import id.walt.signatory.revocation.SimpleStatusFactoryParameter
+import id.walt.signatory.revocation.StatusListEntryFactory
+import id.walt.signatory.revocation.StatusListEntryFactoryParameter
+import id.walt.signatory.revocation.statuslist2021.StatusListCredentialStorageService
+import id.walt.signatory.revocation.statuslist2021.StatusListIndexService
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import java.time.Instant
 import java.time.format.DateTimeFormatterBuilder
+
+class W3CCredentialBuilderWithCredentialStatus<C : VerifiableCredential, B : AbstractW3CCredentialBuilder<C, B>>(
+    private val builder: AbstractW3CCredentialBuilder<C, B>,
+    private val proofConfig: ProofConfig,
+):AbstractW3CCredentialBuilder<VerifiableCredential, W3CCredentialBuilder>(builder.type, VerifiableCredential){
+
+    private val statusListEntryFactory = StatusListEntryFactory(
+        StatusListIndexService.getService(),
+        StatusListCredentialStorageService.getService(),
+    )
+    private val simpleStatusFactory = SimpleCredentialStatusFactory()
+
+    override fun build(): C = builder.apply {
+        getStatusProperty(
+            type = proofConfig.statusType!!,
+            purpose = proofConfig.statusPurpose,
+            credentialUrl = proofConfig.revocationUrl
+        )?.let { this.setProperty("credentialStatus", it) }
+    }.build()
+
+    private fun getStatusProperty(type: CredentialStatus.Types, purpose: String, credentialUrl: String) = when (type) {
+        CredentialStatus.Types.SimpleCredentialStatus2022 -> simpleStatusFactory.create(SimpleStatusFactoryParameter(
+            id = credentialUrl + "v1/credentials/token/${createBaseToken()}",
+        )).asMap()
+        CredentialStatus.Types.StatusList2021Entry -> statusListEntryFactory.create(StatusListEntryFactoryParameter(
+            purpose = purpose,
+            credentialUrl = credentialUrl + "v1/credentials/status/$purpose",
+        )).asMap()
+    }.takeIf {
+        it.isNotEmpty()
+    }
+}
 
 class W3CCredentialBuilder(type: List<String> = listOf("VerifiableCredential")) :
     AbstractW3CCredentialBuilder<VerifiableCredential, W3CCredentialBuilder>(type, VerifiableCredential) {
