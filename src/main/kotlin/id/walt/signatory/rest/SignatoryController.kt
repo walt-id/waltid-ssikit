@@ -8,7 +8,7 @@ import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.signatory.dataproviders.MergingDataProvider
-import id.walt.signatory.revocation.SimpleCredentialStatus2022Service
+import id.walt.signatory.revocation.simplestatus2022.SimpleCredentialStatus2022Service
 import id.walt.signatory.revocation.TokenRevocationResult
 import io.javalin.http.BadRequestResponse
 import io.javalin.http.ContentType

@@ -5,8 +5,11 @@ import id.walt.common.createBaseToken
 import id.walt.common.deriveRevocationToken
 import id.walt.credentials.w3c.*
 import id.walt.model.credential.status.CredentialStatus
-import id.walt.model.credential.status.SimpleCredentialStatus2022
-import id.walt.model.credential.status.StatusList2021EntryCredentialStatus
+import id.walt.signatory.revocation.SimpleCredentialStatusFactory
+import id.walt.signatory.revocation.SimpleStatusFactoryParameter
+import id.walt.signatory.revocation.StatusListEntryFactory
+import id.walt.signatory.revocation.StatusListEntryFactoryParameter
+import id.walt.signatory.revocation.statuslist2021.StatusListCredentialStorageService
 import id.walt.signatory.revocation.statuslist2021.StatusListIndexService
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -18,25 +21,31 @@ import java.time.format.DateTimeFormatterBuilder
 class W3CCredentialBuilderWithCredentialStatus<C : VerifiableCredential, B : AbstractW3CCredentialBuilder<C, B>>(
     private val builder: AbstractW3CCredentialBuilder<C, B>,
     private val statusType: String,
+    private val statusPurpose: String? = null,
 ):AbstractW3CCredentialBuilder<VerifiableCredential, W3CCredentialBuilder>(builder.type, VerifiableCredential){
 
-    val indexService = StatusListIndexService.getService()
+    private val statusListEntryFactory = StatusListEntryFactory(
+        StatusListIndexService.getService(),
+        StatusListCredentialStorageService.getService()
+    )
+    private val simpleStatusFactory = SimpleCredentialStatusFactory()
+
     override fun build(): C = builder.apply {
-        getStatusProperty(statusType)?.let { this.setProperty("credentialStatus", it) }
+        getStatusProperty(
+            type = statusType,
+            purpose = statusPurpose ?: "revocation"
+        )?.let { this.setProperty("credentialStatus", it) }
     }.build()
 
-    private fun getStatusProperty(type: String) = when (type) {
-        CredentialStatus.Types.SimpleCredentialStatus2022.name -> SimpleCredentialStatus2022(
-            id = deriveRevocationToken(createBaseToken())
-        ).asMap()
-        CredentialStatus.Types.StatusList2021Entry.name -> StatusList2021EntryCredentialStatus(
-            id = "",
-            statusPurpose = "",
-            statusListIndex = "",
-            statusListCredential = "",
-        ).asMap()
+    private fun getStatusProperty(type: String, purpose: String) = when (type) {
+        CredentialStatus.Types.SimpleCredentialStatus2022.name -> simpleStatusFactory.create(SimpleStatusFactoryParameter(
+            id = deriveRevocationToken(createBaseToken()),
+        ))
+        CredentialStatus.Types.StatusList2021Entry.name -> statusListEntryFactory.create(StatusListEntryFactoryParameter(
+            purpose = purpose,
+        ))
         else -> throw IllegalArgumentException("Credential status type not supported: $type")
-    }.takeIf {
+    }.asMap().takeIf {
         it.isNotEmpty()
     }
 }

@@ -1,4 +1,4 @@
-package id.walt.signatory
+package id.walt.signatory.revocation.simplestatus2022
 
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService

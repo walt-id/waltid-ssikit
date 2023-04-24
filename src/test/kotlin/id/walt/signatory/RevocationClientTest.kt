@@ -4,7 +4,8 @@ import id.walt.common.createBaseToken
 import id.walt.common.deriveRevocationToken
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.signatory.rest.SignatoryRestAPI
-import id.walt.signatory.revocation.SimpleCredentialStatus2022Service
+import id.walt.signatory.revocation.simplestatus2022.RevocationClientService
+import id.walt.signatory.revocation.simplestatus2022.SimpleCredentialStatus2022Service
 import id.walt.test.RESOURCES_PATH
 import io.kotest.core.spec.style.AnnotationSpec
 

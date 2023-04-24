@@ -108,6 +108,7 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
             setValidFrom(fullProofConfig.validDate ?: Instant.now())
             fullProofConfig.expirationDate?.let { setExpirationDate(it) }
         }.let { builder ->
+            //TODO: expose status-purpose as a parameter
             statusType?.let { W3CCredentialBuilderWithCredentialStatus(builder, statusType) } ?: builder
         }.build()
 

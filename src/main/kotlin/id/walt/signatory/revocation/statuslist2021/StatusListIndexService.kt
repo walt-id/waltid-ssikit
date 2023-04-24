@@ -10,7 +10,7 @@ import java.io.File
 open class StatusListIndexService : WaltIdService() {
     override val implementation get() = serviceImplementation<StatusListIndexService>()
 
-    open fun create(): Unit = implementation.create()
+    open fun create(): StatusListIndex = implementation.create()
     open fun read(): StatusListIndex? = implementation.read()
     open fun update(index: StatusListIndex): Unit = implementation.update(index)
     open fun delete(): Unit = implementation.delete()
@@ -30,7 +30,10 @@ data class StatusListIndex(
 class WaltIdStatusListIndexService : StatusListIndexService() {
     private val indexPath = "data/status-list-index.json"
 
-    override fun create(): Unit = createAndUpdateIndex(StatusListIndex(index = "0"))
+    override fun create(): StatusListIndex = StatusListIndex(index = "0").let {
+        createAndUpdateIndex(it)
+        it
+    }
 
     override fun read(): StatusListIndex? = checkIndex()?.let {
         Klaxon().parse<StatusListIndex>(it.readText())

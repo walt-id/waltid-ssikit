@@ -1,7 +1,10 @@
-package id.walt.signatory.revocation
+package id.walt.signatory.revocation.simplestatus2022
 
 import com.beust.klaxon.Klaxon
 import id.walt.common.deriveRevocationToken
+import id.walt.signatory.revocation.RevocationList
+import id.walt.signatory.revocation.RevocationResult
+import id.walt.signatory.revocation.TokenRevocationResult
 import java.time.Instant
 import kotlin.io.path.Path
 import kotlin.io.path.exists
