@@ -61,16 +61,18 @@ abstract class Signatory : WaltIdService() {
         config: ProofConfig,
         dataProvider: SignatoryDataProvider? = null,
         issuer: W3CIssuer? = null,
-        storeCredential: Boolean = false
+        storeCredential: Boolean = false,
+        statusType: String? = null,
     ): String =
-        implementation.issue(templateIdOrFilename, config, dataProvider, issuer, storeCredential)
+        implementation.issue(templateIdOrFilename, config, dataProvider, issuer, storeCredential, statusType)
 
     open fun issue(
         credentialBuilder: AbstractW3CCredentialBuilder<*, *>,
         config: ProofConfig,
         issuer: W3CIssuer? = null,
-        storeCredential: Boolean = false
-    ): String = implementation.issue(credentialBuilder, config, issuer)
+        storeCredential: Boolean = false,
+        statusType: String? = null,
+    ): String = implementation.issue(credentialBuilder, config, issuer, storeCredential, statusType)
 
     open fun listTemplates(): List<VcTemplate> = implementation.listTemplates()
     open fun listTemplateIds(): List<String> = implementation.listTemplateIds()

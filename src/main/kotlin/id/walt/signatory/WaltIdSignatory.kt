@@ -4,13 +4,13 @@ import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.W3CIssuer
 import id.walt.credentials.w3c.builder.AbstractW3CCredentialBuilder
 import id.walt.credentials.w3c.builder.W3CCredentialBuilder
+import id.walt.credentials.w3c.builder.W3CCredentialBuilderWithCredentialStatus
 import id.walt.credentials.w3c.templates.VcTemplate
 import id.walt.credentials.w3c.templates.VcTemplateService
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.LdSignatureType
 import id.walt.model.DidMethod
 import id.walt.model.DidUrl
-import id.walt.model.credential.status.CredentialStatus
 import id.walt.services.context.ContextManager
 import id.walt.services.did.DidService
 import id.walt.services.vc.JsonLdCredentialService
@@ -71,20 +71,13 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
         )
     }
 
-    private fun setStatus(type: String) {
-        when (type) {
-            CredentialStatus.Types.SimpleCredentialStatus2022.name -> ""
-            CredentialStatus.Types.StatusList2021Entry.name -> ""
-            else -> throw IllegalArgumentException("Credential status type not supported: $type")
-        }
-    }
-
     override fun issue(
         templateIdOrFilename: String,
         config: ProofConfig,
         dataProvider: SignatoryDataProvider?,
         issuer: W3CIssuer?,
-        storeCredential: Boolean
+        storeCredential: Boolean,
+        statusType: String?,
     ): String {
 
         val credentialBuilder = when (Files.exists(Path.of(templateIdOrFilename))) {
@@ -93,14 +86,15 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
         }?.let { W3CCredentialBuilder.fromPartial(it) }
             ?: throw NoSuchElementException("Template could not be loaded: $templateIdOrFilename")
 
-        return issue(dataProvider?.populate(credentialBuilder, config) ?: credentialBuilder, config, issuer, storeCredential)
+        return issue(dataProvider?.populate(credentialBuilder, config) ?: credentialBuilder, config, issuer, storeCredential, statusType)
     }
 
     override fun issue(
         credentialBuilder: AbstractW3CCredentialBuilder<*, *>,
         config: ProofConfig,
         issuer: W3CIssuer?,
-        storeCredential: Boolean
+        storeCredential: Boolean,
+        statusType: String?,
     ): String {
         val fullProofConfig = fillProofConfig(config)
         val vcRequest = credentialBuilder.apply {
@@ -113,6 +107,8 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
             setIssuanceDate(fullProofConfig.issueDate ?: Instant.now())
             setValidFrom(fullProofConfig.validDate ?: Instant.now())
             fullProofConfig.expirationDate?.let { setExpirationDate(it) }
+        }.let { builder ->
+            statusType?.let { W3CCredentialBuilderWithCredentialStatus(builder, statusType) } ?: builder
         }.build()
 
         log.debug { "Signing credential with proof using ${fullProofConfig.proofType.name}..." }

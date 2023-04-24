@@ -1,4 +1,4 @@
-package id.walt.signatory.revocation
+package id.walt.signatory.revocation.statuslist2021
 
 import com.beust.klaxon.Json
 import id.walt.common.createEncodedBitString
@@ -9,13 +9,15 @@ import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.decBase64
 import id.walt.model.credential.status.StatusList2021EntryCredentialStatus
-import id.walt.signatory.revocation.repository.StatusListRevocationRepository
+import id.walt.signatory.revocation.RevocationConfig
+import id.walt.signatory.revocation.StatusListRevocationConfig
 import kotlinx.serialization.Serializable
 import java.util.*
 
 object StatusList2021EntryService {
 
-    private val repository = StatusListRevocationRepository()
+    private val credentialStorage = StatusListCredentialStorageService.getService()
+
     fun checkRevoked(credentialStatus: StatusList2021EntryCredentialStatus): Boolean = let {
         val credentialSubject = extractStatusListCredentialSubject(credentialStatus.statusListCredential) ?: throw IllegalArgumentException("Couldn't parse credential subject")
         val credentialIndex = credentialStatus.statusListIndex.toULongOrNull()?: throw IllegalArgumentException("Couldn't parse status list index")
@@ -27,20 +29,31 @@ object StatusList2021EntryService {
 
     fun setRevocation(config: RevocationConfig) {
         val configParam = config as StatusListRevocationConfig
-        // get status credential subject
-        val credentialSubject =
-            extractStatusListCredentialSubject(configParam.status.statusListCredential)
-                ?: throw IllegalArgumentException("Couldn't parse credential subject")
+        // get status credential subject: remote credential
+        val credentialSubject = extractStatusListCredentialSubject(configParam.statusEntry.statusListCredential)
+            ?: throw IllegalArgumentException("Couldn't parse credential subject")
+        // check if credential with id exists
+        val statusCredential = credentialStorage.fetch(credentialSubject.id ?: "")
+            ?: throw IllegalArgumentException("No status credential found for the provided id: ${credentialSubject.id}")
+        updateStatusCredentialRecord(statusCredential, configParam.statusEntry.statusListIndex)
+    }
+
+    private fun updateStatusCredentialRecord(statusCredential: VerifiableCredential, index: String){
+        // local credential
+        val credentialSubject = extractStatusListCredentialSubject(statusCredential)!!
         // get bitString
         val bitString = uncompressGzip(Base64.getDecoder().decode(credentialSubject.encodedList))
         val bitSet = bitString.toBitSet(16 * 1024 * 8)
         // get credential index
-        val idx = configParam.status.statusListIndex.toIntOrNull()?: throw IllegalArgumentException("Couldn't parse credential index")
+        val idx = index.toIntOrNull()?: throw IllegalArgumentException("Couldn't parse credential index")
         // set the respective bit
         bitSet.set(idx)
         val encodedList = createEncodedBitString(bitSet)
         // generate status-list credential and store it
     }
+
+    private fun extractStatusListCredentialSubject(statusCredential: String): StatusListCredentialSubject? =
+        extractStatusListCredentialSubject(resolveContent(statusCredential).toVerifiableCredential())
 
     private fun extractStatusListCredentialSubject(statusCredential: VerifiableCredential) =
         statusCredential.credentialSubject?.let {
@@ -51,9 +64,6 @@ object StatusList2021EntryService {
                 encodedList = it.properties["encodedList"] as? String ?: "",
             )
         }
-
-    private fun extractStatusListCredentialSubject(statusCredential: String) =
-        extractStatusListCredentialSubject(resolveContent(statusCredential).toVerifiableCredential())
 
     /* TODO:
     - proofs

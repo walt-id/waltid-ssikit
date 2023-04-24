@@ -1,12 +1,45 @@
 package id.walt.credentials.w3c.builder
 
+import id.walt.common.asMap
+import id.walt.common.createBaseToken
+import id.walt.common.deriveRevocationToken
 import id.walt.credentials.w3c.*
+import id.walt.model.credential.status.CredentialStatus
+import id.walt.model.credential.status.SimpleCredentialStatus2022
+import id.walt.model.credential.status.StatusList2021EntryCredentialStatus
+import id.walt.signatory.revocation.statuslist2021.StatusListIndexService
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import java.time.Instant
 import java.time.format.DateTimeFormatterBuilder
+
+class W3CCredentialBuilderWithCredentialStatus<C : VerifiableCredential, B : AbstractW3CCredentialBuilder<C, B>>(
+    private val builder: AbstractW3CCredentialBuilder<C, B>,
+    private val statusType: String,
+):AbstractW3CCredentialBuilder<VerifiableCredential, W3CCredentialBuilder>(builder.type, VerifiableCredential){
+
+    val indexService = StatusListIndexService.getService()
+    override fun build(): C = builder.apply {
+        getStatusProperty(statusType)?.let { this.setProperty("credentialStatus", it) }
+    }.build()
+
+    private fun getStatusProperty(type: String) = when (type) {
+        CredentialStatus.Types.SimpleCredentialStatus2022.name -> SimpleCredentialStatus2022(
+            id = deriveRevocationToken(createBaseToken())
+        ).asMap()
+        CredentialStatus.Types.StatusList2021Entry.name -> StatusList2021EntryCredentialStatus(
+            id = "",
+            statusPurpose = "",
+            statusListIndex = "",
+            statusListCredential = "",
+        ).asMap()
+        else -> throw IllegalArgumentException("Credential status type not supported: $type")
+    }.takeIf {
+        it.isNotEmpty()
+    }
+}
 
 class W3CCredentialBuilder(type: List<String> = listOf("VerifiableCredential")) :
     AbstractW3CCredentialBuilder<VerifiableCredential, W3CCredentialBuilder>(type, VerifiableCredential) {

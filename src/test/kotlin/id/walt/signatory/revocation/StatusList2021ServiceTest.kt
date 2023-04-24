@@ -3,6 +3,7 @@ package id.walt.signatory.revocation
 import com.beust.klaxon.Klaxon
 import id.walt.common.resolveContent
 import id.walt.model.credential.status.StatusList2021EntryCredentialStatus
+import id.walt.signatory.revocation.statuslist2021.StatusList2021EntryService
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.data.blocking.forAll

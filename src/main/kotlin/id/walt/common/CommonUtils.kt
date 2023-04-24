@@ -10,6 +10,7 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.util.*
 import java.util.zip.*
+import kotlin.reflect.full.memberProperties
 
 fun resolveContent(fileUrlContent: String): String {
     val file = File(fileUrlContent)
@@ -95,3 +96,13 @@ fun String.toBitSet(initialSize: Int) = let {
 }
 
 fun CharArray.toBitSet(initialSize: Int) = String(this).toBitSet(initialSize)
+
+/**
+ * Converts a class properties into map.
+ *
+ * ___Note___: Applicable only for linear properties, nested properties will be ignored.
+ */
+inline fun <reified T : Any> T.asMap() : Map<String, Any?> {
+    val props = T::class.memberProperties.associateBy { it.name }
+    return props.keys.associateWith { props[it]?.get(this) }
+}

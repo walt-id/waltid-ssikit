@@ -11,7 +11,7 @@ import id.walt.model.credential.status.CredentialStatus
 import id.walt.model.credential.status.SimpleCredentialStatus2022
 import id.walt.model.credential.status.StatusList2021EntryCredentialStatus
 import id.walt.signatory.RevocationClientService
-import id.walt.signatory.revocation.StatusList2021EntryService
+import id.walt.signatory.revocation.statuslist2021.StatusList2021EntryService
 import kotlinx.serialization.Serializable
 import java.text.SimpleDateFormat
 import java.util.*
