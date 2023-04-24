@@ -9,6 +9,7 @@ import id.walt.crypto.LdSignatureType
 import id.walt.servicematrix.ServiceConfiguration
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
+import id.walt.signatory.rest.SignatoryRestAPI
 import mu.KotlinLogging
 import java.time.Instant
 
@@ -41,7 +42,10 @@ data class ProofConfig(
     @Json(serializeNull = false) val dataProviderIdentifier: String? = null, // may be used for mapping data-sets from a custom data-provider
     @Json(serializeNull = false) val ldSignatureType: LdSignatureType? = null,
     @Json(serializeNull = false) val creator: String? = issuerDid,
-    @Json(serializeNull = false) val ecosystem: Ecosystem = Ecosystem.DEFAULT
+    @Json(serializeNull = false) val ecosystem: Ecosystem = Ecosystem.DEFAULT,
+    @Json(serializeNull = false) val statusType: String? = null,
+    @Json(serializeNull = false) val statusPurpose: String = "revocation",
+    @Json(serializeNull = false) val statusCredentialUrl: String = "${SignatoryRestAPI.BIND_ADDRESS}:${SignatoryRestAPI.SIGNATORY_API_PORT}/v1/credentials/status/",
 )
 
 data class SignatoryConfig(
@@ -62,17 +66,15 @@ abstract class Signatory : WaltIdService() {
         dataProvider: SignatoryDataProvider? = null,
         issuer: W3CIssuer? = null,
         storeCredential: Boolean = false,
-        statusType: String? = null,
     ): String =
-        implementation.issue(templateIdOrFilename, config, dataProvider, issuer, storeCredential, statusType)
+        implementation.issue(templateIdOrFilename, config, dataProvider, issuer, storeCredential)
 
     open fun issue(
         credentialBuilder: AbstractW3CCredentialBuilder<*, *>,
         config: ProofConfig,
         issuer: W3CIssuer? = null,
         storeCredential: Boolean = false,
-        statusType: String? = null,
-    ): String = implementation.issue(credentialBuilder, config, issuer, storeCredential, statusType)
+    ): String = implementation.issue(credentialBuilder, config, issuer, storeCredential)
 
     open fun listTemplates(): List<VcTemplate> = implementation.listTemplates()
     open fun listTemplateIds(): List<String> = implementation.listTemplateIds()
