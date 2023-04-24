@@ -1,15 +1,25 @@
 package id.walt.signatory.revocation.statuslist2021
 
+import id.walt.common.compressGzip
+import id.walt.common.createEncodedBitString
 import id.walt.credentials.w3c.VerifiableCredential
+import id.walt.credentials.w3c.W3CCredentialSubject
+import id.walt.credentials.w3c.builder.W3CCredentialBuilder
+import id.walt.credentials.w3c.toVerifiableCredential
+import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
+import id.walt.services.context.ContextManager
+import id.walt.services.did.DidService
+import id.walt.signatory.ProofConfig
+import id.walt.signatory.Signatory
+import java.util.*
 
 open class StatusListCredentialStorageService : WaltIdService() {
     override val implementation get() = serviceImplementation<StatusListCredentialStorageService>()
 
-    open val publicUrl = ""
     open fun fetch(id: String): VerifiableCredential? = implementation.fetch(id)
-    open fun store(vc: VerifiableCredential): String = implementation.store(vc)
+    open fun store(id: String, purpose: String, bitString: String): Unit = implementation.store(id, purpose, bitString)
 
     companion object : ServiceProvider {
         override fun getService() = object : StatusListCredentialStorageService() {}
@@ -19,11 +29,41 @@ open class StatusListCredentialStorageService : WaltIdService() {
 
 
 class WaltIdStatusListCredentialStorageService : StatusListCredentialStorageService() {
-    private val rootPath = "data/status-list-credentials"
+    private val templateId = "src/main/resources/vc-templates/StatusList2021Credential.json"
+    private val credentialsGroup = "status-credentials"
+    private val signatoryService = Signatory.getService()
+    private val vcStoreService = ContextManager.vcStore
+    private val issuerDid = DidService.create(DidMethod.key)// TODO: fix it
 
-    override val publicUrl: String get() = "https://raw.githubusercontent.com/walt-id/waltid-ssikit/main/src/test/resources/credential-status/status-list-credential.json"
-    override fun fetch(id: String): VerifiableCredential? {
-        return super.fetch(id)
+    override fun fetch(id: String): VerifiableCredential? = vcStoreService.getCredential(id, credentialsGroup)
+    override fun store(id: String, purpose: String, bitString: String): Unit = let {
+        fetch(id)?.let { vc ->
+            // update vc
+            W3CCredentialSubject(
+                vc.id, mapOf(
+                    "type" to ((vc.credentialSubject?.properties?.get("type") as? String) ?: "StatusList2021Credential"),
+                    "statusPurpose" to ((vc.credentialSubject?.properties?.get("statusPurpose") as? String) ?: purpose),
+                    "encodedList" to bitString
+                )
+            )
+            // new vc
+        } ?: W3CCredentialSubject(
+            id, mapOf(
+                "type" to "StatusList2021Credential",
+                "statusPurpose" to purpose,
+                "encodedList" to bitString
+            )
+        )
+    }.let {
+        W3CCredentialBuilder.fromPartial(templateId).apply {
+            setId(it.id ?: id)
+            buildSubject {
+                setFromJson(it.toJson())
+            }
+        }
+    }.run {
+        val credential = signatoryService.issue(credentialBuilder = this, config = ProofConfig(issuerDid = issuerDid))
+            .toVerifiableCredential()
+        vcStoreService.storeCredential(credential.id!!, credential, credentialsGroup)
     }
-    override fun store(vc: VerifiableCredential): String = super.store(vc)
 }

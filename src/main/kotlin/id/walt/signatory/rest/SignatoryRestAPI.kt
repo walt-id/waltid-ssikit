@@ -128,6 +128,7 @@ object SignatoryRestAPI {
                             SignatoryController::issueCredentialFromJson
                         )
                     )
+                    get("status/{id}", documented(SignatoryController.statusDocs(), SignatoryController::status))
                 }
                 path("templates") {
                     get("", documented(SignatoryController.listTemplatesDocs(), SignatoryController::listTemplates))

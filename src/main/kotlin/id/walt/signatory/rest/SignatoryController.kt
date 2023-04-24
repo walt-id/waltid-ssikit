@@ -10,9 +10,11 @@ import id.walt.signatory.Signatory
 import id.walt.signatory.dataproviders.MergingDataProvider
 import id.walt.signatory.revocation.simplestatus2022.SimpleCredentialStatus2022Service
 import id.walt.signatory.revocation.TokenRevocationResult
+import id.walt.signatory.revocation.statuslist2021.StatusListCredentialStorageService
 import io.javalin.http.BadRequestResponse
 import io.javalin.http.ContentType
 import io.javalin.http.Context
+import io.javalin.http.HttpCode
 import io.javalin.plugin.openapi.dsl.document
 import kotlinx.serialization.json.jsonObject
 
@@ -146,5 +148,19 @@ object SignatoryController {
     fun revoke(ctx: Context) {
         SimpleCredentialStatus2022Service.revokeToken(ctx.pathParam("id"))
         ctx.status(201)
+    }
+
+    fun statusDocs() = document().operation {
+        it.summary("Get StatusList2021Credential").operationId("status").addTagsItem("Credentials")
+            .description("Fetch the StatusList2021Credential based on id")
+    }.json<VerifiableCredential>("200")
+
+    fun status(ctx: Context) {
+        StatusListCredentialStorageService.getService().fetch(ctx.pathParam("id"))?.let {
+            ctx.json(it).status(HttpCode.OK)
+        } ?: let {
+            val error = mapOf("error" to "StatusList2021Credential not found for id: ${ctx.pathParam("id")}")
+            ctx.json(error).status(HttpCode.NOT_FOUND)
+        }
     }
 }

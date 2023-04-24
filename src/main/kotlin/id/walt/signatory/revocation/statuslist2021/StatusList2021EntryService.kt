@@ -29,27 +29,26 @@ object StatusList2021EntryService {
 
     fun setRevocation(config: RevocationConfig) {
         val configParam = config as StatusListRevocationConfig
-        // get status credential subject: remote credential
-        val credentialSubject = extractStatusListCredentialSubject(configParam.statusEntry.statusListCredential)
-            ?: throw IllegalArgumentException("Couldn't parse credential subject")
+        // credential
+        val credential = resolveContent(configParam.statusEntry.statusListCredential).toVerifiableCredential()
         // check if credential with id exists
-        val statusCredential = credentialStorage.fetch(credentialSubject.id ?: "")
-            ?: throw IllegalArgumentException("No status credential found for the provided id: ${credentialSubject.id}")
+        val statusCredential = credentialStorage.fetch(credential.id ?: "")
+            ?: throw IllegalArgumentException("No status credential found for the provided id: ${credential.id}")
         updateStatusCredentialRecord(statusCredential, configParam.statusEntry.statusListIndex)
     }
 
     private fun updateStatusCredentialRecord(statusCredential: VerifiableCredential, index: String){
-        // local credential
         val credentialSubject = extractStatusListCredentialSubject(statusCredential)!!
+        // get credential index
+        val idx = index.toIntOrNull()?: throw IllegalArgumentException("Couldn't parse credential index")
         // get bitString
         val bitString = uncompressGzip(Base64.getDecoder().decode(credentialSubject.encodedList))
         val bitSet = bitString.toBitSet(16 * 1024 * 8)
-        // get credential index
-        val idx = index.toIntOrNull()?: throw IllegalArgumentException("Couldn't parse credential index")
         // set the respective bit
         bitSet.set(idx)
         val encodedList = createEncodedBitString(bitSet)
-        // generate status-list credential and store it
+        // create / update the status list credential
+        credentialStorage.store(statusCredential.id!!, credentialSubject.statusPurpose, String(encodedList))
     }
 
     private fun extractStatusListCredentialSubject(statusCredential: String): StatusListCredentialSubject? =
