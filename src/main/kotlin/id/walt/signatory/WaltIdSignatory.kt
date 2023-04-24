@@ -77,7 +77,6 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
         dataProvider: SignatoryDataProvider?,
         issuer: W3CIssuer?,
         storeCredential: Boolean,
-        statusType: String?,
     ): String {
 
         val credentialBuilder = when (Files.exists(Path.of(templateIdOrFilename))) {
@@ -86,7 +85,7 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
         }?.let { W3CCredentialBuilder.fromPartial(it) }
             ?: throw NoSuchElementException("Template could not be loaded: $templateIdOrFilename")
 
-        return issue(dataProvider?.populate(credentialBuilder, config) ?: credentialBuilder, config, issuer, storeCredential, statusType)
+        return issue(dataProvider?.populate(credentialBuilder, config) ?: credentialBuilder, config, issuer, storeCredential)
     }
 
     override fun issue(
@@ -94,7 +93,6 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
         config: ProofConfig,
         issuer: W3CIssuer?,
         storeCredential: Boolean,
-        statusType: String?,
     ): String {
         val fullProofConfig = fillProofConfig(config)
         val vcRequest = credentialBuilder.apply {
@@ -108,8 +106,9 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
             setValidFrom(fullProofConfig.validDate ?: Instant.now())
             fullProofConfig.expirationDate?.let { setExpirationDate(it) }
         }.let { builder ->
-            //TODO: expose status-purpose as a parameter
-            statusType?.let { W3CCredentialBuilderWithCredentialStatus(builder, statusType) } ?: builder
+            config.statusType?.let {
+                W3CCredentialBuilderWithCredentialStatus(builder, config)
+            } ?: builder
         }.build()
 
         log.debug { "Signing credential with proof using ${fullProofConfig.proofType.name}..." }

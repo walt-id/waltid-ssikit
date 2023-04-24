@@ -3,7 +3,6 @@ package id.walt.signatory.revocation
 import id.walt.model.credential.status.CredentialStatus
 import id.walt.model.credential.status.SimpleCredentialStatus2022
 import id.walt.model.credential.status.StatusList2021EntryCredentialStatus
-import id.walt.signatory.revocation.statuslist2021.StatusListCredentialStorageService
 import id.walt.signatory.revocation.statuslist2021.StatusListIndex
 import id.walt.signatory.revocation.statuslist2021.StatusListIndexService
 
@@ -18,21 +17,21 @@ class SimpleCredentialStatusFactory : CredentialStatusFactory {
 }
 
 class StatusListEntryFactory(
-    private val indexService: StatusListIndexService,
-    private val storageService: StatusListCredentialStorageService
+    private val indexService: StatusListIndexService
 ) : CredentialStatusFactory {
     override fun create(parameter: CredentialStatusFactoryParameter) = let {
         indexService.read() ?: indexService.create()
     }.let {
+        val statusParameter = parameter as StatusListEntryFactoryParameter
         // update index
         indexService.update(StatusListIndex(
             index = ((it.index.toIntOrNull() ?: 0) + 1).toString()
         ))
         StatusList2021EntryCredentialStatus(
-            id = storageService.publicUrl + it.index,
-            statusPurpose = (parameter as StatusListEntryFactoryParameter).purpose,
+            id = statusParameter.credentialUrl + "#${it.index}",
+            statusPurpose = statusParameter.purpose,
             statusListIndex = it.index,
-            statusListCredential = storageService.publicUrl,
+            statusListCredential = statusParameter.credentialUrl,
         )
     }
 }
@@ -42,5 +41,6 @@ data class SimpleStatusFactoryParameter(
     val id: String,
 ) : CredentialStatusFactoryParameter
 data class StatusListEntryFactoryParameter(
+    val credentialUrl: String,
     val purpose: String
 ) : CredentialStatusFactoryParameter

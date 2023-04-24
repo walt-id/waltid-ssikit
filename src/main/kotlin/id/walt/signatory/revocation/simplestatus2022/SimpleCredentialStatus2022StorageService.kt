@@ -2,16 +2,15 @@ package id.walt.signatory.revocation.simplestatus2022
 
 import com.beust.klaxon.Klaxon
 import id.walt.common.deriveRevocationToken
-import id.walt.signatory.revocation.RevocationList
-import id.walt.signatory.revocation.RevocationResult
-import id.walt.signatory.revocation.TokenRevocationResult
+import id.walt.signatory.revocation.RevocationStatus
+import id.walt.signatory.revocation.TokenRevocationStatus
 import java.time.Instant
 import kotlin.io.path.Path
 import kotlin.io.path.exists
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
 
-object SimpleCredentialStatus2022Service {
+object SimpleCredentialStatus2022StorageService {
 
     private val klaxon = Klaxon()
     private val revokedPath = Path("data/revoked.json").apply {
@@ -24,19 +23,21 @@ object SimpleCredentialStatus2022Service {
 
     fun clearRevocations() = setRevokedList(RevocationList(emptyList()))
 
-    fun checkRevoked(token: String): RevocationResult {
+    fun checkRevoked(token: String): RevocationStatus {
         if (token.contains("-")) throw IllegalArgumentException("Revocation token contains '-', you probably didn't supply a derived revocation token, but a base token.")
 
         println(getRevokedList())
-        return getRevokedList().firstOrNull { (it as? TokenRevocationResult)?.token == token } ?: return TokenRevocationResult(token, false)
+        return getRevokedList().firstOrNull { (it as? TokenRevocationStatus)?.token == token } ?: return TokenRevocationStatus(token, false)
     }
 
     fun revokeToken(baseToken: String) { // UUIDUUID -> SHA256-Token (base32)
         if (baseToken.length != 72) throw IllegalArgumentException("base token has to have 72 chars (uuiduuid)")
         val token = deriveRevocationToken(baseToken)
         val revoked = getRevokedList().toMutableList().apply {
-            add(TokenRevocationResult(token, true, Instant.now().toEpochMilli()))
+            add(TokenRevocationStatus(token, true, Instant.now().toEpochMilli()))
         }
         setRevokedList(RevocationList(revoked))
     }
+
+    data class RevocationList(val revokedList: List<TokenRevocationStatus>)
 }

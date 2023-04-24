@@ -128,6 +128,8 @@ object SignatoryRestAPI {
                             SignatoryController::issueCredentialFromJson
                         )
                     )
+                    get("status/{id}", documented(SignatoryController.statusDocs(), SignatoryController::status))
+                    get("token/{id}", documented(SignatoryController.tokenDocs(), SignatoryController::token))
                 }
                 path("templates") {
                     get("", documented(SignatoryController.listTemplatesDocs(), SignatoryController::listTemplates))
@@ -137,8 +139,8 @@ object SignatoryRestAPI {
 
                 }
                 path("revocations") {
-                    get("{id}", documented(SignatoryController.checkRevokedDocs(), SignatoryController::checkRevoked))
-                    post("{id}", documented(SignatoryController.revokeDocs(), SignatoryController::revoke))
+                    post("check", documented(SignatoryController.checkRevokedDocs(), SignatoryController::checkRevoked))
+                    post("revoke", documented(SignatoryController.revokeDocs(), SignatoryController::revoke))
                 }
             }
         }.exception(IllegalArgumentException::class.java) { e, ctx ->
