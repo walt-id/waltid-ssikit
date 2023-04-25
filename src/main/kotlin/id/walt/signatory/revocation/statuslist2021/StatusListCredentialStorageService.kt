@@ -1,7 +1,5 @@
 package id.walt.signatory.revocation.statuslist2021
 
-import id.walt.common.compressGzip
-import id.walt.common.createEncodedBitString
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.W3CCredentialSubject
 import id.walt.credentials.w3c.builder.W3CCredentialBuilder
@@ -13,7 +11,6 @@ import id.walt.services.context.ContextManager
 import id.walt.services.did.DidService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.Signatory
-import java.util.*
 
 open class StatusListCredentialStorageService : WaltIdService() {
     override val implementation get() = serviceImplementation<StatusListCredentialStorageService>()
@@ -35,14 +32,15 @@ class WaltIdStatusListCredentialStorageService : StatusListCredentialStorageServ
     private val vcStoreService = ContextManager.vcStore
     private val issuerDid = DidService.create(DidMethod.key)// TODO: fix it
 
-    override fun fetch(id: String): VerifiableCredential? = vcStoreService.getCredential(id, credentialsGroup)
+    override fun fetch(id: String): VerifiableCredential? =
+        vcStoreService.getCredential(id.substringAfterLast("/"), credentialsGroup)
     override fun store(id: String, purpose: String, bitString: String): Unit = let {
         fetch(id)?.let { vc ->
             // update vc
             W3CCredentialSubject(
                 vc.id, mapOf(
-                    "type" to ((vc.credentialSubject?.properties?.get("type") as? String) ?: "StatusList2021Credential"),
-                    "statusPurpose" to ((vc.credentialSubject?.properties?.get("statusPurpose") as? String) ?: purpose),
+                    "type" to vc.credentialSubject!!.properties["type"] as String,
+                    "statusPurpose" to vc.credentialSubject!!.properties["statusPurpose"] as String,
                     "encodedList" to bitString
                 )
             )
