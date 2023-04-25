@@ -133,7 +133,7 @@ object SignatoryController {
 
     fun checkRevokedDocs() = document().operation {
         it.summary("Check if credential is revoked").operationId("checkRevoked").addTagsItem("Revocations")
-            .description("Based on a revocation-token, this method will check if this token is still valid or has already been revoked.")
+            .description("The revocation status is checked based on credential's credential-status property.")
     }.json<TokenRevocationResult>("200")
 
     fun checkRevoked(ctx: Context) {
@@ -142,8 +142,10 @@ object SignatoryController {
 
     fun revokeDocs() = document().operation {
         it.summary("Revoke a credential").operationId("revoke").addTagsItem("Revocations")
-            .description("Based on the <b>not-delegated</b> revocation-token, a credential with a specific delegated revocation-token can be revoked on this server.")
-    }.result<String>("201")
+            .description("The credential will be revoked based on its credential-status property on the current server.")
+    }.body<String> {
+        it.description("Verifiable credential to be revoked.")
+    }.json<String>("201")
 
     fun revoke(ctx: Context) {
         SimpleCredentialStatus2022StorageService.revokeToken(ctx.pathParam("id"))
@@ -161,6 +163,18 @@ object SignatoryController {
         } ?: let {
             val error = mapOf("error" to "StatusList2021Credential not found for id: ${ctx.pathParam("id")}")
             ctx.json(error).status(HttpCode.NOT_FOUND)
+        }
+    }
+
+    fun tokenDocs() = document().operation {
+        it.summary("Get the credential's specific delegated revocation-token that can be revoked on this server.")
+            .operationId("token").addTagsItem("Credentials")
+            .description("Get the revocation token based on id")
+    }.json<TokenRevocationResult>("200")
+
+    fun token(ctx: Context) {
+        SimpleCredentialStatus2022StorageService.checkRevoked(ctx.pathParam("id")).let {
+            ctx.json(it).status(HttpCode.OK)
         }
     }
 }
