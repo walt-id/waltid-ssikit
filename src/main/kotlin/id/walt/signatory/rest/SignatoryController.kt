@@ -8,7 +8,7 @@ import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.signatory.dataproviders.MergingDataProvider
-import id.walt.signatory.revocation.simplestatus2022.SimpleCredentialStatus2022Service
+import id.walt.signatory.revocation.simplestatus2022.SimpleCredentialStatus2022StorageService
 import id.walt.signatory.revocation.TokenRevocationResult
 import id.walt.signatory.revocation.statuslist2021.StatusListCredentialStorageService
 import io.javalin.http.BadRequestResponse
@@ -137,7 +137,7 @@ object SignatoryController {
     }.json<TokenRevocationResult>("200")
 
     fun checkRevoked(ctx: Context) {
-        ctx.json(SimpleCredentialStatus2022Service.checkRevoked(ctx.pathParam("id")))
+        ctx.json(SimpleCredentialStatus2022StorageService.checkRevoked(ctx.pathParam("id")))
     }
 
     fun revokeDocs() = document().operation {
@@ -146,7 +146,7 @@ object SignatoryController {
     }.result<String>("201")
 
     fun revoke(ctx: Context) {
-        SimpleCredentialStatus2022Service.revokeToken(ctx.pathParam("id"))
+        SimpleCredentialStatus2022StorageService.revokeToken(ctx.pathParam("id"))
         ctx.status(201)
     }
 

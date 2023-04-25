@@ -11,7 +11,7 @@ import kotlin.io.path.exists
 import kotlin.io.path.readText
 import kotlin.io.path.writeText
 
-object SimpleCredentialStatus2022Service {
+object SimpleCredentialStatus2022StorageService {
 
     private val klaxon = Klaxon()
     private val revokedPath = Path("data/revoked.json").apply {

@@ -15,8 +15,8 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 
-open class RevocationClientService : WaltIdService() {
-    override val implementation get() = serviceImplementation<RevocationClientService>()
+open class SimpleCredentialClientService : WaltIdService() {
+    override val implementation get() = serviceImplementation<SimpleCredentialClientService>()
 
     open fun checkRevoked(revocationCheckUrl: String): TokenRevocationResult =
         implementation.checkRevoked(revocationCheckUrl)
@@ -24,12 +24,12 @@ open class RevocationClientService : WaltIdService() {
     open fun revoke(baseTokenUrl: String): Unit = implementation.revoke(baseTokenUrl)
 
     companion object : ServiceProvider {
-        override fun getService() = object : RevocationClientService() {}
-        override fun defaultImplementation() = WaltIdRevocationClientService()
+        override fun getService() = object : SimpleCredentialClientService() {}
+        override fun defaultImplementation() = WaltIdSimpleCredentialClientService()
     }
 }
 
-class WaltIdRevocationClientService : RevocationClientService() {
+class WaltIdSimpleCredentialClientService : SimpleCredentialClientService() {
 
     private val logger = KotlinLogging.logger("WaltIdRevocationClientService")
 

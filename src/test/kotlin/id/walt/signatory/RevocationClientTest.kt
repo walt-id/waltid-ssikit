@@ -4,8 +4,8 @@ import id.walt.common.createBaseToken
 import id.walt.common.deriveRevocationToken
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.signatory.rest.SignatoryRestAPI
-import id.walt.signatory.revocation.simplestatus2022.RevocationClientService
-import id.walt.signatory.revocation.simplestatus2022.SimpleCredentialStatus2022Service
+import id.walt.signatory.revocation.simplestatus2022.SimpleCredentialClientService
+import id.walt.signatory.revocation.simplestatus2022.SimpleCredentialStatus2022StorageService
 import id.walt.test.RESOURCES_PATH
 import io.kotest.core.spec.style.AnnotationSpec
 
@@ -13,7 +13,7 @@ class RevocationClientTest : AnnotationSpec() {
 
     init {
         ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
-        SimpleCredentialStatus2022Service.clearRevocations()
+        SimpleCredentialStatus2022StorageService.clearRevocations()
     }
 
     private val SIGNATORY_API_HOST = "localhost"
@@ -34,7 +34,7 @@ class RevocationClientTest : AnnotationSpec() {
     fun test() {
         val revocationsBase = "$SIGNATORY_API_URL/v1/revocations"
 
-        val rs = RevocationClientService.getService()
+        val rs = SimpleCredentialClientService.getService()
 
         val baseToken = createBaseToken()
         println(baseToken)

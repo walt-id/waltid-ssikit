@@ -10,7 +10,7 @@ import id.walt.credentials.w3c.VerifiablePresentation
 import id.walt.model.credential.status.CredentialStatus
 import id.walt.model.credential.status.SimpleCredentialStatus2022
 import id.walt.model.credential.status.StatusList2021EntryCredentialStatus
-import id.walt.signatory.revocation.simplestatus2022.RevocationClientService
+import id.walt.signatory.revocation.simplestatus2022.SimpleCredentialClientService
 import id.walt.signatory.revocation.statuslist2021.StatusList2021EntryService
 import kotlinx.serialization.Serializable
 import java.text.SimpleDateFormat
@@ -75,7 +75,7 @@ class CredentialStatusPolicy : SimpleVerificationPolicy() {
                 IllegalArgumentException("CredentialStatus (type ${cs.type}) was REVOKED at timestamp $timeOfRevocation for id ${cs.id}.")
             )
 
-        val rs = RevocationClientService.getService()
+        val rs = SimpleCredentialClientService.getService()
         val result = rs.checkRevoked(cs.id)
         revocationVerificationPolicy(result.isRevoked, result.timeOfRevocation)
     }
