@@ -137,11 +137,11 @@ object SignatoryController {
     fun statusDocs() = document().operation {
         it.summary("Get StatusList2021Credential").operationId("status").addTagsItem("Credentials")
             .description("Fetch the StatusList2021Credential based on id")
-    }.json<VerifiableCredential>("200")
+    }.json<String>("200")
 
     fun status(ctx: Context) {
         StatusListCredentialStorageService.getService().fetch(ctx.pathParam("id"))?.let {
-            ctx.json(it).status(HttpCode.OK)
+            ctx.result(it.toJson()).status(HttpCode.OK)
         } ?: let {
             val error = mapOf("error" to "StatusList2021Credential not found for id: ${ctx.pathParam("id")}")
             ctx.json(error).status(HttpCode.NOT_FOUND)

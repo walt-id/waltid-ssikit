@@ -50,8 +50,8 @@ class StatusList2021EntryClientService: RevocationClientService {
         credentialStorage.store(statusCredential.id!!, credentialSubject.statusPurpose, String(encodedList))
     }
 
-    private fun extractStatusListCredentialSubject(statusCredential: String): StatusListCredentialSubject? =
-        extractStatusListCredentialSubject(resolveContent(statusCredential).toVerifiableCredential())
+    private fun extractStatusListCredentialSubject(statusCredentialUrl: String): StatusListCredentialSubject? =
+        extractStatusListCredentialSubject(resolveContent(statusCredentialUrl).toVerifiableCredential())
 
     private fun extractStatusListCredentialSubject(statusCredential: VerifiableCredential) =
         statusCredential.credentialSubject?.let {

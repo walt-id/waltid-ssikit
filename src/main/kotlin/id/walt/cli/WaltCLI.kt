@@ -164,7 +164,9 @@ object WaltCLI {
             if (log.isDebugEnabled)
                 e.printStackTrace()
         } finally {
-            WaltIdServices.shutdown()
+            args.none { it.equals(ServeCommand().commandName, ignoreCase = true) }.takeIf { it }?.run {
+                WaltIdServices.shutdown()
+            }
         }
     }
 }
