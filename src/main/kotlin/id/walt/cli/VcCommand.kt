@@ -25,6 +25,7 @@ import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.signatory.dataproviders.CLIDataProvider
+import id.walt.signatory.revocation.RevocationClientService
 import io.ktor.util.date.*
 import mu.KotlinLogging
 import java.io.File
@@ -37,6 +38,7 @@ import kotlin.io.path.readText
 
 private val log = KotlinLogging.logger {}
 
+//region -VC Commands-
 class VcCommand : CliktCommand(
     name = "vc", help = """Verifiable Credentials (VCs)
 
@@ -228,6 +230,23 @@ class VerifyVcCommand : CliktCommand(
     }
 }
 
+class ListVcCommand : CliktCommand(
+    name = "list", help = """List VCs
+        
+        """
+) {
+
+    override fun run() {
+        echo("\nListing verifiable credentials...")
+
+        echo("\nResults:\n")
+
+        Custodian.getService().listCredentials().forEachIndexed { index, vc -> echo("- ${index + 1}: $vc") }
+    }
+}
+//endregion
+
+//region -Policy Commands-
 class VerificationPoliciesCommand : CliktCommand(
     name = "policies", help = "Manage verification policies"
 ) {
@@ -339,22 +358,9 @@ class RemoveDynamicVerificationPolicyCommand : CliktCommand(
         }
     }
 }
+//endregion
 
-class ListVcCommand : CliktCommand(
-    name = "list", help = """List VCs
-        
-        """
-) {
-
-    override fun run() {
-        echo("\nListing verifiable credentials...")
-
-        echo("\nResults:\n")
-
-        Custodian.getService().listCredentials().forEachIndexed { index, vc -> echo("- ${index + 1}: $vc") }
-    }
-}
-
+//region -Templates Commands-
 class VcTemplatesCommand : CliktCommand(
     name = "templates", help = """VC templates
 
@@ -448,3 +454,43 @@ class VcTemplatesRemoveCommand : CliktCommand(
         }
     }
 }
+//endregion
+
+//region -Revocation Commands-
+class VcRevocationCommand : CliktCommand(
+    name = "revocation", help = """VC revocations
+
+        VC revocation related operations e.g.: check & revoke.
+
+        """
+) {
+
+    override fun run() {
+
+    }
+}
+
+class VcRevocationCheckCommand : CliktCommand(
+    name = "check", help = "Check VC revocation status"
+) {
+    val vcFile: File by argument().file()
+    override fun run() = vcFile.takeIf { it.exists() }?.run {
+        println("Checking revocation status for credential stored at: ${vcFile.absolutePath}")
+        val status = RevocationClientService.check(this.readText().toVerifiableCredential())
+        println("Revocation status:")
+        println(Klaxon().toJsonString(status).prettyPrint())
+    } ?: Unit
+}
+
+class VcRevocationRevokeCommand: CliktCommand(
+    name = "revoke", help = "Revoke VC"
+) {
+    val vcFile: File by argument().file()
+    override fun run() = vcFile.takeIf { it.exists() }?.run {
+        println("Revoking credential stored at: ${vcFile.absolutePath}")
+        val result = RevocationClientService.revoke(this.readText().toVerifiableCredential())
+        println("Revocation result:")
+        println(Klaxon().toJsonString(result).prettyPrint())
+    } ?: Unit
+}
+//endregion

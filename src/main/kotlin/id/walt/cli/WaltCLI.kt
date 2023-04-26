@@ -112,7 +112,11 @@ object WaltCLI {
                             VcTemplatesImportCommand(),
                             VcTemplatesRemoveCommand()
                         ),
-                        VcImportCommand()
+                        VcImportCommand(),
+                        VcRevocationCommand().subcommands(
+                            VcRevocationCheckCommand(),
+                            VcRevocationRevokeCommand(),
+                        ),
                     ),
                     EssifCommand().subcommands(
                         EssifOnboardingCommand(),
