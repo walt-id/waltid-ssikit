@@ -2,6 +2,7 @@ package id.walt.signatory.revocation.simplestatus2022
 
 import id.walt.services.WaltIdServices
 import id.walt.signatory.revocation.*
+import id.walt.signatory.revocation.statuslist2021.StatusListCredentialStorageService
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*
@@ -16,6 +17,7 @@ import mu.KotlinLogging
 class SimpleCredentialClientService: RevocationClientService {
 
     private val logger = KotlinLogging.logger("WaltIdRevocationClientService")
+    private val credentialStorage = SimpleCredentialStatus2022StorageService
 
     private val http = HttpClient {
         install(ContentNegotiation) {
@@ -37,9 +39,6 @@ class SimpleCredentialClientService: RevocationClientService {
 
     override fun checkRevocation(parameter: RevocationCheckParameter): RevocationStatus = runBlocking {
         val tokenParameter = parameter as TokenRevocationCheckParameter
-        val token = tokenParameter.revocationCheckUrl.split("/").last()
-        if (token.contains("-")) throw IllegalArgumentException("Revocation token contains '-', you probably didn't supply a derived revocation token, but a base token.")
-
         logger.debug { "Checking revocation at $parameter" }
         http.get(tokenParameter.revocationCheckUrl).body<TokenRevocationStatus>()
     }
@@ -50,8 +49,6 @@ class SimpleCredentialClientService: RevocationClientService {
         if (baseToken.length != 72) throw IllegalArgumentException("base token has to have 72 chars (uuiduuid)")
 
         logger.debug { "Revoking at $baseTokenUrl" }
-        runBlocking {
-            http.post(baseTokenUrl)
-        }
+        credentialStorage.revokeToken(baseToken)
     }
 }

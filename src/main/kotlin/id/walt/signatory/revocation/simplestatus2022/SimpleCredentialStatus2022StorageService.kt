@@ -24,10 +24,9 @@ object SimpleCredentialStatus2022StorageService {
     fun clearRevocations() = setRevokedList(RevocationList(emptyList()))
 
     fun checkRevoked(token: String): RevocationStatus {
-        if (token.contains("-")) throw IllegalArgumentException("Revocation token contains '-', you probably didn't supply a derived revocation token, but a base token.")
-
-        println(getRevokedList())
-        return getRevokedList().firstOrNull { (it as? TokenRevocationStatus)?.token == token } ?: return TokenRevocationStatus(token, false)
+        val derivedToken = deriveRevocationToken(token)
+        if (derivedToken.contains("-")) throw IllegalArgumentException("Revocation token contains '-', you probably didn't supply a derived revocation token, but a base token.")
+        return getRevokedList().firstOrNull { (it as? TokenRevocationStatus)?.token == derivedToken } ?: return TokenRevocationStatus(token, false)
     }
 
     fun revokeToken(baseToken: String) { // UUIDUUID -> SHA256-Token (base32)

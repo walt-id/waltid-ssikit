@@ -40,7 +40,7 @@ class W3CCredentialBuilderWithCredentialStatus<C : VerifiableCredential, B : Abs
 
     private fun getStatusProperty(type: String, purpose: String, credentialUrl: String) = when (type) {
         CredentialStatus.Types.SimpleCredentialStatus2022.name -> simpleStatusFactory.create(SimpleStatusFactoryParameter(
-            id = credentialUrl + "v1/credentials/token/${deriveRevocationToken(createBaseToken())}",
+            id = credentialUrl + "v1/credentials/token/${createBaseToken()}",
         )).asMap()
         CredentialStatus.Types.StatusList2021Entry.name -> statusListEntryFactory.create(StatusListEntryFactoryParameter(
             purpose = purpose,
