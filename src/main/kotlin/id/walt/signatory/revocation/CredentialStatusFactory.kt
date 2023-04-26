@@ -7,7 +7,7 @@ import id.walt.model.credential.status.StatusList2021EntryCredentialStatus
 import id.walt.signatory.revocation.statuslist2021.StatusListCredentialStorageService
 import id.walt.signatory.revocation.statuslist2021.StatusListIndex
 import id.walt.signatory.revocation.statuslist2021.StatusListIndexService
-import java.util.BitSet
+import java.util.*
 
 interface CredentialStatusFactory {
     fun create(parameter: CredentialStatusFactoryParameter): CredentialStatus
@@ -31,7 +31,7 @@ class StatusListEntryFactory(
         indexService.update(StatusListIndex(
             index = ((it.index.toIntOrNull() ?: 0) + 1).toString()
         ))
-        // verify status-credential exists
+        // verify status-credential exists and create one
         storageService.fetch(statusParameter.credentialUrl) ?: run {
             storageService.store(
                 statusParameter.credentialUrl,

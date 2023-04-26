@@ -41,13 +41,13 @@ class W3CCredentialBuilderWithCredentialStatus<C : VerifiableCredential, B : Abs
     private fun getStatusProperty(type: String, purpose: String, credentialUrl: String) = when (type) {
         CredentialStatus.Types.SimpleCredentialStatus2022.name -> simpleStatusFactory.create(SimpleStatusFactoryParameter(
             id = credentialUrl + "v1/credentials/token/${deriveRevocationToken(createBaseToken())}",
-        ))
+        )).asMap()
         CredentialStatus.Types.StatusList2021Entry.name -> statusListEntryFactory.create(StatusListEntryFactoryParameter(
             purpose = purpose,
             credentialUrl = credentialUrl + "v1/credentials/status/$purpose",
-        ))
+        )).asMap()
         else -> throw IllegalArgumentException("Credential status type not supported: $type")
-    }.asMap().takeIf {
+    }.takeIf {
         it.isNotEmpty()
     }
 }

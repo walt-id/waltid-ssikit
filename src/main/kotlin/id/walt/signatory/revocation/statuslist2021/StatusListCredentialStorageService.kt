@@ -64,11 +64,12 @@ class WaltIdStatusListCredentialStorageService : StatusListCredentialStorageServ
     }.run {
         val credential = signatoryService.issue(
             credentialBuilder = this, config = ProofConfig(
+                credentialId = id,
                 issuerDid = issuerDid,
                 subjectDid = issuerDid,
                 proofType = ProofType.LD_PROOF,
             )
         ).toVerifiableCredential()
-        vcStoreService.storeCredential(credential.id!!, credential, credentialsGroup)
+        vcStoreService.storeCredential(credential.id!!.substringAfterLast("/"), credential, credentialsGroup)
     }
 }

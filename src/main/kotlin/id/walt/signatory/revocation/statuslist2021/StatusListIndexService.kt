@@ -49,8 +49,8 @@ class WaltIdStatusListIndexService : StatusListIndexService() {
         File(indexPath).takeIf { it.exists() } ?: let {
             File(indexPath).createNewFile()
             File(indexPath)
-        }.run {
-            this.writeText(Klaxon().toJsonString(index))
         }
+    }.run {
+        this.writeText(Klaxon().toJsonString(index))
     }
 }
