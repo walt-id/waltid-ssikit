@@ -45,7 +45,7 @@ data class ProofConfig(
     @Json(serializeNull = false) val ecosystem: Ecosystem = Ecosystem.DEFAULT,
     @Json(serializeNull = false) val statusType: String? = null,
     @Json(serializeNull = false) val statusPurpose: String = "revocation",
-    @Json(serializeNull = false) val statusCredentialUrl: String = "${SignatoryRestAPI.BIND_ADDRESS}:${SignatoryRestAPI.SIGNATORY_API_PORT}/v1/credentials/status/",
+    @Json(serializeNull = false) val revocationUrl: String = "http://${SignatoryRestAPI.BIND_ADDRESS}:${SignatoryRestAPI.SIGNATORY_API_PORT}/",
 )
 
 data class SignatoryConfig(

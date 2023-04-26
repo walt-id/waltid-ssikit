@@ -1,6 +1,5 @@
 package id.walt.signatory.revocation.simplestatus2022
 
-import com.beust.klaxon.Klaxon
 import id.walt.services.WaltIdServices
 import id.walt.signatory.revocation.*
 import io.ktor.client.*
@@ -9,7 +8,6 @@ import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.runBlocking

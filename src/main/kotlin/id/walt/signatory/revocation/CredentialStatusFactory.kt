@@ -1,10 +1,13 @@
 package id.walt.signatory.revocation
 
+import id.walt.common.createEncodedBitString
 import id.walt.model.credential.status.CredentialStatus
 import id.walt.model.credential.status.SimpleCredentialStatus2022
 import id.walt.model.credential.status.StatusList2021EntryCredentialStatus
+import id.walt.signatory.revocation.statuslist2021.StatusListCredentialStorageService
 import id.walt.signatory.revocation.statuslist2021.StatusListIndex
 import id.walt.signatory.revocation.statuslist2021.StatusListIndexService
+import java.util.BitSet
 
 interface CredentialStatusFactory {
     fun create(parameter: CredentialStatusFactoryParameter): CredentialStatus
@@ -17,7 +20,8 @@ class SimpleCredentialStatusFactory : CredentialStatusFactory {
 }
 
 class StatusListEntryFactory(
-    private val indexService: StatusListIndexService
+    private val indexService: StatusListIndexService,
+    private val storageService: StatusListCredentialStorageService,
 ) : CredentialStatusFactory {
     override fun create(parameter: CredentialStatusFactoryParameter) = let {
         indexService.read() ?: indexService.create()
@@ -27,6 +31,14 @@ class StatusListEntryFactory(
         indexService.update(StatusListIndex(
             index = ((it.index.toIntOrNull() ?: 0) + 1).toString()
         ))
+        // verify status-credential exists
+        storageService.fetch(statusParameter.credentialUrl) ?: run {
+            storageService.store(
+                statusParameter.credentialUrl,
+                statusParameter.purpose,
+                String(createEncodedBitString(BitSet(16 * 1024 * 8)))
+            )
+        }
         StatusList2021EntryCredentialStatus(
             id = statusParameter.credentialUrl + "#${it.index}",
             statusPurpose = statusParameter.purpose,

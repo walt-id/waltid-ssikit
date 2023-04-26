@@ -167,10 +167,12 @@ object SignatoryController {
         it.description("Verifiable credential to be checked for revocation status.")
     }.json<RevocationStatus>("200")
 
-    fun checkRevoked(ctx: Context) {
-        RevocationClientService.check(ctx.body().toVerifiableCredential()).run {
-            ctx.json(this)
-        }
+    fun checkRevoked(ctx: Context) = runCatching {
+        RevocationClientService.check(ctx.body().toVerifiableCredential())
+    }.onSuccess {
+        ctx.json(it)
+    }.onFailure {
+        ctx.json(it.localizedMessage)
     }
 
     fun revokeDocs() = document().operation {
@@ -180,14 +182,9 @@ object SignatoryController {
         it.description("Verifiable credential to be revoked.")
     }.json<String>("201")
 
-    fun revoke(ctx: Context) {
-        RevocationClientService.revoke(ctx.body().toVerifiableCredential()).let {
-            when (it.succeed) {
-                true -> HttpCode.CREATED
-                false -> HttpCode.NOT_FOUND
-            }
-        }.run {
-            ctx.status(this)
-        }
-    }
+    fun revoke(ctx: Context) = runCatching {
+        RevocationClientService.revoke(ctx.body().toVerifiableCredential())
+    }.onSuccess {
+        ctx.status(if (it.succeed) HttpCode.OK else HttpCode.NOT_FOUND).json(it.message)
+    }.onFailure { ctx.status(HttpCode.NOT_FOUND).json(it.localizedMessage) }
 }

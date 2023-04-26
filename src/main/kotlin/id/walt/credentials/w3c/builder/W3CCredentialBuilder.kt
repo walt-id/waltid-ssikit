@@ -10,6 +10,7 @@ import id.walt.signatory.revocation.SimpleCredentialStatusFactory
 import id.walt.signatory.revocation.SimpleStatusFactoryParameter
 import id.walt.signatory.revocation.StatusListEntryFactory
 import id.walt.signatory.revocation.StatusListEntryFactoryParameter
+import id.walt.signatory.revocation.statuslist2021.StatusListCredentialStorageService
 import id.walt.signatory.revocation.statuslist2021.StatusListIndexService
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -24,7 +25,8 @@ class W3CCredentialBuilderWithCredentialStatus<C : VerifiableCredential, B : Abs
 ):AbstractW3CCredentialBuilder<VerifiableCredential, W3CCredentialBuilder>(builder.type, VerifiableCredential){
 
     private val statusListEntryFactory = StatusListEntryFactory(
-        StatusListIndexService.getService()
+        StatusListIndexService.getService(),
+        StatusListCredentialStorageService.getService(),
     )
     private val simpleStatusFactory = SimpleCredentialStatusFactory()
 
@@ -32,17 +34,17 @@ class W3CCredentialBuilderWithCredentialStatus<C : VerifiableCredential, B : Abs
         getStatusProperty(
             type = proofConfig.statusType!!,
             purpose = proofConfig.statusPurpose,
-            credentialUrl = proofConfig.statusCredentialUrl
+            credentialUrl = proofConfig.revocationUrl
         )?.let { this.setProperty("credentialStatus", it) }
     }.build()
 
     private fun getStatusProperty(type: String, purpose: String, credentialUrl: String) = when (type) {
         CredentialStatus.Types.SimpleCredentialStatus2022.name -> simpleStatusFactory.create(SimpleStatusFactoryParameter(
-            id = deriveRevocationToken(createBaseToken()),
+            id = credentialUrl + "v1/credentials/token/${deriveRevocationToken(createBaseToken())}",
         ))
         CredentialStatus.Types.StatusList2021Entry.name -> statusListEntryFactory.create(StatusListEntryFactoryParameter(
             purpose = purpose,
-            credentialUrl = credentialUrl,
+            credentialUrl = credentialUrl + "v1/credentials/status/$purpose",
         ))
         else -> throw IllegalArgumentException("Credential status type not supported: $type")
     }.asMap().takeIf {

@@ -1,5 +1,6 @@
 package id.walt.signatory.revocation.statuslist2021
 
+import id.walt.common.resolveContent
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.W3CCredentialSubject
 import id.walt.credentials.w3c.builder.W3CCredentialBuilder
@@ -10,6 +11,7 @@ import id.walt.services.WaltIdService
 import id.walt.services.context.ContextManager
 import id.walt.services.did.DidService
 import id.walt.signatory.ProofConfig
+import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 
 open class StatusListCredentialStorageService : WaltIdService() {
@@ -26,7 +28,7 @@ open class StatusListCredentialStorageService : WaltIdService() {
 
 
 class WaltIdStatusListCredentialStorageService : StatusListCredentialStorageService() {
-    private val templateId = "src/main/resources/vc-templates/StatusList2021Credential.json"
+    private val templatePath = "src/main/resources/vc-templates/StatusList2021Credential.json"
     private val credentialsGroup = "status-credentials"
     private val signatoryService = Signatory.getService()
     private val vcStoreService = ContextManager.vcStore
@@ -53,15 +55,20 @@ class WaltIdStatusListCredentialStorageService : StatusListCredentialStorageServ
             )
         )
     }.let {
-        W3CCredentialBuilder.fromPartial(templateId).apply {
+        W3CCredentialBuilder.fromPartial(resolveContent(templatePath)).apply {
             setId(it.id ?: id)
             buildSubject {
                 setFromJson(it.toJson())
             }
         }
     }.run {
-        val credential = signatoryService.issue(credentialBuilder = this, config = ProofConfig(issuerDid = issuerDid))
-            .toVerifiableCredential()
+        val credential = signatoryService.issue(
+            credentialBuilder = this, config = ProofConfig(
+                issuerDid = issuerDid,
+                subjectDid = issuerDid,
+                proofType = ProofType.LD_PROOF,
+            )
+        ).toVerifiableCredential()
         vcStoreService.storeCredential(credential.id!!, credential, credentialsGroup)
     }
 }
