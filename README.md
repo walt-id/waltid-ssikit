@@ -1,7 +1,7 @@
 <div align="center">
  <h1>SSI Kit</h1>
  <span>by </span><a href="https://walt.id">walt.id</a>
- <p>Use web3 identity / self-sovereign identity (SSI)<p>
+ <p>Use self-sovereign identity (SSI) and Verifiable Credentials<p>
 
 
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=walt-id_waltid-ssikit&metric=security_rating)](https://sonarcloud.io/dashboard?id=walt-id_waltid-ssikit)
