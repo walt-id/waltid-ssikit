@@ -11,6 +11,7 @@ sealed class CredentialStatus(
     val type: String,
 ) {
     abstract val id: String
+    @Serializable
     enum class Types{
         StatusList2021Entry,
         SimpleCredentialStatus2022,

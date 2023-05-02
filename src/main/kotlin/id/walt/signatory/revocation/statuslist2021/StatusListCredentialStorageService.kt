@@ -4,6 +4,7 @@ import id.walt.common.resolveContent
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.W3CCredentialSubject
 import id.walt.credentials.w3c.builder.W3CCredentialBuilder
+import id.walt.credentials.w3c.templates.VcTemplateService
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceProvider
@@ -32,6 +33,7 @@ class WaltIdStatusListCredentialStorageService : StatusListCredentialStorageServ
     private val credentialsGroup = "status-credentials"
     private val signatoryService = Signatory.getService()
     private val vcStoreService = ContextManager.vcStore
+    private val templateService = VcTemplateService.getService()
     private val issuerDid = DidService.create(DidMethod.key)// TODO: fix it
 
     override fun fetch(id: String): VerifiableCredential? =
@@ -55,7 +57,7 @@ class WaltIdStatusListCredentialStorageService : StatusListCredentialStorageServ
             )
         )
     }.let {
-        W3CCredentialBuilder.fromPartial(resolveContent(templatePath)).apply {
+        W3CCredentialBuilder.fromPartial(templateService.getTemplate(templatePath).template!!).apply {
             setId(it.id ?: id)
             buildSubject {
                 setFromJson(it.toJson())
