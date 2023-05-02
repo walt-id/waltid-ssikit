@@ -67,7 +67,10 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
             expirationDate = config.expirationDate,
             dataProviderIdentifier = config.dataProviderIdentifier,
             ldSignatureType = config.ldSignatureType ?: defaultLdSignatureByDidMethod(config.issuerDid),
-            creator = config.creator
+            creator = config.creator,
+            statusPurpose = config.statusPurpose,
+            statusType = config.statusType,
+            credentialsEndpoint = config.credentialsEndpoint
         )
     }
 

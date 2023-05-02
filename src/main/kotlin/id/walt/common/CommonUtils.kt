@@ -8,7 +8,6 @@ import org.apache.commons.codec.digest.DigestUtils
 import org.bouncycastle.util.encoders.Base32
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.nio.charset.StandardCharsets
 import java.util.*
 import java.util.zip.*
 import kotlin.reflect.full.memberProperties
@@ -41,19 +40,6 @@ fun resolveContentToFile(fileUrlContent: String, tempPrefix: String = "TEMP", te
         }
     }
     return fileCheck
-}
-
-fun getExternalHostname(): String? {
-    return System.getenv("EXTERNAL_HOSTNAME")
-        ?: System.getenv("HOSTNAMEE") // linux
-        ?: File("/etc/hostname").let { file -> // linux alternative
-            if (file.exists()) {
-                file.readText(StandardCharsets.UTF_8).trim()
-            } else {
-                null
-            }
-        }
-        ?: System.getenv("COMPUTERNAME") // windows
 }
 
 fun compressGzip(data: ByteArray): ByteArray {
