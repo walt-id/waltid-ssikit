@@ -1,6 +1,5 @@
 package id.walt.signatory.revocation.statuslist2021
 
-import id.walt.common.resolveContent
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.W3CCredentialSubject
 import id.walt.credentials.w3c.builder.W3CCredentialBuilder
@@ -29,7 +28,7 @@ open class StatusListCredentialStorageService : WaltIdService() {
 
 
 class WaltIdStatusListCredentialStorageService : StatusListCredentialStorageService() {
-    private val templatePath = "src/main/resources/vc-templates/StatusList2021Credential.json"
+    private val templatePath = "StatusList2021Credential"
     private val credentialsGroup = "status-credentials"
     private val signatoryService = Signatory.getService()
     private val vcStoreService = ContextManager.vcStore
