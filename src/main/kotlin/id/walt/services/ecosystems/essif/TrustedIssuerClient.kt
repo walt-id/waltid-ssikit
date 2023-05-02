@@ -29,7 +29,7 @@ object TrustedIssuerClient {
 
     val authorisation = "$domain/authorisation/v2"
     val onboarding = "$domain/users-onboarding/v2"
-    const val apiVersion = "v4"
+    const val apiVersion = "v3"
     const val schemaApiVersion = "v2"
     const val trustedIssuerPath = "trusted-issuers-registry/$apiVersion/issuers"
     const val trustedSchemaPath = "trusted-schemas-registry/$schemaApiVersion/schemas"
