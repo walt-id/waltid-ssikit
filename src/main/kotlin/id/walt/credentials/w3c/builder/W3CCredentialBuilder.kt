@@ -5,12 +5,15 @@ import id.walt.common.createBaseToken
 import id.walt.credentials.w3c.*
 import id.walt.model.credential.status.CredentialStatus
 import id.walt.signatory.ProofConfig
+import id.walt.signatory.Signatory
+import id.walt.signatory.SignatoryConfig
 import id.walt.signatory.revocation.SimpleCredentialStatusFactory
 import id.walt.signatory.revocation.SimpleStatusFactoryParameter
 import id.walt.signatory.revocation.StatusListEntryFactory
 import id.walt.signatory.revocation.StatusListEntryFactoryParameter
 import id.walt.signatory.revocation.statuslist2021.StatusListCredentialStorageService
 import id.walt.signatory.revocation.statuslist2021.StatusListIndexService
+import io.ktor.http.*
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonArray
@@ -28,22 +31,23 @@ class W3CCredentialBuilderWithCredentialStatus<C : VerifiableCredential, B : Abs
         StatusListCredentialStorageService.getService(),
     )
     private val simpleStatusFactory = SimpleCredentialStatusFactory()
+    private val signatoryConfig = Signatory.getService().configuration as? SignatoryConfig
 
     override fun build(): C = builder.apply {
         getStatusProperty(
             type = proofConfig.statusType!!,
             purpose = proofConfig.statusPurpose,
-            credentialUrl = proofConfig.revocationUrl
+            credentialUrl = proofConfig.credentialsEndpoint ?: signatoryConfig?.proofConfig?.credentialsEndpoint ?: ""
         )?.let { this.setProperty("credentialStatus", it) }
     }.build()
 
     private fun getStatusProperty(type: CredentialStatus.Types, purpose: String, credentialUrl: String) = when (type) {
         CredentialStatus.Types.SimpleCredentialStatus2022 -> simpleStatusFactory.create(SimpleStatusFactoryParameter(
-            id = credentialUrl + "token/${createBaseToken()}",
+            id = URLBuilder().takeFrom(credentialUrl).appendPathSegments("token", createBaseToken()).buildString(),
         )).asMap()
         CredentialStatus.Types.StatusList2021Entry -> statusListEntryFactory.create(StatusListEntryFactoryParameter(
             purpose = purpose,
-            credentialUrl = credentialUrl + "status/$purpose",
+            credentialUrl = URLBuilder().takeFrom(credentialUrl).appendPathSegments("status", purpose).buildString(),
         )).asMap()
     }.takeIf {
         it.isNotEmpty()

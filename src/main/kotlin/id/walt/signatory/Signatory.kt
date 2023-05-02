@@ -1,7 +1,6 @@
 package id.walt.signatory
 
 import com.beust.klaxon.Json
-import id.walt.common.getExternalHostname
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.W3CIssuer
 import id.walt.credentials.w3c.builder.AbstractW3CCredentialBuilder
@@ -10,8 +9,8 @@ import id.walt.crypto.LdSignatureType
 import id.walt.model.credential.status.CredentialStatus
 import id.walt.servicematrix.ServiceConfiguration
 import id.walt.servicematrix.ServiceProvider
+import id.walt.servicematrix.ServiceRegistry
 import id.walt.services.WaltIdService
-import id.walt.signatory.rest.SignatoryRestAPI
 import mu.KotlinLogging
 import java.time.Instant
 
@@ -47,9 +46,7 @@ data class ProofConfig(
     @Json(serializeNull = false) val ecosystem: Ecosystem = Ecosystem.DEFAULT,
     @Json(serializeNull = false) val statusType: CredentialStatus.Types? = null,
     @Json(serializeNull = false) val statusPurpose: String = "revocation",
-    @Json(serializeNull = false) val revocationUrl: String = "https://${
-        getExternalHostname() ?: "${SignatoryRestAPI.BIND_ADDRESS}:${SignatoryRestAPI.SIGNATORY_API_PORT}"
-    }/v1/credentials/",
+    @Json(serializeNull = false) val credentialsEndpoint: String? = null,
 )
 
 data class SignatoryConfig(
@@ -61,7 +58,9 @@ abstract class Signatory : WaltIdService() {
     override val implementation: Signatory get() = serviceImplementation()
 
     companion object : ServiceProvider {
-        override fun getService() = object : Signatory() {}
+        override fun getService() = ServiceRegistry.getService(Signatory::class)
+        override fun defaultImplementation() = WaltIdSignatory("config/signatory.conf")
+
     }
 
     open fun issue(

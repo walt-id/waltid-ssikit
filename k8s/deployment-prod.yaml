@@ -1,3 +1,16 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+    name: signatory-config
+data:
+    signatory.conf: |
+        {
+            "proofConfig": {
+                "proofType": "LD_PROOF",
+                "credentialsEndpoint": "https://signatory.ssikit.walt.id/v1/credentials"
+            },
+            "templatesFolder": "vc-templates-runtime"
+        }
 ---
 kind: Deployment
 apiVersion: apps/v1
@@ -18,6 +31,11 @@ spec:
       containers:
         - name: ssikit
           image: waltid/ssikit:latest
+          volumeMounts:
+              -   name: signatory-config
+                  mountPath: "/app/config/signatory.conf"
+                  subPath: "signatory.conf"
+                  readOnly: true
           args:
             - serve
             - -b
@@ -33,6 +51,13 @@ spec:
               name: auditor-api
             - containerPort: 7004
               name: essif-api
+      volumes:
+          -   name: signatory-config
+              configMap:
+                  items:
+                      -   key: signatory.conf
+                          path: signatory.conf
+                  name: signatory-config
 ---
 kind: Service
 apiVersion: v1
