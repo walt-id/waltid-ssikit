@@ -6,6 +6,7 @@ data:
     signatory.conf: |
         {
             "proofConfig": {
+                "issuerDid": "",
                 "proofType": "LD_PROOF",
                 "credentialsEndpoint": "https://signatory.ssikit.walt.id/v1/credentials"
             },
