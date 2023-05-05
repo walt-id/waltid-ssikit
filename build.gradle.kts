@@ -22,6 +22,7 @@ repositories {
     maven("https://jitpack.io")
     maven("https://maven.walt.id/repository/waltid/")
     maven("https://maven.walt.id/repository/waltid-ssi-kit/")
+    maven("https://s01.oss.sonatype.org/content/repositories/snapshots/")
     mavenLocal()
 }
 
@@ -37,6 +38,7 @@ dependencies {
     implementation("com.microsoft.azure:azure-client-authentication:1.7.14")
     implementation("com.nimbusds:nimbus-jose-jwt:9.30.2")
     implementation("com.nimbusds:oauth2-oidc-sdk:10.7")
+    implementation("org.sd-jwt:sd-jwt-kotlin:0.1.0-SNAPSHOT")
 
     implementation("org.bouncycastle:bcprov-jdk15to18:1.72")
     implementation("org.bouncycastle:bcpkix-jdk15to18:1.72")
@@ -61,7 +63,7 @@ dependencies {
     implementation("org.xerial:sqlite-jdbc:3.40.1.0")
     implementation("com.zaxxer:HikariCP:5.0.1")
 
-    // CLI
+    // CLI-SNAPSHOT
     implementation("com.github.ajalt.clikt:clikt-jvm:3.5.2")
     implementation("com.github.ajalt.clikt:clikt:3.5.0")
 
