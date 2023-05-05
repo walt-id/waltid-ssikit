@@ -3,6 +3,7 @@ package id.walt.signatory.revocation.statuslist2021
 import com.beust.klaxon.Klaxon
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
+import id.walt.services.WaltIdServices
 import kotlinx.serialization.Serializable
 import java.io.File
 
@@ -28,7 +29,7 @@ data class StatusListIndex(
 )
 
 class WaltIdStatusListIndexService : StatusListIndexService() {
-    private val indexPath = "data/status-list-index.json"
+    private val indexPath = "${WaltIdServices.revocationDir}/status-list-index.json"
 
     override fun create(): StatusListIndex = StatusListIndex(index = "0").let {
         createAndUpdateIndex(it)

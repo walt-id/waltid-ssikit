@@ -1,4 +1,15 @@
 apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    name: data-volume-claim
+spec:
+    accessModes:
+        - ReadWriteMany
+    resources:
+        requests:
+            storage: 100Mi
+---
+apiVersion: v1
 kind: ConfigMap
 metadata:
     name: signatory-config
@@ -37,6 +48,8 @@ spec:
                   mountPath: "/app/config/signatory.conf"
                   subPath: "signatory.conf"
                   readOnly: true
+              -   mountPath: "/app/data/revocation"
+                  name: data-volume
           args:
             - serve
             - -b
@@ -59,6 +72,9 @@ spec:
                       -   key: signatory.conf
                           path: signatory.conf
                   name: signatory-config
+          -   name: data-volume
+              persistentVolumeClaim:
+                  claimName: data-volume-claim
 ---
 kind: Service
 apiVersion: v1
