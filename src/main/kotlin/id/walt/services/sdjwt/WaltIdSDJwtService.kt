@@ -71,7 +71,7 @@ open class WaltIdSDJwtService: SDJwtService() {
                         // so let's compute the digest and disclosure for the nested SD payload:
                         digestSDClaim(entry.key, nestedSDPayload, disclosures)
                     } else {
-                        // this nested object can is not selectively disclosable as a whole, add the nested SD payload as it is:
+                        // this nested object is not selectively disclosable as a whole, add the nested SD payload as it is:
                         sdPayload[entry.key] = nestedSDPayload
                         // no digest/disclosure is added for this field (though the nested properties may have generated digests and disclosures)
                         null
