@@ -1,17 +1,14 @@
 package id.walt.services.sdjwt
 
-import com.nimbusds.jose.JOSEObjectType
 import com.nimbusds.jose.util.Base64URL
 import id.walt.credentials.selectiveDisclosure.SDField
 import id.walt.services.jwt.JwtService
 import id.walt.services.key.KeyService
-import id.walt.services.keystore.KeyType
 import kotlinx.serialization.json.*
 import mu.KotlinLogging
-import org.sd_jwt.SdJwtHeader
-import org.sd_jwt.createCredential
 import java.security.MessageDigest
 import java.security.SecureRandom
+import java.text.ParseException
 
 open class WaltIdSDJwtService: SDJwtService() {
     private val log = KotlinLogging.logger {}
@@ -80,38 +77,92 @@ open class WaltIdSDJwtService: SDJwtService() {
             }.filterNotNull().toSet()
 
         if(digests.isNotEmpty()) {
-            sdPayload.put(DIGESTS_KEY, buildJsonArray {
+            sdPayload.put(SDJwt.DIGESTS_KEY, buildJsonArray {
                 digests.forEach { add(it) }
             })
         }
         return JsonObject(sdPayload)
     }
 
-    override fun sign(keyAlias: String, payload: JsonObject, sdMap: Map<String, SDField>): String {
+    override fun sign(keyAlias: String, payload: JsonObject, sdMap: Map<String, SDField>): SDJwt {
         val disclosures = mutableSetOf<String>()
         val sdPayload = generateSDPayload(payload, sdMap, disclosures)
         val sdJwt = JwtService.getService().sign(keyAlias, sdPayload.toString())
-        return listOf(sdJwt).plus(disclosures).joinToString(DISCLOSURES_SEPARATOR)
+        return SDJwt.forIssuance(sdJwt, disclosures)
     }
 
-    override fun toSDMap(combinedSdJwt: String): Map<String, SDField> {
+    override fun toSDMap(sdJwt: SDJwt): Map<String, SDField> {
         throw TODO()
     }
 
-    override fun parsePayload(combinedSdJwt: String): JsonObject {
-        throw TODO()
+    private fun unveilDislosureIfPresent(digest: String, digests2Disclosures: MutableMap<String, String>, objectBuilder: JsonObjectBuilder) {
+        val disclosure = digests2Disclosures.remove(digest)
+        if(disclosure != null) {
+            val parsedDislosure = SDisclosure.parse(disclosure)
+            objectBuilder.put(parsedDislosure.key,
+                if(parsedDislosure.value is JsonObject) {
+                    resolveDislosedPayload(parsedDislosure.value.jsonObject, digests2Disclosures)
+                } else parsedDislosure.value
+            )
+        }
     }
 
-    override fun verify(combinedSdJwt: String): Boolean {
-        throw TODO()
+    private fun resolveDislosedPayload(payload: JsonObject, digests2Disclosures: MutableMap<String, String>): JsonObject {
+        return buildJsonObject {
+            payload.forEach { key, value ->
+                if(key == SDJwt.DIGESTS_KEY) {
+                    if(value !is JsonArray) throw ParseException("SD-JWT contains invalid ${SDJwt.DIGESTS_KEY} element", 0)
+                    value.jsonArray.forEach {
+                        unveilDislosureIfPresent(it.jsonPrimitive.content, digests2Disclosures, this)
+                    }
+                } else if(value is JsonObject) {
+                    put(key, resolveDislosedPayload(value.jsonObject, digests2Disclosures))
+                } else {
+                    put(key, value)
+                }
+            }
+        }
     }
 
-    override fun present(combinedSdJwt: String, sdMap: Map<String, SDField>): String {
-        throw TODO()
+    override fun disclosePayload(sdJwt: SDJwt): JsonObject {
+        val digests2Disclosures = sdJwt.disclosures.associateByTo(mutableMapOf()) { digest(it) }
+        return resolveDislosedPayload(sdJwt.undisclosedPayload, digests2Disclosures)
     }
 
-    companion object {
-        val DIGESTS_KEY = "_sd"
-        val DISCLOSURES_SEPARATOR = "~"
+    private fun verifyDisclosuresInPayload(sdJwt: SDJwt): Boolean {
+        val digests2Disclosures = sdJwt.disclosures.associateByTo(mutableMapOf()) { digest(it) }
+        resolveDislosedPayload(sdJwt.undisclosedPayload, digests2Disclosures)
+        return digests2Disclosures.isEmpty()
+    }
+
+    override fun verify(sdJwt: SDJwt): Boolean {
+        return  JwtService.getService().verify(sdJwt.jwt) &&
+                verifyDisclosuresInPayload(sdJwt) &&
+                (sdJwt.holderJwt?.let { JwtService.getService().verify(it) } ?: true)
+    }
+
+    private fun selectDisclosures(payload: JsonObject, sdMap: Map<String, SDField>, digests2Disclosures: Map<String, String>): Set<String> {
+        if(!payload.containsKey(SDJwt.DIGESTS_KEY) || payload[SDJwt.DIGESTS_KEY] !is JsonArray) {
+            throw Exception("No selectively disclosable fields found in given JWT payload, or invalid ${SDJwt.DIGESTS_KEY} format found")
+        }
+
+        return payload[SDJwt.DIGESTS_KEY]!!.jsonArray
+            .map { it.jsonPrimitive.content }
+            .filter { digests2Disclosures.containsKey(it) }
+            .map { SDisclosure.parse(digests2Disclosures[it]!!) }
+            .filter {sd -> sdMap[sd.key]?.sd == true }
+            .flatMap { sd ->
+                listOf(sd.disclosure).plus(
+                    if(sd.value is JsonObject && !sdMap[sd.key]?.nestedMap.isNullOrEmpty()) {
+                        selectDisclosures(sd.value, sdMap[sd.key]!!.nestedMap!!, digests2Disclosures)
+                    } else listOf()
+                )
+            }.toSet()
+    }
+
+    override fun present(sdJwt: SDJwt, sdMap: Map<String, SDField>): SDJwt {
+        val digests2Disclosures = sdJwt.disclosures.associateBy { digest(it) }
+        val selectedDisclosures = selectDisclosures(sdJwt.undisclosedPayload, sdMap, digests2Disclosures)
+        return SDJwt.forPresentation(sdJwt.jwt, selectedDisclosures)
     }
 }

@@ -3,7 +3,9 @@ package id.walt.credentials.w3c
 import com.nimbusds.jwt.SignedJWT
 import id.walt.credentials.selectiveDisclosure.SDField
 import id.walt.credentials.w3c.builder.CredentialFactory
+import id.walt.services.sdjwt.SDJwt
 import id.walt.services.sdjwt.SDJwtService
+import id.walt.services.sdjwt.WaltIdSDJwtService
 import kotlinx.serialization.json.*
 
 open class VerifiableCredential internal constructor(
@@ -110,10 +112,9 @@ open class VerifiableCredential internal constructor(
         private const val JWT_PATTERN = "(^[A-Za-z0-9-_]*\\.[A-Za-z0-9-_]*\\.[A-Za-z0-9-_]*\$)"
         private const val JWT_VC_CLAIM = "vc"
         private const val JWT_VP_CLAIM = "vp"
-        private const val SD_JWT_PATTERN = "^([A-Za-z0-9-_]+)\\.([A-Za-z0-9-_]+)\\.([A-Za-z0-9-_]+)(~([A-Za-z0-9-_]+))*(~(([A-Za-z0-9-_]+)\\.([A-Za-z0-9-_]+)\\.([A-Za-z0-9-_]+))?)?\$"
 
         fun isJWT(data: String) = Regex(JWT_PATTERN).matches(data)
-        fun isSDJwt(data: String) = Regex(SD_JWT_PATTERN).matches(data)
+        fun isSDJwt(data: String) = Regex(SDJwt.SD_JWT_PATTERN).matches(data)
 
         private val possibleClaimKeys = listOf(JWT_VP_CLAIM, JWT_VC_CLAIM)
 
@@ -128,19 +129,19 @@ open class VerifiableCredential internal constructor(
             }
         }
 
-        private fun fromSdJwt(combinedSdJwt: String): VerifiableCredential {
-            val resolvedObject = SDJwtService.getService().parsePayload(combinedSdJwt)
+        private fun fromSdJwt(sdJwt: SDJwt): VerifiableCredential {
+            val resolvedObject = SDJwtService.getService().disclosePayload(sdJwt)
             val claimKey = possibleClaimKeys.first { it in resolvedObject.keys }
             return fromJsonObject(resolvedObject[claimKey]!!.jsonObject).apply {
-                this.jwt = combinedSdJwt
-                this.selectiveDisclosure = SDJwtService.getService().toSDMap(combinedSdJwt)
+                this.jwt = sdJwt.toString() // TODO: new property?
+                this.selectiveDisclosure = SDJwtService.getService().toSDMap(sdJwt)
             }
         }
 
         fun fromString(data: String): VerifiableCredential {
             return when {
                 isJWT(data) -> fromJwt(data)
-                isSDJwt(data) -> fromSdJwt(data)
+                isSDJwt(data) -> fromSdJwt(SDJwt.fromCombinedSDJwt(data))
                 else -> fromJson(data)
             }
         }

@@ -14,37 +14,37 @@ abstract class SDJwtService: BaseService() {
      * @param payload   Payload, with all fields disclosed
      * @param sdMap     Map indicating selective disclosability and disclosed/undisclosed state for each field
      */
-    open fun sign(keyAlias: String, payload: JsonObject, sdMap: Map<String, SDField>): String
+    open fun sign(keyAlias: String, payload: JsonObject, sdMap: Map<String, SDField>): SDJwt
         = implementation.sign(keyAlias, payload, sdMap)
 
     /**
      * Verifies SD_JWT signature and validity of disclosures
-     * @param combinedSdJwt Combined SD_JWT with disclosures
+     * @param sdJwt Combined SD_JWT with disclosures
      */
-    open fun verify(combinedSdJwt: String): Boolean
-        = implementation.verify(combinedSdJwt)
+    open fun verify(sdJwt: SDJwt): Boolean
+        = implementation.verify(sdJwt)
 
     /**
      * Returns JsonObject of payload with all disclosed fields recursively resolved
-     * @param combinedSdJwt Combined SD_JWT with disclosures
+     * @param sdJwt Combined SD_JWT with disclosures
      */
-    open fun parsePayload(combinedSdJwt: String): JsonObject
-        = implementation.parsePayload(combinedSdJwt)
+    open fun disclosePayload(sdJwt: SDJwt): JsonObject
+        = implementation.disclosePayload(sdJwt)
 
     /**
      * Returns map indicating for each field, whether it is selectively disclosable
      * @param combinedSdJwt Combined SD_JWT with disclosures
      */
-    open fun toSDMap(combinedSdJwt: String): Map<String, SDField>
-        = implementation.toSDMap(combinedSdJwt)
+    open fun toSDMap(sdJwt: SDJwt): Map<String, SDField>
+        = implementation.toSDMap(sdJwt)
 
     /**
      * Returns combined sd-jwt with undisclosed (according to sdMap) fields removed from disclosures
-     * @param combinedSdJwt Original (as issued) SD-JWT combined with disclosures
+     * @param sdJwt Original (as issued) SD-JWT combined with disclosures
      * @param sdMap map indicating, which selectively disclosable fields should be disclosed or undisclosed
      */
-    open fun present(combinedSdJwt: String, sdMap: Map<String, SDField>): String
-        = implementation.present(combinedSdJwt, sdMap)
+    open fun present(sdJwt: SDJwt, sdMap: Map<String, SDField>): SDJwt
+        = implementation.present(sdJwt, sdMap)
 
     companion object : ServiceProvider {
         override fun getService() = object : SDJwtService() {}
