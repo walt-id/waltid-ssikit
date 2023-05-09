@@ -21,6 +21,7 @@ class DidResolverFactory(
             DidMethod.jwk -> DidJwkResolver()
             DidMethod.iota -> DidIotaResolver(iotaWrapper)
             DidMethod.cheqd -> DidCheqdResolver(HttpClient())//TODO: fix contentType for application/did+ld+json
+            DidMethod.velocity -> DidVelocityResolver()
         }
     }
 }

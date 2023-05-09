@@ -4,7 +4,7 @@ import id.walt.model.Did
 import id.walt.model.ServiceEndpoint
 import id.walt.model.VerificationMethod
 
-class DidCheqd(
+class DidVelocity(
     context: List<String>? = listOf("https://w3id.org/did-resolution/v1"),
     id: String,
     authentication: List<VerificationMethod>? = null,
@@ -25,7 +25,6 @@ class DidCheqd(
     keyAgreement = keyAgreement,
     service = service
 ) {
-
     constructor(
         context: String,
         id: String,
@@ -47,10 +46,4 @@ class DidCheqd(
         keyAgreement = keyAgreement,
         service = service
     )
-
-    override fun toString(): String {
-        return "DidCheqd(context=$context, id=$id, verificationMethod=$verificationMethod, authentication=$authentication, service=$service)"
-    }
-
-
 }

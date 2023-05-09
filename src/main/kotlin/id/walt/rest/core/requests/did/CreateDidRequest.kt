@@ -22,6 +22,7 @@ class CreateDidRequestMethodAdapter : TypeAdapter<CreateDidRequest> {
         DidMethod.iota -> IotaCreateDidRequest::class
         DidMethod.jwk -> JWKCreateDidRequest::class
         DidMethod.cheqd -> CheqdCreateDidRequest::class
+        DidMethod.velocity -> VelocityCreateDidRequest::class
     }
 }
 
@@ -48,4 +49,6 @@ class CheqdCreateDidRequest(
     val network: String = "testnet",
     override val keyAlias: String? = null,
 ) : CreateDidRequest("cheqd")
+@Serializable
+class VelocityCreateDidRequest(override val keyAlias: String?) : CreateDidRequest("velocity")
 

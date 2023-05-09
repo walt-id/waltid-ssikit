@@ -22,7 +22,7 @@ enum class DidMethod(val didClass: KClass<out Did>) {
     ebsi(DidEbsi::class),
     iota(DidIota::class),
     cheqd(DidCheqd::class),
-
+    velocity(DidVelocity::class),
     jwk(Did::class)
 }
 

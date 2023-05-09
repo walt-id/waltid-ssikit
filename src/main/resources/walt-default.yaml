@@ -10,3 +10,9 @@ azureKeyVaultConfig:
     baseURL:
     id:
     secret:
+
+velocityConfig:
+    agentApiVersion: "v0.8"
+    registrarApiVersion: "v0.6"
+    agentEndpoint: "http://127.0.0.1:8081"
+    registrarEndpoint: "https://stagingregistrar.velocitynetwork.foundation/"
