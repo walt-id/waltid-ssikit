@@ -17,6 +17,8 @@ import id.walt.auditor.dynamic.DynamicPolicyArg
 import id.walt.auditor.dynamic.PolicyEngineType
 import id.walt.common.prettyPrint
 import id.walt.common.resolveContent
+import id.walt.credentials.w3c.PresentableCredential
+import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.LdSignatureType
 import id.walt.custodian.Custodian
@@ -163,16 +165,16 @@ class PresentVcCommand : CliktCommand(
         echo("Creating a verifiable presentation for DID \"$holderDid\"...")
         echo("Using ${src.size} ${if (src.size > 1) "VCs" else "VC"}:")
 
-        val vcSources: Map<Path, String> = src.associateWith { it.readText() }
+        val vcSources: Map<Path, VerifiableCredential> = src.associateWith { it.readText().toVerifiableCredential() }
 
         src.forEachIndexed { index, vcPath ->
-            echo("- ${index + 1}. $vcPath (${vcSources[vcPath]!!.toVerifiableCredential().type.last()})")
+            echo("- ${index + 1}. $vcPath (${vcSources[vcPath]!!.type.last()})")
         }
 
-        val vcStrList = vcSources.values.toList()
+        val presentableList = vcSources.values.map { PresentableCredential(it) }.toList()
 
         // Creating the Verifiable Presentation
-        val vp = Custodian.getService().createPresentation(vcStrList, holderDid, verifierDid, domain, challenge, null)
+        val vp = Custodian.getService().createPresentation(presentableList, holderDid, verifierDid, domain, challenge, null)
 
         log.debug { "Presentation created:\n$vp" }
 

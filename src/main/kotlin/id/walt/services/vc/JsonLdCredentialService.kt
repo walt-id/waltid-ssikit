@@ -1,6 +1,7 @@
 package id.walt.services.vc
 
 import id.walt.auditor.VerificationPolicyResult
+import id.walt.credentials.w3c.PresentableCredential
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
@@ -26,7 +27,7 @@ abstract class JsonLdCredentialService : WaltIdService() {
     open fun verify(vcOrVp: String): VerificationResult = implementation.verify(vcOrVp)
 
     open fun present(
-        vcs: List<String>,
+        vcs: List<PresentableCredential>,
         holderDid: String,
         domain: String?,
         challenge: String?,

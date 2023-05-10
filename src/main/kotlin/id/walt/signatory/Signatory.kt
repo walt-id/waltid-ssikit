@@ -1,6 +1,7 @@
 package id.walt.signatory
 
 import com.beust.klaxon.Json
+import id.walt.credentials.selectiveDisclosure.SDField
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.W3CIssuer
 import id.walt.credentials.w3c.builder.AbstractW3CCredentialBuilder
@@ -17,7 +18,7 @@ import java.time.Instant
 private val log = KotlinLogging.logger {}
 
 enum class ProofType {
-    JWT, LD_PROOF
+    JWT, LD_PROOF, SD_JWT
 }
 
 enum class Ecosystem {
@@ -47,6 +48,7 @@ data class ProofConfig(
     @Json(serializeNull = false) val statusType: CredentialStatus.Types? = null,
     @Json(serializeNull = false) val statusPurpose: String = "revocation",
     @Json(serializeNull = false) val credentialsEndpoint: String? = null,
+    @Json(ignored = true) val selectiveDisclosure: Map<String, SDField>? = null
 )
 
 data class SignatoryConfig(

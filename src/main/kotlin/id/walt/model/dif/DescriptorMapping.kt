@@ -18,7 +18,7 @@ data class DescriptorMapping(
         }
 
         fun vcFormat(vc: VerifiableCredential) = "${
-            when (vc.jwt) {
+            when (vc.sdJwt) {
                 null -> "ldp"
                 else -> "jwt"
             }

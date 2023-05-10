@@ -7,9 +7,11 @@ import id.walt.credentials.w3c.*
 import id.walt.credentials.w3c.schema.SchemaValidatorFactory
 import id.walt.services.did.DidService
 import id.walt.services.jwt.JwtService
+import id.walt.services.sdjwt.SDJwtService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
-import info.weboftrust.ldsignatures.LdProof
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
 import mu.KotlinLogging
 import java.net.URI
 import java.nio.file.Files
@@ -24,7 +26,7 @@ private const val JWT_VP_CLAIM = "vp"
 
 open class WaltIdJwtCredentialService : JwtCredentialService() {
 
-    private val jwtService = JwtService.getService()
+    private val sdJwtService = SDJwtService.getService()
 
     override fun sign(jsonCred: String, config: ProofConfig): String {
         log.debug { "Signing JWT object with config: $config" }
@@ -54,20 +56,17 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
                 .claim(JWT_VC_CLAIM, JsonConverter.fromJsonElement(crd.toJsonObject()))
         }
 
-        val payload = jwtClaimsSet.build().toString()
+        val payload = Json.parseToJsonElement(jwtClaimsSet.build().toString()).jsonObject
         log.debug { "Signing: $payload" }
 
         val vm = config.issuerVerificationMethod ?: issuerDid
-        return jwtService.sign(vm, payload)
+        return sdJwtService.sign(vm, payload, config.selectiveDisclosure).toString()
     }
 
     override fun verifyVc(issuerDid: String, vc: String): Boolean {
         log.debug { "Verifying vc: $vc with issuerDid: $issuerDid" }
         return SignedJWT.parse(vc).header.keyID == issuerDid && verifyVc(vc)
     }
-
-    override fun addProof(credMap: Map<String, String>, ldProof: LdProof): String =
-        TODO("Not implemented yet.")
 
     override fun verify(vcOrVp: String): VerificationResult =
         when (vcOrVp.toVerifiableCredential()) {
@@ -77,14 +76,14 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
 
     override fun verifyVc(vc: String): Boolean {
         log.debug { "Verifying vc: $vc" }
-        return JwtService.getService().verify(vc)
+        return sdJwtService.verify(sdJwtService.parseSDJwt(vc))
     }
 
     override fun verifyVp(vp: String): Boolean =
         verifyVc(vp)
 
     override fun present(
-        vcs: List<String>,
+        vcs: List<PresentableCredential>,
         holderDid: String,
         verifierDid: String?,
         challenge: String?,
@@ -104,7 +103,7 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
             issuerVerificationMethod = DidService.getAuthenticationMethods(holderDid)!!.first().id
         )
         val vpReqStr = VerifiablePresentationBuilder().setId(id).setHolder(holderDid)
-            .setVerifiableCredentials(vcs.map { it.toVerifiableCredential() }).build().toJson()
+            .setVerifiableCredentials(vcs).build().toJson()
 
         log.trace { "VP request: $vpReqStr" }
         log.trace { "Proof config: $$config" }

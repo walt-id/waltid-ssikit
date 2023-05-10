@@ -14,11 +14,11 @@ data class SDJwt (
     val formatForPresentation: Boolean = false
 ) {
     val disclosures
-        get() = digests2Disclosures.values
+        get() = digests2Disclosures.values.toSet()
 
     override fun toString(): String {
         return listOf(jwt)
-                .plus(digests2Disclosures.values.map { it.disclosure })
+                .plus(disclosures)
                 .plus(holderJwt?.let { listOf(it) } ?: (if(formatForPresentation) listOf("") else listOf()))
                 .joinToString(SEPARATOR_STR)
     }
@@ -27,6 +27,6 @@ data class SDJwt (
         const val DIGESTS_KEY = "_sd"
         const val SEPARATOR = '~'
         const val SEPARATOR_STR = SEPARATOR.toString()
-        const val SD_JWT_PATTERN = "^(?<sdjwt>([A-Za-z0-9-_]+)\\.(?<body>[A-Za-z0-9-_]+)\\.([A-Za-z0-9-_]+))(?<disclosures>(~([A-Za-z0-9-_]+))*)(~(?<holderjwt>([A-Za-z0-9-_]+)\\.([A-Za-z0-9-_]+)\\.([A-Za-z0-9-_]+))?)?\$"
+        const val SD_JWT_PATTERN = "^(?<sdjwt>([A-Za-z0-9-_]+)\\.(?<body>[A-Za-z0-9-_]+)\\.([A-Za-z0-9-_]+))(?<disclosures>(~([A-Za-z0-9-_]+))+)?(~(?<holderjwt>([A-Za-z0-9-_]+)\\.([A-Za-z0-9-_]+)\\.([A-Za-z0-9-_]+))?)?\$"
     }
 }

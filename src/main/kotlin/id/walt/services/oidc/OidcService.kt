@@ -5,6 +5,7 @@ import com.nimbusds.oauth2.sdk.token.BearerAccessToken
 import com.nimbusds.oauth2.sdk.util.URLUtils
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse
 import id.walt.common.prettyPrint
+import id.walt.credentials.w3c.PresentableCredential
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.toVerifiablePresentation
 import id.walt.custodian.Custodian
@@ -238,7 +239,9 @@ object OidcService {
         val req = OIDC4VPService.parseOIDC4VPRequestUri(URI.create(authUrl))
         val nonce = req.getCustomParameter("nonce")?.firstOrNull()
         val vp = Custodian.getService().createPresentation(
-            credentialIds.map { Custodian.getService().getCredential(it)!!.encode() },
+            credentialIds
+                .map { Custodian.getService().getCredential(it) ?: throw Exception("Credential with ID $it not found") }
+                .map { PresentableCredential(it) },
             did,
             challenge = nonce,
         ).toVerifiablePresentation()

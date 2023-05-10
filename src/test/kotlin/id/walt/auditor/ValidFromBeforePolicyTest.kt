@@ -1,6 +1,7 @@
 package id.walt.auditor
 
 import id.walt.auditor.policies.ValidFromBeforePolicy
+import id.walt.credentials.w3c.PresentableCredential
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.VerifiablePresentationBuilder
 import id.walt.credentials.w3c.builder.W3CCredentialBuilder
@@ -28,7 +29,7 @@ class ValidFromBeforePolicyTest : StringSpec({
     }
 
     "returns always true when vc is a presentation" {
-        val vp = VerifiablePresentationBuilder().setVerifiableCredentials(listOf(VerifiableCredential())).build()
+        val vp = VerifiablePresentationBuilder().setVerifiableCredentials(listOf(PresentableCredential(VerifiableCredential()))).build()
         assertTrue(validFromBeforePolicy.verify(vp).isSuccess)
     }
 })

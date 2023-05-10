@@ -1,5 +1,6 @@
 package id.walt.rest.core
 
+import id.walt.credentials.w3c.toPresentableCredential
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.ProofConfig
 import io.javalin.http.ContentType
@@ -74,7 +75,7 @@ object VcController {
         val presentVcReq = ctx.bodyAsClass(PresentVcRequest::class.java)
         ctx.result(
             credentialService.present(
-                listOf(presentVcReq.vc),
+                listOf(presentVcReq.vc.toPresentableCredential()),
                 presentVcReq.holderDid,
                 presentVcReq.domain,
                 presentVcReq.challenge,

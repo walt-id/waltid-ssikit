@@ -21,7 +21,7 @@ abstract class SDJwtService: BaseService() {
      * @param payload   Payload, with all fields disclosed
      * @param sdMap     Map indicating selective disclosability and disclosed/undisclosed state for each field
      */
-    open fun sign(keyAlias: String, payload: JsonObject, sdMap: Map<String, SDField>): SDJwt
+    open fun sign(keyAlias: String, payload: JsonObject, sdMap: Map<String, SDField>?): SDJwt
         = implementation.sign(keyAlias, payload, sdMap)
 
     /**
@@ -50,7 +50,7 @@ abstract class SDJwtService: BaseService() {
      * @param sdJwt Original (as issued) SD-JWT combined with disclosures
      * @param sdMap map indicating, which selectively disclosable fields should be disclosed or undisclosed
      */
-    open fun present(sdJwt: SDJwt, sdMap: Map<String, SDField>): SDJwt
+    open fun present(sdJwt: SDJwt, sdMap: Map<String, SDField>?): SDJwt
         = implementation.present(sdJwt, sdMap)
 
     companion object : ServiceProvider {

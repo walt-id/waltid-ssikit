@@ -15,7 +15,7 @@ class SignaturePolicy : SimpleVerificationPolicy() {
     private val jwtCredentialService = JwtCredentialService.getService()
 
     override fun doVerify(vc: VerifiableCredential) = runCatching {
-        log.debug { "is jwt: ${vc.jwt != null}" }
+        log.debug { "is jwt: ${vc.sdJwt != null}" }
         vc.verifyByFormatType(
             { jwtCredentialService.verify(it) },
             { jsonLdCredentialService.verify(it) }

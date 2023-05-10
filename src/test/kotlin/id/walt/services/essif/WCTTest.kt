@@ -4,6 +4,7 @@ import com.beust.klaxon.Klaxon
 import com.nimbusds.oauth2.sdk.AuthorizationRequest
 import com.nimbusds.oauth2.sdk.http.HTTPRequest
 import com.nimbusds.oauth2.sdk.util.URLUtils
+import id.walt.credentials.w3c.PresentableCredential
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.toVerifiablePresentation
 import id.walt.crypto.KeyAlgorithm
@@ -158,7 +159,7 @@ class WCTTest : AnnotationSpec() {
         nonce shouldBe "3cbb22d1-69c9-4d0f-94ef-759c7870b19c"
 
         val vp = Custodian.getService().createPresentation(
-            listOf(issuedVC!!.jwt!!),
+            listOf(PresentableCredential(issuedVC!!)),
             did,
             issuedVC!!.issuerId,
             challenge = nonce,

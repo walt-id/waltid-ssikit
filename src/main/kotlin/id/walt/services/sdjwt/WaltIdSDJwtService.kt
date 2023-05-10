@@ -103,11 +103,13 @@ open class WaltIdSDJwtService: SDJwtService() {
         return JsonObject(sdPayload)
     }
 
-    override fun sign(keyAlias: String, payload: JsonObject, sdMap: Map<String, SDField>): SDJwt {
+    override fun sign(keyAlias: String, payload: JsonObject, sdMap: Map<String, SDField>?): SDJwt {
         val digests2Disclosures = mutableMapOf<String, SDisclosure>()
-        val sdPayload = generateSDPayload(payload, sdMap, digests2Disclosures)
+        val sdPayload = sdMap?.let {
+            generateSDPayload(payload, it, digests2Disclosures)
+        } ?: payload
         val sdJwt = JwtService.getService().sign(keyAlias, sdPayload.toString())
-        return SDJwt(sdJwt, sdPayload, digests2Disclosures)
+        return SDJwt(sdJwt, sdPayload, digests2Disclosures.toMap())
     }
 
     private fun unveilDislosureIfPresent(digest: String, digests2Disclosures: MutableMap<String, SDisclosure>, objectBuilder: JsonObjectBuilder) {
@@ -174,8 +176,10 @@ open class WaltIdSDJwtService: SDJwtService() {
             }.toSet()
     }
 
-    override fun present(sdJwt: SDJwt, sdMap: Map<String, SDField>): SDJwt {
-        val selectedDisclosures = selectDisclosures(sdJwt.sdPayload, sdMap, sdJwt.digests2Disclosures)
+    override fun present(sdJwt: SDJwt, sdMap: Map<String, SDField>?): SDJwt {
+        val selectedDisclosures = sdMap?.let {
+            selectDisclosures(sdJwt.sdPayload, it, sdJwt.digests2Disclosures)
+        } ?: sdJwt.disclosures
         return SDJwt(sdJwt.jwt, sdJwt.sdPayload, sdJwt.digests2Disclosures.filterValues { selectedDisclosures.contains(it.disclosure) }, formatForPresentation = true)
     }
 
@@ -187,7 +191,7 @@ open class WaltIdSDJwtService: SDJwtService() {
 
     private fun createSdMapFor(payload: JsonObject, digests2Disclosures: Map<String, SDisclosure>): Map<String, SDField> {
         if(!payload.containsKey(SDJwt.DIGESTS_KEY) || payload[SDJwt.DIGESTS_KEY] !is JsonArray) {
-            throw Exception("No selectively disclosable fields found in given JWT payload, or invalid ${SDJwt.DIGESTS_KEY} format found")
+            return mapOf()
         }
 
         return payload[SDJwt.DIGESTS_KEY]!!.jsonArray

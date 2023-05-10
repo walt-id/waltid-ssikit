@@ -11,6 +11,7 @@ import com.nimbusds.jose.jwk.OctetKeyPair
 import com.nimbusds.jwt.JWTClaimsSet
 import id.walt.common.KlaxonWithConverters
 import id.walt.common.toParamMap
+import id.walt.credentials.w3c.PresentableCredential
 import id.walt.credentials.w3c.VerifiablePresentationBuilder
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyId
@@ -328,7 +329,7 @@ object UserWalletService {
 
         val vpReq = VerifiablePresentationBuilder()
             .setHolder(holderDid)
-            .setVerifiableCredentials(listOf(vaWrapper.verifiableCredential))
+            .setVerifiableCredentials(listOf(PresentableCredential(vaWrapper.verifiableCredential)))
             .build()
 
         val authKeyId = DidService.load(holderDid).authentication!![0].id

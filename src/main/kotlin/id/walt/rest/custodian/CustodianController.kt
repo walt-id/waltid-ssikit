@@ -2,7 +2,9 @@ package id.walt.rest.custodian
 
 import id.walt.common.KlaxonWithConverters
 import id.walt.common.VCObjectList
+import id.walt.credentials.w3c.PresentableCredential
 import id.walt.credentials.w3c.VerifiableCredential
+import id.walt.credentials.w3c.toPresentableCredential
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.Key
 import id.walt.crypto.KeyAlgorithm
@@ -10,8 +12,10 @@ import id.walt.custodian.Custodian
 import id.walt.model.VerifiableCredentialModel
 import id.walt.services.key.KeyFormat
 import id.walt.services.keystore.KeyType
+import io.javalin.http.BadRequestResponse
 import io.javalin.http.ContentType
 import io.javalin.http.Context
+import io.javalin.http.NotFoundResponse
 import io.javalin.plugin.openapi.dsl.document
 import kotlinx.serialization.Serializable
 
@@ -193,7 +197,7 @@ object CustodianController {
         val req = ctx.bodyAsClass<PresentCredentialsRequest>()
         ctx.result(
             custodian.createPresentation(
-                req.vcs,
+                req.vcs.map { it.toPresentableCredential() },
                 req.holderDid,
                 req.verifierDid,
                 req.domain,
@@ -216,8 +220,10 @@ object CustodianController {
     fun presentCredentialIds(ctx: Context) {
         val req = ctx.bodyAsClass<PresentCredentialIdsRequest>()
 
-        val ids = req.vcIds.map { custodian.getCredential(it)!!.encode() }
+        val presentables = req.vcIds
+            .map { custodian.getCredential(it) ?: throw NotFoundResponse("Credential with given ID $it not found") }
+            .map { PresentableCredential(it) }
 
-        ctx.result(custodian.createPresentation(ids, req.holderDid, req.verifierDid, req.domain, req.challenge, null))
+        ctx.result(custodian.createPresentation(presentables, req.holderDid, req.verifierDid, req.domain, req.challenge, null))
     }
 }

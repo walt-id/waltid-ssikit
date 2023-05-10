@@ -118,7 +118,7 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
         log.debug { "Signing credential with proof using ${fullProofConfig.proofType.name}, credential is: $vcRequest" }
         val signedVc = when (fullProofConfig.proofType) {
             ProofType.LD_PROOF -> JsonLdCredentialService.getService().sign(vcRequest.toJson(), fullProofConfig)
-            ProofType.JWT -> JwtCredentialService.getService().sign(vcRequest.toJson(), fullProofConfig)
+            ProofType.JWT, ProofType.SD_JWT -> JwtCredentialService.getService().sign(vcRequest.toJson(), fullProofConfig)
         }
         log.debug { "Signed VC is: $signedVc" }
 

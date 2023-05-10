@@ -6,6 +6,7 @@ import id.walt.auditor.policies.SignaturePolicy
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.builder.W3CCredentialBuilder
 import id.walt.credentials.w3c.schema.SchemaValidatorFactory
+import id.walt.credentials.w3c.toPresentableCredential
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.KeyAlgorithm
 import id.walt.custodian.Custodian
@@ -154,13 +155,13 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
         // issue credential using did ebsi v2
         val vc = Signatory.getService()
             .issue("VerifiableId", ProofConfig(didV2, didV2, proofType = ProofType.JWT, ecosystem = Ecosystem.ESSIF))
-        VerifiableCredential.isJWT(vc) shouldBe true
+        VerifiableCredential.isSDJwt(vc) shouldBe true
         val signedVcJwt = SignedJWT.parse(vc)
         // verify jwk header is set
         signedVcJwt.header.jwk shouldNotBe null
         // create presentation using did ebsi v2
-        val presentation = Custodian.getService().createPresentation(listOf(vc), didV2)
-        VerifiableCredential.isJWT(presentation) shouldBe true
+        val presentation = Custodian.getService().createPresentation(listOf(vc.toPresentableCredential()), didV2)
+        VerifiableCredential.isSDJwt(presentation) shouldBe true
 
         val signedPresentationJwt = SignedJWT.parse(presentation)
         // verify jwk header is set

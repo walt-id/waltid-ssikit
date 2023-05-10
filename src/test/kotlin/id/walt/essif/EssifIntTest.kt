@@ -4,6 +4,7 @@ import id.walt.auditor.Auditor
 import id.walt.auditor.PolicyRegistry
 import id.walt.cli.did.resolveDidHelper
 import id.walt.common.SqlDbManager
+import id.walt.credentials.w3c.toPresentableCredential
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyId
@@ -175,10 +176,10 @@ class EssifIntTest : StringSpec({
             )
         }
 
-        val vcStrList = src.stream().map { vc -> vc.readText() }.collect(Collectors.toList())
+        val presentables = src.stream().map { vc -> vc.readText().toPresentableCredential() }.collect(Collectors.toList())
 
         // Creating the Verifiable Presentation
-        val vp = Custodian.getService().createPresentation(vcStrList, holderDid, null, null, null, null)
+        val vp = Custodian.getService().createPresentation(presentables, holderDid, null, null, null, null)
 
         println("Verifiable presentation generated for holder DID: \"$holderDid\"")
         println("Verifiable presentation document (below, JSON):\n\n$vp")
