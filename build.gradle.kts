@@ -38,7 +38,6 @@ dependencies {
     implementation("com.microsoft.azure:azure-client-authentication:1.7.14")
     implementation("com.nimbusds:nimbus-jose-jwt:9.30.2")
     implementation("com.nimbusds:oauth2-oidc-sdk:10.7")
-    implementation("org.sd-jwt:sd-jwt-kotlin:0.1.0-SNAPSHOT")
 
     implementation("org.bouncycastle:bcprov-jdk15to18:1.72")
     implementation("org.bouncycastle:bcpkix-jdk15to18:1.72")
