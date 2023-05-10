@@ -9,6 +9,13 @@ abstract class SDJwtService: BaseService() {
     override val implementation get() = serviceImplementation<SDJwtService>()
 
     /**
+     * Parses a combined SD-JWT with optional disclosures to SDJwt data class
+     * @param combinedSDJwt Combined SD-JWT
+     */
+    open fun parseSDJwt(combinedSDJwt: String): SDJwt
+        = implementation.parseSDJwt(combinedSDJwt)
+
+    /**
      * Return combined SD-JWT for issuance with all selective disclosures appended
      * @param keyAlias  Alias of signing key
      * @param payload   Payload, with all fields disclosed
@@ -33,7 +40,7 @@ abstract class SDJwtService: BaseService() {
 
     /**
      * Returns map indicating for each field, whether it is selectively disclosable
-     * @param combinedSdJwt Combined SD_JWT with disclosures
+     * @param sdJwt Combined SD_JWT with disclosures, as received by issuance
      */
     open fun toSDMap(sdJwt: SDJwt): Map<String, SDField>
         = implementation.toSDMap(sdJwt)

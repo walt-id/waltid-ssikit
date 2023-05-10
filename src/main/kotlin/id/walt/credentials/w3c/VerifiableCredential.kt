@@ -141,7 +141,7 @@ open class VerifiableCredential internal constructor(
         fun fromString(data: String): VerifiableCredential {
             return when {
                 isJWT(data) -> fromJwt(data)
-                isSDJwt(data) -> fromSdJwt(SDJwt.fromCombinedSDJwt(data))
+                isSDJwt(data) -> fromSdJwt(SDJwtService.getService().parseSDJwt(data))
                 else -> fromJson(data)
             }
         }

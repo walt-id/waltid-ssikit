@@ -7,7 +7,7 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonPrimitive
 import java.text.ParseException
 
-data class SDisclosure private constructor (
+data class SDisclosure (
     val disclosure: String,
     val salt: String,
     val key: String,
