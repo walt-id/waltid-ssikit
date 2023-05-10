@@ -70,7 +70,8 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
             creator = config.creator,
             statusPurpose = config.statusPurpose,
             statusType = config.statusType,
-            credentialsEndpoint = config.credentialsEndpoint
+            credentialsEndpoint = config.credentialsEndpoint,
+            selectiveDisclosure = config.selectiveDisclosure
         )
     }
 

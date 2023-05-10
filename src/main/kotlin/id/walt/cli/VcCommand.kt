@@ -11,12 +11,15 @@ import com.github.ajalt.clikt.parameters.options.*
 import com.github.ajalt.clikt.parameters.types.enum
 import com.github.ajalt.clikt.parameters.types.file
 import com.github.ajalt.clikt.parameters.types.path
+import com.jayway.jsonpath.DocumentContext
+import com.jayway.jsonpath.JsonPath
 import id.walt.auditor.Auditor
 import id.walt.auditor.PolicyRegistry
 import id.walt.auditor.dynamic.DynamicPolicyArg
 import id.walt.auditor.dynamic.PolicyEngineType
 import id.walt.common.prettyPrint
 import id.walt.common.resolveContent
+import id.walt.credentials.selectiveDisclosure.SDField
 import id.walt.credentials.w3c.PresentableCredential
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.toVerifiableCredential
@@ -83,6 +86,27 @@ class VcIssueCommand : CliktCommand(
         "--status-type",
         help = "Specify the credentialStatus type"
     ).enum<CredentialStatus.Types>()
+    val selectiveDisclosure: Map<String, SDField>? by option("--sd").transformAll { jsonPaths ->
+        val sdMap = mutableMapOf<String, SDField>()
+        jsonPaths.forEach { path ->
+            setSdMapField(path.split("."), sdMap)
+        }
+        sdMap
+    }
+
+    private fun setSdMapField(keys: List<String>, sdMap: MutableMap<String, SDField>) {
+        if(keys.isEmpty())
+            return
+        val nextKey = keys.first()
+        if(keys.size == 1) {
+            sdMap[nextKey] = SDField(true, sdMap[nextKey]?.nestedMap)
+        } else {
+            var nextField = sdMap[nextKey] ?: SDField(false)
+            val nestedMap = nextField.nestedMap as? MutableMap<String, SDField> ?: mutableMapOf<String, SDField>().also { nextField = SDField(nextField.sd, it) }
+            setSdMapField(keys.drop(1), nestedMap)
+            sdMap[nextKey] = nextField
+        }
+    }
 
     private val signatory = Signatory.getService()
 
@@ -104,7 +128,8 @@ class VcIssueCommand : CliktCommand(
                     ecosystem = ecosystem,
                     statusType = statusType,
                     //creator = if (ecosystem == Ecosystem.GAIAX) null else issuerDid
-                    creator = issuerDid
+                    creator = issuerDid,
+                    selectiveDisclosure = selectiveDisclosure
                 ), when (interactive) {
                     true -> CLIDataProvider
                     else -> null

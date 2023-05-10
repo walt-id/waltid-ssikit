@@ -18,7 +18,7 @@ data class SDJwt (
 
     override fun toString(): String {
         return listOf(jwt)
-                .plus(disclosures)
+                .plus(disclosures.map { it.disclosure })
                 .plus(holderJwt?.let { listOf(it) } ?: (if(formatForPresentation) listOf("") else listOf()))
                 .joinToString(SEPARATOR_STR)
     }

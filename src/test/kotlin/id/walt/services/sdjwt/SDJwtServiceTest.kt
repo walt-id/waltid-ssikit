@@ -76,12 +76,14 @@ class SDJwtServiceTest: AnnotationSpec() {
         result_no_sds.sdPayload.keys shouldContainAll setOf("objectProp", "simpleProp")
         result_no_sds.disclosures shouldBe emptySet()
         sdJwtSvc.disclosePayload(result_no_sds).toString() shouldMatchJson testPayload.toString()
+        sdJwtSvc.parseSDJwt(result_no_sds.toString()).toString() shouldBe result_no_sds.toString()
 
         val result_flat_obj =sdJwtSvc.sign(keyId, testPayload, sdMap_flat_obj)
         result_flat_obj.sdPayload.keys shouldNotContain "objectProp"
         result_flat_obj.sdPayload.keys shouldContainAll setOf("simpleProp", SDJwt.DIGESTS_KEY)
         result_flat_obj.disclosures shouldHaveSize 1
         sdJwtSvc.disclosePayload(result_flat_obj).toString() shouldMatchJson testPayload.toString()
+        sdJwtSvc.parseSDJwt(result_flat_obj.toString()).toString() shouldBe result_flat_obj.toString()
 
         val result_flat_all_sd = sdJwtSvc.sign(keyId, testPayload, sdMap_flat_all_sd)
         result_flat_all_sd.sdPayload.keys shouldNotContainAnyOf setOf("objectProp", "simpleProp")

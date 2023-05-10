@@ -3,6 +3,7 @@ package id.walt.services.vc
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import id.walt.auditor.VerificationPolicyResult
+import id.walt.credentials.selectiveDisclosure.SDField
 import id.walt.credentials.w3c.*
 import id.walt.credentials.w3c.schema.SchemaValidatorFactory
 import id.walt.services.did.DidService
@@ -48,19 +49,20 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
         config.verifierDid?.let { jwtClaimsSet.audience(config.verifierDid) }
         config.nonce?.let { jwtClaimsSet.claim("nonce", config.nonce) }
 
-        when (crd) {
-            is VerifiablePresentation -> jwtClaimsSet
-                .claim(JWT_VP_CLAIM, JsonConverter.fromJsonElement(crd.toJsonObject()))
-
-            else -> jwtClaimsSet
-                .claim(JWT_VC_CLAIM, JsonConverter.fromJsonElement(crd.toJsonObject()))
+        val vcClaim = when (crd) {
+            is VerifiablePresentation -> JWT_VP_CLAIM
+            else -> JWT_VC_CLAIM
         }
+
+        jwtClaimsSet.claim(vcClaim, JsonConverter.fromJsonElement(crd.toJsonObject()))
 
         val payload = Json.parseToJsonElement(jwtClaimsSet.build().toString()).jsonObject
         log.debug { "Signing: $payload" }
 
         val vm = config.issuerVerificationMethod ?: issuerDid
-        return sdJwtService.sign(vm, payload, config.selectiveDisclosure).toString()
+        return sdJwtService.sign(vm, payload, mapOf(
+            vcClaim to SDField(false, config.selectiveDisclosure)
+        )).toString()
     }
 
     override fun verifyVc(issuerDid: String, vc: String): Boolean {
