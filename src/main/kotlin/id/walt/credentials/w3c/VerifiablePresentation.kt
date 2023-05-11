@@ -54,11 +54,11 @@ data class PresentableCredential(
     val selectiveDisclosure: Map<String, SDField>? = null
 ) {
     fun toJsonElement() =
-        if(selectiveDisclosure != null && verifiableCredential.sdJwt != null) {
+        if(verifiableCredential.sdJwt != null) {
             val claimKey = VerifiableCredential.possibleClaimKeys.first { it in verifiableCredential.sdJwt!!.sdPayload.keys }
-            SDJwtService.getService().present(verifiableCredential.sdJwt!!, mapOf(
-                claimKey to SDField(false, selectiveDisclosure)
-            )).let { JsonPrimitive(it.toString()) }
+            SDJwtService.getService().present(verifiableCredential.sdJwt!!, selectiveDisclosure?.let { mapOf(
+                claimKey to SDField(true, it)
+            )}).let { JsonPrimitive(it.toString()) }
         } else verifiableCredential.toJsonElement()
 
     val isJwt

@@ -57,6 +57,23 @@ class VcCommand : CliktCommand(
     }
 }
 
+private fun setSdMapField(keys: List<String>, sdMap: MutableMap<String, SDField>, parentDefault: Boolean) {
+    if(keys.isEmpty())
+        return
+    val nextKey = keys.first()
+    if(keys.size == 1) {
+        sdMap[nextKey] = SDField(true, sdMap[nextKey]?.nestedMap)
+    } else {
+        val nestedMap = sdMap[nextKey]?.nestedMap as? MutableMap<String, SDField> ?: mutableMapOf()
+
+        setSdMapField(keys.drop(1), nestedMap, parentDefault)
+
+        if(!sdMap.containsKey(nextKey)) {
+            sdMap[nextKey] = SDField(parentDefault, nestedMap)
+        }
+    }
+}
+
 class VcIssueCommand : CliktCommand(
     name = "issue", help = """Issues and save VC
         
@@ -86,25 +103,11 @@ class VcIssueCommand : CliktCommand(
         "--status-type",
         help = "Specify the credentialStatus type"
     ).enum<CredentialStatus.Types>()
-    val selectiveDisclosure: Map<String, SDField>? by option("--sd").transformAll { jsonPaths ->
-        val sdMap = mutableMapOf<String, SDField>()
-        jsonPaths.forEach { path ->
-            setSdMapField(path.split("."), sdMap)
-        }
-        sdMap
-    }
-
-    private fun setSdMapField(keys: List<String>, sdMap: MutableMap<String, SDField>) {
-        if(keys.isEmpty())
-            return
-        val nextKey = keys.first()
-        if(keys.size == 1) {
-            sdMap[nextKey] = SDField(true, sdMap[nextKey]?.nestedMap)
-        } else {
-            var nextField = sdMap[nextKey] ?: SDField(false)
-            val nestedMap = nextField.nestedMap as? MutableMap<String, SDField> ?: mutableMapOf<String, SDField>().also { nextField = SDField(nextField.sd, it) }
-            setSdMapField(keys.drop(1), nestedMap)
-            sdMap[nextKey] = nextField
+    val selectiveDisclosure: Map<String, SDField>? by option("--sd", "--selective-disclosure", help = "Path to selectively disclosable fields (if supported by chosen proof type), in a simplified JsonPath format, can be specified multiple times, e.g.: \"credentialSubject.familyName\".").transformAll { paths ->
+        mutableMapOf<String, SDField>().apply {
+            paths.forEach { path ->
+                setSdMapField(path.split("."), this, false)
+            }
         }
     }
 
@@ -112,7 +115,10 @@ class VcIssueCommand : CliktCommand(
 
     override fun run() {
         echo("Issuing a verifiable credential (using template ${template})...")
-
+        selectiveDisclosure?.also {
+            echo("with selective disclosure:")
+            SDField.prettyPrintSdMap(it, 2)
+        }
         // Loading VC template
         log.debug { "Loading credential template: $template" }
 
@@ -185,6 +191,20 @@ class PresentVcCommand : CliktCommand(
     val verifierDid: String? by option("-v", "--verifier-did", help = "DID of the verifier (recipient of the VP)")
     val domain: String? by option("-d", "--domain", help = "Domain name to be used in the LD proof")
     val challenge: String? by option("-c", "--challenge", help = "Challenge to be used in the LD proof")
+    val selectiveDisclosure: Map<Int, Map<String, SDField>>? by option("--sd", "--selective-disclosure", help = "Path to selectively disclosed fields (if supported by chosen credential), in a simplified JsonPath format, can be specified multiple times, by default ALL fields are disclosed, e.g.: \"credentialSubject.familyName\", for multiple credential prefix with the index of specified credentials, e.g. \"0.credentialSubject.familyName\", \"1.credentialSubject.dateOfBirth\"").transformAll { paths ->
+        mutableMapOf<Int, Map<String, SDField>>().apply {
+            paths.map { it.split('.') }.forEach { pathParts ->
+                val idx = pathParts.first().toIntOrNull() ?: 0
+                val remainder = if(pathParts.first().toIntOrNull() != null) pathParts.drop(1) else pathParts
+                val curMap = this[idx] as? MutableMap<String, SDField> ?: mutableMapOf()
+                this[idx] = curMap.apply {
+                    paths.forEach { path ->
+                        setSdMapField(remainder, this, true)
+                    }
+                }
+            }
+        }
+    }
 
     override fun run() {
         echo("Creating a verifiable presentation for DID \"$holderDid\"...")
@@ -194,9 +214,13 @@ class PresentVcCommand : CliktCommand(
 
         src.forEachIndexed { index, vcPath ->
             echo("- ${index + 1}. $vcPath (${vcSources[vcPath]!!.type.last()})")
+            selectiveDisclosure?.get(index)?.let {
+                echo("  with selective disclosure:")
+                SDField.prettyPrintSdMap(it, 4)
+            }
         }
 
-        val presentableList = vcSources.values.map { PresentableCredential(it) }.toList()
+        val presentableList = vcSources.values.mapIndexed { idx, cred -> PresentableCredential(cred, selectiveDisclosure?.get(idx)) }.toList()
 
         // Creating the Verifiable Presentation
         val vp = Custodian.getService().createPresentation(presentableList, holderDid, verifierDid, domain, challenge, null)

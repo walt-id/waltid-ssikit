@@ -14,11 +14,11 @@ data class SDJwt (
     val formatForPresentation: Boolean = false
 ) {
     val disclosures
-        get() = digests2Disclosures.values.toSet()
+        get() = digests2Disclosures.values.map { it.disclosure }.toSet()
 
     override fun toString(): String {
         return listOf(jwt)
-                .plus(disclosures.map { it.disclosure })
+                .plus(disclosures)
                 .plus(holderJwt?.let { listOf(it) } ?: (if(formatForPresentation) listOf("") else listOf()))
                 .joinToString(SEPARATOR_STR)
     }

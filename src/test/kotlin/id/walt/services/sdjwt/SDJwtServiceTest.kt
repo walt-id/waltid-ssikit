@@ -131,8 +131,8 @@ class SDJwtServiceTest: AnnotationSpec() {
                 ))
             ))
         ))
-        presentedJwt.disclosures.map { it.key } shouldContainAll setOf("objectProp", "nestedObj")
-        presentedJwt.disclosures.map { it.key } shouldNotContain "nestedObjProp1"
+        presentedJwt.digests2Disclosures.values.map { it.key } shouldContainAll setOf("objectProp", "nestedObj")
+        presentedJwt.digests2Disclosures.values.map { it.key } shouldNotContain "nestedObjProp1"
         val presentedPayloadDisclosed = SDJwtService.getService().disclosePayload(presentedJwt)
         presentedPayloadDisclosed.keys shouldContainAll setOf("objectProp", "simpleProp")
         presentedPayloadDisclosed["objectProp"]!!.jsonObject.keys shouldContainAll setOf("nestedProp1", "nestedProp2", "nestedObj")
@@ -169,5 +169,41 @@ class SDJwtServiceTest: AnnotationSpec() {
         val sdMap = sdJwtSvc.toSDMap(sd_jwt_nested_nested)
         // filter non-sd and non-nesting fields
         filterSDMap(sdMap) shouldBe sdMap_nested_nested
+    }
+
+    @Test
+    fun testSelectDisclosures() {
+        val sd_in_nested_only = mapOf(
+            "objectProp" to SDField(false, nestedMap = mapOf(
+                "nestedProp1" to SDField(true),
+                "nestedObj" to SDField(false, nestedMap = mapOf(
+                    "nestedObjProp1" to SDField(true)
+                ))
+            ))
+        )
+        val jwt_sd_in_nested_only = sdJwtSvc.sign(keyId, testPayload, sd_in_nested_only)
+        jwt_sd_in_nested_only.disclosures shouldHaveSize 2
+        val presented_sd_in_nested_only = sdJwtSvc.present(jwt_sd_in_nested_only, mapOf(
+            "objectProp" to SDField(true, nestedMap = mapOf(
+                "nestedObj" to SDField(true, nestedMap = mapOf(
+                    "nestedObjProp1" to SDField(true)
+                ))
+            ))
+        ))
+        presented_sd_in_nested_only.disclosures shouldHaveSize 1
+        val presentedDisclosedPayload = sdJwtSvc.disclosePayload(presented_sd_in_nested_only)
+        presentedDisclosedPayload.keys shouldContain "objectProp"
+        presentedDisclosedPayload["objectProp"]!!.jsonObject.keys shouldNotContain "nestedProp1"
+        presentedDisclosedPayload["objectProp"]!!.jsonObject.keys shouldContain "nestedObj"
+        presentedDisclosedPayload["objectProp"]!!.jsonObject["nestedObj"]!!.jsonObject.keys shouldContain "nestedObjProp1"
+
+        //test select all by setting sdMap null
+        val presented_all = sdJwtSvc.present(jwt_sd_in_nested_only, null)
+        presented_all.disclosures shouldHaveSize 2
+        val presentedAllDisclosedPayload = sdJwtSvc.disclosePayload(presented_all)
+        presentedAllDisclosedPayload.keys shouldContain "objectProp"
+        presentedAllDisclosedPayload["objectProp"]!!.jsonObject.keys shouldContain "nestedProp1"
+        presentedAllDisclosedPayload["objectProp"]!!.jsonObject.keys shouldContain "nestedObj"
+        presentedAllDisclosedPayload["objectProp"]!!.jsonObject["nestedObj"]!!.jsonObject.keys shouldContain "nestedObjProp1"
     }
 }

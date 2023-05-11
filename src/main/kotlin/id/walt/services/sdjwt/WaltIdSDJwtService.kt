@@ -158,22 +158,26 @@ open class WaltIdSDJwtService: SDJwtService() {
     }
 
     private fun selectDisclosures(payload: JsonObject, sdMap: Map<String, SDField>, digests2Disclosures: Map<String, SDisclosure>): Set<String> {
-        if(!payload.containsKey(SDJwt.DIGESTS_KEY) || payload[SDJwt.DIGESTS_KEY] !is JsonArray) {
-            throw Exception("No selectively disclosable fields found in given JWT payload, or invalid ${SDJwt.DIGESTS_KEY} format found")
+        if(payload.containsKey(SDJwt.DIGESTS_KEY) && payload[SDJwt.DIGESTS_KEY] !is JsonArray) {
+            throw Exception("Invalid ${SDJwt.DIGESTS_KEY} format found")
         }
 
-        return payload[SDJwt.DIGESTS_KEY]!!.jsonArray
-            .map { it.jsonPrimitive.content }
-            .filter { digest -> digests2Disclosures.containsKey(digest) }
-            .map { digest -> digests2Disclosures[digest]!! }
-            .filter {sd -> sdMap[sd.key]?.sd == true }
-            .flatMap { sd ->
-                listOf(sd.disclosure).plus(
-                    if(sd.value is JsonObject && !sdMap[sd.key]?.nestedMap.isNullOrEmpty()) {
-                        selectDisclosures(sd.value, sdMap[sd.key]!!.nestedMap!!, digests2Disclosures)
-                    } else listOf()
-                )
-            }.toSet()
+        return payload.filter { entry -> entry.value is JsonObject && !sdMap[entry.key]?.nestedMap.isNullOrEmpty()}.flatMap { entry ->
+            selectDisclosures(entry.value.jsonObject, sdMap[entry.key]!!.nestedMap!!, digests2Disclosures)
+        }.plus(
+            payload[SDJwt.DIGESTS_KEY]?.jsonArray
+                ?.map { it.jsonPrimitive.content }
+                ?.filter { digest -> digests2Disclosures.containsKey(digest) }
+                ?.map { digest -> digests2Disclosures[digest]!! }
+                ?.filter {sd -> sdMap[sd.key]?.sd == true }
+                ?.flatMap { sd ->
+                    listOf(sd.disclosure).plus(
+                        if(sd.value is JsonObject && !sdMap[sd.key]?.nestedMap.isNullOrEmpty()) {
+                            selectDisclosures(sd.value, sdMap[sd.key]!!.nestedMap!!, digests2Disclosures)
+                        } else listOf()
+                    )
+                } ?: listOf()
+        ).toSet()
     }
 
     override fun present(sdJwt: SDJwt, sdMap: Map<String, SDField>?): SDJwt {
