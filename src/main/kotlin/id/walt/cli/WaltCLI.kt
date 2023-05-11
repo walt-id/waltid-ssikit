@@ -117,6 +117,7 @@ object WaltCLI {
                             VcRevocationCheckCommand(),
                             VcRevocationRevokeCommand(),
                         ),
+                        ParseVcCommand()
                     ),
                     EssifCommand().subcommands(
                         EssifOnboardingCommand(),

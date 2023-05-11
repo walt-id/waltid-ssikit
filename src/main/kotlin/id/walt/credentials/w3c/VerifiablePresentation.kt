@@ -51,14 +51,20 @@ fun String.toVerifiablePresentation() = VerifiablePresentation.fromString(this)
 
 data class PresentableCredential(
     val verifiableCredential: VerifiableCredential,
-    val selectiveDisclosure: Map<String, SDField>? = null
+    val selectiveDisclosure: Map<String, SDField>? = null,
+    val discloseAll: Boolean = false
 ) {
     fun toJsonElement() =
         if(verifiableCredential.sdJwt != null) {
             val claimKey = VerifiableCredential.possibleClaimKeys.first { it in verifiableCredential.sdJwt!!.sdPayload.keys }
-            SDJwtService.getService().present(verifiableCredential.sdJwt!!, selectiveDisclosure?.let { mapOf(
-                claimKey to SDField(true, it)
-            )}).let { JsonPrimitive(it.toString()) }
+            val presentedJwt = if(discloseAll) {
+                SDJwtService.getService().present(verifiableCredential.sdJwt!!, discloseAll)
+            } else {
+                SDJwtService.getService().present(verifiableCredential.sdJwt!!, selectiveDisclosure?.let { mapOf(
+                    claimKey to SDField(true, it)
+                )})
+            }
+            JsonPrimitive(presentedJwt.toString())
         } else verifiableCredential.toJsonElement()
 
     val isJwt

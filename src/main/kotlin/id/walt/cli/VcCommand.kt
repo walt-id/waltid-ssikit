@@ -10,6 +10,7 @@ import com.github.ajalt.clikt.parameters.arguments.optional
 import com.github.ajalt.clikt.parameters.options.*
 import com.github.ajalt.clikt.parameters.types.enum
 import com.github.ajalt.clikt.parameters.types.file
+import com.github.ajalt.clikt.parameters.types.int
 import com.github.ajalt.clikt.parameters.types.path
 import com.jayway.jsonpath.DocumentContext
 import com.jayway.jsonpath.JsonPath
@@ -22,6 +23,7 @@ import id.walt.common.resolveContent
 import id.walt.credentials.selectiveDisclosure.SDField
 import id.walt.credentials.w3c.PresentableCredential
 import id.walt.credentials.w3c.VerifiableCredential
+import id.walt.credentials.w3c.VerifiablePresentation
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.LdSignatureType
 import id.walt.custodian.Custodian
@@ -184,14 +186,20 @@ class VcImportCommand : CliktCommand(
 class PresentVcCommand : CliktCommand(
     name = "present", help = """Present VC
         
-        """
+        """,
+    epilog = """Note about selective disclosure:
+        Selective disclosure flags have NO EFFECT, if the proof type of the presented credential doesn't support selective disclosure!
+        Which fields can be selectively disclosed, depends on the credential proof type and credential issuer.
+        To select SD-enabled fields for disclosure, refer to the help text of the --sd, --sd-all-for and --sd-all flags.
+    """.trimMargin()
 ) {
     val src: List<Path> by argument().path(mustExist = true).multiple()
     val holderDid: String by option("-i", "--holder-did", help = "DID of the holder (owner of the VC)").required()
     val verifierDid: String? by option("-v", "--verifier-did", help = "DID of the verifier (recipient of the VP)")
     val domain: String? by option("-d", "--domain", help = "Domain name to be used in the LD proof")
     val challenge: String? by option("-c", "--challenge", help = "Challenge to be used in the LD proof")
-    val selectiveDisclosure: Map<Int, Map<String, SDField>>? by option("--sd", "--selective-disclosure", help = "Path to selectively disclosed fields (if supported by chosen credential), in a simplified JsonPath format, can be specified multiple times, by default ALL fields are disclosed, e.g.: \"credentialSubject.familyName\", for multiple credential prefix with the index of specified credentials, e.g. \"0.credentialSubject.familyName\", \"1.credentialSubject.dateOfBirth\"").transformAll { paths ->
+    val selectiveDisclosure: Map<Int, Map<String, SDField>>? by option("--sd", "--selective-disclosure", help = "Path to selectively disclosed fields, in a simplified JsonPath format. Can be specified multiple times. By default NONE of the sd fields are disclosed, for multiple credentials, the path can be prefixed with the index of the presented credential, e.g. \"credentialSubject.familyName\", \"0.credentialSubject.familyName\", \"1.credentialSubject.dateOfBirth\".")
+        .transformAll { paths ->
         mutableMapOf<Int, Map<String, SDField>>().apply {
             paths.map { it.split('.') }.forEach { pathParts ->
                 val idx = pathParts.first().toIntOrNull() ?: 0
@@ -205,6 +213,9 @@ class PresentVcCommand : CliktCommand(
             }
         }
     }
+    val discloseAllFor: Set<Int>? by option("--sd-all-for", help = "Selects all selective disclosures for the credential at the specified index to be disclosed. Overrides --sd flags!").int()
+        .transformAll { it.toSet() }
+    val discloseAllOfAll: Boolean by option("--sd-all", help = "Selects all selective disclosures for all presented credentials to be disclosed. Overrides --sd and --sd-all-for flags!").flag()
 
     override fun run() {
         echo("Creating a verifiable presentation for DID \"$holderDid\"...")
@@ -220,7 +231,8 @@ class PresentVcCommand : CliktCommand(
             }
         }
 
-        val presentableList = vcSources.values.mapIndexed { idx, cred -> PresentableCredential(cred, selectiveDisclosure?.get(idx)) }.toList()
+        val presentableList = vcSources.values.mapIndexed { idx, cred -> PresentableCredential(cred, selectiveDisclosure?.get(idx), discloseAllOfAll || (discloseAllFor?.contains(idx) == true)) }
+            .toList()
 
         // Creating the Verifiable Presentation
         val vp = Custodian.getService().createPresentation(presentableList, holderDid, verifierDid, domain, challenge, null)
@@ -299,6 +311,34 @@ class ListVcCommand : CliktCommand(
         echo("\nResults:\n")
 
         Custodian.getService().listCredentials().forEachIndexed { index, vc -> echo("- ${index + 1}: $vc") }
+    }
+}
+
+class ParseVcCommand : CliktCommand(
+    name = "parse", help = """Parse VC from JWT or SD-JWT representation and display JSON body
+        
+        """
+) {
+    val vc by option("-c", help = "Credential content or file path").required()
+    val recursive by option("-r", help = "Recursively parse credentials in presentation").flag()
+    override fun run() {
+        echo("\nParsing verifiable credential...")
+
+        echo("\nResults:\n")
+
+        val parsedVc = resolveContent(vc).toVerifiableCredential()
+        echo(if(parsedVc is VerifiablePresentation) "- Presentation:" else "- Credential:")
+        echo()
+        println(parsedVc.toJson().prettyPrint())
+        echo()
+        if(parsedVc is VerifiablePresentation && recursive) {
+            parsedVc.verifiableCredential?.forEachIndexed { idx, cred ->
+                echo("---")
+                echo("- Credential ${idx + 1}")
+                echo()
+                println(cred.toJson().prettyPrint())
+            }
+        }
     }
 }
 //endregion

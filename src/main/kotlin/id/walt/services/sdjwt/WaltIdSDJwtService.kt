@@ -180,11 +180,19 @@ open class WaltIdSDJwtService: SDJwtService() {
         ).toSet()
     }
 
-    override fun present(sdJwt: SDJwt, sdMap: Map<String, SDField>?): SDJwt {
+    private fun present(sdJwt: SDJwt, sdMap: Map<String, SDField>?, discloseAll: Boolean): SDJwt {
         val selectedDisclosures = sdMap?.let {
             selectDisclosures(sdJwt.sdPayload, it, sdJwt.digests2Disclosures)
-        } ?: sdJwt.disclosures
+        } ?: if(discloseAll) sdJwt.disclosures else setOf()
         return SDJwt(sdJwt.jwt, sdJwt.sdPayload, sdJwt.digests2Disclosures.filterValues { selectedDisclosures.contains(it.disclosure) }, formatForPresentation = true)
+    }
+
+    override fun present(sdJwt: SDJwt, sdMap: Map<String, SDField>?): SDJwt {
+        return present(sdJwt, sdMap, false)
+    }
+
+    override fun present(sdJwt: SDJwt, discloseAll: Boolean): SDJwt {
+        return present(sdJwt, null, discloseAll)
     }
 
     private fun createSDFieldFor(sd: Boolean, key: String, value: JsonElement, digests2Disclosures: Map<String, SDisclosure>): SDField {
