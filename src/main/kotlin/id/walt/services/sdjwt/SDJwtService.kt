@@ -48,10 +48,18 @@ abstract class SDJwtService: BaseService() {
     /**
      * Returns combined sd-jwt with undisclosed (according to sdMap) fields removed from disclosures
      * @param sdJwt Original (as issued) SD-JWT combined with disclosures
-     * @param sdMap map indicating, which selectively disclosable fields should be disclosed or undisclosed
+     * @param sdMap map indicating, which selectively disclosable fields should be disclosed or undisclosed, if null none are disclosed
      */
     open fun present(sdJwt: SDJwt, sdMap: Map<String, SDField>?): SDJwt
         = implementation.present(sdJwt, sdMap)
+
+    /**
+     * Returns combined sd-jwt with undisclosed (according to sdMap) fields removed from disclosures
+     * @param sdJwt Original (as issued) SD-JWT combined with disclosures
+     * @param discloseAll   If true, all selective disclosures are disclosed, otherwise none are disclosed
+     */
+    open fun present(sdJwt: SDJwt, discloseAll: Boolean = false): SDJwt
+        = implementation.present(sdJwt, discloseAll)
 
     companion object : ServiceProvider {
         override fun getService() = object : SDJwtService() {}

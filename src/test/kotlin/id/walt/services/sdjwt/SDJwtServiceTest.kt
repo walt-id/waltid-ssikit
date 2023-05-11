@@ -200,8 +200,14 @@ class SDJwtServiceTest: AnnotationSpec() {
         presentedDisclosedPayload["objectProp"]!!.jsonObject.keys shouldContain "nestedObj"
         presentedDisclosedPayload["objectProp"]!!.jsonObject["nestedObj"]!!.jsonObject.keys shouldContain "nestedObjProp1"
 
-        //test select all by setting sdMap null
-        val presented_all = sdJwtSvc.present(jwt_sd_in_nested_only, null)
+        //test select none by setting sdMap null
+        val presented_none = sdJwtSvc.present(jwt_sd_in_nested_only, sdMap = null)
+        presented_none.disclosures shouldHaveSize 0
+        val presentedNoneDisclosedPayload = sdJwtSvc.disclosePayload(presented_none)
+        presentedNoneDisclosedPayload.keys shouldContain "objectProp"
+
+        //test select all by setting discloseAll true
+        val presented_all = sdJwtSvc.present(jwt_sd_in_nested_only, discloseAll = true)
         presented_all.disclosures shouldHaveSize 2
         val presentedAllDisclosedPayload = sdJwtSvc.disclosePayload(presented_all)
         presentedAllDisclosedPayload.keys shouldContain "objectProp"
