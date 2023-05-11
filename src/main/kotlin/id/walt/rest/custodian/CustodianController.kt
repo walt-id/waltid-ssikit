@@ -116,7 +116,7 @@ object CustodianController {
         if (vc == null)
             ctx.status(404).result("Not found")
         else
-            ctx.json(vc)
+            ctx.contentType(ContentType.APPLICATION_JSON).result(vc.toJson())
     }
 
     fun listCredentialsDocs() = document()

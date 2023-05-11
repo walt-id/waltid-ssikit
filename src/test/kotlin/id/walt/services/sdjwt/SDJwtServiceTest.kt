@@ -1,20 +1,19 @@
 package id.walt.services.sdjwt
 
 import id.walt.credentials.selectiveDisclosure.SDField
-import id.walt.credentials.w3c.templates.VcTemplateService
 import id.walt.crypto.KeyAlgorithm
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.crypto.CryptoService
 import id.walt.services.jwt.JwtService
-import id.walt.services.key.KeyService
 import id.walt.test.RESOURCES_PATH
 import io.kotest.assertions.json.shouldMatchJson
 import io.kotest.assertions.json.shouldNotMatchJson
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.collections.*
-import io.kotest.matchers.maps.shouldHaveSize
 import io.kotest.matchers.shouldBe
-import kotlinx.serialization.json.*
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.put
 
 class SDJwtServiceTest: AnnotationSpec() {
 
@@ -76,32 +75,35 @@ class SDJwtServiceTest: AnnotationSpec() {
         result_no_sds.sdPayload.keys shouldContainAll setOf("objectProp", "simpleProp")
         result_no_sds.disclosures shouldBe emptySet()
         sdJwtSvc.disclosePayload(result_no_sds).toString() shouldMatchJson testPayload.toString()
-        sdJwtSvc.parseSDJwt(result_no_sds.toString()).toString() shouldBe result_no_sds.toString()
+        sdJwtSvc.disclosePayload(sdJwtSvc.parseSDJwt(result_no_sds.toString())).toString() shouldMatchJson testPayload.toString()
 
         val result_flat_obj =sdJwtSvc.sign(keyId, testPayload, sdMap_flat_obj)
         result_flat_obj.sdPayload.keys shouldNotContain "objectProp"
         result_flat_obj.sdPayload.keys shouldContainAll setOf("simpleProp", SDJwt.DIGESTS_KEY)
         result_flat_obj.disclosures shouldHaveSize 1
         sdJwtSvc.disclosePayload(result_flat_obj).toString() shouldMatchJson testPayload.toString()
-        sdJwtSvc.parseSDJwt(result_flat_obj.toString()).toString() shouldBe result_flat_obj.toString()
+        sdJwtSvc.disclosePayload(sdJwtSvc.parseSDJwt(result_flat_obj.toString())).toString() shouldMatchJson testPayload.toString()
 
         val result_flat_all_sd = sdJwtSvc.sign(keyId, testPayload, sdMap_flat_all_sd)
         result_flat_all_sd.sdPayload.keys shouldNotContainAnyOf setOf("objectProp", "simpleProp")
         result_flat_all_sd.sdPayload.keys shouldContain SDJwt.DIGESTS_KEY
         result_flat_all_sd.disclosures shouldHaveSize 2
         sdJwtSvc.disclosePayload(result_flat_all_sd).toString() shouldMatchJson testPayload.toString()
+        sdJwtSvc.disclosePayload(sdJwtSvc.parseSDJwt(result_flat_all_sd.toString())).toString() shouldMatchJson testPayload.toString()
 
         val result_nested_flat = sdJwtSvc.sign(keyId, testPayload, sdMap_nested_flat)
         result_nested_flat.sdPayload.keys shouldNotContain "objectProp"
         result_nested_flat.sdPayload.keys shouldContainAll setOf(SDJwt.DIGESTS_KEY, "simpleProp")
         result_nested_flat.disclosures shouldHaveSize 2
         sdJwtSvc.disclosePayload(result_nested_flat).toString() shouldMatchJson testPayload.toString()
+        sdJwtSvc.disclosePayload(sdJwtSvc.parseSDJwt(result_nested_flat.toString())).toString() shouldMatchJson testPayload.toString()
 
         val result_nested_nested = sdJwtSvc.sign(keyId, testPayload, sdMap_nested_nested)
         result_nested_nested.sdPayload.keys shouldNotContain "objectProp"
         result_nested_nested.sdPayload.keys shouldContainAll setOf(SDJwt.DIGESTS_KEY, "simpleProp")
         result_nested_nested.disclosures shouldHaveSize 3
         sdJwtSvc.disclosePayload(result_nested_nested).toString() shouldMatchJson testPayload.toString()
+        sdJwtSvc.disclosePayload(sdJwtSvc.parseSDJwt(result_nested_nested.toString())).toString() shouldMatchJson testPayload.toString()
 
         val result_nested_mixed = sdJwtSvc.sign(keyId, testPayload, sdMap_nested_mixed)
         result_nested_mixed.sdPayload.keys shouldContainAll setOf("objectProp", "simpleProp")
@@ -116,6 +118,7 @@ class SDJwtServiceTest: AnnotationSpec() {
         result_nested_mixed.sdPayload["objectProp"]!!.jsonObject["nestedObj"]!!.jsonObject.keys shouldContain SDJwt.DIGESTS_KEY
         result_nested_mixed.disclosures shouldHaveSize 2
         sdJwtSvc.disclosePayload(result_nested_mixed).toString() shouldMatchJson testPayload.toString()
+        sdJwtSvc.disclosePayload(sdJwtSvc.parseSDJwt(result_nested_mixed.toString())).toString() shouldMatchJson testPayload.toString()
     }
 
     @Test
