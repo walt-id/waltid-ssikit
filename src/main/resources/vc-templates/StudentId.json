@@ -19,7 +19,7 @@
         "statusListCredential": "https://api-test.ebsi.eu/trusted-issuers-registry/v3/issuers/did:ebsi:zyrMG8T9xYbNoSwyQa4SGMJ/proxy/6cc5fcc621d8098977d378ec7bf63f9ad0b204d56bb604f75bc9290e7033ac84/credentials/status/5"
     },
     "credentialSchema": {
-        "id": "https://api-test.ebsi.eu/trusted-schemas-registry/v2/schemas/0xf30fd418c8b2c1534b0685e12b044d3d29284fe37762a45d0c1e5601eed3d1d9",
+        "id": "https://raw.githubusercontent.com/walt-id/waltid-ssikit/main/src/main/resources/vc-templates/StudentId.json",
         "type": "FullJsonSchemaValidator2021"
     }
 }
