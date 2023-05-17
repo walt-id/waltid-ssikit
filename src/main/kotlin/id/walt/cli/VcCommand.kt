@@ -18,6 +18,7 @@ import id.walt.auditor.Auditor
 import id.walt.auditor.PolicyRegistry
 import id.walt.auditor.dynamic.DynamicPolicyArg
 import id.walt.auditor.dynamic.PolicyEngineType
+import id.walt.common.asMap
 import id.walt.common.prettyPrint
 import id.walt.common.resolveContent
 import id.walt.credentials.selectiveDisclosure.SDField
@@ -28,6 +29,7 @@ import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.LdSignatureType
 import id.walt.custodian.Custodian
 import id.walt.model.credential.status.CredentialStatus
+import id.walt.services.sdjwt.SDJwtService
 import id.walt.signatory.Ecosystem
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
@@ -56,23 +58,6 @@ class VcCommand : CliktCommand(
 ) {
     override fun run() {
 
-    }
-}
-
-private fun setSdMapField(keys: List<String>, sdMap: MutableMap<String, SDField>, parentDefault: Boolean) {
-    if(keys.isEmpty())
-        return
-    val nextKey = keys.first()
-    if(keys.size == 1) {
-        sdMap[nextKey] = SDField(true, sdMap[nextKey]?.nestedMap)
-    } else {
-        val nestedMap = sdMap[nextKey]?.nestedMap as? MutableMap<String, SDField> ?: mutableMapOf()
-
-        setSdMapField(keys.drop(1), nestedMap, parentDefault)
-
-        if(!sdMap.containsKey(nextKey)) {
-            sdMap[nextKey] = SDField(parentDefault, nestedMap)
-        }
     }
 }
 
@@ -105,13 +90,8 @@ class VcIssueCommand : CliktCommand(
         "--status-type",
         help = "Specify the credentialStatus type"
     ).enum<CredentialStatus.Types>()
-    val selectiveDisclosure: Map<String, SDField>? by option("--sd", "--selective-disclosure", help = "Path to selectively disclosable fields (if supported by chosen proof type), in a simplified JsonPath format, can be specified multiple times, e.g.: \"credentialSubject.familyName\".").transformAll { paths ->
-        mutableMapOf<String, SDField>().apply {
-            paths.forEach { path ->
-                setSdMapField(path.split("."), this, false)
-            }
-        }
-    }
+    val selectiveDisclosure: Map<String, SDField>? by option("--sd", "--selective-disclosure", help = "Path to selectively disclosable fields (if supported by chosen proof type), in a simplified JsonPath format, can be specified multiple times, e.g.: \"credentialSubject.familyName\".")
+        .transformAll { paths -> SDJwtService.getService().toSDMap(paths) }
 
     private val signatory = Signatory.getService()
 
@@ -200,19 +180,17 @@ class PresentVcCommand : CliktCommand(
     val challenge: String? by option("-c", "--challenge", help = "Challenge to be used in the LD proof")
     val selectiveDisclosure: Map<Int, Map<String, SDField>>? by option("--sd", "--selective-disclosure", help = "Path to selectively disclosed fields, in a simplified JsonPath format. Can be specified multiple times. By default NONE of the sd fields are disclosed, for multiple credentials, the path can be prefixed with the index of the presented credential, e.g. \"credentialSubject.familyName\", \"0.credentialSubject.familyName\", \"1.credentialSubject.dateOfBirth\".")
         .transformAll { paths ->
-        mutableMapOf<Int, Map<String, SDField>>().apply {
-            paths.map { it.split('.') }.forEach { pathParts ->
-                val idx = pathParts.first().toIntOrNull() ?: 0
-                val remainder = if(pathParts.first().toIntOrNull() != null) pathParts.drop(1) else pathParts
-                val curMap = this[idx] as? MutableMap<String, SDField> ?: mutableMapOf()
-                this[idx] = curMap.apply {
-                    paths.forEach { path ->
-                        setSdMapField(remainder, this, true)
-                    }
-                }
-            }
+            paths.map { path ->
+                val hasIdxInPath = path.substringBefore(".").toIntOrNull() != null
+                val idx = path.substringBefore('.').toIntOrNull() ?: 0
+                Pair(idx, if(hasIdxInPath) {
+                    path.substringAfter(".")
+                } else {
+                    path
+                })
+            }.groupBy { pair -> pair.first }
+            .mapValues { entry -> SDJwtService.getService().toSDMap(entry.value.map { item -> item.second }) }
         }
-    }
     val discloseAllFor: Set<Int>? by option("--sd-all-for", help = "Selects all selective disclosures for the credential at the specified index to be disclosed. Overrides --sd flags!").int()
         .transformAll { it.toSet() }
     val discloseAllOfAll: Boolean by option("--sd-all", help = "Selects all selective disclosures for all presented credentials to be disclosed. Overrides --sd and --sd-all-for flags!").flag()

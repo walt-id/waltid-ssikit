@@ -221,4 +221,29 @@ open class WaltIdSDJwtService: SDJwtService() {
     override fun toSDMap(sdJwt: SDJwt): Map<String, SDField> {
         return createSdMapFor(sdJwt.sdPayload, sdJwt.digests2Disclosures)
     }
+
+    private fun setSdMapField(keys: List<String>, sdMap: MutableMap<String, SDField>, parentDefault: Boolean) {
+        if(keys.isEmpty())
+            return
+        val nextKey = keys.first()
+        if(keys.size == 1) {
+            sdMap[nextKey] = SDField(true, sdMap[nextKey]?.nestedMap)
+        } else {
+            val nestedMap = sdMap[nextKey]?.nestedMap as? MutableMap<String, SDField> ?: mutableMapOf()
+
+            setSdMapField(keys.drop(1), nestedMap, parentDefault)
+
+            if(!sdMap.containsKey(nextKey)) {
+                sdMap[nextKey] = SDField(parentDefault, nestedMap)
+            }
+        }
+    }
+
+    override fun toSDMap(paths: List<String>): Map<String, SDField> {
+        return mutableMapOf<String, SDField>().apply {
+            paths.forEach { path ->
+                setSdMapField(path.split("."), this, false)
+            }
+        }
+    }
 }

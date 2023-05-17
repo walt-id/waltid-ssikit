@@ -46,6 +46,12 @@ abstract class SDJwtService: BaseService() {
         = implementation.toSDMap(sdJwt)
 
     /**
+     * creates SD map from simple json paths, for each sd field
+     */
+    open fun toSDMap(paths: List<String>): Map<String, SDField>
+        = implementation.toSDMap(paths)
+
+    /**
      * Returns combined sd-jwt with undisclosed (according to sdMap) fields removed from disclosures
      * @param sdJwt Original (as issued) SD-JWT combined with disclosures
      * @param sdMap map indicating, which selectively disclosable fields should be disclosed or undisclosed, if null none are disclosed

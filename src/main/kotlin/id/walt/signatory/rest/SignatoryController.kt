@@ -5,6 +5,7 @@ import id.walt.credentials.w3c.JsonConverter
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.builder.W3CCredentialBuilder
 import id.walt.credentials.w3c.toVerifiableCredential
+import id.walt.services.sdjwt.SDJwtService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
@@ -116,10 +117,12 @@ object SignatoryController {
         val issuerId = ctx.queryParam("issuerId") ?: throw BadRequestResponse("issuerId must be specified")
         val subjectId = ctx.queryParam("subjectId") ?: throw BadRequestResponse("subjectId must be specified")
         val proofType = ctx.queryParam("proofType")?.let { ProofType.valueOf(it) } ?: ProofType.LD_PROOF
+        val sdPaths = ctx.queryParams("sd")
+        val sd = SDJwtService.getService().toSDMap(sdPaths)
         ctx.result(
             signatory.issue(
                 W3CCredentialBuilder.fromPartial(credentialJson),
-                ProofConfig(issuerId, subjectId, proofType = proofType)
+                ProofConfig(issuerId, subjectId, proofType = proofType, selectiveDisclosure = sd)
             )
         )
     }
@@ -132,6 +135,7 @@ object SignatoryController {
     }.queryParam<String>("issuerId")
         .queryParam<String>("subjectId")
         .queryParam<ProofType>("proofType")
+        .queryParam<String>("sd", isRepeatable = true)
         .body<String>().json<String>("200")
 
     fun statusDocs() = document().operation {
