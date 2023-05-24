@@ -112,27 +112,27 @@ open class WaltIdSDJwtService: SDJwtService() {
         return SDJwt(sdJwt, sdPayload, digests2Disclosures.toMap())
     }
 
-    private fun unveilDislosureIfPresent(digest: String, digests2Disclosures: MutableMap<String, SDisclosure>, objectBuilder: JsonObjectBuilder) {
+    private fun unveilDisclosureIfPresent(digest: String, digests2Disclosures: MutableMap<String, SDisclosure>, objectBuilder: JsonObjectBuilder) {
         val disclosure = digests2Disclosures.remove(digest)
         if(disclosure != null) {
             objectBuilder.put(disclosure.key,
                 if(disclosure.value is JsonObject) {
-                    resolveDislosedPayload(disclosure.value.jsonObject, digests2Disclosures)
+                    resolveDisclosedPayload(disclosure.value.jsonObject, digests2Disclosures)
                 } else disclosure.value
             )
         }
     }
 
-    private fun resolveDislosedPayload(payload: JsonObject, digests2Disclosures: MutableMap<String, SDisclosure>): JsonObject {
+    private fun resolveDisclosedPayload(payload: JsonObject, digests2Disclosures: MutableMap<String, SDisclosure>): JsonObject {
         return buildJsonObject {
             payload.forEach { key, value ->
                 if(key == SDJwt.DIGESTS_KEY) {
                     if(value !is JsonArray) throw ParseException("SD-JWT contains invalid ${SDJwt.DIGESTS_KEY} element", 0)
                     value.jsonArray.forEach {
-                        unveilDislosureIfPresent(it.jsonPrimitive.content, digests2Disclosures, this)
+                        unveilDisclosureIfPresent(it.jsonPrimitive.content, digests2Disclosures, this)
                     }
                 } else if(value is JsonObject) {
-                    put(key, resolveDislosedPayload(value.jsonObject, digests2Disclosures))
+                    put(key, resolveDisclosedPayload(value.jsonObject, digests2Disclosures))
                 } else {
                     put(key, value)
                 }
@@ -142,12 +142,12 @@ open class WaltIdSDJwtService: SDJwtService() {
 
     override fun disclosePayload(sdJwt: SDJwt): JsonObject {
         val digests2Disclosures = sdJwt.digests2Disclosures.toMutableMap()
-        return resolveDislosedPayload(sdJwt.sdPayload, digests2Disclosures)
+        return resolveDisclosedPayload(sdJwt.sdPayload, digests2Disclosures)
     }
 
     private fun verifyDisclosuresInPayload(sdJwt: SDJwt): Boolean {
         val digests2Disclosures = sdJwt.digests2Disclosures.toMutableMap()
-        resolveDislosedPayload(sdJwt.sdPayload, digests2Disclosures)
+        resolveDisclosedPayload(sdJwt.sdPayload, digests2Disclosures)
         return digests2Disclosures.isEmpty()
     }
 
@@ -202,12 +202,12 @@ open class WaltIdSDJwtService: SDJwtService() {
     }
 
     private fun createSdMapFor(payload: JsonObject, digests2Disclosures: Map<String, SDisclosure>): Map<String, SDField> {
-        if(!payload.containsKey(SDJwt.DIGESTS_KEY) || payload[SDJwt.DIGESTS_KEY] !is JsonArray) {
+        if(payload.containsKey(SDJwt.DIGESTS_KEY) && payload[SDJwt.DIGESTS_KEY] !is JsonArray) {
             return mapOf()
         }
 
-        return payload[SDJwt.DIGESTS_KEY]!!.jsonArray
-            .map { it.jsonPrimitive.content }
+        return (payload[SDJwt.DIGESTS_KEY]?.jsonArray
+            ?.map { it.jsonPrimitive.content }?: listOf())
             .filter { digest -> digests2Disclosures.containsKey(digest) }
             .map { digest -> digests2Disclosures[digest]!! }
             .associate { sd ->
@@ -235,6 +235,8 @@ open class WaltIdSDJwtService: SDJwtService() {
 
             if(!sdMap.containsKey(nextKey)) {
                 sdMap[nextKey] = SDField(parentDefault, nestedMap)
+            } else {
+                sdMap[nextKey] = SDField(sdMap[nextKey]!!.sd, nestedMap)
             }
         }
     }

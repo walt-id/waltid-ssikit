@@ -144,8 +144,8 @@ fun String.toVerifiableCredential(): VerifiableCredential {
     }
 }
 
-fun String.toPresentableCredential(sdMap: Map<String, SDField>? = null)
-    = PresentableCredential(this.toVerifiableCredential(), sdMap)
+fun String.toPresentableCredential(sdMap: Map<String, SDField>? = null, discloseAll: Boolean = false)
+    = PresentableCredential(this.toVerifiableCredential(), sdMap, discloseAll)
 
 fun <T> VerifiableCredential.verifyByFormatType(jwt: (String) -> T, ld: (String) -> T): T = when (this.sdJwt) {
     null -> ld(this.encode())

@@ -309,12 +309,20 @@ class ParseVcCommand : CliktCommand(
         echo()
         println(parsedVc.toJson().prettyPrint())
         echo()
+        parsedVc.selectiveDisclosure?.let {
+            echo("  with selective disclosure:")
+            SDField.prettyPrintSdMap(it, 4)
+        }
         if(parsedVc is VerifiablePresentation && recursive) {
             parsedVc.verifiableCredential?.forEachIndexed { idx, cred ->
                 echo("---")
                 echo("- Credential ${idx + 1}")
                 echo()
                 println(cred.toJson().prettyPrint())
+                cred.selectiveDisclosure?.let {
+                    echo("  with selective disclosure:")
+                    SDField.prettyPrintSdMap(it, 4)
+                }
             }
         }
     }

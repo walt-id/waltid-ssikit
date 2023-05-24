@@ -48,7 +48,7 @@ data class ProofConfig(
     @Json(serializeNull = false) val statusType: CredentialStatus.Types? = null,
     @Json(serializeNull = false) val statusPurpose: String = "revocation",
     @Json(serializeNull = false) val credentialsEndpoint: String? = null,
-    @Json(ignored = true) val selectiveDisclosure: Map<String, SDField>? = null
+    @Json(serializeNull = false) val selectiveDisclosure: Map<String, SDField>? = null
 )
 
 data class SignatoryConfig(
