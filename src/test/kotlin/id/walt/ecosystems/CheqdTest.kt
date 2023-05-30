@@ -1,6 +1,5 @@
 package id.walt.ecosystems
 
-import com.google.common.util.concurrent.ServiceManager
 import id.walt.auditor.Auditor
 import id.walt.auditor.policies.SignaturePolicy
 import id.walt.credentials.w3c.W3CIssuer
@@ -36,11 +35,6 @@ class CheqdTest : StringSpec({
         KeyStoreService.getService().delete(did!!)
         println("Deleted: $did")
     }
-
-    /*"Import did:cheqd" {
-        println("Importing: $did")
-        DidService.importDidAndKeys(did!!)
-    }*/
 
     "Test did:cheqd verification" {
         val verificationResult = Auditor.getService().verify(vc!!, listOf(SignaturePolicy()))
