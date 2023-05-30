@@ -14,7 +14,7 @@ import id.walt.services.CryptoProvider
 import id.walt.services.WaltIdServices
 import id.walt.services.context.ContextManager
 import id.walt.services.crypto.CryptoService
-import id.walt.services.did.resolvers.*
+import id.walt.services.did.resolvers.DidResolverFactory
 import id.walt.services.ecosystems.cheqd.CheqdService
 import id.walt.services.ecosystems.iota.IotaService
 import id.walt.services.ecosystems.iota.IotaWrapper
@@ -24,11 +24,6 @@ import id.walt.services.keystore.KeyType
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.ProofConfig
 import io.ipfs.multibase.Multibase
-import io.ktor.client.*
-import io.ktor.client.plugins.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
-import io.ktor.util.*
 import mu.KotlinLogging
 import org.bouncycastle.asn1.edec.EdECObjectIdentifiers
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier
@@ -291,12 +286,14 @@ object DidService {
 
     //region did-resolve
     fun resolve(did: String, options: DidOptions? = null): Did = resolve(DidUrl.from(did), options)
-    fun resolve(didUrl: DidUrl, options: DidOptions? = null): Did = didResolverFactory.create(didUrl.method).resolve(didUrl, options)
+    fun resolve(didUrl: DidUrl, options: DidOptions? = null): Did =
+        didResolverFactory.create(didUrl.method).resolve(didUrl, options)
     //endregion
 
     //region did-import
     fun importDid(did: String) {
-        val did2 = did.replace("-", ":")
+        //val did2 = did.replace("-", ":") FIXME
+        val did2 = did // FIXME
         resolveAndStore(did2)
 
         when {
@@ -452,8 +449,10 @@ object DidService {
 
         vm.publicKeyBase58 ?: return null
 
-        if (!setOf(Ed25519VerificationKey2018.name, Ed25519VerificationKey2019.name, Ed25519VerificationKey2020.name).contains(
-                vm.type
+        if (vm.type !in setOf(
+                Ed25519VerificationKey2018.name,
+                Ed25519VerificationKey2019.name,
+                Ed25519VerificationKey2020.name
             )
         ) {
             log.warn { "Key import does currently not support verification-key algorithm: ${vm.type}" }
@@ -478,8 +477,10 @@ object DidService {
 
         vm.publicKeyMultibase ?: return null
 
-        if (!setOf(Ed25519VerificationKey2018.name, Ed25519VerificationKey2019.name, Ed25519VerificationKey2020.name).contains(
-                vm.type
+        if (vm.type !in setOf(
+                Ed25519VerificationKey2018.name,
+                Ed25519VerificationKey2019.name,
+                Ed25519VerificationKey2020.name
             )
         ) {
             log.warn { "Key import does currently not support verification-key algorithm: ${vm.type}" }
@@ -487,10 +488,19 @@ object DidService {
             return null
         }
 
+        val rawMultibaseDecoded = Multibase.decode(vm.publicKeyMultibase)
+
+        val multibaseDecoded: ByteArray = when {
+            rawMultibaseDecoded.size == 34 && did.startsWith("did:cheqd:") ->
+                rawMultibaseDecoded.drop(2).toByteArray()
+
+            else -> rawMultibaseDecoded
+        }
+
         val keyFactory = KeyFactory.getInstance("Ed25519")
 
-        val pubKeyInfo =
-            SubjectPublicKeyInfo(AlgorithmIdentifier(EdECObjectIdentifiers.id_Ed25519), Multibase.decode(vm.publicKeyMultibase))
+        val pubKeyInfo = SubjectPublicKeyInfo(AlgorithmIdentifier(EdECObjectIdentifiers.id_Ed25519), multibaseDecoded)
+
         val x509KeySpec = X509EncodedKeySpec(pubKeyInfo.encoded)
 
         val pubKey = keyFactory.generatePublic(x509KeySpec)
@@ -528,7 +538,7 @@ object DidService {
     //endregion
 
     fun isDidEbsiV1(did: String): Boolean = checkIsDidEbsiAndVersion(did, 1)
-    
+
     fun isDidEbsiV2(did: String): Boolean = checkIsDidEbsiAndVersion(did, 2)
 
     private fun checkIsDidEbsiAndVersion(did: String, version: Int): Boolean {
