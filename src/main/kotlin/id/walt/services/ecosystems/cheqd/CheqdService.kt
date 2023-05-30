@@ -36,7 +36,9 @@ object CheqdService {
 
     private const val verificationMethod = "Ed25519VerificationKey2020"
     private const val methodSpecificIdAlgo = "uuid"
-    private const val registrarUrl = "https://registrar.walt.id/cheqd"
+
+    //private const val registrarUrl = "https://registrar.walt.id/cheqd"
+    private const val registrarUrl = "https://did-registrar.cheqd.net"
     private const val registrarApiVersion = "1.0"
     private const val didCreateUrl =
         "$registrarUrl/$registrarApiVersion/did-document?verificationMethod=%s&methodSpecificIdAlgo=%s&network=%s&publicKeyHex=%s"
@@ -73,7 +75,7 @@ object CheqdService {
         } ?: throw IllegalArgumentException("Failed to fetch the did document from cheqd registrar helper")
     }
 
-    fun deactivateDid(did: String){
+    fun deactivateDid(did: String) {
         val job = initiateDidJob(didCreateUrl, KlaxonWithConverters().toJsonString(JobDeactivateRequest(did)))
             ?: throw Exception("Failed to initialize the did onboarding process")
         val signatures = signPayload(KeyId(""), job)
@@ -86,11 +88,11 @@ object CheqdService {
             ?: throw Exception("Failed to finalize the did onboarding process")
     }
 
-    fun updateDid(did: String){
+    fun updateDid(did: String) {
         TODO()
     }
 
-    private fun initiateDidJob(url: String, body: String) = let{
+    private fun initiateDidJob(url: String, body: String) = let {
         val response = runBlocking {
             client.post(url) {
                 contentType(ContentType.Application.Json)
@@ -100,7 +102,7 @@ object CheqdService {
         KlaxonWithConverters().parse<JobActionResponse>(response)
     }
 
-    private fun finalizeDidJob(url: String, jobId: String, verificationMethodId: String, signatures: List<String>) = let{
+    private fun finalizeDidJob(url: String, jobId: String, verificationMethodId: String, signatures: List<String>) = let {
         val actionResponse = runBlocking {
             client.post(url) {
                 contentType(ContentType.Application.Json)

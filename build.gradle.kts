@@ -32,7 +32,7 @@ dependencies {
     api("decentralized-identity:jsonld-common-java:1.1.0")
     implementation("com.goterl:lazysodium-java:5.1.4")
     implementation("net.java.dev.jna:jna:5.12.1")
-    implementation("com.github.multiformats:java-multibase:v1.1.0")
+    implementation("com.github.multiformats:java-multibase:v1.1.1")
     implementation("com.microsoft.azure:azure-keyvault:1.2.6")
     implementation("com.microsoft.azure:azure-client-authentication:1.7.14")
     implementation("com.nimbusds:nimbus-jose-jwt:9.30.2")
