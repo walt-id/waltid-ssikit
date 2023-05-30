@@ -123,7 +123,7 @@ class FileSystemHKVStore(configPath: String) : HKVStoreService() {
     private fun dataDirCombinePath(key: Path) = configuration.dataDirectory.combineSafe(key)
 
     companion object {
-        private const val MAX_KEY_SIZE = 100
+        private const val MAX_KEY_SIZE = 111
         private const val hashMappingDesc = "FileSystemHKVStore hash mappings properties"
     }
 }
