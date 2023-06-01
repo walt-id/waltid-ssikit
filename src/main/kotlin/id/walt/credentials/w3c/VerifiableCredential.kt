@@ -1,11 +1,8 @@
 package id.walt.credentials.w3c
 
-import com.nimbusds.jwt.SignedJWT
-import id.walt.credentials.selectiveDisclosure.SDField
 import id.walt.credentials.w3c.builder.CredentialFactory
-import id.walt.services.sdjwt.SDJwt
-import id.walt.services.sdjwt.SDJwtService
-import id.walt.services.sdjwt.WaltIdSDJwtService
+import id.walt.sdjwt.SDField
+import id.walt.sdjwt.SDJwt
 import kotlinx.serialization.json.*
 
 open class VerifiableCredential internal constructor(
@@ -57,7 +54,7 @@ open class VerifiableCredential internal constructor(
     open val challenge
         get() = when (this.sdJwt) {
             null -> this.proof?.nonce
-            else -> sdJwt!!.sdPayload["nonce"]?.jsonPrimitive?.contentOrNull
+            else -> sdJwt!!.sdPayload.undisclosedPayload["nonce"]?.jsonPrimitive?.contentOrNull
         }
 
     fun toJsonObject() = buildJsonObject {
@@ -110,25 +107,30 @@ open class VerifiableCredential internal constructor(
             return VerifiableCredential(jsonObject)
         }
 
+        private const val JWT_PATTERN = "(^[A-Za-z0-9-_]*\\.[A-Za-z0-9-_]*\\.[A-Za-z0-9-_]*\$)"
         private const val JWT_VC_CLAIM = "vc"
         private const val JWT_VP_CLAIM = "vp"
 
-        fun isSDJwt(data: String) = Regex(SDJwt.SD_JWT_PATTERN).matches(data)
-
         val possibleClaimKeys = listOf(JWT_VP_CLAIM, JWT_VC_CLAIM)
 
+        fun isJWT(data: String): Boolean {
+            return Regex(JWT_PATTERN).matches(data)
+        }
+
+        fun isSDJwt(data: String) = SDJwt.isSDJwt(data)
+
         private fun fromSdJwt(sdJwt: SDJwt): VerifiableCredential {
-            val resolvedObject = SDJwtService.getService().disclosePayload(sdJwt)
+            val resolvedObject = sdJwt.sdPayload.fullPayload
             val claimKey = possibleClaimKeys.first { it in resolvedObject.keys }
             return fromJsonObject(resolvedObject[claimKey]!!.jsonObject).apply {
                 this.sdJwt = sdJwt
-                this.selectiveDisclosure = SDJwtService.getService().toSDMap(sdJwt)[claimKey]?.nestedMap
+                this.selectiveDisclosure = sdJwt.sdPayload.sdMap[claimKey]?.children
             }
         }
 
         fun fromString(data: String): VerifiableCredential {
             return when {
-                isSDJwt(data) -> fromSdJwt(SDJwtService.getService().parseSDJwt(data))
+                SDJwt.isSDJwt(data) -> fromSdJwt(SDJwt.parse(data))
                 else -> fromJson(data)
             }
         }

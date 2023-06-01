@@ -1,9 +1,8 @@
 package id.walt.credentials.w3c
 
-import id.walt.credentials.selectiveDisclosure.SDField
 import id.walt.credentials.w3c.builder.AbstractW3CCredentialBuilder
 import id.walt.credentials.w3c.builder.CredentialFactory
-import id.walt.services.sdjwt.SDJwtService
+import id.walt.sdjwt.SDField
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 
@@ -56,15 +55,15 @@ data class PresentableCredential(
 ) {
     fun toJsonElement() =
         if(verifiableCredential.sdJwt != null) {
-            val claimKey = VerifiableCredential.possibleClaimKeys.first { it in verifiableCredential.sdJwt!!.sdPayload.keys }
+            val claimKey = VerifiableCredential.possibleClaimKeys.first { it in verifiableCredential.sdJwt!!.sdPayload.undisclosedPayload.keys }
             val presentedJwt = if(discloseAll) {
-                SDJwtService.getService().present(verifiableCredential.sdJwt!!, discloseAll)
+                verifiableCredential.sdJwt!!.present(discloseAll)
             } else {
-                SDJwtService.getService().present(verifiableCredential.sdJwt!!, selectiveDisclosure?.let { mapOf(
+                verifiableCredential.sdJwt!!.present(selectiveDisclosure?.let { mapOf(
                     claimKey to SDField(true, it)
                 )})
             }
-            JsonPrimitive(presentedJwt.toString())
+            JsonPrimitive(presentedJwt.toString(formatForPresentation = true))
         } else verifiableCredential.toJsonElement()
 
     val isJwt

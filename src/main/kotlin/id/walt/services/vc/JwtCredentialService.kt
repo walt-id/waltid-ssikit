@@ -1,14 +1,11 @@
 package id.walt.services.vc
 
 import id.walt.auditor.VerificationPolicyResult
-import id.walt.credentials.selectiveDisclosure.SDField
 import id.walt.credentials.w3c.PresentableCredential
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
 import id.walt.signatory.ProofConfig
-import info.weboftrust.ldsignatures.LdProof
-import kotlinx.serialization.Serializable
 import java.net.URI
 import java.time.Instant
 

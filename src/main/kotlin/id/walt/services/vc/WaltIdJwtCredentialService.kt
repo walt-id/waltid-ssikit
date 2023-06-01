@@ -3,12 +3,13 @@ package id.walt.services.vc
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import id.walt.auditor.VerificationPolicyResult
-import id.walt.credentials.selectiveDisclosure.SDField
 import id.walt.credentials.w3c.*
 import id.walt.credentials.w3c.schema.SchemaValidatorFactory
+import id.walt.sdjwt.SDField
+import id.walt.sdjwt.SDJwt
+import id.walt.sdjwt.SDPayload
 import id.walt.services.did.DidService
 import id.walt.services.jwt.JwtService
-import id.walt.services.sdjwt.SDJwtService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import kotlinx.serialization.json.Json
@@ -27,7 +28,7 @@ private const val JWT_VP_CLAIM = "vp"
 
 open class WaltIdJwtCredentialService : JwtCredentialService() {
 
-    private val sdJwtService = SDJwtService.getService()
+    private val jwtService = JwtService.getService()
 
     override fun sign(jsonCred: String, config: ProofConfig): String {
         log.debug { "Signing JWT object with config: $config" }
@@ -60,9 +61,10 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
         log.debug { "Signing: $payload" }
 
         val vm = config.issuerVerificationMethod ?: issuerDid
-        return sdJwtService.sign(vm, payload, mapOf(
+        val sdPayload = SDPayload.createSDPayload(payload, mapOf(
             vcClaim to SDField(false, config.selectiveDisclosure)
-        )).toString()
+        ))
+        return SDJwt.sign(sdPayload, jwtService, vm).toString()
     }
 
     override fun verifyVc(issuerDid: String, vc: String): Boolean {
@@ -78,7 +80,7 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
 
     override fun verifyVc(vc: String): Boolean {
         log.debug { "Verifying vc: $vc" }
-        return sdJwtService.verify(sdJwtService.parseSDJwt(vc))
+        return SDJwt.parse(vc).verify(jwtService)
     }
 
     override fun verifyVp(vp: String): Boolean =

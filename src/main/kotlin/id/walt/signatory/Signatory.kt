@@ -1,13 +1,13 @@
 package id.walt.signatory
 
 import com.beust.klaxon.Json
-import id.walt.credentials.selectiveDisclosure.SDField
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.W3CIssuer
 import id.walt.credentials.w3c.builder.AbstractW3CCredentialBuilder
 import id.walt.credentials.w3c.templates.VcTemplate
 import id.walt.crypto.LdSignatureType
 import id.walt.model.credential.status.CredentialStatus
+import id.walt.sdjwt.SDField
 import id.walt.servicematrix.ServiceConfiguration
 import id.walt.servicematrix.ServiceProvider
 import id.walt.servicematrix.ServiceRegistry

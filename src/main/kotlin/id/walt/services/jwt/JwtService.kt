@@ -1,10 +1,12 @@
 package id.walt.services.jwt
 
 import com.nimbusds.jose.jwk.OctetKeyPair
+import id.walt.sdjwt.JWTCryptoProvider
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
+import kotlinx.serialization.json.JsonObject
 
-open class JwtService : WaltIdService() {
+open class JwtService : WaltIdService(), JWTCryptoProvider {
 
     override val implementation get() = serviceImplementation<JwtService>()
 
@@ -26,7 +28,14 @@ open class JwtService : WaltIdService() {
         payload: String? = null
     ): String = implementation.sign(keyAlias, payload)
 
-    open fun verify(token: String): Boolean = implementation.verify(token)
+    override fun sign(payload: JsonObject, keyID: String?): String {
+        if(keyID == null) {
+            throw Exception("KeyID not provided")
+        }
+        return sign(keyID, payload.toString())
+    }
+
+    override fun verify(token: String): Boolean = implementation.verify(token)
 
     open fun parseClaims(token: String): MutableMap<String, Any>? = implementation.parseClaims(token)
 

@@ -12,16 +12,12 @@ import com.github.ajalt.clikt.parameters.types.enum
 import com.github.ajalt.clikt.parameters.types.file
 import com.github.ajalt.clikt.parameters.types.int
 import com.github.ajalt.clikt.parameters.types.path
-import com.jayway.jsonpath.DocumentContext
-import com.jayway.jsonpath.JsonPath
 import id.walt.auditor.Auditor
 import id.walt.auditor.PolicyRegistry
 import id.walt.auditor.dynamic.DynamicPolicyArg
 import id.walt.auditor.dynamic.PolicyEngineType
-import id.walt.common.asMap
 import id.walt.common.prettyPrint
 import id.walt.common.resolveContent
-import id.walt.credentials.selectiveDisclosure.SDField
 import id.walt.credentials.w3c.PresentableCredential
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.VerifiablePresentation
@@ -29,7 +25,7 @@ import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.LdSignatureType
 import id.walt.custodian.Custodian
 import id.walt.model.credential.status.CredentialStatus
-import id.walt.services.sdjwt.SDJwtService
+import id.walt.sdjwt.SDField
 import id.walt.signatory.Ecosystem
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
@@ -91,7 +87,7 @@ class VcIssueCommand : CliktCommand(
         help = "Specify the credentialStatus type"
     ).enum<CredentialStatus.Types>()
     val selectiveDisclosure: Map<String, SDField>? by option("--sd", "--selective-disclosure", help = "Path to selectively disclosable fields (if supported by chosen proof type), in a simplified JsonPath format, can be specified multiple times, e.g.: \"credentialSubject.familyName\".")
-        .transformAll { paths -> SDJwtService.getService().toSDMap(paths) }
+        .transformAll { paths -> SDField.generateSDMap(paths) }
 
     private val signatory = Signatory.getService()
 
@@ -189,7 +185,7 @@ class PresentVcCommand : CliktCommand(
                     path
                 })
             }.groupBy { pair -> pair.first }
-            .mapValues { entry -> SDJwtService.getService().toSDMap(entry.value.map { item -> item.second }) }
+            .mapValues { entry -> SDField.generateSDMap(entry.value.map { item -> item.second }) }
         }
     val discloseAllFor: Set<Int>? by option("--sd-all-for", help = "Selects all selective disclosures for the credential at the specified index to be disclosed. Overrides --sd flags!").int()
         .transformAll { it.toSet() }

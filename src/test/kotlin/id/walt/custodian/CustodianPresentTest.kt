@@ -5,6 +5,7 @@ import id.walt.credentials.w3c.VerifiablePresentation
 import id.walt.credentials.w3c.toPresentableCredential
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.model.DidMethod
+import id.walt.sdjwt.SDJwt
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
 import id.walt.signatory.ProofConfig
@@ -96,7 +97,7 @@ class CustodianPresentTest : StringSpec() {
     }
 
     private fun checkVerifiablePresentation(presStr: String) {
-        VerifiableCredential.isSDJwt(presStr) shouldBe true
+        SDJwt.isSDJwt(presStr) shouldBe true
 
         val pres = presStr.toVerifiableCredential()
 
