@@ -1,6 +1,5 @@
 package id.walt.ecosystems
 
-import com.google.common.util.concurrent.ServiceManager
 import id.walt.auditor.Auditor
 import id.walt.auditor.policies.SignaturePolicy
 import id.walt.credentials.w3c.W3CIssuer
