@@ -11,7 +11,8 @@ import java.util.*
 import kotlin.io.path.*
 
 data class FilesystemStoreConfig(
-    val dataRoot: String
+    val dataRoot: String,
+    val maxKeySize: Int = 111
 ) : ServiceConfiguration {
     val dataDirectory: Path = Path.of(dataRoot)
 }
@@ -53,7 +54,7 @@ class FileSystemHKVStore(configPath: String) : HKVStoreService() {
         ?: throw IllegalArgumentException("No HKVS mapping found for hash: $hashMapping")
 
     private fun hashIfNeeded(path: Path): File {
-        if (path.name.length > MAX_KEY_SIZE) {
+        if (path.name.length > configuration.maxKeySize) {
             val hashedFileNameBytes = DigestUtils.sha3_512(path.nameWithoutExtension)
             val hashedFileName = Base32().encodeToString(hashedFileNameBytes).replace("=", "").replace("+", "")
 
@@ -92,7 +93,7 @@ class FileSystemHKVStore(configPath: String) : HKVStoreService() {
             when (recursive) {
                 false -> pathFileList?.filter { it.isFile }?.map {
                     var mapping = it.toPath()
-                    if (mapping.name.length > MAX_KEY_SIZE) {
+                    if (mapping.name.length > configuration.maxKeySize) {
                         mapping = mapping.parent.resolve(retrieveHashMapping(mapping.name))
                     }
 
@@ -101,7 +102,7 @@ class FileSystemHKVStore(configPath: String) : HKVStoreService() {
 
                 true -> pathFileList?.flatMap {
                     var mapping = it.toPath()
-                    if (mapping.name.length > MAX_KEY_SIZE) {
+                    if (mapping.name.length > configuration.maxKeySize) {
                         mapping = mapping.parent.resolve(retrieveHashMapping(mapping.name))
                     }
 
@@ -123,7 +124,6 @@ class FileSystemHKVStore(configPath: String) : HKVStoreService() {
     private fun dataDirCombinePath(key: Path) = configuration.dataDirectory.combineSafe(key)
 
     companion object {
-        private const val MAX_KEY_SIZE = 111
         private const val hashMappingDesc = "FileSystemHKVStore hash mappings properties"
     }
 }
