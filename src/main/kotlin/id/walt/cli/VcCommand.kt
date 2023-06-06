@@ -25,7 +25,7 @@ import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.LdSignatureType
 import id.walt.custodian.Custodian
 import id.walt.model.credential.status.CredentialStatus
-import id.walt.sdjwt.SDField
+import id.walt.sdjwt.DecoyMode
 import id.walt.sdjwt.SDMap
 import id.walt.signatory.Ecosystem
 import id.walt.signatory.ProofConfig
@@ -87,12 +87,14 @@ class VcIssueCommand : CliktCommand(
         "--status-type",
         help = "Specify the credentialStatus type"
     ).enum<CredentialStatus.Types>()
-    val selectiveDisclosure: SDMap? by option("--sd", "--selective-disclosure", help = "Path to selectively disclosable fields (if supported by chosen proof type), in a simplified JsonPath format, can be specified multiple times, e.g.: \"credentialSubject.familyName\".")
-        .transformAll { paths -> SDMap.generateSDMap(paths) }
+    val decoyMode: DecoyMode by option("--decoy-mode", help = "SD-JWT Decoy mode: random|fixed|none, default: none").enum<DecoyMode>().default(DecoyMode.NONE)
+    val numDecoys: Int by option("--num-decoys", help = "Number of SD-JWT decoy digests to add (fixed mode), or max num of decoy digests (random mode)").int().default(0)
+    val selectiveDisclosurePaths: List<String>? by option("--sd", "--selective-disclosure", help = "Path to selectively disclosable fields (if supported by chosen proof type), in a simplified JsonPath format, can be specified multiple times, e.g.: \"credentialSubject.familyName\".").multiple()
 
     private val signatory = Signatory.getService()
 
     override fun run() {
+        val selectiveDisclosure = selectiveDisclosurePaths?.let { SDMap.generateSDMap(it, decoyMode, numDecoys) }
         echo("Issuing a verifiable credential (using template ${template})...")
         selectiveDisclosure?.also {
             echo("with selective disclosure:")
