@@ -11,6 +11,7 @@ import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
 import id.walt.sdjwt.SDField
 import id.walt.sdjwt.SDJwt
+import id.walt.sdjwt.SDMap
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidEbsiCreateOptions
 import id.walt.services.did.DidService
@@ -192,7 +193,7 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
                     issuerDid = issuerDid,
                     subjectDid = issuerDid,
                     proofType = ProofType.SD_JWT,
-                    selectiveDisclosure = SDField.generateSDMap(
+                    selectiveDisclosure = SDMap.generateSDMap(
                         listOf("credentialSubject", "credentialSubject.firstName", "credentialSubject.dateOfBirth")
                     )
                 )
@@ -222,7 +223,7 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
         Auditor.getService().verify(presentation_1, listOf(SignaturePolicy())).result shouldBe true
 
         val presentation_2 = Custodian.getService().createPresentation(listOf(
-            issuedVID.toPresentableCredential(SDField.generateSDMap(setOf("credentialSubject")))
+            issuedVID.toPresentableCredential(SDMap.generateSDMap(setOf("credentialSubject")))
         ), issuerDid)
         val presentedVID_2 = presentation_2.toVerifiablePresentation().verifiableCredential!!.first()
         presentedVID_2.credentialSubject shouldNotBe null
@@ -230,7 +231,7 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
         Auditor.getService().verify(presentation_2, listOf(SignaturePolicy())).result shouldBe true
 
         val presentation_3 = Custodian.getService().createPresentation(listOf(
-            issuedVID.toPresentableCredential(SDField.generateSDMap(setOf("credentialSubject", "credentialSubject.firstName")))
+            issuedVID.toPresentableCredential(SDMap.generateSDMap(setOf("credentialSubject", "credentialSubject.firstName")))
         ), issuerDid)
         val presentedVID_3 = presentation_3.toVerifiablePresentation().verifiableCredential!!.first()
         presentedVID_3.credentialSubject shouldNotBe null

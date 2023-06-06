@@ -8,6 +8,7 @@ import id.walt.credentials.w3c.schema.SchemaValidatorFactory
 import id.walt.sdjwt.SDField
 import id.walt.sdjwt.SDJwt
 import id.walt.sdjwt.SDPayload
+import id.walt.sdjwt.toSDMap
 import id.walt.services.did.DidService
 import id.walt.services.jwt.JwtService
 import id.walt.signatory.ProofConfig
@@ -63,7 +64,7 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
         val vm = config.issuerVerificationMethod ?: issuerDid
         val sdPayload = SDPayload.createSDPayload(payload, mapOf(
             vcClaim to SDField(false, config.selectiveDisclosure)
-        ))
+        ).toSDMap())
         return SDJwt.sign(sdPayload, jwtService, vm).toString()
     }
 

@@ -3,6 +3,7 @@ package id.walt.credentials.w3c
 import id.walt.credentials.w3c.builder.AbstractW3CCredentialBuilder
 import id.walt.credentials.w3c.builder.CredentialFactory
 import id.walt.sdjwt.SDField
+import id.walt.sdjwt.SDMap
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 
@@ -50,7 +51,7 @@ fun String.toVerifiablePresentation() = VerifiablePresentation.fromString(this)
 
 data class PresentableCredential(
     val verifiableCredential: VerifiableCredential,
-    val selectiveDisclosure: Map<String, SDField>? = null,
+    val selectiveDisclosure: SDMap? = null,
     val discloseAll: Boolean = false
 ) {
     fun toJsonElement() =

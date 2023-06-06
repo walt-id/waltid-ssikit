@@ -8,6 +8,7 @@ import id.walt.credentials.w3c.templates.VcTemplate
 import id.walt.crypto.LdSignatureType
 import id.walt.model.credential.status.CredentialStatus
 import id.walt.sdjwt.SDField
+import id.walt.sdjwt.SDMap
 import id.walt.servicematrix.ServiceConfiguration
 import id.walt.servicematrix.ServiceProvider
 import id.walt.servicematrix.ServiceRegistry
@@ -48,7 +49,7 @@ data class ProofConfig(
     @Json(serializeNull = false) val statusType: CredentialStatus.Types? = null,
     @Json(serializeNull = false) val statusPurpose: String = "revocation",
     @Json(serializeNull = false) val credentialsEndpoint: String? = null,
-    @Json(serializeNull = false) val selectiveDisclosure: Map<String, SDField>? = null
+    @Json(serializeNull = false) val selectiveDisclosure: SDMap? = null
 )
 
 data class SignatoryConfig(

@@ -3,6 +3,7 @@ package id.walt.credentials.w3c
 import id.walt.credentials.w3c.builder.CredentialFactory
 import id.walt.sdjwt.SDField
 import id.walt.sdjwt.SDJwt
+import id.walt.sdjwt.SDMap
 import kotlinx.serialization.json.*
 
 open class VerifiableCredential internal constructor(
@@ -19,7 +20,7 @@ open class VerifiableCredential internal constructor(
     var credentialSubject: W3CCredentialSubject? = null,
     override val properties: Map<String, Any?> = mapOf(),
     var sdJwt: SDJwt? = null,
-    var selectiveDisclosure: Map<String, SDField>? = null
+    var selectiveDisclosure: SDMap? = null
 ) : ICredentialElement {
 
     internal constructor(jsonObject: JsonObject) : this(
@@ -146,7 +147,7 @@ fun String.toVerifiableCredential(): VerifiableCredential {
     }
 }
 
-fun String.toPresentableCredential(sdMap: Map<String, SDField>? = null, discloseAll: Boolean = false)
+fun String.toPresentableCredential(sdMap: SDMap? = null, discloseAll: Boolean = false)
     = PresentableCredential(this.toVerifiableCredential(), sdMap, discloseAll)
 
 fun <T> VerifiableCredential.verifyByFormatType(jwt: (String) -> T, ld: (String) -> T): T = when (this.sdJwt) {

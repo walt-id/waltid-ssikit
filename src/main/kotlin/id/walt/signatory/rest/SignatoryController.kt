@@ -6,6 +6,7 @@ import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.builder.W3CCredentialBuilder
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.sdjwt.SDField
+import id.walt.sdjwt.SDMap
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
@@ -120,7 +121,7 @@ object SignatoryController {
         val subjectId = ctx.queryParam("subjectId") ?: throw BadRequestResponse("subjectId must be specified")
         val proofType = ctx.queryParam("proofType")?.let { ProofType.valueOf(it) } ?: ProofType.LD_PROOF
         val sdPaths = ctx.queryParams("sd")
-        val sdMap = SDField.generateSDMap(sdPaths)
+        val sdMap = SDMap.generateSDMap(sdPaths)
         ctx.result(
             signatory.issue(
                 W3CCredentialBuilder.fromPartial(credentialJson),

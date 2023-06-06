@@ -26,6 +26,7 @@ import id.walt.crypto.LdSignatureType
 import id.walt.custodian.Custodian
 import id.walt.model.credential.status.CredentialStatus
 import id.walt.sdjwt.SDField
+import id.walt.sdjwt.SDMap
 import id.walt.signatory.Ecosystem
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
@@ -86,8 +87,8 @@ class VcIssueCommand : CliktCommand(
         "--status-type",
         help = "Specify the credentialStatus type"
     ).enum<CredentialStatus.Types>()
-    val selectiveDisclosure: Map<String, SDField>? by option("--sd", "--selective-disclosure", help = "Path to selectively disclosable fields (if supported by chosen proof type), in a simplified JsonPath format, can be specified multiple times, e.g.: \"credentialSubject.familyName\".")
-        .transformAll { paths -> SDField.generateSDMap(paths) }
+    val selectiveDisclosure: SDMap? by option("--sd", "--selective-disclosure", help = "Path to selectively disclosable fields (if supported by chosen proof type), in a simplified JsonPath format, can be specified multiple times, e.g.: \"credentialSubject.familyName\".")
+        .transformAll { paths -> SDMap.generateSDMap(paths) }
 
     private val signatory = Signatory.getService()
 
@@ -95,7 +96,7 @@ class VcIssueCommand : CliktCommand(
         echo("Issuing a verifiable credential (using template ${template})...")
         selectiveDisclosure?.also {
             echo("with selective disclosure:")
-            SDField.prettyPrintSdMap(it, 2)
+            echo(it.prettyPrint(2))
         }
         // Loading VC template
         log.debug { "Loading credential template: $template" }
@@ -174,7 +175,7 @@ class PresentVcCommand : CliktCommand(
     val verifierDid: String? by option("-v", "--verifier-did", help = "DID of the verifier (recipient of the VP)")
     val domain: String? by option("-d", "--domain", help = "Domain name to be used in the LD proof")
     val challenge: String? by option("-c", "--challenge", help = "Challenge to be used in the LD proof")
-    val selectiveDisclosure: Map<Int, Map<String, SDField>>? by option("--sd", "--selective-disclosure", help = "Path to selectively disclosed fields, in a simplified JsonPath format. Can be specified multiple times. By default NONE of the sd fields are disclosed, for multiple credentials, the path can be prefixed with the index of the presented credential, e.g. \"credentialSubject.familyName\", \"0.credentialSubject.familyName\", \"1.credentialSubject.dateOfBirth\".")
+    val selectiveDisclosure: Map<Int, SDMap>? by option("--sd", "--selective-disclosure", help = "Path to selectively disclosed fields, in a simplified JsonPath format. Can be specified multiple times. By default NONE of the sd fields are disclosed, for multiple credentials, the path can be prefixed with the index of the presented credential, e.g. \"credentialSubject.familyName\", \"0.credentialSubject.familyName\", \"1.credentialSubject.dateOfBirth\".")
         .transformAll { paths ->
             paths.map { path ->
                 val hasIdxInPath = path.substringBefore(".").toIntOrNull() != null
@@ -185,7 +186,7 @@ class PresentVcCommand : CliktCommand(
                     path
                 })
             }.groupBy { pair -> pair.first }
-            .mapValues { entry -> SDField.generateSDMap(entry.value.map { item -> item.second }) }
+            .mapValues { entry -> SDMap.generateSDMap(entry.value.map { item -> item.second }) }
         }
     val discloseAllFor: Set<Int>? by option("--sd-all-for", help = "Selects all selective disclosures for the credential at the specified index to be disclosed. Overrides --sd flags!").int()
         .transformAll { it.toSet() }
@@ -201,7 +202,7 @@ class PresentVcCommand : CliktCommand(
             echo("- ${index + 1}. $vcPath (${vcSources[vcPath]!!.type.last()})")
             selectiveDisclosure?.get(index)?.let {
                 echo("  with selective disclosure:")
-                SDField.prettyPrintSdMap(it, 4)
+                echo(it.prettyPrint(4))
             }
         }
 
@@ -307,7 +308,7 @@ class ParseVcCommand : CliktCommand(
         echo()
         parsedVc.selectiveDisclosure?.let {
             echo("  with selective disclosure:")
-            SDField.prettyPrintSdMap(it, 4)
+            echo(it.prettyPrint(4))
         }
         if(parsedVc is VerifiablePresentation && recursive) {
             parsedVc.verifiableCredential?.forEachIndexed { idx, cred ->
@@ -317,7 +318,7 @@ class ParseVcCommand : CliktCommand(
                 println(cred.toJson().prettyPrint())
                 cred.selectiveDisclosure?.let {
                     echo("  with selective disclosure:")
-                    SDField.prettyPrintSdMap(it, 4)
+                    echo(it.prettyPrint(4))
                 }
             }
         }
