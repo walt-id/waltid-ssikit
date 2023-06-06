@@ -55,7 +55,7 @@ class FileSystemHKVStore(configPath: String) : HKVStoreService() {
 
     private fun hashIfNeeded(path: Path): File {
         if (path.name.length > configuration.maxKeySize) {
-            val hashedFileNameBytes = DigestUtils.sha3_512(path.nameWithoutExtension)
+            val hashedFileNameBytes = DigestUtils.sha3_512(path.name)
             val hashedFileName = Base32().encodeToString(hashedFileNameBytes).replace("=", "").replace("+", "")
 
             //val ext = extension
@@ -64,7 +64,7 @@ class FileSystemHKVStore(configPath: String) : HKVStoreService() {
 
             val newPath = path.parent.resolve(newName)
 
-            storeHashMapping(path.nameWithoutExtension, newName)
+            storeHashMapping(path.name, newName)
 
             logger.debug { "File mapping is hashed: Path was \"${path.absolutePathString()}\", new path is $newPath" }
             return dataDirCombinePath(dataDirRelativePath(newPath))
