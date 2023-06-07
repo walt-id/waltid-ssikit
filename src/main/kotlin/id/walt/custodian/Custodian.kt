@@ -1,5 +1,6 @@
 package id.walt.custodian
 
+import id.walt.credentials.w3c.PresentableCredential
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.crypto.Key
 import id.walt.crypto.KeyAlgorithm
@@ -32,7 +33,7 @@ abstract class Custodian : WaltIdService() {
     open fun deleteCredential(alias: String): Boolean = implementation.deleteCredential(alias)
 
     open fun createPresentation(
-        vcs: List<String>,
+        vcs: List<PresentableCredential>,
         holderDid: String,
         verifierDid: String? = null,
         domain: String? = null,
@@ -71,14 +72,14 @@ open class WaltIdCustodian : Custodian() {
     override fun deleteCredential(alias: String) = ContextManager.vcStore.deleteCredential(alias, VC_GROUP)
 
     override fun createPresentation(
-        vcs: List<String>,
+        vcs: List<PresentableCredential>,
         holderDid: String,
         verifierDid: String?,
         domain: String?,
         challenge: String?,
         expirationDate: Instant?
     ) = when {
-        vcs.stream().allMatch { VerifiableCredential.isJWT(it) } -> jwtCredentialService.present(
+        vcs.stream().allMatch { it.isJwt } -> jwtCredentialService.present(
             vcs,
             holderDid,
             verifierDid,
@@ -86,7 +87,7 @@ open class WaltIdCustodian : Custodian() {
             expirationDate
         )
 
-        vcs.stream().noneMatch { VerifiableCredential.isJWT(it) } -> jsonLdCredentialService.present(
+        vcs.stream().noneMatch { it.isJwt } -> jsonLdCredentialService.present(
             vcs,
             holderDid,
             domain,

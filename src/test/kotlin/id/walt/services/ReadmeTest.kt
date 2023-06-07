@@ -6,6 +6,7 @@ import id.walt.auditor.policies.JsonSchemaPolicy
 import id.walt.auditor.policies.SignaturePolicy
 import id.walt.credentials.w3c.schema.SchemaValidator
 import id.walt.credentials.w3c.schema.SchemaValidatorFactory
+import id.walt.credentials.w3c.toPresentableCredential
 import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
@@ -40,8 +41,8 @@ class ReadmeTest : StringSpec({
             )
 
             // Present VC in JSON-LD and JWT format (for show-casing both formats)
-            val vpJson = Custodian.getService().createPresentation(listOf(vcJson), holderDid)
-            val vpJwt = Custodian.getService().createPresentation(listOf(vcJwt), holderDid)
+            val vpJson = Custodian.getService().createPresentation(listOf(vcJson.toPresentableCredential()), holderDid)
+            val vpJwt = Custodian.getService().createPresentation(listOf(vcJwt.toPresentableCredential()), holderDid)
 
             // Verify VPs, using Signature, JsonSchema and a custom policy
             val resJson = Auditor.getService().verify(vpJson, listOf(SignaturePolicy(), JsonSchemaPolicy()))

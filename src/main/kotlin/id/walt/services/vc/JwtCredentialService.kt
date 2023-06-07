@@ -1,14 +1,13 @@
 package id.walt.services.vc
 
 import id.walt.auditor.VerificationPolicyResult
+import id.walt.credentials.w3c.PresentableCredential
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
 import id.walt.signatory.ProofConfig
-import info.weboftrust.ldsignatures.LdProof
 import java.net.URI
 import java.time.Instant
-
 
 abstract class JwtCredentialService : WaltIdService() {
     override val implementation get() = serviceImplementation<JwtCredentialService>()
@@ -21,7 +20,7 @@ abstract class JwtCredentialService : WaltIdService() {
     open fun verifyVp(vp: String): Boolean = implementation.verifyVp(vp)
 
     open fun present(
-        vcs: List<String>,
+        vcs: List<PresentableCredential>,
         holderDid: String,
         verifierDid: String? = null,
         challenge: String? = null,
@@ -29,10 +28,6 @@ abstract class JwtCredentialService : WaltIdService() {
     ): String = implementation.present(vcs, holderDid, verifierDid, challenge, expirationDate)
 
     open fun listVCs(): List<String> = implementation.listVCs()
-
-    open fun defaultVcTemplate(): VerifiableCredential = implementation.defaultVcTemplate()
-
-    open fun addProof(credMap: Map<String, String>, ldProof: LdProof): String = implementation.addProof(credMap, ldProof)
 
     open fun validateSchema(vc: VerifiableCredential, schemaURI: URI): VerificationPolicyResult = implementation.validateSchema(vc, schemaURI)
     open fun validateSchemaTsr(vc: String): VerificationPolicyResult = implementation.validateSchemaTsr(vc)

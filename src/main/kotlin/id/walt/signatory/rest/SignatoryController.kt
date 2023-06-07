@@ -5,6 +5,7 @@ import id.walt.credentials.w3c.JsonConverter
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.builder.W3CCredentialBuilder
 import id.walt.credentials.w3c.toVerifiableCredential
+import id.walt.sdjwt.SDMap
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
@@ -107,7 +108,9 @@ object SignatoryController {
 
     fun issueCredentialDocs() = document().operation {
         it.summary("Issue a credential").operationId("issue").addTagsItem("Credentials").description(
-            "Based on a template (maintained in the VcLib), this call creates a W3C Verifiable Credential. Note that the '<b>templateId</b>, <b>issuerDid</b>, and the <b>subjectDid</b>, are mandatory parameters. All other parameters are optional. <br><br> This is a example request, that also demonstrates how to populate the credential with custom data: the <br><br>{<br>" + "  \"templateId\": \"VerifiableId\",<br>" + "  \"config\": {<br>" + " &nbsp;&nbsp;&nbsp;&nbsp;   \"issuerDid\": \"did:ebsi:zuathxHtXTV8psijTjtuZD7\",<br>" + " &nbsp;&nbsp;&nbsp;&nbsp;   \"subjectDid\": \"did:key:z6MkwfgBDSMRqXaJtw5DjhkJdDsDmRNSrvrM1L6UMBDtvaSX\"<br>" + " &nbsp;&nbsp;&nbsp;&nbsp; },<br>" + "  \"credentialData\": {<br>" + " &nbsp;&nbsp;&nbsp;&nbsp;   \"credentialSubject\": {<br>" + " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;     \"firstName\": \"Severin\"<br>" + " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   }<br>" + " &nbsp;&nbsp;&nbsp;&nbsp; }<br>" + "}<br>"
+            "Based on a template (maintained in the VcLib), this call creates a W3C Verifiable Credential. Note that the '<b>templateId</b>, <b>issuerDid</b>, and the <b>subjectDid</b>, are mandatory parameters. All other parameters are optional. <br><br> This is a example request, that also demonstrates how to populate the credential with custom data: the <br><br>{<br>" + "  \"templateId\": \"VerifiableId\",<br>" + "  \"config\": {<br>" + " &nbsp;&nbsp;&nbsp;&nbsp;   \"issuerDid\": \"did:ebsi:zuathxHtXTV8psijTjtuZD7\",<br>" + " &nbsp;&nbsp;&nbsp;&nbsp;   \"subjectDid\": \"did:key:z6MkwfgBDSMRqXaJtw5DjhkJdDsDmRNSrvrM1L6UMBDtvaSX\",<br>" + " &nbsp;&nbsp;&nbsp;&nbsp; \"selectiveDisclosure\": {\n" +
+                    " \"credentialSubject\": { \"sd\": true, \"nestedMap\": { \"firstName\": { \"sd\": true }}}\n" +
+                    "}<br>},<br>" + "  \"credentialData\": {<br>" + " &nbsp;&nbsp;&nbsp;&nbsp;   \"credentialSubject\": {<br>" + " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;     \"firstName\": \"Severin\"<br>" + " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   }<br>" + " &nbsp;&nbsp;&nbsp;&nbsp; }<br>" + "}<br>"
         )
     }.body<IssueCredentialRequest>().json<String>("200")
 
@@ -116,10 +119,12 @@ object SignatoryController {
         val issuerId = ctx.queryParam("issuerId") ?: throw BadRequestResponse("issuerId must be specified")
         val subjectId = ctx.queryParam("subjectId") ?: throw BadRequestResponse("subjectId must be specified")
         val proofType = ctx.queryParam("proofType")?.let { ProofType.valueOf(it) } ?: ProofType.LD_PROOF
+        val sdPaths = ctx.queryParams("sd")
+        val sdMap = SDMap.generateSDMap(sdPaths)
         ctx.result(
             signatory.issue(
                 W3CCredentialBuilder.fromPartial(credentialJson),
-                ProofConfig(issuerId, subjectId, proofType = proofType)
+                ProofConfig(issuerId, subjectId, proofType = proofType, selectiveDisclosure = sdMap)
             )
         )
     }
@@ -132,6 +137,7 @@ object SignatoryController {
     }.queryParam<String>("issuerId")
         .queryParam<String>("subjectId")
         .queryParam<ProofType>("proofType")
+        .queryParam<String>("sd", isRepeatable = true)
         .body<String>().json<String>("200")
 
     fun statusDocs() = document().operation {

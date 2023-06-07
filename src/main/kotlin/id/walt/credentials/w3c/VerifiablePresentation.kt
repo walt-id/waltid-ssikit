@@ -2,6 +2,8 @@ package id.walt.credentials.w3c
 
 import id.walt.credentials.w3c.builder.AbstractW3CCredentialBuilder
 import id.walt.credentials.w3c.builder.CredentialFactory
+import id.walt.sdjwt.SDField
+import id.walt.sdjwt.SDMap
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 
@@ -28,7 +30,7 @@ class VerifiablePresentation internal constructor(jsonObject: JsonObject) : Veri
         override fun fromJsonObject(jsonObject: JsonObject) = VerifiablePresentation(jsonObject)
         fun fromVerifiableCredential(verifiableCredential: VerifiableCredential) =
             VerifiablePresentation(verifiableCredential.toJsonObject()).apply {
-                this.jwt = verifiableCredential.jwt
+                this.sdJwt = verifiableCredential.sdJwt
             }
 
         fun fromString(data: String) = fromVerifiableCredential(data.toVerifiableCredential())
@@ -40,8 +42,31 @@ class VerifiablePresentationBuilder : AbstractW3CCredentialBuilder<VerifiablePre
     VerifiablePresentation
 ) {
     fun setHolder(holder: String) = setProperty("holder", holder)
-    fun setVerifiableCredentials(verifiableCredentials: List<VerifiableCredential>) =
+
+    fun setVerifiableCredentials(verifiableCredentials: List<PresentableCredential>) =
         setProperty("verifiableCredential", verifiableCredentials.map { it.toJsonElement() }.toList())
 }
 
 fun String.toVerifiablePresentation() = VerifiablePresentation.fromString(this)
+
+data class PresentableCredential(
+    val verifiableCredential: VerifiableCredential,
+    val selectiveDisclosure: SDMap? = null,
+    val discloseAll: Boolean = false
+) {
+    fun toJsonElement() =
+        if(verifiableCredential.sdJwt != null) {
+            val claimKey = VerifiableCredential.possibleClaimKeys.first { it in verifiableCredential.sdJwt!!.sdPayload.undisclosedPayload.keys }
+            val presentedJwt = if(discloseAll) {
+                verifiableCredential.sdJwt!!.present(discloseAll)
+            } else {
+                verifiableCredential.sdJwt!!.present(selectiveDisclosure?.let { mapOf(
+                    claimKey to SDField(true, it)
+                )})
+            }
+            JsonPrimitive(presentedJwt.toString(formatForPresentation = true))
+        } else verifiableCredential.toJsonElement()
+
+    val isJwt
+        get() = verifiableCredential.sdJwt != null
+}

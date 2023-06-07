@@ -52,7 +52,7 @@ object OIDCUtils {
             1 -> vps[0].encode()
             else -> {
                 vps.joinToString(",", "[", "]") { vp ->
-                    vp.jwt?.let { "\"$it\"" } ?: vp.encode()
+                    vp.sdJwt?.let { "\"$it\"" } ?: vp.encode()
                 }
             }
         }

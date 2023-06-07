@@ -1,11 +1,8 @@
 package id.walt.services.vc
 
-import id.walt.credentials.w3c.VerifiableCredential
-import id.walt.credentials.w3c.W3CIssuer
+import id.walt.credentials.w3c.*
 import id.walt.credentials.w3c.builder.W3CCredentialBuilder
 import id.walt.credentials.w3c.schema.SchemaValidatorFactory
-import id.walt.credentials.w3c.toVerifiableCredential
-import id.walt.credentials.w3c.toVerifiablePresentation
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
@@ -63,7 +60,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
         vcVerified.verificationType shouldBe VerificationType.VERIFIABLE_CREDENTIAL
 
         val holderDid = vc.subjectId!!
-        val vpStr = credentialService.present(listOf(vcStr), holderDid, "domain.com", "nonce", null)
+        val vpStr = credentialService.present(listOf(vcStr.toPresentableCredential()), holderDid, "domain.com", "nonce", null)
         println("Presentation generated: $vpStr")
 
         val vp = vpStr.toVerifiablePresentation()
@@ -128,7 +125,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
     fun presentVa() {
         val vaStr = File("$VC_PATH/vc-ebsi-verifiable-authorisation.json").readText()
 
-        val vp = credentialService.present(listOf(vaStr), vaStr.toVerifiableCredential().subjectId!!, null, null, null)
+        val vp = credentialService.present(listOf(vaStr.toPresentableCredential()), vaStr.toVerifiableCredential().subjectId!!, null, null, null)
 
         println(vp)
     }
@@ -149,7 +146,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
         val vcSigned = vc.toVerifiableCredential()
         println(vcSigned.toString())
 
-        val vp = credentialService.present(listOf(vc), vcSigned.subjectId!!, domain, challenge, null)
+        val vp = credentialService.present(listOf(vc.toPresentableCredential()), vcSigned.subjectId!!, domain, challenge, null)
         println("Presentation generated: $vp")
 
         val vpVerified = credentialService.verify(vp)

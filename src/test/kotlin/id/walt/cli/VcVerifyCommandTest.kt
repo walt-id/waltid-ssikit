@@ -2,6 +2,7 @@ package id.walt.cli
 
 import com.github.ajalt.clikt.core.PrintHelpMessage
 import id.walt.auditor.PolicyRegistry
+import id.walt.credentials.w3c.toPresentableCredential
 import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
@@ -42,7 +43,7 @@ class VcVerifyCommandTest : StringSpec({
             "VerifiableDiploma", ProofConfig(issuerDid = did, subjectDid = did, issuerVerificationMethod = vm)
         )
         val vpStr = JsonLdCredentialService.getService()
-            .present(listOf(vcStr), did, "https://api-pilot.ebsi.eu", "d04442d3-661f-411e-a80f-42f19f594c9d", null)
+            .present(listOf(vcStr.toPresentableCredential()), did, "https://api-pilot.ebsi.eu", "d04442d3-661f-411e-a80f-42f19f594c9d", null)
         val vpFile = File.createTempFile("vpr", ".json")
         try {
             vpFile.writeText(vpStr)
@@ -60,7 +61,7 @@ class VcVerifyCommandTest : StringSpec({
             "VerifiableDiploma",
             ProofConfig(issuerDid = did, subjectDid = did, issuerVerificationMethod = vm, proofType = ProofType.JWT)
         )
-        val vpJwt = Custodian.getService().createPresentation(listOf(vcJwt), did, did, null, "abcd", null)
+        val vpJwt = Custodian.getService().createPresentation(listOf(vcJwt.toPresentableCredential()), did, did, null, "abcd", null)
         val vpFile = File.createTempFile("vpr", ".jwt")
         try {
             vpFile.writeText(vpJwt)

@@ -7,11 +7,8 @@ import foundation.identity.jsonld.ConfigurableDocumentLoader
 import foundation.identity.jsonld.JsonLDException
 import foundation.identity.jsonld.JsonLDObject
 import id.walt.auditor.VerificationPolicyResult
-import id.walt.credentials.w3c.VerifiableCredential
-import id.walt.credentials.w3c.VerifiablePresentation
-import id.walt.credentials.w3c.VerifiablePresentationBuilder
+import id.walt.credentials.w3c.*
 import id.walt.credentials.w3c.schema.SchemaValidatorFactory
-import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.Key
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.LdSignatureType
@@ -234,7 +231,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
     }
 
     override fun present(
-        vcs: List<String>,
+        vcs: List<PresentableCredential>,
         holderDid: String,
         domain: String?,
         challenge: String?,
@@ -256,7 +253,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
         val vpReqStr = VerifiablePresentationBuilder()
             .setId(id)
             .setHolder(holderDid)
-            .setVerifiableCredentials(vcs.map { it.toVerifiableCredential() })
+            .setVerifiableCredentials(vcs)
             .build().toJson()
 
         log.trace { "VP request: $vpReqStr" }

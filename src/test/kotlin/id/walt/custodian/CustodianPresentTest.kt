@@ -2,8 +2,10 @@ package id.walt.custodian
 
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.VerifiablePresentation
+import id.walt.credentials.w3c.toPresentableCredential
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.model.DidMethod
+import id.walt.sdjwt.SDJwt
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
 import id.walt.signatory.ProofConfig
@@ -52,7 +54,7 @@ class CustodianPresentTest : StringSpec() {
 
     init {
         "Json ld presentation" {
-            val presStr = Custodian.getService().createPresentation(listOf(vcJsonLd), did, did, null, null, null)
+            val presStr = Custodian.getService().createPresentation(listOf(vcJsonLd.toPresentableCredential()), did, did, null, null, null)
             println("Created VP: $presStr")
 
             val pres = presStr.toVerifiableCredential()
@@ -61,7 +63,7 @@ class CustodianPresentTest : StringSpec() {
         }
 
         "Jwt presentation" {
-            val presStr = Custodian.getService().createPresentation(listOf(vcJwt), did, did, null, "abcd", null)
+            val presStr = Custodian.getService().createPresentation(listOf(vcJwt.toPresentableCredential()), did, did, null, "abcd", null)
             println("Created VP: $presStr")
 
             checkVerifiablePresentation(presStr)
@@ -70,7 +72,7 @@ class CustodianPresentTest : StringSpec() {
         "Jwt presentation without audience or nonce" {
             val presStr = Custodian
                 .getService()
-                .createPresentation(listOf(vcJwt), did, null, null, "abcd", null)
+                .createPresentation(listOf(vcJwt.toPresentableCredential()), did, null, null, "abcd", null)
             println("Created VP: $presStr")
 
             checkVerifiablePresentation(presStr)
@@ -79,7 +81,7 @@ class CustodianPresentTest : StringSpec() {
         "Jwt presentation without nonce" {
             val presStr = Custodian
                 .getService()
-                .createPresentation(listOf(vcJwt), did, did, null, null, null)
+                .createPresentation(listOf(vcJwt.toPresentableCredential()), did, did, null, null, null)
             println("Created VP: $presStr")
 
             checkVerifiablePresentation(presStr)
@@ -89,18 +91,18 @@ class CustodianPresentTest : StringSpec() {
             assertThrows<IllegalStateException> {
                 Custodian
                     .getService()
-                    .createPresentation(listOf(vcJsonLd, vcJwt), did, did, null, "abcd", null)
+                    .createPresentation(listOf(vcJsonLd, vcJwt).map { it.toPresentableCredential() }, did, did, null, "abcd", null)
             }
         }
     }
 
     private fun checkVerifiablePresentation(presStr: String) {
-        VerifiableCredential.isJWT(presStr) shouldBe true
+        SDJwt.isSDJwt(presStr) shouldBe true
 
         val pres = presStr.toVerifiableCredential()
 
         pres shouldBe instanceOf<VerifiablePresentation>()
-        pres.jwt shouldNotBe null
-        pres.jwt shouldBe presStr
+        pres.sdJwt shouldNotBe null
+        pres.sdJwt.toString() shouldBe presStr
     }
 }

@@ -8,6 +8,7 @@ import id.walt.common.KlaxonWithConverters
 import id.walt.common.resolveContent
 import id.walt.credentials.w3c.JsonConverter
 import id.walt.credentials.w3c.VerifiableCredential
+import id.walt.credentials.w3c.toPresentableCredential
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.custodian.Custodian
 import id.walt.model.*
@@ -67,7 +68,7 @@ class AuditorCommandTest : StringSpec() {
         )
 
         vpStr = custodian.createPresentation(
-            listOf(vcStr), did, did, "https://api-pilot.ebsi.eu", "d04442d3-661f-411e-a80f-42f19f594c9d", null
+            listOf(vcStr.toPresentableCredential()), did, did, "https://api-pilot.ebsi.eu", "d04442d3-661f-411e-a80f-42f19f594c9d", null
         )
 
         println(vpStr)
@@ -78,7 +79,7 @@ class AuditorCommandTest : StringSpec() {
             )
         )
 
-        vpJwt = custodian.createPresentation(listOf(vcJwt), did, did, null, "abcd", null)
+        vpJwt = custodian.createPresentation(listOf(vcJwt.toPresentableCredential()), did, did, null, "abcd", null)
     }
 
     init {

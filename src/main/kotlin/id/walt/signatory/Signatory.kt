@@ -7,6 +7,7 @@ import id.walt.credentials.w3c.builder.AbstractW3CCredentialBuilder
 import id.walt.credentials.w3c.templates.VcTemplate
 import id.walt.crypto.LdSignatureType
 import id.walt.model.credential.status.CredentialStatus
+import id.walt.sdjwt.SDMap
 import id.walt.servicematrix.ServiceConfiguration
 import id.walt.servicematrix.ServiceProvider
 import id.walt.servicematrix.ServiceRegistry
@@ -17,7 +18,7 @@ import java.time.Instant
 private val log = KotlinLogging.logger {}
 
 enum class ProofType {
-    JWT, LD_PROOF
+    JWT, LD_PROOF, SD_JWT
 }
 
 enum class Ecosystem {
@@ -47,6 +48,7 @@ data class ProofConfig(
     @Json(serializeNull = false) val statusType: CredentialStatus.Types? = null,
     @Json(serializeNull = false) val statusPurpose: String = "revocation",
     @Json(serializeNull = false) val credentialsEndpoint: String? = null,
+    @Json(serializeNull = false) val selectiveDisclosure: SDMap? = null
 )
 
 data class SignatoryConfig(

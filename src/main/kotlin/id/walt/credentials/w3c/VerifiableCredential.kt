@@ -1,7 +1,8 @@
 package id.walt.credentials.w3c
 
-import com.nimbusds.jwt.SignedJWT
 import id.walt.credentials.w3c.builder.CredentialFactory
+import id.walt.sdjwt.SDJwt
+import id.walt.sdjwt.SDMap
 import kotlinx.serialization.json.*
 
 open class VerifiableCredential internal constructor(
@@ -14,10 +15,11 @@ open class VerifiableCredential internal constructor(
     var validFrom: String? = null,
     var expirationDate: String? = null,
     var proof: W3CProof? = null,
-    var jwt: String? = null,
     var credentialSchema: W3CCredentialSchema? = null,
     var credentialSubject: W3CCredentialSubject? = null,
-    override val properties: Map<String, Any?> = mapOf()
+    override val properties: Map<String, Any?> = mapOf(),
+    var sdJwt: SDJwt? = null,
+    var selectiveDisclosure: SDMap? = null
 ) : ICredentialElement {
 
     internal constructor(jsonObject: JsonObject) : this(
@@ -50,9 +52,9 @@ open class VerifiableCredential internal constructor(
         get() = credentialSubject?.id
 
     open val challenge
-        get() = when (this.jwt) {
+        get() = when (this.sdJwt) {
             null -> this.proof?.nonce
-            else -> SignedJWT.parse(this.jwt).jwtClaimsSet.getStringClaim("nonce")
+            else -> sdJwt!!.sdPayload.undisclosedPayload["nonce"]?.jsonPrimitive?.contentOrNull
         }
 
     fun toJsonObject() = buildJsonObject {
@@ -78,9 +80,10 @@ open class VerifiableCredential internal constructor(
         return toJsonObject().toString()
     }
 
-    fun toJsonElement() = jwt?.let { JsonPrimitive(it) } ?: toJsonObject()
+    fun toJsonElement() = (sdJwt)?.let { JsonPrimitive(it.toString()) } ?: toJsonObject()
+
     override fun toString(): String {
-        return jwt ?: toJson()
+        return sdJwt?.toString() ?: toJson()
     }
 
     fun encode() = toString()
@@ -108,26 +111,26 @@ open class VerifiableCredential internal constructor(
         private const val JWT_VC_CLAIM = "vc"
         private const val JWT_VP_CLAIM = "vp"
 
+        val possibleClaimKeys = listOf(JWT_VP_CLAIM, JWT_VC_CLAIM)
+
         fun isJWT(data: String): Boolean {
             return Regex(JWT_PATTERN).matches(data)
         }
 
-        private val possibleClaimKeys = listOf(JWT_VP_CLAIM, JWT_VC_CLAIM)
+        fun isSDJwt(data: String) = SDJwt.isSDJwt(data)
 
-        private fun fromJwt(jwt: String): VerifiableCredential {
-            val claims = SignedJWT.parse(jwt).jwtClaimsSet.claims
-
-            val claimKey = possibleClaimKeys.first { it in claims }
-
-            val claim = claims[claimKey]
-            return fromJsonObject(JsonConverter.toJsonElement(claim).jsonObject).apply {
-                this.jwt = jwt
+        private fun fromSdJwt(sdJwt: SDJwt): VerifiableCredential {
+            val resolvedObject = sdJwt.sdPayload.fullPayload
+            val claimKey = possibleClaimKeys.first { it in resolvedObject.keys }
+            return fromJsonObject(resolvedObject[claimKey]!!.jsonObject).apply {
+                this.sdJwt = sdJwt
+                this.selectiveDisclosure = sdJwt.sdPayload.sdMap[claimKey]?.children
             }
         }
 
         fun fromString(data: String): VerifiableCredential {
             return when {
-                isJWT(data) -> fromJwt(data)
+                SDJwt.isSDJwt(data) -> fromSdJwt(SDJwt.parse(data))
                 else -> fromJson(data)
             }
         }
@@ -143,7 +146,10 @@ fun String.toVerifiableCredential(): VerifiableCredential {
     }
 }
 
-fun <T> VerifiableCredential.verifyByFormatType(jwt: (String) -> T, ld: (String) -> T): T = when (this.jwt) {
+fun String.toPresentableCredential(sdMap: SDMap? = null, discloseAll: Boolean = false)
+    = PresentableCredential(this.toVerifiableCredential(), sdMap, discloseAll)
+
+fun <T> VerifiableCredential.verifyByFormatType(jwt: (String) -> T, ld: (String) -> T): T = when (this.sdJwt) {
     null -> ld(this.encode())
     else -> jwt(this.encode())
 }

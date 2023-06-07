@@ -13,6 +13,7 @@ import com.nimbusds.oauth2.sdk.util.URLUtils
 import com.nimbusds.openid.connect.sdk.Nonce
 import id.walt.common.KlaxonWithConverters
 import id.walt.common.prettyPrint
+import id.walt.credentials.w3c.PresentableCredential
 import id.walt.credentials.w3c.toVerifiablePresentation
 import id.walt.custodian.Custodian
 import id.walt.model.dif.InputDescriptor
@@ -446,7 +447,7 @@ class OidcVerificationRespondCommand :
         val req = OIDC4VPService.parseOIDC4VPRequestUri(URI.create(authUrl))
         val nonce = req.getCustomParameter("nonce")?.firstOrNull()
         val vp = Custodian.getService().createPresentation(
-            vcs = credentialIds.map { Custodian.getService().getCredential(it)!!.encode() },
+            vcs = credentialIds.map { Custodian.getService().getCredential(it)?.let { PresentableCredential(it) } ?: throw Exception("Credential with given ID $it not found") },
             holderDid = did,
             challenge = nonce,
         ).toVerifiablePresentation()

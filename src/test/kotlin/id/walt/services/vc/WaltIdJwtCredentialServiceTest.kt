@@ -6,10 +6,14 @@ import id.walt.auditor.policies.SignaturePolicy
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.builder.W3CCredentialBuilder
 import id.walt.credentials.w3c.schema.SchemaValidatorFactory
+import id.walt.credentials.w3c.toPresentableCredential
 import id.walt.credentials.w3c.toVerifiableCredential
+import id.walt.credentials.w3c.toVerifiablePresentation
 import id.walt.crypto.KeyAlgorithm
 import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
+import id.walt.sdjwt.SDJwt
+import id.walt.sdjwt.SDMap
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidEbsiCreateOptions
 import id.walt.services.did.DidService
@@ -22,6 +26,9 @@ import id.walt.signatory.Signatory
 import id.walt.test.RESOURCES_PATH
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.shouldNotContainAnyOf
 import io.kotest.matchers.maps.shouldContainKey
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -51,10 +58,13 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
 
     @BeforeAll
     fun setup() {
-      mockkObject(SchemaValidatorFactory)
-      every { SchemaValidatorFactory.get(URI.create("https://api-pilot.ebsi.eu/trusted-schemas-registry/v1/schemas/0xb77f8516a965631b4f197ad54c65a9e2f9936ebfb76bae4906d33744dbcc60ba"))}.returns(
-        SchemaValidatorFactory.get(URI.create("https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableId.json").toURL().readText())
-      )
+        mockkObject(SchemaValidatorFactory)
+        every { SchemaValidatorFactory.get(URI.create("https://api-pilot.ebsi.eu/trusted-schemas-registry/v1/schemas/0xb77f8516a965631b4f197ad54c65a9e2f9936ebfb76bae4906d33744dbcc60ba")) }.returns(
+            SchemaValidatorFactory.get(
+                URI.create("https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/VerifiableId.json")
+                    .toURL().readText()
+            )
+        )
     }
 
     @AfterAll
@@ -159,7 +169,7 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
         // verify jwk header is set
         signedVcJwt.header.jwk shouldNotBe null
         // create presentation using did ebsi v2
-        val presentation = Custodian.getService().createPresentation(listOf(vc), didV2)
+        val presentation = Custodian.getService().createPresentation(listOf(vc.toPresentableCredential()), didV2)
         VerifiableCredential.isJWT(presentation) shouldBe true
 
         val signedPresentationJwt = SignedJWT.parse(presentation)
@@ -173,5 +183,73 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
         verificationResult.result shouldBe true
         // verify key has been resolved
         KeyService.getService().hasKey(didV2) shouldBe true
+    }
+
+    @Test
+    fun testSelectiveDisclosureJWTCredentials() {
+        // issue VerifiableId with selectively disclosable:
+        //  * credentialSubject
+        //  * credentialSubject.firstName
+        //  * credentialSubject.dateOfBirth
+
+        val issuedVID = Signatory.getService()
+            .issue(
+                "VerifiableId", ProofConfig(
+                    issuerDid = issuerDid,
+                    subjectDid = issuerDid,
+                    proofType = ProofType.SD_JWT,
+                    selectiveDisclosure = SDMap.generateSDMap(
+                        listOf("credentialSubject", "credentialSubject.firstName", "credentialSubject.dateOfBirth")
+                    )
+                )
+            )
+
+        val parsedSdJwt = SDJwt.parse(issuedVID)
+        parsedSdJwt.disclosures shouldHaveSize 3
+        parsedSdJwt.sdPayload.sDisclosures.map { sd -> sd.key } shouldContainAll setOf("credentialSubject", "firstName", "dateOfBirth")
+
+        Auditor.getService().verify(issuedVID, listOf(SignaturePolicy())).result shouldBe true
+
+        val parsedIssuedVID = VerifiableCredential.fromString(issuedVID)
+        parsedIssuedVID.credentialSubject shouldNotBe null
+        parsedIssuedVID.credentialSubject!!.properties.keys shouldContainAll setOf("firstName", "dateOfBirth")
+
+        // present vid with:
+        //  1) disclose none,
+        //  2) disclose credentialSubject (no nested sd props),
+        //  3) disclose credentialSubject + 1 nested sd prop,
+        //  4) disclose all
+
+        val presentation1 = Custodian.getService().createPresentation(listOf(
+            issuedVID.toPresentableCredential(discloseAll = false)
+        ), issuerDid)
+        val presentedvid1 = presentation1.toVerifiablePresentation().verifiableCredential!!.first()
+        presentedvid1.credentialSubject shouldBe null
+        Auditor.getService().verify(presentation1, listOf(SignaturePolicy())).result shouldBe true
+
+        val presentation2 = Custodian.getService().createPresentation(listOf(
+            issuedVID.toPresentableCredential(SDMap.generateSDMap(setOf("credentialSubject")))
+        ), issuerDid)
+        val presentedvid2 = presentation2.toVerifiablePresentation().verifiableCredential!!.first()
+        presentedvid2.credentialSubject shouldNotBe null
+        presentedvid2.credentialSubject!!.properties.keys shouldNotContainAnyOf setOf("firstName", "dateOfBirth")
+        Auditor.getService().verify(presentation2, listOf(SignaturePolicy())).result shouldBe true
+
+        val presentation3 = Custodian.getService().createPresentation(listOf(
+            issuedVID.toPresentableCredential(SDMap.generateSDMap(setOf("credentialSubject", "credentialSubject.firstName")))
+        ), issuerDid)
+        val presentedvid3 = presentation3.toVerifiablePresentation().verifiableCredential!!.first()
+        presentedvid3.credentialSubject shouldNotBe null
+        presentedvid3.credentialSubject!!.properties.keys shouldNotContainAnyOf setOf("dateOfBirth")
+        presentedvid3.credentialSubject!!.properties.keys shouldContainAll setOf("firstName")
+        Auditor.getService().verify(presentation3, listOf(SignaturePolicy())).result shouldBe true
+
+        val presentation4 = Custodian.getService().createPresentation(listOf(
+            issuedVID.toPresentableCredential(discloseAll = true)
+        ), issuerDid)
+        val presentedvid4 = presentation4.toVerifiablePresentation().verifiableCredential!!.first()
+        presentedvid4.credentialSubject shouldNotBe null
+        presentedvid4.credentialSubject!!.properties.keys shouldContainAll setOf("firstName", "dateOfBirth")
+        Auditor.getService().verify(presentation4, listOf(SignaturePolicy())).result shouldBe true
     }
 }

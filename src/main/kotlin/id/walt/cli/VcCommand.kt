@@ -10,6 +10,7 @@ import com.github.ajalt.clikt.parameters.arguments.optional
 import com.github.ajalt.clikt.parameters.options.*
 import com.github.ajalt.clikt.parameters.types.enum
 import com.github.ajalt.clikt.parameters.types.file
+import com.github.ajalt.clikt.parameters.types.int
 import com.github.ajalt.clikt.parameters.types.path
 import id.walt.auditor.Auditor
 import id.walt.auditor.PolicyRegistry
@@ -17,10 +18,15 @@ import id.walt.auditor.dynamic.DynamicPolicyArg
 import id.walt.auditor.dynamic.PolicyEngineType
 import id.walt.common.prettyPrint
 import id.walt.common.resolveContent
+import id.walt.credentials.w3c.PresentableCredential
+import id.walt.credentials.w3c.VerifiableCredential
+import id.walt.credentials.w3c.VerifiablePresentation
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.LdSignatureType
 import id.walt.custodian.Custodian
 import id.walt.model.credential.status.CredentialStatus
+import id.walt.sdjwt.DecoyMode
+import id.walt.sdjwt.SDMap
 import id.walt.signatory.Ecosystem
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
@@ -81,12 +87,19 @@ class VcIssueCommand : CliktCommand(
         "--status-type",
         help = "Specify the credentialStatus type"
     ).enum<CredentialStatus.Types>()
+    val decoyMode: DecoyMode by option("--decoy-mode", help = "SD-JWT Decoy mode: random|fixed|none, default: none").enum<DecoyMode>().default(DecoyMode.NONE)
+    val numDecoys: Int by option("--num-decoys", help = "Number of SD-JWT decoy digests to add (fixed mode), or max num of decoy digests (random mode)").int().default(0)
+    val selectiveDisclosurePaths: List<String>? by option("--sd", "--selective-disclosure", help = "Path to selectively disclosable fields (if supported by chosen proof type), in a simplified JsonPath format, can be specified multiple times, e.g.: \"credentialSubject.familyName\".").multiple()
 
     private val signatory = Signatory.getService()
 
     override fun run() {
+        val selectiveDisclosure = selectiveDisclosurePaths?.let { SDMap.generateSDMap(it, decoyMode, numDecoys) }
         echo("Issuing a verifiable credential (using template ${template})...")
-
+        selectiveDisclosure?.also {
+            echo("with selective disclosure:")
+            echo(it.prettyPrint(2))
+        }
         // Loading VC template
         log.debug { "Loading credential template: $template" }
 
@@ -102,7 +115,8 @@ class VcIssueCommand : CliktCommand(
                     ecosystem = ecosystem,
                     statusType = statusType,
                     //creator = if (ecosystem == Ecosystem.GAIAX) null else issuerDid
-                    creator = issuerDid
+                    creator = issuerDid,
+                    selectiveDisclosure = selectiveDisclosure
                 ), when (interactive) {
                     true -> CLIDataProvider
                     else -> null
@@ -151,28 +165,54 @@ class VcImportCommand : CliktCommand(
 class PresentVcCommand : CliktCommand(
     name = "present", help = """Present VC
         
-        """
+        """,
+    epilog = """Note about selective disclosure:
+        Selective disclosure flags have NO EFFECT, if the proof type of the presented credential doesn't support selective disclosure!
+        Which fields can be selectively disclosed, depends on the credential proof type and credential issuer.
+        To select SD-enabled fields for disclosure, refer to the help text of the --sd, --sd-all-for and --sd-all flags.
+    """.trimMargin()
 ) {
     val src: List<Path> by argument().path(mustExist = true).multiple()
     val holderDid: String by option("-i", "--holder-did", help = "DID of the holder (owner of the VC)").required()
     val verifierDid: String? by option("-v", "--verifier-did", help = "DID of the verifier (recipient of the VP)")
     val domain: String? by option("-d", "--domain", help = "Domain name to be used in the LD proof")
     val challenge: String? by option("-c", "--challenge", help = "Challenge to be used in the LD proof")
+    val selectiveDisclosure: Map<Int, SDMap>? by option("--sd", "--selective-disclosure", help = "Path to selectively disclosed fields, in a simplified JsonPath format. Can be specified multiple times. By default NONE of the sd fields are disclosed, for multiple credentials, the path can be prefixed with the index of the presented credential, e.g. \"credentialSubject.familyName\", \"0.credentialSubject.familyName\", \"1.credentialSubject.dateOfBirth\".")
+        .transformAll { paths ->
+            paths.map { path ->
+                val hasIdxInPath = path.substringBefore(".").toIntOrNull() != null
+                val idx = path.substringBefore('.').toIntOrNull() ?: 0
+                Pair(idx, if(hasIdxInPath) {
+                    path.substringAfter(".")
+                } else {
+                    path
+                })
+            }.groupBy { pair -> pair.first }
+            .mapValues { entry -> SDMap.generateSDMap(entry.value.map { item -> item.second }) }
+        }
+    val discloseAllFor: Set<Int>? by option("--sd-all-for", help = "Selects all selective disclosures for the credential at the specified index to be disclosed. Overrides --sd flags!").int()
+        .transformAll { it.toSet() }
+    val discloseAllOfAll: Boolean by option("--sd-all", help = "Selects all selective disclosures for all presented credentials to be disclosed. Overrides --sd and --sd-all-for flags!").flag()
 
     override fun run() {
         echo("Creating a verifiable presentation for DID \"$holderDid\"...")
         echo("Using ${src.size} ${if (src.size > 1) "VCs" else "VC"}:")
 
-        val vcSources: Map<Path, String> = src.associateWith { it.readText() }
+        val vcSources: Map<Path, VerifiableCredential> = src.associateWith { it.readText().toVerifiableCredential() }
 
         src.forEachIndexed { index, vcPath ->
-            echo("- ${index + 1}. $vcPath (${vcSources[vcPath]!!.toVerifiableCredential().type.last()})")
+            echo("- ${index + 1}. $vcPath (${vcSources[vcPath]!!.type.last()})")
+            selectiveDisclosure?.get(index)?.let {
+                echo("  with selective disclosure:")
+                echo(it.prettyPrint(4))
+            }
         }
 
-        val vcStrList = vcSources.values.toList()
+        val presentableList = vcSources.values.mapIndexed { idx, cred -> PresentableCredential(cred, selectiveDisclosure?.get(idx), discloseAllOfAll || (discloseAllFor?.contains(idx) == true)) }
+            .toList()
 
         // Creating the Verifiable Presentation
-        val vp = Custodian.getService().createPresentation(vcStrList, holderDid, verifierDid, domain, challenge, null)
+        val vp = Custodian.getService().createPresentation(presentableList, holderDid, verifierDid, domain, challenge, null)
 
         log.debug { "Presentation created:\n$vp" }
 
@@ -248,6 +288,42 @@ class ListVcCommand : CliktCommand(
         echo("\nResults:\n")
 
         Custodian.getService().listCredentials().forEachIndexed { index, vc -> echo("- ${index + 1}: $vc") }
+    }
+}
+
+class ParseVcCommand : CliktCommand(
+    name = "parse", help = """Parse VC from JWT or SD-JWT representation and display JSON body
+        
+        """
+) {
+    val vc by option("-c", help = "Credential content or file path").required()
+    val recursive by option("-r", help = "Recursively parse credentials in presentation").flag()
+    override fun run() {
+        echo("\nParsing verifiable credential...")
+
+        echo("\nResults:\n")
+
+        val parsedVc = resolveContent(vc).toVerifiableCredential()
+        echo(if(parsedVc is VerifiablePresentation) "- Presentation:" else "- Credential:")
+        echo()
+        println(parsedVc.toJson().prettyPrint())
+        echo()
+        parsedVc.selectiveDisclosure?.let {
+            echo("  with selective disclosure:")
+            echo(it.prettyPrint(4))
+        }
+        if(parsedVc is VerifiablePresentation && recursive) {
+            parsedVc.verifiableCredential?.forEachIndexed { idx, cred ->
+                echo("---")
+                echo("- Credential ${idx + 1}")
+                echo()
+                println(cred.toJson().prettyPrint())
+                cred.selectiveDisclosure?.let {
+                    echo("  with selective disclosure:")
+                    echo(it.prettyPrint(4))
+                }
+            }
+        }
     }
 }
 //endregion
