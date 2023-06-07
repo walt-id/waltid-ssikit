@@ -4,10 +4,8 @@ import com.beust.klaxon.Json
 import com.fasterxml.jackson.annotation.JsonIgnore
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.VerifiablePresentation
-import io.ktor.client.plugins.*
 import kotlinx.serialization.Serializable
 import mu.KotlinLogging
-import java.util.*
 
 private val log = KotlinLogging.logger {}
 
@@ -71,7 +69,8 @@ class VerificationPolicyResult private constructor(
         }
     }
 
-    @JsonIgnore @Json(ignored = true)
+    @JsonIgnore
+    @Json(ignored = true)
     val isFailure = !isSuccess
 
     private fun getErrorString() = errors.mapIndexed { index, throwable ->

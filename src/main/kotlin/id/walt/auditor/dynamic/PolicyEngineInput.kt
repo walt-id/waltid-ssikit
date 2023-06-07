@@ -1,7 +1,6 @@
 package id.walt.auditor.dynamic
 
 import id.walt.credentials.w3c.JsonConverter
-import id.walt.credentials.w3c.VerifiableCredential
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 

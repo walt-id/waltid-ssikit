@@ -4,7 +4,6 @@ import id.walt.crypto.KeyAlgorithm
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
-import id.walt.services.ecosystems.iota.IotaService
 import id.walt.services.key.KeyService
 import id.walt.test.RESOURCES_PATH
 import io.kotest.assertions.json.shouldEqualJson

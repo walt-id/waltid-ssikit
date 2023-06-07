@@ -16,10 +16,10 @@ import java.io.StringReader
 import java.util.concurrent.atomic.*
 import kotlin.reflect.KClass
 
-open class PolicyRegistryService: WaltIdService() {
+open class PolicyRegistryService : WaltIdService() {
     override val implementation: PolicyRegistryService get() = serviceImplementation()
 
-    companion object: ServiceProvider {
+    companion object : ServiceProvider {
         const val SAVED_POLICY_ROOT_KEY = "policies"
         override fun getService() = ServiceRegistry.getService(PolicyRegistryService::class)
         override fun defaultImplementation() = PolicyRegistryService()
@@ -53,8 +53,10 @@ open class PolicyRegistryService: WaltIdService() {
         policies.put(policy.simpleName!!, PolicyFactory<P, Unit>(policy, null, policy.simpleName!!, description))
 
     private fun registerSavedPolicy(name: String, dynamicPolicyArg: DynamicPolicyArg, immutable: Boolean = false) =
-        policies.put(name, DynamicPolicyFactory(dynamicPolicyArg, immutable, name = name, description = dynamicPolicyArg.description)
-    )
+        policies.put(
+            name,
+            DynamicPolicyFactory(dynamicPolicyArg, immutable, name = name, description = dynamicPolicyArg.description)
+        )
 
     fun <A : Any> getPolicy(id: String, argument: A? = null) = policies[id]!!.create(argument)
     fun getPolicy(id: String) = getPolicy(id, null)
@@ -148,12 +150,12 @@ open class PolicyRegistryService: WaltIdService() {
             "Verify by an EBSI Trusted Issuers Registry compliant api.",
             true
         )
-        register(EbsiTrustedIssuerAccreditationPolicy::class,"Verify by issuer's authorized claims")
+        register(EbsiTrustedIssuerAccreditationPolicy::class, "Verify by issuer's authorized claims")
         register(EbsiTrustedSubjectDidPolicy::class, "Verify by trusted subject did")
         register(IssuedDateBeforePolicy::class, "Verify by issuance date")
         register(ValidFromBeforePolicy::class, "Verify by valid from")
         register(ExpirationDateAfterPolicy::class, "Verify by expiration date")
-        //register(GaiaxTrustedPolicy::class, "Verify Gaiax trusted fields")
+        // register(GaiaxTrustedPolicy::class, "Verify Gaiax trusted fields")
         register(GaiaxSDPolicy::class, "Verify Gaiax SD fields")
         register(ChallengePolicy::class, ChallengePolicyArg::class, "Verify challenge")
         register(
@@ -167,10 +169,14 @@ open class PolicyRegistryService: WaltIdService() {
         // predefined, hardcoded rego policy specializations
         // VerifiableMandate policy as specialized rego policy
         registerSavedPolicy(
-            "VerifiableMandatePolicy", DynamicPolicyArg(
-                "VerifiableMandatePolicy", "Predefined policy for verifiable mandates",
-                JsonObject(), "$.credentialSubject.policySchemaURI",
-                "$.credentialSubject.holder", "data.system.main"
+            "VerifiableMandatePolicy",
+            DynamicPolicyArg(
+                "VerifiableMandatePolicy",
+                "Predefined policy for verifiable mandates",
+                JsonObject(),
+                "$.credentialSubject.policySchemaURI",
+                "$.credentialSubject.holder",
+                "data.system.main"
             ),
             immutable = true
         )
@@ -178,6 +184,6 @@ open class PolicyRegistryService: WaltIdService() {
         // other saved (Rego) policies
         initSavedPolicies()
 
-        //RegoPolicy(RegoPolicyArg(mapOf(), "")).argument.input
+        // RegoPolicy(RegoPolicyArg(mapOf(), "")).argument.input
     }
 }

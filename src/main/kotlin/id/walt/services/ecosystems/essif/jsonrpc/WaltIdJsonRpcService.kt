@@ -19,7 +19,6 @@ import org.web3j.rlp.RlpList
 import org.web3j.utils.Numeric
 import java.math.BigInteger
 import java.util.*
-import kotlin.NoSuchElementException
 
 class WaltIdJsonRpcService : JsonRpcService() {
 
