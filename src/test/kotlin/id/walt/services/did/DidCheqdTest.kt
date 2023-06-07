@@ -3,7 +3,6 @@ package id.walt.services.did
 import id.walt.crypto.KeyId
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
-import id.walt.services.ecosystems.cheqd.CheqdService
 import id.walt.services.key.KeyService
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe

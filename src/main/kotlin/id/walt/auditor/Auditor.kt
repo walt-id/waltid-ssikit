@@ -8,9 +8,7 @@ import id.walt.services.WaltIdService
 import mu.KotlinLogging
 import java.util.concurrent.atomic.*
 
-
 private val log = KotlinLogging.logger {}
-
 
 abstract class Auditor : WaltIdService() {
     override val implementation: Auditor get() = serviceImplementation()
@@ -36,7 +34,6 @@ class WaltIdAuditor : Auditor() {
     }
 
     override fun verify(vc: VerifiableCredential, policies: List<VerificationPolicy>): VerificationResult {
-
         val policyResults = policies.associateBy(keySelector = VerificationPolicy::id) { policy ->
             log.debug { "Verifying vc with ${policy.id} ..." }
 

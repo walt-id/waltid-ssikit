@@ -1,7 +1,12 @@
 package id.walt.model
 
-import com.beust.klaxon.*
-import id.walt.common.*
+import com.beust.klaxon.Json
+import com.beust.klaxon.TypeAdapter
+import com.beust.klaxon.TypeFor
+import id.walt.common.DidVerificationRelationships
+import id.walt.common.KlaxonWithConverters
+import id.walt.common.ListOrSingleValue
+import id.walt.common.prettyPrint
 import id.walt.model.did.*
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

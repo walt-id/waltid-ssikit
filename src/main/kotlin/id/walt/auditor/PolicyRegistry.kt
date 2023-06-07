@@ -23,7 +23,7 @@ open class PolicyFactory<P : VerificationPolicy, A : Any>(
     open fun create(argument: Any? = null): P {
         try {
             return argType?.let {
-                if(optionalArgument) {
+                if (optionalArgument) {
                     argument?.let {
                         return policyType.primaryConstructor!!.call(it)
                     }
@@ -50,7 +50,10 @@ class DynamicPolicyFactory(
     name: String,
     description: String?
 ) : PolicyFactory<DynamicPolicy, JsonObject>(
-    DynamicPolicy::class, JsonObject::class, name, description
+    DynamicPolicy::class,
+    JsonObject::class,
+    name,
+    description
 ) {
     override fun create(argument: Any?): DynamicPolicy {
         val mergedInput = if (argument != null) {
@@ -76,7 +79,12 @@ object PolicyRegistry {
 
     val defaultPolicyId: String = delegate.defaultPolicyId
 
-    fun <P : ParameterizedVerificationPolicy<A>, A : Any> register(policy: KClass<P>, argType: KClass<A>, description: String? = null, optionalArgument: Boolean = false) =
+    fun <P : ParameterizedVerificationPolicy<A>, A : Any> register(
+        policy: KClass<P>,
+        argType: KClass<A>,
+        description: String? = null,
+        optionalArgument: Boolean = false
+    ) =
         delegate.register(policy, argType, description, optionalArgument)
 
     fun <P : SimpleVerificationPolicy> register(policy: KClass<P>, description: String? = null) =
@@ -93,7 +101,7 @@ object PolicyRegistry {
     fun getPolicyWithJsonArg(id: String, argumentJson: JsonObject?): VerificationPolicy =
         delegate.getPolicyWithJsonArg(id, argumentJson)
 
-    fun getPolicyWithJsonArg(id: String, argumentJson: String?): VerificationPolicy  =
+    fun getPolicyWithJsonArg(id: String, argumentJson: String?): VerificationPolicy =
         delegate.getPolicyWithJsonArg(id, argumentJson)
 
     fun isMutable(name: String): Boolean =

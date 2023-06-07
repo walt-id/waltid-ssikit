@@ -18,7 +18,6 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.util.*
-import kotlin.NoSuchElementException
 
 class EssifCommand : CliktCommand(
     name = "essif",

@@ -34,49 +34,53 @@ object AuditorRestAPI {
     var auditorApi: Javalin? = null
 
     fun start(port: Int = AUDITOR_API_PORT, bindAddress: String = BIND_ADDRESS, apiTargetUrls: List<String> = listOf()) {
-
         auditorApi = Javalin.create {
-
             it.apply {
                 registerPlugin(RouteOverviewPlugin("/api-routes"))
 
-                registerPlugin(OpenApiPlugin(OpenApiOptions(InitialConfigurationCreator {
-                    OpenAPI().apply {
-                        info {
-                            title = "walt.id Auditor API"
-                            description = "The walt.id public API documentation"
-                            contact = Contact().apply {
-                                name = "walt.id"
-                                url = "https://walt.id"
-                                email = "office@walt.id"
-                            }
-                            version = Values.version
-                        }
-                        servers = listOf(
-                            Server().url("/"),
-                            *apiTargetUrls.map { Server().url(it) }.toTypedArray()
-                        )
-                        externalDocs {
-                            description = "walt.id Docs"
-                            url = "https://docs.walt.id"
-                        }
+                registerPlugin(
+                    OpenApiPlugin(
+                        OpenApiOptions(
+                            InitialConfigurationCreator {
+                                OpenAPI().apply {
+                                    info {
+                                        title = "walt.id Auditor API"
+                                        description = "The walt.id public API documentation"
+                                        contact = Contact().apply {
+                                            name = "walt.id"
+                                            url = "https://walt.id"
+                                            email = "office@walt.id"
+                                        }
+                                        version = Values.version
+                                    }
+                                    servers = listOf(
+                                        Server().url("/"),
+                                        *apiTargetUrls.map { Server().url(it) }.toTypedArray()
+                                    )
+                                    externalDocs {
+                                        description = "walt.id Docs"
+                                        url = "https://docs.walt.id"
+                                    }
 
-                        components {
-                            securityScheme {
-                                name = "bearerAuth"
-                                type = SecurityScheme.Type.HTTP
-                                scheme = "bearer"
-                                `in` = SecurityScheme.In.HEADER
-                                description = "HTTP Bearer Token authentication"
-                                bearerFormat = "JWT"
+                                    components {
+                                        securityScheme {
+                                            name = "bearerAuth"
+                                            type = SecurityScheme.Type.HTTP
+                                            scheme = "bearer"
+                                            `in` = SecurityScheme.In.HEADER
+                                            description = "HTTP Bearer Token authentication"
+                                            bearerFormat = "JWT"
+                                        }
+                                    }
+                                }
                             }
+                        ).apply {
+                            path("/v1/api-documentation")
+                            swagger(SwaggerOptions("/v1/swagger").title("walt.id Auditor API"))
+                            reDoc(ReDocOptions("/v1/redoc").title("walt.id Auditor API"))
                         }
-                    }
-                }).apply {
-                    path("/v1/api-documentation")
-                    swagger(SwaggerOptions("/v1/swagger").title("walt.id Auditor API"))
-                    reDoc(ReDocOptions("/v1/redoc").title("walt.id Auditor API"))
-                }))
+                    )
+                )
             }
 
             it.enableCorsForAllOrigins()

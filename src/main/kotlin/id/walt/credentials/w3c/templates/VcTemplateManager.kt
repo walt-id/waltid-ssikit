@@ -1,10 +1,6 @@
 package id.walt.credentials.w3c.templates
 
 import id.walt.credentials.w3c.VerifiableCredential
-import id.walt.credentials.w3c.toVerifiableCredential
-import id.walt.services.context.ContextManager
-import id.walt.services.hkvstore.HKVKey
-import java.io.File
 
 @Deprecated("Deprecated in favor of VcTemplateService", ReplaceWith("VcTemplateService"))
 object VcTemplateManager {
