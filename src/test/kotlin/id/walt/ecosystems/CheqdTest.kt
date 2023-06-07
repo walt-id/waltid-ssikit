@@ -36,6 +36,11 @@ class CheqdTest : StringSpec({
         println("Deleted: $did")
     }
 
+    /*"Import did:cheqd" {
+        println("Importing: $did")
+        DidService.importDidAndKeys(did!!)
+    }*/
+
     "Test did:cheqd verification" {
         val verificationResult = Auditor.getService().verify(vc!!, listOf(SignaturePolicy()))
 
