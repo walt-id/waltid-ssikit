@@ -2,6 +2,7 @@ package id.walt.signatory.revocation.simplestatus2022
 
 import com.beust.klaxon.Klaxon
 import id.walt.common.deriveRevocationToken
+import id.walt.services.WaltIdServices
 import id.walt.signatory.revocation.RevocationStatus
 import id.walt.signatory.revocation.TokenRevocationStatus
 import java.time.Instant
@@ -13,9 +14,8 @@ import kotlin.io.path.writeText
 object SimpleCredentialStatus2022StorageService {
 
     private val klaxon = Klaxon()
-    private val revokedPath = Path("data/revoked.json").apply {
-        if (!exists())
-            writeText(klaxon.toJsonString(RevocationList(emptyList())))
+    private val revokedPath = Path("${WaltIdServices.revocationDir}/revoked.json").apply {
+        if (!exists()) writeText(klaxon.toJsonString(RevocationList(emptyList())))
     }
 
     private fun getRevokedList() = klaxon.parse<RevocationList>(revokedPath.readText())!!.revokedList

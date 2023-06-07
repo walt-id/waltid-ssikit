@@ -36,6 +36,7 @@ object WaltIdServices {
     const val dataDir = "data"
     const val keyDir = "$dataDir/key/"
     const val ebsiDir = "$dataDir/ebsi/"
+    const val revocationDir = "$dataDir/revocation"
 
     val httpLogging = false
     private val log = KotlinLogging.logger {}
@@ -106,6 +107,7 @@ object WaltIdServices {
         Files.createDirectories(Path.of("$dataDir/vc/created"))
         Files.createDirectories(Path.of("$dataDir/vc/presented"))
         Files.createDirectories(Path.of(ebsiDir))
+        Files.createDirectories(Path.of(revocationDir))
     }
 
     fun loadConfig() = ConfigLoader.builder()
