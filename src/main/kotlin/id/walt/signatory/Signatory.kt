@@ -7,7 +7,6 @@ import id.walt.credentials.w3c.builder.AbstractW3CCredentialBuilder
 import id.walt.credentials.w3c.templates.VcTemplate
 import id.walt.crypto.LdSignatureType
 import id.walt.model.credential.status.CredentialStatus
-import id.walt.sdjwt.SDField
 import id.walt.sdjwt.SDMap
 import id.walt.servicematrix.ServiceConfiguration
 import id.walt.servicematrix.ServiceProvider

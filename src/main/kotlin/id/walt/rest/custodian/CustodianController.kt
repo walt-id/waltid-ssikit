@@ -12,7 +12,6 @@ import id.walt.custodian.Custodian
 import id.walt.model.VerifiableCredentialModel
 import id.walt.services.key.KeyFormat
 import id.walt.services.keystore.KeyType
-import io.javalin.http.BadRequestResponse
 import io.javalin.http.ContentType
 import io.javalin.http.Context
 import io.javalin.http.NotFoundResponse

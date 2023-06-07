@@ -5,7 +5,6 @@ import id.walt.credentials.w3c.JsonConverter
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.builder.W3CCredentialBuilder
 import id.walt.credentials.w3c.toVerifiableCredential
-import id.walt.sdjwt.SDField
 import id.walt.sdjwt.SDMap
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType

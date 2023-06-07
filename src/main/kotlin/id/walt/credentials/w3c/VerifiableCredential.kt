@@ -1,7 +1,6 @@
 package id.walt.credentials.w3c
 
 import id.walt.credentials.w3c.builder.CredentialFactory
-import id.walt.sdjwt.SDField
 import id.walt.sdjwt.SDJwt
 import id.walt.sdjwt.SDMap
 import kotlinx.serialization.json.*

@@ -3,13 +3,15 @@ package id.walt.services.vc
 import com.nimbusds.jwt.SignedJWT
 import id.walt.auditor.Auditor
 import id.walt.auditor.policies.SignaturePolicy
-import id.walt.credentials.w3c.*
+import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.builder.W3CCredentialBuilder
 import id.walt.credentials.w3c.schema.SchemaValidatorFactory
+import id.walt.credentials.w3c.toPresentableCredential
+import id.walt.credentials.w3c.toVerifiableCredential
+import id.walt.credentials.w3c.toVerifiablePresentation
 import id.walt.crypto.KeyAlgorithm
 import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
-import id.walt.sdjwt.SDField
 import id.walt.sdjwt.SDJwt
 import id.walt.sdjwt.SDMap
 import id.walt.servicematrix.ServiceMatrix
@@ -23,7 +25,10 @@ import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.test.RESOURCES_PATH
 import io.kotest.core.spec.style.AnnotationSpec
-import io.kotest.matchers.collections.*
+import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.collections.shouldNotContainAnyOf
 import io.kotest.matchers.maps.shouldContainKey
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -215,36 +220,36 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
         //  3) disclose credentialSubject + 1 nested sd prop,
         //  4) disclose all
 
-        val presentation_1 = Custodian.getService().createPresentation(listOf(
+        val presentation1 = Custodian.getService().createPresentation(listOf(
             issuedVID.toPresentableCredential(discloseAll = false)
         ), issuerDid)
-        val presentedVID_1 = presentation_1.toVerifiablePresentation().verifiableCredential!!.first()
-        presentedVID_1.credentialSubject shouldBe null
-        Auditor.getService().verify(presentation_1, listOf(SignaturePolicy())).result shouldBe true
+        val presentedvid1 = presentation1.toVerifiablePresentation().verifiableCredential!!.first()
+        presentedvid1.credentialSubject shouldBe null
+        Auditor.getService().verify(presentation1, listOf(SignaturePolicy())).result shouldBe true
 
-        val presentation_2 = Custodian.getService().createPresentation(listOf(
+        val presentation2 = Custodian.getService().createPresentation(listOf(
             issuedVID.toPresentableCredential(SDMap.generateSDMap(setOf("credentialSubject")))
         ), issuerDid)
-        val presentedVID_2 = presentation_2.toVerifiablePresentation().verifiableCredential!!.first()
-        presentedVID_2.credentialSubject shouldNotBe null
-        presentedVID_2.credentialSubject!!.properties.keys shouldNotContainAnyOf setOf("firstName", "dateOfBirth")
-        Auditor.getService().verify(presentation_2, listOf(SignaturePolicy())).result shouldBe true
+        val presentedvid2 = presentation2.toVerifiablePresentation().verifiableCredential!!.first()
+        presentedvid2.credentialSubject shouldNotBe null
+        presentedvid2.credentialSubject!!.properties.keys shouldNotContainAnyOf setOf("firstName", "dateOfBirth")
+        Auditor.getService().verify(presentation2, listOf(SignaturePolicy())).result shouldBe true
 
-        val presentation_3 = Custodian.getService().createPresentation(listOf(
+        val presentation3 = Custodian.getService().createPresentation(listOf(
             issuedVID.toPresentableCredential(SDMap.generateSDMap(setOf("credentialSubject", "credentialSubject.firstName")))
         ), issuerDid)
-        val presentedVID_3 = presentation_3.toVerifiablePresentation().verifiableCredential!!.first()
-        presentedVID_3.credentialSubject shouldNotBe null
-        presentedVID_3.credentialSubject!!.properties.keys shouldNotContainAnyOf setOf("dateOfBirth")
-        presentedVID_3.credentialSubject!!.properties.keys shouldContainAll setOf("firstName")
-        Auditor.getService().verify(presentation_3, listOf(SignaturePolicy())).result shouldBe true
+        val presentedvid3 = presentation3.toVerifiablePresentation().verifiableCredential!!.first()
+        presentedvid3.credentialSubject shouldNotBe null
+        presentedvid3.credentialSubject!!.properties.keys shouldNotContainAnyOf setOf("dateOfBirth")
+        presentedvid3.credentialSubject!!.properties.keys shouldContainAll setOf("firstName")
+        Auditor.getService().verify(presentation3, listOf(SignaturePolicy())).result shouldBe true
 
-        val presentation_4 = Custodian.getService().createPresentation(listOf(
+        val presentation4 = Custodian.getService().createPresentation(listOf(
             issuedVID.toPresentableCredential(discloseAll = true)
         ), issuerDid)
-        val presentedVID_4 = presentation_4.toVerifiablePresentation().verifiableCredential!!.first()
-        presentedVID_4.credentialSubject shouldNotBe null
-        presentedVID_4.credentialSubject!!.properties.keys shouldContainAll setOf("firstName", "dateOfBirth")
-        Auditor.getService().verify(presentation_4, listOf(SignaturePolicy())).result shouldBe true
+        val presentedvid4 = presentation4.toVerifiablePresentation().verifiableCredential!!.first()
+        presentedvid4.credentialSubject shouldNotBe null
+        presentedvid4.credentialSubject!!.properties.keys shouldContainAll setOf("firstName", "dateOfBirth")
+        Auditor.getService().verify(presentation4, listOf(SignaturePolicy())).result shouldBe true
     }
 }
