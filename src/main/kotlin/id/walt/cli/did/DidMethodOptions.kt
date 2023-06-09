@@ -2,12 +2,12 @@ package id.walt.cli.did
 
 import com.github.ajalt.clikt.parameters.groups.OptionGroup
 import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.int
 
 sealed class DidMethodOption(val method: String) : OptionGroup()
-class KeyMethodOption : DidMethodOption("key")
 class WebMethodOption : DidMethodOption("web") {
     val domain: String by option("-d", "--domain", help = "did:web - Domain for did:web").default("walt.id")
     val path: String? by option("-p", "--path", help = "did:web - Path for did:web")
@@ -21,4 +21,8 @@ class IotaMethodOption : DidMethodOption("iota")
 class JwkMethodOption : DidMethodOption("jwk")
 class CheqdMethodOption : DidMethodOption("cheqd") {
     val network: String by option("-n", "--network", help = "did:cheqd - Specify the network [testnet]").choice("mainnet", "testnet").default("testnet")
+}
+
+class KeyMethodOption : DidMethodOption("key") {
+    val isJwk: Boolean by option("--is-jwk", help = "did:key - is jwk_jcs-pub").flag("--is-jwk", default = false)
 }
