@@ -3,24 +3,20 @@ package id.walt.services.did
 import com.beust.klaxon.Klaxon
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.nimbusds.jose.jwk.JWK
-import com.nimbusds.jose.util.Base64URL
 import id.walt.crypto.*
 import id.walt.crypto.KeyAlgorithm.*
 import id.walt.crypto.LdVerificationKeyType.*
 import id.walt.model.*
 import id.walt.model.did.DidEbsi
-import id.walt.model.did.DidWeb
 import id.walt.services.CryptoProvider
 import id.walt.services.WaltIdServices
 import id.walt.services.context.ContextManager
 import id.walt.services.crypto.CryptoService
+import id.walt.services.did.factories.DidFactoryBase
 import id.walt.services.did.resolvers.DidResolverFactory
-import id.walt.services.ecosystems.cheqd.CheqdService
-import id.walt.services.ecosystems.iota.IotaService
 import id.walt.services.ecosystems.iota.IotaWrapper
 import id.walt.services.hkvstore.HKVKey
 import id.walt.services.key.KeyService
-import id.walt.services.keystore.KeyType
 import id.walt.services.vc.JsonLdCredentialService
 import id.walt.signatory.ProofConfig
 import io.ipfs.multibase.Multibase
@@ -28,9 +24,7 @@ import mu.KotlinLogging
 import org.bouncycastle.asn1.edec.EdECObjectIdentifiers
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
-import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey
 import java.io.File
-import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.security.KeyFactory
 import java.security.KeyPair
@@ -78,180 +72,13 @@ object DidService {
             "did.json"
 
     // region did-create
-    fun create(method: DidMethod, keyAlias: String? = null, options: DidOptions? = null): String {
-        @Suppress("REDUNDANT_ELSE_IN_WHEN")
-        val didUrl = when (method) {
-            DidMethod.key -> createDidKey(keyAlias)
-            DidMethod.web -> createDidWeb(keyAlias,
-                options?.let { it as DidWebCreateOptions } ?: DidWebCreateOptions("walt.id", UUID.randomUUID().toString()))
-
-            DidMethod.ebsi -> createDidEbsi(keyAlias, options as? DidEbsiCreateOptions)
-            DidMethod.iota -> createDidIota(keyAlias)
-            DidMethod.jwk -> createDidJwk(keyAlias)
-            DidMethod.cheqd -> createDidCheqd(keyAlias, options as? DidCheqdCreateOptions)
-            else -> throw UnsupportedOperationException("DID method $method not supported")
-        }
-
-        return didUrl
-    }
-
-    private fun createDidCheqd(keyAlias: String?, options: DidCheqdCreateOptions?): String {
-        val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(EdDSA_Ed25519)
-        val did = CheqdService.createDid(keyId.id, options?.network ?: "testnet")
-        storeDid(did)
-        ContextManager.keyStore.addAlias(keyId, did.id)
-        ContextManager.keyStore.addAlias(keyId, did.verificationMethod!![0].id)
-        return did.id
-    }
-
-    private fun createDidKey(keyAlias: String?): String {
-        val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(DEFAULT_KEY_ALGORITHM)
-        val key = ContextManager.keyStore.load(keyId.id)
-
-        if (key.algorithm !in setOf(EdDSA_Ed25519, RSA, ECDSA_Secp256k1, ECDSA_Secp256r1))
-            throw IllegalArgumentException("did:key can not be created with an ${key.algorithm} key.")
-
-        val identifier = convertRawKeyToMultiBase58Btc(getPublicKeyBytesForDidKey(key), getMulticodecKeyCode(key.algorithm))
-
-        val didUrl = "did:key:$identifier"
-
-        runCatching {
-            ContextManager.keyStore.load(keyId.id)
-        }.onSuccess {
-            log.debug { "A key with the id \"${keyId.id}\" exists." }
-            //throw IllegalArgumentException("A key with the id \"${keyId.id}\" already exists.")
-        }
-        ContextManager.keyStore.addAlias(keyId, didUrl)
-
-        val didDoc = resolve(didUrl)
-        didDoc.verificationMethod?.forEach { (id) ->
-            ContextManager.keyStore.addAlias(keyId, id)
-        }
-        storeDid(didDoc)
-
-        return didUrl
-    }
-
-    private fun createDidJwk(keyAlias: String?): String {
-        val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(DEFAULT_KEY_ALGORITHM)
-
-        val identifier = Base64URL.encode(keyService.toJwk(keyId.id).toString())
-
-        val didUrl = "did:jwk:$identifier"
-
-        runCatching {
-            ContextManager.keyStore.load(keyId.id)
-        }.onSuccess {
-            log.debug { "A key with the id \"${keyId.id}\" exists." }
-            //throw IllegalArgumentException("A key with the id \"${keyId.id}\" already exists.")
-        }
-        ContextManager.keyStore.addAlias(keyId, didUrl)
-
-        val didDoc = resolve(didUrl)
-        didDoc.verificationMethod?.forEach { (id) ->
-            ContextManager.keyStore.addAlias(keyId, id)
-        }
-        storeDid(didDoc)
-
-        return didUrl
-    }
-
-    private fun createDidWeb(keyAlias: String?, options: DidWebCreateOptions?): String {
-
-        options ?: throw Exception("DidWebOptions are mandatory")
-        if (options.domain.isNullOrEmpty())
-            throw IllegalArgumentException("Missing 'domain' parameter for creating did:web")
-
-        val key = keyAlias?.let { ContextManager.keyStore.load(it) } ?: cryptoService.generateKey(DEFAULT_KEY_ALGORITHM)
-            .let { ContextManager.keyStore.load(it.id) }
-
-        val domain = URLEncoder.encode(options.domain, StandardCharsets.UTF_8)
-
-        val path = when {
-            options.path.isNullOrEmpty() -> ""
-            else -> ":${
-                options.path.split("/").joinToString(":") { part -> URLEncoder.encode(part, StandardCharsets.UTF_8) }
-            }"
-        }
-
-        val didUrlStr = DidUrl("web", "$domain$path").did
-
-        ContextManager.keyStore.addAlias(key.keyId, didUrlStr)
-
-        // Created DID doc
-        val kid = didUrlStr + "#" + key.keyId
-        ContextManager.keyStore.addAlias(key.keyId, kid)
-
-        val verificationMethods = buildVerificationMethods(key, kid, didUrlStr)
-
-
-        val keyRef = listOf(VerificationMethod.Reference(kid))
-
-        val didDoc = DidWeb(DID_CONTEXT_URL, didUrlStr, verificationMethods, keyRef, keyRef)
-
-        storeDid(didDoc)
-
-        return didUrlStr
-    }
-
-    private fun createDidIota(keyAlias: String?): String {
-        // did:iota requires key of type EdDSA_Ed25519
-        val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(EdDSA_Ed25519)
-        val didIota = IotaService.createDid(keyId.id)
-        storeDid(didIota)
-        ContextManager.keyStore.addAlias(keyId, didIota.id)
-        ContextManager.keyStore.addAlias(keyId, didIota.verificationMethod!![0].id)
-        return didIota.id
-    }
-
-    private fun createDidEbsi(keyAlias: String?, didEbsiOptions: DidEbsiCreateOptions?): String {
-        val version = didEbsiOptions?.version ?: 1
-        return when (version) {
-            1 -> createDidEbsiV1(keyAlias)
-            2 -> createDidEbsiV2(keyAlias)
-            else -> throw Exception("Did ebsi version must be 1 or 2")
-        }
-    }
-
-    private fun createDidEbsiV1(keyAlias: String?): String {
-        val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(DEFAULT_KEY_ALGORITHM)
-        val key = ContextManager.keyStore.load(keyId.id)
-
-        // Created identifier
-        val didUrlStr = DidUrl.generateDidEbsiV1DidUrl().did
-
-        ContextManager.keyStore.addAlias(keyId, didUrlStr)
-
-        // Created DID doc
-        val kid = didUrlStr + "#" + key.keyId
-        ContextManager.keyStore.addAlias(keyId, kid)
-
-        val verificationMethods = buildVerificationMethods(key, kid, didUrlStr)
-
-        val didEbsi = DidEbsi(
-            listOf(DID_CONTEXT_URL), // TODO Context not working "https://ebsi.org/ns/did/v1"
-            didUrlStr,
-            verificationMethods,
-            listOf(VerificationMethod.Reference(kid)), listOf(VerificationMethod.Reference(kid))
-        )
-
-        storeDid(didEbsi)
-
-        return didUrlStr
-    }
-
-    private fun createDidEbsiV2(keyAlias: String?): String {
-        val keyId = keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(DEFAULT_KEY_ALGORITHM)
-        val publicKeyJwk = keyService.toJwk(keyId.id, KeyType.PUBLIC)
-        val publicKeyThumbprint = publicKeyJwk.computeThumbprint()
-        val didUrlStr = DidUrl.generateDidEbsiV2DidUrl(publicKeyThumbprint.decode()).did
-        val vmId = "$didUrlStr#$publicKeyThumbprint"
-        ContextManager.keyStore.addAlias(keyId, didUrlStr)
-        ContextManager.keyStore.addAlias(keyId, vmId)
-        val didDoc = resolve(didUrlStr)
-        storeDid(didDoc)
-        return didUrlStr
-    }
+    fun create(method: DidMethod, keyAlias: String? = null, options: DidOptions? = null): String =
+        ensureKey(method, keyAlias).let {
+            Pair(it.keyId, DidFactoryBase.new(method, keyService).create(it, options))
+        }.also {
+            addKeyAlias(it.first, it.second)
+            storeDid(it.second)
+        }.second.id
     //endregion
 
     //region did-load
@@ -339,41 +166,6 @@ object DidService {
             null -> resolve(didStr).also { did -> storeDid(did) }
             else -> Did.decode(storedDid)
         }
-    }
-
-    private fun getPublicKeyBytesForDidKey(key: Key): ByteArray {
-        return when (key.algorithm) {
-            ECDSA_Secp256k1, ECDSA_Secp256r1 -> (key.getPublicKey() as BCECPublicKey).q.getEncoded(true)
-            RSA, EdDSA_Ed25519 -> key.getPublicKeyBytes()
-        }
-    }
-
-    private fun buildVerificationMethods(
-        key: Key,
-        kid: String,
-        didUrlStr: String
-    ): MutableList<VerificationMethod> {
-        val keyType = when (key.algorithm) {
-            EdDSA_Ed25519 -> Ed25519VerificationKey2019
-            ECDSA_Secp256k1 -> EcdsaSecp256k1VerificationKey2019
-            ECDSA_Secp256r1 -> EcdsaSecp256r1VerificationKey2019
-            RSA -> RsaVerificationKey2018
-        }
-        log.debug { "Verification method JWK for kid: ${keyService.toJwk(kid)}" }
-        log.debug { "Verification method public JWK: ${keyService.toJwk(kid).toPublicJWK()}" }
-        log.debug {
-            "Verification method parsed public JWK: ${
-                Klaxon().parse<Jwk>(
-                    keyService.toJwk(kid).toPublicJWK().toString()
-                )
-            }"
-        }
-        val publicKeyJwk = Klaxon().parse<Jwk>(keyService.toJwk(kid).toPublicJWK().toString())
-
-        val verificationMethods = mutableListOf(
-            VerificationMethod(kid, keyType.name, didUrlStr, null, null, publicKeyJwk),
-        )
-        return verificationMethods
     }
 
     fun setKeyIdForDid(did: String, keyId: String) {
@@ -548,6 +340,26 @@ object DidService {
                 }
     }
 
+    private fun ensureKey(didMethod: DidMethod, keyAlias: String? = null): Key = when (didMethod) {
+        DidMethod.iota -> EdDSA_Ed25519
+//        DidMethod.key -> ECDSA_Secp256r1
+        else -> DEFAULT_KEY_ALGORITHM
+    }.let {
+        keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(it)
+    }.let {
+        keyService.load(it.id)
+    }
+
+    private fun addKeyAlias(keyId: KeyId, did: Did) {
+        runCatching { ContextManager.keyStore.load(keyId.id) }.onSuccess { _ ->
+            log.debug { "A key with the id \"${keyId.id}\" exists." }
+        }
+        ContextManager.keyStore.addAlias(keyId, did.id)
+        did.verificationMethod?.forEach { (id) ->
+            ContextManager.keyStore.addAlias(keyId, id)
+        }
+    }
+
     // TODO: consider the methods below. They might be deprecated!
 
 //    fun resolveDid(did: String): Did = resolveDid(did.DidUrl.toDidUrl())
@@ -612,5 +424,3 @@ object DidService {
 //    }
 
 }
-
-

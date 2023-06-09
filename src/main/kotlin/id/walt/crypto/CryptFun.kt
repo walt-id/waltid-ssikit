@@ -45,11 +45,11 @@ enum class KeyAlgorithm {
     ECDSA_Secp256r1;
 
     companion object {
-        fun fromString(algorithm: String): KeyAlgorithm = when (algorithm) {
-            "EdDSA", "Ed25519", "EdDSA_Ed25519" -> EdDSA_Ed25519
-            "ECDSA", "Secp256k1", "ECDSA_Secp256k1" -> ECDSA_Secp256k1
-            "RSA" -> RSA
-            "Secp256r1", "ECDSA_Secp256r1" -> ECDSA_Secp256r1
+        fun fromString(algorithm: String): KeyAlgorithm = when (algorithm.lowercase()) {
+            "eddsa", "ed25519", "eddsa_ed25519" -> EdDSA_Ed25519
+            "ecdsa", "secp256k1", "ecdsa_secp256k1" -> ECDSA_Secp256k1
+            "rsa" -> RSA
+            "secp256r1", "ecdsa_secp256r1" -> ECDSA_Secp256r1
             else -> throw IllegalArgumentException("Algorithm not supported")
         }
     }
@@ -251,6 +251,9 @@ fun convertX25519PublicKeyFromMultibase58Btc(mbase58: String): ByteArray {
 // 0x1205 rsa-pub
 // 0xed ed25519-pub
 // 0xe7 secp256k1-pub
+// 0xeb51 jwk_jcs-pub
+
+const val JwkJcsPubMultiCodecKeyCode = 0xeb51u
 
 @Suppress("REDUNDANT_ELSE_IN_WHEN")
 fun getMulticodecKeyCode(algorithm: KeyAlgorithm) = when (algorithm) {
@@ -261,16 +264,14 @@ fun getMulticodecKeyCode(algorithm: KeyAlgorithm) = when (algorithm) {
     else -> throw IllegalArgumentException("No multicodec for algorithm $algorithm")
 }
 
-fun getKeyAlgorithmFromMultibase(mb: String): KeyAlgorithm {
-    val decoded = mb.decodeMultiBase58Btc()
-    val code = UVarInt.fromBytes(decoded)
-    return when (code.value) {
-        0xEDu -> KeyAlgorithm.EdDSA_Ed25519
-        0xE7u -> KeyAlgorithm.ECDSA_Secp256k1
-        0x1205u -> KeyAlgorithm.RSA
-        0x1200u -> KeyAlgorithm.ECDSA_Secp256r1
-        else -> throw IllegalArgumentException("No multicodec algorithm for code $code")
-    }
+fun getMultiCodecKeyCode(mb: String): UInt = UVarInt.fromBytes(mb.decodeMultiBase58Btc()).value
+
+fun getKeyAlgorithmFromKeyCode(keyCode: UInt): KeyAlgorithm = when (keyCode) {
+    0xEDu -> KeyAlgorithm.EdDSA_Ed25519
+    0xE7u -> KeyAlgorithm.ECDSA_Secp256k1
+    0x1205u -> KeyAlgorithm.RSA
+    0x1200u -> KeyAlgorithm.ECDSA_Secp256r1
+    else -> throw IllegalArgumentException("No multicodec algorithm for code $keyCode")
 }
 
 fun convertRawKeyToMultiBase58Btc(key: ByteArray, code: UInt): String {

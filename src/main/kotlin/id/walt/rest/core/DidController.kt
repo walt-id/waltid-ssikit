@@ -4,10 +4,7 @@ import id.walt.common.KlaxonWithConverters
 import id.walt.common.prettyPrint
 import id.walt.crypto.KeyAlgorithm
 import id.walt.model.DidMethod
-import id.walt.rest.core.requests.did.CheqdCreateDidRequest
-import id.walt.rest.core.requests.did.CreateDidRequest
-import id.walt.rest.core.requests.did.EbsiCreateDidRequest
-import id.walt.rest.core.requests.did.WebCreateDidRequest
+import id.walt.rest.core.requests.did.*
 import id.walt.services.did.*
 import io.javalin.http.Context
 import io.javalin.http.HttpCode
@@ -82,6 +79,7 @@ object DidController {
         is WebCreateDidRequest -> DidWebCreateOptions(request.domain ?: "walt.id", request.path)
         is EbsiCreateDidRequest -> DidEbsiCreateOptions(request.version)
         is CheqdCreateDidRequest -> DidCheqdCreateOptions(request.network)
+        is KeyCreateDidRequest -> DidKeyCreateOptions(request.isJwk)
         else -> null
     }
 

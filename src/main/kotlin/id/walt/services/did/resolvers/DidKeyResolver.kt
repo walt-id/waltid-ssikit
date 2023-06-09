@@ -2,6 +2,7 @@ package id.walt.services.did.resolvers
 
 import com.beust.klaxon.Klaxon
 import com.nimbusds.jose.jwk.Curve
+import com.nimbusds.jose.jwk.JWK
 import id.walt.crypto.*
 import id.walt.model.*
 import id.walt.model.did.DidKey
@@ -12,13 +13,38 @@ import java.security.KeyPair
 
 class DidKeyResolver : DidResolverBase<DidKey>() {
 
-    override fun resolve(didUrl: DidUrl, options: DidOptions?) = resolveDidKey(didUrl)
-
-    private fun resolveDidKey(didUrl: DidUrl): Did {
-        val keyAlgorithm = getKeyAlgorithmFromMultibase(didUrl.identifier)
-        val pubKey = convertMultiBase58BtcToRawKey(didUrl.identifier)
-        return constructDidKey(didUrl, pubKey, keyAlgorithm)
+    override fun resolve(didUrl: DidUrl, options: DidOptions?) = getMultiCodecKeyCode(didUrl.identifier).let { keyCode ->
+        keyCode.takeIf {
+            it == JwkJcsPubMultiCodecKeyCode
+        }?.let {
+            val pubKey = convertMultiBase58BtcToRawKey(didUrl.identifier)
+            val jwk = JWK.parse(String(pubKey))
+            constructDidKey(didUrl, jwk)
+        } ?: let {
+            val pubKey = convertMultiBase58BtcToRawKey(didUrl.identifier)
+            constructDidKey(didUrl, pubKey, getKeyAlgorithmFromKeyCode(keyCode))
+        }
     }
+
+    private fun constructDidKey(didUrl: DidUrl, jwk: JWK): Did = Did(
+        context = listOf(
+            "https://www.w3.org/ns/did/v1",
+            "https://w3id.org/security/suites/jws-2020/v1"
+        ),
+        id = didUrl.did,
+        verificationMethod = listOf(
+            VerificationMethod(
+                id = "${didUrl.did}#${didUrl.did}",
+                type = "JsonWebKey2020",
+                controller = didUrl.did,
+                publicKeyJwk = Klaxon().parse(jwk.toJSONString())
+            )
+        ),
+        assertionMethod = listOf(VerificationMethod.Reference(didUrl.did)),
+        authentication = listOf(VerificationMethod.Reference(didUrl.did)),
+        capabilityInvocation = listOf(VerificationMethod.Reference(didUrl.did)),
+        capabilityDelegation = listOf(VerificationMethod.Reference(didUrl.did)),
+    )
 
     private fun constructDidKey(didUrl: DidUrl, pubKey: ByteArray, keyAlgorithm: KeyAlgorithm): Did {
 
