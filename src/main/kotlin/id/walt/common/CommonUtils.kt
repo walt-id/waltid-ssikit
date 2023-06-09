@@ -1,5 +1,10 @@
 package id.walt.common
 
+import com.beust.klaxon.Klaxon
+import com.nimbusds.jose.jwk.ECKey
+import com.nimbusds.jose.jwk.JWK
+import com.nimbusds.jose.jwk.RSAKey
+import id.walt.crypto.KeyAlgorithm
 import id.walt.services.WaltIdServices.httpNoAuth
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -106,3 +111,32 @@ inline fun <reified T : Any> T.asMap() : Map<String, Any?> {
     val props = T::class.memberProperties.associateBy { it.name }
     return props.keys.associateWith { props[it]?.get(this) }
 }
+
+/**
+ * Converts the JWK public key to a required-only members JSON string
+ * @param - the JWK key
+ * @return - the JSON string representing the public key having only the required members
+ */
+fun convertToRequiredMembersJsonString(jwk: JWK): String =
+    when (KeyAlgorithm.fromString(jwk.toECKey().curve.stdName)) {
+        KeyAlgorithm.EdDSA_Ed25519, KeyAlgorithm.ECDSA_Secp256k1, KeyAlgorithm.ECDSA_Secp256r1 -> EcPublicKeyRequiredMembers(
+            jwk.toECKey()
+        )
+
+        KeyAlgorithm.RSA -> RsaPublicKeyRequiredMembers(jwk.toPublicJWK().toRSAKey())
+    }.let {
+        Klaxon().toJsonString(it)
+    }
+
+private fun EcPublicKeyRequiredMembers(ec: ECKey) = mapOf(
+    "crv" to ec.curve.name,
+    "kty" to ec.algorithm.name,
+    "x" to ec.x.toString(),
+    "y" to ec.y.toString()
+)
+
+private fun RsaPublicKeyRequiredMembers(rsa: RSAKey) = mapOf(
+    "e" to rsa.publicExponent.toString(),
+    "kty" to rsa.algorithm.name,
+    "n" to rsa.modulus.toString()
+)

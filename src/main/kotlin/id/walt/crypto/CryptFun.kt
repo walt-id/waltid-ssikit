@@ -45,11 +45,11 @@ enum class KeyAlgorithm {
     ECDSA_Secp256r1;
 
     companion object {
-        fun fromString(algorithm: String): KeyAlgorithm = when (algorithm) {
-            "EdDSA", "Ed25519", "EdDSA_Ed25519" -> EdDSA_Ed25519
-            "ECDSA", "Secp256k1", "ECDSA_Secp256k1" -> ECDSA_Secp256k1
-            "RSA" -> RSA
-            "Secp256r1", "ECDSA_Secp256r1" -> ECDSA_Secp256r1
+        fun fromString(algorithm: String): KeyAlgorithm = when (algorithm.lowercase()) {
+            "eddsa", "ed25519", "eddsa_ed25519" -> EdDSA_Ed25519
+            "ecdsa", "secp256k1", "ecdsa_secp256k1" -> ECDSA_Secp256k1
+            "rsa" -> RSA
+            "secp256r1", "ecdsa_secp256r1" -> ECDSA_Secp256r1
             else -> throw IllegalArgumentException("Algorithm not supported")
         }
     }
