@@ -342,6 +342,7 @@ object DidService {
 
     private fun ensureKey(didMethod: DidMethod, keyAlias: String? = null): Key = when (didMethod) {
         DidMethod.iota -> EdDSA_Ed25519
+//        DidMethod.key -> ECDSA_Secp256r1
         else -> DEFAULT_KEY_ALGORITHM
     }.let {
         keyAlias?.let { KeyId(it) } ?: cryptoService.generateKey(it)
