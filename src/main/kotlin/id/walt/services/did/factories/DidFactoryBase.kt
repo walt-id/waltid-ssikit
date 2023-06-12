@@ -22,15 +22,15 @@ abstract class DidFactoryBase : DidFactory {
             KeyAlgorithm.ECDSA_Secp256r1 -> LdVerificationKeyType.EcdsaSecp256r1VerificationKey2019
             KeyAlgorithm.RSA -> LdVerificationKeyType.RsaVerificationKey2018
         }
-        log.debug { "Verification method JWK for kid: ${DidService.keyService.toJwk(kid)}" }
-        log.debug { "Verification method public JWK: ${DidService.keyService.toJwk(kid).toPublicJWK()}" }
-        log.debug {
-            "Verification method parsed public JWK: ${
-                Klaxon().parse<Jwk>(
-                    DidService.keyService.toJwk(kid).toPublicJWK().toString()
-                )
-            }"
-        }
+//        log.debug { "Verification method JWK for kid: ${DidService.keyService.toJwk(kid)}" }
+//        log.debug { "Verification method public JWK: ${DidService.keyService.toJwk(kid).toPublicJWK()}" }
+//        log.debug {
+//            "Verification method parsed public JWK: ${
+//                Klaxon().parse<Jwk>(
+//                    DidService.keyService.toJwk(kid).toPublicJWK().toString()
+//                )
+//            }"
+//        }
         //TODO: inject keyService
         val publicKeyJwk = Klaxon().parse<Jwk>(DidService.keyService.toJwk(kid).toPublicJWK().toString())
 
@@ -42,7 +42,7 @@ abstract class DidFactoryBase : DidFactory {
     companion object {
         @Suppress("REDUNDANT_ELSE_IN_WHEN")
         fun new(method: DidMethod, keyService: KeyService): DidFactory = when (method) {
-            DidMethod.key -> DidKeyFactory()
+            DidMethod.key -> DidKeyFactory(keyService)
             DidMethod.web -> DidWebFactory()
             DidMethod.iota -> DidIotaFactory()
             DidMethod.cheqd -> DidCheqdFactory()
