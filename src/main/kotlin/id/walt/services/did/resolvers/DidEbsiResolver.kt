@@ -1,13 +1,12 @@
 package id.walt.services.did.resolvers
 
-import com.beust.klaxon.Klaxon
 import id.walt.model.Did
 import id.walt.model.DidUrl
-import id.walt.model.Jwk
-import id.walt.model.VerificationMethod
 import id.walt.model.did.DidEbsi
 import id.walt.services.did.DidEbsiResolveOptions
 import id.walt.services.did.DidOptions
+import id.walt.services.did.composers.DidDocumentComposer
+import id.walt.services.did.composers.models.DocumentComposerJwkParameter
 import id.walt.services.ecosystems.essif.TrustedIssuerClient
 import id.walt.services.key.KeyService
 import io.ipfs.multibase.Multibase
@@ -21,6 +20,7 @@ import kotlinx.coroutines.runBlocking
 class DidEbsiResolver(
     private val httpClient: HttpClient,
     private val keyService: KeyService,
+    private val ebsiV2documentComposer: DidDocumentComposer<DidEbsi>,
 ) : DidResolverBase<DidEbsi>() {
 
     private val didRegistryPath = "did-registry/${TrustedIssuerClient.apiVersion}/identifiers"
@@ -59,24 +59,10 @@ class DidEbsiResolver(
 
     private fun resolveDidEbsiV2(didUrl: DidUrl): DidEbsi {
         val jwk = keyService.toJwk(didUrl.did)
-        val vmId = "${didUrl.did}#${jwk.computeThumbprint()}"
         if (DidUrl.generateDidEbsiV2DidUrl(jwk.computeThumbprint().decode()).identifier != didUrl.identifier) {
             throw IllegalArgumentException("Public key doesn't match with DID identifier")
         }
-        return DidEbsi(
-            context = listOf("https://w3id.org/did/v1"),
-            id = didUrl.did,
-            verificationMethod = listOf(
-                VerificationMethod(
-                    id = vmId,
-                    type = "JsonWebKey2020",
-                    controller = didUrl.did,
-                    publicKeyJwk = Klaxon().parse<Jwk>(jwk.toJSONString())
-                )
-            ),
-            authentication = listOf(VerificationMethod.Reference(vmId)),
-            assertionMethod = listOf(VerificationMethod.Reference(vmId))
-        )
+        return ebsiV2documentComposer.make(DocumentComposerJwkParameter(didUrl, jwk))
     }
 
     private fun resolveDidEbsiRaw(did: String): Did = runBlocking {
