@@ -6,6 +6,7 @@ import id.walt.credentials.w3c.schema.SchemaValidatorFactory
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
+import id.walt.services.did.DidWebCreateOptions
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
@@ -27,7 +28,7 @@ class WaltIdJsonLdCredentialServiceTest : AnnotationSpec() {
     }
 
     private val credentialService = JsonLdCredentialService.getService()
-    private val issuerWebDid = DidService.create(DidMethod.web)
+    private val issuerWebDid = DidService.create(DidMethod.web, options = DidWebCreateOptions("walt.id"))
     private val issuerKeyDid = DidService.create(DidMethod.key)
     private val subjectKeyDid = DidService.create(DidMethod.key)
     private val anotherKeyDid = DidService.create(DidMethod.key)

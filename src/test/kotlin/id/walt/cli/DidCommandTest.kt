@@ -11,6 +11,7 @@ import id.walt.crypto.KeyId
 import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
+import id.walt.services.did.DidWebCreateOptions
 import id.walt.services.key.KeyService
 import id.walt.test.RESOURCES_PATH
 import io.kotest.core.spec.style.StringSpec
@@ -101,20 +102,20 @@ class DidCommandTest : StringSpec({
 
     "8. delete did" {
         forAll(
-            row(DidMethod.key, null),
-            row(DidMethod.web, null),
-            row(DidMethod.ebsi, null),
-            row(DidMethod.key, KeyService.getService().generate(ECDSA_Secp256k1).id),
-            row(DidMethod.key, KeyService.getService().generate(EdDSA_Ed25519).id),
-            row(DidMethod.key, KeyService.getService().generate(RSA).id),
-            row(DidMethod.web, KeyService.getService().generate(ECDSA_Secp256k1).id),
-            row(DidMethod.web, KeyService.getService().generate(EdDSA_Ed25519).id),
-            row(DidMethod.web, KeyService.getService().generate(RSA).id),
-            row(DidMethod.ebsi, KeyService.getService().generate(ECDSA_Secp256k1).id),
-            row(DidMethod.ebsi, KeyService.getService().generate(EdDSA_Ed25519).id),
-            row(DidMethod.ebsi, KeyService.getService().generate(RSA).id),
-        ) { method, key ->
-            val did = DidService.create(method, key)
+            row(DidMethod.key, null, null),
+            row(DidMethod.web, null, DidWebCreateOptions("walt.id")),
+            row(DidMethod.ebsi, null, null),
+            row(DidMethod.key, KeyService.getService().generate(ECDSA_Secp256k1).id, null),
+            row(DidMethod.key, KeyService.getService().generate(EdDSA_Ed25519).id, null),
+            row(DidMethod.key, KeyService.getService().generate(RSA).id, null),
+            row(DidMethod.web, KeyService.getService().generate(ECDSA_Secp256k1).id, DidWebCreateOptions("walt.id")),
+            row(DidMethod.web, KeyService.getService().generate(EdDSA_Ed25519).id, DidWebCreateOptions("walt.id")),
+            row(DidMethod.web, KeyService.getService().generate(RSA).id, DidWebCreateOptions("walt.id")),
+            row(DidMethod.ebsi, KeyService.getService().generate(ECDSA_Secp256k1).id, null),
+            row(DidMethod.ebsi, KeyService.getService().generate(EdDSA_Ed25519).id, null),
+            row(DidMethod.ebsi, KeyService.getService().generate(RSA).id, null),
+        ) { method, key, options ->
+            val did = DidService.create(method, key, options)
 //            val ids = DidService.load(did).verificationMethod?.map { it.id }
             // delete
             DeleteDidCommand().parse(listOf("-d", did))

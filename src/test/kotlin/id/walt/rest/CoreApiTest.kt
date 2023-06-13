@@ -356,20 +356,20 @@ class CoreApiTest : AnnotationSpec() {
     @Test
     fun testDidDelete() {
         forAll(
-            row(DidMethod.key, null),
-            row(DidMethod.web, null),
-            row(DidMethod.ebsi, null),
-            row(DidMethod.key, keyService.generate(KeyAlgorithm.ECDSA_Secp256k1).id),
-            row(DidMethod.key, keyService.generate(KeyAlgorithm.EdDSA_Ed25519).id),
-            row(DidMethod.key, keyService.generate(KeyAlgorithm.RSA).id),
-            row(DidMethod.web, keyService.generate(KeyAlgorithm.ECDSA_Secp256k1).id),
-            row(DidMethod.web, keyService.generate(KeyAlgorithm.EdDSA_Ed25519).id),
-            row(DidMethod.web, keyService.generate(KeyAlgorithm.RSA).id),
-            row(DidMethod.ebsi, keyService.generate(KeyAlgorithm.ECDSA_Secp256k1).id),
-            row(DidMethod.ebsi, keyService.generate(KeyAlgorithm.EdDSA_Ed25519).id),
-            row(DidMethod.ebsi, keyService.generate(KeyAlgorithm.RSA).id),
-        ) { method, key ->
-            val did = DidService.create(method, key)
+            row(DidMethod.key, null, null),
+            row(DidMethod.web, null, DidWebCreateOptions("walt.id")),
+            row(DidMethod.ebsi, null, null),
+            row(DidMethod.key, keyService.generate(KeyAlgorithm.ECDSA_Secp256k1).id, null),
+            row(DidMethod.key, keyService.generate(KeyAlgorithm.EdDSA_Ed25519).id, null),
+            row(DidMethod.key, keyService.generate(KeyAlgorithm.RSA).id, null),
+            row(DidMethod.web, keyService.generate(KeyAlgorithm.ECDSA_Secp256k1).id, DidWebCreateOptions("walt.id")),
+            row(DidMethod.web, keyService.generate(KeyAlgorithm.EdDSA_Ed25519).id, DidWebCreateOptions("walt.id")),
+            row(DidMethod.web, keyService.generate(KeyAlgorithm.RSA).id, DidWebCreateOptions("walt.id")),
+            row(DidMethod.ebsi, keyService.generate(KeyAlgorithm.ECDSA_Secp256k1).id, null),
+            row(DidMethod.ebsi, keyService.generate(KeyAlgorithm.EdDSA_Ed25519).id, null),
+            row(DidMethod.ebsi, keyService.generate(KeyAlgorithm.RSA).id, null),
+        ) { method, key, options ->
+            val did = DidService.create(method, key, options)
             val response = runBlocking { client.delete("$CORE_API_URL/v1/did/$did") }
             response.status shouldBe HttpStatusCode.OK
             shouldThrow<Exception> {

@@ -4,11 +4,15 @@ import com.beust.klaxon.Klaxon
 import id.walt.common.convertToRequiredMembersJsonString
 import id.walt.crypto.*
 import id.walt.model.Did
+import id.walt.model.DidUrl
+import id.walt.model.did.DidKey
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.crypto.CryptoService
 import id.walt.services.did.DidKeyCreateOptions
 import id.walt.services.did.DidOptions
-import id.walt.services.did.DidService.resolve
+import id.walt.services.did.composers.DidDocumentComposer
+import id.walt.services.did.composers.DidKeyDocumentComposer
+import id.walt.services.did.composers.models.DocumentComposerBaseParameter
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey
@@ -16,7 +20,8 @@ import org.erdtman.jcs.JsonCanonicalizer
 
 class DidKeyFactory(
     private val keyService: KeyService,
-) : DidFactoryBase() {
+    private val documentComposer: DidDocumentComposer<DidKey>,
+) : DidFactory {
     override fun create(key: Key, options: DidOptions?): Did = let {
         if (key.algorithm !in setOf(
                 KeyAlgorithm.EdDSA_Ed25519, KeyAlgorithm.RSA, KeyAlgorithm.ECDSA_Secp256k1, KeyAlgorithm.ECDSA_Secp256r1
@@ -24,7 +29,7 @@ class DidKeyFactory(
         ) throw IllegalArgumentException("did:key can not be created with an ${key.algorithm} key.")
         val identifierComponents = getIdentifierComponents(key, options as? DidKeyCreateOptions)
         val identifier = convertRawKeyToMultiBase58Btc(identifierComponents.pubKeyBytes, identifierComponents.multiCodecKeyCode)
-        resolve("did:key:$identifier")
+        documentComposer.make(DocumentComposerBaseParameter(DidUrl.from("did:key:$identifier")))
     }
 
     private fun getIdentifierComponents(key: Key, options: DidKeyCreateOptions?): IdentifierComponents =
@@ -73,12 +78,4 @@ class DidKeyFactory(
             return result
         }
     }
-}
-
-fun main(){
-    ServiceMatrix("service-matrix.properties")
-    val key = CryptoService.getService().generateKey(KeyAlgorithm.ECDSA_Secp256r1)
-    val keyService = KeyService.getService()
-    val did = DidKeyFactory(keyService).create(keyService.load(key.id), DidKeyCreateOptions(true))
-    println("did: ${did.id}")
 }
