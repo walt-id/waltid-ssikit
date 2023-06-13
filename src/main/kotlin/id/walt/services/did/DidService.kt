@@ -12,6 +12,9 @@ import id.walt.services.CryptoProvider
 import id.walt.services.WaltIdServices
 import id.walt.services.context.ContextManager
 import id.walt.services.crypto.CryptoService
+import id.walt.services.did.composers.DidEbsiV2DocumentComposer
+import id.walt.services.did.composers.DidJwkDocumentComposer
+import id.walt.services.did.composers.DidKeyDocumentComposer
 import id.walt.services.did.factories.DidFactoryBase
 import id.walt.services.did.resolvers.DidResolverFactory
 import id.walt.services.ecosystems.iota.IotaWrapper
@@ -48,7 +51,10 @@ object DidService {
     private val didResolverFactory = DidResolverFactory(
         httpNoAuth = WaltIdServices.httpNoAuth,
         keyService = keyService,
-        iotaWrapper = IotaWrapper.createInstance()
+        iotaWrapper = IotaWrapper.createInstance(),
+        didKeyDocumentComposer = DidKeyDocumentComposer(keyService),
+        didJwkDocumentComposer = DidJwkDocumentComposer(),
+        ebsiV2DocumentComposer = DidEbsiV2DocumentComposer(),
     )
     private val didCache = Caffeine.newBuilder()
         .maximumSize(1000)

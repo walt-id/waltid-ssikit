@@ -14,6 +14,7 @@ import io.kotest.core.spec.style.StringSpec
 import io.kotest.core.test.TestCase
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
+import java.util.*
 
 
 class DidWebTest : StringSpec({
@@ -104,7 +105,7 @@ class DidWebTest : StringSpec({
 fun createAndTestDidWeb(keyAlgorith: KeyAlgorithm, options: DidWebCreateOptions? = null): Did {
     val keyService = KeyService.getService()
     val keyId = keyService.generate(keyAlgorith).id
-    val did = DidService.create(DidMethod.web, keyId, options)
+    val did = DidService.create(DidMethod.web, keyId, options ?: DidWebCreateOptions("walt.id", UUID.randomUUID().toString()))
     println(did)
     val didUrl = DidUrl.from(did)
     did shouldBe didUrl.did
