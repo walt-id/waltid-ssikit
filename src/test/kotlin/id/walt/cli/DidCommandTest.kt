@@ -25,6 +25,7 @@ import kotlin.io.path.readLines
 class DidCommandTest : StringSpec({
 
     ServiceMatrix("$RESOURCES_PATH/service-matrix.properties")
+    val webOptions = DidWebCreateOptions("walt.id")
 
     beforeTest {
         File("test-dest.json").delete()
@@ -103,20 +104,19 @@ class DidCommandTest : StringSpec({
     "8. delete did" {
         forAll(
             row(DidMethod.key, null, null),
-            row(DidMethod.web, null, DidWebCreateOptions("walt.id")),
+            row(DidMethod.web, null, webOptions),
             row(DidMethod.ebsi, null, null),
             row(DidMethod.key, KeyService.getService().generate(ECDSA_Secp256k1).id, null),
             row(DidMethod.key, KeyService.getService().generate(EdDSA_Ed25519).id, null),
             row(DidMethod.key, KeyService.getService().generate(RSA).id, null),
-            row(DidMethod.web, KeyService.getService().generate(ECDSA_Secp256k1).id, DidWebCreateOptions("walt.id")),
-            row(DidMethod.web, KeyService.getService().generate(EdDSA_Ed25519).id, DidWebCreateOptions("walt.id")),
-            row(DidMethod.web, KeyService.getService().generate(RSA).id, DidWebCreateOptions("walt.id")),
+            row(DidMethod.web, KeyService.getService().generate(ECDSA_Secp256k1).id, webOptions),
+            row(DidMethod.web, KeyService.getService().generate(EdDSA_Ed25519).id, webOptions),
+            row(DidMethod.web, KeyService.getService().generate(RSA).id, webOptions),
             row(DidMethod.ebsi, KeyService.getService().generate(ECDSA_Secp256k1).id, null),
             row(DidMethod.ebsi, KeyService.getService().generate(EdDSA_Ed25519).id, null),
             row(DidMethod.ebsi, KeyService.getService().generate(RSA).id, null),
         ) { method, key, options ->
             val did = DidService.create(method, key, options)
-//            val ids = DidService.load(did).verificationMethod?.map { it.id }
             // delete
             DeleteDidCommand().parse(listOf("-d", did))
         }
