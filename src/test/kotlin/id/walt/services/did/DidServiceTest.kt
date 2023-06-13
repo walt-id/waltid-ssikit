@@ -2,6 +2,7 @@ package id.walt.services.did
 
 import com.beust.klaxon.Klaxon
 import id.walt.common.prettyPrint
+import id.walt.common.readWhenContent
 import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.decodeBase58
 import id.walt.model.Did
@@ -32,6 +33,7 @@ class DidServiceTest : AnnotationSpec() {
     }
 
     private val keyService = KeyService.getService()
+    private val webOptions = DidWebCreateOptions("walt.id")
 
     fun readExampleDid(fileName: String) =
         File("$RESOURCES_PATH/dids/${fileName}.json").readText(Charsets.UTF_8)
@@ -235,6 +237,19 @@ class DidServiceTest : AnnotationSpec() {
     }
 
     @Test
+    fun resolveDidKeyJwkJcsPub(){
+        // given
+        val expectedResult = Did.decode(readWhenContent(File("src/test/resources/dids/did-key-jwk_jcs-pub.json")))!!
+        val jwkPubKey = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"ngy44T1vxAT6Di4nr-UaM9K3Tlnz9pkoksDokKFkmNc\",\"y\":\"QCRfOKlSM31GTkb4JHx3nXB4G_jSPMsbdjzlkT_UpPc\"}"
+        val keyId = keyService.importKey(jwkPubKey)
+        val did = DidService.create(DidMethod.key, keyId.id, DidKeyCreateOptions(isJwk = true))
+        // when
+        val result = DidService.resolve(did)
+        // then
+        result.encodePretty() shouldBe expectedResult.encodePretty()
+    }
+
+    @Test
     fun listDidsTest() {
 
         ds.create(DidMethod.key)
@@ -293,14 +308,14 @@ class DidServiceTest : AnnotationSpec() {
     fun testDeleteDid() {
         forAll(
             row(DidMethod.key, null, null),
-            row(DidMethod.web, null, DidWebCreateOptions("walt.id")),
+            row(DidMethod.web, null, webOptions),
             row(DidMethod.ebsi, null, null),
             row(DidMethod.key, keyService.generate(KeyAlgorithm.ECDSA_Secp256k1).id, null),
             row(DidMethod.key, keyService.generate(KeyAlgorithm.EdDSA_Ed25519).id, null),
             row(DidMethod.key, keyService.generate(KeyAlgorithm.RSA).id, null),
-            row(DidMethod.web, keyService.generate(KeyAlgorithm.ECDSA_Secp256k1).id, DidWebCreateOptions("walt.id")),
-            row(DidMethod.web, keyService.generate(KeyAlgorithm.EdDSA_Ed25519).id, DidWebCreateOptions("walt.id")),
-            row(DidMethod.web, keyService.generate(KeyAlgorithm.RSA).id, DidWebCreateOptions("walt.id")),
+            row(DidMethod.web, keyService.generate(KeyAlgorithm.ECDSA_Secp256k1).id, webOptions),
+            row(DidMethod.web, keyService.generate(KeyAlgorithm.EdDSA_Ed25519).id, webOptions),
+            row(DidMethod.web, keyService.generate(KeyAlgorithm.RSA).id, webOptions),
             row(DidMethod.ebsi, keyService.generate(KeyAlgorithm.ECDSA_Secp256k1).id, null),
             row(DidMethod.ebsi, keyService.generate(KeyAlgorithm.EdDSA_Ed25519).id, null),
             row(DidMethod.ebsi, keyService.generate(KeyAlgorithm.RSA).id, null),

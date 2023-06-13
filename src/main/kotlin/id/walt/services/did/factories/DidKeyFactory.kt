@@ -6,12 +6,9 @@ import id.walt.crypto.*
 import id.walt.model.Did
 import id.walt.model.DidUrl
 import id.walt.model.did.DidKey
-import id.walt.servicematrix.ServiceMatrix
-import id.walt.services.crypto.CryptoService
 import id.walt.services.did.DidKeyCreateOptions
 import id.walt.services.did.DidOptions
 import id.walt.services.did.composers.DidDocumentComposer
-import id.walt.services.did.composers.DidKeyDocumentComposer
 import id.walt.services.did.composers.models.DocumentComposerBaseParameter
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
