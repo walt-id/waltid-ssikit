@@ -32,6 +32,7 @@ class DidServiceTest : AnnotationSpec() {
     }
 
     private val keyService = KeyService.getService()
+    private val webOptions = DidWebCreateOptions("walt.id")
 
     fun readExampleDid(fileName: String) =
         File("$RESOURCES_PATH/dids/${fileName}.json").readText(Charsets.UTF_8)
@@ -293,14 +294,14 @@ class DidServiceTest : AnnotationSpec() {
     fun testDeleteDid() {
         forAll(
             row(DidMethod.key, null, null),
-            row(DidMethod.web, null, DidWebCreateOptions("walt.id")),
+            row(DidMethod.web, null, webOptions),
             row(DidMethod.ebsi, null, null),
             row(DidMethod.key, keyService.generate(KeyAlgorithm.ECDSA_Secp256k1).id, null),
             row(DidMethod.key, keyService.generate(KeyAlgorithm.EdDSA_Ed25519).id, null),
             row(DidMethod.key, keyService.generate(KeyAlgorithm.RSA).id, null),
-            row(DidMethod.web, keyService.generate(KeyAlgorithm.ECDSA_Secp256k1).id, DidWebCreateOptions("walt.id")),
-            row(DidMethod.web, keyService.generate(KeyAlgorithm.EdDSA_Ed25519).id, DidWebCreateOptions("walt.id")),
-            row(DidMethod.web, keyService.generate(KeyAlgorithm.RSA).id, DidWebCreateOptions("walt.id")),
+            row(DidMethod.web, keyService.generate(KeyAlgorithm.ECDSA_Secp256k1).id, webOptions),
+            row(DidMethod.web, keyService.generate(KeyAlgorithm.EdDSA_Ed25519).id, webOptions),
+            row(DidMethod.web, keyService.generate(KeyAlgorithm.RSA).id, webOptions),
             row(DidMethod.ebsi, keyService.generate(KeyAlgorithm.ECDSA_Secp256k1).id, null),
             row(DidMethod.ebsi, keyService.generate(KeyAlgorithm.EdDSA_Ed25519).id, null),
             row(DidMethod.ebsi, keyService.generate(KeyAlgorithm.RSA).id, null),

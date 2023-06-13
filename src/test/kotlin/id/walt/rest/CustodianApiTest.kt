@@ -37,7 +37,7 @@ import java.io.File
 class CustodianApiTest : StringSpec({
 
     ServiceMatrix("service-matrix.properties")
-
+    val webOptions = DidWebCreateOptions("walt.id")
     val client = httpNoAuth
 
     println("${CustodianAPI.DEFAULT_BIND_ADDRESS}/${CustodianAPI.DEFAULT_Custodian_API_PORT}")
@@ -228,14 +228,14 @@ class CustodianApiTest : StringSpec({
     "Test delete did" {
         forAll(
             row(DidMethod.key, null, null),
-            row(DidMethod.web, null, DidWebCreateOptions("walt.id")),
+            row(DidMethod.web, null, webOptions),
             row(DidMethod.ebsi, null, null),
             row(DidMethod.key, KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1).id, null),
             row(DidMethod.key, KeyService.getService().generate(KeyAlgorithm.EdDSA_Ed25519).id, null),
             row(DidMethod.key, KeyService.getService().generate(KeyAlgorithm.RSA).id, null),
-            row(DidMethod.web, KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1).id, DidWebCreateOptions("walt.id")),
-            row(DidMethod.web, KeyService.getService().generate(KeyAlgorithm.EdDSA_Ed25519).id, DidWebCreateOptions("walt.id")),
-            row(DidMethod.web, KeyService.getService().generate(KeyAlgorithm.RSA).id, DidWebCreateOptions("walt.id")),
+            row(DidMethod.web, KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1).id, webOptions),
+            row(DidMethod.web, KeyService.getService().generate(KeyAlgorithm.EdDSA_Ed25519).id, webOptions),
+            row(DidMethod.web, KeyService.getService().generate(KeyAlgorithm.RSA).id, webOptions),
             row(DidMethod.ebsi, KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1).id, null),
             row(DidMethod.ebsi, KeyService.getService().generate(KeyAlgorithm.EdDSA_Ed25519).id, null),
             row(DidMethod.ebsi, KeyService.getService().generate(KeyAlgorithm.RSA).id, null),
