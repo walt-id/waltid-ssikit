@@ -38,7 +38,7 @@ dependencies {
     implementation("com.microsoft.azure:azure-client-authentication:1.7.14")
     implementation("com.nimbusds:nimbus-jose-jwt:9.30.2")
     implementation("com.nimbusds:oauth2-oidc-sdk:10.7")
-    implementation("id.walt:waltid-sd-jwt-jvm:1.2306071206.0")
+    implementation("id.walt:waltid-sd-jwt-jvm:1.2306071729.0")
 
     implementation("org.bouncycastle:bcprov-jdk15to18:1.72")
     implementation("org.bouncycastle:bcpkix-jdk15to18:1.72")
@@ -50,14 +50,14 @@ dependencies {
     implementation("com.google.guava:guava:31.1-jre")
 
     // JSON
-    implementation("org.json:json:20220924")
+    implementation("org.json:json:20230227")
     implementation("com.beust:klaxon:5.6")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.0")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.14.2")
     implementation("com.jayway.jsonpath:json-path:2.7.0")
-    implementation("com.networknt:json-schema-validator:1.0.78")
+    implementation("com.networknt:json-schema-validator:1.0.82")
     implementation("net.pwall.json:json-kotlin-schema:0.39")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
 
     // DB
     implementation("org.xerial:sqlite-jdbc:3.40.1.0")
@@ -69,7 +69,7 @@ dependencies {
 
     // Misc
     implementation("commons-io:commons-io:2.11.0")
-    implementation("io.minio:minio:8.4.6")
+    implementation("io.minio:minio:8.5.2")
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.5")
 
     // HTTP
@@ -88,15 +88,15 @@ dependencies {
     // implementation("io.javalin:javalin-test-tools:4.5.0")
 
     // Logging
-    implementation("org.slf4j:slf4j-api:2.0.4")
-    implementation("org.slf4j:slf4j-simple:2.0.4")
+    implementation("org.slf4j:slf4j-api:2.0.5")
+    implementation("org.slf4j:slf4j-simple:2.0.5")
 
-    implementation("io.github.microutils:kotlin-logging-jvm:3.0.4")
+    implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
 
     // Config
-    implementation("com.sksamuel.hoplite:hoplite-core:2.6.5")
-    implementation("com.sksamuel.hoplite:hoplite-yaml:2.6.5")
-    implementation("com.sksamuel.hoplite:hoplite-hikaricp:2.6.5")
+    implementation("com.sksamuel.hoplite:hoplite-core:2.7.2")
+    implementation("com.sksamuel.hoplite:hoplite-yaml:2.7.2")
+    implementation("com.sksamuel.hoplite:hoplite-hikaricp:2.7.2")
 
     // Service-Matrix
     implementation("id.walt.servicematrix:WaltID-ServiceMatrix:1.1.3")
@@ -109,7 +109,7 @@ dependencies {
 
     // Testing
     //testImplementation(kotlin("test-junit"))
-    testImplementation("io.mockk:mockk:1.13.2")
+    testImplementation("io.mockk:mockk:1.13.4")
 
     testImplementation("io.kotest:kotest-runner-junit5:5.5.5")
     testImplementation("io.kotest:kotest-assertions-core:5.5.5")

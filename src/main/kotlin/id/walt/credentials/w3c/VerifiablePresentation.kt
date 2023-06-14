@@ -60,9 +60,7 @@ data class PresentableCredential(
             val presentedJwt = if(discloseAll) {
                 verifiableCredential.sdJwt!!.present(discloseAll)
             } else {
-                verifiableCredential.sdJwt!!.present(selectiveDisclosure?.let { mapOf(
-                    claimKey to SDField(true, it)
-                )})
+                verifiableCredential.sdJwt!!.present(selectiveDisclosure)
             }
             JsonPrimitive(presentedJwt.toString(formatForPresentation = true))
         } else verifiableCredential.toJsonElement()
