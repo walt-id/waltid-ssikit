@@ -23,5 +23,5 @@ class CheqdMethodOption : DidMethodOption("cheqd") {
     val network: String by option("-n", "--network", help = "did:cheqd - Specify the network [testnet]").choice("mainnet", "testnet").default("testnet")
 }
 class KeyMethodOption : DidMethodOption("key") {
-    val isJwk: Boolean by option("--is-jwk", help = "did:key - is jwk_jcs-pub").flag(default = false)
+    val isJwk: Boolean by option("-j", "--is-jwk", help = "did:key - is jwk_jcs-pub").flag(default = false)
 }
