@@ -14,6 +14,7 @@ import id.walt.rest.custodian.PresentCredentialsRequest
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.WaltIdServices.httpNoAuth
 import id.walt.services.did.DidService
+import id.walt.services.did.DidWebCreateOptions
 import id.walt.services.key.KeyFormat
 import id.walt.services.key.KeyService
 import id.walt.services.keystore.KeyType
@@ -36,7 +37,7 @@ import java.io.File
 class CustodianApiTest : StringSpec({
 
     ServiceMatrix("service-matrix.properties")
-
+    val webOptions = DidWebCreateOptions("walt.id")
     val client = httpNoAuth
 
     println("${CustodianAPI.DEFAULT_BIND_ADDRESS}/${CustodianAPI.DEFAULT_Custodian_API_PORT}")
@@ -226,20 +227,20 @@ class CustodianApiTest : StringSpec({
 
     "Test delete did" {
         forAll(
-            row(DidMethod.key, null),
-            row(DidMethod.web, null),
-            row(DidMethod.ebsi, null),
-            row(DidMethod.key, KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1).id),
-            row(DidMethod.key, KeyService.getService().generate(KeyAlgorithm.EdDSA_Ed25519).id),
-            row(DidMethod.key, KeyService.getService().generate(KeyAlgorithm.RSA).id),
-            row(DidMethod.web, KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1).id),
-            row(DidMethod.web, KeyService.getService().generate(KeyAlgorithm.EdDSA_Ed25519).id),
-            row(DidMethod.web, KeyService.getService().generate(KeyAlgorithm.RSA).id),
-            row(DidMethod.ebsi, KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1).id),
-            row(DidMethod.ebsi, KeyService.getService().generate(KeyAlgorithm.EdDSA_Ed25519).id),
-            row(DidMethod.ebsi, KeyService.getService().generate(KeyAlgorithm.RSA).id),
-        ) { method, key ->
-            val did = DidService.create(method, key)
+            row(DidMethod.key, null, null),
+            row(DidMethod.web, null, webOptions),
+            row(DidMethod.ebsi, null, null),
+            row(DidMethod.key, KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1).id, null),
+            row(DidMethod.key, KeyService.getService().generate(KeyAlgorithm.EdDSA_Ed25519).id, null),
+            row(DidMethod.key, KeyService.getService().generate(KeyAlgorithm.RSA).id, null),
+            row(DidMethod.web, KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1).id, webOptions),
+            row(DidMethod.web, KeyService.getService().generate(KeyAlgorithm.EdDSA_Ed25519).id, webOptions),
+            row(DidMethod.web, KeyService.getService().generate(KeyAlgorithm.RSA).id, webOptions),
+            row(DidMethod.ebsi, KeyService.getService().generate(KeyAlgorithm.ECDSA_Secp256k1).id, null),
+            row(DidMethod.ebsi, KeyService.getService().generate(KeyAlgorithm.EdDSA_Ed25519).id, null),
+            row(DidMethod.ebsi, KeyService.getService().generate(KeyAlgorithm.RSA).id, null),
+        ) { method, key, options ->
+            val did = DidService.create(method, key, options)
             val response = runBlocking {
                 client.delete("http://${CustodianAPI.DEFAULT_BIND_ADDRESS}:${CustodianAPI.DEFAULT_Custodian_API_PORT}/did/$did")
             }

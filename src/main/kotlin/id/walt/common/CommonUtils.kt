@@ -1,5 +1,11 @@
 package id.walt.common
 
+import com.nimbusds.jose.jwk.ECKey
+import com.nimbusds.jose.jwk.JWK
+import com.nimbusds.jose.jwk.OctetKeyPair
+import com.nimbusds.jose.jwk.RSAKey
+import id.walt.crypto.KeyAlgorithm
+import id.walt.model.Jwk
 import id.walt.services.WaltIdServices.httpNoAuth
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -106,3 +112,45 @@ inline fun <reified T : Any> T.asMap() : Map<String, Any?> {
     val props = T::class.memberProperties.associateBy { it.name }
     return props.keys.associateWith { props[it]?.get(this) }
 }
+
+/**
+ * Converts the JWK public key to a required-only members JSON string
+ * @param - the JWK key
+ * @return - the JSON string representing the public key having only the required members
+ */
+fun convertToRequiredMembersJsonString(jwk: JWK): Jwk = when (getKeyAlgorithm(jwk)) {
+    KeyAlgorithm.ECDSA_Secp256k1, KeyAlgorithm.ECDSA_Secp256r1 -> EcPublicKeyRequiredMembers(jwk.toECKey())
+    KeyAlgorithm.EdDSA_Ed25519 -> OkpPublicKeyRequiredMembers(jwk.toOctetKeyPair())
+    KeyAlgorithm.RSA -> RsaPublicKeyRequiredMembers(jwk.toPublicJWK().toRSAKey())
+}
+
+fun getKeyAlgorithm(jwk: JWK): KeyAlgorithm = when (jwk.keyType.value.lowercase()) {
+    "rsa" -> KeyAlgorithm.RSA
+    "ec" -> when (jwk.toECKey().curve.stdName.lowercase()) {
+        "secp256k1" -> KeyAlgorithm.ECDSA_Secp256k1
+        "secp256r1" -> KeyAlgorithm.ECDSA_Secp256r1
+        else -> throw IllegalArgumentException("Curve ${jwk.toECKey().curve.stdName} for EC algorithm not supported.")
+    }
+
+    "okp" -> KeyAlgorithm.EdDSA_Ed25519
+    else -> throw IllegalArgumentException("Key algorithm ${jwk.keyType.value} not supported.")
+}
+
+private fun OkpPublicKeyRequiredMembers(okp: OctetKeyPair) = Jwk(
+    crv = okp.curve.name,
+    kty = okp.keyType.value,
+    x = okp.x.toString()
+)
+
+private fun EcPublicKeyRequiredMembers(ec: ECKey) = Jwk(
+    crv = ec.curve.name,
+    kty = ec.keyType.value,
+    x = ec.x.toString(),
+    y = ec.y.toString()
+)
+
+private fun RsaPublicKeyRequiredMembers(rsa: RSAKey) = Jwk(
+    e = rsa.publicExponent.toString(),
+    kty = rsa.algorithm.name,
+    n = rsa.modulus.toString()
+)
