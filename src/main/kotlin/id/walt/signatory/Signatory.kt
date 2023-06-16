@@ -1,6 +1,7 @@
 package id.walt.signatory
 
 import com.beust.klaxon.Json
+import id.walt.common.SDMapProperty
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.W3CIssuer
 import id.walt.credentials.w3c.builder.AbstractW3CCredentialBuilder
@@ -48,7 +49,7 @@ data class ProofConfig(
     @Json(serializeNull = false) val statusType: CredentialStatus.Types? = null,
     @Json(serializeNull = false) val statusPurpose: String = "revocation",
     @Json(serializeNull = false) val credentialsEndpoint: String? = null,
-    @Json(serializeNull = false) val selectiveDisclosure: SDMap? = null
+    @Json(serializeNull = false) @SDMapProperty val selectiveDisclosure: SDMap? = null
 )
 
 data class SignatoryConfig(

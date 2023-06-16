@@ -2,6 +2,7 @@ package id.walt.services.jwt
 
 import com.nimbusds.jose.jwk.OctetKeyPair
 import id.walt.sdjwt.JWTCryptoProvider
+import id.walt.sdjwt.JwtVerificationResult
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
 import kotlinx.serialization.json.JsonObject
@@ -35,7 +36,7 @@ open class JwtService : WaltIdService(), JWTCryptoProvider {
         return sign(keyID, payload.toString())
     }
 
-    override fun verify(token: String): Boolean = implementation.verify(token)
+    override fun verify(token: String): JwtVerificationResult = implementation.verify(token)
 
     open fun parseClaims(token: String): MutableMap<String, Any>? = implementation.parseClaims(token)
 

@@ -103,7 +103,7 @@ object OidcUtil {
         val scope = pm["scope"]!!
         val authRequestJwt = pm["request"]!!
 
-        if (jwtService.verify(authRequestJwt)) {
+        if (jwtService.verify(authRequestJwt).verified) {
             log.debug { "Successfully verified signature of JWT" }
         } else {
             throw IllegalArgumentException("Could not verify JWT $authRequestJwt")
@@ -163,7 +163,7 @@ object OidcUtil {
 
         val jwt = jwtService.sign(did, payload)
 
-        jwtService.verify(jwt).let { if (!it) throw IllegalStateException("Generated JWK not valid") }
+        jwtService.verify(jwt).let { if (!it.verified) throw IllegalStateException("Generated JWK not valid") }
 
         return jwt
     }

@@ -78,7 +78,7 @@ class SignatoryServiceTest : StringSpec({
         did shouldBe jwt.jwtClaimsSet.claims["sub"]
 
         println("VERIFYING VC")
-        JwtService.getService().verify(jwtStr) shouldBe true
+        JwtService.getService().verify(jwtStr).verified shouldBe true
     }
 
     "Issue and verify: VerifiableDiploma (LD-Proof)" {
@@ -126,7 +126,7 @@ class SignatoryServiceTest : StringSpec({
         did shouldBe jwt.jwtClaimsSet.claims["sub"]
 
         println("VERIFYING VC")
-        JwtService.getService().verify(jwtStr) shouldBe true
+        JwtService.getService().verify(jwtStr).verified shouldBe true
     }
 
     "vc storage test" {

@@ -38,7 +38,7 @@ class JwtServiceTest : AnnotationSpec() {
         "https://walt.id" shouldBe signedJwt.jwtClaimsSet.claims["iss"]
 
         val res1 = jwtService.verify(jwt)
-        res1 shouldBe true
+        res1.verified shouldBe true
     }
 
     @Test
@@ -53,7 +53,7 @@ class JwtServiceTest : AnnotationSpec() {
         "https://walt.id" shouldBe signedJwt.jwtClaimsSet.claims["iss"]
 
         val res1 = jwtService.verify(jwt)
-        res1 shouldBe true
+        res1.verified shouldBe true
     }
 
     @Test
@@ -80,7 +80,7 @@ class JwtServiceTest : AnnotationSpec() {
         "https://self-issued.me" shouldBe jwt.jwtClaimsSet.claims["iss"]
         thumbprint shouldBe jwt.jwtClaimsSet.claims["sub"]
 
-        jwtService.verify(jwtStr) shouldBe true
+        jwtService.verify(jwtStr).verified shouldBe true
     }
 
 }

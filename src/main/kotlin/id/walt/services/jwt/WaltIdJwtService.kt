@@ -10,6 +10,7 @@ import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import id.walt.crypto.*
 import id.walt.model.DidUrl
+import id.walt.sdjwt.JwtVerificationResult
 import id.walt.services.did.DidService
 import id.walt.services.key.KeyService
 import mu.KotlinLogging
@@ -147,7 +148,7 @@ open class WaltIdJwtService : JwtService() {
         return serializedSignedJwt
     }
 
-    override fun verify(token: String): Boolean {
+    override fun verify(token: String): JwtVerificationResult {
         log.debug { "Verifying token:  $token" }
         val jwt = SignedJWT.parse(token)
         val issuer = jwt.jwtClaimsSet.issuer
@@ -183,7 +184,7 @@ open class WaltIdJwtService : JwtService() {
         }
 
         log.debug { "JWT verified returned:  $res" }
-        return res
+        return JwtVerificationResult(res)
     }
 
     override fun parseClaims(token: String): MutableMap<String, Any>? {

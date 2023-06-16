@@ -6,6 +6,8 @@ import id.walt.credentials.w3c.templates.VcTemplate
 import id.walt.credentials.w3c.templates.VcTemplateService
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.model.DidMethod
+import id.walt.sdjwt.SDJwt
+import id.walt.sdjwt.SDMapBuilder
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.WaltIdServices
 import id.walt.services.did.DidService
@@ -14,6 +16,9 @@ import id.walt.signatory.rest.SignatoryRestAPI
 import id.walt.test.RESOURCES_PATH
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.collections.shouldContain
+import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.maps.shouldContain
+import io.kotest.matchers.maps.shouldNotContainKey
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldStartWith
@@ -25,6 +30,8 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import java.net.URL
 
 class SignatoryApiTest : AnnotationSpec() {
@@ -313,5 +320,63 @@ class SignatoryApiTest : AnnotationSpec() {
         vcParsed.issuerId shouldBe did
         vcParsed.subjectId shouldBe did
         vcParsed.credentialSubject!!.properties["foo"] shouldBe "bar"
+    }
+
+    @Test
+    fun testIssueRequestSDMap() {
+        val did = DidService.create(DidMethod.key)
+        val reqObj = IssueCredentialRequest(
+            templateId = "VerifiableId",
+            config = ProofConfig(
+                issuerDid = did,
+                subjectDid = did,
+                proofType = ProofType.SD_JWT,
+                selectiveDisclosure = SDMapBuilder()
+                    .addField("credentialSubject", true,
+                        SDMapBuilder().addField("firstName", true).build()
+                    ).build()
+            ),
+            credentialData = buildJsonObject {
+                put("credentialSubject", buildJsonObject {
+                    put("firstName", "Severin")
+                })
+            }
+        )
+        val request = "{\n" +
+                "    \"templateId\": \"VerifiableId\",\n" +
+                "    \"config\": {\n" +
+                "        \"issuerDid\": \"$did\",\n" +
+                "        \"subjectDid\": \"$did\",\n" +
+                "        \"proofType\": \"SD_JWT\",\n" +
+                "        \"selectiveDisclosure\": {\n" +
+                "            \"fields\": {\n" +
+                "                \"credentialSubject\": {\n" +
+                "                    \"sd\": true,\n" +
+                "                    \"children\": {\n" +
+                "                        \"fields\": {\n" +
+                "                            \"firstName\": {\n" +
+                "                                \"sd\": true\n" +
+                "                            }\n" +
+                "                        }\n" +
+                "                    }\n" +
+                "                }\n" +
+                "            }\n" +
+                "        }\n" +
+                "    },\n" +
+                "    \"credentialData\": {\n" +
+                "        \"credentialSubject\": {\n" +
+                "            \"firstName\": \"Severin\"\n" +
+                "        }\n" +
+                "    }\n" +
+                "}"
+        val vc = httpPost("/v1/credentials/issue", KlaxonWithConverters().toJsonString(reqObj))
+        println(vc)
+        val parsedVc = vc?.toVerifiableCredential()
+        parsedVc shouldNotBe null
+        parsedVc!!.credentialSubject!!.properties shouldContain Pair("firstName", "Severin")
+
+        val parsedSdJwt = SDJwt.parse(vc)
+        parsedSdJwt.undisclosedPayload shouldNotContainKey "credentialSubject"
+        parsedSdJwt.disclosureObjects.map { it.key }.toSet() shouldContainAll setOf("credentialSubject", "firstName")
     }
 }
