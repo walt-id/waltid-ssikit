@@ -2,7 +2,6 @@ package id.walt.signatory.rest
 
 import id.walt.common.KlaxonWithConverters
 import id.walt.common.KotlinxJsonObjectField
-import id.walt.common.SingleVCObject
 import id.walt.credentials.w3c.JsonConverter
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.builder.W3CCredentialBuilder

@@ -1,7 +1,6 @@
 package id.walt.common
 
 import com.beust.klaxon.*
-import id.walt.credentials.w3c.JsonConverter
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.model.VerificationMethod

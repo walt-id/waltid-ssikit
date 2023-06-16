@@ -6,9 +6,7 @@ import id.walt.credentials.w3c.templates.VcTemplate
 import id.walt.credentials.w3c.templates.VcTemplateService
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.model.DidMethod
-import id.walt.sdjwt.SDField
 import id.walt.sdjwt.SDJwt
-import id.walt.sdjwt.SDMap
 import id.walt.sdjwt.SDMapBuilder
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.WaltIdServices
@@ -16,7 +14,6 @@ import id.walt.services.did.DidService
 import id.walt.signatory.rest.IssueCredentialRequest
 import id.walt.signatory.rest.SignatoryRestAPI
 import id.walt.test.RESOURCES_PATH
-import io.kotest.assertions.json.shouldMatchJson
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldContainAll
