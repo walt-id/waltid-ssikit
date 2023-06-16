@@ -206,7 +206,7 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
 
         val parsedSdJwt = SDJwt.parse(issuedVID)
         parsedSdJwt.disclosures shouldHaveSize 3
-        parsedSdJwt.sdPayload.sDisclosures.map { sd -> sd.key } shouldContainAll setOf("credentialSubject", "firstName", "dateOfBirth")
+        parsedSdJwt.disclosureObjects.map { sd -> sd.key } shouldContainAll setOf("credentialSubject", "firstName", "dateOfBirth")
 
         Auditor.getService().verify(issuedVID, listOf(SignaturePolicy())).result shouldBe true
 

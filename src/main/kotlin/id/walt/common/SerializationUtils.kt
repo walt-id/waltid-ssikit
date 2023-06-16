@@ -1,9 +1,13 @@
 package id.walt.common
 
 import com.beust.klaxon.*
+import id.walt.credentials.w3c.JsonConverter
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.model.VerificationMethod
+import id.walt.sdjwt.SDMap
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
 
 @Target(AnnotationTarget.FIELD)
 annotation class VCList
@@ -26,11 +30,18 @@ annotation class SingleVCObject
 @Target(AnnotationTarget.FIELD)
 annotation class JsonObjectField
 
+
+@Target(AnnotationTarget.FIELD)
+annotation class KotlinxJsonObjectField
+
 @Target(AnnotationTarget.FIELD)
 annotation class ListOrSingleValue
 
 @Target(AnnotationTarget.FIELD)
 annotation class DidVerificationRelationships
+
+@Target(AnnotationTarget.FIELD)
+annotation class SDMapProperty
 
 class VcConverter(private val singleVC: Boolean, private val singleIfOne: Boolean, private val toVcObject: Boolean) :
     Converter {
@@ -87,6 +98,19 @@ val jsonObjectFieldConverter = object : Converter {
     }
 }
 
+val kotlinxJsonObjectFieldConverter = object : Converter {
+    override fun canConvert(cls: Class<*>) = cls == kotlinx.serialization.json.JsonObject::class.java
+
+    override fun fromJson(jv: JsonValue): Any? {
+        return jv.obj?.toJsonString()?.let { Json.parseToJsonElement(it) }?.jsonObject
+    }
+
+    override fun toJson(value: Any): String {
+        return (value as kotlinx.serialization.json.JsonObject).toString()
+    }
+
+}
+
 val listOrSingleValueConverter = object : Converter {
     override fun canConvert(cls: Class<*>) = cls == List::class.java
 
@@ -126,6 +150,19 @@ val didVerificationRelationshipsConverter = object : Converter {
     }
 }
 
+val sdMapConverter = object : Converter {
+    override fun canConvert(cls: Class<*>) = cls == SDMap::class.java
+
+    override fun fromJson(jv: JsonValue): Any? {
+        return jv.obj?.toJsonString()?.let { SDMap.fromJSON(it) }
+    }
+
+    override fun toJson(value: Any): String {
+        return (value as SDMap).toJSON().toString()
+    }
+
+}
+
 fun KlaxonWithConverters() = Klaxon()
     .fieldConverter(VCList::class, VcConverter(singleVC = false, singleIfOne = false, toVcObject = false))
     .fieldConverter(VCObjectList::class, VcConverter(singleVC = false, singleIfOne = false, toVcObject = true))
@@ -136,15 +173,8 @@ fun KlaxonWithConverters() = Klaxon()
     .fieldConverter(ListOrSingleValue::class, listOrSingleValueConverter)
     .fieldConverter(JsonObjectField::class, jsonObjectFieldConverter)
     .fieldConverter(DidVerificationRelationships::class, didVerificationRelationshipsConverter)
+    .fieldConverter(SDMapProperty::class, sdMapConverter)
+    .fieldConverter(KotlinxJsonObjectField::class, kotlinxJsonObjectFieldConverter)
 
 @Deprecated("Use KlaxonWithConverters()")
-val KlaxonWithConverters = Klaxon()
-    .fieldConverter(VCList::class, VcConverter(singleVC = false, singleIfOne = false, toVcObject = false))
-    .fieldConverter(VCObjectList::class, VcConverter(singleVC = false, singleIfOne = false, toVcObject = true))
-    .fieldConverter(ListOrSingleVC::class, VcConverter(singleVC = false, singleIfOne = true, toVcObject = false))
-    .fieldConverter(ListOrSingleVCObject::class, VcConverter(singleVC = false, singleIfOne = true, toVcObject = true))
-    .fieldConverter(SingleVC::class, VcConverter(singleVC = true, singleIfOne = false, toVcObject = false))
-    .fieldConverter(SingleVCObject::class, VcConverter(singleVC = true, singleIfOne = false, toVcObject = true))
-    .fieldConverter(ListOrSingleValue::class, listOrSingleValueConverter)
-    .fieldConverter(JsonObjectField::class, jsonObjectFieldConverter)
-    .fieldConverter(DidVerificationRelationships::class, didVerificationRelationshipsConverter)
+val KlaxonWithConverters = KlaxonWithConverters()

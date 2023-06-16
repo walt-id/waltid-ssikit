@@ -427,7 +427,7 @@ object UserWalletService {
 
         log.debug { "Siop Response JWT:\n$jwt" }
 
-        jwtService.verify(jwt).let { if (!it) throw IllegalStateException("Generated JWK not valid") }
+        jwtService.verify(jwt).let { if (!it.verified) throw IllegalStateException("Generated JWK not valid") }
 
         return jwt
     }

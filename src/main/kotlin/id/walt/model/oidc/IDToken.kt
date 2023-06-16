@@ -29,7 +29,7 @@ data class IDToken(
             if (KeyStoreService.getService().getKeyId(subject) == null) {
                 DidService.importKeys(subject)
             }
-            return JwtService.getService().verify(jwt!!)
+            return JwtService.getService().verify(jwt!!).verified
         }
         return false
     }

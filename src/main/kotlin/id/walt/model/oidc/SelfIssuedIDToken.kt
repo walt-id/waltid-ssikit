@@ -48,7 +48,7 @@ data class SelfIssuedIDToken(
             if (KeyStoreService.getService().getKeyId(parsedToken.subject) == null) {
                 DidService.importKeys(parsedToken.subject)
             }
-            return JwtService.getService().verify(jwt)
+            return JwtService.getService().verify(jwt).verified
         }
     }
 }

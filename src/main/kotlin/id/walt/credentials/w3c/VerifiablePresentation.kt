@@ -4,6 +4,8 @@ import id.walt.credentials.w3c.builder.AbstractW3CCredentialBuilder
 import id.walt.credentials.w3c.builder.CredentialFactory
 import id.walt.sdjwt.SDField
 import id.walt.sdjwt.SDMap
+import id.walt.sdjwt.SDMapBuilder
+import id.walt.sdjwt.toSDMap
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 
@@ -56,13 +58,11 @@ data class PresentableCredential(
 ) {
     fun toJsonElement() =
         if(verifiableCredential.sdJwt != null) {
-            val claimKey = VerifiableCredential.possibleClaimKeys.first { it in verifiableCredential.sdJwt!!.sdPayload.undisclosedPayload.keys }
+            val claimKey = VerifiableCredential.possibleClaimKeys.first { it in verifiableCredential.sdJwt!!.undisclosedPayload.keys }
             val presentedJwt = if(discloseAll) {
                 verifiableCredential.sdJwt!!.present(discloseAll)
             } else {
-                verifiableCredential.sdJwt!!.present(selectiveDisclosure?.let { mapOf(
-                    claimKey to SDField(true, it)
-                )})
+                verifiableCredential.sdJwt!!.present(selectiveDisclosure?.let { SDMapBuilder().addField(claimKey, false, it).build() })
             }
             JsonPrimitive(presentedJwt.toString(formatForPresentation = true))
         } else verifiableCredential.toJsonElement()

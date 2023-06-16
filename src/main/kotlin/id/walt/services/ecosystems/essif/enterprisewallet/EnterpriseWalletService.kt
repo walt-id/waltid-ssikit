@@ -51,7 +51,7 @@ open class EnterpriseWalletService : WaltIdService() {
         log.debug { jwtToVerify.header }
         log.debug { jwtToVerify.payload }
 
-        jwtService.verify(jwt).let { if (!it) throw IllegalStateException("Generated JWK not valid") }
+        jwtService.verify(jwt).let { if (!it.verified) throw IllegalStateException("Generated JWK not valid") }
 
         log.debug { "AuthResponse JWT: $jwt" }
         return jwt

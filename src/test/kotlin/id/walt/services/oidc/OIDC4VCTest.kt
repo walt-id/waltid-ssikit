@@ -156,7 +156,7 @@ class OIDC4VCTest : AnnotationSpec() {
     fun testCrosswordCyberSecurityDidProof() {
         val proof =
             JwtProof("eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImRpZDpqd2s6ZXlKNUlqb2lNako0Umw5NVRsUjZkVzVSVEU1dmExWXlNMTlwTFhGS2EwOU5NVlptVUdZNFRFeFhOM1JHZDBkcWF5SXNJbU55ZGlJNklsQXRNalUySWl3aWVDSTZJbVJKTmtoMGVrMDJXSEZZUkhCd1MzTkJiR0kzWDNkd1FuWlpjRTVZV0c5UldHcHFjRUpGVURWaE5tOGlMQ0poYkdjaU9pSkZVekkxTmlJc0ltdDBlU0k2SWtWREluMCJ9.eyJleHAiOjE2NjYwMjM0NjYsImp0aSI6IjVVT0xnR29keXZ1R2dZVTZcLzF2Tk9kd0pVUUpkM085VWlCTHg1Z2VSSlpBPSIsImlzcyI6ImRpZDpqd2s6ZXlKNUlqb2lNako0Umw5NVRsUjZkVzVSVEU1dmExWXlNMTlwTFhGS2EwOU5NVlptVUdZNFRFeFhOM1JHZDBkcWF5SXNJbU55ZGlJNklsQXRNalUySWl3aWVDSTZJbVJKTmtoMGVrMDJXSEZZUkhCd1MzTkJiR0kzWDNkd1FuWlpjRTVZV0c5UldHcHFjRUpGVURWaE5tOGlMQ0poYkdjaU9pSkZVekkxTmlJc0ltdDBlU0k2SWtWREluMCIsImF1ZCI6Imh0dHBzOlwvXC9pc3N1ZXIud2FsdC10ZXN0LmNsb3VkXC9pc3N1ZXItYXBpXC9vaWRjXC8iLCJpYXQiOjE2NjYwMjM0MDZ9.oZd5hfs1iLQMiaL3VUvxG93B5CjKsVmH45WPdXGeeSnqBm5QF7eHNlakZ4u8KGlrq0gqXLc5lXP-u0rMzbNZkw")
-        JwtService.getService().verify(proof.jwt) shouldBe true
+        JwtService.getService().verify(proof.jwt).verified shouldBe true
     }
 
     @Test

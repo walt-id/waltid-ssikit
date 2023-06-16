@@ -1,6 +1,8 @@
 package id.walt.signatory.rest
 
 import id.walt.common.KlaxonWithConverters
+import id.walt.common.KotlinxJsonObjectField
+import id.walt.common.SingleVCObject
 import id.walt.credentials.w3c.JsonConverter
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.builder.W3CCredentialBuilder
@@ -20,12 +22,13 @@ import io.javalin.http.ContentType
 import io.javalin.http.Context
 import io.javalin.http.HttpCode
 import io.javalin.plugin.openapi.dsl.document
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 
 data class IssueCredentialRequest(
     val templateId: String?,
     val config: ProofConfig,
-    val credentialData: Map<String, Any>? = null
+    @KotlinxJsonObjectField val credentialData: JsonObject? = null
 )
 
 object SignatoryController {
@@ -75,7 +78,7 @@ object SignatoryController {
     }.pathParam<String>("id").result<String>("200")
 
     fun issueCredential(ctx: Context) {
-        val req = ctx.bodyAsClass<IssueCredentialRequest>()
+        val req = KlaxonWithConverters().parse<IssueCredentialRequest>(ctx.body()) ?: throw BadRequestResponse("Cannot parse IssueCredentialRequest body")
         if (req.templateId != null && !signatory.hasTemplateId(req.templateId)) {
             throw BadRequestResponse("Template with supplied id does not exist.")
         }

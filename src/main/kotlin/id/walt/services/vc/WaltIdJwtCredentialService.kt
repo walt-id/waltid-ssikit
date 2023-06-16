@@ -81,7 +81,7 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
 
     override fun verifyVc(vc: String): Boolean {
         log.debug { "Verifying vc: $vc" }
-        return SDJwt.parse(vc).verify(jwtService)
+        return SDJwt.parse(vc).verify(jwtService).verified
     }
 
     override fun verifyVp(vp: String): Boolean =

@@ -54,7 +54,7 @@ open class VerifiableCredential internal constructor(
     open val challenge
         get() = when (this.sdJwt) {
             null -> this.proof?.nonce
-            else -> sdJwt!!.sdPayload.undisclosedPayload["nonce"]?.jsonPrimitive?.contentOrNull
+            else -> sdJwt!!.undisclosedPayload["nonce"]?.jsonPrimitive?.contentOrNull
         }
 
     fun toJsonObject() = buildJsonObject {
@@ -120,11 +120,11 @@ open class VerifiableCredential internal constructor(
         fun isSDJwt(data: String) = SDJwt.isSDJwt(data)
 
         private fun fromSdJwt(sdJwt: SDJwt): VerifiableCredential {
-            val resolvedObject = sdJwt.sdPayload.fullPayload
+            val resolvedObject = sdJwt.fullPayload
             val claimKey = possibleClaimKeys.first { it in resolvedObject.keys }
             return fromJsonObject(resolvedObject[claimKey]!!.jsonObject).apply {
                 this.sdJwt = sdJwt
-                this.selectiveDisclosure = sdJwt.sdPayload.sdMap[claimKey]?.children
+                this.selectiveDisclosure = sdJwt.sdMap[claimKey]?.children
             }
         }
 
