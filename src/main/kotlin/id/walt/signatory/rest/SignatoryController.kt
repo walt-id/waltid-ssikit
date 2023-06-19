@@ -7,6 +7,7 @@ import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.builder.W3CCredentialBuilder
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.sdjwt.SDMap
+import id.walt.sdjwt.SDMapBuilder
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
@@ -110,9 +111,9 @@ object SignatoryController {
 
     fun issueCredentialDocs() = document().operation {
         it.summary("Issue a credential").operationId("issue").addTagsItem("Credentials").description(
-            "Based on a template (maintained in the VcLib), this call creates a W3C Verifiable Credential. Note that the '<b>templateId</b>, <b>issuerDid</b>, and the <b>subjectDid</b>, are mandatory parameters. All other parameters are optional. <br><br> This is a example request, that also demonstrates how to populate the credential with custom data: the <br><br>{<br>" + "  \"templateId\": \"VerifiableId\",<br>" + "  \"config\": {<br>" + " &nbsp;&nbsp;&nbsp;&nbsp;   \"issuerDid\": \"did:ebsi:zuathxHtXTV8psijTjtuZD7\",<br>" + " &nbsp;&nbsp;&nbsp;&nbsp;   \"subjectDid\": \"did:key:z6MkwfgBDSMRqXaJtw5DjhkJdDsDmRNSrvrM1L6UMBDtvaSX\",<br>" + " &nbsp;&nbsp;&nbsp;&nbsp; \"selectiveDisclosure\": {\n" +
-                    " \"credentialSubject\": { \"sd\": true, \"nestedMap\": { \"firstName\": { \"sd\": true }}}\n" +
-                    "}<br>},<br>" + "  \"credentialData\": {<br>" + " &nbsp;&nbsp;&nbsp;&nbsp;   \"credentialSubject\": {<br>" + " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;     \"firstName\": \"Severin\"<br>" + " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   }<br>" + " &nbsp;&nbsp;&nbsp;&nbsp; }<br>" + "}<br>"
+            "Based on a template (maintained in the VcLib), this call creates a W3C Verifiable Credential. Note that the '<b>templateId</b>, <b>issuerDid</b>, and the <b>subjectDid</b>, are mandatory parameters. All other parameters are optional. <br><br> This is a example request, that also demonstrates how to populate the credential with custom data: the <br><br>{<br>" + "  \"templateId\": \"VerifiableId\",<br>" + "  \"config\": {<br>" + " &nbsp;&nbsp;&nbsp;&nbsp;   \"issuerDid\": \"did:ebsi:zuathxHtXTV8psijTjtuZD7\",<br>" + " &nbsp;&nbsp;&nbsp;&nbsp;   \"subjectDid\": \"did:key:z6MkwfgBDSMRqXaJtw5DjhkJdDsDmRNSrvrM1L6UMBDtvaSX\",<br>" + " &nbsp;&nbsp;&nbsp;&nbsp; \"selectiveDisclosure\": \n" +
+                    SDMapBuilder().addField("credentialSubject", false, SDMapBuilder().addField("firstName", true).build()).build().toJSON().toString() + "\n" +
+                    "<br>},<br>" + "  \"credentialData\": {<br>" + " &nbsp;&nbsp;&nbsp;&nbsp;   \"credentialSubject\": {<br>" + " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;     \"firstName\": \"Severin\"<br>" + " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   }<br>" + " &nbsp;&nbsp;&nbsp;&nbsp; }<br>" + "}<br>"
         )
     }.body<String>()
     { it.description("IssueCredentialRequest: templateId: String, config: ProofConfig, credentialData: JsonObject") }.json<String>("200")
