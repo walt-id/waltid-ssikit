@@ -114,7 +114,8 @@ object SignatoryController {
                     " \"credentialSubject\": { \"sd\": true, \"nestedMap\": { \"firstName\": { \"sd\": true }}}\n" +
                     "}<br>},<br>" + "  \"credentialData\": {<br>" + " &nbsp;&nbsp;&nbsp;&nbsp;   \"credentialSubject\": {<br>" + " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;     \"firstName\": \"Severin\"<br>" + " &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   }<br>" + " &nbsp;&nbsp;&nbsp;&nbsp; }<br>" + "}<br>"
         )
-    }.body<IssueCredentialRequest>().json<String>("200")
+    }.body<String>()
+    { it.description("IssueCredentialRequest: templateId: String, config: ProofConfig, credentialData: JsonObject") }.json<String>("200")
 
     fun issueCredentialFromJson(ctx: Context) {
         val credentialJson = ctx.body()

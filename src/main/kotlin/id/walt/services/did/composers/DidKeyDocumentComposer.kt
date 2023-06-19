@@ -39,25 +39,27 @@ class DidKeyDocumentComposer(
      * @param [pubKey] - the public key byte array
      * @return the [Did] document
      */
-    private fun constructDidKey(didUrl: DidUrl, pubKey: ByteArray): DidKey = DidKey(
-        context = listOf(
-            "https://www.w3.org/ns/did/v1",
-            "https://w3id.org/security/suites/jws-2020/v1"
-        ),
-        id = didUrl.did,
-        verificationMethod = listOf(
-            VerificationMethod(
-                id = "${didUrl.did}#${didUrl.did}",
-                type = "JsonWebKey2020",
-                controller = didUrl.did,
-                publicKeyJwk = Klaxon().parse(JWK.parse(String(pubKey)).toJSONString())
-            )
-        ),
-        assertionMethod = listOf(VerificationMethod.Reference(didUrl.did)),
-        authentication = listOf(VerificationMethod.Reference(didUrl.did)),
-        capabilityInvocation = listOf(VerificationMethod.Reference(didUrl.did)),
-        capabilityDelegation = listOf(VerificationMethod.Reference(didUrl.did)),
-    )
+    private fun constructDidKey(didUrl: DidUrl, pubKey: ByteArray): DidKey = "${didUrl.did}#${didUrl.identifier}".let {
+        DidKey(
+            context = listOf(
+                "https://www.w3.org/ns/did/v1",
+                "https://w3id.org/security/suites/jws-2020/v1"
+            ),
+            id = didUrl.did,
+            verificationMethod = listOf(
+                VerificationMethod(
+                    id = it,
+                    type = "JsonWebKey2020",
+                    controller = didUrl.did,
+                    publicKeyJwk = Klaxon().parse(JWK.parse(String(pubKey)).toJSONString())
+                )
+            ),
+            assertionMethod = listOf(VerificationMethod.Reference(it)),
+            authentication = listOf(VerificationMethod.Reference(it)),
+            capabilityInvocation = listOf(VerificationMethod.Reference(it)),
+            capabilityDelegation = listOf(VerificationMethod.Reference(it)),
+        )
+    }
 
     /**
      * other types of did:key

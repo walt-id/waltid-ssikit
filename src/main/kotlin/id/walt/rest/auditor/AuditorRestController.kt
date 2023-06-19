@@ -41,7 +41,7 @@ object AuditorRestController {
             it.summary("Verify a W3C VerifiableCredential or VerifiablePresentation").operationId("verifyVP")
                 .addTagsItem("Verification Policies")
         }
-        .body<VerificationRequest> { it.description("VC or VP verification request object") }
+        .body<String> { it.description("VerificationRequest (VC or VP verification request object): policies: List<PolicyRequest>, credentials: List<VerifiableCredential>") }
         .jsonArray<VerificationResponse>("200") { it.description("Request processed successfully (VP might not be valid)") }
 
     fun createDynamicPolicy(ctx: Context) {
