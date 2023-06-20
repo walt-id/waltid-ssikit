@@ -68,7 +68,7 @@ class CreateDidCommand : CliktCommand(
             is WebMethodOption -> DidService.create(web, keyId, DidWebCreateOptions((method as WebMethodOption).domain, (method as WebMethodOption).path))
             is EbsiMethodOption -> DidService.create(ebsi, keyId, DidEbsiCreateOptions((method as EbsiMethodOption).version))
             is CheqdMethodOption -> DidService.create(cheqd, keyId, DidCheqdCreateOptions((method as CheqdMethodOption).network))
-            is KeyMethodOption -> DidService.create(key, keyId, DidKeyCreateOptions((method as KeyMethodOption).isJwk))
+            is KeyMethodOption -> DidService.create(key, keyId, DidKeyCreateOptions((method as KeyMethodOption).useJwkJcsPubMulticodec))
             else -> DidService.create(DidMethod.valueOf(method.method), keyId)
         }
 
