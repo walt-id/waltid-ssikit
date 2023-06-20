@@ -242,7 +242,7 @@ class DidServiceTest : AnnotationSpec() {
         val expectedResult = Did.decode(readWhenContent(File("src/test/resources/dids/did-key-jwk_jcs-pub.json")))!!
         val jwkPubKey = "{\"kty\":\"EC\",\"crv\":\"P-256\",\"x\":\"ngy44T1vxAT6Di4nr-UaM9K3Tlnz9pkoksDokKFkmNc\",\"y\":\"QCRfOKlSM31GTkb4JHx3nXB4G_jSPMsbdjzlkT_UpPc\"}"
         val keyId = keyService.importKey(jwkPubKey)
-        val did = DidService.create(DidMethod.key, keyId.id, DidKeyCreateOptions(isJwk = true))
+        val did = DidService.create(DidMethod.key, keyId.id, DidKeyCreateOptions(useJwkJcsPub = true))
         // when
         val result = DidService.resolve(did)
         // then
