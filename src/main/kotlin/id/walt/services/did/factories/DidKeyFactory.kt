@@ -30,7 +30,7 @@ class DidKeyFactory(
     }
 
     private fun getIdentifierComponents(key: Key, options: DidKeyCreateOptions?): IdentifierComponents =
-        options?.takeIf { it.isJwk }?.let {
+        options?.takeIf { it.useJwkJcsPub }?.let {
             IdentifierComponents(JwkJcsPubMultiCodecKeyCode, getJwkPubKeyRequiredMembersBytes(key))
         } ?: IdentifierComponents(getMulticodecKeyCode(key.algorithm), getPublicKeyBytesForDidKey(key))
 

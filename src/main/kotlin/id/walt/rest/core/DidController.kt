@@ -79,7 +79,7 @@ object DidController {
         is WebCreateDidRequest -> DidWebCreateOptions(request.domain ?: "walt.id", request.path)
         is EbsiCreateDidRequest -> DidEbsiCreateOptions(request.version)
         is CheqdCreateDidRequest -> DidCheqdCreateOptions(request.network)
-        is KeyCreateDidRequest -> DidKeyCreateOptions(request.isJwk)
+        is KeyCreateDidRequest -> DidKeyCreateOptions(request.useJwkJcsPub)
         else -> null
     }
 
