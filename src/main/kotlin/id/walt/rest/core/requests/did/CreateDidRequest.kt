@@ -29,7 +29,7 @@ class CreateDidRequestMethodAdapter : TypeAdapter<CreateDidRequest> {
 @Serializable
 class KeyCreateDidRequest(
     override val keyAlias: String? = null,
-    val isJwk: Boolean = false,
+    val useJwkJcsPub: Boolean = false,
 ) : CreateDidRequest("key")
 @Serializable
 class WebCreateDidRequest(
