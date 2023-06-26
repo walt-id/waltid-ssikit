@@ -9,17 +9,14 @@ import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.test.getTemplate
 import io.kotest.core.spec.style.StringSpec
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlin.system.measureTimeMillis
-
 
 
 class Performance : StringSpec({
     ServiceMatrix("service-matrix.properties")
-    val issuerWebDid: String = DidService.create(DidMethod.web)
+    val issuerWebDid: String = DidService.create(DidMethod.key)
 
     //val credentialService: JwtCredentialService = JwtCredentialService.getService()
     val signatory = Signatory.getService()
@@ -28,13 +25,19 @@ class Performance : StringSpec({
     template.issuer = W3CIssuer(issuerWebDid)
     template.credentialSubject!!.id = issuerWebDid // self signed
 
+    println("Warm up")
+    repeat(100) {
+        signatory.issue("VerifiableId", ProofConfig(issuerDid = issuerWebDid, proofType = ProofType.JWT))
+    }
+
     "Issue 1" {
         val jobs = ArrayList<Job>()
-        repeat(100000) {
+        println("Starting issuance...")
+        repeat(1_000_000) {
             jobs.add(GlobalScope.launch {
-                println("" + measureTimeMillis {
-                    signatory.issue("VerifiableId", ProofConfig(issuerDid = issuerWebDid, proofType = ProofType.JWT))
-                } + " ms")
+                /*println("" + measureTimeMillis {*/
+                signatory.issue("VerifiableId", ProofConfig(issuerDid = issuerWebDid, proofType = ProofType.JWT))
+                /*} + " ms")*/
             })
         }
 

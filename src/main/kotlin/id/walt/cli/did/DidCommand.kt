@@ -62,7 +62,7 @@ class CreateDidCommand : CliktCommand(
             else -> CryptoService.getService().generateKey(KeyAlgorithm.EdDSA_Ed25519).id
         }
 
-        echo("Creating did:${method} (key: ${keyId})")
+        echo("Creating did:${method.method} (key: ${keyId})")
 
         val did = when (method) {
             is WebMethodOption -> DidService.create(web, keyId, DidWebCreateOptions((method as WebMethodOption).domain, (method as WebMethodOption).path))
