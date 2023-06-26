@@ -342,33 +342,6 @@ class SignatoryApiTest : AnnotationSpec() {
                 })
             }
         )
-        val request = "{\n" +
-                "    \"templateId\": \"VerifiableId\",\n" +
-                "    \"config\": {\n" +
-                "        \"issuerDid\": \"$did\",\n" +
-                "        \"subjectDid\": \"$did\",\n" +
-                "        \"proofType\": \"SD_JWT\",\n" +
-                "        \"selectiveDisclosure\": {\n" +
-                "            \"fields\": {\n" +
-                "                \"credentialSubject\": {\n" +
-                "                    \"sd\": true,\n" +
-                "                    \"children\": {\n" +
-                "                        \"fields\": {\n" +
-                "                            \"firstName\": {\n" +
-                "                                \"sd\": true\n" +
-                "                            }\n" +
-                "                        }\n" +
-                "                    }\n" +
-                "                }\n" +
-                "            }\n" +
-                "        }\n" +
-                "    },\n" +
-                "    \"credentialData\": {\n" +
-                "        \"credentialSubject\": {\n" +
-                "            \"firstName\": \"Severin\"\n" +
-                "        }\n" +
-                "    }\n" +
-                "}"
         val vc = httpPost("/v1/credentials/issue", KlaxonWithConverters().toJsonString(reqObj))
         println(vc)
         val parsedVc = vc?.toVerifiableCredential()
