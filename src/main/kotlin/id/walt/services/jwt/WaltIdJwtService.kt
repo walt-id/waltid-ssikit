@@ -66,21 +66,6 @@ open class WaltIdJwtService : JwtService() {
         return jweObj.payload.toString()
     }
 
-    private fun createSignedJwt(jwsAlgorithm: JWSAlgorithm, keyAlias: String, claimsSet: JWTClaimsSet, includeJwk: JWK?) =
-        SignedJWT(
-            JWSHeader
-                .Builder(jwsAlgorithm)
-                .keyID(keyAlias)
-                .type(JOSEObjectType.JWT)
-                .apply {
-                    includeJwk?.let { jwk(it) }
-                }.build(),
-            claimsSet
-        )/*.also {
-            // log.debug { "Created signable JWT object: $it." }
-        }*/
-
-
     override fun sign(
         keyAlias: String, // verification method
         payload: String?
@@ -110,43 +95,65 @@ open class WaltIdJwtService : JwtService() {
             null
         }
 
-        val signedJwt = when (issuerKey.algorithm) {
-            KeyAlgorithm.EdDSA_Ed25519 -> {
-                val jwt = createSignedJwt(JWSAlgorithm.EdDSA, keyAlias, claimsSet, includeJwk)
-
-                //jwt.sign(Ed25519Signer(issuerKey.toOctetKeyPair()))
-                jwt.sign(LdSigner.JwsLtSigner(issuerKey.keyId))
-                jwt
-            }
-
-            KeyAlgorithm.ECDSA_Secp256k1 -> {
-                val jwt = createSignedJwt(JWSAlgorithm.ES256K, keyAlias, claimsSet, includeJwk)
-
-                val jwsSigner = ECDSASigner(ECPrivateKeyHandle(issuerKey.keyId), Curve.SECP256K1)
-                jwsSigner.jcaContext.provider = provider
-                jwt.sign(jwsSigner)
-                jwt
-            }
-
-            KeyAlgorithm.ECDSA_Secp256r1 -> {
-                val jwt = createSignedJwt(JWSAlgorithm.ES256, keyAlias, claimsSet, includeJwk)
-
-                val jwsSigner = ECDSASigner(ECPrivateKeyHandle(issuerKey.keyId), Curve.P_256)
-                jwsSigner.jcaContext.provider = provider
-                jwt.sign(jwsSigner)
-                jwt
-            }
-
-            else -> {
-                log.error { "Algorithm ${issuerKey.algorithm} not supported" }
-                throw UnsupportedOperationException("Algorithm ${issuerKey.algorithm} not supported")
-            }
-        }
-
-        val serializedSignedJwt = signedJwt.serialize()
+        val serializedSignedJwt = createSignedJWT(issuerKey, keyAlias, claimsSet, includeJwk).serialize()
         log.debug { "Signed JWT:  $serializedSignedJwt" }
         return serializedSignedJwt
     }
+
+    private fun createSignedJWT(
+        issuerKey: Key, keyAlias: String, claimsSet: JWTClaimsSet, includeJwk: JWK?
+    ): SignedJWT = when (issuerKey.algorithm) {
+        KeyAlgorithm.EdDSA_Ed25519 -> {
+            val jwt = createSignableJwt(JWSAlgorithm.EdDSA, keyAlias, claimsSet, includeJwk)
+
+            //jwt.sign(Ed25519Signer(issuerKey.toOctetKeyPair()))
+            jwt.sign(LdSigner.JwsLtSigner(issuerKey.keyId))
+            jwt
+        }
+
+        KeyAlgorithm.ECDSA_Secp256k1 -> {
+            val jwt = createSignableJwt(JWSAlgorithm.ES256K, keyAlias, claimsSet, includeJwk)
+
+            val jwsSigner = ECDSASigner(ECPrivateKeyHandle(issuerKey.keyId), Curve.SECP256K1)
+            jwsSigner.jcaContext.provider = provider
+            jwt.sign(jwsSigner)
+            jwt
+        }
+
+        KeyAlgorithm.ECDSA_Secp256r1 -> {
+            val jwt = createSignableJwt(JWSAlgorithm.ES256, keyAlias, claimsSet, includeJwk)
+
+            val jwsSigner = ECDSASigner(ECPrivateKeyHandle(issuerKey.keyId), Curve.P_256)
+            jwsSigner.jcaContext.provider = provider
+            jwt.sign(jwsSigner)
+            jwt
+        }
+
+        KeyAlgorithm.RSA -> {
+            val jwt = createSignableJwt(JWSAlgorithm.RS256, keyAlias, claimsSet, includeJwk)
+            jwt.sign(LdSigner.JwsLtSigner(issuerKey.keyId))
+            jwt
+        }
+
+        else -> {
+            log.error { "Algorithm ${issuerKey.algorithm} not supported" }
+            throw UnsupportedOperationException("Algorithm ${issuerKey.algorithm} not supported")
+        }
+    }
+
+    private fun createSignableJwt(jwsAlgorithm: JWSAlgorithm, keyAlias: String, claimsSet: JWTClaimsSet, includeJwk: JWK?) =
+        SignedJWT(
+            JWSHeader
+                .Builder(jwsAlgorithm)
+                .keyID(keyAlias)
+                .type(JOSEObjectType.JWT)
+                .apply {
+                    includeJwk?.let { jwk(it) }
+                }.build(),
+            claimsSet
+        )/*.also {
+            // log.debug { "Created signable JWT object: $it." }
+        }*/
 
     override fun verify(token: String): JwtVerificationResult {
         log.debug { "Verifying token:  $token" }
@@ -163,28 +170,32 @@ open class WaltIdJwtService : JwtService() {
 
         val verifierKey = keyService.load(keyAlias)
 
-        val res = when (verifierKey.algorithm) {
-            KeyAlgorithm.EdDSA_Ed25519 -> jwt.verify(Ed25519Verifier(keyService.toEd25519Jwk(verifierKey)))
-            KeyAlgorithm.ECDSA_Secp256k1 -> {
-                val verifier = ECDSAVerifier(PublicKeyHandle(verifierKey.keyId, verifierKey.getPublicKey() as ECPublicKey))
-                verifier.jcaContext.provider = provider
-                jwt.verify(verifier)
-            }
-
-            KeyAlgorithm.ECDSA_Secp256r1 -> {
-                val verifier = ECDSAVerifier(PublicKeyHandle(verifierKey.keyId, verifierKey.getPublicKey() as ECPublicKey))
-                verifier.jcaContext.provider = provider
-                jwt.verify(verifier)
-            }
-
-            else -> {
-                log.error { "Algorithm ${verifierKey.algorithm} not supported" }
-                throw UnsupportedOperationException("Algorithm ${verifierKey.algorithm} not supported")
-            }
-        }
+        val res = verifyJwt(verifierKey, jwt)
 
         log.debug { "JWT verified returned:  $res" }
         return JwtVerificationResult(res)
+    }
+
+    private fun verifyJwt(verifierKey: Key, jwt: SignedJWT): Boolean = when (verifierKey.algorithm) {
+        KeyAlgorithm.EdDSA_Ed25519 -> jwt.verify(Ed25519Verifier(keyService.toEd25519Jwk(verifierKey)))
+        KeyAlgorithm.ECDSA_Secp256k1 -> {
+            val verifier = ECDSAVerifier(PublicKeyHandle(verifierKey.keyId, verifierKey.getPublicKey() as ECPublicKey))
+            verifier.jcaContext.provider = provider
+            jwt.verify(verifier)
+        }
+
+        KeyAlgorithm.ECDSA_Secp256r1 -> {
+            val verifier = ECDSAVerifier(PublicKeyHandle(verifierKey.keyId, verifierKey.getPublicKey() as ECPublicKey))
+            verifier.jcaContext.provider = provider
+            jwt.verify(verifier)
+        }
+
+        KeyAlgorithm.RSA -> jwt.verify(RSASSAVerifier(keyService.toRsaJwk(verifierKey)))
+
+        else -> {
+            log.error { "Algorithm ${verifierKey.algorithm} not supported" }
+            throw UnsupportedOperationException("Algorithm ${verifierKey.algorithm} not supported")
+        }
     }
 
     override fun parseClaims(token: String): MutableMap<String, Any>? {
