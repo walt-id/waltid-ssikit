@@ -115,6 +115,9 @@ dependencies {
     testImplementation("io.kotest:kotest-assertions-core:5.5.5")
     testImplementation("io.kotest:kotest-assertions-json:5.5.5")
 
+    testImplementation(kotlin("test"))
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.9.0")
+
 }
 
 tasks.withType<Test> {
