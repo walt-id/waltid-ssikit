@@ -45,7 +45,7 @@ abstract class KeyService : WaltIdService() {
 
     open fun toEd25519Jwk(key: Key, jwkKeyId: String? = null): OctetKeyPair = implementation.toEd25519Jwk(key, jwkKeyId)
 
-    open fun toRsaJwk(key: Key, jwkKeyId: String?): RSAKey = implementation.toRsaJwk(key, jwkKeyId)
+    open fun toRsaJwk(key: Key, jwkKeyId: String? = null): RSAKey = implementation.toRsaJwk(key, jwkKeyId)
 
     open fun getEthereumAddress(keyAlias: String): String = implementation.getEthereumAddress(keyAlias)
 
