@@ -33,10 +33,13 @@ import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.signatory.dataproviders.CLIDataProvider
 import id.walt.signatory.revocation.RevocationClientService
+import id.walt.signatory.revocation.RevocationStatus
 import io.ktor.util.date.*
+import io.ktor.util.reflect.*
 import mu.KotlinLogging
 import java.io.File
 import java.io.StringReader
+import java.net.ConnectException
 import java.nio.file.Path
 import java.sql.Timestamp
 import java.time.LocalDateTime
@@ -558,9 +561,13 @@ class VcRevocationCheckCommand : CliktCommand(
     val vcFile: File by argument().file()
     override fun run() = vcFile.takeIf { it.exists() }?.run {
         println("Checking revocation status for credential stored at: ${vcFile.absolutePath}")
-        val status = RevocationClientService.check(this.readText().toVerifiableCredential())
-        println("Revocation status:")
-        println(Klaxon().toJsonString(status).prettyPrint())
+        runWithErrorHandling(
+            runner = { RevocationClientService.check(this.readText().toVerifiableCredential()) },
+            onSuccess = {
+                println("Revocation status:")
+                println(Klaxon().toJsonString(it).prettyPrint())
+            }
+        )
     } ?: Unit
 }
 
@@ -570,9 +577,31 @@ class VcRevocationRevokeCommand: CliktCommand(
     val vcFile: File by argument().file()
     override fun run() = vcFile.takeIf { it.exists() }?.run {
         println("Revoking credential stored at: ${vcFile.absolutePath}")
-        val result = RevocationClientService.revoke(this.readText().toVerifiableCredential())
-        println("Revocation result:")
-        println(Klaxon().toJsonString(result).prettyPrint())
+        runWithErrorHandling(
+            runner = { RevocationClientService.revoke(this.readText().toVerifiableCredential()) },
+            onSuccess = {
+                println("Revocation result:")
+                println(Klaxon().toJsonString(it).prettyPrint())
+            }
+        )
     } ?: Unit
+}
+
+internal fun <T> runWithErrorHandling(
+    runner: () -> T,
+    onSuccess: ((T) -> Unit)? = null,
+    onFailure: ((Throwable) -> Unit)? = null
+) {
+    runCatching {
+        runner()
+    }.onSuccess {
+        onSuccess?.invoke(it)
+    }.onFailure {
+        println(it.localizedMessage)
+        if (it.instanceOf(ConnectException::class)) {
+            println("Looks like couldn't reach the Signatory API. Make sure to run \"ssikit serve\" first.")
+        }
+        onFailure?.invoke(it)
+    }
 }
 //endregion
