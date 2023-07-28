@@ -50,15 +50,15 @@ class ExpirationDateAfterPolicy : SimpleVerificationPolicy() {
 class CredentialStatusPolicy : SimpleVerificationPolicy() {
 
     override val description: String = "Verify by credential status"
-    override fun doVerify(vc: VerifiableCredential): VerificationPolicyResult = runCatching {
-        Klaxon().parse<CredentialStatusCredential>(vc.toJson())!!.credentialStatus!!.let { cs ->
-            RevocationClientService.check(vc).let {
-                if (!it.isRevoked) VerificationPolicyResult.success()
-                else failResult(it, cs)
-            }
-        }
-    }.getOrElse {
-        VerificationPolicyResult.failure(it)
+    override fun doVerify(vc: VerifiableCredential): VerificationPolicyResult {
+        val maybeCredentialStatus = Klaxon().parse<CredentialStatusCredential>(vc.toJson())!!.credentialStatus
+        return maybeCredentialStatus?.let { cs -> runCatching {
+                RevocationClientService.check(vc).let {
+                    if (!it.isRevoked) VerificationPolicyResult.success()
+                    else failResult(it, cs)
+                }
+            }.getOrElse { VerificationPolicyResult.failure(it) }
+        } ?: VerificationPolicyResult.success()
     }
 
     private fun failResult(status: RevocationStatus, cs: CredentialStatus) = when (status) {
