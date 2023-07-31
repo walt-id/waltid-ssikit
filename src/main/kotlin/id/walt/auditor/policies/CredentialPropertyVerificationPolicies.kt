@@ -65,7 +65,7 @@ class CredentialStatusPolicy : SimpleVerificationPolicy() {
         is TokenRevocationStatus -> "CredentialStatus (type ${cs.type}) was REVOKED at timestamp ${status.timeOfRevocation} for id ${cs.id}."
         else -> "CredentialStatus ${cs.type} was REVOKED for id ${cs.id}"
     }.let {
-        VerificationPolicyResult.failure(IllegalArgumentException(it))
+        VerificationPolicyResult.failure(IllegalStateException(it))
     }
 }
 
