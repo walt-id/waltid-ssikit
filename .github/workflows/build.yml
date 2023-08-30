@@ -47,7 +47,7 @@ jobs:
               env:
                   MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
                   MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
-              run: build publish
+              run: ./gradlew build publish
 
             - name: Set up Docker Buildx
               uses: docker/setup-buildx-action@v2
