@@ -27,8 +27,8 @@ COPY --from=dos2unix-env /convert/*.pem src/test/resources/key/
 VOLUME /home/gradle/.gradle
 
 RUN if [ -z "$SKIP_TESTS" ]; \
-    then echo "* Running full build" && gradle -i clean build installDist; \
-    else echo "* Building but skipping tests" && gradle -i clean installDist -x test; \
+    then echo "* Running full build" && ./gradlew -i clean build installDist; \
+    else echo "* Building but skipping tests" && ./gradlew -i clean installDist -x test; \
     fi
 
 # --- opa-env

@@ -40,14 +40,13 @@ jobs:
             - name: Gradle wrapper validation
               uses: gradle/wrapper-validation-action@v1
 
-            - name: Setup Gradle
+            - name: Gradle Build and Publish
               uses: gradle/gradle-build-action@v2
-
-            - name: Gradle build and push
               env:
                   MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
                   MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
-              run: ./gradlew build publish
+              with:
+                  arguments: build publish
 
             - name: Set up Docker Buildx
               uses: docker/setup-buildx-action@v2
