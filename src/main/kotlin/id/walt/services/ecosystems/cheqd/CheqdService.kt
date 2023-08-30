@@ -40,8 +40,6 @@ object CheqdService {
     //private const val registrarUrl = "https://registrar.walt.id/cheqd"
     private const val registrarUrl = "https://did-registrar.cheqd.net"
     private const val registrarApiVersion = "1.0"
-    private const val didCreateUrl =
-        "$registrarUrl/$registrarApiVersion/did-document?verificationMethod=%s&methodSpecificIdAlgo=%s&network=%s&publicKeyHex=%s"
     private const val didRegisterUrl = "$registrarUrl/$registrarApiVersion/create"
     private const val didDeactivateUrl = "$registrarUrl/$registrarApiVersion/deactivate"
     private const val didUpdateUrl = "$registrarUrl/$registrarApiVersion/update"
@@ -53,7 +51,11 @@ object CheqdService {
         val pubKeyHex = Hex.toHexString(key.getPublicKeyBytes())
 //        step#1. fetch the did document from cheqd registrar
         val response = runBlocking {
-            client.get(String.format(didCreateUrl, verificationMethod, methodSpecificIdAlgo, network, pubKeyHex)).bodyAsText()
+            client.get("$registrarUrl/$registrarApiVersion/did-document" +
+                    "?verificationMethod=$verificationMethod" +
+                    "&methodSpecificIdAlgo=$methodSpecificIdAlgo" +
+                    "&network=$network" +
+                    "&publicKeyHex=$pubKeyHex").bodyAsText()
         }
 //        step#2. onboard did with cheqd registrar
         KlaxonWithConverters().parse<DidGetResponse>(response)?.let {
@@ -76,7 +78,7 @@ object CheqdService {
     }
 
     fun deactivateDid(did: String) {
-        val job = initiateDidJob(didCreateUrl, KlaxonWithConverters().toJsonString(JobDeactivateRequest(did)))
+        val job = initiateDidJob(didDeactivateUrl, KlaxonWithConverters().toJsonString(JobDeactivateRequest(did)))
             ?: throw Exception("Failed to initialize the did onboarding process")
         val signatures = signPayload(KeyId(""), job)
         val didDocument = (finalizeDidJob(
