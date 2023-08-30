@@ -23,8 +23,9 @@ class KeyCommandTest : StringSpec({
         val e = shouldThrow<PrintHelpMessage> {
             GenKeyCommand().parse(listOf("--help"))
         }
-        val message = e.command.getFormattedHelp()
-        message shouldContain "-a, --algorithm [Ed25519|Secp256k1|RSA|Secp256r1]"
+        val message = e.context?.command?.getFormattedHelp()
+        message shouldContain "--algorithm"
+        message shouldContain "Ed25519|Secp256k1|RSA|Secp256r1"
     }
 
     "2. key generate" {

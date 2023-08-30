@@ -67,10 +67,9 @@ class EssifCommandTest : StringSpec({
         val e = shouldThrow<PrintHelpMessage> {
             EssifOnboardingCommand().parse(listOf("--help"))
         }
-        val message = e.command.getFormattedHelp()
-        println(message)
-        message shouldContain "BEARER-TOKEN-FILE"
-        message shouldContain "-d, --did"
+        val message = e.context?.command?.getFormattedHelp()
+        message shouldContain "bearer-token-file"
+        message shouldContain "--did"
     }
 
     /**
