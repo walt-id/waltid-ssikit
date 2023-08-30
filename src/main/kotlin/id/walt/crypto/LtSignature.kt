@@ -48,10 +48,12 @@ open class LtSignature(val algorithm: String) : SignatureSpi() {
         return cryptoService.verify(keyId!!, sigBytes!!, b!!)
     }
 
+    @Deprecated("Deprecated in Java")
     override fun engineSetParameter(param: String?, value: Any?) {
         TODO("Not yet implemented")
     }
 
+    @Deprecated("Deprecated in Java")
     override fun engineGetParameter(param: String?): Any {
         TODO("Not yet implemented")
     }
