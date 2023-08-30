@@ -40,7 +40,7 @@ jobs:
             - name: Gradle wrapper validation
               uses: gradle/wrapper-validation-action@v1
 
-            - name: Setup Gradle
+            - name: Gradle Build and Publish
               uses: gradle/gradle-build-action@v2
               env:
                   MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
