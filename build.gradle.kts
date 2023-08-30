@@ -73,14 +73,14 @@ dependencies {
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.5")
 
     // HTTP
-    implementation("io.ktor:ktor-client-jackson-jvm:2.2.4")
-    implementation("io.ktor:ktor-client-content-negotiation:2.2.4")
-    implementation("io.ktor:ktor-client-core-jvm:2.2.4")
-    implementation("io.ktor:ktor-client-cio-jvm:2.2.4")
-    implementation("io.ktor:ktor-client-auth:2.2.4")
-    implementation("io.ktor:ktor-client-okhttp:2.2.4")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:2.2.4")
-    implementation("io.ktor:ktor-client-logging-jvm:2.2.4")
+    implementation("io.ktor:ktor-client-jackson-jvm:2.3.3")
+    implementation("io.ktor:ktor-client-content-negotiation:2.3.3")
+    implementation("io.ktor:ktor-client-core-jvm:2.3.3")
+    implementation("io.ktor:ktor-client-cio-jvm:2.3.3")
+    implementation("io.ktor:ktor-client-auth-jvm:2.3.3")
+    implementation("io.ktor:ktor-client-okhttp-jvm:2.3.3")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.3")
+    implementation("io.ktor:ktor-client-logging-jvm:2.3.3")
 
     // REST
     implementation("io.javalin:javalin:4.6.7")
@@ -94,9 +94,9 @@ dependencies {
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.4")
 
     // Config
-    implementation("com.sksamuel.hoplite:hoplite-core:2.6.5")
-    implementation("com.sksamuel.hoplite:hoplite-yaml:2.6.5")
-    implementation("com.sksamuel.hoplite:hoplite-hikaricp:2.6.5")
+    implementation("com.sksamuel.hoplite:hoplite-core:2.7.5")
+    implementation("com.sksamuel.hoplite:hoplite-yaml:2.7.5")
+    implementation("com.sksamuel.hoplite:hoplite-hikaricp:2.7.5")
 
     // Service-Matrix
     implementation("id.walt.servicematrix:WaltID-ServiceMatrix:1.1.3")

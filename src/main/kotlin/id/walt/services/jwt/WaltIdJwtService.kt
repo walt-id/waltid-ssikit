@@ -172,7 +172,7 @@ open class WaltIdJwtService : JwtService() {
 
         val res = verifyJwt(verifierKey, jwt)
 
-        log.debug { "JWT verified returned:  $res" }
+        log.debug { "JWT verified returned:  $res (with key: ${verifierKey.keyId})" }
         return JwtVerificationResult(res)
     }
 
