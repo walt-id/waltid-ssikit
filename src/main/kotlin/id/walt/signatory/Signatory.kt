@@ -29,6 +29,11 @@ enum class Ecosystem {
     IOTA
 }
 
+enum class JwtPayloadUpdate {
+    YES, // Will updated the payload at JWT Credentials with the claim-set according the EBSI specs
+    NO
+}
+
 data class ProofConfig(
     val issuerDid: String,
     @Json(serializeNull = false) val subjectDid: String? = null,
@@ -49,7 +54,8 @@ data class ProofConfig(
     @Json(serializeNull = false) val statusType: CredentialStatus.Types? = null,
     @Json(serializeNull = false) val statusPurpose: String = "revocation",
     @Json(serializeNull = false) val credentialsEndpoint: String? = null,
-    @Json(serializeNull = false) @SDMapProperty val selectiveDisclosure: SDMap? = null
+    @Json(serializeNull = false) @SDMapProperty val selectiveDisclosure: SDMap? = null,
+    @Json(serializeNull = false) val jwtPayloadUpdate: JwtPayloadUpdate? = JwtPayloadUpdate.YES,
 )
 
 data class SignatoryConfig(

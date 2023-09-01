@@ -71,7 +71,8 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
             statusPurpose = config.statusPurpose,
             statusType = config.statusType,
             credentialsEndpoint = config.credentialsEndpoint,
-            selectiveDisclosure = config.selectiveDisclosure
+            selectiveDisclosure = config.selectiveDisclosure,
+            jwtPayloadUpdate = config.jwtPayloadUpdate
         )
     }
 
@@ -100,15 +101,19 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
     ): String {
         val fullProofConfig = fillProofConfig(config)
         val vcRequest = credentialBuilder.apply {
-            issuer?.let { setIssuer(it) }
-            setIssuerId(fullProofConfig.issuerDid)
-            setIssuanceDate(fullProofConfig.issueDate ?: Instant.now())
-            setIssued(fullProofConfig.issueDate ?: Instant.now())
-            fullProofConfig.subjectDid?.let { setSubjectId(it) }
-            setId(fullProofConfig.credentialId.orEmpty().ifEmpty { "urn:uuid:${UUID.randomUUID()}" })
-            setIssuanceDate(fullProofConfig.issueDate ?: Instant.now())
-            setValidFrom(fullProofConfig.validDate ?: Instant.now())
-            fullProofConfig.expirationDate?.let { setExpirationDate(it) }
+
+            if (config.jwtPayloadUpdate == JwtPayloadUpdate.YES) {
+                issuer?.let { setIssuer(it) }
+                setIssuerId(fullProofConfig.issuerDid)
+                setIssuanceDate(fullProofConfig.issueDate ?: Instant.now())
+                setIssued(fullProofConfig.issueDate ?: Instant.now())
+                fullProofConfig.subjectDid?.let { setSubjectId(it) }
+                setId(fullProofConfig.credentialId.orEmpty().ifEmpty { "urn:uuid:${UUID.randomUUID()}" })
+                setIssuanceDate(fullProofConfig.issueDate ?: Instant.now())
+                setValidFrom(fullProofConfig.validDate ?: Instant.now())
+                fullProofConfig.expirationDate?.let { setExpirationDate(it) }
+            }
+
         }.let { builder ->
             config.statusType?.let {
                 W3CCredentialBuilderWithCredentialStatus(builder, config)

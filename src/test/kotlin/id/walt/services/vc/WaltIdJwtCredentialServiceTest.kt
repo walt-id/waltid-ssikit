@@ -10,6 +10,7 @@ import id.walt.credentials.w3c.toPresentableCredential
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.credentials.w3c.toVerifiablePresentation
 import id.walt.crypto.KeyAlgorithm
+import id.walt.crypto.encBase64Str
 import id.walt.custodian.Custodian
 import id.walt.model.DidMethod
 import id.walt.sdjwt.SDJwt
@@ -19,10 +20,7 @@ import id.walt.services.did.DidEbsiCreateOptions
 import id.walt.services.did.DidService
 import id.walt.services.jwt.JwtService
 import id.walt.services.key.KeyService
-import id.walt.signatory.Ecosystem
-import id.walt.signatory.ProofConfig
-import id.walt.signatory.ProofType
-import id.walt.signatory.Signatory
+import id.walt.signatory.*
 import id.walt.test.RESOURCES_PATH
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.collections.shouldContain
@@ -120,6 +118,39 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
         claims shouldContainKey "vc"
     }
 
+    @Test
+    fun testSignedVcNoPayloadUpdate() {
+        val credential = credentialService.sign(
+            VerifiableCredential().encode(),
+            ProofConfig(
+                credentialId = id,
+                issuerDid = issuerDid,
+                subjectDid = subjectDid,
+                issueDate = issueDate,
+                validDate = validDate,
+                expirationDate = expirationDate,
+                jwtPayloadUpdate = JwtPayloadUpdate.NO
+            )
+        )
+
+        val payload = ("{\n" +
+                "  \"vc\": {\n" +
+                "    \"type\": [\n" +
+                "      \"VerifiableCredential\"\n" +
+                "    ],\n" +
+                "    \"@context\": [\n" +
+                "      \"https://www.w3.org/2018/credentials/v1\"\n" +
+                "    ]\n" +
+                "  }\n" +
+                "}").replace("\n", "").replace("\r", "").replace(" ", "")
+
+        val b64Payload = encBase64Str(payload).replace("=", "") // JWTs must not use padding
+
+        val b64CredPayload = credential.split(".")[1]
+
+        b64CredPayload shouldBe b64Payload
+
+    }
 
     @Test
     fun testVerifyVc() = credentialService.verifyVc(
@@ -206,7 +237,11 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
 
         val parsedSdJwt = SDJwt.parse(issuedVID)
         parsedSdJwt.disclosures shouldHaveSize 3
-        parsedSdJwt.disclosureObjects.map { sd -> sd.key } shouldContainAll setOf("credentialSubject", "firstName", "dateOfBirth")
+        parsedSdJwt.disclosureObjects.map { sd -> sd.key } shouldContainAll setOf(
+            "credentialSubject",
+            "firstName",
+            "dateOfBirth"
+        )
 
         Auditor.getService().verify(issuedVID, listOf(SignaturePolicy())).result shouldBe true
 
@@ -220,33 +255,48 @@ class WaltIdJwtCredentialServiceTest : AnnotationSpec() {
         //  3) disclose credentialSubject + 1 nested sd prop,
         //  4) disclose all
 
-        val presentation1 = Custodian.getService().createPresentation(listOf(
-            issuedVID.toPresentableCredential(discloseAll = false)
-        ), issuerDid)
+        val presentation1 = Custodian.getService().createPresentation(
+            listOf(
+                issuedVID.toPresentableCredential(discloseAll = false)
+            ), issuerDid
+        )
         val presentedvid1 = presentation1.toVerifiablePresentation().verifiableCredential!!.first()
         presentedvid1.credentialSubject shouldBe null
         Auditor.getService().verify(presentation1, listOf(SignaturePolicy())).result shouldBe true
 
-        val presentation2 = Custodian.getService().createPresentation(listOf(
-            issuedVID.toPresentableCredential(SDMap.generateSDMap(setOf("credentialSubject")))
-        ), issuerDid)
+        val presentation2 = Custodian.getService().createPresentation(
+            listOf(
+                issuedVID.toPresentableCredential(SDMap.generateSDMap(setOf("credentialSubject")))
+            ), issuerDid
+        )
         val presentedvid2 = presentation2.toVerifiablePresentation().verifiableCredential!!.first()
         presentedvid2.credentialSubject shouldNotBe null
         presentedvid2.credentialSubject!!.properties.keys shouldNotContainAnyOf setOf("firstName", "dateOfBirth")
         Auditor.getService().verify(presentation2, listOf(SignaturePolicy())).result shouldBe true
 
-        val presentation3 = Custodian.getService().createPresentation(listOf(
-            issuedVID.toPresentableCredential(SDMap.generateSDMap(setOf("credentialSubject", "credentialSubject.firstName")))
-        ), issuerDid)
+        val presentation3 = Custodian.getService().createPresentation(
+            listOf(
+                issuedVID.toPresentableCredential(
+                    SDMap.generateSDMap(
+                        setOf(
+                            "credentialSubject",
+                            "credentialSubject.firstName"
+                        )
+                    )
+                )
+            ), issuerDid
+        )
         val presentedvid3 = presentation3.toVerifiablePresentation().verifiableCredential!!.first()
         presentedvid3.credentialSubject shouldNotBe null
         presentedvid3.credentialSubject!!.properties.keys shouldNotContainAnyOf setOf("dateOfBirth")
         presentedvid3.credentialSubject!!.properties.keys shouldContainAll setOf("firstName")
         Auditor.getService().verify(presentation3, listOf(SignaturePolicy())).result shouldBe true
 
-        val presentation4 = Custodian.getService().createPresentation(listOf(
-            issuedVID.toPresentableCredential(discloseAll = true)
-        ), issuerDid)
+        val presentation4 = Custodian.getService().createPresentation(
+            listOf(
+                issuedVID.toPresentableCredential(discloseAll = true)
+            ), issuerDid
+        )
         val presentedvid4 = presentation4.toVerifiablePresentation().verifiableCredential!!.first()
         presentedvid4.credentialSubject shouldNotBe null
         presentedvid4.credentialSubject!!.properties.keys shouldContainAll setOf("firstName", "dateOfBirth")

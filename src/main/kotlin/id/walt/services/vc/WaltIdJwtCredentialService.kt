@@ -11,6 +11,7 @@ import id.walt.sdjwt.SDPayload
 import id.walt.sdjwt.toSDMap
 import id.walt.services.did.DidService
 import id.walt.services.jwt.JwtService
+import id.walt.signatory.JwtPayloadUpdate
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import kotlinx.serialization.json.Json
@@ -38,7 +39,7 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
         val issuerDid = config.issuerDid
         val issueDate = config.issueDate ?: Instant.now()
         val validDate = config.validDate ?: Instant.now()
-        val jwtClaimsSet = JWTClaimsSet.Builder()
+        var jwtClaimsSet = JWTClaimsSet.Builder()
             .jwtID(config.credentialId)
             .issuer(issuerDid)
             .subject(config.subjectDid)
@@ -54,6 +55,10 @@ open class WaltIdJwtCredentialService : JwtCredentialService() {
         val vcClaim = when (crd) {
             is VerifiablePresentation -> JWT_VP_CLAIM
             else -> JWT_VC_CLAIM
+        }
+
+        if (config.jwtPayloadUpdate == JwtPayloadUpdate.NO) {
+            jwtClaimsSet = JWTClaimsSet.Builder()
         }
 
         jwtClaimsSet.claim(vcClaim, JsonConverter.fromJsonElement(crd.toJsonObject()))
