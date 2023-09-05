@@ -9,7 +9,6 @@ import id.walt.model.AuthRequestResponse
 import id.walt.model.TrustedIssuer
 import id.walt.model.TrustedIssuerType
 import id.walt.services.WaltIdServices
-import id.walt.services.ecosystems.essif.didebsi.EBSI_ENV_URL
 import id.walt.services.ecosystems.essif.enterprisewallet.EnterpriseWalletService
 import id.walt.services.ecosystems.essif.mock.DidRegistry
 import io.ktor.client.call.*
@@ -23,50 +22,14 @@ private val log = KotlinLogging.logger {}
 
 object TrustedIssuerClient {
 
-    // TODO: move to config file
-    val domain = EBSI_ENV_URL
-    //val domain = "https://api.test.intebsi.xyz"
-
-    val authorisation = "$domain/authorisation/v2"
-    val onboarding = "$domain/users-onboarding/v2"
-    const val apiVersion = "v3"
-    const val schemaApiVersion = "v2"
-    const val trustedIssuerPath = "trusted-issuers-registry/$apiVersion/issuers"
-    const val trustedSchemaPath = "trusted-schemas-registry/$schemaApiVersion/schemas"
+    val authorisation = "${EbsiEnvironment.url()}/authorisation/v2"
+    val  onboarding = "${EbsiEnvironment.url()}/users-onboarding/v2"
+    const val trustedIssuerPath = "trusted-issuers-registry/v3/issuers"
+    const val trustedSchemaPath = "trusted-schemas-registry/v2/schemas"
 
     private const val attributesPath = "attributes"
-    private const val trustedIssuerUrl = "http://localhost:7001/v2/trusted-issuer"
     private val enterpriseWalletService = EnterpriseWalletService.getService()
     private val httpClient = WaltIdServices.httpNoAuth
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////
-    // Used for VC exchange flows
-
-    // Stubs
-//    fun generateAuthenticationRequest(): String {
-//        return EssifServer.generateAuthenticationRequest()
-//    }
-//
-//    fun openSession(authResp: String): String {
-//        return EssifServer.openSession(authResp)
-//    }
-
-    fun generateAuthenticationRequest(): String = runBlocking {
-        return@runBlocking httpClient.post("$trustedIssuerUrl/generateAuthenticationRequest") {
-            contentType(ContentType.Application.Json)
-            accept(ContentType.Application.Json)
-        }.bodyAsText()
-    }
-
-
-    fun openSession(authResp: String): String = runBlocking {
-        return@runBlocking httpClient.post("$trustedIssuerUrl/openSession") {
-            contentType(ContentType.Application.Json)
-            accept(ContentType.Application.Json)
-            setBody(authResp)
-        }.body<String>()
-    }
-
 
     ///////////////////////////////////////////////////////////////////////////////////////////////
     // Used for registering DID EBSI
@@ -98,20 +61,9 @@ object TrustedIssuerClient {
         }.bodyAsText()
     }
 
-    fun siopSessionBearer(idToken: String, bearerToken: String): String = runBlocking {
-        return@runBlocking httpClient.post("$authorisation/siop-sessions") {
-            contentType(ContentType.Application.Json)
-            accept(ContentType.Application.Json)
-            headers {
-                append(HttpHeaders.Authorization, "Bearer $bearerToken")
-            }
-            setBody(mapOf("id_token" to idToken))
-        }.bodyAsText()
-    }
-
     // GET /issuers/{did}
     // returns trusted issuer record
-    fun getIssuerRaw(did: String, registryAddress: String = "$domain/$trustedIssuerPath"): String = runBlocking {
+    fun getIssuerRaw(did: String, registryAddress: String = "${EbsiEnvironment.url()}/$trustedIssuerPath"): String = runBlocking {
         log.debug { "Getting trusted issuer with DID $did" }
         val trustedIssuer: String = resolveContent("$registryAddress/$did")
         log.debug { trustedIssuer }
@@ -121,7 +73,7 @@ object TrustedIssuerClient {
     fun getIssuer(did: String, registryAddress: String): TrustedIssuer =
         Klaxon().parse<TrustedIssuer>(getIssuerRaw(did, registryAddress))!!
 
-    fun getIssuer(did: String): TrustedIssuer = getIssuer(did, "$domain/$trustedIssuerPath")
+    fun getIssuer(did: String): TrustedIssuer = getIssuer(did, "${EbsiEnvironment.url()}/$trustedIssuerPath")
 
     @Deprecated(
         "Mock solution for ebsi registry. To be removed",
@@ -138,7 +90,7 @@ object TrustedIssuerClient {
     }
 
     fun getAttribute(did: String, attributeId: String) =
-        getAttribute("$domain/$trustedIssuerPath/$did/$attributesPath/$attributeId")
+        getAttribute("${EbsiEnvironment.url()}/$trustedIssuerPath/$did/$attributesPath/$attributeId")
 
     fun getAttribute(url: String) = resolveContent(url).let {
         KlaxonWithConverters().parse<AttributeRecord>(it)!!

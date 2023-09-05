@@ -9,6 +9,7 @@ import id.walt.model.DidMethod
 import id.walt.model.TrustedIssuer
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.did.DidService
+import id.walt.services.ecosystems.essif.EbsiEnvironment
 import id.walt.services.ecosystems.essif.TrustedIssuerClient
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
@@ -25,7 +26,7 @@ import org.junit.jupiter.api.assertAll
 @Ignored
 class TrustedIssuerRegistryPolicyTest : AnnotationSpec() {
 
-    private val defaultRegistry = "${TrustedIssuerClient.domain}/${TrustedIssuerClient.trustedIssuerPath}"
+    private val defaultRegistry = "${EbsiEnvironment.url()}/${TrustedIssuerClient.trustedIssuerPath}"
     private val otherRegistry = "http://my-other-registry.org/v3/issuers/"
 
     private val simplePolicy = EbsiTrustedIssuerRegistryPolicy();

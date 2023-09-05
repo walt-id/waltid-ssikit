@@ -2,8 +2,7 @@ package id.walt.services.ecosystems.essif.didebsi
 
 import id.walt.crypto.canonicalize
 import id.walt.services.did.DidService
-import id.walt.services.ecosystems.essif.TrustedIssuerClient
-import id.walt.services.ecosystems.essif.jsonrpc.InsertDidDocumentParams
+import id.walt.services.ecosystems.essif.jsonrpc.InsertDidDocumentV3Params
 import id.walt.services.ecosystems.essif.jsonrpc.JsonRpcService
 import id.walt.services.key.KeyService
 import kotlinx.coroutines.runBlocking
@@ -12,31 +11,26 @@ import org.web3j.crypto.Hash
 import org.web3j.utils.Numeric
 import kotlin.random.Random
 
-var EBSI_ENV_URL = System.getenv()["EBSI_ENV_URL"] ?: "https://api-pilot.ebsi.eu"
-
-open class WaltIdDidEbsiService : DidEbsiService() {
-
-    companion object {
-        private val DID_REGISTRY_JSONRPC =
-            "$EBSI_ENV_URL/did-registry/${TrustedIssuerClient.apiVersion}/jsonrpc" // TODO: make url configurable
-    }
+open class WaltIdDidEbsiV3Service : DidEbsiService() {
 
     private val log = KotlinLogging.logger {}
     private val jsonRpcService = JsonRpcService.getService()
     private val keyService = KeyService.getService()
 
+    override fun apiVersion(): String = "v3"
+
     override fun registerDid(did: String, ethKeyAlias: String) = runBlocking {
-        log.debug { "Running EBSI DID registration... " }
+        log.debug { "Running EBSI${apiVersion()} DID registration... " }
 
         val unsignedTransactionParams = buildUnsignedTransactionParams(did, ethKeyAlias)
         log.debug { "Insert document request: $unsignedTransactionParams" }
 
-        jsonRpcService.execute(did, ethKeyAlias, DID_REGISTRY_JSONRPC, "insertDidDocument", unsignedTransactionParams)
-        log.debug { "EBSI DID registration completed successfully" }
+        jsonRpcService.execute(did, ethKeyAlias, rpcUrl(), "insertDidDocument", unsignedTransactionParams)
+        log.debug { "EBSI${apiVersion()} DID registration completed successfully" }
     }
 
     // TODO: Verify all params are properly defined according to EBSI expectations => https://ec.europa.eu/cefdigital/wiki/pages/viewpage.action?spaceKey=EBP&title=DID+Registry+Smart+Contract
-    override fun buildUnsignedTransactionParams(did: String, ethKeyAlias: String?): List<InsertDidDocumentParams> {
+    override fun buildUnsignedTransactionParams(did: String, ethKeyAlias: String?): List<InsertDidDocumentV3Params> {
         val didDocumentString = DidService.load(did).encode()
 
         val from = keyService.getEthereumAddress(ethKeyAlias ?: did)
@@ -49,7 +43,7 @@ open class WaltIdDidEbsiService : DidEbsiService() {
             Numeric.toHexString("{\"meta\":\"${Numeric.toHexStringNoPrefix(Random.Default.nextBytes(32))}\"}".toByteArray()) // TODO: check what data needs to be put here
 
         return listOf(
-            InsertDidDocumentParams(from, identifier, 1, hashValue, didVersionInfo, timestampData, didVersionMetadata)
+            InsertDidDocumentV3Params(from, identifier, 1, hashValue, didVersionInfo, timestampData, didVersionMetadata)
         )
     }
 }

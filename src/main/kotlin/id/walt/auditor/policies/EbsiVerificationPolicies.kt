@@ -8,6 +8,7 @@ import id.walt.credentials.w3c.VerifiablePresentation
 import id.walt.model.TrustedIssuerType
 import id.walt.services.WaltIdServices
 import id.walt.services.did.DidService
+import id.walt.services.ecosystems.essif.EbsiEnvironment
 import id.walt.services.ecosystems.essif.TrustedIssuerClient
 import io.ktor.client.plugins.*
 import io.ktor.client.request.*
@@ -32,7 +33,7 @@ class EbsiTrustedSchemaRegistryPolicy : SimpleVerificationPolicy() {
             val credentialSchemaUrl = vc.credentialSchema?.id?.takeIf { it.isNotEmpty() }
                 ?: return VerificationPolicyResult.failure(IllegalArgumentException("Credential has no associated credentialSchema property"))
 
-            if (!credentialSchemaUrl.startsWith("${TrustedIssuerClient.domain}/${TrustedIssuerClient.trustedSchemaPath}")) {
+            if (!credentialSchemaUrl.startsWith("${EbsiEnvironment.url()}/${TrustedIssuerClient.trustedSchemaPath}")) {
                 return VerificationPolicyResult.failure(Throwable("No valid EBSI Trusted Schema Registry URL"))
             }
 
@@ -82,7 +83,7 @@ class EbsiTrustedIssuerRegistryPolicy(registryArg: EbsiTrustedIssuerRegistryPoli
         EbsiTrustedIssuerRegistryPolicyArg(registryAddress, issuerType)
     )
     constructor(issuerType: TrustedIssuerType) : this(
-        "${TrustedIssuerClient.domain}/${TrustedIssuerClient.trustedIssuerPath}",
+        "${EbsiEnvironment.url()}/${TrustedIssuerClient.trustedIssuerPath}",
         issuerType
     )
 
@@ -90,7 +91,7 @@ class EbsiTrustedIssuerRegistryPolicy(registryArg: EbsiTrustedIssuerRegistryPoli
 
     constructor() : this(
         EbsiTrustedIssuerRegistryPolicyArg(
-            "${TrustedIssuerClient.domain}/${TrustedIssuerClient.trustedIssuerPath}",
+            "${EbsiEnvironment.url()}/${TrustedIssuerClient.trustedIssuerPath}",
             TrustedIssuerType.TI
         )
     )

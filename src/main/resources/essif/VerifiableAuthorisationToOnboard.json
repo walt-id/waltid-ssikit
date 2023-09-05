@@ -1,0 +1,24 @@
+{
+  "@context": [
+    "https://www.w3.org/2018/credentials/v1"
+  ],
+  "type": [
+    "VerifiableCredential",
+    "VerifiableAttestation",
+    "VerifiableAuthorisationToOnboard"
+  ],
+  "issuer": "",
+  "credentialSubject": {
+    "id": "",
+    "accreditedFor": []
+  },
+  "termsOfUse": {
+    "id": "",
+    "type": "IssuanceCertificate"
+ 
+  },
+  "credentialSchema": {
+    "id": "https://api-pilot.ebsi.eu/trusted-schemas-registry/v2/schemas/z3MgUFUkb722uq4x3dv5yAJmnNmzDFeK5UC8x83QoeLJM",
+    "type": "FullJsonSchemaValidator2021"
+  }
+}

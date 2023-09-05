@@ -13,7 +13,7 @@ sealed class JsonRpcParams
 interface JsonRpcResponse
 
 @Serializable
-data class InsertDidDocumentParams(
+data class InsertDidDocumentV3Params(
     val from: String,
     val identifier: String,
     val hashAlgorithmId: Int,
@@ -21,6 +21,18 @@ data class InsertDidDocumentParams(
     val didVersionInfo: String,
     val timestampData: String,
     val didVersionMetadata: String
+) : JsonRpcParams()
+
+@Serializable
+data class InsertDidDocumentV5Params(
+    val from: String,
+    val did: String,
+    val baseDocument: String,
+    val vMethodId: String,
+    val publicKey: String,
+    val isSecp256k1: Boolean = true,
+    val notBefore: Long,
+    val notAfter: Long,
 ) : JsonRpcParams()
 
 @Serializable

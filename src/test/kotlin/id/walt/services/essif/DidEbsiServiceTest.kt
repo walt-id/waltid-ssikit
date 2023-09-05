@@ -6,6 +6,8 @@ import id.walt.crypto.buildKey
 import id.walt.servicematrix.ServiceMatrix
 import id.walt.services.context.ContextManager
 import id.walt.services.ecosystems.essif.didebsi.DidEbsiService
+import id.walt.services.ecosystems.essif.jsonrpc.InsertDidDocumentV3Params
+import id.walt.services.ecosystems.essif.jsonrpc.InsertDidDocumentV5Params
 import id.walt.services.hkvstore.HKVKey
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.matchers.shouldBe
@@ -58,7 +60,7 @@ class DidEbsiServiceTest : AnnotationSpec() {
     @Test
     fun testBuildInsertDocumentParams() {
         println("NEEDING DID EBSI 1")
-        val params = didEbsiService.buildUnsignedTransactionParams(DID)[0]
+        val params = didEbsiService.buildUnsignedTransactionParams(DID)[0] as InsertDidDocumentV3Params
 
         params.from shouldBe "0x7bfA7efe33fD22aaE73bE80eC9901755F55065c2"
         params.identifier shouldBe "0x6469643a656273693a323352335977574563374a316368656a6d776a68354a4461526a71767666366f67486e784a4e48557661657034663938"
