@@ -1,6 +1,6 @@
 package id.walt.services.ecosystems.essif
 
-var EBSI_ENV = System.getenv()["EBSI_ENV"] ?: "test"
+var EBSI_ENV = System.getenv()["EBSI_ENV"] ?: "pilot"
 
 object EbsiEnvironment {
     private const val pilotUrl = "https://api-pilot.ebsi.eu"

@@ -26,6 +26,9 @@ open class EnterpriseWalletService : WaltIdService() {
     private val keyService = KeyService.getService()
     private val jwtService = JwtService.getService()
 
+    /**
+     * ebsi-cli: createVcJwt
+     */
     fun constructAuthResponseJwt(did: String, redirectUri: String, nonce: String): String {
 
         //val kid = "$did#key-1"
