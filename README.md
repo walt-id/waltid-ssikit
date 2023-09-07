@@ -93,15 +93,13 @@ fun main() {
 
 ## Standards & Specifications
 
-- [EBSI Wallet Conformance](https://ec.europa.eu/digital-building-blocks/wikis/display/EBSIDOC/EBSI+Wallet+Conformance+Testing) 
+- [EBSI Wallet Conformance](https://api-conformance.ebsi.eu/docs/wallet-conformance) 
 - [Verifiable Credentials Data Model 1.0](https://www.w3.org/TR/vc-data-model/) 
+- [OpenID for Verifiable Credentials](https://openid.net/openid4vc/)
 - [Decentralized Identifiers (DIDs) v1.0](https://w3c.github.io/did-core/) 
 - [DID Method Rubric](https://w3c.github.io/did-rubric/)
 - [did:web Decentralized Identifier Method Specification](https://w3c-ccg.github.io/did-method-web/) 
 - [The did:key Method v0.7](https://w3c-ccg.github.io/did-method-key/)
-- [Self-Issued OpenID Provider v2](https://openid.net/specs/openid-connect-self-issued-v2-1_0.html)
-- [OpenID Connect for Verifiable Presentations](https://openid.net/specs/openid-connect-4-verifiable-presentations-1_0-07.html) 
-- [OpenID Connect for Verifiable Credential Issuance](https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html) 
 
 ## License
 
