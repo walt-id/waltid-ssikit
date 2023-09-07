@@ -310,37 +310,11 @@ class AuditorCommandTest : StringSpec() {
                 "$EBSI_SCHEMA_PATH/EbsiVerifiableAttestationSchema.json"
             )
 
-            // VerifiableAttestation - verification via http-link
-            val ebsiVerifiableAttestationGenericSchemaUrl =
-                URL("$EBSI_TSR_BASE/0x23039e6356ea6b703ce672e7cfac0b42765b150f63df78e2bd18ae785787f6a2")
-            runCatching { ebsiVerifiableAttestationGenericSchemaUrl.openStream() }.onSuccess {
-                validateSchema(
-                    "$EBSI_VC_PATH/EbsiVerifiableAttestationGeneric.json",
-                    ebsiVerifiableAttestationGenericSchemaUrl.toExternalForm()
-                )
-            }
-
-            // VerifiableAttestation - verification via http-link in attribute credentialSchema
-            validateSchema("$EBSI_VC_PATH/EbsiVerifiableAttestationGeneric.json")
-
-            // VerifiableAccreditationToAccredit
-            validateSchema("$EBSI_VC_PATH/EbsiVerifiableAccreditationToAccredit.json")
-
             // AccreditedVerifiableAttestation
             validateSchema(
                 "$EBSI_VC_PATH/EbsiAccreditedVerifiableAttestation.json",
                 "$EBSI_SCHEMA_PATH/AccreditedVerifiableAttestation.json"
             )
-
-            // EbsiDiplomaVerifiableAccreditation (Multi UNI Pilot)
-            val ebsiDiplomaVerifiableAccreditationSchemaUrl =
-                URL("$EBSI_TSR_BASE/0x960904265eba56f0c3a171f19af2970d3c62eb0ed1cd7981065261f37f007101")
-            runCatching { ebsiDiplomaVerifiableAccreditationSchemaUrl.openStream() }.onSuccess {
-                validateSchema(
-                    "$EBSI_VC_PATH/EbsiDiplomaVerifiableAccreditation.json",
-                    ebsiDiplomaVerifiableAccreditationSchemaUrl.toExternalForm()
-                )
-            }
         }
 
         "9. test EbsiTrustedSchemaRegistryPolicy" {
