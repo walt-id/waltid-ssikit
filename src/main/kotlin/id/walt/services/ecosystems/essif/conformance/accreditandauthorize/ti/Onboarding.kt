@@ -5,13 +5,13 @@ import id.walt.services.ecosystems.essif.conformance.CredentialIssuanceFlow
 import id.walt.services.ecosystems.essif.conformance.Test
 
 object Onboarding : Test {
-    override fun run() {
+    override suspend fun run() {
         ConformanceLog.log("Onboarding")
         requestCredential()
         registerDidDocument("")
     }
 
-    fun requestCredential() {
+    suspend fun requestCredential() {
         ConformanceLog.log("Request VerifiableAuthorisationToOnboard")
         val credential = CredentialIssuanceFlow.getCredential("VerifiableAuthorizationToOnboard")
     }

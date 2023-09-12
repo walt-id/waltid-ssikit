@@ -6,12 +6,13 @@ object EbsiEnvironment {
     private const val pilotUrl = "https://api-pilot.ebsi.eu"
     private const val testUrl = "https://api-test.ebsi.eu"
     private const val conformanceUrl = "https://api-conformance.ebsi.eu"
+    private const val prodUrl = "https://api-conformance.ebsi.eu"
     private const val localUrl = "http://localhost:8080"
 
     fun url() = when (EBSI_ENV) {
         "pilot" -> pilotUrl
         "conformance" -> conformanceUrl
         "local" -> localUrl
-        else -> testUrl
+        else -> pilotUrl
     }
 }
