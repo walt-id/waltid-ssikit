@@ -6,7 +6,7 @@ import id.walt.services.ecosystems.essif.conformance.accreditandauthorize.tao.Tr
 import id.walt.services.ecosystems.essif.conformance.accreditandauthorize.ti.TrustedIssuerTests
 
 object AccreditAndAuthorizeTests : Test {
-    override fun run() {
+    override suspend fun run() {
         TrustedIssuerTests.run()
         TrustedAccreditationOrganizationTests.run()
         RootTrustedAccreditationOrganizationTests.run()
