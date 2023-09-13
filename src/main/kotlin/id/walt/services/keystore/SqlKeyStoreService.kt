@@ -30,7 +30,7 @@ open class SqlKeyStoreService : KeyStoreService() {
                         listOf(
                             keyId.id,
                             keyPair!!.private?.toBase64(),
-                            keyPair!!.public.toBase64(),
+                            keyPair!!.public?.toBase64(),
                             algorithm.name,
                             cryptoProvider.name
                         ).forEachIndexed { index, str -> str?.let { statement.setString(index + 1, str) } }

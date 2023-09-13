@@ -63,8 +63,7 @@ open class FileSystemKeyStoreService : KeyStoreService() {
     override fun store(key: Key) {
         addAlias(key.keyId, key.keyId.id)
         storeKeyMetaData(key)
-        storePublicKey(key)
-        storePrivateKeyWhenExisting(key)
+        storeAvailableKeys(key)
 
 //        saveEncPublicKey(key.keyId.id, key.keyPair!!.public)
 //        saveEncPrivateKey(key.keyId.id, key.keyPair!!.private)
@@ -81,31 +80,32 @@ open class FileSystemKeyStoreService : KeyStoreService() {
         deleteKeyAlias(alias)
     }
 
-    private fun storePublicKey(key: Key) =
+    private fun storeAvailableKeys(key: Key) = run {
+        key.keyPair?.run {
+            this.private?.run { saveKey(key.keyId, this) }
+//            this.public?.run { saveKey(key.keyId, this) }
+        }
+        runCatching { key.getPublicKey() }.onSuccess { saveKey(key.keyId, it) }
+    }
+
+    private fun saveKey(keyId: KeyId, key: java.security.Key) = when (key) {
+        is PrivateKey -> "enc-privkey"
+        is PublicKey -> "enc-pubkey"
+        else -> throw IllegalArgumentException()
+    }.run {
         saveKeyData(
-            key, "enc-pubkey",
-            when (KEY_FORMAT) {
-                KeyFormat.PEM -> key.getPublicKey().toPEM()
-                else -> key.getPublicKey().toBase64()
+            keyId, this, when (KEY_FORMAT) {
+                KeyFormat.PEM -> key.toPEM()
+                else -> key.toBase64()
             }.toByteArray()
         )
-
-    private fun storePrivateKeyWhenExisting(key: Key) {
-        if (key.keyPair != null && key.keyPair!!.private != null) {
-            saveKeyData(
-                key, "enc-privkey", when (KEY_FORMAT) {
-                    KeyFormat.PEM -> key.keyPair!!.private.toPEM()
-                    else -> key.keyPair!!.private.toBase64()
-                }.toByteArray()
-            )
-        }
     }
 
     private fun storeKeyMetaData(key: Key) {
-        saveKeyData(key, "meta", (key.algorithm.name + ";" + key.cryptoProvider.name).toByteArray())
+        saveKeyData(key.keyId, "meta", (key.algorithm.name + ";" + key.cryptoProvider.name).toByteArray())
     }
 
-    private fun saveKeyData(key: Key, suffix: String, data: ByteArray) = saveKeyFile(key.keyId.id, suffix, data)
+    private fun saveKeyData(keyId: KeyId, suffix: String, data: ByteArray) = saveKeyFile(keyId.id, suffix, data)
 
     //TODO consider deprecated methods below
 
