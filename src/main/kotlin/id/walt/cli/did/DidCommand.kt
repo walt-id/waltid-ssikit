@@ -65,11 +65,13 @@ class CreateDidCommand : CliktCommand(
         echo("Creating did:${method.method} (key: ${keyId})")
 
         val did = when (method) {
-            is WebMethodOption -> DidService.create(web, keyId, DidWebCreateOptions((method as WebMethodOption).domain, (method as WebMethodOption).path))
-            is EbsiMethodOption -> DidService.create(ebsi, keyId, DidEbsiCreateOptions((method as EbsiMethodOption).version))
-            is CheqdMethodOption -> DidService.create(cheqd, keyId, DidCheqdCreateOptions((method as CheqdMethodOption).network))
-            is KeyMethodOption -> DidService.create(key, keyId, DidKeyCreateOptions((method as KeyMethodOption).useJwkJcsPubMulticodec))
-            else -> DidService.create(DidMethod.valueOf(method.method), keyId)
+            is WebMethodOption -> DidWebCreateOptions((method as WebMethodOption).domain, (method as WebMethodOption).path)
+            is EbsiMethodOption -> DidEbsiCreateOptions((method as EbsiMethodOption).version)
+            is CheqdMethodOption -> DidCheqdCreateOptions((method as CheqdMethodOption).network)
+            is KeyMethodOption -> DidKeyCreateOptions((method as KeyMethodOption).useJwkJcsPubMulticodec)
+            else -> null
+        }.let{
+            DidService.create(DidMethod.valueOf(method.method), keyId, it)
         }
 
         echo("\nResults:\n")
