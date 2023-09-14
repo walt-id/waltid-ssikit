@@ -5,27 +5,27 @@ import id.walt.crypto.KeyAlgorithm
 import id.walt.crypto.KeyId
 import id.walt.crypto.newKeyId
 import id.walt.services.CryptoProvider
+import id.walt.services.key.deriver.PublicKeyDeriver
 import id.walt.services.keystore.KeyStoreService
 import mu.KotlinLogging
 import org.bouncycastle.asn1.ASN1ObjectIdentifier
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
-import org.bouncycastle.crypto.params.*
 import org.bouncycastle.openssl.PEMKeyPair
 import org.bouncycastle.openssl.PEMParser
 import java.io.StringReader
-import java.math.BigInteger
 import java.security.KeyFactory
 import java.security.KeyPair
 import java.security.PrivateKey
 import java.security.PublicKey
 import java.security.spec.PKCS8EncodedKeySpec
-import java.security.spec.RSAPrivateKeySpec
-import java.security.spec.RSAPublicKeySpec
 import java.security.spec.X509EncodedKeySpec
 
-class PemKeyImport(private val keyString: String) : KeyImportStrategy {
+class PemKeyImport(
+    private val keyString: String,
+    private val publicKeyDeriver: PublicKeyDeriver<PrivateKey>
+) : KeyImportStrategy {
 
     private val log = KotlinLogging.logger {}
 
@@ -88,33 +88,8 @@ class PemKeyImport(private val keyString: String) : KeyImportStrategy {
                 break
             }
         }
-//        pubKey = pubKey ?: computePublicKeyFromPrivate(privKey as AsymmetricKeyParameter)
-        pubKey = pubKey ?: computeRSAPublicKeyFromPrivate(privKey!!)
+        pubKey = pubKey ?: publicKeyDeriver.derive(privKey!!)
         return KeyPair(pubKey, privKey)
-    }
-
-    private fun computeRSAPublicKeyFromPrivate(privateKey: PrivateKey): PublicKey? = when(KeyAlgorithm.fromString(privateKey.algorithm)) {
-        KeyAlgorithm.RSA -> {
-            val kf = KeyFactory.getInstance("RSA")
-            val privateSpec = kf.getKeySpec(privateKey, RSAPrivateKeySpec::class.java)
-            val publicSpec = RSAPublicKeySpec(privateSpec.modulus, BigInteger.valueOf(65537))
-            kf.generatePublic(publicSpec)
-        }
-        else -> null
-    }
-
-    private fun computePublicKeyFromPrivate(privateKey: AsymmetricKeyParameter): AsymmetricKeyParameter = when (privateKey) {
-        is RSAPrivateCrtKeyParameters -> {
-            RSAKeyParameters(false, privateKey.modulus, privateKey.publicExponent)
-        }
-        is Ed25519PrivateKeyParameters -> {
-            privateKey.generatePublicKey()
-        }
-        is ECPrivateKeyParameters -> {
-            val q = privateKey.parameters.g.multiply(privateKey.d)
-            ECPublicKeyParameters(q, privateKey.parameters)
-        }
-        else -> throw IllegalArgumentException("Key type not supported.")
     }
 
     private fun getPublicKey(key: SubjectPublicKeyInfo): PublicKey {
