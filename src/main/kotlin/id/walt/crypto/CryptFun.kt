@@ -167,7 +167,7 @@ fun buildKey(
     keyId: String,
     algorithm: String,
     provider: String,
-    publicPart: String?,
+    publicPart: String,
     privatePart: String?,
     format: KeyFormat = KeyFormat.PEM
 ): Key {
@@ -179,15 +179,15 @@ fun buildKey(
     }
     val keyPair = when (format) {
         KeyFormat.PEM -> KeyPair(
-            publicPart?.let { decodePubKeyPem(it, keyFactory) },
+            decodePubKeyPem(publicPart, keyFactory),
             privatePart?.let { decodePrivKeyPem(it, keyFactory) })
 
         KeyFormat.BASE64_DER -> KeyPair(
-            publicPart?.let { decodePubKeyBase64(it, keyFactory) },
+            decodePubKeyBase64(publicPart, keyFactory),
             privatePart?.let { decodePrivKeyBase64(it, keyFactory) })
 
         KeyFormat.BASE64_RAW -> KeyPair(
-            publicPart?.let { decodeRawPubKeyBase64(it, keyFactory) },
+            decodeRawPubKeyBase64(publicPart, keyFactory),
             privatePart?.let { decodeRawPrivKey(it, keyFactory) })
     }
 

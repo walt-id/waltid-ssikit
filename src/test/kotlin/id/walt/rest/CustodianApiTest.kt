@@ -207,11 +207,11 @@ class CustodianApiTest : StringSpec({
     "Test import key PEM" {
         forAll(
 //            RSA PEM
-            row(readWhenContent(File("src/test/resources/key/rsa.pem"))),
+            row(readWhenContent(File("src/test/resources/key/pem/rsa/rsa.pem"))),
 //            Ed25519 PEM
-            row(readWhenContent(File("src/test/resources/key/ed25519.pem"))),
+            row(readWhenContent(File("src/test/resources/key/pem/ed25519/ed25519.pem"))),
 //            Secp256k1 PEM
-            row(readWhenContent(File("src/test/resources/key/secp256k1.pem"))),
+            row(readWhenContent(File("src/test/resources/key/pem/ecdsa/secp256k1.pem"))),
         ) { keyStr ->
             runBlocking {
                 val response =

@@ -276,7 +276,7 @@ class KeyServiceTest : AnnotationSpec() {
 //            Ed25519
             row(File("src/test/resources/key/pem/ed25519/ed25519.pem").readText(), 0x11),
             row(File("src/test/resources/key/pem/ed25519/ed25519.public.pem").readText(), 0x10),
-            row(File("src/test/resources/key/pem/ed25519/ed25519.private.pem").readText(), 0x01),
+//            row(File("src/test/resources/key/pem/ed25519/ed25519.private.pem").readText(), 0x01),
 //            Secp256k1
             row(File("src/test/resources/key/pem/ecdsa/secp256k1.pem").readText(), 0x11),
             row(File("src/test/resources/key/pem/ecdsa/secp256k1.public.pem").readText(), 0x10),

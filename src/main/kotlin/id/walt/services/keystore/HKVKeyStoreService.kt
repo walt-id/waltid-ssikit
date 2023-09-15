@@ -33,7 +33,7 @@ open class HKVKeyStoreService : KeyStoreService() {
         val algorithm = metaData.substringBefore(delimiter = ";")
         val provider = metaData.substringAfter(delimiter = ";")
 
-        val publicPart = if (keyType == KeyType.PUBLIC) loadKey(keyId, "enc-pubkey").decodeToString() else null
+        val publicPart = loadKey(keyId, "enc-pubkey").decodeToString()
         val privatePart = if (keyType == KeyType.PRIVATE) loadKey(keyId, "enc-privkey").decodeToString() else null
 
 
