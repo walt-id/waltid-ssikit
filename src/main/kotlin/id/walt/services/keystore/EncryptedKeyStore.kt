@@ -4,6 +4,8 @@ package id.walt.services.keystore
 import id.walt.crypto.*
 import id.walt.servicematrix.ServiceConfiguration
 import id.walt.services.hkvstore.enc.EncryptedHKVStore
+import java.security.PrivateKey
+import java.security.PublicKey
 import java.util.*
 import kotlin.io.path.Path
 import kotlin.io.path.name
@@ -65,8 +67,7 @@ class EncryptedKeyStore(configurationPath: String) : KeyStoreService() {
         // log.debug { "Storing key \"${key.keyId}\"." }
         addAlias(key.keyId, key.keyId.id)
         storeKeyMetaData(key)
-        storePublicKey(key)
-        storePrivateKeyWhenExisting(key)
+        storeAvailableKeys(key)
     }
 
     override fun getKeyId(alias: String) =
@@ -81,36 +82,34 @@ class EncryptedKeyStore(configurationPath: String) : KeyStoreService() {
         hkvs.deleteDocument(Path(keysRoot.name, keyId))
     }
 
-    private fun storePublicKey(key: Key) =
+    private fun storeAvailableKeys(key: Key) = run {
+        key.keyPair?.run {
+            this.private?.run { saveKey(key.keyId, this) }
+//            this.public?.run { saveKey(key.keyId, this) }
+        }
+        runCatching { key.getPublicKey() }.onSuccess { saveKey(key.keyId, it) }
+    }
+
+    private fun saveKey(keyId: KeyId, key: java.security.Key) = when (key) {
+        is PrivateKey -> "enc-privkey"
+        is PublicKey -> "enc-pubkey"
+        else -> throw IllegalArgumentException()
+    }.run {
         saveKeyData(
-            key = key,
-            suffix = "enc-pubkey",
-            data = when (keyFormat) {
-                KeyFormat.PEM -> key.getPublicKey().toPEM()
-                else -> key.getPublicKey().toBase64()
+            keyId, this, when (keyFormat) {
+                KeyFormat.PEM -> key.toPEM()
+                else -> key.toBase64()
             }.encodeToByteArray()
         )
-
-    private fun storePrivateKeyWhenExisting(key: Key) {
-        if (key.keyPair != null && key.keyPair!!.private != null) {
-            saveKeyData(
-                key = key,
-                suffix = "enc-privkey",
-                data = when (keyFormat) {
-                    KeyFormat.PEM -> key.keyPair!!.private.toPEM()
-                    else -> key.keyPair!!.private.toBase64()
-                }.encodeToByteArray()
-            )
-        }
     }
 
     private fun storeKeyMetaData(key: Key) {
-        saveKeyData(key, "meta", (key.algorithm.name + ";" + key.cryptoProvider.name).encodeToByteArray())
+        saveKeyData(key.keyId, "meta", (key.algorithm.name + ";" + key.cryptoProvider.name).encodeToByteArray())
     }
 
-    private fun saveKeyData(key: Key, suffix: String, data: ByteArray): Unit =
+    private fun saveKeyData(keyId: KeyId, suffix: String, data: ByteArray): Unit =
         hkvs.storeDocument(
-            path = Path(keysRoot.name, key.keyId.id, suffix),
+            path = Path(keysRoot.name, keyId.id, suffix),
             text = Base64.getEncoder().encodeToString(data)
         )
 

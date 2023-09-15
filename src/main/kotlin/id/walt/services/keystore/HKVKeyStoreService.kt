@@ -4,6 +4,8 @@ import id.walt.crypto.*
 import id.walt.services.context.ContextManager
 import id.walt.services.hkvstore.HKVKey
 import mu.KotlinLogging
+import java.security.PrivateKey
+import java.security.PublicKey
 
 open class HKVKeyStoreService : KeyStoreService() {
 
@@ -51,8 +53,7 @@ open class HKVKeyStoreService : KeyStoreService() {
         log.debug { "Storing key \"${key.keyId}\"." }
         addAlias(key.keyId, key.keyId.id)
         storeKeyMetaData(key)
-        storePublicKey(key)
-        storePrivateKeyWhenExisting(key)
+        storeAvailableKeys(key)
     }
 
     override fun getKeyId(alias: String) =
@@ -67,32 +68,33 @@ open class HKVKeyStoreService : KeyStoreService() {
         hkvStore.delete(HKVKey.combine(KEYS_ROOT, keyId), recursive = true)
     }
 
-    private fun storePublicKey(key: Key) =
+    private fun storeAvailableKeys(key: Key) = run {
+        key.keyPair?.run {
+            this.private?.run { saveKey(key.keyId, this) }
+//            this.public?.run { saveKey(key.keyId, this) }
+        }
+        runCatching { key.getPublicKey() }.onSuccess { saveKey(key.keyId, it) }
+    }
+
+    private fun saveKey(keyId: KeyId, key: java.security.Key) = when (key) {
+        is PrivateKey -> "enc-privkey"
+        is PublicKey -> "enc-pubkey"
+        else -> throw IllegalArgumentException()
+    }.run {
         saveKeyData(
-            key, "enc-pubkey",
-            when (KEY_FORMAT) {
-                KeyFormat.PEM -> key.getPublicKey().toPEM()
-                else -> key.getPublicKey().toBase64()
+            keyId, this, when (KEY_FORMAT) {
+                KeyFormat.PEM -> key.toPEM()
+                else -> key.toBase64()
             }.toByteArray()
         )
-
-    private fun storePrivateKeyWhenExisting(key: Key) {
-        if (key.keyPair != null && key.keyPair!!.private != null) {
-            saveKeyData(
-                key, "enc-privkey", when (KEY_FORMAT) {
-                    KeyFormat.PEM -> key.keyPair!!.private.toPEM()
-                    else -> key.keyPair!!.private.toBase64()
-                }.toByteArray()
-            )
-        }
     }
 
     private fun storeKeyMetaData(key: Key) {
-        saveKeyData(key, "meta", (key.algorithm.name + ";" + key.cryptoProvider.name).toByteArray())
+        saveKeyData(key.keyId, "meta", (key.algorithm.name + ";" + key.cryptoProvider.name).toByteArray())
     }
 
-    private fun saveKeyData(key: Key, suffix: String, data: ByteArray): Unit =
-        hkvStore.put(HKVKey.combine(KEYS_ROOT, key.keyId.id, suffix), data)
+    private fun saveKeyData(keyId: KeyId, suffix: String, data: ByteArray): Unit =
+        hkvStore.put(HKVKey.combine(KEYS_ROOT, keyId.id, suffix), data)
 
     private fun loadKey(keyId: String, suffix: String): ByteArray =
         HKVKey.combine(KEYS_ROOT, keyId, suffix)
