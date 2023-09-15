@@ -12,6 +12,8 @@ import org.bouncycastle.asn1.ASN1ObjectIdentifier
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
+import org.bouncycastle.crypto.params.AsymmetricKeyParameter
+import org.bouncycastle.crypto.util.PrivateKeyFactory
 import org.bouncycastle.openssl.PEMKeyPair
 import org.bouncycastle.openssl.PEMParser
 import java.io.StringReader
@@ -24,7 +26,7 @@ import java.security.spec.X509EncodedKeySpec
 
 class PemKeyImport(
     private val keyString: String,
-    private val publicKeyDeriver: PublicKeyDeriver<PrivateKey>
+    private val publicKeyDeriver: PublicKeyDeriver<AsymmetricKeyParameter>
 ) : KeyImportStrategy {
 
     private val log = KotlinLogging.logger {}
@@ -69,37 +71,39 @@ class PemKeyImport(
      * Parses a keypair out of a one or multiple objects
      */
     private fun getKeyPair(objs: List<Any>): KeyPair {
-        var pubKey: PublicKey? = null
-        var privKey: PrivateKey? = null
+        var pubKey: SubjectPublicKeyInfo? = null
+        var privKey: PrivateKeyInfo? = null
 
         objs.toList()
 
         log.debug { "Searching key pair in: $objs" }
         for (obj in objs) {
             if (obj is SubjectPublicKeyInfo) {
-                pubKey = getPublicKey(obj)
+                pubKey = obj
             }
             if (obj is PrivateKeyInfo) {
-                privKey = getPrivateKey(obj)
+                privKey = obj
             }
             if (obj is PEMKeyPair) {
-                pubKey = getPublicKey(obj.publicKeyInfo)
-                privKey = getPrivateKey(obj.privateKeyInfo)
+                pubKey = obj.publicKeyInfo
+                privKey = obj.privateKeyInfo
                 break
             }
         }
-        pubKey = pubKey ?: publicKeyDeriver.derive(privKey!!)
-        return KeyPair(pubKey, privKey)
+        return KeyPair(
+            getPublicKey(pubKey) ?: publicKeyDeriver.derive(PrivateKeyFactory.createKey(privKey)),
+            getPrivateKey(privKey)
+        )
     }
 
-    private fun getPublicKey(key: SubjectPublicKeyInfo): PublicKey {
-        val kf = getKeyFactory(key.algorithm.algorithm)
-        return kf.generatePublic(X509EncodedKeySpec(key.encoded))
+    private fun getPublicKey(key: SubjectPublicKeyInfo?): PublicKey? = key?.let {
+        val kf = getKeyFactory(it.algorithm.algorithm)
+        return kf.generatePublic(X509EncodedKeySpec(it.encoded))
     }
 
-    private fun getPrivateKey(key: PrivateKeyInfo): PrivateKey {
-        val kf = getKeyFactory(key.privateKeyAlgorithm.algorithm)
-        return kf.generatePrivate(PKCS8EncodedKeySpec(key.encoded))
+    private fun getPrivateKey(key: PrivateKeyInfo?): PrivateKey? = key?.let {
+        val kf = getKeyFactory(it.privateKeyAlgorithm.algorithm)
+        return kf.generatePrivate(PKCS8EncodedKeySpec(it.encoded))
     }
 
     private fun getKeyFactory(alg: ASN1ObjectIdentifier): KeyFactory = when (alg) {

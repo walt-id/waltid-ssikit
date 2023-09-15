@@ -1,5 +1,8 @@
 package id.walt.services.key
 
+import org.bouncycastle.asn1.edec.EdECObjectIdentifiers
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter
 import org.bouncycastle.crypto.params.ECPublicKeyParameters
 import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters
@@ -10,6 +13,7 @@ import java.security.PublicKey
 import java.security.spec.ECPoint
 import java.security.spec.ECPublicKeySpec
 import java.security.spec.RSAPublicKeySpec
+import java.security.spec.X509EncodedKeySpec
 
 class AsymmetricPublicKeyConverter {
 
@@ -28,7 +32,8 @@ class AsymmetricPublicKeyConverter {
     }
 
     private fun edAsymmetricKeyParameterToPublicKey(key: Ed25519PublicKeyParameters): PublicKey = let {
-        TODO()
+        val pubKeyInfo = SubjectPublicKeyInfo(AlgorithmIdentifier(EdECObjectIdentifiers.id_Ed25519), key.encoded)
+        KeyFactory.getInstance("Ed25519").generatePublic(X509EncodedKeySpec(pubKeyInfo.encoded))
     }
 
     private fun rsaAsymmetricKeyParameterToPublicKey(key: RSAKeyParameters): PublicKey = let {

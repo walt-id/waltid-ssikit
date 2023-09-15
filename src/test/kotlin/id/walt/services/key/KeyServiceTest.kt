@@ -12,6 +12,7 @@ import id.walt.services.crypto.SunCryptoService
 import id.walt.services.keystore.InMemoryKeyStoreService
 import id.walt.services.keystore.KeyType
 import id.walt.test.RESOURCES_PATH
+import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.data.blocking.forAll
@@ -276,7 +277,7 @@ class KeyServiceTest : AnnotationSpec() {
 //            Ed25519
             row(File("src/test/resources/key/pem/ed25519/ed25519.pem").readText(), 0x11),
             row(File("src/test/resources/key/pem/ed25519/ed25519.public.pem").readText(), 0x10),
-//            row(File("src/test/resources/key/pem/ed25519/ed25519.private.pem").readText(), 0x01),
+            row(File("src/test/resources/key/pem/ed25519/ed25519.private.pem").readText(), 0x01),
 //            Secp256k1
             row(File("src/test/resources/key/pem/ecdsa/secp256k1.pem").readText(), 0x11),
             row(File("src/test/resources/key/pem/ecdsa/secp256k1.public.pem").readText(), 0x10),
@@ -290,6 +291,7 @@ class KeyServiceTest : AnnotationSpec() {
                 }
                 0x01 -> {
                     keyService.export(kid.id, KeyFormat.PEM, KeyType.PRIVATE) shouldBe keyStr
+                    shouldNotThrow<Exception> { keyService.export(kid.id, KeyFormat.PEM, KeyType.PUBLIC) }
                 }
                 0x10 -> {
                     keyService.export(kid.id, KeyFormat.PEM, KeyType.PUBLIC) shouldBe keyStr
