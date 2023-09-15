@@ -28,7 +28,7 @@ class AsymmetricPublicKeyConverter {
         val ecParameterSpec = EC5Util.convertToSpec(key.parameters)
         val ecPoint: ECPoint = EC5Util.convertPoint(key.q)
         val ecPublicKeySpec = ECPublicKeySpec(ecPoint, ecParameterSpec)
-        KeyFactory.getInstance("EC").generatePublic(ecPublicKeySpec)
+        KeyFactory.getInstance("ECDSA").generatePublic(ecPublicKeySpec)
     }
 
     private fun edAsymmetricKeyParameterToPublicKey(key: Ed25519PublicKeyParameters): PublicKey = let {

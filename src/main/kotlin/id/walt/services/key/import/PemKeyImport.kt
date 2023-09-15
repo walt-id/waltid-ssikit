@@ -63,7 +63,7 @@ class PemKeyImport(
         return kid
     }
 
-    private fun getKeyAlgorithm(keyPair: KeyPair): KeyAlgorithm = (keyPair.public ?: keyPair.private).let {
+    private fun getKeyAlgorithm(keyPair: KeyPair): KeyAlgorithm = (keyPair.private ?: keyPair.public).let {
         KeyAlgorithm.fromString(it.algorithm)
     }
 
