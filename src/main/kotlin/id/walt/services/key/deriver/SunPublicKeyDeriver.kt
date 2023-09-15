@@ -4,7 +4,7 @@ import id.walt.crypto.KeyAlgorithm
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey
 //import sun.security.ec.ed.EdDSAOperations
 //import sun.security.ec.ed.EdDSAParameters
-//import java.security.InvalidAlgorithmParameterException
+import java.security.InvalidAlgorithmParameterException
 import java.security.KeyFactory
 import java.security.PrivateKey
 import java.security.PublicKey
@@ -13,7 +13,8 @@ import java.security.spec.EdECPublicKeySpec
 import java.security.spec.NamedParameterSpec
 import java.security.spec.RSAPublicKeySpec
 
-class DefaultPublicKeyDeriver: PublicKeyDeriver<PrivateKey> {
+
+class SunPublicKeyDeriver: PublicKeyDeriver<PrivateKey> {
     override fun derive(key: PrivateKey): PublicKey? = when (KeyAlgorithm.fromString(key.algorithm)) {
         KeyAlgorithm.RSA -> (key as? RSAPrivateCrtKey)?.let {
             KeyFactory.getInstance("RSA").generatePublic(RSAPublicKeySpec(it.modulus, it.publicExponent))

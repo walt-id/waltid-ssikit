@@ -13,7 +13,7 @@ class AsymmetricPublicKeyDeriver(
             RSAKeyParameters(false, key.modulus, key.publicExponent)
         }
         is Ed25519PrivateKeyParameters -> {
-            key.generatePublicKey()//TODO
+            key.generatePublicKey()
         }
         is ECPrivateKeyParameters -> {
             val q = key.parameters.g.multiply(key.d)
