@@ -1,5 +1,6 @@
 package id.walt.rest.custodian
 
+import com.beust.klaxon.JsonObject
 import id.walt.common.KlaxonWithConverters
 import id.walt.common.VCObjectList
 import id.walt.credentials.w3c.PresentableCredential
@@ -158,7 +159,7 @@ object CustodianController {
 
     fun storeCredentialsDocs() = document()
         .operation { it.summary("Stores a credential").operationId("storeCredential").addTagsItem("Credentials") }
-        .body<Map<String, Any>> {
+        .body<JsonObject> {
             it.description(
                 "The body should contain, the VC you want to store. If you don't want to adjust anything in the VC." +
                         "You can simply paste the response you've got from the create VC endpoint and ignore the described parameters."
@@ -189,7 +190,7 @@ object CustodianController {
                 .addTagsItem("Credentials")
         }
         .body<PresentCredentialsRequest>()
-        .json<Map<String, Any>>("200") { it.description("The newly created VerifiablePresentation") }
+        .json<JsonObject>("200") { it.description("The newly created VerifiablePresentation") }
 
 
     fun presentCredentials(ctx: Context) {
@@ -213,7 +214,7 @@ object CustodianController {
                 .addTagsItem("Credentials")
         }
         .body<PresentCredentialIdsRequest>()
-        .json<Map<String, Any>>("200") { it.description("The newly created VerifiablePresentation") }
+        .json<JsonObject>("200") { it.description("The newly created VerifiablePresentation") }
 
 
     fun presentCredentialIds(ctx: Context) {
