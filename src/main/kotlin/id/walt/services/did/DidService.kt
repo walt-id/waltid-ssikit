@@ -104,7 +104,7 @@ object DidService {
     //region did-delete
     fun deleteDid(didUrl: String) {
         loadOrResolveAnyDid(didUrl)?.let { did ->
-            didCache.invalidate(DidUrl.from(didUrl))
+            didCache.invalidate(did.url)
             ContextManager.hkvStore.delete(HKVKey("did", "created", didUrl), recursive = true)
             did.verificationMethod?.forEach {
                 ContextManager.keyStore.delete(it.id)
@@ -164,10 +164,9 @@ object DidService {
 
     fun loadOrResolveAnyDid(didStr: String): Did? {
         log.debug { "Loading or resolving \"$didStr\"..." }
-        val url = DidUrl.from(didStr)
         val storedDid = loadDid(didStr)
-
-        log.debug { "loadOrResolve: url=$url, length of stored=${storedDid?.length}" }
+        val url = runCatching { DidUrl.from(didStr) }.fold(onSuccess = { it }, onFailure = { null })
+        log.debug { "loadOrResolve: url=${url ?: didStr}, length of stored=${storedDid?.length}" }
         return when (storedDid) {
             null -> resolve(didStr).also { did -> storeDid(did) }
             else -> Did.decode(storedDid)
