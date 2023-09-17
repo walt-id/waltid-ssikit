@@ -1,6 +1,7 @@
 package id.walt.signatory
 
 import com.beust.klaxon.Json
+import id.walt.common.InstantValue
 import id.walt.common.SDMapProperty
 import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.W3CIssuer
@@ -39,9 +40,9 @@ data class ProofConfig(
     @Json(serializeNull = false) val nonce: String? = null,
     @Json(serializeNull = false) val proofPurpose: String? = null,
     @Json(serializeNull = false) val credentialId: String? = null,
-    @Json(serializeNull = false) val issueDate: Instant? = null, // issue date from json-input or current system time if null
-    @Json(serializeNull = false) val validDate: Instant? = null, // valid date from json-input or current system time if null
-    @Json(serializeNull = false) val expirationDate: Instant? = null,
+    @Json(serializeNull = false) @InstantValue val issueDate: Instant? = null, // issue date from json-input or current system time if null
+    @Json(serializeNull = false) @InstantValue val validDate: Instant? = null, // valid date from json-input or current system time if null
+    @Json(serializeNull = false) @InstantValue val expirationDate: Instant? = null,
     @Json(serializeNull = false) val dataProviderIdentifier: String? = null, // may be used for mapping data-sets from a custom data-provider
     @Json(serializeNull = false) val ldSignatureType: LdSignatureType? = null,
     @Json(serializeNull = false) val creator: String? = issuerDid,
@@ -90,4 +91,3 @@ abstract class Signatory : WaltIdService() {
     open fun removeTemplate(templateId: String): Unit = implementation.removeTemplate(templateId)
     open fun hasTemplateId(templateId: String): Boolean = implementation.hasTemplateId(templateId)
 }
-
