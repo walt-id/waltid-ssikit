@@ -11,6 +11,8 @@ plugins {
     id("com.github.jk1.dependency-license-report") version "2.5"
     application
     `maven-publish`
+
+    id("com.github.ben-manes.versions") version "0.48.0"
 }
 
 group = "id.walt"
@@ -46,8 +48,8 @@ dependencies {
     implementation("org.bouncycastle:bcpkix-jdk18on:1.76")
 
     // Ethereum
-    implementation("org.web3j:core:4.10.2") // 5.0.0 is older than 4.x (wrong release)
-    implementation("org.web3j:crypto:4.10.2")
+    implementation("org.web3j:core:4.10.3") // 5.0.0 is older than 4.x (wrong release)
+    implementation("org.web3j:crypto:4.10.3")
 
     implementation("com.google.guava:guava:32.1.2-jre")
 
@@ -56,8 +58,8 @@ dependencies {
     implementation("com.beust:klaxon:5.6")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.15.2")
     implementation("com.jayway.jsonpath:json-path:2.8.0")
-    implementation("com.networknt:json-schema-validator:1.0.86")
-    implementation("net.pwall.json:json-kotlin-schema:0.40")
+    implementation("com.networknt:json-schema-validator:1.0.87")
+    implementation("net.pwall.json:json-kotlin-schema:0.41")
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
@@ -75,14 +77,14 @@ dependencies {
     implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
 
     // HTTP
-    implementation("io.ktor:ktor-client-jackson-jvm:2.3.3")
-    implementation("io.ktor:ktor-client-content-negotiation:2.3.3")
-    implementation("io.ktor:ktor-client-core-jvm:2.3.3")
-    implementation("io.ktor:ktor-client-cio-jvm:2.3.3")
-    implementation("io.ktor:ktor-client-auth-jvm:2.3.3")
-    implementation("io.ktor:ktor-client-okhttp-jvm:2.3.3")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.3")
-    implementation("io.ktor:ktor-client-logging-jvm:2.3.3")
+    implementation("io.ktor:ktor-client-jackson-jvm:2.3.4")
+    implementation("io.ktor:ktor-client-content-negotiation:2.3.4")
+    implementation("io.ktor:ktor-client-core-jvm:2.3.4")
+    implementation("io.ktor:ktor-client-cio-jvm:2.3.4")
+    implementation("io.ktor:ktor-client-auth-jvm:2.3.4")
+    implementation("io.ktor:ktor-client-okhttp-jvm:2.3.4")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.4")
+    implementation("io.ktor:ktor-client-logging-jvm:2.3.4")
 
     // REST
     implementation("io.javalin:javalin:4.6.8")
@@ -90,10 +92,11 @@ dependencies {
     // implementation("io.javalin:javalin-test-tools:4.5.0")
 
     // Logging
-    implementation("org.slf4j:slf4j-api:2.0.7")
-    implementation("org.slf4j:slf4j-simple:2.0.7")
+    implementation("org.slf4j:slf4j-api:2.0.9")
+    implementation("org.slf4j:slf4j-simple:2.0.9")
 
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.5")
+    implementation("io.github.oshai:kotlin-logging-jvm:5.1.0")
 
     // Config
     implementation("com.sksamuel.hoplite:hoplite-core:2.7.5")
@@ -107,15 +110,15 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.10")
 
     // JNR-FFI
-    implementation("com.github.jnr:jnr-ffi:2.2.14")
+    implementation("com.github.jnr:jnr-ffi:2.2.15")
 
     // Testing
     //testImplementation(kotlin("test-junit"))
     testImplementation("io.mockk:mockk:1.13.7")
 
-    testImplementation("io.kotest:kotest-runner-junit5:5.6.2")
-    testImplementation("io.kotest:kotest-assertions-core:5.6.2")
-    testImplementation("io.kotest:kotest-assertions-json:5.6.2")
+    testImplementation("io.kotest:kotest-runner-junit5:5.7.2")
+    testImplementation("io.kotest:kotest-assertions-core:5.7.2")
+    testImplementation("io.kotest:kotest-assertions-json:5.7.2")
 
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter-params:5.10.0")
