@@ -7,7 +7,7 @@ ARG SKIP_TESTS
 FROM docker.io/rkimf1/dos2unix@sha256:60f78cd8bf42641afdeae3f947190f98ae293994c0443741a2b3f3034998a6ed as dos2unix-env
 WORKDIR /convert
 COPY gradlew .
-COPY src/test/resources/key/*.pem ./
+COPY src/test/resources/key/pem/*/*.pem ./
 RUN dos2unix ./gradlew *.pem
 
 # --- build-env       # build the SSI Kit
@@ -27,8 +27,8 @@ COPY --from=dos2unix-env /convert/*.pem src/test/resources/key/
 VOLUME /home/gradle/.gradle
 
 RUN if [ -z "$SKIP_TESTS" ]; \
-    then echo "* Running full build" && gradle -i clean build installDist; \
-    else echo "* Building but skipping tests" && gradle -i clean installDist -x test; \
+    then echo "* Running full build" && ./gradlew -i clean build installDist; \
+    else echo "* Building but skipping tests" && ./gradlew -i clean installDist -x test; \
     fi
 
 # --- opa-env

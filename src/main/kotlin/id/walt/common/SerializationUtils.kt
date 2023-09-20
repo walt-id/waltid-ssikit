@@ -7,6 +7,7 @@ import id.walt.model.VerificationMethod
 import id.walt.sdjwt.SDMap
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
+import java.time.Instant
 
 @Target(AnnotationTarget.FIELD)
 annotation class VCList
@@ -41,6 +42,9 @@ annotation class DidVerificationRelationships
 
 @Target(AnnotationTarget.FIELD)
 annotation class SDMapProperty
+
+@Target(AnnotationTarget.FIELD)
+annotation class InstantValue
 
 class VcConverter(private val singleVC: Boolean, private val singleIfOne: Boolean, private val toVcObject: Boolean) :
     Converter {
@@ -162,6 +166,20 @@ val sdMapConverter = object : Converter {
 
 }
 
+val klaxonInstantValueConverter = object : Converter {
+    override fun canConvert(cls: Class<*>) = cls == InstantValue::class.java
+
+    override fun fromJson(jv: JsonValue): Any? = jv.longValue ?: jv.int?.toLong()?.let {
+        Instant.ofEpochSecond(it)
+    }
+
+    override fun toJson(value: Any): String {
+        return (value as Instant).epochSecond.toString()
+    }
+
+
+}
+
 fun KlaxonWithConverters() = Klaxon()
     .fieldConverter(VCList::class, VcConverter(singleVC = false, singleIfOne = false, toVcObject = false))
     .fieldConverter(VCObjectList::class, VcConverter(singleVC = false, singleIfOne = false, toVcObject = true))
@@ -174,6 +192,7 @@ fun KlaxonWithConverters() = Klaxon()
     .fieldConverter(DidVerificationRelationships::class, didVerificationRelationshipsConverter)
     .fieldConverter(SDMapProperty::class, sdMapConverter)
     .fieldConverter(KotlinxJsonObjectField::class, kotlinxJsonObjectFieldConverter)
+    .fieldConverter(InstantValue::class, klaxonInstantValueConverter)
 
 @Deprecated("Use KlaxonWithConverters()")
 val KlaxonWithConverters = KlaxonWithConverters()

@@ -23,8 +23,9 @@ class KeyCommandTest : StringSpec({
         val e = shouldThrow<PrintHelpMessage> {
             GenKeyCommand().parse(listOf("--help"))
         }
-        val message = e.command.getFormattedHelp()
-        message shouldContain "-a, --algorithm [Ed25519|Secp256k1|RSA|Secp256r1]"
+        val message = e.context?.command?.getFormattedHelp()
+        message shouldContain "--algorithm"
+        message shouldContain "Ed25519|Secp256k1|RSA|Secp256r1"
     }
 
     "2. key generate" {
@@ -55,11 +56,11 @@ class KeyCommandTest : StringSpec({
 //            Ed25519 pub key JWK
             row("src/test/resources/cli/pubKeyEd25519Jwk.json", "12374a4ac169f7f4716804393d20480138a"),
 //            RSA key PEM
-            row("src/test/resources/key/rsa.pem", ""),
+            row("src/test/resources/key/pem/rsa/rsa.pem", ""),
 //            Secp256k1 key PEM
-            row("src/test/resources/key/secp256k1.pem", ""),
+            row("src/test/resources/key/pem/ecdsa/secp256k1.pem", ""),
 //            Ed25519 key PEM
-            row("src/test/resources/key/secp256k1.pem", ""),
+            row("src/test/resources/key/pem/ed25519/ed25519.pem", ""),
 //            RSA priv key JWK
             row("src/test/resources/key/privkey.jwk", ""),
 //            Secp256k1 priv key JWK

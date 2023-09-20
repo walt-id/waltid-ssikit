@@ -91,6 +91,12 @@ fun java.security.Key.toPEM(): String = when (this) {
     else -> throw IllegalArgumentException()
 }
 
+fun java.security.Key.toBase64(): String = when (this) {
+    is PublicKey -> this.toBase64()
+    is PrivateKey -> this.toBase64()
+    else -> throw IllegalArgumentException()
+}
+
 fun PrivateKey.toPEM(): String =
     "-----BEGIN PRIVATE KEY-----" +
             System.lineSeparator() +
@@ -103,6 +109,8 @@ fun PrivateKey.toPEM(): String =
 
 
 fun PrivateKey.toBase64(): String = String(Base64.getEncoder().encode(PKCS8EncodedKeySpec(this.encoded).encoded))
+
+fun PublicKey.toBase64(): String = encBase64(X509EncodedKeySpec(this.encoded).encoded)
 
 fun PublicKey.toPEM(): String =
     "-----BEGIN PUBLIC KEY-----" +
@@ -123,9 +131,6 @@ fun encBase64(bytes: ByteArray): String = String(Base64.getEncoder().encode(byte
 fun decBase64(base64: String): ByteArray = Base64.getDecoder().decode(base64)
 
 fun toBase64Url(base64: String) = base64.replace("+", "-").replace("/", "_").replace("=", "")
-
-
-fun PublicKey.toBase64(): String = encBase64(X509EncodedKeySpec(this.encoded).encoded)
 
 fun decodePubKeyBase64(base64: String, kf: KeyFactory): PublicKey =
     kf.generatePublic(X509EncodedKeySpec(decBase64(base64)))
@@ -175,15 +180,15 @@ fun buildKey(
     val keyPair = when (format) {
         KeyFormat.PEM -> KeyPair(
             decodePubKeyPem(publicPart, keyFactory),
-            privatePart?.let { decodePrivKeyPem(privatePart, keyFactory) })
+            privatePart?.let { decodePrivKeyPem(it, keyFactory) })
 
         KeyFormat.BASE64_DER -> KeyPair(
             decodePubKeyBase64(publicPart, keyFactory),
-            privatePart?.let { decodePrivKeyBase64(privatePart, keyFactory) })
+            privatePart?.let { decodePrivKeyBase64(it, keyFactory) })
 
         KeyFormat.BASE64_RAW -> KeyPair(
             decodeRawPubKeyBase64(publicPart, keyFactory),
-            privatePart?.let { decodeRawPrivKey(privatePart, keyFactory) })
+            privatePart?.let { decodeRawPrivKey(it, keyFactory) })
     }
 
     return Key(KeyId(keyId), KeyAlgorithm.valueOf(algorithm), CryptoProvider.valueOf(provider), keyPair)

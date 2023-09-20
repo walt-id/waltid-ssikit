@@ -24,10 +24,10 @@ class VcIssueCommandTest : StringSpec({
         val e = shouldThrow<PrintHelpMessage> {
             VcIssueCommand().parse(listOf("--help"))
         }
-        val message = e.command.getFormattedHelp()
-        message shouldContain "-t, --template"
-        message shouldContain "-i, --issuer-did"
-        message shouldContain "-s, --subject-did"
+        val message = e.context?.command?.getFormattedHelp()
+        message shouldContain "--template"
+        message shouldContain "--issuer-did"
+        message shouldContain "--subject-did"
     }
 
     "vc issue default" {
