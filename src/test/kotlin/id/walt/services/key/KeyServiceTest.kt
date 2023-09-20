@@ -12,6 +12,7 @@ import id.walt.services.crypto.SunCryptoService
 import id.walt.services.keystore.InMemoryKeyStoreService
 import id.walt.services.keystore.KeyType
 import id.walt.test.RESOURCES_PATH
+import io.kotest.assertions.throwables.shouldNotThrow
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.AnnotationSpec
 import io.kotest.data.blocking.forAll
@@ -268,17 +269,33 @@ class KeyServiceTest : AnnotationSpec() {
     @Test
     fun testImportPEMKey() {
         forAll(
-//            RSA PEM
-            row(File("src/test/resources/key/rsa.pem").readText()),
-//            Ed25519 PEM
-            row(File("src/test/resources/key/ed25519.pem").readText()),
-//            Secp256k1 PEM
-            row(File("src/test/resources/key/secp256k1.pem").readText()),
-        ) { keyStr ->
+//            RSA
+            row(File("src/test/resources/key/pem/rsa/rsa.pem").readText(), 0x11),
+            row(File("src/test/resources/key/pem/rsa/rsa.public.pem").readText(), 0x10),
+            row(File("src/test/resources/key/pem/rsa/rsa.private.pem").readText(), 0x01),
+//            Ed25519
+            row(File("src/test/resources/key/pem/ed25519/ed25519.pem").readText(), 0x11),
+            row(File("src/test/resources/key/pem/ed25519/ed25519.public.pem").readText(), 0x10),
+            row(File("src/test/resources/key/pem/ed25519/ed25519.private.pem").readText(), 0x01),
+//            Secp256k1
+            row(File("src/test/resources/key/pem/ecdsa/secp256k1.pem").readText(), 0x11),
+            row(File("src/test/resources/key/pem/ecdsa/secp256k1.public.pem").readText(), 0x10),
+            row(File("src/test/resources/key/pem/ecdsa/secp256k1.private.pem").readText(), 0x01),
+        ) { keyStr, hasBothKeys ->
             val kid = keyService.importKey(keyStr)
-            val privKey = keyService.export(kid.id, KeyFormat.PEM, KeyType.PRIVATE)
-            val pubKey = keyService.export(kid.id, KeyFormat.PEM, KeyType.PUBLIC)
-            privKey.plus(System.lineSeparator()).plus(pubKey) shouldBe keyStr
+            when (hasBothKeys and 0x11) {
+                0x11 -> {
+                    keyService.export(kid.id, KeyFormat.PEM, KeyType.PRIVATE).plus(System.lineSeparator())
+                        .plus(keyService.export(kid.id, KeyFormat.PEM, KeyType.PUBLIC)) shouldBe keyStr
+                }
+                0x01 -> {
+                    keyService.export(kid.id, KeyFormat.PEM, KeyType.PRIVATE) shouldBe keyStr
+                    shouldNotThrow<Exception> { keyService.export(kid.id, KeyFormat.PEM, KeyType.PUBLIC) }
+                }
+                0x10 -> {
+                    keyService.export(kid.id, KeyFormat.PEM, KeyType.PUBLIC) shouldBe keyStr
+                }
+            }
         }
     }
 
