@@ -165,6 +165,7 @@ open class PolicyRegistryService : WaltIdService() {
         )
         register(CredentialStatusPolicy::class, "Verify by credential status")
         register(DynamicPolicy::class, DynamicPolicyArg::class, "Verify credential by rego policy")
+        register(MultiSignaturePolicy::class, "Verify embedded multiple signatures")
 
         // predefined, hardcoded rego policy specializations
         // VerifiableMandate policy as specialized rego policy
