@@ -101,7 +101,9 @@ class WaltIdSignatory(configurationPath: String) : Signatory() {
         val fullProofConfig = fillProofConfig(config)
         val vcRequest = credentialBuilder.apply {
             issuer?.let { setIssuer(it) }
-            setIssuerId(fullProofConfig.issuerDid)
+            if(issuer?.id.isNullOrEmpty()) {
+                setIssuerId(fullProofConfig.issuerDid)
+            }
             setIssuanceDate(fullProofConfig.issueDate ?: Instant.now())
             setIssued(fullProofConfig.issueDate ?: Instant.now())
             fullProofConfig.subjectDid?.let { setSubjectId(it) }
