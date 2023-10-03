@@ -62,7 +62,7 @@ data class PresentableCredential(
             } else {
                 verifiableCredential.sdJwt!!.present(selectiveDisclosure?.let { SDMapBuilder().addField(claimKey, false, it).build() })
             }
-            JsonPrimitive(presentedJwt.toString(formatForPresentation = true))
+            JsonPrimitive(presentedJwt.toString(formatForPresentation = false))
         } else verifiableCredential.toJsonElement()
 
     val isJwt
