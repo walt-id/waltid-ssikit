@@ -69,7 +69,7 @@ open class WaltIdJwtService : JwtService() {
     override fun sign(
         keyAlias: String, // verification method
         payload: String?,
-        type: JOSEObjectType
+        type: String
     ): String {
 
         // Default JWT claims
@@ -96,7 +96,7 @@ open class WaltIdJwtService : JwtService() {
             null
         }
 
-        val serializedSignedJwt = createSignedJWT(issuerKey, keyAlias, claimsSet, includeJwk, type).serialize()
+        val serializedSignedJwt = createSignedJWT(issuerKey, keyAlias, claimsSet, includeJwk, JOSEObjectType(type)).serialize()
         log.debug { "Signed JWT:  $serializedSignedJwt" }
         return serializedSignedJwt
     }

@@ -14,7 +14,7 @@ plugins {
 }
 
 group = "id.walt"
-version = "1.SNAPSHOT"
+version = "1.JWTTYP"
 
 repositories {
     mavenCentral()
@@ -40,7 +40,7 @@ dependencies {
     implementation("com.microsoft.azure:azure-client-authentication:1.7.14")
     implementation("com.nimbusds:nimbus-jose-jwt:9.31")
     implementation("com.nimbusds:oauth2-oidc-sdk:10.11") // changes to authorization_details in 10.12+ not supported
-    implementation("id.walt:waltid-sd-jwt-jvm:1.2306191408.0")
+    implementation("id.walt:waltid-sd-jwt-jvm:1.2310101347.0")
 
     implementation("org.bouncycastle:bcprov-jdk18on:1.76")
     implementation("org.bouncycastle:bcpkix-jdk18on:1.76")

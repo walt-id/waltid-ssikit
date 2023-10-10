@@ -27,14 +27,14 @@ open class JwtService : WaltIdService(), JWTCryptoProvider {
 
     open fun sign(
         keyAlias: String, // verification method
-        payload: String? = null, type: JOSEObjectType = JOSEObjectType.JWT
-    ): String = implementation.sign(keyAlias, payload)
+        payload: String? = null, type: String = JOSEObjectType.JWT.type
+    ): String = implementation.sign(keyAlias, payload, type)
 
-    override fun sign(payload: JsonObject, keyID: String?): String {
+    override fun sign(payload: JsonObject, keyID: String?, type: String): String {
         if(keyID == null) {
             throw Exception("KeyID not provided")
         }
-        return sign(keyID, payload.toString())
+        return sign(keyID, payload.toString(), type)
     }
 
     override fun verify(token: String): JwtVerificationResult = implementation.verify(token)
