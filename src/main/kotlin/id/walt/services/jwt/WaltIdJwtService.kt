@@ -68,7 +68,8 @@ open class WaltIdJwtService : JwtService() {
 
     override fun sign(
         keyAlias: String, // verification method
-        payload: String?
+        payload: String?,
+        type: JOSEObjectType
     ): String {
 
         // Default JWT claims
@@ -95,16 +96,16 @@ open class WaltIdJwtService : JwtService() {
             null
         }
 
-        val serializedSignedJwt = createSignedJWT(issuerKey, keyAlias, claimsSet, includeJwk).serialize()
+        val serializedSignedJwt = createSignedJWT(issuerKey, keyAlias, claimsSet, includeJwk, type).serialize()
         log.debug { "Signed JWT:  $serializedSignedJwt" }
         return serializedSignedJwt
     }
 
     private fun createSignedJWT(
-        issuerKey: Key, keyAlias: String, claimsSet: JWTClaimsSet, includeJwk: JWK?
+        issuerKey: Key, keyAlias: String, claimsSet: JWTClaimsSet, includeJwk: JWK?, type: JOSEObjectType = JOSEObjectType.JWT
     ): SignedJWT = when (issuerKey.algorithm) {
         KeyAlgorithm.EdDSA_Ed25519 -> {
-            val jwt = createSignableJwt(JWSAlgorithm.EdDSA, keyAlias, claimsSet, includeJwk)
+            val jwt = createSignableJwt(JWSAlgorithm.EdDSA, keyAlias, claimsSet, includeJwk, type)
 
             //jwt.sign(Ed25519Signer(issuerKey.toOctetKeyPair()))
             jwt.sign(LdSigner.JwsLtSigner(issuerKey.keyId))
@@ -112,7 +113,7 @@ open class WaltIdJwtService : JwtService() {
         }
 
         KeyAlgorithm.ECDSA_Secp256k1 -> {
-            val jwt = createSignableJwt(JWSAlgorithm.ES256K, keyAlias, claimsSet, includeJwk)
+            val jwt = createSignableJwt(JWSAlgorithm.ES256K, keyAlias, claimsSet, includeJwk, type)
 
             val jwsSigner = ECDSASigner(ECPrivateKeyHandle(issuerKey.keyId), Curve.SECP256K1)
             jwsSigner.jcaContext.provider = provider
@@ -121,7 +122,7 @@ open class WaltIdJwtService : JwtService() {
         }
 
         KeyAlgorithm.ECDSA_Secp256r1 -> {
-            val jwt = createSignableJwt(JWSAlgorithm.ES256, keyAlias, claimsSet, includeJwk)
+            val jwt = createSignableJwt(JWSAlgorithm.ES256, keyAlias, claimsSet, includeJwk, type)
 
             val jwsSigner = ECDSASigner(ECPrivateKeyHandle(issuerKey.keyId), Curve.P_256)
             jwsSigner.jcaContext.provider = provider
@@ -130,7 +131,7 @@ open class WaltIdJwtService : JwtService() {
         }
 
         KeyAlgorithm.RSA -> {
-            val jwt = createSignableJwt(JWSAlgorithm.RS256, keyAlias, claimsSet, includeJwk)
+            val jwt = createSignableJwt(JWSAlgorithm.RS256, keyAlias, claimsSet, includeJwk, type)
             jwt.sign(LdSigner.JwsLtSigner(issuerKey.keyId))
             jwt
         }
@@ -141,12 +142,12 @@ open class WaltIdJwtService : JwtService() {
         }
     }
 
-    private fun createSignableJwt(jwsAlgorithm: JWSAlgorithm, keyAlias: String, claimsSet: JWTClaimsSet, includeJwk: JWK?) =
+    private fun createSignableJwt(jwsAlgorithm: JWSAlgorithm, keyAlias: String, claimsSet: JWTClaimsSet, includeJwk: JWK?, type: JOSEObjectType = JOSEObjectType.JWT) =
         SignedJWT(
             JWSHeader
                 .Builder(jwsAlgorithm)
                 .keyID(keyAlias)
-                .type(JOSEObjectType.JWT)
+                .type(type)
                 .apply {
                     includeJwk?.let { jwk(it) }
                 }.build(),

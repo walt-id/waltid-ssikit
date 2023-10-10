@@ -1,5 +1,6 @@
 package id.walt.services.jwt
 
+import com.nimbusds.jose.JOSEObjectType
 import com.nimbusds.jose.jwk.OctetKeyPair
 import id.walt.sdjwt.JWTCryptoProvider
 import id.walt.sdjwt.JwtVerificationResult
@@ -26,7 +27,7 @@ open class JwtService : WaltIdService(), JWTCryptoProvider {
 
     open fun sign(
         keyAlias: String, // verification method
-        payload: String? = null
+        payload: String? = null, type: JOSEObjectType = JOSEObjectType.JWT
     ): String = implementation.sign(keyAlias, payload)
 
     override fun sign(payload: JsonObject, keyID: String?): String {
