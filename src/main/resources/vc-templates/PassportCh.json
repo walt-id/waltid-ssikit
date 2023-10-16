@@ -4,7 +4,8 @@
     "type": [
         "VerifiableCredential",
         "VerifiableAttestation",
-        "VerifableId"
+        "VerifableId",
+        "PassportCh"
     ],
     "issuer": "did:ebsi:zhs8QaHif4mPqhEcn5Z8K9E",
     "issuanceDate": "2022-11-10T19:19:47.287Z",
@@ -21,10 +22,12 @@
         "firstName": "Fidelis",
         "emailAddress": "",
         "dateOfBirth": "1930-10-01",
+        "placeOfBirth": "Ruemligen BL",
         "height" : "183",
         "gender" : "F",
-        "authortiy" : "Aarau AG",
+        "authority" : "Aarau AG",
         "nationality" : "Schweiz",
-        "country" : "CHE"
+        "countryCode" : "CHE",
+        "passportPhoto": "data:image/png;base64,iVBORw0KGgo...kJggg=="
     }
 }

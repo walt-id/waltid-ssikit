@@ -5,7 +5,7 @@
     "type": [
         "VerifiableCredential",
         "BankId"
-    ]
+    ],
     "credentialSubject": {
         "accountId": "1234567890",
         "IBAN": "DE99123456789012345678",
