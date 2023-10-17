@@ -16,7 +16,7 @@
             "sex": "01",
             "surname": "Dalton",
             "forenames": "Joe Jack William Averell",
-            "nameAtBirth": "Default Fidelis",
+            "birthName": "Default Fidelis",
             "dateBirth": "1985-08-15",
             "nationalities": ["BE"],
             "stateOfResidenceAddress": {
