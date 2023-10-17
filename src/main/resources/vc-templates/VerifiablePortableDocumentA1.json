@@ -6,7 +6,16 @@
         "VerifiableAttestation",
         "VerifiablePortableDocumentA1"
     ],
-    "issuer": "did:ebsi:zhs8QaHif4mPqhEcn5Z8K9E",
+    "issuer": {
+        "id": "did:key:z6MkrHKzgsahxBLyNAbLQyB1pcWNYC9GmywiWPgkrvntAZcj",
+        "image": {
+            "id": "<url to image>",
+            "type": "Image"
+        },
+        "name": "CH Authority",
+        "type": "Profile",
+        "url": "<url to image>"
+    },
     "issuanceDate": "2022-11-10T19:19:47.287Z",
     "validFrom": "2022-11-10T19:19:47.287Z",
     "issued": "2022-11-10T19:19:47.287Z",
@@ -97,5 +106,12 @@
     "credentialSchema": {
         "id": "https://api-test.ebsi.eu/trusted-schemas-registry/v2/schemas/z3BTAA7Cs3qw8UV8YtgCVMicPNkaYHfFZZPfUfXAbFvng",
         "type": "FullJsonSchemaValidator2021"
+    },
+    "evidence": {
+        "documentPresence": "Physical",
+        "evidenceDocument": "A1",
+        "subjectPresence": "Physical",
+        "type": "DocumentVerification",
+        "verifier": "did:ebsi:2A9BZ9SUe6BatacSpvs1V5CdjHvLpQ7bEsi2Jb6LdHKnQxaN"
     }
 }
