@@ -22,7 +22,8 @@ open class StatusListCredentialStorageService : WaltIdService() {
     override val implementation get() = serviceImplementation<StatusListCredentialStorageService>()
 
     open fun fetch(id: String): VerifiableCredential? = implementation.fetch(id)
-    open fun store(id: String, purpose: String, bitString: String): Unit = implementation.store(id, purpose, bitString)
+    open fun store(issuer: String, id: String, purpose: String, bitString: String): Unit =
+        implementation.store(issuer, id, purpose, bitString)
 
     companion object : ServiceProvider {
         override fun getService() = object : StatusListCredentialStorageService() {}
@@ -35,7 +36,6 @@ class WaltIdStatusListCredentialStorageService : StatusListCredentialStorageServ
     private val templatePath = "StatusList2021Credential"
     private val signatoryService = Signatory.getService()
     private val templateService = VcTemplateService.getService()
-    private val issuerDid = DidService.create(DidMethod.key)// TODO: fix it
 
     override fun fetch(id: String): VerifiableCredential? = let {
         val path = getCredentialPath(id.substringAfterLast("/"))
@@ -44,7 +44,7 @@ class WaltIdStatusListCredentialStorageService : StatusListCredentialStorageServ
         }
     }
 
-    override fun store(id: String, purpose: String, bitString: String): Unit = let {
+    override fun store(issuer: String, id: String, purpose: String, bitString: String): Unit = let {
         fetch(id)?.let { vc ->
             // update vc
             W3CCredentialSubject(
@@ -73,8 +73,8 @@ class WaltIdStatusListCredentialStorageService : StatusListCredentialStorageServ
         val credential = signatoryService.issue(
             credentialBuilder = this, config = ProofConfig(
                 credentialId = id,
-                issuerDid = issuerDid,
-                subjectDid = issuerDid,
+                issuerDid = issuer,
+                subjectDid = issuer,
                 proofType = ProofType.LD_PROOF,
             )
         ).toVerifiableCredential()
