@@ -34,6 +34,7 @@ class StatusListEntryFactory(
         // verify status-credential exists and create one
         storageService.fetch(statusParameter.credentialUrl) ?: run {
             storageService.store(
+                parameter.issuer,
                 statusParameter.credentialUrl,
                 statusParameter.purpose,
                 String(createEncodedBitString(BitSet(16 * 1024 * 8)))
@@ -54,5 +55,6 @@ data class SimpleStatusFactoryParameter(
 ) : CredentialStatusFactoryParameter
 data class StatusListEntryFactoryParameter(
     val credentialUrl: String,
-    val purpose: String
+    val purpose: String,
+    val issuer: String,
 ) : CredentialStatusFactoryParameter

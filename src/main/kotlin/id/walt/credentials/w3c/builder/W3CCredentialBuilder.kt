@@ -35,19 +35,21 @@ class W3CCredentialBuilderWithCredentialStatus<C : VerifiableCredential, B : Abs
 
     override fun build(): C = builder.apply {
         getStatusProperty(
+            issuer = proofConfig.issuerDid,
             type = proofConfig.statusType!!,
             purpose = proofConfig.statusPurpose,
             credentialUrl = proofConfig.credentialsEndpoint ?: signatoryConfig?.proofConfig?.credentialsEndpoint ?: ""
         )?.let { this.setProperty("credentialStatus", it) }
     }.build()
 
-    private fun getStatusProperty(type: CredentialStatus.Types, purpose: String, credentialUrl: String) = when (type) {
+    private fun getStatusProperty(issuer: String, type: CredentialStatus.Types, purpose: String, credentialUrl: String) = when (type) {
         CredentialStatus.Types.SimpleCredentialStatus2022 -> simpleStatusFactory.create(SimpleStatusFactoryParameter(
             id = URLBuilder().takeFrom(credentialUrl).appendPathSegments("token", createBaseToken()).buildString(),
         )).asMap()
         CredentialStatus.Types.StatusList2021Entry -> statusListEntryFactory.create(StatusListEntryFactoryParameter(
             purpose = purpose,
             credentialUrl = URLBuilder().takeFrom(credentialUrl).appendPathSegments("status", purpose).buildString(),
+            issuer = issuer,
         )).asMap()
     }.takeIf {
         it.isNotEmpty()
