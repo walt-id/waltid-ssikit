@@ -6,11 +6,9 @@ import id.walt.credentials.w3c.W3CCredentialSubject
 import id.walt.credentials.w3c.builder.W3CCredentialBuilder
 import id.walt.credentials.w3c.templates.VcTemplateService
 import id.walt.credentials.w3c.toVerifiableCredential
-import id.walt.model.DidMethod
 import id.walt.servicematrix.ServiceProvider
 import id.walt.services.WaltIdService
 import id.walt.services.WaltIdServices
-import id.walt.services.did.DidService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
