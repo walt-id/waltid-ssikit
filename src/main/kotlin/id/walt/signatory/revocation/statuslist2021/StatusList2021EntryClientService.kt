@@ -47,7 +47,8 @@ class StatusList2021EntryClientService: RevocationClientService {
         bitSet.set(idx)
         val encodedList = createEncodedBitString(bitSet)
         // create / update the status list credential
-        credentialStorage.store(statusCredential.id!!, credentialSubject.statusPurpose, String(encodedList))
+        statusCredential.issuerId?.let { credentialStorage.store(it, statusCredential.id!!, credentialSubject.statusPurpose, String(encodedList)) }?:
+        throw IllegalArgumentException("Missing issuer for statusList credential.")
     }
 
     private fun extractStatusListCredentialSubject(statusCredentialUrl: String): StatusListCredentialSubject? =
