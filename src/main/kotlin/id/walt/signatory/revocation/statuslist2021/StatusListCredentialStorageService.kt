@@ -13,13 +13,15 @@ import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import java.io.File
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 import kotlin.io.path.Path
 import kotlin.io.path.pathString
 
 open class StatusListCredentialStorageService : WaltIdService() {
     override val implementation get() = serviceImplementation<StatusListCredentialStorageService>()
 
-    open fun fetch(id: String): VerifiableCredential? = implementation.fetch(id)
+    open fun fetch(url: String): VerifiableCredential? = implementation.fetch(url)
     open fun store(issuer: String, id: String, purpose: String, bitString: String): Unit =
         implementation.store(issuer, id, purpose, bitString)
 
@@ -31,12 +33,12 @@ open class StatusListCredentialStorageService : WaltIdService() {
 
 
 class WaltIdStatusListCredentialStorageService : StatusListCredentialStorageService() {
-    private val templatePath = "StatusList2021Credential"
+    private val templateId = "StatusList2021Credential"
     private val signatoryService = Signatory.getService()
     private val templateService = VcTemplateService.getService()
 
-    override fun fetch(id: String): VerifiableCredential? = let {
-        val path = getCredentialPath(id.substringAfterLast("/"))
+    override fun fetch(url: String): VerifiableCredential? = let {
+        val path = getCredentialPath(url)
         resolveContent(path).takeIf { it != path }?.let {
             VerifiableCredential.fromJson(it)
         }
@@ -61,7 +63,7 @@ class WaltIdStatusListCredentialStorageService : StatusListCredentialStorageServ
             )
         )
     }.let {
-        W3CCredentialBuilder.fromPartial(templateService.getTemplate(templatePath).template!!).apply {
+        W3CCredentialBuilder.fromPartial(templateService.getTemplate(templateId).template!!).apply {
             setId(it.id ?: id)
             buildSubject {
                 setFromJson(it.toJson())
@@ -76,10 +78,11 @@ class WaltIdStatusListCredentialStorageService : StatusListCredentialStorageServ
                 proofType = ProofType.LD_PROOF,
             )
         ).toVerifiableCredential()
-        getCredentialPath(credential.id!!.substringAfterLast("/")).let {
+        getCredentialPath(credential.id!!).let {
             File(it).writeText(credential.encode())
         }
     }
 
-    private fun getCredentialPath(name: String) = Path(WaltIdServices.revocationDir, "$name.cred").pathString
+    private fun getCredentialPath(name: String) =
+        Path(WaltIdServices.revocationDir, "${URLEncoder.encode(name, StandardCharsets.UTF_8)}.cred").pathString
 }

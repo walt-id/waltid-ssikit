@@ -38,7 +38,8 @@ class W3CCredentialBuilderWithCredentialStatus<C : VerifiableCredential, B : Abs
             issuer = proofConfig.issuerDid,
             type = proofConfig.statusType!!,
             purpose = proofConfig.statusPurpose,
-            credentialUrl = proofConfig.credentialsEndpoint ?: signatoryConfig?.proofConfig?.credentialsEndpoint ?: ""
+            credentialUrl = proofConfig.credentialsEndpoint ?: signatoryConfig?.proofConfig?.credentialsEndpoint
+            ?: proofConfig.statusPurpose
         )?.let { this.setProperty("credentialStatus", it) }
     }.build()
 
@@ -48,7 +49,7 @@ class W3CCredentialBuilderWithCredentialStatus<C : VerifiableCredential, B : Abs
         )).asMap()
         CredentialStatus.Types.StatusList2021Entry -> statusListEntryFactory.create(StatusListEntryFactoryParameter(
             purpose = purpose,
-            credentialUrl = URLBuilder().takeFrom(credentialUrl).appendPathSegments("status", purpose).buildString(),
+            credentialUrl = credentialUrl,
             issuer = issuer,
         )).asMap()
     }.takeIf {
