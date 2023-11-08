@@ -34,7 +34,7 @@ class StatusListEntryFactory(
         // verify status-credential exists and create one
         storageService.fetch(statusParameter.credentialUrl) ?: run {
             storageService.store(
-                parameter.issuer,
+                statusParameter.issuer,
                 statusParameter.credentialUrl,
                 statusParameter.purpose,
                 String(createEncodedBitString(BitSet(16 * 1024 * 8)))
