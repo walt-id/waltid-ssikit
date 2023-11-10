@@ -7,7 +7,7 @@ import foundation.identity.jsonld.ConfigurableDocumentLoader
 import foundation.identity.jsonld.JsonLDException
 import foundation.identity.jsonld.JsonLDObject
 import id.walt.auditor.VerificationPolicyResult
-import id.walt.credentials.jsonld.VerifiableCredentialContexts
+import id.walt.credentials.jsonld.JsonLdDocumentLoaderService
 import id.walt.credentials.w3c.*
 import id.walt.credentials.w3c.schema.SchemaValidatorFactory
 import id.walt.crypto.Key
@@ -20,7 +20,6 @@ import id.walt.services.keystore.KeyStoreService
 import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import info.weboftrust.ldsignatures.LdProof
-import info.weboftrust.ldsignatures.jsonld.LDSecurityContexts
 import info.weboftrust.ldsignatures.verifier.LdVerifier
 import mu.KotlinLogging
 import org.json.JSONObject
@@ -32,10 +31,10 @@ import java.util.*
 
 private val log = KotlinLogging.logger {}
 
-open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
+open class WaltIdJsonLdCredentialService() : JsonLdCredentialService() {
 
-    private val keyStore: KeyStoreService
-        get() = ContextManager.keyStore
+    private val keyStore: KeyStoreService get() = ContextManager.keyStore
+    private val documentLoaderService: JsonLdDocumentLoaderService get() = JsonLdDocumentLoaderService.getService()
 
     init {
         Ed25519Provider.set(TinkEd25519Provider())
@@ -110,13 +109,13 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
         log.debug { "Signing jsonLd object with: issuerDid (${config.issuerDid}), domain (${config.domain}), nonce (${config.nonce}" }
 
         val jsonLdObject: JsonLDObject = JsonLDObject.fromJson(jsonCred)
-        val confLoader = VerifiableCredentialContexts.DOCUMENT_LOADER as ConfigurableDocumentLoader
+        val confLoader = documentLoaderService.documentLoader as ConfigurableDocumentLoader
 
         confLoader.isEnableHttp = true
         confLoader.isEnableHttps = true
         confLoader.isEnableFile = true
         confLoader.isEnableLocalCache = true
-        jsonLdObject.documentLoader = VerifiableCredentialContexts.DOCUMENT_LOADER as ConfigurableDocumentLoader
+        jsonLdObject.documentLoader = documentLoaderService.documentLoader
 
         val vm = config.issuerVerificationMethod ?: config.issuerDid
         val key = keyStore.load(vm)
@@ -183,7 +182,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
 
         log.debug { "Verification key for:  $vm is: $publicKey" }
 
-        val confLoader = LDSecurityContexts.DOCUMENT_LOADER as ConfigurableDocumentLoader
+        val confLoader = documentLoaderService.documentLoader as ConfigurableDocumentLoader
 
         confLoader.isEnableHttp = true
         confLoader.isEnableHttps = true
@@ -193,7 +192,7 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
         log.debug { "Document loader config: isEnableHttp (${confLoader.isEnableHttp}), isEnableHttps (${confLoader.isEnableHttps}), isEnableFile (${confLoader.isEnableFile}), isEnableLocalCache (${confLoader.isEnableLocalCache})" }
 
         val jsonLdObject = JsonLDObject.fromJson(vcOrVp)
-        jsonLdObject.documentLoader = LDSecurityContexts.DOCUMENT_LOADER
+        jsonLdObject.documentLoader = documentLoaderService.documentLoader
         log.debug { "Decoded Json LD object: $jsonLdObject" }
 
         val ldProof = LdProof.getFromJsonLDObject(jsonLdObject)
