@@ -10,9 +10,10 @@ import id.walt.signatory.revocation.simplestatus2022.SimpleCredentialClientServi
 import id.walt.signatory.revocation.statuslist2021.StatusList2021EntryClientService
 import kotlinx.serialization.Serializable
 
-interface RevocationClientService {
+interface CredentialStatusClientService {
     fun checkRevocation(parameter: RevocationCheckParameter): RevocationStatus
     fun revoke(parameter: RevocationConfig)
+    fun create(parameter: CredentialStatusFactoryParameter): CredentialStatus
 
     companion object {
         fun revoke(vc: VerifiableCredential): RevocationResult =
@@ -39,7 +40,7 @@ interface RevocationClientService {
             is StatusList2021EntryCredentialStatus -> StatusListRevocationCheckParameter(credentialStatus = credentialStatus)
         }
 
-        private fun getClient(credentialStatus: CredentialStatus): RevocationClientService = when (credentialStatus) {
+        private fun getClient(credentialStatus: CredentialStatus): CredentialStatusClientService = when (credentialStatus) {
             is SimpleCredentialStatus2022 -> SimpleCredentialClientService()
             is StatusList2021EntryCredentialStatus -> StatusList2021EntryClientService()
         }
