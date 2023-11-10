@@ -7,6 +7,7 @@ import foundation.identity.jsonld.ConfigurableDocumentLoader
 import foundation.identity.jsonld.JsonLDException
 import foundation.identity.jsonld.JsonLDObject
 import id.walt.auditor.VerificationPolicyResult
+import id.walt.credentials.jsonld.VerifiableCredentialContexts
 import id.walt.credentials.w3c.*
 import id.walt.credentials.w3c.schema.SchemaValidatorFactory
 import id.walt.crypto.Key
@@ -109,13 +110,13 @@ open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
         log.debug { "Signing jsonLd object with: issuerDid (${config.issuerDid}), domain (${config.domain}), nonce (${config.nonce}" }
 
         val jsonLdObject: JsonLDObject = JsonLDObject.fromJson(jsonCred)
-        val confLoader = LDSecurityContexts.DOCUMENT_LOADER as ConfigurableDocumentLoader
+        val confLoader = VerifiableCredentialContexts.DOCUMENT_LOADER as ConfigurableDocumentLoader
 
         confLoader.isEnableHttp = true
         confLoader.isEnableHttps = true
         confLoader.isEnableFile = true
         confLoader.isEnableLocalCache = true
-        jsonLdObject.documentLoader = LDSecurityContexts.DOCUMENT_LOADER
+        jsonLdObject.documentLoader = VerifiableCredentialContexts.DOCUMENT_LOADER as ConfigurableDocumentLoader
 
         val vm = config.issuerVerificationMethod ?: config.issuerDid
         val key = keyStore.load(vm)
