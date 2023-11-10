@@ -2,19 +2,30 @@ package id.walt.signatory.revocation.statuslist2021
 
 import com.beust.klaxon.Json
 import id.walt.common.createEncodedBitString
-import id.walt.common.resolveContent
-import id.walt.common.toBitSet
+import id.walt.common.decodeBitSet
 import id.walt.common.uncompressGzip
 import id.walt.credentials.w3c.VerifiableCredential
+import id.walt.credentials.w3c.W3CCredentialSubject
+import id.walt.credentials.w3c.builder.W3CCredentialBuilder
+import id.walt.credentials.w3c.templates.VcTemplateService
 import id.walt.credentials.w3c.toVerifiableCredential
 import id.walt.crypto.decBase64
+import id.walt.model.credential.status.StatusList2021EntryCredentialStatus
+import id.walt.signatory.ProofConfig
+import id.walt.signatory.ProofType
+import id.walt.signatory.Signatory
 import id.walt.signatory.revocation.*
+import id.walt.signatory.revocation.statuslist2021.index.StatusListIndexService
+import id.walt.signatory.revocation.statuslist2021.storage.StatusListCredentialStorageService
 import kotlinx.serialization.Serializable
-import java.util.*
 
-class StatusList2021EntryClientService: RevocationClientService {
+class StatusList2021EntryClientService: CredentialStatusClientService {
 
-    private val credentialStorage = StatusListCredentialStorageService.getService()
+    private val storageService = StatusListCredentialStorageService.getService()
+    private val indexingService = StatusListIndexService.getService()
+    private val templateId = "StatusList2021Credential"
+    private val signatoryService = Signatory.getService()
+    private val templateService = VcTemplateService.getService()
 
     override fun checkRevocation(parameter: RevocationCheckParameter): RevocationStatus = let {
         val credentialStatus = (parameter as StatusListRevocationCheckParameter).credentialStatus
@@ -26,36 +37,74 @@ class StatusList2021EntryClientService: RevocationClientService {
         StatusListRevocationStatus(verifyBitStringStatus(credentialIndex, credentialSubject.encodedList))
     }
 
-    override fun revoke(parameter: RevocationConfig) {
-        val configParam = parameter as StatusListRevocationConfig
-        // credential
-        val credential = resolveContent(configParam.credentialStatus.statusListCredential).toVerifiableCredential()
-        // check if credential with id exists
-        val statusCredential = credentialStorage.fetch(credential.id ?: "")
-            ?: throw IllegalArgumentException("No status credential found for the provided id: ${credential.id}")
-        updateStatusCredentialRecord(statusCredential, configParam.credentialStatus.statusListIndex)
+    override fun revoke(parameter: RevocationConfig): Unit = (parameter as StatusListRevocationConfig).run {
+        storageService.fetch(this.credentialStatus.statusListCredential)?.let {
+            extractStatusListCredentialSubject(it)
+        }?.let {
+            updateBitString(it.encodedList, this.credentialStatus.statusListIndex, 1)
+        }
     }
 
-    private fun updateStatusCredentialRecord(statusCredential: VerifiableCredential, index: String){
-        val credentialSubject = extractStatusListCredentialSubject(statusCredential)!!
-        // get credential index
-        val idx = index.toIntOrNull()?: throw IllegalArgumentException("Couldn't parse credential index")
-        // get bitString
-        val bitString = uncompressGzip(Base64.getDecoder().decode(credentialSubject.encodedList))
-        val bitSet = bitString.toBitSet(16 * 1024 * 8)
-        // set the respective bit
-        bitSet.set(idx)
-        val encodedList = createEncodedBitString(bitSet)
-        // create / update the status list credential
-        statusCredential.issuerId?.let {
-            credentialStorage.store(
-                it, statusCredential.id!!, credentialSubject.statusPurpose, String(encodedList)
+    override fun create(parameter: CredentialStatusFactoryParameter): StatusList2021EntryCredentialStatus =
+        (parameter as StatusListEntryFactoryParameter).let {
+            val idx = indexingService.index(parameter.credentialUrl)
+            StatusList2021EntryCredentialStatus(
+                id = "${parameter.credentialUrl}#$idx",
+                statusPurpose = parameter.purpose,
+                statusListIndex = idx,
+                statusListCredential = parameter.credentialUrl
             )
-        } ?: throw IllegalArgumentException("Missing issuer for statusList credential.")
+        }.let {
+            val bitString = storageService.fetch(parameter.credentialUrl)?.let {
+                extractStatusListCredentialSubject(it)
+            }?.encodedList ?: String(createEncodedBitString())
+            val credential = issue(
+                it.id,
+                it.statusPurpose,
+                it.statusListCredential,
+                parameter.issuer,
+                updateBitString(bitString, it.statusListIndex, 0)
+            )
+            // create / update the status list credential
+            storageService.store(credential, parameter.credentialUrl)
+            it
+        }
+
+
+    private fun issue(id: String, purpose: String, url: String, issuer: String, bitString: String) = W3CCredentialSubject(
+        id, mapOf("type" to "StatusList2021Credential", "statusPurpose" to purpose, "encodedList" to bitString)
+    ).let {
+        W3CCredentialBuilder.fromPartial(templateService.getTemplate(templateId).template!!).apply {
+            setId(it.id ?: url)
+            buildSubject {
+                setFromJson(it.toJson())
+            }
+        }
+    }.let {
+        signatoryService.issue(
+            credentialBuilder = it, config = ProofConfig(
+                credentialId = url,
+                issuerDid = issuer,
+                subjectDid = issuer,
+                proofType = ProofType.LD_PROOF,
+            )
+        ).toVerifiableCredential()
+    }
+
+    private fun updateBitString(encodedBitString: String, index: String, value: Int) = let {
+        // get credential index
+        val idx = index.toIntOrNull() ?: throw IllegalArgumentException("Couldn't parse credential index")
+        // get bitString
+        val bitSet = decodeBitSet(encodedBitString)
+        // update the respective bit
+        value.takeIf { it == 0 }?.let {
+            bitSet.clear(idx)
+        } ?: bitSet.set(idx)
+        String(createEncodedBitString(bitSet))
     }
 
     private fun extractStatusListCredentialSubject(statusCredentialUrl: String): StatusListCredentialSubject? =
-        extractStatusListCredentialSubject(resolveContent(statusCredentialUrl).toVerifiableCredential())
+        storageService.fetch(statusCredentialUrl)?.let { extractStatusListCredentialSubject(it) }
 
     private fun extractStatusListCredentialSubject(statusCredential: VerifiableCredential) =
         statusCredential.credentialSubject?.let {
@@ -85,5 +134,10 @@ class StatusList2021EntryClientService: RevocationClientService {
         val type: String,
         val statusPurpose: String,
         val encodedList: String,
+    )
+
+    data class StatusListCreateData(
+        val statusEntry: StatusList2021EntryCredentialStatus,
+        val bitString: String,
     )
 }
