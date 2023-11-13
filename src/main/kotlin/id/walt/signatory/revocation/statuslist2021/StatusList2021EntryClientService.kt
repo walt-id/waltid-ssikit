@@ -38,10 +38,20 @@ class StatusList2021EntryClientService: CredentialStatusClientService {
     }
 
     override fun revoke(parameter: RevocationConfig): Unit = (parameter as StatusListRevocationConfig).run {
-        storageService.fetch(this.credentialStatus.statusListCredential)?.let {
-            extractStatusListCredentialSubject(it)
-        }?.let {
-            updateBitString(it.encodedList, this.credentialStatus.statusListIndex, 1)
+        storageService.fetch(this.credentialStatus.statusListCredential)?.let { credential ->
+            extractStatusListCredentialSubject(credential)?.encodedList?.let { bitString ->
+                credential.issuer?.let { issuer ->
+                    issue(
+                        credential.id ?: parameter.credentialStatus.id,
+                        parameter.credentialStatus.statusPurpose,
+                        parameter.credentialStatus.statusListCredential,
+                        issuer.id,
+                        updateBitString(bitString, parameter.credentialStatus.statusListIndex, 1)
+                    )
+                }
+            }?.run {
+                storageService.store(this, parameter.credentialStatus.statusListCredential)
+            }
         }
     }
 

@@ -1,6 +1,5 @@
 package id.walt.credentials.w3c.builder
 
-import id.walt.common.asMap
 import id.walt.common.createBaseToken
 import id.walt.credentials.w3c.*
 import id.walt.model.credential.status.CredentialStatus
@@ -46,7 +45,7 @@ class W3CCredentialBuilderWithCredentialStatus<C : VerifiableCredential, B : Abs
                 issuer = issuer,
             )
         }.let {
-            CredentialStatusFactory.create(it).asMap()
+            CredentialStatusFactory.create(it)
         }.takeIf {
             it.isNotEmpty()
         }
