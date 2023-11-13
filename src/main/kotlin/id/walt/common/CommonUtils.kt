@@ -88,7 +88,10 @@ fun buildRawBitString(bitSet: BitSet): ByteArray{
     return builder.toString().toByteArray()
 }
 
-fun createEncodedBitString(bitSet: BitSet): ByteArray = Base64.getEncoder().encode(compressGzip(buildRawBitString(bitSet)))
+fun createEncodedBitString(bitSet: BitSet = BitSet(16 * 1024 * 8)): ByteArray =
+    Base64.getEncoder().encode(compressGzip(buildRawBitString(bitSet)))
+
+fun decodeBitSet(bitString: String): BitSet = uncompressGzip(Base64.getDecoder().decode(bitString)).toBitSet(16 * 1024 * 8)
 
 fun createBaseToken() = UUID.randomUUID().toString() + UUID.randomUUID().toString()
 fun deriveRevocationToken(baseToken: String): String = Base32.toBase32String(DigestUtils.sha256(baseToken)).replace("=", "")

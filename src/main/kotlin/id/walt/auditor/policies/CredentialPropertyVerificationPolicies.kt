@@ -8,7 +8,7 @@ import id.walt.credentials.w3c.VerifiableCredential
 import id.walt.credentials.w3c.VerifiablePresentation
 import id.walt.model.credential.status.CredentialStatus
 import id.walt.signatory.revocation.CredentialStatusCredential
-import id.walt.signatory.revocation.RevocationClientService
+import id.walt.signatory.revocation.CredentialStatusClientService
 import id.walt.signatory.revocation.RevocationStatus
 import id.walt.signatory.revocation.TokenRevocationStatus
 import java.text.SimpleDateFormat
@@ -53,7 +53,7 @@ class CredentialStatusPolicy : SimpleVerificationPolicy() {
     override fun doVerify(vc: VerifiableCredential): VerificationPolicyResult {
         val maybeCredentialStatus = Klaxon().parse<CredentialStatusCredential>(vc.toJson())!!.credentialStatus
         return maybeCredentialStatus?.let { cs -> runCatching {
-                RevocationClientService.check(vc).let {
+                CredentialStatusClientService.check(vc).let {
                     if (!it.isRevoked) VerificationPolicyResult.success()
                     else failResult(it, cs)
                 }

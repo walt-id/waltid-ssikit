@@ -31,7 +31,7 @@ import java.util.*
 
 private val log = KotlinLogging.logger {}
 
-open class WaltIdJsonLdCredentialService() : JsonLdCredentialService() {
+open class WaltIdJsonLdCredentialService : JsonLdCredentialService() {
 
     private val keyStore: KeyStoreService get() = ContextManager.keyStore
     private val documentLoaderService: JsonLdDocumentLoaderService get() = JsonLdDocumentLoaderService.getService()

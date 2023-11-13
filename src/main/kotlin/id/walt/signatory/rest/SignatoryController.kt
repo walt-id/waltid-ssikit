@@ -12,11 +12,11 @@ import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.signatory.dataproviders.MergingDataProvider
-import id.walt.signatory.revocation.RevocationClientService
+import id.walt.signatory.revocation.CredentialStatusClientService
 import id.walt.signatory.revocation.RevocationStatus
 import id.walt.signatory.revocation.TokenRevocationStatus
 import id.walt.signatory.revocation.simplestatus2022.SimpleCredentialStatus2022StorageService
-import id.walt.signatory.revocation.statuslist2021.StatusListCredentialStorageService
+import id.walt.signatory.revocation.statuslist2021.storage.StatusListCredentialStorageService
 import io.javalin.http.BadRequestResponse
 import io.javalin.http.ContentType
 import io.javalin.http.Context
@@ -178,7 +178,7 @@ object SignatoryController {
     }.json<RevocationStatus>("200")
 
     fun checkRevoked(ctx: Context) = runCatching {
-        RevocationClientService.check(ctx.body().toVerifiableCredential())
+        CredentialStatusClientService.check(ctx.body().toVerifiableCredential())
     }.onSuccess {
         ctx.json(it)
     }.onFailure {
@@ -193,7 +193,7 @@ object SignatoryController {
     }.json<String>("201")
 
     fun revoke(ctx: Context) = runCatching {
-        RevocationClientService.revoke(ctx.body().toVerifiableCredential())
+        CredentialStatusClientService.revoke(ctx.body().toVerifiableCredential())
     }.onSuccess {
         ctx.status(if (it.succeed) HttpCode.OK else HttpCode.NOT_FOUND).json(it.message)
     }.onFailure { ctx.status(HttpCode.NOT_FOUND).json(it.localizedMessage) }

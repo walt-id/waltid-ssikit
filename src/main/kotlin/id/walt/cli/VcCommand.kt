@@ -32,7 +32,7 @@ import id.walt.signatory.ProofConfig
 import id.walt.signatory.ProofType
 import id.walt.signatory.Signatory
 import id.walt.signatory.dataproviders.CLIDataProvider
-import id.walt.signatory.revocation.RevocationClientService
+import id.walt.signatory.revocation.CredentialStatusClientService
 import io.ktor.util.date.*
 import io.ktor.util.reflect.*
 import mu.KotlinLogging
@@ -561,7 +561,7 @@ class VcRevocationCheckCommand : CliktCommand(
     override fun run() = vcFile.takeIf { it.exists() }?.run {
         println("Checking revocation status for credential stored at: ${vcFile.absolutePath}")
         runWithErrorHandling(
-            runner = { RevocationClientService.check(this.readText().toVerifiableCredential()) },
+            runner = { CredentialStatusClientService.check(this.readText().toVerifiableCredential()) },
             onSuccess = {
                 println("Revocation status:")
                 println(Klaxon().toJsonString(it).prettyPrint())
@@ -577,7 +577,7 @@ class VcRevocationRevokeCommand: CliktCommand(
     override fun run() = vcFile.takeIf { it.exists() }?.run {
         println("Revoking credential stored at: ${vcFile.absolutePath}")
         runWithErrorHandling(
-            runner = { RevocationClientService.revoke(this.readText().toVerifiableCredential()) },
+            runner = { CredentialStatusClientService.revoke(this.readText().toVerifiableCredential()) },
             onSuccess = {
                 println("Revocation result:")
                 println(Klaxon().toJsonString(it).prettyPrint())

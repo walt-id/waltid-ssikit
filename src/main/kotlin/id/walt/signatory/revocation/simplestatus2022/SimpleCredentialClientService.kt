@@ -1,5 +1,7 @@
 package id.walt.signatory.revocation.simplestatus2022
 
+import id.walt.model.credential.status.CredentialStatus
+import id.walt.model.credential.status.SimpleCredentialStatus2022
 import id.walt.services.WaltIdServices
 import id.walt.signatory.revocation.*
 import io.ktor.client.*
@@ -13,7 +15,7 @@ import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 
-class SimpleCredentialClientService: RevocationClientService {
+class SimpleCredentialClientService: CredentialStatusClientService {
 
     private val logger = KotlinLogging.logger("WaltIdRevocationClientService")
     private val credentialStorage = SimpleCredentialStatus2022StorageService
@@ -50,4 +52,8 @@ class SimpleCredentialClientService: RevocationClientService {
         logger.debug { "Revoking at $baseTokenUrl" }
         credentialStorage.revokeToken(baseToken)
     }
+
+    override fun create(parameter: CredentialStatusFactoryParameter): CredentialStatus = SimpleCredentialStatus2022(
+        id = (parameter as? SimpleStatusFactoryParameter)?.id ?: ""
+    )
 }
