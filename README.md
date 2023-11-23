@@ -27,7 +27,7 @@
 **Important:** Please be informed that, beginning from December 2023, the SSI Kit will no longer receive new features. Furthermore, the SSI Kit is planned for discontinuation by the end of Q3 2024.
 <br />
 <br />
-However, all functionalities currently offered by the SSI Kit will be integrated into our new libraries, APIs, and apps under [The Community Stack](https://walt.id/blog/p/community-stack). This is aimed at providing a more modular, flexible, and efficient solution for your needs.
+However, all functionalities currently offered by the SSI Kit will be integrated into our new libraries, APIs, and apps under [The Community Stack](https://walt.id/blog/p/community-stack). This is aimed at providing a more modular, flexible, and efficient solution for your needs while ensuring familiar interfaces for a smooth transition.
 <br />
 <br />
 For any clarification or queries, feel free to [contact us](https://walt.id/discord) as we aim to make this transition as smooth as possible.
