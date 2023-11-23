@@ -22,8 +22,6 @@
 
 </div>
 
-## Discontinuation Notice
-
 **Important:** Please be informed that, beginning from December 2023, the SSI Kit will no longer receive new features. Furthermore, the SSI Kit is planned for discontinuation by the end of Q3 2024.
 <br />
 <br />
