@@ -63,7 +63,7 @@ class DidWeb(
             getPath(didUrl).let { path ->
                 return when {
                     path.isEmpty() -> URI.create("https://${getDomain(didUrl)}/.well-known/did.json")
-                    else -> URI.create("https://${getDomain(didUrl)}/${path}/did.json")
+                    else -> URI.create("https://${getDomain(didUrl)}/.well-known/${path}/did.json")
                 }
             }
     }
