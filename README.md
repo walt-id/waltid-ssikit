@@ -1,4 +1,8 @@
+## MOVED to the new repo here => https://github.com/walt-id/waltid-identity
+
+<br />
 <div align="center">
+    
  <h1>SSI Kit</h1>
  <span>by </span><a href="https://walt.id">walt.id</a>
  <p>Use digital identity<p>
