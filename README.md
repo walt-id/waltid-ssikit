@@ -5,7 +5,7 @@
 > 
 > All walt.id development continues in the monorepo:
 > 
-## 👉 Code **https://github.com/walt-id/waltid-identity** & Docs **https://docs.walt.id**
+### 👉 Code **https://github.com/walt-id/waltid-identity** & Docs **https://docs.walt.id**
 
 
 
