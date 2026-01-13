@@ -1,4 +1,12 @@
-## MOVED to the new repo here => https://github.com/walt-id/waltid-identity
+## 🚨 Repository Moved
+
+> [!IMPORTANT]
+> This repository is no longer maintained.
+> 
+> All walt.id development continues in the monorepo:
+> 
+## 👉 **https://github.com/walt-id/waltid-identity**
+
 
 <br />
 <div align="center">
